@@ -1,0 +1,115 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/ORCH04-evidence/native-tester/C11-bdc94a82-source/policy-engine
+configfile: pytest.ini
+plugins: asyncio-1.3.0, langsmith-0.6.0, hypothesis-6.151.2, anyio-4.12.0, xdist-3.8.0, benchmark-5.2.3, jaxtyping-0.3.4
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 125 items
+
+tests/unit/scientist/methods/search/funnel/test_configured_observations.py ............
+tests/unit/scientist/search/funnel/test_orchestrator.py ......................F..
+tests/unit/scientist/search/funnel/test_types.py ..............
+tests/unit/scientist/search/funnel/test_level3_medium.py .....2026-10-08 16:08:35.987 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: engine crash
+
+.......
+tests/unit/scientist/search/funnel/test_level4_full.py .
+tests/unit/scientist/search/funnel/test_level6_promotion.py .........
+tests/unit/scientist/nodes/test_components.py .
+tests/unit/scientist/nodes/test_extension_registration.py ...
+tests/unit/remediation/test_fun_02.py ...........
+tests/unit/remediation/test_fun_03.py ..................
+tests/unit/scientist/validation/test_phase5_preflight.py ..................
+tests/integration/scientist_berl/test_explanation_reliability_bridge.py .
+
+=================================== FAILURES ===================================
+_ TestFunnelOrchestrator.test_level5_and_level6_runtime_generalization_collects_audit_refs _
+
+self = <search.funnel.test_orchestrator.TestFunnelOrchestrator object at 0x7fc147c9ded0>
+tmp_path = PosixPath('/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-basetemp/test_level5_and_level6_runtime0')
+
+    def test_level5_and_level6_runtime_generalization_collects_audit_refs(self, tmp_path):
+        store = FileSystemCAS(tmp_path / ".polisyos")
+        stages = [
+            _make_stage(0, "L0"),
+            _make_stage(1, "L1"),
+            _make_stage(
+                2,
+                "L2",
+                cheap_signal=CheapSignalVector(
+                    expected_value_proxy=0.8,
+                    expected_information_gain=0.3,
+                ),
+            ),
+            _make_stage(4, "L4", objective_value=0.8),
+            Level5RefutationGovernanceStage(
+                require_hidden_holdout=True,
+            ),
+            Level6PromotionStage(
+                promotion_runner=lambda candidate, context: {
+                    "decision": "complete",
+                    "reason": "promoted_for_test",
+                },
+            ),
+        ]
+        orch = FunnelOrchestrator(stages)
+        selection = BenchmarkEvaluation(
+            loop_id="loop",
+            suite_id="selection",
+            candidate_ref=_artifact_ref("a"),
+            selection_metrics={"score": 1.0},
+            holdout_metrics={"score": 1.0},
+            promotable=True,
+            runtime_split_type=BenchmarkSplit.SELECTION,
+        )
+        hidden_holdout = BenchmarkEvaluation(
+            loop_id="loop",
+            suite_id="policy_hidden_holdout",
+            candidate_ref=_artifact_ref("b"),
+            selection_metrics={"score": 1.0},
+            holdout_metrics={"score": 0.96},
+            promotable=True,
+            runtime_split_type=BenchmarkSplit.HIDDEN_HOLDOUT,
+        )
+        stress_report = StressTestReport(
+            report_id="stress_ok",
+            total_scenarios_evaluated=3,
+            robustness_score=0.9,
+        )
+        governance_report = GovernanceReport(verdict="approve")
+    
+        outcome = orch.advance(
+            orch.submit(
+                {"candidate_id": "cand-1", "semantic": {"interventions": [], "objectives": []}},
+                {
+                    "store": store,
+                    "selection_evaluation": selection,
+                    "hidden_holdout_evaluation": hidden_holdout,
+                    "stress_test_report": stress_report,
+                    "governance_report": governance_report,
+                },
+            ),
+            policy="full",
+        )
+    
+        assert outcome.completed is True
+>       assert outcome.final_action == "complete"
+E       AssertionError: assert 'defer_to_human' == 'complete'
+E         
+E         - complete
+E         + defer_to_human
+
+tests/unit/scientist/search/funnel/test_orchestrator.py:631: AssertionError
+=============================== warnings summary ===============================
+../../../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: /workspace/ORCH04-evidence/native-tester/C11-bdc94a82-junit.xml -
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_level5_and_level6_runtime_generalization_collects_audit_refs
+================== 1 failed, 124 passed, 2 warnings in 19.31s ==================

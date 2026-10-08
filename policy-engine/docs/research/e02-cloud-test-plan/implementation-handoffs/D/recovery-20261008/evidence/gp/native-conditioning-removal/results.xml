@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="1.588" timestamp="2026-10-08T15:58:05.846004+00:00" hostname="9065c0936350"><testcase classname="tests.unit.scientist.search.strategies.test_bayesian" name="test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation" time="1.405"><failure message="assert 8 == 9&#10; +  where 8 = len(((0.15,), (0.25,), (0.35,), (0.45,), (0.55,), (0.65,), ...))&#10; +  and   9 = len(((0.15,), (0.25,), (0.35,), (0.45,), (0.55,), (0.65,), ...))">simple_space = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=&lt;ParameterType.CONTINUOUS: 'continuous'&gt;, log_scale=False, categories=None)])
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f0aebaf0180&gt;
+
+    @pytest.mark.skipif(fit_gpytorch_mll is None, reason="BoTorch stack not installed")
+    def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
+        simple_space: SearchSpace,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """A pre-refit-interval observation conditions the fitted GP instead of resetting it."""
+        strategy = BayesianOptimizer(
+            simple_space,
+            BayesianConfig(
+                n_initial=1,
+                num_restarts=3,
+                raw_samples=32,
+                refit_interval=10,
+                seed=22,
+            ),
+        )
+        fit_calls = 0
+        original_fit = bayesian_module.fit_gpytorch_mll
+    
+        def observe_fit(mll):
+            nonlocal fit_calls
+            fit_calls += 1
+            return original_fit(mll)
+    
+        monkeypatch.setattr(bayesian_module, "fit_gpytorch_mll", observe_fit)
+        initial = [
+            make_evaluation(
+                candidate_id=f"initial-{index}",
+                params={"x": -3.5 + index},
+                score=float((index - 3) ** 2),
+                space=simple_space,
+            )
+            for index in range(8)
+        ]
+        strategy.suggest(initial)
+        assert strategy._model is not None
+        model_before = strategy._model
+        learned_before = {
+            name: parameter.detach().clone()
+            for name, parameter in model_before.named_parameters()
+        }
+        transform_state_before = {}
+        for attribute in ("input_transform", "outcome_transform"):
+            transform = getattr(model_before, attribute, None)
+            assert transform is not None
+            transform_state_before[attribute] = {
+                name: value.detach().clone() for name, value in transform.state_dict().items()
+            }
+        expanded = [
+            *initial,
+            make_evaluation(
+                candidate_id="new-observation",
+                params={"x": 4.0},
+                score=0.25,
+                space=simple_space,
+            )
+        ]
+        strategy.suggest(expanded)
+    
+        assert fit_calls == 1
+        assert strategy._model is not None
+        model_train_X = strategy._model._original_train_inputs
+        assert model_train_X is not None
+        model_train_X = model_train_X.reshape(-1, model_train_X.shape[-1])
+        actual_train_rows = tuple(
+            tuple(float(value) for value in row)
+            for row in model_train_X.detach().cpu().tolist()
+        )
+        expected_train_rows = tuple(
+            tuple(float(value) for value in evaluation.params_normalized)
+            for evaluation in expanded
+        )
+&gt;       assert len(actual_train_rows) == len(expected_train_rows) == 9
+E       assert 8 == 9
+E        +  where 8 = len(((0.15,), (0.25,), (0.35,), (0.45,), (0.55,), (0.65,), ...))
+E        +  and   9 = len(((0.15,), (0.25,), (0.35,), (0.45,), (0.55,), (0.65,), ...))
+
+tests/unit/scientist/search/strategies/test_bayesian.py:392: AssertionError</failure></testcase></testsuite></testsuites>

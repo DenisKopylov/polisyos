@@ -1,0 +1,5 @@
+# C11 deciding evidence
+
+The artifact index lists byte-for-byte moderate full author diagnostics, independent source review, native executions/removal controls/fresh CAS readers and separate GP numerical/native outputs. Original absolute paths in the unchanged independent receipts remain forensic provenance; the index maps them to committed copies. The final source freeze is c1bffbd5, and receipt-only documentation does not mutate its runtime/tests.
+
+The old owned diagnostic failures and invalid first builtin scratch mutation remain separate. Expected semantic removal failures are falsifiers, not candidate gate failures. Frontend build comes from C13 with directly verified unchanged complete input objects; the topic push still runs its own ordinary hook. Large ignored immutable source inventories/archives have their exact identities in ignored-export-requirements.json for ordinary coordinator custody export. Synthetic CAS/GP fixtures are engineering inputs and carry no scientific or permission authority.

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="9" time="10.849" timestamp="2026-10-08T16:09:35.684146+00:00" hostname="9065c0936350"><testcase classname="tests.unit.scientist.search.funnel.test_level6_promotion" name="test_retained_preflight_markers_never_admit_effectful_generic_callback[None]" time="0.005"><failure message="AssertionError: assert [{'candidate_...candidate-1'}] == []&#10;  &#10;  Left contains one more item: {'candidate_id': 'candidate-1'}&#10;  Use -v to get more diff">preflight = None
+
+    @pytest.mark.parametrize("preflight", [None, False, {"allowed": False}, "allow", 1, [True], True])
+    def test_retained_preflight_markers_never_admit_effectful_generic_callback(preflight):
+        writes = []
+        stage = Level6PromotionStage(
+            promotion_runner=lambda candidate, context: writes.append(candidate) or {"promoted": True},
+            promotion_owner_recheck=(
+                None if preflight is None else lambda candidate, context: preflight
+            ),
+        )
+        result = stage.evaluate(
+            {"candidate_id": "candidate-1"},
+            {"promotion_owner_recheck_passed": True, "owner_verified": True, "permit": preflight},
+        )
+&gt;       assert writes == []
+E       AssertionError: assert [{'candidate_...candidate-1'}] == []
+E         
+E         Left contains one more item: {'candidate_id': 'candidate-1'}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/funnel/test_level6_promotion.py:23: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.search.funnel.test_level6_promotion" name="test_retained_preflight_markers_never_admit_effectful_generic_callback[False]" time="0.001"><failure message="AssertionError: assert [{'candidate_...candidate-1'}] == []&#10;  &#10;  Left contains one more item: {'candidate_id': 'candidate-1'}&#10;  Use -v to get more diff">preflight = False
+
+    @pytest.mark.parametrize("preflight", [None, False, {"allowed": False}, "allow", 1, [True], True])
+    def test_retained_preflight_markers_never_admit_effectful_generic_callback(preflight):
+        writes = []
+        stage = Level6PromotionStage(
+            promotion_runner=lambda candidate, context: writes.append(candidate) or {"promoted": True},
+            promotion_owner_recheck=(
+                None if preflight is None else lambda candidate, context: preflight
+            ),
+        )
+        result = stage.evaluate(
+            {"candidate_id": "candidate-1"},
+            {"promotion_owner_recheck_passed": True, "owner_verified": True, "permit": preflight},
+        )
+&gt;       assert writes == []
+E       AssertionError: assert [{'candidate_...candidate-1'}] == []
+E         
+E         Left contains one more item: {'candidate_id': 'candidate-1'}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/funnel/test_level6_promotion.py:23: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.search.funnel.test_level6_promotion" name="test_retained_preflight_markers_never_admit_effectful_generic_callback[preflight2]" time="0.001"><failure message="AssertionError: assert [{'candidate_...candidate-1'}] == []&#10;  &#10;  Left contains one more item: {'candidate_id': 'candidate-1'}&#10;  Use -v to get more diff">preflight = {'allowed': False}
+
+    @pytest.mark.parametrize("preflight", [None, False, {"allowed": False}, "allow", 1, [True], True])
+    def test_retained_preflight_markers_never_admit_effectful_generic_callback(preflight):
+        writes = []
+        stage = Level6PromotionStage(
+            promotion_runner=lambda candidate, context: writes.append(candidate) or {"promoted": True},
+            promotion_owner_recheck=(
+                None if preflight is None else lambda candidate, context: preflight
+            ),
+        )
+        result = stage.evaluate(
+            {"candidate_id": "candidate-1"},
+            {"promotion_owner_recheck_passed": True, "owner_verified": True, "permit": preflight},
+        )
+&gt;       assert writes == []
+E       AssertionError: assert [{'candidate_...candidate-1'}] == []
+E         
+E         Left contains one more item: {'candidate_id': 'candidate-1'}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/funnel/test_level6_promotion.py:23: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.search.funnel.test_level6_promotion" name="test_retained_preflight_markers_never_admit_effectful_generic_callback[allow]" time="0.000"><failure message="AssertionError: assert [{'candidate_...candidate-1'}] == []&#10;  &#10;  Left contains one more item: {'candidate_id': 'candidate-1'}&#10;  Use -v to get more diff">preflight = 'allow'
+
+    @pytest.mark.parametrize("preflight", [None, False, {"allowed": False}, "allow", 1, [True], True])
+    def test_retained_preflight_markers_never_admit_effectful_generic_callback(preflight):
+        writes = []
+        stage = Level6PromotionStage(
+            promotion_runner=lambda candidate, context: writes.append(candidate) or {"promoted": True},
+            promotion_owner_recheck=(
+                None if preflight is None else lambda candidate, context: preflight
+            ),
+        )
+        result = stage.evaluate(
+            {"candidate_id": "candidate-1"},
+            {"promotion_owner_recheck_passed": True, "owner_verified": True, "permit": preflight},
+        )
+&gt;       assert writes == []
+E       AssertionError: assert [{'candidate_...candidate-1'}] == []
+E         
+E         Left contains one more item: {'candidate_id': 'candidate-1'}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/funnel/test_level6_promotion.py:23: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.search.funnel.test_level6_promotion" name="test_retained_preflight_markers_never_admit_effectful_generic_callback[1]" time="0.000"><failure message="AssertionError: assert [{'candidate_...candidate-1'}] == []&#10;  &#10;  Left contains one more item: {'candidate_id': 'candidate-1'}&#10;  Use -v to get more diff">preflight = 1
+
+    @pytest.mark.parametrize("preflight", [None, False, {"allowed": False}, "allow", 1, [True], True])
+    def test_retained_preflight_markers_never_admit_effectful_generic_callback(preflight):
+        writes = []
+        stage = Level6PromotionStage(
+            promotion_runner=lambda candidate, context: writes.append(candidate) or {"promoted": True},
+            promotion_owner_recheck=(
+                None if preflight is None else lambda candidate, context: preflight
+            ),
+        )
+        result = stage.evaluate(
+            {"candidate_id": "candidate-1"},
+            {"promotion_owner_recheck_passed": True, "owner_verified": True, "permit": preflight},
+        )
+&gt;       assert writes == []
+E       AssertionError: assert [{'candidate_...candidate-1'}] == []
+E         
+E         Left contains one more item: {'candidate_id': 'candidate-1'}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/funnel/test_level6_promotion.py:23: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.search.funnel.test_level6_promotion" name="test_retained_preflight_markers_never_admit_effectful_generic_callback[preflight5]" time="0.001"><failure message="AssertionError: assert [{'candidate_...candidate-1'}] == []&#10;  &#10;  Left contains one more item: {'candidate_id': 'candidate-1'}&#10;  Use -v to get more diff">preflight = [True]
+
+    @pytest.mark.parametrize("preflight", [None, False, {"allowed": False}, "allow", 1, [True], True])
+    def test_retained_preflight_markers_never_admit_effectful_generic_callback(preflight):
+        writes = []
+        stage = Level6PromotionStage(
+            promotion_runner=lambda candidate, context: writes.append(candidate) or {"promoted": True},
+            promotion_owner_recheck=(
+                None if preflight is None else lambda candidate, context: preflight
+            ),
+        )
+        result = stage.evaluate(
+            {"candidate_id": "candidate-1"},
+            {"promotion_owner_recheck_passed": True, "owner_verified": True, "permit": preflight},
+        )
+&gt;       assert writes == []
+E       AssertionError: assert [{'candidate_...candidate-1'}] == []
+E         
+E         Left contains one more item: {'candidate_id': 'candidate-1'}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/funnel/test_level6_promotion.py:23: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.search.funnel.test_level6_promotion" name="test_retained_preflight_markers_never_admit_effectful_generic_callback[True]" time="0.000"><failure message="AssertionError: assert [{'candidate_...candidate-1'}] == []&#10;  &#10;  Left contains one more item: {'candidate_id': 'candidate-1'}&#10;  Use -v to get more diff">preflight = True
+
+    @pytest.mark.parametrize("preflight", [None, False, {"allowed": False}, "allow", 1, [True], True])
+    def test_retained_preflight_markers_never_admit_effectful_generic_callback(preflight):
+        writes = []
+        stage = Level6PromotionStage(
+            promotion_runner=lambda candidate, context: writes.append(candidate) or {"promoted": True},
+            promotion_owner_recheck=(
+                None if preflight is None else lambda candidate, context: preflight
+            ),
+        )
+        result = stage.evaluate(
+            {"candidate_id": "candidate-1"},
+            {"promotion_owner_recheck_passed": True, "owner_verified": True, "permit": preflight},
+        )
+&gt;       assert writes == []
+E       AssertionError: assert [{'candidate_...candidate-1'}] == []
+E         
+E         Left contains one more item: {'candidate_id': 'candidate-1'}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/funnel/test_level6_promotion.py:23: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.search.funnel.test_level6_promotion" name="test_revoke_after_true_preflight_barrier_has_zero_effects" time="0.001"><failure message="assert [{}] == []&#10;  &#10;  Left contains one more item: {}&#10;  Use -v to get more diff">def test_revoke_after_true_preflight_barrier_has_zero_effects():
+        writes = []
+        ready = Barrier(2)
+        revoked = Barrier(2)
+        retained = {"preflight": True, "revoked": False}
+        stage = Level6PromotionStage(
+            promotion_runner=lambda candidate, context: writes.append(candidate) or {"promoted": True},
+            promotion_owner_recheck=lambda candidate, context: retained["preflight"],
+        )
+        results = []
+    
+        def evaluate_after_revoke():
+            ready.wait()
+            revoked.wait()
+            results.append(
+                stage.evaluate({}, {"promotion_owner_recheck_passed": retained["preflight"]})
+            )
+    
+        worker = Thread(target=evaluate_after_revoke)
+        worker.start()
+        ready.wait()
+        retained["revoked"] = True
+        revoked.wait()
+        worker.join()
+        assert retained == {"preflight": True, "revoked": True}
+&gt;       assert writes == []
+E       assert [{}] == []
+E         
+E         Left contains one more item: {}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/funnel/test_level6_promotion.py:57: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.search.funnel.test_level6_promotion" name="test_prepared_payload_is_read_only_interpretation_without_callback_effects" time="0.000" /></testsuite></testsuites>

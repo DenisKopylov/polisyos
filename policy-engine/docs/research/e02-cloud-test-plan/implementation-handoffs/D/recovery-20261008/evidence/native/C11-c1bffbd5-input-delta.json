@@ -1,0 +1,33 @@
+{
+  "schema": "orch04.exact_input_delta.v1",
+  "base": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+  "final": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+  "changed_tracked_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/README.md",
+    "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+  ],
+  "changed_runtime_paths": [],
+  "prior_native_result": "125cases124PASS1FAIL (preserved; not relabeled)",
+  "affected_rerun_paths": [
+    "tests/unit/scientist/search/funnel/test_orchestrator.py",
+    "tests/unit/remediation/test_fun_03.py",
+    "tests/unit/scientist/search/funnel/test_level6_promotion.py"
+  ],
+  "unaffected_scoped_test_paths_exact_blob_equality": [
+    "tests/unit/scientist/methods/search/funnel/test_configured_observations.py",
+    "tests/unit/scientist/search/funnel/test_types.py",
+    "tests/unit/scientist/search/funnel/test_level3_medium.py",
+    "tests/unit/scientist/search/funnel/test_level4_full.py",
+    "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+    "tests/unit/scientist/nodes/test_components.py",
+    "tests/unit/scientist/nodes/test_extension_registration.py",
+    "tests/unit/remediation/test_fun_02.py",
+    "tests/unit/remediation/test_fun_03.py",
+    "tests/unit/scientist/validation/test_phase5_preflight.py",
+    "tests/integration/scientist_berl/test_explanation_reliability_bridge.py"
+  ],
+  "complete_changed_runtime_intersection_zero": true,
+  "all_other_input_blobs_equal": true,
+  "profile": "same /workspace/ORCH04-environments/app locked G app profile; no dependency mutation; module origins each execution receipt",
+  "limitation": "doc-only README changed is tracked but not evaluated runtime input; still preserved in final full source manifest"
+}

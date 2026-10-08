@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="14.763" timestamp="2026-10-08T16:09:34.624673+00:00" hostname="9065c0936350"><testcase classname="tests.unit.scientist.methods.search.funnel.test_configured_observations" name="test_selected_manifest_view_change_executes_real_callback" time="0.145"><failure message="assert 1 == 2&#10; +  where 1 = &lt;tests.unit.scientist.methods.search.funnel.test_configured_observations.ProducerStage object at 0x7f290c442ba0&gt;.calls">packet = (&lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f2a71643b60&gt;, SearchUncertaintyBasis(schema_version='1.0', ...ile_sha256=None), &lt;function packet.&lt;locals&gt;.ref at 0x7f290c372560&gt;, &lt;function packet.&lt;locals&gt;.stage at 0x7f290c372400&gt;)
+
+    def test_selected_manifest_view_change_executes_real_callback(packet):
+        from polisyos.core.artifacts.manifest import SchemaInfo
+        from polisyos.core.canon import CanonSpec
+    
+        store, basis, basis_ref, _, stage = packet
+        producer = stage(0, _envelope(0.3))
+        runtime = FunnelOrchestrator([producer])
+        context = _context(packet)
+        runtime.advance(runtime.submit({"a": 1}, context))
+        different_view = store.put_json(
+            basis,
+            PutOptions(
+                kind="scientist.search.uncertainty_basis",
+                media_type="application/json",
+                schema=SchemaInfo(name="SameScientificContentDifferentView", version="1.0"),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        assert different_view.artifact_id == basis_ref.artifact_id
+        assert different_view.manifest_profile_sha256 != basis_ref.manifest_profile_sha256
+        outcome = runtime.advance(
+            runtime.submit({"a": 1}, {**context, "uncertainty_basis_ref": different_view})
+        )
+&gt;       assert producer.calls == 2
+E       assert 1 == 2
+E        +  where 1 = &lt;tests.unit.scientist.methods.search.funnel.test_configured_observations.ProducerStage object at 0x7f290c442ba0&gt;.calls
+
+tests/unit/scientist/methods/search/funnel/test_configured_observations.py:218: AssertionError</failure></testcase></testsuite></testsuites>

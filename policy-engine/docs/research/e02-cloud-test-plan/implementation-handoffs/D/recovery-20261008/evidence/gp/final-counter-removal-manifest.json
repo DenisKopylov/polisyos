@@ -1,0 +1,10 @@
+{
+  "source_sha": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+  "tree": "b99374f46dd6971daf47fd200549e98d32f23f23",
+  "export_root": "/workspace/ORCH04-evidence/gp/final-counter-removal-source",
+  "source_archive_sha256": "5c4bed068d676035277a290c74aa25180f9564ad0c2727b08c7fc572cd86a16e",
+  "changed_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+  "preimage_sha256": "beca4fa1db4a5b4073fa1ec1de88badc44f65d2dcb33ba4d2d199dcca0e6df45",
+  "postimage_sha256": "a2f711c22e1e3a610a49bf6e9b506a28375cc59e836749dea9113f731b60d57a",
+  "property_removal": "remove only two persisted counter assignments; metadata/state/load/conditioning/schedule fields and original values remain"
+}

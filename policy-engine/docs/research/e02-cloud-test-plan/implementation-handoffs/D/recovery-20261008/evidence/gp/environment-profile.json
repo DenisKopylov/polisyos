@@ -1,0 +1,101 @@
+{
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "executable": "/workspace/ORCH04-environments/app/bin/python",
+  "cwd": "/workspace/ORCH04-C13/policy-engine",
+  "cpu_count": 5,
+  "affinity_cpus": 5,
+  "selected_runtime_variables": {
+    "SCIENTIST_TORCH_NUM_THREADS": null,
+    "SCIENTIST_TORCH_NUM_INTEROP_THREADS": null,
+    "SCIENTIST_TORCH_DEVICE": null,
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "TMPDIR": null
+  },
+  "product_runtime_profile": "native strategy applies repository default SCIENTIST_TORCH_NUM_THREADS=4, INTEROP=1, DEVICE=cpu; no orchestrator thread/CPU limit introduced",
+  "declared_lock": {
+    "path": "/workspace/ORCH04-C13/policy-engine/uv.lock",
+    "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+  },
+  "venv": {
+    "path": "/workspace/ORCH04-environments/app",
+    "pyvenv_cfg": "home = /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin\nimplementation = CPython\nuv = 0.9.21\nversion_info = 3.14.2\ninclude-system-site-packages = false\nprompt = policy-engine\n"
+  },
+  "packages": {
+    "polisyos": {
+      "status": "absent distribution"
+    },
+    "torch": {
+      "version": "2.10.0",
+      "location": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages",
+      "direct_url": null
+    },
+    "botorch": {
+      "version": "0.16.1",
+      "location": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages",
+      "direct_url": null
+    },
+    "gpytorch": {
+      "version": "1.15.1",
+      "location": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages",
+      "direct_url": null
+    },
+    "numpy": {
+      "version": "2.3.5",
+      "location": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages",
+      "direct_url": null
+    },
+    "scipy": {
+      "version": "1.16.3",
+      "location": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages",
+      "direct_url": null
+    },
+    "pytest": {
+      "version": "9.0.2",
+      "location": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages",
+      "direct_url": null
+    }
+  },
+  "filesystem": {
+    "/workspace": {
+      "writable": true,
+      "available_bytes": 14274498560,
+      "available_inodes": 1682913,
+      "filesystem_id": 12128951989334170508
+    },
+    "/workspace/ORCH04-evidence/gp": {
+      "writable": true,
+      "available_bytes": 14274498560,
+      "available_inodes": 1682913,
+      "filesystem_id": 12128951989334170508
+    },
+    "/tmp": {
+      "writable": true,
+      "available_bytes": 9427726336,
+      "available_inodes": 2303830,
+      "filesystem_id": 4096628243075477739
+    },
+    "/dev/shm": {
+      "writable": true,
+      "available_bytes": 9441349632,
+      "available_inodes": 2305016,
+      "filesystem_id": 16522363865057086656
+    }
+  },
+  "cgroup": {
+    "memory.max": "17179869184\n",
+    "memory.current": "17179828224\n",
+    "memory.events": "low 0\nhigh 0\nmax 31340\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "memory.peak": "17179877376\n",
+    "pids.max": "max\n",
+    "cpu.max": "400000 100000\n",
+    "cpuset.cpus.effective": "0-4\n"
+  },
+  "mounts": [
+    "overlay / overlay rw,relatime,lowerdir=/run/kata-containers/erofs-multi-layer/9065c09363504c169872e645e87b2f2d/lower-0,upperdir=/run/kata-containers/erofs-multi-layer/9065c09363504c169872e645e87b2f2d/upper/upper,workdir=/run/kata-containers/erofs-multi-layer/9065c09363504c169872e645e87b2f2d/upper/work,index=off,metacopy=off 0 0",
+    "shm /dev/shm tmpfs rw,relatime 0 0",
+    "none /tmp tmpfs rw,relatime 0 0"
+  ]
+}

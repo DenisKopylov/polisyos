@@ -1,0 +1,63 @@
+{
+  "schema": "orch04.C11.frontend-input-equality.v1",
+  "tested_G_source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "qualified_C11_source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+  "C13_receipt": "1c8c3f3e068a2bd86dc88d4918621149aaf3179c",
+  "build_exit": 0,
+  "build_pid": 4346,
+  "build_wall_seconds": 124.80015282499994,
+  "full_build_output": "dashboard-build.stdout.txt",
+  "output_sha256": "ecf77b94fb494f3f356b4ee44933358e20ab123859e7c774bf29724f685ec0df",
+  "inputs": [
+    {
+      "path": "policy-engine/apps",
+      "G_input_object": "e395263e966264d8db01cccd9ea3692b0c8b489a",
+      "C11_input_object": "e395263e966264d8db01cccd9ea3692b0c8b489a",
+      "equal": true,
+      "object_type": "tree"
+    },
+    {
+      "path": "policy-engine/packages",
+      "G_input_object": "c8ed78d1faf188a6560118bc1a774bf7e5fd14d1",
+      "C11_input_object": "c8ed78d1faf188a6560118bc1a774bf7e5fd14d1",
+      "equal": true,
+      "object_type": "tree"
+    },
+    {
+      "path": "policy-engine/tools",
+      "G_input_object": "6ab1bfe6960e93a821e97e1e24e3cdf058cb706c",
+      "C11_input_object": "6ab1bfe6960e93a821e97e1e24e3cdf058cb706c",
+      "equal": true,
+      "object_type": "tree"
+    },
+    {
+      "path": "policy-engine/schemas",
+      "G_input_object": "1ba0cf66b0099e17b6f535464fe8d713c90be79f",
+      "C11_input_object": "1ba0cf66b0099e17b6f535464fe8d713c90be79f",
+      "equal": true,
+      "object_type": "tree"
+    },
+    {
+      "path": "policy-engine/package.json",
+      "G_input_object": "05c08c9dad38ef14ff9c32b28f555a7647b6cb85",
+      "C11_input_object": "05c08c9dad38ef14ff9c32b28f555a7647b6cb85",
+      "equal": true,
+      "object_type": "blob"
+    },
+    {
+      "path": "policy-engine/pnpm-lock.yaml",
+      "G_input_object": "095a555d9a1eb173732f409550d5a1436c3be861",
+      "C11_input_object": "095a555d9a1eb173732f409550d5a1436c3be861",
+      "equal": true,
+      "object_type": "blob"
+    },
+    {
+      "path": "policy-engine/pnpm-workspace.yaml",
+      "G_input_object": "3ff5faaaf5f139c707e338e7e89e51606e9e0ace",
+      "C11_input_object": "3ff5faaaf5f139c707e338e7e89e51606e9e0ace",
+      "equal": true,
+      "object_type": "blob"
+    }
+  ],
+  "rule": "Whole apps/packages/tools/schema/contract subtree identities and workspace root dependency/config blobs are exact; complete source delta is owned Python/test/docs only. Normal own pre-push typecheck still must execute."
+}

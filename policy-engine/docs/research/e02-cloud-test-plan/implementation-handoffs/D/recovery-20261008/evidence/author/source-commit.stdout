@@ -1,0 +1,14 @@
+[codex/e02-C11-recovery-20261008 76f262402] C11 bind configured routing observations and fail close present BERL intake
+ 23 files changed, 846 insertions(+), 85 deletions(-)
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B108-minimum-owner-input.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B131-minimum-owner-input.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B137-minimum-owner-input.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B157-minimum-owner-input.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B161-minimum-owner-input.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B164-minimum-owner-input.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/README.md
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/source-inputs.json
+ create mode 100644 policy-engine/release-fragments/unreleased/orch04-c11-recovery-20261008.md
+ create mode 100644 policy-engine/tests/unit/scientist/methods/search/funnel/test_configured_observations.py
+ create mode 100644 policy-engine/tests/unit/scientist/nodes/test_components.py
+ create mode 100644 policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py

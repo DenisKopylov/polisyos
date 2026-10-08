@@ -17,8 +17,10 @@ bounded/pass markers no longer admit malformed/unavailable input. L6 imports the
 explicit D refusal property under fresh G lineage, keeping prepared-payload
 interpretation read only and effectful generic callbacks disabled until an actual
 typed issuer/verifier/revoke-serialized commit bridge exists. Catalog component
-factories instantiate fresh node objects. E/F extension registration producers
-are absent from this canonical source; source-inputs.json names the companion.
+factories instantiate fresh node objects. Existing registered Phase5 report,
+output, translation and decision-packet consumers retain their actual preflight
+wiring. An exact additional E/F supplier module/node registration packet has not
+been provided for this slice; source-inputs.json names that specific companion.
 
 Developer native checks on evolving source ran 39 cases, exit0, Python3.14 locked
 app, actual lane PYTHONPATH. This is developer evidence; final immutable source
@@ -74,3 +76,12 @@ companion now tests both actual L5/L6 audit projections: a prepared payload has
 read-only interpretation/complete, an absent permit bridge defers, and neither
 invokes the effectful callback. Audit/side-information assertions remain. Runtime
 source is unchanged; only the affected test delta needs fresh consumer evidence.
+
+Final independent verification is pinned separately in HANDOFF.json: fresh
+affected53PASS plus73 byte-qualified prior cases, five matched semantic removal
+controls, four fresh CAS/funnel readers, and a bounded native/numerical GP state
+continuation witness. The old125124/1 raw FAIL and invalid first builtin scratch
+removal remain recorded. This coverage is not a single fresh126-case run,
+producer law, actual issuer positive, formal closure or production claim. Full
+moderate deciding output is copied byte-for-byte under evidence; original paths
+and hashes retain large ignored custody/export inputs separately.

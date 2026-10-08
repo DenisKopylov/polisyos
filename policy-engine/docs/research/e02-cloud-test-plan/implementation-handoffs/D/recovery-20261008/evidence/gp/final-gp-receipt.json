@@ -1,0 +1,691 @@
+{
+  "schema": "policyos.orch04.gp-conformance-helper.final-delta.v1",
+  "role": "C13 independent read-only directhelper; no children or source/test mutations",
+  "tested_source": {
+    "HEAD": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+    "tree": "b99374f46dd6971daf47fd200549e98d32f23f23",
+    "parents": [
+      "a16381458ac148ede05cae2eb84de88e5780c279"
+    ],
+    "archive_paths": [
+      "policy-engine/src",
+      "policy-engine/tests",
+      "policy-engine/pyproject.toml",
+      "policy-engine/uv.lock"
+    ],
+    "archive_sha256": "5c4bed068d676035277a290c74aa25180f9564ad0c2727b08c7fc572cd86a16e",
+    "export": "/workspace/ORCH04-evidence/gp/final-bdc-source",
+    "source_preimages": {
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py": {
+        "blob": "178828c665b4827ec49a377cef6eaca30256886f",
+        "sha256": "beca4fa1db4a5b4073fa1ec1de88badc44f65d2dcb33ba4d2d199dcca0e6df45"
+      },
+      "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py": {
+        "blob": "c6f76ea92c3678349dbf2f4310fa30893f83db1a",
+        "sha256": "25deba8b89a1ed4174b1e13e48e296fc8eb92b91849ef898c9e242f846064a49"
+      },
+      "policy-engine/pyproject.toml": {
+        "blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+      },
+      "policy-engine/uv.lock": {
+        "blob": "85f1fb2150a4da454fee02108565381d44f56730",
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+      }
+    }
+  },
+  "actual_input_manifest": [
+    {
+      "path": "policy-engine/pyproject.toml",
+      "tested_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "latest_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "equal": true,
+      "actual_export_sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+      "tested_blob": "c288f954e93e920333ad86beae47b3380b003adb",
+      "latest_blob": "c288f954e93e920333ad86beae47b3380b003adb",
+      "equal": true,
+      "actual_export_sha256": "ac7a06cb81d8bd0d97bf8593bd3c64a110f390ab5c529d53988db3bafc708c03",
+      "bytes": 2500
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/__init__.py",
+      "tested_blob": "472fb3f05dad897b864ca688a94e7690f62a74d8",
+      "latest_blob": "472fb3f05dad897b864ca688a94e7690f62a74d8",
+      "equal": true,
+      "actual_export_sha256": "04e3208b1b59661d4b7afde8b16e3e2bc6a31f9c9e39af830cc38c80045f5d66",
+      "bytes": 3609
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+      "tested_blob": "058cb5388de7ebb1f63cea32cb17b23c98b94eec",
+      "latest_blob": "058cb5388de7ebb1f63cea32cb17b23c98b94eec",
+      "equal": true,
+      "actual_export_sha256": "2ffb9791c104bcc8921180837af087137afaae00ec47b655f429639b3e4e35e9",
+      "bytes": 3226
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/acquisition.py",
+      "tested_blob": "1c7259bff642f9544c72d1a930a172b6145f1bbf",
+      "latest_blob": "1c7259bff642f9544c72d1a930a172b6145f1bbf",
+      "equal": true,
+      "actual_export_sha256": "747b55f09346c15d2b5f51109b71f7832fe32c0fc937ad9f0b6baeffcd7aa524",
+      "bytes": 618
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+      "tested_blob": "fa68d647f511abd5851224ca66b00678ce4eda11",
+      "latest_blob": "fa68d647f511abd5851224ca66b00678ce4eda11",
+      "equal": true,
+      "actual_export_sha256": "a07ca2a2db113f9fdbe4e31015afbd9f099aab84c95346c8aae8f5138303a1b9",
+      "bytes": 4395
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "tested_blob": "6c87a0c8aca64b5972c9ed13ad920e43af5332a6",
+      "latest_blob": "6c87a0c8aca64b5972c9ed13ad920e43af5332a6",
+      "equal": true,
+      "actual_export_sha256": "c8fd815369b02642bbfed3f3c919ab183df53dbc422d8284f011ff57489465d1",
+      "bytes": 24268
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "tested_blob": "c1b7c1582efe6acdfd5cc830f04f1f03e8f175bc",
+      "latest_blob": "c1b7c1582efe6acdfd5cc830f04f1f03e8f175bc",
+      "equal": true,
+      "actual_export_sha256": "9dcffa7b1276e18be70c9a3c1d9fc3e618b4f11b9cc8611f96de06a9744bb7e7",
+      "bytes": 20691
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "tested_blob": "178828c665b4827ec49a377cef6eaca30256886f",
+      "latest_blob": "178828c665b4827ec49a377cef6eaca30256886f",
+      "equal": true,
+      "actual_export_sha256": "beca4fa1db4a5b4073fa1ec1de88badc44f65d2dcb33ba4d2d199dcca0e6df45",
+      "bytes": 30826
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/codec.py",
+      "tested_blob": "5e31120e88b50f4a6900cf52d83689c81d403d27",
+      "latest_blob": "5e31120e88b50f4a6900cf52d83689c81d403d27",
+      "equal": true,
+      "actual_export_sha256": "e77e76875414ce7ce621b9d33c1b54e1f45488a5adb37252b1cdd8984a698df7",
+      "bytes": 4930
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/ensemble_surrogate.py",
+      "tested_blob": "b89cf5277c322c02ce29cc45ef36cb7fffbcbc6d",
+      "latest_blob": "b89cf5277c322c02ce29cc45ef36cb7fffbcbc6d",
+      "equal": true,
+      "actual_export_sha256": "ff304385ae50b0f1b9df66e68ec95147e5d71e52e0dd2d1a208493f9227c1ba2",
+      "bytes": 6526
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/errors.py",
+      "tested_blob": "fa018d0536ffa17f9685d47e120612efab34aee4",
+      "latest_blob": "fa018d0536ffa17f9685d47e120612efab34aee4",
+      "equal": true,
+      "actual_export_sha256": "24a418c05a7e3fcee73dcee3623c966fd6c196ee9fe73694512b44ab7b857f10",
+      "bytes": 413
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py",
+      "tested_blob": "bcac7e9383f386717d6e6aabfdc3ca6a2d6264b8",
+      "latest_blob": "bcac7e9383f386717d6e6aabfdc3ca6a2d6264b8",
+      "equal": true,
+      "actual_export_sha256": "7a090a5702dc745ed4dc297ba6dd6c22423cad167b0b82d7dd66258324be51f9",
+      "bytes": 3469
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_fidelity.py",
+      "tested_blob": "42af00a1634cf0d582b08e45586f1abe7ce1b3f0",
+      "latest_blob": "42af00a1634cf0d582b08e45586f1abe7ce1b3f0",
+      "equal": true,
+      "actual_export_sha256": "fc5fec7ee84b825a44fcffe1d5bf7cfddbfad4108582d5068dfe963d11d2b382",
+      "bytes": 1943
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "tested_blob": "75b53531047e43e31dd4d12e6991ee03f6da7a79",
+      "latest_blob": "75b53531047e43e31dd4d12e6991ee03f6da7a79",
+      "equal": true,
+      "actual_export_sha256": "9473634533dbe9677b2cd3b7e167b56c4f935ed3db80d1a18e89115e0ccc5dcf",
+      "bytes": 14768
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+      "tested_blob": "05e240d27d1ffe38dee31d5c45fc3de0d88df7c0",
+      "latest_blob": "05e240d27d1ffe38dee31d5c45fc3de0d88df7c0",
+      "equal": true,
+      "actual_export_sha256": "fd369e6ed45a333fbe2dbaca49c3448252f841c387ff2262750f816d5af8da20",
+      "bytes": 6429
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/normalization.py",
+      "tested_blob": "1d962108917da646ccd205866e958842762c42d8",
+      "latest_blob": "1d962108917da646ccd205866e958842762c42d8",
+      "equal": true,
+      "actual_export_sha256": "56d7a632ffa07f9d9ec56ec873f1d9b971c09e031ff60b15869201aa13911216",
+      "bytes": 1269
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/objective_adapter.py",
+      "tested_blob": "b3558f6749d39e510fed42407e48242b435d3e14",
+      "latest_blob": "b3558f6749d39e510fed42407e48242b435d3e14",
+      "equal": true,
+      "actual_export_sha256": "48d4010aac8bdea1b8e9b599cc7fee6f724c4cb843bdb93a3a5d9aa3418a0706",
+      "bytes": 950
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/random.py",
+      "tested_blob": "2a4592ba268fac0a06757a3fd896bc67637247c9",
+      "latest_blob": "2a4592ba268fac0a06757a3fd896bc67637247c9",
+      "equal": true,
+      "actual_export_sha256": "b55c2504169baa23b82c635b480946e34cb3cd60bc046a970efd99df77bd6942",
+      "bytes": 612
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/resource_arbiter.py",
+      "tested_blob": "746683625e218c5b1cd644a56001c2d61f013ba8",
+      "latest_blob": "746683625e218c5b1cd644a56001c2d61f013ba8",
+      "equal": true,
+      "actual_export_sha256": "684e870d554072f15aef7fae25a39ea166bbab6d10cd1d874b5d268d4e62d91f",
+      "bytes": 4162
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+      "tested_blob": "207230ff3e40e438019813c891f195cf344d7476",
+      "latest_blob": "207230ff3e40e438019813c891f195cf344d7476",
+      "equal": true,
+      "actual_export_sha256": "90e1b75e5b4c340391cd8c47a5d37e6011183aea61926bf805fc0008a0e1afbb",
+      "bytes": 3426
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/run_similarity.py",
+      "tested_blob": "917c301ed22f46954673853f292748e470ba6f59",
+      "latest_blob": "917c301ed22f46954673853f292748e470ba6f59",
+      "equal": true,
+      "actual_export_sha256": "aa243c1063109e76dc7673f62e7ef1553b98d62e363fd3db8d1722be7ad4750f",
+      "bytes": 4511
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/runtime.py",
+      "tested_blob": "ac05f1c9f593fe2362e02f6250dcc345dfea72d7",
+      "latest_blob": "ac05f1c9f593fe2362e02f6250dcc345dfea72d7",
+      "equal": true,
+      "actual_export_sha256": "b48723be537cc65c2a2bb83aac8af0981fa0f6d8b782042f9bc9d2291c7ba799",
+      "bytes": 1068
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+      "tested_blob": "1d3c79f0305210ad6af1eef07fdb9489275f7e2d",
+      "latest_blob": "1d3c79f0305210ad6af1eef07fdb9489275f7e2d",
+      "equal": true,
+      "actual_export_sha256": "b8f599678d5e57b39276eedd2b6334edeb9d2b389128b67d0ee50e8a7b27cb0c",
+      "bytes": 9649
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/surrogate.py",
+      "tested_blob": "6397943dcbcd167cbf614537b16d60e9252fbafe",
+      "latest_blob": "6397943dcbcd167cbf614537b16d60e9252fbafe",
+      "equal": true,
+      "actual_export_sha256": "f27fa1abddf7d5952304e82ffdb18c6dbf8d4b4fc98c5c159f808163941b8d6d",
+      "bytes": 2596
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "tested_blob": "5a780cb27cce52d1ecdbcad50e8b1c48b1c596d0",
+      "latest_blob": "5a780cb27cce52d1ecdbcad50e8b1c48b1c596d0",
+      "equal": true,
+      "actual_export_sha256": "351932fae5958875cc6337f58d4355d278a917805623dd4c64ed4cb4582daf8c",
+      "bytes": 18136
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "tested_blob": "8f82b4759f3f9aab8eb6213644e4c8b3b511148f",
+      "latest_blob": "8f82b4759f3f9aab8eb6213644e4c8b3b511148f",
+      "equal": true,
+      "actual_export_sha256": "2ff5734c38a7c1e43ddf42f0ceecc90330f2aeabc4628695d20f1b9e5adf261e",
+      "bytes": 5659
+    },
+    {
+      "path": "policy-engine/tests/_helpers/search_strategies.py",
+      "tested_blob": "99589ee19d48f4090c1a984a2fe1be7a2521f8ac",
+      "latest_blob": "99589ee19d48f4090c1a984a2fe1be7a2521f8ac",
+      "equal": true,
+      "actual_export_sha256": "8d443fc9e91e643e016461548aca52292a5d44a9fd96fe707ef67a5b3f553687",
+      "bytes": 1741
+    },
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "tested_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "latest_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "equal": true,
+      "actual_export_sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "bytes": 9664
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/conftest.py",
+      "tested_blob": "8da092e5640e18bcdac257e5521f4d3a4e7aa2c0",
+      "latest_blob": "8da092e5640e18bcdac257e5521f4d3a4e7aa2c0",
+      "equal": true,
+      "actual_export_sha256": "9d711f8d627e1aec1d9baa959b5cac44971a4383aa44a449b348a085495d6fcd",
+      "bytes": 103
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/conftest.py",
+      "tested_blob": "82ed5f82c0fe08dfdb94ec417e254022d992c474",
+      "latest_blob": "82ed5f82c0fe08dfdb94ec417e254022d992c474",
+      "equal": true,
+      "actual_export_sha256": "6dc9b5da7ccd8b39349aeea13ab21048c2c1f40e3c7485269b767cc014b3e0a4",
+      "bytes": 40
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/conftest.py",
+      "tested_blob": "611ace82d55431f2f66ea31556f192f3e998d189",
+      "latest_blob": "611ace82d55431f2f66ea31556f192f3e998d189",
+      "equal": true,
+      "actual_export_sha256": "2fd12a2db914514cf7297c2e9a458463a784115e4858a9cc878a5bbeb59c7420",
+      "bytes": 55
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+      "tested_blob": "c6f76ea92c3678349dbf2f4310fa30893f83db1a",
+      "latest_blob": "c6f76ea92c3678349dbf2f4310fa30893f83db1a",
+      "equal": true,
+      "actual_export_sha256": "25deba8b89a1ed4174b1e13e48e296fc8eb92b91849ef898c9e242f846064a49",
+      "bytes": 18630
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "tested_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "latest_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "equal": true,
+      "actual_export_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "bytes": 779204
+    }
+  ],
+  "latest_input_equality_manifest": "/workspace/ORCH04-evidence/gp/latest-c1b-GP-input-equality.json",
+  "latest_source_qualified_sha": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+  "latest_qualification": "all named GPsource/test/helper/lock/profile blobs exactly equal testedbdc; later nonGPtest/docdelta not rerun numerically",
+  "original_criterion_ids": [
+    "B114",
+    "B115"
+  ],
+  "original_criterion_manifest": "/workspace/ORCH04-evidence/gp/criterion-inputs.json",
+  "independent_review_admission": "Root explicitly provided reviewerGO FOR SCOPED TESTING on immutablebdc; sourceacceptance/formalclosure remainG",
+  "environment_manifest": "/workspace/ORCH04-evidence/gp/environment-profile.json",
+  "native_library_origins": {
+    "numpy": {
+      "version": "2.3.5",
+      "file": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/numpy/__init__.py"
+    },
+    "torch": {
+      "version": "2.10.0+cu128",
+      "file": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/torch/__init__.py"
+    },
+    "botorch": {
+      "version": "0.16.1",
+      "file": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/botorch/__init__.py"
+    },
+    "gpytorch": {
+      "version": "1.15.1",
+      "file": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/gpytorch/__init__.py"
+    }
+  },
+  "native_source_origin": "/workspace/ORCH04-evidence/gp/final-bdc-source/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+  "checks": [
+    {
+      "name": "analytic-final-bdc",
+      "outcome": "PASS",
+      "description": "Independent Gaussian formula on genuine native posterior including restored conditioned checkpoint→secondappend12 with preserved10fullfit boundary; scheduled duefit newbasis positive; lengthscale-substitution negative differs",
+      "source_sha": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "/workspace/ORCH04-evidence/gp/analytic_posterior_v2.py",
+        "--source",
+        "/workspace/ORCH04-evidence/gp/final-bdc-source/policy-engine",
+        "--out",
+        "/workspace/ORCH04-evidence/gp/analytic-final-bdc"
+      ],
+      "cwd": "/workspace/ORCH04-evidence/gp/final-bdc-source/policy-engine",
+      "pid": 12954,
+      "wall_seconds": 6.588837853000086,
+      "max_rss_kib": 1168316,
+      "start_utc": "2026-10-08T16:10:02.163523+00:00",
+      "finish_utc": "2026-10-08T16:10:08.752888+00:00",
+      "exit_code": 0,
+      "evidence": [
+        {
+          "path": "/workspace/ORCH04-evidence/gp/analytic-final-bdc/stdout.txt",
+          "sha256": "f5ce5642b2b0db0f2e4c4de19f44b29566c3210cd2d5925d29e8a87f00ab1e70",
+          "bytes": 10501
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/gp/analytic-final-bdc/stderr.txt",
+          "sha256": "4d36184d4cc2a684aa94fe649274ec86a32fdc4d7e2e9e4dd38f87abd960c280",
+          "bytes": 949
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/gp/analytic-final-bdc/execution.json",
+          "sha256": "b56e34c4921f45399cec04e13dbb9ab86185f5ce28d59dc05e7f1158870a4c8c",
+          "bytes": 3571
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/gp/analytic-final-bdc/report.json",
+          "sha256": "32b8e5327363acd8aad58f830c625e03d3f62820d1c1fb8851f40566c0265851",
+          "bytes": 19518
+        }
+      ]
+    },
+    {
+      "name": "native-final-bdc",
+      "outcome": "PASS",
+      "description": "4affected existing nativeGP selectors under ordinaryconftests; statecounterbasis compatibility/legacy rejection, originalwarm/no-refit/statecontrols",
+      "source_sha": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "tests/unit/scientist/search/strategies/test_bayesian.py::test_restored_append_preserves_actual_full_refit_boundary_and_learned_basis",
+        "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation",
+        "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_warm_start_reaches_gp_training_before_initial_threshold",
+        "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_state_roundtrip_without_deps",
+        "-q",
+        "-ra",
+        "--junitxml=/workspace/ORCH04-evidence/gp/native-final-bdc/results.xml",
+        "--basetemp=/workspace/ORCH04-evidence/gp/native-final-bdc/basetemp"
+      ],
+      "cwd": "/workspace/ORCH04-evidence/gp/final-bdc-source/policy-engine",
+      "pid": 12941,
+      "wall_seconds": 13.00611981599991,
+      "max_rss_kib": 1194456,
+      "start_utc": "2026-10-08T16:10:01.467226+00:00",
+      "finish_utc": "2026-10-08T16:10:14.473835+00:00",
+      "exit_code": 0,
+      "evidence": [
+        {
+          "path": "/workspace/ORCH04-evidence/gp/native-final-bdc/stdout.txt",
+          "sha256": "6dbc33a3d7733a83b3997dab5f9e516896c334aa328474520851f6b2f5009133",
+          "bytes": 2462
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/gp/native-final-bdc/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/gp/native-final-bdc/results.xml",
+          "sha256": "9c8bcdccadfb345976609c129d5c750fb2d3c5abd7b444df1d8eaa5c9ca845f6",
+          "bytes": 896
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/gp/native-final-bdc/execution.json",
+          "sha256": "469c30321caf3975b4ba30444701d4fc2d43dc8b8dbc817896e3c0658464b3d5",
+          "bytes": 4120
+        }
+      ]
+    },
+    {
+      "name": "analytic-final-counter-removal",
+      "outcome": "FAIL",
+      "description": "Expected discriminator: removing only restoration of persisted full-refit counters retains initial/restored/nativeappend numericpositive but triggers1extra restoredappendfit/numerical mismatch",
+      "source_sha": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "/workspace/ORCH04-evidence/gp/analytic_posterior.py",
+        "--source",
+        "/workspace/ORCH04-evidence/gp/final-counter-removal-source/policy-engine",
+        "--out",
+        "/workspace/ORCH04-evidence/gp/analytic-final-counter-removal"
+      ],
+      "cwd": "/workspace/ORCH04-evidence/gp/final-counter-removal-source/policy-engine",
+      "pid": 13410,
+      "wall_seconds": 6.607425265000074,
+      "max_rss_kib": 1168444,
+      "start_utc": "2026-10-08T16:11:30.023715+00:00",
+      "finish_utc": "2026-10-08T16:11:36.631938+00:00",
+      "exit_code": 1,
+      "evidence": [
+        {
+          "path": "/workspace/ORCH04-evidence/gp/analytic-final-counter-removal/stdout.txt",
+          "sha256": "2aeb55caad18cd8e0fa71ecb8ab3a2f598fd587e59c14579fe5c8d13935681e5",
+          "bytes": 7886
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/gp/analytic-final-counter-removal/stderr.txt",
+          "sha256": "e8713a75c6de399f8618e3a73b49ac29a64468d3a6e152e59068661710853f87",
+          "bytes": 949
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/gp/analytic-final-counter-removal/execution.json",
+          "sha256": "80fd679d7a57d73632bce960654c82d7276738f4696beabde5792b0fa06161c7",
+          "bytes": 3597
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/gp/analytic-final-counter-removal/report.json",
+          "sha256": "903d2d98c217a78e34451b5a58a558e355879c7668b0d645a8ab3e9e12573619",
+          "bytes": 15514
+        }
+      ],
+      "expected_falsifier_detected": true
+    },
+    {
+      "name": "native-final-counter-removal",
+      "outcome": "FAIL",
+      "description": "Expected discriminator: newnative checkpoint selector actualMLLfittraincounts[8,9]vsrequired[8]",
+      "source_sha": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "tests/unit/scientist/search/strategies/test_bayesian.py::test_restored_append_preserves_actual_full_refit_boundary_and_learned_basis",
+        "-q",
+        "-ra",
+        "--junitxml=/workspace/ORCH04-evidence/gp/native-final-counter-removal/results.xml",
+        "--basetemp=/workspace/ORCH04-evidence/gp/native-final-counter-removal/basetemp"
+      ],
+      "cwd": "/workspace/ORCH04-evidence/gp/final-counter-removal-source/policy-engine",
+      "pid": 13411,
+      "wall_seconds": 9.970201162000194,
+      "max_rss_kib": 1194992,
+      "start_utc": "2026-10-08T16:11:30.031229+00:00",
+      "finish_utc": "2026-10-08T16:11:40.001720+00:00",
+      "exit_code": 1,
+      "evidence": [
+        {
+          "path": "/workspace/ORCH04-evidence/gp/native-final-counter-removal/stdout.txt",
+          "sha256": "2c78125d04df22d0797222e6ad88ba326c5623f47685e70750ffcfc0dce51bdd",
+          "bytes": 4518
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/gp/native-final-counter-removal/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/gp/native-final-counter-removal/results.xml",
+          "sha256": "1fec2c6478142cc049c4d8b95197ae7638dca60bb478e0e9a810c4ff44de33f2",
+          "bytes": 2876
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/gp/native-final-counter-removal/execution.json",
+          "sha256": "33398111c8928a0779a09f0df744ceea5841540950663db499111459b15058ce",
+          "bytes": 3772
+        }
+      ],
+      "expected_falsifier_detected": true
+    }
+  ],
+  "numerical_result": {
+    "bounded_outcome": "PASS",
+    "model_basis": {
+      "model": "botorch.models.gp_regression.SingleTaskGP",
+      "kernel": "RBFKernel(unit amplitude, scalar lengthscale)",
+      "mean_constant": -0.24872551896894568,
+      "lengthscale": 0.3194877716775756,
+      "noise_variance_standardized": 0.0011906509726475098,
+      "input_offset": 0.12999999999999998,
+      "input_coefficient": 0.73,
+      "outcome_mean": -2.0447351079318303,
+      "outcome_std": 0.7400270354806952,
+      "dtype": "torch.float64",
+      "device": "cpu"
+    },
+    "fixture": {
+      "authority": "synthetic engineering witness only",
+      "physical_space": [
+        -5.0,
+        5.0
+      ],
+      "coordinates": [
+        0.13,
+        0.2,
+        0.29,
+        0.37,
+        0.48,
+        0.56,
+        0.64,
+        0.73,
+        0.79,
+        0.86
+      ],
+      "scores_minimize": [
+        2.8155037396899503,
+        3.0254497299884604,
+        2.95440574115156,
+        2.598044341687276,
+        1.8793249196126205,
+        1.4098537112691942,
+        1.154881016774826,
+        1.2240113224517832,
+        1.4740340481230993,
+        1.911842508569531
+      ],
+      "queries": [
+        [
+          0.12
+        ],
+        [
+          0.31
+        ],
+        [
+          0.61
+        ],
+        [
+          0.9
+        ]
+      ],
+      "append": {
+        "x": 0.93,
+        "score": 2.4108749456715346
+      },
+      "warm_ids": [
+        "synthetic-0",
+        "synthetic-1",
+        "synthetic-2",
+        "synthetic-3",
+        "synthetic-4",
+        "synthetic-5"
+      ],
+      "current_ids": [
+        "synthetic-6",
+        "synthetic-7",
+        "synthetic-8",
+        "synthetic-9"
+      ],
+      "compatibility": {
+        "search_space_fingerprint": "e45591cd40bfcdb151e7e855a44f355f34490218b20616676edc92c9b1d9bd2d",
+        "input_transform_fingerprint": "Normalize[0,1]",
+        "outcome_transform_fingerprint": "Standardize[m=1]",
+        "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+        "objective_fingerprint": "scalar_score[minimize]",
+        "context_fingerprint": "synthetic/gp-oracle/v1"
+      }
+    },
+    "rtol": 2e-07,
+    "atol": 2e-08,
+    "passing_max_mean_absolute_error": 4.440892098500626e-15,
+    "passing_max_full_covariance_absolute_error": 1.5807667674838655e-15,
+    "same_basis_restored_append_extra_fit_calls": 0,
+    "post_condition_checkpoint_second_append_matches": true,
+    "post_condition_checkpoint_second_append_extra_fits": 0,
+    "scheduled_due_extra_fits": 1,
+    "full_fit_boundary": "initial10observations/fullfititeration10→condition11→checkpoint→restore→condition12; fullfittrain_size10/iteration10 retained; dueiteration60/interval50→realfit12",
+    "native_existing_checks": "4PASS, no broad32repetition",
+    "proxy_divergence": "Reinstated counter/state markerfields survive source removal while actual samebasis restore incorrectly refits and independent posterior changes; original native statecounter spy detects it."
+  },
+  "negative_control": {
+    "manifest": "/workspace/ORCH04-evidence/gp/final-counter-removal-manifest.json",
+    "patch": "/workspace/ORCH04-evidence/gp/final-counter-removal.patch",
+    "initial_fitted_and_restored_numeric_positive": true,
+    "native_append_positive": true,
+    "removed_restored_append_extra_real_fit_calls": 1,
+    "removed_restored_append_matches": false,
+    "semantics": "FAILcommands are expectedpropertyfalsifiers, not failedcandidategates or runnererrors"
+  },
+  "synthetic_state_assets": [
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-bdc/checkpoint-metadata.json",
+      "sha256": "a30b9fcfe3d9d96fe69133dee2328db13b8005fc82de32e8ae5c969cf9fe1a26",
+      "bytes": 2372,
+      "role": "synthetic native state asset/basis, no authority"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-bdc/initial-model-state.pt",
+      "sha256": "29ef4d655666ddc7d322981013ce4cc203685360ff14637fb530ee9679c40cdd",
+      "bytes": 6576,
+      "role": "synthetic native state asset/basis, no authority"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-bdc/post-append-model-state.pt",
+      "sha256": "29ef4d655666ddc7d322981013ce4cc203685360ff14637fb530ee9679c40cdd",
+      "bytes": 6576,
+      "role": "synthetic native state asset/basis, no authority"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-bdc/second-append-model-state.pt",
+      "sha256": "29ef4d655666ddc7d322981013ce4cc203685360ff14637fb530ee9679c40cdd",
+      "bytes": 6576,
+      "role": "synthetic native state asset/basis, no authority"
+    }
+  ],
+  "scratch_harnesses": [
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic_posterior.py",
+      "sha256": "972d5629a86c9ea6a29977933e6b69cc32d3d8a8e2072c76689e722324937f63"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic_posterior_v2.py",
+      "sha256": "e0b16820946a76599315ac988f4b03c7027a4e857e6b31dba3bffe527d3b1638"
+    }
+  ],
+  "baseline_preserved": {
+    "receipt": "/workspace/ORCH04-evidence/gp/baseline-receipt.json",
+    "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+    "posterior_bounded_positive": "PASS",
+    "restored_before_due_append": "FAIL(extraactualMLLfit)",
+    "oldconditioning_property_removal": "expectednumeric/nativeFAIL, unchangedmechanism evidence remainsGqualified"
+  },
+  "limitations": [
+    "1D scalar GaussianLikelihood/ConstantMean/unit-amplitude RBF, ten plus one synthetic unique points",
+    "actual native genuine MLL fit; frozen fitted parameters from this fixture, not calibration/scientific authority",
+    "NumPy Cholesky reference limited to nondegenerate positive definite finite fixture",
+    "no production data, cross-backend bit identity, acquisition-quality/general law, transfer CAS bridge or authority proof",
+    "explicitlegacyGPsnapshots without verified continuation basis/counters are unsupported and rejected; lost old bytes not reconstructed",
+    "no installedwheel/rebuiltsdistGP consumer claim; actualoptionalGP libraries installed, productsourcefromexactarchive",
+    "no productionhistorylaws/calibration authority/wholeSearchacceptance/portableGfreeze replay"
+  ],
+  "source_mutations_by_verifier": [],
+  "formal_G_closure": "not_adjudicated",
+  "source_acceptance": "Gdecision"
+}

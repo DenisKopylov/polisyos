@@ -1,0 +1,41 @@
+.................F                                                       [100%]
+=================================== FAILURES ===================================
+__________ test_run_policy_blueprint_execute_rechecks_owner_at_commit __________
+
+tmp_path = PosixPath('/workspace/ORCH04-evidence/c11/pytest-fun03-diagnostic/test_run_policy_blueprint_exec3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f524c83fbd0>
+
+    def test_run_policy_blueprint_execute_rechecks_owner_at_commit(
+        tmp_path,
+        monkeypatch,
+    ) -> None:
+        harness = _install_actual_runtime_node_dependencies(
+            monkeypatch,
+            tmp_path,
+            mode="normal",
+            revoke_permission_at_commit=True,
+        )
+    
+        outcome = runtime.RunPolicyBlueprintRuntimeNode().execute(
+            harness["ctx"],
+            harness["state"],
+        )
+    
+        assert outcome.status == "ok"
+        assert harness["backend_calls"] == ["full"]
+>       assert harness["runner_calls"] == ["runner"]
+E       AssertionError: assert [] == ['runner']
+E         
+E         Right contains one more item: 'runner'
+E         Use -v to get more diff
+
+tests/unit/remediation/test_fun_03.py:689: AssertionError
+=============================== warnings summary ===============================
+../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_fun_03.py::test_run_policy_blueprint_execute_rechecks_owner_at_commit

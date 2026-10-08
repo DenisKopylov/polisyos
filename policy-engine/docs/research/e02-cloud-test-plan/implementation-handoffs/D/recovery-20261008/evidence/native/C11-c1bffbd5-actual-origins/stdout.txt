@@ -1,0 +1,54 @@
+{
+  "schema": "orch04.actual_import_origins.v1",
+  "modules": [
+    {
+      "module": "polisyos.scientist.methods.search.funnel.orchestrator",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "sha256": "41204cd1e4c177346a3706304a21a0212553e49f9566fee5a10a440c3cd9645b"
+    },
+    {
+      "module": "polisyos.scientist.methods.search.uncertainty",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+      "sha256": "f0aedad8066897dbe3b08650bae1d39c5f1cbb4997a39e3757d678338af00b65"
+    },
+    {
+      "module": "polisyos.scientist.methods.search.funnel.level3_medium",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+      "sha256": "875b8a247ac7604e6b4e869947b0bbe51aade497e662b3e8bcba998ed14cdeb3"
+    },
+    {
+      "module": "polisyos.scientist.methods.search.funnel.level4_full",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py",
+      "sha256": "ab631eed53c5aa77f658f0058c43210743289b1c8c16f234dcd68a2057986f38"
+    },
+    {
+      "module": "polisyos.scientist.methods.search.funnel.level6_promotion",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+      "sha256": "31d00ab5bd721d4f3d63e7581df74a49bc87e91f548ed7bb61d4c9770d730c19"
+    },
+    {
+      "module": "polisyos.scientist.nodes.components",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/src/polisyos/scientist/nodes/components.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/src/polisyos/scientist/nodes/components.py",
+      "sha256": "7109ea66c732b23a6fc85eb576fe93c11e6785d1e3949e1c96b5a93727e2a597"
+    },
+    {
+      "module": "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "sha256": "22612008f55d0b9dd68905e743c565c49fbcc09533acde9f8c1c5b2c0011de2e"
+    },
+    {
+      "module": "polisyos.scientist.validation.phase5_preflight",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/src/polisyos/scientist/validation/phase5_preflight.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/src/polisyos/scientist/validation/phase5_preflight.py",
+      "sha256": "9f85ef33ab3c953ace5ed0191326e9f829c8d9fb212c7b2a328d7dd8f52ab494"
+    }
+  ],
+  "scope": "actual import origins only, not numerical or semantic conformance"
+}

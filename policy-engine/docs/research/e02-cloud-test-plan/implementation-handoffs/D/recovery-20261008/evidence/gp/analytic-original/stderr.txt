@@ -1,0 +1,6 @@
+2026-10-08 15:56:44.758 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-08 15:56:44.759 | INFO     | polisyos.common.logger:_call:120 - Bayesian warm-start: added 6 historical evaluations; rejected 0
+2026-10-08 15:56:45.237 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-08 15:56:45.237 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-08 15:56:45.260 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-08 15:56:45.260 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1

@@ -1,0 +1,108 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____ test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation ____
+
+simple_space = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=<ParameterType.CONTINUOUS: 'continuous'>, log_scale=False, categories=None)])
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f0aebaf0180>
+
+    @pytest.mark.skipif(fit_gpytorch_mll is None, reason="BoTorch stack not installed")
+    def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
+        simple_space: SearchSpace,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """A pre-refit-interval observation conditions the fitted GP instead of resetting it."""
+        strategy = BayesianOptimizer(
+            simple_space,
+            BayesianConfig(
+                n_initial=1,
+                num_restarts=3,
+                raw_samples=32,
+                refit_interval=10,
+                seed=22,
+            ),
+        )
+        fit_calls = 0
+        original_fit = bayesian_module.fit_gpytorch_mll
+    
+        def observe_fit(mll):
+            nonlocal fit_calls
+            fit_calls += 1
+            return original_fit(mll)
+    
+        monkeypatch.setattr(bayesian_module, "fit_gpytorch_mll", observe_fit)
+        initial = [
+            make_evaluation(
+                candidate_id=f"initial-{index}",
+                params={"x": -3.5 + index},
+                score=float((index - 3) ** 2),
+                space=simple_space,
+            )
+            for index in range(8)
+        ]
+        strategy.suggest(initial)
+        assert strategy._model is not None
+        model_before = strategy._model
+        learned_before = {
+            name: parameter.detach().clone()
+            for name, parameter in model_before.named_parameters()
+        }
+        transform_state_before = {}
+        for attribute in ("input_transform", "outcome_transform"):
+            transform = getattr(model_before, attribute, None)
+            assert transform is not None
+            transform_state_before[attribute] = {
+                name: value.detach().clone() for name, value in transform.state_dict().items()
+            }
+        expanded = [
+            *initial,
+            make_evaluation(
+                candidate_id="new-observation",
+                params={"x": 4.0},
+                score=0.25,
+                space=simple_space,
+            )
+        ]
+        strategy.suggest(expanded)
+    
+        assert fit_calls == 1
+        assert strategy._model is not None
+        model_train_X = strategy._model._original_train_inputs
+        assert model_train_X is not None
+        model_train_X = model_train_X.reshape(-1, model_train_X.shape[-1])
+        actual_train_rows = tuple(
+            tuple(float(value) for value in row)
+            for row in model_train_X.detach().cpu().tolist()
+        )
+        expected_train_rows = tuple(
+            tuple(float(value) for value in evaluation.params_normalized)
+            for evaluation in expanded
+        )
+>       assert len(actual_train_rows) == len(expected_train_rows) == 9
+E       assert 8 == 9
+E        +  where 8 = len(((0.15,), (0.25,), (0.35,), (0.45,), (0.55,), (0.65,), ...))
+E        +  and   9 = len(((0.15,), (0.25,), (0.35,), (0.45,), (0.55,), (0.65,), ...))
+
+tests/unit/scientist/search/strategies/test_bayesian.py:392: AssertionError
+=============================== warnings summary ===============================
+../../../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/conftest.py:215
+  /workspace/ORCH04-evidence/gp/conditioning-removal-source/policy-engine/tests/conftest.py:215: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    item.add_marker(getattr(pytest.mark, primary_marker))
+
+tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation
+tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation
+1 failed, 5 warnings in 1.59s

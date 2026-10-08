@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.108" timestamp="2026-10-08T16:09:32.928016+00:00" hostname="9065c0936350"><testcase classname="tests.unit.scientist.nodes.test_components" name="test_builtin_component_instances_do_not_share_prior_runtime_state" time="0.004"><failure message="NameError: name 'node' is not defined">def test_builtin_component_instances_do_not_share_prior_runtime_state():
+&gt;       for component in builtin_node_components():
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/nodes/test_components.py:7: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    @lru_cache(maxsize=1)
+    def builtin_node_components() -&gt; tuple[ScientistNodeComponent, ...]:
+        """Return builtin Scientist nodes as component providers."""
+        return tuple(
+&gt;           scientist_node_component(node, node_factory=lambda node=node: node)  # type(node) retained for node in builtin_nodes()
+                                     ^^^^
+        )
+E       NameError: name 'node' is not defined
+
+src/polisyos/scientist/nodes/components.py:51: NameError</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,205 @@
+{
+  "schema": "ORCH04.independent-c11-source-review.v1",
+  "reviewer": "/root/review_c11",
+  "source": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+  "tree": "b99374f46dd6971daf47fd200549e98d32f23f23",
+  "parents": [
+    "a16381458ac148ede05cae2eb84de88e5780c279"
+  ],
+  "base": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "footprint_count": 26,
+  "verdict": "GO_FOR_SCOPED_INDEPENDENT_TESTING",
+  "verdict_scope": "Complete immutable source/test/document/input footprint; no remaining static blocker within explicitly bounded supplied routing intake, history retention, existing BERL validation, component factories, generic L6 refusal and GP owned snapshot continuation",
+  "spec_grade": "PARTIAL_ORIGINAL_CRITERIA; explicit held owner positives and absent producer/companion inputs retained",
+  "engineering_grade": "NO_REMAINING_STATIC_BLOCKER_WITHIN_DECLARED_BOUNDS",
+  "evidence_grade": "FINAL_NATIVE_AND_NUMERICAL_UNRUN_AT_REVIEW; separate immutable tester receipts required",
+  "active_blockers": [],
+  "fixed_findings": [
+    {
+      "id": "C11-review-1",
+      "priority": "P1",
+      "confidence": "high",
+      "property": "Exact selected ArtifactRef basis identity must participate in effective cache identity",
+      "first_candidate": "76f262402cbb4da18888482529d86582c409a7f8",
+      "divergence": "Same blob ID, different selected manifest profile reused old terminal ticket and callback once",
+      "P40": "same_class_one_level_deeper: effective-basis cache identity",
+      "fixed_commit": "26eaf5c7f9518e1d1bb0c82c0118c448ea0f22a6",
+      "final_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "final_line": 145,
+      "final_mechanism": "Typed Core ArtifactRef projected through existing artifact_ref_identity_key before generic artifact_id fallback",
+      "state": "SOURCE_FIXED; final real-CAS consumer/removal deciding outputs pending",
+      "evidence": [
+        "selected-view-cache-probe.py",
+        "selected-view-cache-probe.stdout.txt",
+        "selected-view-cache-probe.stderr.txt"
+      ],
+      "evidence_qualification": "Independent actual public orchestrator/cache plus allowed mocked callback; synthetic typed refs, not actual CAS or native producer provenance; assertion exit1 proves initial defect only"
+    },
+    {
+      "id": "C11-review-2",
+      "priority": "P2",
+      "confidence": "high",
+      "property": "Complete affected FUN03 denominator must reflect actual bound-current/issuer semantics",
+      "first_candidate": "76f262402cbb4da18888482529d86582c409a7f8",
+      "P40": "second_same_class: proxy test expectations; complete focused module diagnosis and canonical correction, not repeated individual-test bypass",
+      "fixed_commits": [
+        "26eaf5c7f9518e1d1bb0c82c0118c448ea0f22a6",
+        "a16381458ac148ede05cae2eb84de88e5780c279"
+      ],
+      "final_path": "policy-engine/tests/unit/remediation/test_fun_03.py",
+      "final_lines": [
+        91,
+        267,
+        671
+      ],
+      "final_mechanism": "Unbound current unavailable while stage diagnostic/history retained; bool preflight and actual node L6 missing typed bridge yield zero effects; node still executes full L4 backend",
+      "state": "SOURCE_FIXED; complete final18 consumer outputs pending",
+      "retained_diagnostic": "/workspace/ORCH04-evidence/c11/fun03-diagnostic.stdout",
+      "retained_diagnostic_source": "26eaf5c7f9518e1d1bb0c82c0118c448ea0f22a6",
+      "retained_diagnostic_result": "18 total:17PASS/1FAIL owned stale expectation; no inherited-red waiver",
+      "required_positive": "Original B161 allowed refinement and B164 typed owner permit/revoke-serialized writer positives remain held/UNRUN; changed proxy tests are not these positives"
+    }
+  ],
+  "fresh_final_checks_required": [
+    {
+      "scope": "Configured observations, CAS expected complete basis, cache view, independent risks",
+      "paths": [
+        "policy-engine/tests/unit/scientist/methods/search/funnel/test_configured_observations.py"
+      ],
+      "required": "exact final fresh public intake/cache positives and negatives; mechanism removal with positive control; preserve B156 allowed mocked callback on real orchestrator/cache"
+    },
+    {
+      "scope": "FUN03 complete affected denominator",
+      "paths": [
+        "policy-engine/tests/unit/remediation/test_fun_03.py"
+      ],
+      "required": "all18 final cases, not just renamed cases; report real controlled native-node/full-L4 versus absent issuer positive separately"
+    },
+    {
+      "scope": "Phase5 present BERL",
+      "paths": [
+        "policy-engine/tests/unit/scientist/validation/test_phase5_preflight.py"
+      ],
+      "required": "all affected schema/validator positive, threshold negative, malformed/marker/dependency-unavailable refusal"
+    },
+    {
+      "scope": "Fresh builtin catalog admissions and L6 refusal",
+      "paths": [
+        "policy-engine/tests/unit/scientist/nodes/test_components.py",
+        "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py"
+      ],
+      "required": "actual catalog factory identity plus generic callback zero effects; absent extension modules and typed owner positive held"
+    },
+    {
+      "scope": "GP continuation",
+      "paths": [
+        "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py"
+      ],
+      "required": "exact final native affected restore/append/counters/refit tests; distinct independent NumPy fixed-learned-parameter full posterior oracle and removal after conditioned checkpoint and next append; no numerical PASS from source/helper/spy alone"
+    }
+  ],
+  "remaining_criteria_separate": [
+    {
+      "criterion": "B131",
+      "type": "owner_input",
+      "need": "actual tenant/split/reuse admission producer and allowed data/model/eval/metric/unit refs"
+    },
+    {
+      "criterion": "B137",
+      "type": "owner_input",
+      "need": "genuinely new authorized version/evidence grounds/time; TTL/read is insufficient"
+    },
+    {
+      "criterion": "B157",
+      "type": "owner_input",
+      "need": "same candidate/input/seed observed reduced versus full native draws/work, directL4 and L3-L4"
+    },
+    {
+      "criterion": "B161",
+      "type": "owner_input_and_mechanism",
+      "need": "admitted actual producer procedure and permitted same-estimand/unit/input/rule/time refinement relation; currentness/origin and risk derivation; no latest/min law"
+    },
+    {
+      "criterion": "B164",
+      "type": "owner_input_and_mechanism",
+      "need": "actual typed promotion-purpose issuer/current verifier and revoke-serialized writer, authorized positive plus revoked zero-effects control"
+    },
+    {
+      "criterion": "B108",
+      "type": "fiscal_law_limit",
+      "need": "actual owner fiscal sign/unit/alias/time/conflict/missing law; no invented law"
+    },
+    {
+      "criterion": "LA036",
+      "type": "conditional_law_supplier",
+      "need": "conditional feature/model/law producer absent; real existing BERL validator execution is distinct"
+    },
+    {
+      "criterion": "registration",
+      "type": "companion",
+      "need": "exact E/F producer node/module list absent in canonical G builtin catalog; current existing-node factory freshness does not register absent modules"
+    },
+    {
+      "criterion": "B114",
+      "type": "configured_consumer",
+      "need": "full admitted WarmStartBridge-to-BayesianCandidateGenerator-to-SearchLoopRunner/CAS workflow not established by this scoped source review"
+    },
+    {
+      "criterion": "B115",
+      "type": "verification_and_origin_bound",
+      "need": "final independent posterior/removal; production model authenticity/history and cross-backend bit identity not established"
+    }
+  ],
+  "old_bytes_unavailable": [
+    {
+      "ref": "f9903d8e803c17743554a58d3f45c6c66d686191",
+      "status": "unavailable on current host as supplied by custody root; not reconstructed; no bytes/PASS transfer"
+    }
+  ],
+  "reviewer_executions": [
+    {
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+      "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "exit": 0,
+      "qualification": "text binding only, no product PASS",
+      "stdout": "baseline-importer.stdout.txt",
+      "stderr": "baseline-importer.stderr.txt"
+    },
+    {
+      "script": "selected-view-cache-probe.py",
+      "source": "76f262402cbb4da18888482529d86582c409a7f8",
+      "immutable_source_path": "/workspace/ORCH04-evidence/native-tester/C11-76f26240-source/policy-engine/src",
+      "runtime": "/workspace/ORCH04-environments/app/bin/python, locked Python3.14; PYTHONDONTWRITEBYTECODE=1",
+      "exit": 1,
+      "qualification": "initial-defect scratch discriminator on permitted public callback/cache; not product suite or final numerical/native PASS",
+      "stdout": "selected-view-cache-probe.stdout.txt",
+      "stderr": "selected-view-cache-probe.stderr.txt",
+      "pid_time_limit": "probe PID/wall-time not separately recorded; do not infer"
+    }
+  ],
+  "historical_or_developer_not_final": [
+    "Historical20PASS precedes late correction and does not attach to final source",
+    "Author39casesPASS evolves before final parse/cache/FUN03/GP changes",
+    "Author GP real-fitspy1PASS is not independent numeric oracle",
+    "FUN03 raw17/1 applies26eaf and is retained as owned diagnostic; no final18PASS inferred",
+    "G032GP numerical/runtime receipts qualify that base only; final GP replay separate"
+  ],
+  "installed_dependency_source": {
+    "path": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/botorch/models/gpytorch.py",
+    "sha256": "fe4bbb1252a799b10c9fe69d5d3ac024b23305aa577c815842f35dbfecae06f1",
+    "lines": [
+      326,
+      385
+    ],
+    "version": "0.16.1",
+    "qualification": "readonly actual installed source for supported transform restoration helper; import readiness and static helper review do not establish numerical consumer PASS"
+  },
+  "authority": {
+    "source_acceptance": "G reserved",
+    "formal_closure": "G reserved",
+    "production_claim": false,
+    "hook_or_push_authority": "coordinator/author ordinary required checks and topic push; reviewer did not publish or mutate source"
+  },
+  "source_manifest": "final-source-manifest.json",
+  "report": "REPORT.md"
+}

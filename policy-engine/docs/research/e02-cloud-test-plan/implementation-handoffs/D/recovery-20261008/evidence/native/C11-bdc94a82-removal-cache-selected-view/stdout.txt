@@ -1,0 +1,57 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removals/cache-selected-view/policy-engine
+configfile: pytest.ini
+plugins: asyncio-1.3.0, langsmith-0.6.0, hypothesis-6.151.2, anyio-4.12.0, xdist-3.8.0, benchmark-5.2.3, jaxtyping-0.3.4
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 1 item
+
+tests/unit/scientist/methods/search/funnel/test_configured_observations.py F
+
+=================================== FAILURES ===================================
+__________ test_selected_manifest_view_change_executes_real_callback ___________
+
+packet = (<polisyos.core.artifacts.store.FileSystemCAS object at 0x7f2a71643b60>, SearchUncertaintyBasis(schema_version='1.0', ...ile_sha256=None), <function packet.<locals>.ref at 0x7f290c372560>, <function packet.<locals>.stage at 0x7f290c372400>)
+
+    def test_selected_manifest_view_change_executes_real_callback(packet):
+        from polisyos.core.artifacts.manifest import SchemaInfo
+        from polisyos.core.canon import CanonSpec
+    
+        store, basis, basis_ref, _, stage = packet
+        producer = stage(0, _envelope(0.3))
+        runtime = FunnelOrchestrator([producer])
+        context = _context(packet)
+        runtime.advance(runtime.submit({"a": 1}, context))
+        different_view = store.put_json(
+            basis,
+            PutOptions(
+                kind="scientist.search.uncertainty_basis",
+                media_type="application/json",
+                schema=SchemaInfo(name="SameScientificContentDifferentView", version="1.0"),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        assert different_view.artifact_id == basis_ref.artifact_id
+        assert different_view.manifest_profile_sha256 != basis_ref.manifest_profile_sha256
+        outcome = runtime.advance(
+            runtime.submit({"a": 1}, {**context, "uncertainty_basis_ref": different_view})
+        )
+>       assert producer.calls == 2
+E       assert 1 == 2
+E        +  where 1 = <tests.unit.scientist.methods.search.funnel.test_configured_observations.ProducerStage object at 0x7f290c442ba0>.calls
+
+tests/unit/scientist/methods/search/funnel/test_configured_observations.py:218: AssertionError
+=============================== warnings summary ===============================
+../../../../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: /workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-cache-selected-view.xml -
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/funnel/test_configured_observations.py::test_selected_manifest_view_change_executes_real_callback
+======================== 1 failed, 2 warnings in 14.76s ========================

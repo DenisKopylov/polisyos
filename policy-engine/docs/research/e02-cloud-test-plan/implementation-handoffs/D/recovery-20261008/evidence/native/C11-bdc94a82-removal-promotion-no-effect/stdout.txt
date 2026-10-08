@@ -1,0 +1,234 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removals/promotion-no-effect/policy-engine
+configfile: pytest.ini
+plugins: asyncio-1.3.0, langsmith-0.6.0, hypothesis-6.151.2, anyio-4.12.0, xdist-3.8.0, benchmark-5.2.3, jaxtyping-0.3.4
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 9 items
+
+tests/unit/scientist/search/funnel/test_level6_promotion.py FFFFFFFF.
+
+=================================== FAILURES ===================================
+_ test_retained_preflight_markers_never_admit_effectful_generic_callback[None] _
+
+preflight = None
+
+    @pytest.mark.parametrize("preflight", [None, False, {"allowed": False}, "allow", 1, [True], True])
+    def test_retained_preflight_markers_never_admit_effectful_generic_callback(preflight):
+        writes = []
+        stage = Level6PromotionStage(
+            promotion_runner=lambda candidate, context: writes.append(candidate) or {"promoted": True},
+            promotion_owner_recheck=(
+                None if preflight is None else lambda candidate, context: preflight
+            ),
+        )
+        result = stage.evaluate(
+            {"candidate_id": "candidate-1"},
+            {"promotion_owner_recheck_passed": True, "owner_verified": True, "permit": preflight},
+        )
+>       assert writes == []
+E       AssertionError: assert [{'candidate_...candidate-1'}] == []
+E         
+E         Left contains one more item: {'candidate_id': 'candidate-1'}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/funnel/test_level6_promotion.py:23: AssertionError
+_ test_retained_preflight_markers_never_admit_effectful_generic_callback[False] _
+
+preflight = False
+
+    @pytest.mark.parametrize("preflight", [None, False, {"allowed": False}, "allow", 1, [True], True])
+    def test_retained_preflight_markers_never_admit_effectful_generic_callback(preflight):
+        writes = []
+        stage = Level6PromotionStage(
+            promotion_runner=lambda candidate, context: writes.append(candidate) or {"promoted": True},
+            promotion_owner_recheck=(
+                None if preflight is None else lambda candidate, context: preflight
+            ),
+        )
+        result = stage.evaluate(
+            {"candidate_id": "candidate-1"},
+            {"promotion_owner_recheck_passed": True, "owner_verified": True, "permit": preflight},
+        )
+>       assert writes == []
+E       AssertionError: assert [{'candidate_...candidate-1'}] == []
+E         
+E         Left contains one more item: {'candidate_id': 'candidate-1'}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/funnel/test_level6_promotion.py:23: AssertionError
+_ test_retained_preflight_markers_never_admit_effectful_generic_callback[preflight2] _
+
+preflight = {'allowed': False}
+
+    @pytest.mark.parametrize("preflight", [None, False, {"allowed": False}, "allow", 1, [True], True])
+    def test_retained_preflight_markers_never_admit_effectful_generic_callback(preflight):
+        writes = []
+        stage = Level6PromotionStage(
+            promotion_runner=lambda candidate, context: writes.append(candidate) or {"promoted": True},
+            promotion_owner_recheck=(
+                None if preflight is None else lambda candidate, context: preflight
+            ),
+        )
+        result = stage.evaluate(
+            {"candidate_id": "candidate-1"},
+            {"promotion_owner_recheck_passed": True, "owner_verified": True, "permit": preflight},
+        )
+>       assert writes == []
+E       AssertionError: assert [{'candidate_...candidate-1'}] == []
+E         
+E         Left contains one more item: {'candidate_id': 'candidate-1'}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/funnel/test_level6_promotion.py:23: AssertionError
+_ test_retained_preflight_markers_never_admit_effectful_generic_callback[allow] _
+
+preflight = 'allow'
+
+    @pytest.mark.parametrize("preflight", [None, False, {"allowed": False}, "allow", 1, [True], True])
+    def test_retained_preflight_markers_never_admit_effectful_generic_callback(preflight):
+        writes = []
+        stage = Level6PromotionStage(
+            promotion_runner=lambda candidate, context: writes.append(candidate) or {"promoted": True},
+            promotion_owner_recheck=(
+                None if preflight is None else lambda candidate, context: preflight
+            ),
+        )
+        result = stage.evaluate(
+            {"candidate_id": "candidate-1"},
+            {"promotion_owner_recheck_passed": True, "owner_verified": True, "permit": preflight},
+        )
+>       assert writes == []
+E       AssertionError: assert [{'candidate_...candidate-1'}] == []
+E         
+E         Left contains one more item: {'candidate_id': 'candidate-1'}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/funnel/test_level6_promotion.py:23: AssertionError
+__ test_retained_preflight_markers_never_admit_effectful_generic_callback[1] ___
+
+preflight = 1
+
+    @pytest.mark.parametrize("preflight", [None, False, {"allowed": False}, "allow", 1, [True], True])
+    def test_retained_preflight_markers_never_admit_effectful_generic_callback(preflight):
+        writes = []
+        stage = Level6PromotionStage(
+            promotion_runner=lambda candidate, context: writes.append(candidate) or {"promoted": True},
+            promotion_owner_recheck=(
+                None if preflight is None else lambda candidate, context: preflight
+            ),
+        )
+        result = stage.evaluate(
+            {"candidate_id": "candidate-1"},
+            {"promotion_owner_recheck_passed": True, "owner_verified": True, "permit": preflight},
+        )
+>       assert writes == []
+E       AssertionError: assert [{'candidate_...candidate-1'}] == []
+E         
+E         Left contains one more item: {'candidate_id': 'candidate-1'}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/funnel/test_level6_promotion.py:23: AssertionError
+_ test_retained_preflight_markers_never_admit_effectful_generic_callback[preflight5] _
+
+preflight = [True]
+
+    @pytest.mark.parametrize("preflight", [None, False, {"allowed": False}, "allow", 1, [True], True])
+    def test_retained_preflight_markers_never_admit_effectful_generic_callback(preflight):
+        writes = []
+        stage = Level6PromotionStage(
+            promotion_runner=lambda candidate, context: writes.append(candidate) or {"promoted": True},
+            promotion_owner_recheck=(
+                None if preflight is None else lambda candidate, context: preflight
+            ),
+        )
+        result = stage.evaluate(
+            {"candidate_id": "candidate-1"},
+            {"promotion_owner_recheck_passed": True, "owner_verified": True, "permit": preflight},
+        )
+>       assert writes == []
+E       AssertionError: assert [{'candidate_...candidate-1'}] == []
+E         
+E         Left contains one more item: {'candidate_id': 'candidate-1'}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/funnel/test_level6_promotion.py:23: AssertionError
+_ test_retained_preflight_markers_never_admit_effectful_generic_callback[True] _
+
+preflight = True
+
+    @pytest.mark.parametrize("preflight", [None, False, {"allowed": False}, "allow", 1, [True], True])
+    def test_retained_preflight_markers_never_admit_effectful_generic_callback(preflight):
+        writes = []
+        stage = Level6PromotionStage(
+            promotion_runner=lambda candidate, context: writes.append(candidate) or {"promoted": True},
+            promotion_owner_recheck=(
+                None if preflight is None else lambda candidate, context: preflight
+            ),
+        )
+        result = stage.evaluate(
+            {"candidate_id": "candidate-1"},
+            {"promotion_owner_recheck_passed": True, "owner_verified": True, "permit": preflight},
+        )
+>       assert writes == []
+E       AssertionError: assert [{'candidate_...candidate-1'}] == []
+E         
+E         Left contains one more item: {'candidate_id': 'candidate-1'}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/funnel/test_level6_promotion.py:23: AssertionError
+__________ test_revoke_after_true_preflight_barrier_has_zero_effects ___________
+
+    def test_revoke_after_true_preflight_barrier_has_zero_effects():
+        writes = []
+        ready = Barrier(2)
+        revoked = Barrier(2)
+        retained = {"preflight": True, "revoked": False}
+        stage = Level6PromotionStage(
+            promotion_runner=lambda candidate, context: writes.append(candidate) or {"promoted": True},
+            promotion_owner_recheck=lambda candidate, context: retained["preflight"],
+        )
+        results = []
+    
+        def evaluate_after_revoke():
+            ready.wait()
+            revoked.wait()
+            results.append(
+                stage.evaluate({}, {"promotion_owner_recheck_passed": retained["preflight"]})
+            )
+    
+        worker = Thread(target=evaluate_after_revoke)
+        worker.start()
+        ready.wait()
+        retained["revoked"] = True
+        revoked.wait()
+        worker.join()
+        assert retained == {"preflight": True, "revoked": True}
+>       assert writes == []
+E       assert [{}] == []
+E         
+E         Left contains one more item: {}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/funnel/test_level6_promotion.py:57: AssertionError
+=============================== warnings summary ===============================
+../../../../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: /workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-promotion-no-effect.xml -
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/funnel/test_level6_promotion.py::test_retained_preflight_markers_never_admit_effectful_generic_callback[None]
+FAILED tests/unit/scientist/search/funnel/test_level6_promotion.py::test_retained_preflight_markers_never_admit_effectful_generic_callback[False]
+FAILED tests/unit/scientist/search/funnel/test_level6_promotion.py::test_retained_preflight_markers_never_admit_effectful_generic_callback[preflight2]
+FAILED tests/unit/scientist/search/funnel/test_level6_promotion.py::test_retained_preflight_markers_never_admit_effectful_generic_callback[allow]
+FAILED tests/unit/scientist/search/funnel/test_level6_promotion.py::test_retained_preflight_markers_never_admit_effectful_generic_callback[1]
+FAILED tests/unit/scientist/search/funnel/test_level6_promotion.py::test_retained_preflight_markers_never_admit_effectful_generic_callback[preflight5]
+FAILED tests/unit/scientist/search/funnel/test_level6_promotion.py::test_retained_preflight_markers_never_admit_effectful_generic_callback[True]
+FAILED tests/unit/scientist/search/funnel/test_level6_promotion.py::test_revoke_after_true_preflight_barrier_has_zero_effects
+=================== 8 failed, 1 passed, 2 warnings in 10.85s ===================

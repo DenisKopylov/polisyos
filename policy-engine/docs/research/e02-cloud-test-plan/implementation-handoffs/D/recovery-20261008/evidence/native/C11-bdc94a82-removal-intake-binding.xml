@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="11" skipped="0" tests="12" time="19.137" timestamp="2026-10-08T16:09:33.482529+00:00" hostname="9065c0936350"><testcase classname="tests.unit.scientist.methods.search.funnel.test_configured_observations" name="test_configured_intake_retains_independent_risk_and_ordinary_history" time="0.233" /><testcase classname="tests.unit.scientist.methods.search.funnel.test_configured_observations" name="test_changed_producer_basis_cannot_lower_same_ticket_risk[value_ref]" time="0.248"><failure message="AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None&#10; +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='db27be0b-cabe-49c0-affb-456f415676c6', candidate_hash='44136fa355b3678a', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope">packet = (&lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f359d5b3890&gt;, SearchUncertaintyBasis(schema_version='1.0', ...ile_sha256=None), &lt;function packet.&lt;locals&gt;.ref at 0x7f359d3737f0&gt;, &lt;function packet.&lt;locals&gt;.stage at 0x7f359d3733d0&gt;)
+field = 'value_ref'
+
+    @pytest.mark.parametrize(
+        "field",
+        [
+            "value_ref",
+            "input_refs",
+            "rule_ref",
+            "valid_time",
+            "unit",
+            "estimand",
+            "subject_ref",
+            "producer_ref",
+        ],
+    )
+    def test_changed_producer_basis_cannot_lower_same_ticket_risk(packet, field):
+        store, basis, basis_ref, ref, stage = packet
+        change = {
+            "unit": "USD",
+            "estimand": "foreign population",
+            "valid_time": datetime(2027, 1, 1, tzinfo=UTC),
+            "input_refs": (ref("foreign-input"),),
+        }
+        foreign = basis.model_copy(update={field: change.get(field, ref("foreign"))})
+        foreign_ref = persist_search_uncertainty(store, foreign)
+        early, late = stage(0, _envelope(0.9)), stage(1, _envelope(0.1), supplied_basis=foreign_ref)
+        runtime = FunnelOrchestrator([early, late])
+        outcome = runtime.advance(runtime.submit({}, _context(packet)))
+&gt;       assert outcome.current_uncertainty_envelope is None
+E       AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None
+E        +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='db27be0b-cabe-49c0-affb-456f415676c6', candidate_hash='44136fa355b3678a', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope
+
+tests/unit/scientist/methods/search/funnel/test_configured_observations.py:157: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.funnel.test_configured_observations" name="test_changed_producer_basis_cannot_lower_same_ticket_risk[input_refs]" time="0.300"><failure message="AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None&#10; +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='d58a0ffc-f7bb-433d-b736-e085ea29a737', candidate_hash='44136fa355b3678a', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope">packet = (&lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f359d334e10&gt;, SearchUncertaintyBasis(schema_version='1.0', ...ile_sha256=None), &lt;function packet.&lt;locals&gt;.ref at 0x7f359d373ed0&gt;, &lt;function packet.&lt;locals&gt;.stage at 0x7f359d39c3b0&gt;)
+field = 'input_refs'
+
+    @pytest.mark.parametrize(
+        "field",
+        [
+            "value_ref",
+            "input_refs",
+            "rule_ref",
+            "valid_time",
+            "unit",
+            "estimand",
+            "subject_ref",
+            "producer_ref",
+        ],
+    )
+    def test_changed_producer_basis_cannot_lower_same_ticket_risk(packet, field):
+        store, basis, basis_ref, ref, stage = packet
+        change = {
+            "unit": "USD",
+            "estimand": "foreign population",
+            "valid_time": datetime(2027, 1, 1, tzinfo=UTC),
+            "input_refs": (ref("foreign-input"),),
+        }
+        foreign = basis.model_copy(update={field: change.get(field, ref("foreign"))})
+        foreign_ref = persist_search_uncertainty(store, foreign)
+        early, late = stage(0, _envelope(0.9)), stage(1, _envelope(0.1), supplied_basis=foreign_ref)
+        runtime = FunnelOrchestrator([early, late])
+        outcome = runtime.advance(runtime.submit({}, _context(packet)))
+&gt;       assert outcome.current_uncertainty_envelope is None
+E       AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None
+E        +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='d58a0ffc-f7bb-433d-b736-e085ea29a737', candidate_hash='44136fa355b3678a', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope
+
+tests/unit/scientist/methods/search/funnel/test_configured_observations.py:157: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.funnel.test_configured_observations" name="test_changed_producer_basis_cannot_lower_same_ticket_risk[rule_ref]" time="0.246"><failure message="AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None&#10; +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='0648f1d5-aaba-4209-8d5f-71bf7831b14a', candidate_hash='44136fa355b3678a', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope">packet = (&lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f359d379cd0&gt;, SearchUncertaintyBasis(schema_version='1.0', ...ile_sha256=None), &lt;function packet.&lt;locals&gt;.ref at 0x7f359d39c880&gt;, &lt;function packet.&lt;locals&gt;.stage at 0x7f359d39cd50&gt;)
+field = 'rule_ref'
+
+    @pytest.mark.parametrize(
+        "field",
+        [
+            "value_ref",
+            "input_refs",
+            "rule_ref",
+            "valid_time",
+            "unit",
+            "estimand",
+            "subject_ref",
+            "producer_ref",
+        ],
+    )
+    def test_changed_producer_basis_cannot_lower_same_ticket_risk(packet, field):
+        store, basis, basis_ref, ref, stage = packet
+        change = {
+            "unit": "USD",
+            "estimand": "foreign population",
+            "valid_time": datetime(2027, 1, 1, tzinfo=UTC),
+            "input_refs": (ref("foreign-input"),),
+        }
+        foreign = basis.model_copy(update={field: change.get(field, ref("foreign"))})
+        foreign_ref = persist_search_uncertainty(store, foreign)
+        early, late = stage(0, _envelope(0.9)), stage(1, _envelope(0.1), supplied_basis=foreign_ref)
+        runtime = FunnelOrchestrator([early, late])
+        outcome = runtime.advance(runtime.submit({}, _context(packet)))
+&gt;       assert outcome.current_uncertainty_envelope is None
+E       AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None
+E        +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='0648f1d5-aaba-4209-8d5f-71bf7831b14a', candidate_hash='44136fa355b3678a', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope
+
+tests/unit/scientist/methods/search/funnel/test_configured_observations.py:157: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.funnel.test_configured_observations" name="test_changed_producer_basis_cannot_lower_same_ticket_risk[valid_time]" time="0.268"><failure message="AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None&#10; +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='095ea212-c814-4a25-a437-855d8a3c9890', candidate_hash='44136fa355b3678a', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope">packet = (&lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f359d37ac40&gt;, SearchUncertaintyBasis(schema_version='1.0', ...ile_sha256=None), &lt;function packet.&lt;locals&gt;.ref at 0x7f359d39d0c0&gt;, &lt;function packet.&lt;locals&gt;.stage at 0x7f359d39d590&gt;)
+field = 'valid_time'
+
+    @pytest.mark.parametrize(
+        "field",
+        [
+            "value_ref",
+            "input_refs",
+            "rule_ref",
+            "valid_time",
+            "unit",
+            "estimand",
+            "subject_ref",
+            "producer_ref",
+        ],
+    )
+    def test_changed_producer_basis_cannot_lower_same_ticket_risk(packet, field):
+        store, basis, basis_ref, ref, stage = packet
+        change = {
+            "unit": "USD",
+            "estimand": "foreign population",
+            "valid_time": datetime(2027, 1, 1, tzinfo=UTC),
+            "input_refs": (ref("foreign-input"),),
+        }
+        foreign = basis.model_copy(update={field: change.get(field, ref("foreign"))})
+        foreign_ref = persist_search_uncertainty(store, foreign)
+        early, late = stage(0, _envelope(0.9)), stage(1, _envelope(0.1), supplied_basis=foreign_ref)
+        runtime = FunnelOrchestrator([early, late])
+        outcome = runtime.advance(runtime.submit({}, _context(packet)))
+&gt;       assert outcome.current_uncertainty_envelope is None
+E       AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None
+E        +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='095ea212-c814-4a25-a437-855d8a3c9890', candidate_hash='44136fa355b3678a', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope
+
+tests/unit/scientist/methods/search/funnel/test_configured_observations.py:157: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.funnel.test_configured_observations" name="test_changed_producer_basis_cannot_lower_same_ticket_risk[unit]" time="0.249"><failure message="AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None&#10; +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='9512d6f1-03ac-49d5-8af3-f0abd782d0a6', candidate_hash='44136fa355b3678a', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope">packet = (&lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f359d3a6330&gt;, SearchUncertaintyBasis(schema_version='1.0', ...ile_sha256=None), &lt;function packet.&lt;locals&gt;.ref at 0x7f359d39d010&gt;, &lt;function packet.&lt;locals&gt;.stage at 0x7f359d39dbc0&gt;)
+field = 'unit'
+
+    @pytest.mark.parametrize(
+        "field",
+        [
+            "value_ref",
+            "input_refs",
+            "rule_ref",
+            "valid_time",
+            "unit",
+            "estimand",
+            "subject_ref",
+            "producer_ref",
+        ],
+    )
+    def test_changed_producer_basis_cannot_lower_same_ticket_risk(packet, field):
+        store, basis, basis_ref, ref, stage = packet
+        change = {
+            "unit": "USD",
+            "estimand": "foreign population",
+            "valid_time": datetime(2027, 1, 1, tzinfo=UTC),
+            "input_refs": (ref("foreign-input"),),
+        }
+        foreign = basis.model_copy(update={field: change.get(field, ref("foreign"))})
+        foreign_ref = persist_search_uncertainty(store, foreign)
+        early, late = stage(0, _envelope(0.9)), stage(1, _envelope(0.1), supplied_basis=foreign_ref)
+        runtime = FunnelOrchestrator([early, late])
+        outcome = runtime.advance(runtime.submit({}, _context(packet)))
+&gt;       assert outcome.current_uncertainty_envelope is None
+E       AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None
+E        +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='9512d6f1-03ac-49d5-8af3-f0abd782d0a6', candidate_hash='44136fa355b3678a', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope
+
+tests/unit/scientist/methods/search/funnel/test_configured_observations.py:157: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.funnel.test_configured_observations" name="test_changed_producer_basis_cannot_lower_same_ticket_risk[estimand]" time="0.317"><failure message="AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None&#10; +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='d73617e1-acbc-4cd9-bbce-89a50cbf2930', candidate_hash='44136fa355b3678a', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope">packet = (&lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f359d4d3ac0&gt;, SearchUncertaintyBasis(schema_version='1.0', ...ile_sha256=None), &lt;function packet.&lt;locals&gt;.ref at 0x7f359d39e2a0&gt;, &lt;function packet.&lt;locals&gt;.stage at 0x7f359d39e770&gt;)
+field = 'estimand'
+
+    @pytest.mark.parametrize(
+        "field",
+        [
+            "value_ref",
+            "input_refs",
+            "rule_ref",
+            "valid_time",
+            "unit",
+            "estimand",
+            "subject_ref",
+            "producer_ref",
+        ],
+    )
+    def test_changed_producer_basis_cannot_lower_same_ticket_risk(packet, field):
+        store, basis, basis_ref, ref, stage = packet
+        change = {
+            "unit": "USD",
+            "estimand": "foreign population",
+            "valid_time": datetime(2027, 1, 1, tzinfo=UTC),
+            "input_refs": (ref("foreign-input"),),
+        }
+        foreign = basis.model_copy(update={field: change.get(field, ref("foreign"))})
+        foreign_ref = persist_search_uncertainty(store, foreign)
+        early, late = stage(0, _envelope(0.9)), stage(1, _envelope(0.1), supplied_basis=foreign_ref)
+        runtime = FunnelOrchestrator([early, late])
+        outcome = runtime.advance(runtime.submit({}, _context(packet)))
+&gt;       assert outcome.current_uncertainty_envelope is None
+E       AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None
+E        +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='d73617e1-acbc-4cd9-bbce-89a50cbf2930', candidate_hash='44136fa355b3678a', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope
+
+tests/unit/scientist/methods/search/funnel/test_configured_observations.py:157: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.funnel.test_configured_observations" name="test_changed_producer_basis_cannot_lower_same_ticket_risk[subject_ref]" time="0.333"><failure message="AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None&#10; +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='2a1062d4-6858-4454-8d9d-88fd14e94a04', candidate_hash='44136fa355b3678a', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope">packet = (&lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f359ca089e0&gt;, SearchUncertaintyBasis(schema_version='1.0', ...ile_sha256=None), &lt;function packet.&lt;locals&gt;.ref at 0x7f359d39ecf0&gt;, &lt;function packet.&lt;locals&gt;.stage at 0x7f359d39f1c0&gt;)
+field = 'subject_ref'
+
+    @pytest.mark.parametrize(
+        "field",
+        [
+            "value_ref",
+            "input_refs",
+            "rule_ref",
+            "valid_time",
+            "unit",
+            "estimand",
+            "subject_ref",
+            "producer_ref",
+        ],
+    )
+    def test_changed_producer_basis_cannot_lower_same_ticket_risk(packet, field):
+        store, basis, basis_ref, ref, stage = packet
+        change = {
+            "unit": "USD",
+            "estimand": "foreign population",
+            "valid_time": datetime(2027, 1, 1, tzinfo=UTC),
+            "input_refs": (ref("foreign-input"),),
+        }
+        foreign = basis.model_copy(update={field: change.get(field, ref("foreign"))})
+        foreign_ref = persist_search_uncertainty(store, foreign)
+        early, late = stage(0, _envelope(0.9)), stage(1, _envelope(0.1), supplied_basis=foreign_ref)
+        runtime = FunnelOrchestrator([early, late])
+        outcome = runtime.advance(runtime.submit({}, _context(packet)))
+&gt;       assert outcome.current_uncertainty_envelope is None
+E       AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None
+E        +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='2a1062d4-6858-4454-8d9d-88fd14e94a04', candidate_hash='44136fa355b3678a', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope
+
+tests/unit/scientist/methods/search/funnel/test_configured_observations.py:157: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.funnel.test_configured_observations" name="test_changed_producer_basis_cannot_lower_same_ticket_risk[producer_ref]" time="0.265"><failure message="AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None&#10; +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='99b3c06d-13cc-45b4-ab22-1f7a7e4ce7a2', candidate_hash='44136fa355b3678a', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope">packet = (&lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f359ca2c350&gt;, SearchUncertaintyBasis(schema_version='1.0', ...ile_sha256=None), &lt;function packet.&lt;locals&gt;.ref at 0x7f359d39f740&gt;, &lt;function packet.&lt;locals&gt;.stage at 0x7f359d39fc10&gt;)
+field = 'producer_ref'
+
+    @pytest.mark.parametrize(
+        "field",
+        [
+            "value_ref",
+            "input_refs",
+            "rule_ref",
+            "valid_time",
+            "unit",
+            "estimand",
+            "subject_ref",
+            "producer_ref",
+        ],
+    )
+    def test_changed_producer_basis_cannot_lower_same_ticket_risk(packet, field):
+        store, basis, basis_ref, ref, stage = packet
+        change = {
+            "unit": "USD",
+            "estimand": "foreign population",
+            "valid_time": datetime(2027, 1, 1, tzinfo=UTC),
+            "input_refs": (ref("foreign-input"),),
+        }
+        foreign = basis.model_copy(update={field: change.get(field, ref("foreign"))})
+        foreign_ref = persist_search_uncertainty(store, foreign)
+        early, late = stage(0, _envelope(0.9)), stage(1, _envelope(0.1), supplied_basis=foreign_ref)
+        runtime = FunnelOrchestrator([early, late])
+        outcome = runtime.advance(runtime.submit({}, _context(packet)))
+&gt;       assert outcome.current_uncertainty_envelope is None
+E       AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None
+E        +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='99b3c06d-13cc-45b4-ab22-1f7a7e4ce7a2', candidate_hash='44136fa355b3678a', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope
+
+tests/unit/scientist/methods/search/funnel/test_configured_observations.py:157: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.funnel.test_configured_observations" name="test_missing_and_substituted_envelope_do_not_become_current" time="0.180"><failure message="AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None&#10; +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='575a4afa-7f20-456a-8623-13af0357067b', candidate_hash='44136fa355b3678a', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope">packet = (&lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f359ca2d750&gt;, SearchUncertaintyBasis(schema_version='1.0', ...ile_sha256=None), &lt;function packet.&lt;locals&gt;.ref at 0x7f359ca30460&gt;, &lt;function packet.&lt;locals&gt;.stage at 0x7f359ca30930&gt;)
+
+    def test_missing_and_substituted_envelope_do_not_become_current(packet):
+        _, _, _, _, stage = packet
+        producer = stage(0, _envelope(0.9))
+        producer.result = replace(producer.result, uncertainty_envelope=_envelope(0.1))
+        runtime = FunnelOrchestrator([producer])
+        outcome = runtime.advance(runtime.submit({}, _context(packet)))
+&gt;       assert outcome.current_uncertainty_envelope is None
+E       AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None
+E        +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.9, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='575a4afa-7f20-456a-8623-13af0357067b', candidate_hash='44136fa355b3678a', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope
+
+tests/unit/scientist/methods/search/funnel/test_configured_observations.py:169: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.funnel.test_configured_observations" name="test_same_request_reuses_real_cache_changed_version_executes_callback" time="0.212"><failure message="AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.3, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None&#10; +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.3, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='a3c17931-4f0d-40e3-af32-d02107c98808', candidate_hash='015abd7f5cc57a2d', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope">packet = (&lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f359ca2ec50&gt;, SearchUncertaintyBasis(schema_version='1.0', ...ile_sha256=None), &lt;function packet.&lt;locals&gt;.ref at 0x7f359ca30f60&gt;, &lt;function packet.&lt;locals&gt;.stage at 0x7f359ca31430&gt;)
+
+    def test_same_request_reuses_real_cache_changed_version_executes_callback(packet):
+        store, basis, _, _, stage = packet
+        producer = stage(0, _envelope(0.3))
+        runtime = FunnelOrchestrator([producer])
+        context = _context(packet)
+        first = runtime.submit({"a": 1}, context)
+        runtime.advance(first)
+        second = runtime.submit({"a": 1}, context)
+        runtime.advance(second)
+        assert producer.calls == 1
+        changed = persist_search_uncertainty(store, basis.model_copy(update={"unit": "USD"}))
+        third = runtime.submit({"a": 1}, {**context, "uncertainty_basis_ref": changed})
+        outcome = runtime.advance(third)
+        assert producer.calls == 2
+&gt;       assert outcome.current_uncertainty_envelope is None
+E       AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.3, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None
+E        +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.3, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='a3c17931-4f0d-40e3-af32-d02107c98808', candidate_hash='015abd7f5cc57a2d', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope
+
+tests/unit/scientist/methods/search/funnel/test_configured_observations.py:192: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.funnel.test_configured_observations" name="test_selected_manifest_view_change_executes_real_callback" time="0.140"><failure message="AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.3, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None&#10; +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.3, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='d47534a3-c45e-4d6e-a9cd-be4e8193f477', candidate_hash='015abd7f5cc57a2d', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope">packet = (&lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f359ca2f850&gt;, SearchUncertaintyBasis(schema_version='1.0', ...ile_sha256=None), &lt;function packet.&lt;locals&gt;.ref at 0x7f359ca31b10&gt;, &lt;function packet.&lt;locals&gt;.stage at 0x7f359ca31fe0&gt;)
+
+    def test_selected_manifest_view_change_executes_real_callback(packet):
+        from polisyos.core.artifacts.manifest import SchemaInfo
+        from polisyos.core.canon import CanonSpec
+    
+        store, basis, basis_ref, _, stage = packet
+        producer = stage(0, _envelope(0.3))
+        runtime = FunnelOrchestrator([producer])
+        context = _context(packet)
+        runtime.advance(runtime.submit({"a": 1}, context))
+        different_view = store.put_json(
+            basis,
+            PutOptions(
+                kind="scientist.search.uncertainty_basis",
+                media_type="application/json",
+                schema=SchemaInfo(name="SameScientificContentDifferentView", version="1.0"),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        assert different_view.artifact_id == basis_ref.artifact_id
+        assert different_view.manifest_profile_sha256 != basis_ref.manifest_profile_sha256
+        outcome = runtime.advance(
+            runtime.submit({"a": 1}, {**context, "uncertainty_basis_ref": different_view})
+        )
+        assert producer.calls == 2
+&gt;       assert outcome.current_uncertainty_envelope is None
+E       AssertionError: assert UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.3, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) is None
+E        +  where UncertaintyEnvelope(uncertainties={&lt;UncertaintyType.STATISTICAL: 'statistical'&gt;: UncertaintyEstimate(level=0.3, source...'fixture producer', quantification_method='supplied fixture measurement', is_reducible=True, recommended_action=None)}) = FunnelOutcome(ticket_id='d47534a3-c45e-4d6e-a9cd-be4e8193f477', candidate_hash='015abd7f5cc57a2d', trace=[FunnelTraceS...ncertainty_observation', media_type='application/json', manifest_profile_sha256=None)], uncertainty_intake_failures=[]).current_uncertainty_envelope
+
+tests/unit/scientist/methods/search/funnel/test_configured_observations.py:219: AssertionError</failure></testcase></testsuite></testsuites>

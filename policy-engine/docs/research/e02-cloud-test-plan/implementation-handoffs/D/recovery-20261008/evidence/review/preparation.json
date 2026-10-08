@@ -1,0 +1,81 @@
+{
+  "schema": "ORCH04.independent-c11-review-preparation.v1",
+  "reviewer": "review_c11",
+  "time_utc": "2026-10-08T15:45:01.569230+00:00",
+  "mode": "readonly production and tests; own scratch evidence only; no children",
+  "baseline": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+  "candidate_review": "PENDING immutable source from root",
+  "inputs": [
+    {
+      "path": "AGENTS.md",
+      "blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+      "bytes": 22656,
+      "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50"
+    },
+    {
+      "path": "policy-engine/CONTRIBUTING.md",
+      "blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+      "bytes": 10553,
+      "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+      "blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e",
+      "bytes": 20260,
+      "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08/COMMON.md",
+      "blob": "9f4fff6450d0fc6babf3c28457f3387136a2228f",
+      "bytes": 11195,
+      "sha256": "7db11489b29020d5be9c5bb2ef9baf6ff91585aa42a3d25d265e9acb58c5aaff"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08/ORCH04.md",
+      "blob": "bcd5b3b109d3ac7fcf5e689ba714571b0ef04138",
+      "bytes": 9798,
+      "sha256": "91c70c356832dba170c9733b980c994cfe2400681173da359be6855396a80b80"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/COMMON.md",
+      "blob": "116b74d20e0bb9a9e9421bc48a6d95b86a373a79",
+      "bytes": 14882,
+      "sha256": "b919e06683b70a3df5961dd0a7ef5cbde792874879265d433fcb7bcb15024685"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C11.md",
+      "blob": "2cada3a49ad483b591191ec39381bae581d32ed3",
+      "bytes": 7145,
+      "sha256": "02b10a1334c3fdc431c4bf5ad3c16f4aa859100d3aa35b45e41a348ee7b0e26c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json",
+      "blob": "f2e8d2096b86148fb93d4eb61520d22002228a1d",
+      "bytes": 41684,
+      "sha256": "6d9d894368a214c820ef88265e22c07a832294fe0681cde4eedce14998f512a6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/06-inputs-and-deferrals.md",
+      "blob": "2abfdab3559d6a3f7866785560b4531e8c715ee7",
+      "bytes": 11493,
+      "sha256": "afafcd97ebbc1e68abc1ed555853f269d566dc2a6e97389b414007f17394802c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/07-source-selection.md",
+      "blob": "f501af90dc634286f6948bfc77b6711c5b60cb73",
+      "bytes": 7389,
+      "sha256": "12b703e693b355ebb343c82e271781e860afaf307b374d6dfee65dd30e03ed71"
+    }
+  ],
+  "baseline_importer": {
+    "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+    "exit": 0,
+    "result": "{\"ok\":true,\"files\":[\"cells.tsv\",\"properties.tsv\",\"events.jsonl\",\"gates.json\",\"routes.tsv\",\"verification.json\"]}",
+    "qualification": "text binding only; no product PASS"
+  },
+  "finding_buckets": "P40: first escape classify new/distinct or same-class deeper; second same-class requires canonical quantity-wide mechanism or bounded residual + executed falsifier",
+  "tests_executed": [],
+  "source_acceptance": "reserved G",
+  "formal_closure": "reserved G"
+}

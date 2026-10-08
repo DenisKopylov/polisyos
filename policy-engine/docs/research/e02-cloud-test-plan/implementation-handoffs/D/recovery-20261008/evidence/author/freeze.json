@@ -1,0 +1,151 @@
+{
+  "commit": "76f262402cbb4da18888482529d86582c409a7f8",
+  "tree": "e74696ce654bcd52464ee000b21107bb4e9753d1",
+  "parents": [
+    "0321633c0e6d9a87bccfbbe889a4998934c52dd3"
+  ],
+  "footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B108-minimum-owner-input.json",
+      "blob": "17438728ff103e6ebeeb319fb12c54255ac7314a",
+      "sha256": "015444b17fe442cda0494e3600c87ffe1ba50d10be10b550c40258c4f25eb75a",
+      "bytes": 2034
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B131-minimum-owner-input.json",
+      "blob": "be47b369877317bf2e1b5fbe95402edd829ed215",
+      "sha256": "1e3a405ff2bf3298edf4fb8c59677d5fd3762f377971e4edc3752f9d2740d08f",
+      "bytes": 2013
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B137-minimum-owner-input.json",
+      "blob": "18459ce0d12d133d5e94dcf5a2950b4402544a09",
+      "sha256": "640abbaab5096cb83ef62bd0d66f29d0a4e8921f05a4e5c99f6936dcdfc74edd",
+      "bytes": 1804
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B157-minimum-owner-input.json",
+      "blob": "03618a1277aec0932e81781b2c2915465232f75a",
+      "sha256": "a4e5b7b7155f2b4283f4257d7bc549413633923ba6e9a947fc5be401541da40d",
+      "bytes": 2052
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B161-minimum-owner-input.json",
+      "blob": "78a242a8a089eaa9db44b4c2f99ea08b4fefa0a8",
+      "sha256": "d6130636d47d81b6461ab0c5305bcd7f072443078646fd8548c86d3278e8b5e5",
+      "bytes": 1839
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B164-minimum-owner-input.json",
+      "blob": "cd723afd3e627df2e352ab5a92a5914c4d8245e9",
+      "sha256": "8f650bdd0891f8f6f41ff602c2251a941a3ce8aa089989cea39438ae9ed77bf4",
+      "bytes": 2792
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/README.md",
+      "blob": "3fcf9179a1a90fc48da7892d058a2ce58cba8dcd",
+      "sha256": "bf5109cf4e77dac1c93f8fff5651729487a1401480373b2ae676614a18f2a2a4",
+      "bytes": 2069
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/source-inputs.json",
+      "blob": "7196fa39097489d55794110752908c4ff8cbdffa",
+      "sha256": "d11c26b692ec0a2e9d7a8eb312905396dffe8f6d1f82d8ccaf06c5cb45631bf4",
+      "bytes": 2052
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/orch04-c11-recovery-20261008.md",
+      "blob": "b0e9cb173521cea518164e1b7431d5fb7dec209a",
+      "sha256": "a3f1c308ba75c12807721cb7ef49567967b314846ae0144c2ccf45a1ea1e93ff",
+      "bytes": 673
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/README.md",
+      "blob": "5d58283b83945e2526dd613eb0f139b169e2d1e3",
+      "sha256": "e7eff5c9c50fed326d0419e2fc050ae25f7e5b87399d6191c140cfa82bc95f04",
+      "bytes": 6880
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+      "blob": "53818fb4b4e003cd45ef28c60d99f1c31a50b51c",
+      "sha256": "875b8a247ac7604e6b4e869947b0bbe51aade497e662b3e8bcba998ed14cdeb3",
+      "bytes": 11277
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py",
+      "blob": "e4da3fb4cc3cebb10a4f5e0f55263f5cf4a95dec",
+      "sha256": "ab631eed53c5aa77f658f0058c43210743289b1c8c16f234dcd68a2057986f38",
+      "bytes": 7083
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+      "blob": "5154ebfe71891ca5a3046a05e0b03cb79a755a4a",
+      "sha256": "31d00ab5bd721d4f3d63e7581df74a49bc87e91f548ed7bb61d4c9770d730c19",
+      "bytes": 13409
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "blob": "9a70085423b4549ce361d5e54e3e2146d3f513c0",
+      "sha256": "b0ba225a296899e2fb0f97fad5f1ef813c05ce5d136d9e41f0f746e564cd62ba",
+      "bytes": 52465
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+      "blob": "4709c080ca38c82c537033e18ec6a9ccaf32b865",
+      "sha256": "85d9fb581f2e660a7b3b777a21f601aae7f81b210ebe84dc612de6667cdd1b1b",
+      "bytes": 7829
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+      "blob": "29306241f0e6e36c88b20787cd6ffe0560a36b0f",
+      "sha256": "f0aedad8066897dbe3b08650bae1d39c5f1cbb4997a39e3757d678338af00b65",
+      "bytes": 9580
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "blob": "2581173b5a0c2b1e0f5357d728a7481bd514dbf6",
+      "sha256": "22612008f55d0b9dd68905e743c565c49fbcc09533acde9f8c1c5b2c0011de2e",
+      "bytes": 95285
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/components.py",
+      "blob": "e455ef611bd50b8c1a4706b87a002bcbdf79fcf9",
+      "sha256": "7109ea66c732b23a6fc85eb576fe93c11e6785d1e3949e1c96b5a93727e2a597",
+      "bytes": 2151
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/validation/phase5_preflight.py",
+      "blob": "c88e5ea4d29250cd4b97856bdc8934a2659c5fb2",
+      "sha256": "9f85ef33ab3c953ace5ed0191326e9f829c8d9fb212c7b2a328d7dd8f52ab494",
+      "bytes": 46896
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_configured_observations.py",
+      "blob": "29216cd7a78bbebd6537e0f4dd42309467824672",
+      "sha256": "c213fcdb0dae946c4765312452ff7211a216955898246366cfc9f96ffaed3690",
+      "bytes": 6897
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_components.py",
+      "blob": "ea205491598e92b73e9f6b10c36221f3e3e0fac5",
+      "sha256": "a6205509b528a1daa7dfe779c119d6f846a75587a406ecfd6eff769b069d0e37",
+      "bytes": 462
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py",
+      "blob": "a5d97c881ffb1f56d770f0d77b0f39729f1c089e",
+      "sha256": "3c8eae482bae140471b79f6c021601f379718e904c00f1feb47bb125e0fc773f",
+      "bytes": 2541
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/validation/test_phase5_preflight.py",
+      "blob": "3fa6cb7f9eb3b94c9d82bf5f2174936a41f6e4a3",
+      "sha256": "93b5244890e6c73708f71a34f5c0f6e1f08513b166a20890833a257ff521ce10",
+      "bytes": 13641
+    }
+  ],
+  "state": "immutable candidate, independent review pending; no acceptance/PASS transfer",
+  "env": "/workspace/ORCH04-environments/app Python3.14.2 locked with per-lane PYTHONPATH",
+  "old_unavailable": "f9903d8e803c17743554a58d3f45c6c66d686191",
+  "publication": "UNRUN; normal hook push required"
+}

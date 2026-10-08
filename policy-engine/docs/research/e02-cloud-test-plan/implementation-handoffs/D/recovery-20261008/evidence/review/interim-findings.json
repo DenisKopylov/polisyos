@@ -1,0 +1,54 @@
+{
+  "reviewer": "review_c11",
+  "base": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "initial_candidate": "76f262402cbb4da18888482529d86582c409a7f8",
+  "followup_candidate": "26eaf5c7f9518e1d1bb0c82c0118c448ea0f22a6",
+  "source_disposition": "HOLD pending complete affected test reconciliation",
+  "findings": [
+    {
+      "id": "C11-review-1",
+      "priority": "P1",
+      "confidence": "high",
+      "candidate": "76f262402cbb4da18888482529d86582c409a7f8",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "line": 176,
+      "property": "Effective cache identity must include exact ArtifactRef kind/media/selected manifest view; changed effective basis executes fresh callback",
+      "actual_predicate": "artifact_id only for any object with artifact_id",
+      "divergent_case": "Two typed uncertainty_basis refs have same artifact_id and different manifest_profile_sha256; real public orchestrator reuses old terminal ticket/context and callback count remains1 with stale score1",
+      "P40": "same_effective_basis_identity_class_one_level_deeper",
+      "source_fix_at": "26eaf5c7f9518e1d1bb0c82c0118c448ea0f22a6",
+      "state": "fixed in source by existing complete artifact_ref_identity_key; final native deciding evidence pending",
+      "evidence": [
+        "selected-view-cache-probe.py",
+        "selected-view-cache-probe.stdout.txt",
+        "selected-view-cache-probe.stderr.txt"
+      ],
+      "qualification": "synthetic valid typed ref shapes + actual public orchestrator/cache and allowed callback; no actual CAS, scientific or production authority proven"
+    },
+    {
+      "id": "C11-review-2",
+      "priority": "P2",
+      "confidence": "high",
+      "path": "policy-engine/tests/unit/remediation/test_fun_03.py",
+      "initial_candidate_lines": [
+        116,
+        278
+      ],
+      "followup_candidate_line": 672,
+      "property": "All affected tests must reflect honest unbound-current and missing-issuer refusal while retaining original required positives as held",
+      "actual_predicate": "Remaining node test expects bool-authorized runner, owner callbacks and policy_promotion_result although selected L6 blocks before runner",
+      "divergent_case": "test_run_policy_blueprint_execute_rechecks_owner_at_commit expects runner_calls=[runner], owner_checks=[True,False] under absent typed permit bridge",
+      "P40": "second_same_class_affected_test_expectation_gap; complete affected denominator reconciliation required",
+      "state": "author running full focused FUN03 diagnostic; no inherited red waiver; final companion pending"
+    }
+  ],
+  "bounded_remaining_original_criteria": [
+    "Actual producer provenance/currentness/consumed scientific subject-value-unit-input-rule-time derivation not supplied by CAS kind/hash or caller expected ref",
+    "B161 allowed scientific refinement positive held, no overwrite/min/latest law introduced",
+    "B164 typed current issuer/verifier/revoke-serialized writer positive held, all effectful generic callbacks refused",
+    "B131 tenant/split/reuse law; B137 genuinely new authorized revalidation; B157 observed reduced/full native work; B108 fiscal unit/sign/alias law remain independent inputs",
+    "Real configured native node observation positive and fresh CAS reader not proved by fixture ProducerStage",
+    "E/F supplied registration nodes/modules absent; existing catalog factory exercise is separate",
+    "Final native/fresh/removal and affected Phase5 deciding outputs pending independent tester"
+  ]
+}

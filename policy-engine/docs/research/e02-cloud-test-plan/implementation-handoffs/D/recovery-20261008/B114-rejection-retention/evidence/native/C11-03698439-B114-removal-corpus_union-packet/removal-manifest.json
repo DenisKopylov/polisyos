@@ -1,0 +1,28 @@
+{
+  "schema": "ORCH04-B114-matched-property-removal-v1",
+  "source": "03698439abfb1cb59f763397a182d8e0e393d40d",
+  "kind": "corpus_union",
+  "source_files_modified": false,
+  "original_owner_module": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+  "original_owner_sha256": "59ca17ed3b226c5a8ee09e842134e6d91356f00b45a2cea47a36a88b52baf1b8",
+  "actual_base_module": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+  "actual_base_sha256": "9dcffa7b1276e18be70c9a3c1d9fc3e618b4f11b9cc8611f96de06a9744bb7e7",
+  "changes": [
+    {
+      "method": "_effective_training_corpus",
+      "actual_original_code_filename": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "preimage": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union-packet/_effective_training_corpus.preimage.py",
+      "preimage_sha256": "294a58253bcccb26f1c8c13a832b520deb5c9c351f7c8c91c5b0fe0dd0ed6bfd",
+      "postimage": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union-packet/_effective_training_corpus.postimage.py",
+      "postimage_sha256": "16c6114c1a53c731bbcbd1f06ce369eed9944bb00098580561a067f92899154a",
+      "removed_effect": "for evaluation in [*self._warm_evals, *evaluations]:",
+      "effect_identifier_marker_preserved": true,
+      "runtime_function_code_filename": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union-packet/_effective_training_corpus.postimage.py"
+    }
+  ],
+  "pytest_argv": [
+    "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_warm_start_reaches_gp_training_before_initial_threshold",
+    "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union/junit.xml"
+  ],
+  "qualification": "Only the named effect is removed in this process. Version/complete/count/per-record log/class/enum/reference/input markers remain. Original committed tests and ordinary conftest run; no product/test file edit, native numerical positive inferred from removal, or hook bypass."
+}

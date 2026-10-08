@@ -1,0 +1,76 @@
+{
+  "schema": "orch04.native_execution.v1",
+  "argv": [
+    "/workspace/ORCH04-environments/app/bin/python",
+    "/workspace/ORCH04-evidence/native-tester/b114_rejection_boundary_final.py",
+    "--source",
+    "03698439abfb1cb59f763397a182d8e0e393d40d",
+    "--out",
+    "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-rejection-boundary-packet"
+  ],
+  "cwd": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine",
+  "source_commit": "03698439abfb1cb59f763397a182d8e0e393d40d",
+  "source_tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+  "source_manifest_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source-source-manifest.json",
+  "source_manifest_sha256": "35570f0a5f6c2521ad4543970ce281a230fc091d7310763983ac2946b9d252c3",
+  "start_utc": "2026-10-08T17:57:13.577236+00:00",
+  "parent_pid": 29357,
+  "cgroup_before": {
+    "memory.current": "14499799040\n",
+    "memory.peak": "17180999680\n",
+    "memory.max": "17179869184\n",
+    "memory.events": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "memory.stat": "anon 73719808\nfile 12062474240\nkernel 2362564608\nkernel_stack 540672\npagetables 1581056\nsec_pagetables 0\npercpu 13776\nsock 0\nvmalloc 0\nshmem 39874560\nfile_mapped 24576\nfile_dirty 35991552\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 427819008\nshmem_thp 0\ninactive_anon 87957504\nactive_anon 25493504\ninactive_file 1253994496\nactive_file 10768605184\nunevictable 0\nslab_reclaimable 2356126528\nslab_unreclaimable 4276584\nslab 2360403112\nworkingset_refault_anon 0\nworkingset_refault_file 435777\nworkingset_activate_anon 0\nworkingset_activate_file 247032\nworkingset_restore_anon 0\nworkingset_restore_file 264\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 4321570\npgsteal 4317613\npswpin 0\npswpout 0\npgscan_kswapd 28349\npgscan_direct 4293221\npgscan_khugepaged 0\npgscan_proactive 0\npgsteal_kswapd 28349\npgsteal_direct 4289264\npgsteal_khugepaged 0\npgsteal_proactive 0\npgfault 59490877\npgmajfault 377\npgrefill 18719\npgactivate 2247782\npgdeactivate 18719\npglazyfree 2185\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 73\nthp_collapse_alloc 10\nthp_swpout 0\nthp_swpout_fallback 0\n",
+    "pids.current": "83\n",
+    "pids.max": "max\n",
+    "cpu.max": "400000 100000\n",
+    "filesystem": {
+      "available_bytes": 4440547328,
+      "available_inodes": 1285348
+    }
+  },
+  "source_delta_before": [],
+  "selected_environment": {
+    "PYTHONPATH": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src:/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine:",
+    "TMPDIR": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-rejection-boundary/tmp",
+    "JAX_PLATFORMS": null,
+    "JAX_PLATFORM_NAME": null,
+    "OMP_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "XLA_FLAGS": null
+  },
+  "external_file_inputs": [
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/run_native.py",
+      "sha256": "7ef04c4846426d42e38a8598e26b728bfbc5bb32f034faba0c3da61dd670826d"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/b114_rejection_boundary_final.py",
+      "sha256": "70b625b43a5d3c721efe607d1963edd49feacefb50cac596571fa3a618a00be0"
+    }
+  ],
+  "origins_exit_code": 0,
+  "pid": 29359,
+  "exit_code": 0,
+  "wall_seconds": 9.822794739999154,
+  "finish_utc": "2026-10-08T17:57:24.441922+00:00",
+  "max_rss_kib": 1314648,
+  "user_seconds": 9.58497,
+  "system_seconds": 1.134268,
+  "cgroup_after": {
+    "memory.current": "14521319424\n",
+    "memory.peak": "17180999680\n",
+    "memory.max": "17179869184\n",
+    "memory.events": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "memory.stat": "anon 90697728\nfile 12062736384\nkernel 2366734336\nkernel_stack 540672\npagetables 5644288\nsec_pagetables 0\npercpu 13888\nsock 0\nvmalloc 0\nshmem 39874560\nfile_mapped 24576\nfile_dirty 36253696\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 427819008\nshmem_thp 0\ninactive_anon 105082880\nactive_anon 25493504\ninactive_file 1254244352\nactive_file 10768617472\nunevictable 0\nslab_reclaimable 2356184408\nslab_unreclaimable 4338352\nslab 2360522760\nworkingset_refault_anon 0\nworkingset_refault_file 435777\nworkingset_activate_anon 0\nworkingset_activate_file 247032\nworkingset_restore_anon 0\nworkingset_restore_file 264\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 4321570\npgsteal 4317613\npswpin 0\npswpout 0\npgscan_kswapd 28349\npgscan_direct 4293221\npgscan_khugepaged 0\npgscan_proactive 0\npgsteal_kswapd 28349\npgsteal_direct 4289264\npgsteal_khugepaged 0\npgsteal_proactive 0\npgfault 59812634\npgmajfault 377\npgrefill 18719\npgactivate 2247791\npgdeactivate 18719\npglazyfree 2189\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 73\nthp_collapse_alloc 10\nthp_swpout 0\nthp_swpout_fallback 0\n",
+    "pids.current": "83\n",
+    "pids.max": "max\n",
+    "cpu.max": "400000 100000\n",
+    "filesystem": {
+      "available_bytes": 4440285184,
+      "available_inodes": 1285336
+    }
+  },
+  "source_delta_after": []
+}

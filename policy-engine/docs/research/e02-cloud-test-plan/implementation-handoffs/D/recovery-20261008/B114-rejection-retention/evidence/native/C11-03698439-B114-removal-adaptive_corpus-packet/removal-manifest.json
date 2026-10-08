@@ -1,0 +1,28 @@
+{
+  "schema": "ORCH04-B114-matched-property-removal-v1",
+  "source": "03698439abfb1cb59f763397a182d8e0e393d40d",
+  "kind": "adaptive_corpus",
+  "source_files_modified": false,
+  "original_owner_module": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+  "original_owner_sha256": "59ca17ed3b226c5a8ee09e842134e6d91356f00b45a2cea47a36a88b52baf1b8",
+  "actual_base_module": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+  "actual_base_sha256": "9dcffa7b1276e18be70c9a3c1d9fc3e618b4f11b9cc8611f96de06a9744bb7e7",
+  "changes": [
+    {
+      "method": "suggest",
+      "actual_original_code_filename": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "preimage": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus-packet/suggest.preimage.py",
+      "preimage_sha256": "f070e38c137e3a96326e15947f981691310b71d224818d49fd58a9aa9b1030e1",
+      "postimage": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus-packet/suggest.postimage.py",
+      "postimage_sha256": "512ca1a23939682de3cb3ba0c677695cc6fb4288c9523615d0131cfdd8c84899",
+      "removed_effect": "evaluations=training_corpus,",
+      "effect_identifier_marker_preserved": true,
+      "runtime_function_code_filename": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus-packet/suggest.postimage.py"
+    }
+  ],
+  "pytest_argv": [
+    "tests/unit/scientist/search/strategies/test_bayesian.py::test_whole_and_warm_split_use_the_same_permitted_acquisition_plan",
+    "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus/junit.xml"
+  ],
+  "qualification": "Only the named effect is removed in this process. Version/complete/count/per-record log/class/enum/reference/input markers remain. Original committed tests and ordinary conftest run; no product/test file edit, native numerical positive inferred from removal, or hook bypass."
+}

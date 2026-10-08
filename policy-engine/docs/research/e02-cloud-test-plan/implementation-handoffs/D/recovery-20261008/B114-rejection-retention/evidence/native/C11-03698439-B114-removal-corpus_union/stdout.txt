@@ -1,0 +1,198 @@
+{
+  "schema": "ORCH04-B114-matched-property-removal-v1",
+  "source": "03698439abfb1cb59f763397a182d8e0e393d40d",
+  "kind": "corpus_union",
+  "source_files_modified": false,
+  "original_owner_module": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+  "original_owner_sha256": "59ca17ed3b226c5a8ee09e842134e6d91356f00b45a2cea47a36a88b52baf1b8",
+  "actual_base_module": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+  "actual_base_sha256": "9dcffa7b1276e18be70c9a3c1d9fc3e618b4f11b9cc8611f96de06a9744bb7e7",
+  "changes": [
+    {
+      "method": "_effective_training_corpus",
+      "actual_original_code_filename": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "preimage": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union-packet/_effective_training_corpus.preimage.py",
+      "preimage_sha256": "294a58253bcccb26f1c8c13a832b520deb5c9c351f7c8c91c5b0fe0dd0ed6bfd",
+      "postimage": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union-packet/_effective_training_corpus.postimage.py",
+      "postimage_sha256": "16c6114c1a53c731bbcbd1f06ce369eed9944bb00098580561a067f92899154a",
+      "removed_effect": "for evaluation in [*self._warm_evals, *evaluations]:",
+      "effect_identifier_marker_preserved": true,
+      "runtime_function_code_filename": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union-packet/_effective_training_corpus.postimage.py"
+    }
+  ],
+  "pytest_argv": [
+    "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_warm_start_reaches_gp_training_before_initial_threshold",
+    "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union/junit.xml"
+  ],
+  "qualification": "Only the named effect is removed in this process. Version/complete/count/per-record log/class/enum/reference/input markers remain. Original committed tests and ordinary conftest run; no product/test file edit, native numerical positive inferred from removal, or hook bypass."
+}
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____ test_bayesian_warm_start_reaches_gp_training_before_initial_threshold _____
+
+simple_space = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=<ParameterType.CONTINUOUS: 'continuous'>, log_scale=False, categories=None)])
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2ad7b19220>
+
+    @pytest.mark.skipif(fit_gpytorch_mll is None, reason="BoTorch stack not installed")
+    def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
+        simple_space: SearchSpace,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Warm history and current observations form one compatible GP corpus."""
+        strategy = BayesianOptimizer(
+            simple_space,
+            BayesianConfig(n_initial=6, num_restarts=3, raw_samples=32, seed=21),
+        )
+        compatibility = {
+            "search_space_fingerprint": simple_space.sobol_space_fingerprint(),
+            "input_transform_fingerprint": "Normalize[0,1]",
+            "outcome_transform_fingerprint": "Standardize[m=1]",
+            "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+            "objective_fingerprint": "scalar_score[minimize]",
+            "context_fingerprint": "context/run-1",
+        }
+        warm = [
+            make_evaluation(
+                candidate_id=f"warm-{index}",
+                params={"x": -3.5 + index},
+                score=float(index),
+                space=simple_space,
+            )
+            for index in range(6)
+        ]
+        for index, evaluation in enumerate(warm):
+            evaluation.provenance_ref = f"origin/run-1/evaluation-{index}"
+            evaluation.metadata = {
+                "replicate_id": f"replica-{index}",
+                "seed": index,
+                "warm_start_compatibility": dict(compatibility),
+            }
+        warm[2].provenance_ref = "origin/run-1/evaluation-2"
+        warm[2].metadata = {
+            "replicate_id": "replica-1",
+            "seed": 1,
+            "warm_start_compatibility": dict(compatibility),
+        }
+        duplicate = make_evaluation(
+            candidate_id="warm-2",
+            params={"x": -1.5},
+            score=2.0,
+            space=simple_space,
+        )
+        duplicate.provenance_ref = "origin/run-1/evaluation-2"
+        duplicate.metadata = {
+            "replicate_id": "replica-1",
+            "seed": 1,
+            "warm_start_compatibility": dict(compatibility),
+        }
+        independent_replica = make_evaluation(
+            candidate_id="warm-2-replica",
+            params={"x": -1.5},
+            score=2.25,
+            space=simple_space,
+        )
+        independent_replica.provenance_ref = "origin/run-1/evaluation-2"
+        independent_replica.metadata = {
+            "replicate_id": "replica-2",
+            "seed": 2,
+            "warm_start_compatibility": dict(compatibility),
+        }
+        warm.extend([duplicate, independent_replica])
+        malformed = make_evaluation(
+            candidate_id="warm-foreign-basis",
+            params={"x": 4.5},
+            score=7.0,
+            space=simple_space,
+        )
+        malformed.provenance_ref = "origin/run-1/foreign-basis"
+        malformed.metadata = {"replicate_id": "foreign-basis", "seed": 99}
+        malformed.params_normalized = (0.25, 0.75)
+        warm.append(malformed)
+        incompatible_context = make_evaluation(
+            candidate_id="warm-incompatible-context",
+            params={"x": 3.75},
+            score=7.25,
+            space=simple_space,
+        )
+        incompatible_context.provenance_ref = "origin/run-1/incompatible-context"
+        incompatible_context.metadata = {
+            "replicate_id": "incompatible-context",
+            "seed": 98,
+            "warm_start_compatibility": {
+                **compatibility,
+                "context_fingerprint": "context/foreign",
+            },
+        }
+        warm.append(incompatible_context)
+        unbound = make_evaluation(
+            candidate_id="warm-unbound",
+            params={"x": 4.25},
+            score=7.5,
+            space=simple_space,
+        )
+        unbound.metadata = {"replicate_id": "unbound", "seed": 100}
+        warm.append(unbound)
+        current = [
+            make_evaluation(
+                candidate_id="current-0",
+                params={"x": 4.0},
+                score=8.0,
+                space=simple_space,
+            )
+        ]
+        current[0].provenance_ref = "origin/run-2/evaluation-0"
+        current[0].metadata = {
+            "replicate_id": "current-0",
+            "seed": 101,
+            "warm_start_compatibility": dict(compatibility),
+        }
+    
+        strategy.warm_start(warm)
+        history = StrategyState.from_artifact(strategy.get_state().to_artifact()).metadata[
+            "warm_start_rejections"
+        ]
+        assert history["complete"] is True
+        assert [record["evaluation"]["candidate_id"] for record in history["records"]] == [
+            "warm-foreign-basis",
+            "warm-incompatible-context",
+            "warm-unbound",
+        ]
+        assert [record["reason"] for record in history["records"]] == [
+            "incompatible normalized parameters",
+            "incompatible context fingerprint",
+            "missing provenance_ref",
+        ]
+        observed_corpus: list[tuple[tuple[tuple[float, ...], ...], tuple[float, ...]]] = []
+        observed_ids: list[tuple[str, ...]] = []
+        original_prepare = strategy._prepare_training_data
+    
+        def observe_prepare(evaluations):
+            observed_ids.append(tuple(evaluation.candidate_id for evaluation in evaluations))
+            return original_prepare(evaluations)
+    
+        original_fit = strategy._fit_gp
+    
+        def observe_fit(x, y_bo):
+            x_rows = tuple(tuple(float(value) for value in row) for row in x.detach().cpu().tolist())
+            y_rows = tuple(float(row[0]) for row in y_bo.detach().cpu().tolist())
+            observed_corpus.append((x_rows, y_rows))
+            return original_fit(x, y_bo)
+    
+        monkeypatch.setattr(strategy, "_prepare_training_data", observe_prepare)
+        monkeypatch.setattr(strategy, "_fit_gp", observe_fit)
+        candidate = strategy.suggest(current)
+    
+>       assert len(observed_ids) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+tests/unit/scientist/search/strategies/test_bayesian.py:539: AssertionError
+=============================== warnings summary ===============================
+../../../../ORCH04-environments/app/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_warm_start_reaches_gp_training_before_initial_threshold
+1 failed, 1 warning in 0.10s

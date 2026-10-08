@@ -1,0 +1,504 @@
+{
+  "source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+  "test_module": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+  "test_module_sha256": "25deba8b89a1ed4174b1e13e48e296fc8eb92b91849ef898c9e242f846064a49",
+  "input_prefix_ast_sha256": "24831e0f06e456e4df1cc4249c5c7af3504cc21c39365c37ee2d2b8f02a7824c",
+  "test_helper": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/tests/_helpers/search_strategies.py",
+  "test_helper_sha256": "8d443fc9e91e643e016461548aca52292a5d44a9fd96fe707ef67a5b3f553687",
+  "owner_module": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+  "owner_module_sha256": "beca4fa1db4a5b4073fa1ec1de88badc44f65d2dcb33ba4d2d199dcca0e6df45",
+  "warm_rows": [
+    {
+      "candidate_id": "warm-0",
+      "params": {
+        "x": -3.5
+      },
+      "params_normalized": [
+        0.15
+      ],
+      "objectives": [
+        {
+          "name": "score",
+          "raw_value": 0.0,
+          "direction": "minimize",
+          "weight": 1.0,
+          "is_satisfied": true,
+          "threshold": null
+        }
+      ],
+      "scalar_score": 0.0,
+      "stage_a_passed": true,
+      "stage_b_result": {
+        "simulation_results": {
+          "score": 0.0
+        }
+      },
+      "status": "success",
+      "timestamp": "2026-10-08T17:30:10.296104+00:00",
+      "wall_time_seconds": 0.0,
+      "provenance_ref": "origin/run-1/evaluation-0",
+      "metadata": {
+        "replicate_id": "replica-0",
+        "seed": 0,
+        "warm_start_compatibility": {
+          "search_space_fingerprint": "e45591cd40bfcdb151e7e855a44f355f34490218b20616676edc92c9b1d9bd2d",
+          "input_transform_fingerprint": "Normalize[0,1]",
+          "outcome_transform_fingerprint": "Standardize[m=1]",
+          "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+          "objective_fingerprint": "scalar_score[minimize]",
+          "context_fingerprint": "context/run-1"
+        }
+      }
+    },
+    {
+      "candidate_id": "warm-1",
+      "params": {
+        "x": -2.5
+      },
+      "params_normalized": [
+        0.25
+      ],
+      "objectives": [
+        {
+          "name": "score",
+          "raw_value": 1.0,
+          "direction": "minimize",
+          "weight": 1.0,
+          "is_satisfied": true,
+          "threshold": null
+        }
+      ],
+      "scalar_score": 1.0,
+      "stage_a_passed": true,
+      "stage_b_result": {
+        "simulation_results": {
+          "score": 1.0
+        }
+      },
+      "status": "success",
+      "timestamp": "2026-10-08T17:30:10.296119+00:00",
+      "wall_time_seconds": 0.0,
+      "provenance_ref": "origin/run-1/evaluation-1",
+      "metadata": {
+        "replicate_id": "replica-1",
+        "seed": 1,
+        "warm_start_compatibility": {
+          "search_space_fingerprint": "e45591cd40bfcdb151e7e855a44f355f34490218b20616676edc92c9b1d9bd2d",
+          "input_transform_fingerprint": "Normalize[0,1]",
+          "outcome_transform_fingerprint": "Standardize[m=1]",
+          "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+          "objective_fingerprint": "scalar_score[minimize]",
+          "context_fingerprint": "context/run-1"
+        }
+      }
+    },
+    {
+      "candidate_id": "warm-2",
+      "params": {
+        "x": -1.5
+      },
+      "params_normalized": [
+        0.35
+      ],
+      "objectives": [
+        {
+          "name": "score",
+          "raw_value": 2.0,
+          "direction": "minimize",
+          "weight": 1.0,
+          "is_satisfied": true,
+          "threshold": null
+        }
+      ],
+      "scalar_score": 2.0,
+      "stage_a_passed": true,
+      "stage_b_result": {
+        "simulation_results": {
+          "score": 2.0
+        }
+      },
+      "status": "success",
+      "timestamp": "2026-10-08T17:30:10.296126+00:00",
+      "wall_time_seconds": 0.0,
+      "provenance_ref": "origin/run-1/evaluation-2",
+      "metadata": {
+        "replicate_id": "replica-1",
+        "seed": 1,
+        "warm_start_compatibility": {
+          "search_space_fingerprint": "e45591cd40bfcdb151e7e855a44f355f34490218b20616676edc92c9b1d9bd2d",
+          "input_transform_fingerprint": "Normalize[0,1]",
+          "outcome_transform_fingerprint": "Standardize[m=1]",
+          "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+          "objective_fingerprint": "scalar_score[minimize]",
+          "context_fingerprint": "context/run-1"
+        }
+      }
+    },
+    {
+      "candidate_id": "warm-3",
+      "params": {
+        "x": -0.5
+      },
+      "params_normalized": [
+        0.45
+      ],
+      "objectives": [
+        {
+          "name": "score",
+          "raw_value": 3.0,
+          "direction": "minimize",
+          "weight": 1.0,
+          "is_satisfied": true,
+          "threshold": null
+        }
+      ],
+      "scalar_score": 3.0,
+      "stage_a_passed": true,
+      "stage_b_result": {
+        "simulation_results": {
+          "score": 3.0
+        }
+      },
+      "status": "success",
+      "timestamp": "2026-10-08T17:30:10.296131+00:00",
+      "wall_time_seconds": 0.0,
+      "provenance_ref": "origin/run-1/evaluation-3",
+      "metadata": {
+        "replicate_id": "replica-3",
+        "seed": 3,
+        "warm_start_compatibility": {
+          "search_space_fingerprint": "e45591cd40bfcdb151e7e855a44f355f34490218b20616676edc92c9b1d9bd2d",
+          "input_transform_fingerprint": "Normalize[0,1]",
+          "outcome_transform_fingerprint": "Standardize[m=1]",
+          "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+          "objective_fingerprint": "scalar_score[minimize]",
+          "context_fingerprint": "context/run-1"
+        }
+      }
+    },
+    {
+      "candidate_id": "warm-4",
+      "params": {
+        "x": 0.5
+      },
+      "params_normalized": [
+        0.55
+      ],
+      "objectives": [
+        {
+          "name": "score",
+          "raw_value": 4.0,
+          "direction": "minimize",
+          "weight": 1.0,
+          "is_satisfied": true,
+          "threshold": null
+        }
+      ],
+      "scalar_score": 4.0,
+      "stage_a_passed": true,
+      "stage_b_result": {
+        "simulation_results": {
+          "score": 4.0
+        }
+      },
+      "status": "success",
+      "timestamp": "2026-10-08T17:30:10.296136+00:00",
+      "wall_time_seconds": 0.0,
+      "provenance_ref": "origin/run-1/evaluation-4",
+      "metadata": {
+        "replicate_id": "replica-4",
+        "seed": 4,
+        "warm_start_compatibility": {
+          "search_space_fingerprint": "e45591cd40bfcdb151e7e855a44f355f34490218b20616676edc92c9b1d9bd2d",
+          "input_transform_fingerprint": "Normalize[0,1]",
+          "outcome_transform_fingerprint": "Standardize[m=1]",
+          "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+          "objective_fingerprint": "scalar_score[minimize]",
+          "context_fingerprint": "context/run-1"
+        }
+      }
+    },
+    {
+      "candidate_id": "warm-5",
+      "params": {
+        "x": 1.5
+      },
+      "params_normalized": [
+        0.65
+      ],
+      "objectives": [
+        {
+          "name": "score",
+          "raw_value": 5.0,
+          "direction": "minimize",
+          "weight": 1.0,
+          "is_satisfied": true,
+          "threshold": null
+        }
+      ],
+      "scalar_score": 5.0,
+      "stage_a_passed": true,
+      "stage_b_result": {
+        "simulation_results": {
+          "score": 5.0
+        }
+      },
+      "status": "success",
+      "timestamp": "2026-10-08T17:30:10.296139+00:00",
+      "wall_time_seconds": 0.0,
+      "provenance_ref": "origin/run-1/evaluation-5",
+      "metadata": {
+        "replicate_id": "replica-5",
+        "seed": 5,
+        "warm_start_compatibility": {
+          "search_space_fingerprint": "e45591cd40bfcdb151e7e855a44f355f34490218b20616676edc92c9b1d9bd2d",
+          "input_transform_fingerprint": "Normalize[0,1]",
+          "outcome_transform_fingerprint": "Standardize[m=1]",
+          "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+          "objective_fingerprint": "scalar_score[minimize]",
+          "context_fingerprint": "context/run-1"
+        }
+      }
+    },
+    {
+      "candidate_id": "warm-2",
+      "params": {
+        "x": -1.5
+      },
+      "params_normalized": [
+        0.35
+      ],
+      "objectives": [
+        {
+          "name": "score",
+          "raw_value": 2.0,
+          "direction": "minimize",
+          "weight": 1.0,
+          "is_satisfied": true,
+          "threshold": null
+        }
+      ],
+      "scalar_score": 2.0,
+      "stage_a_passed": true,
+      "stage_b_result": {
+        "simulation_results": {
+          "score": 2.0
+        }
+      },
+      "status": "success",
+      "timestamp": "2026-10-08T17:30:10.296154+00:00",
+      "wall_time_seconds": 0.0,
+      "provenance_ref": "origin/run-1/evaluation-2",
+      "metadata": {
+        "replicate_id": "replica-1",
+        "seed": 1,
+        "warm_start_compatibility": {
+          "search_space_fingerprint": "e45591cd40bfcdb151e7e855a44f355f34490218b20616676edc92c9b1d9bd2d",
+          "input_transform_fingerprint": "Normalize[0,1]",
+          "outcome_transform_fingerprint": "Standardize[m=1]",
+          "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+          "objective_fingerprint": "scalar_score[minimize]",
+          "context_fingerprint": "context/run-1"
+        }
+      }
+    },
+    {
+      "candidate_id": "warm-2-replica",
+      "params": {
+        "x": -1.5
+      },
+      "params_normalized": [
+        0.35
+      ],
+      "objectives": [
+        {
+          "name": "score",
+          "raw_value": 2.25,
+          "direction": "minimize",
+          "weight": 1.0,
+          "is_satisfied": true,
+          "threshold": null
+        }
+      ],
+      "scalar_score": 2.25,
+      "stage_a_passed": true,
+      "stage_b_result": {
+        "simulation_results": {
+          "score": 2.25
+        }
+      },
+      "status": "success",
+      "timestamp": "2026-10-08T17:30:10.296158+00:00",
+      "wall_time_seconds": 0.0,
+      "provenance_ref": "origin/run-1/evaluation-2",
+      "metadata": {
+        "replicate_id": "replica-2",
+        "seed": 2,
+        "warm_start_compatibility": {
+          "search_space_fingerprint": "e45591cd40bfcdb151e7e855a44f355f34490218b20616676edc92c9b1d9bd2d",
+          "input_transform_fingerprint": "Normalize[0,1]",
+          "outcome_transform_fingerprint": "Standardize[m=1]",
+          "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+          "objective_fingerprint": "scalar_score[minimize]",
+          "context_fingerprint": "context/run-1"
+        }
+      }
+    },
+    {
+      "candidate_id": "warm-foreign-basis",
+      "params": {
+        "x": 4.5
+      },
+      "params_normalized": [
+        0.25,
+        0.75
+      ],
+      "objectives": [
+        {
+          "name": "score",
+          "raw_value": 7.0,
+          "direction": "minimize",
+          "weight": 1.0,
+          "is_satisfied": true,
+          "threshold": null
+        }
+      ],
+      "scalar_score": 7.0,
+      "stage_a_passed": true,
+      "stage_b_result": {
+        "simulation_results": {
+          "score": 7.0
+        }
+      },
+      "status": "success",
+      "timestamp": "2026-10-08T17:30:10.296162+00:00",
+      "wall_time_seconds": 0.0,
+      "provenance_ref": "origin/run-1/foreign-basis",
+      "metadata": {
+        "replicate_id": "foreign-basis",
+        "seed": 99
+      }
+    },
+    {
+      "candidate_id": "warm-incompatible-context",
+      "params": {
+        "x": 3.75
+      },
+      "params_normalized": [
+        0.875
+      ],
+      "objectives": [
+        {
+          "name": "score",
+          "raw_value": 7.25,
+          "direction": "minimize",
+          "weight": 1.0,
+          "is_satisfied": true,
+          "threshold": null
+        }
+      ],
+      "scalar_score": 7.25,
+      "stage_a_passed": true,
+      "stage_b_result": {
+        "simulation_results": {
+          "score": 7.25
+        }
+      },
+      "status": "success",
+      "timestamp": "2026-10-08T17:30:10.296165+00:00",
+      "wall_time_seconds": 0.0,
+      "provenance_ref": "origin/run-1/incompatible-context",
+      "metadata": {
+        "replicate_id": "incompatible-context",
+        "seed": 98,
+        "warm_start_compatibility": {
+          "search_space_fingerprint": "e45591cd40bfcdb151e7e855a44f355f34490218b20616676edc92c9b1d9bd2d",
+          "input_transform_fingerprint": "Normalize[0,1]",
+          "outcome_transform_fingerprint": "Standardize[m=1]",
+          "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+          "objective_fingerprint": "scalar_score[minimize]",
+          "context_fingerprint": "context/foreign"
+        }
+      }
+    },
+    {
+      "candidate_id": "warm-unbound",
+      "params": {
+        "x": 4.25
+      },
+      "params_normalized": [
+        0.925
+      ],
+      "objectives": [
+        {
+          "name": "score",
+          "raw_value": 7.5,
+          "direction": "minimize",
+          "weight": 1.0,
+          "is_satisfied": true,
+          "threshold": null
+        }
+      ],
+      "scalar_score": 7.5,
+      "stage_a_passed": true,
+      "stage_b_result": {
+        "simulation_results": {
+          "score": 7.5
+        }
+      },
+      "status": "success",
+      "timestamp": "2026-10-08T17:30:10.296171+00:00",
+      "wall_time_seconds": 0.0,
+      "provenance_ref": null,
+      "metadata": {
+        "replicate_id": "unbound",
+        "seed": 100
+      }
+    }
+  ],
+  "current_rows_unexecuted": [
+    {
+      "candidate_id": "current-0",
+      "params": {
+        "x": 4.0
+      },
+      "params_normalized": [
+        0.9
+      ],
+      "objectives": [
+        {
+          "name": "score",
+          "raw_value": 8.0,
+          "direction": "minimize",
+          "weight": 1.0,
+          "is_satisfied": true,
+          "threshold": null
+        }
+      ],
+      "scalar_score": 8.0,
+      "stage_a_passed": true,
+      "stage_b_result": {
+        "simulation_results": {
+          "score": 8.0
+        }
+      },
+      "status": "success",
+      "timestamp": "2026-10-08T17:30:10.296175+00:00",
+      "wall_time_seconds": 0.0,
+      "provenance_ref": "origin/run-2/evaluation-0",
+      "metadata": {
+        "replicate_id": "current-0",
+        "seed": 101,
+        "warm_start_compatibility": {
+          "search_space_fingerprint": "e45591cd40bfcdb151e7e855a44f355f34490218b20616676edc92c9b1d9bd2d",
+          "input_transform_fingerprint": "Normalize[0,1]",
+          "outcome_transform_fingerprint": "Standardize[m=1]",
+          "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+          "objective_fingerprint": "scalar_score[minimize]",
+          "context_fingerprint": "context/run-1"
+        }
+      }
+    }
+  ],
+  "qualification": "Exact declared bounded warm-test fixtures only; no TRN original CAS/content admission, GP fit, statistical/issuer/production law or whole B114 closure claim."
+}

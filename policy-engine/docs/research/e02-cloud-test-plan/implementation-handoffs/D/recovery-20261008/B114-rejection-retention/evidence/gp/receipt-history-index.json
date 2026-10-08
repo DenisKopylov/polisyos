@@ -1,0 +1,16 @@
+{
+  "schema": "policyos.orch04.gp.receipt_history.v1",
+  "tested_source": "03698439abfb1cb59f763397a182d8e0e393d40d",
+  "historical": {
+    "path": "/workspace/ORCH04-evidence/gp/final-036-gp-receipt-before-bound-clarification.json",
+    "sha256": "d448b46cdd5d235b8afb107bf96265fd53a16fc3d4fb7f93d5d2db07b82d419b",
+    "bytes": 8760
+  },
+  "current": {
+    "path": "/workspace/ORCH04-evidence/gp/final-036-gp-receipt.json",
+    "sha256": "1b6143ebb8f5850c748ec2b573759890abbc064da8d5d88d6e56823da6d417ac",
+    "bytes": 10098
+  },
+  "metadata_only": true,
+  "raw_source_and_deciding_outputs_unchanged": true
+}

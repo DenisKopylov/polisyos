@@ -1,0 +1,140 @@
+{
+  "canonical_source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+  "canonical_tree": "605764d3afec7ba005bd891530ee074df5811497",
+  "supplier_source": "8e864f4ed0eeedf509d836381b20976c413f2443",
+  "supplier_tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+  "files": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "canonical": {
+        "git_blob": "5a780cb27cce52d1ecdbcad50e8b1c48b1c596d0",
+        "sha256": "351932fae5958875cc6337f58d4355d278a917805623dd4c64ed4cb4582daf8c",
+        "bytes": 18136,
+        "read_only_evidence_copy": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/canonical/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py"
+      },
+      "supplier": {
+        "git_blob": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+        "sha256": "c47c106ff48a3636d9ceb1ad6f067ae5a63836640bc60439405fbdf421350c6a",
+        "bytes": 33891,
+        "read_only_evidence_copy": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/supplier/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "canonical": {
+        "git_blob": "f70289cc3c4f17d23119b6eec9d783d423ffd7d3",
+        "sha256": "32c1627e65bd7e33d6ca996dbcdbd6979e97fc29ad81106d953565a3a415e1b0",
+        "bytes": 4508,
+        "read_only_evidence_copy": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/canonical/policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+      },
+      "supplier": {
+        "git_blob": "40532c3c0d20eb8e64ea3b1589c7a1cbae5dedd6",
+        "sha256": "f2148ad25320a828605a9345e0d5e1ff91c55aa31ff6fa3cbc458ac2119758ef",
+        "bytes": 4897,
+        "read_only_evidence_copy": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/supplier/policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "canonical": {
+        "git_blob": "afce091094e0ee268a9fa0119526fbda940a6bfe",
+        "sha256": "864ceb96cd161c76f3df5d5ce014e99277ddce23f35dfd6b214242dde81936b5",
+        "bytes": 20971,
+        "read_only_evidence_copy": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/canonical/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py"
+      },
+      "supplier": {
+        "git_blob": "97a775859e8c91bd7713dc4604b194452a6dd83d",
+        "sha256": "8a945d516a27e55f740ab8eed3f9654e7668139c856c22fa1920f3e56acb5d4f",
+        "bytes": 42200,
+        "read_only_evidence_copy": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/supplier/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "canonical": {
+        "git_blob": "178828c665b4827ec49a377cef6eaca30256886f",
+        "sha256": "beca4fa1db4a5b4073fa1ec1de88badc44f65d2dcb33ba4d2d199dcca0e6df45",
+        "bytes": 30826,
+        "read_only_evidence_copy": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/canonical/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py"
+      },
+      "supplier": {
+        "git_blob": "73808387c874c11ef4b23e2e49f90911de97ad4e",
+        "sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066",
+        "bytes": 51763,
+        "read_only_evidence_copy": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/supplier/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "canonical": {
+        "git_blob": "70b82ba92b265c5a2797c4f3a21945619ddea8f4",
+        "sha256": "1bd053194643fbc10024d25dfa3fc7f935a77634fba531b214e144abc005d9e8",
+        "bytes": 8559,
+        "read_only_evidence_copy": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/canonical/policy-engine/src/polisyos/scientist/agent/vector_memory.py"
+      },
+      "supplier": {
+        "git_blob": "3e68ab919b915427300869d6b378d12f585d1f00",
+        "sha256": "9021a922919d78d10669847426ae9e6ea590d92ca298db9d8dea084f5af38d5f",
+        "bytes": 15850,
+        "read_only_evidence_copy": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/supplier/policy-engine/src/polisyos/scientist/agent/vector_memory.py"
+      }
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "canonical": {
+        "exists_in_tree": false,
+        "git_error": "fatal: path 'policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py' does not exist in 'c1bffbd531b9b2c4339f073416c95d42d90ee317'"
+      },
+      "supplier": {
+        "git_blob": "462eb69679bbb65a0633e8d4818a6eb7ff4bc34e",
+        "sha256": "dd9e784ae1b5c1b497cb5c6cd279f826ba3dd3972b5746bd1b51c0487c632cd2",
+        "bytes": 8005,
+        "read_only_evidence_copy": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/supplier/policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py"
+      }
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+      "canonical": {
+        "exists_in_tree": false,
+        "git_error": "fatal: path 'policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py' does not exist in 'c1bffbd531b9b2c4339f073416c95d42d90ee317'"
+      },
+      "supplier": {
+        "git_blob": "1a7e97f9b558f1a27c6977661b6797fcbbb38278",
+        "sha256": "28240feb1d45a369396fc503acd9b8ec5e723225c0527d253563fbc407c62884",
+        "bytes": 18497,
+        "read_only_evidence_copy": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/supplier/policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py"
+      }
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "canonical": {
+        "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+        "bytes": 11007,
+        "read_only_evidence_copy": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/canonical/policy-engine/pyproject.toml"
+      },
+      "supplier": {
+        "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+        "bytes": 11007,
+        "read_only_evidence_copy": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/supplier/policy-engine/pyproject.toml"
+      }
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "canonical": {
+        "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+        "bytes": 779204,
+        "read_only_evidence_copy": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/canonical/policy-engine/uv.lock"
+      },
+      "supplier": {
+        "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+        "bytes": 779204,
+        "read_only_evidence_copy": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/supplier/policy-engine/uv.lock"
+      }
+    }
+  ],
+  "scope": "read-only boundary inventory. Supplier source available but not selected into canonical current receiver; no product or package environment change."
+}

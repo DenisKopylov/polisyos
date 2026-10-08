@@ -1,0 +1,159 @@
+{
+  "source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+  "tree": "605764d3afec7ba005bd891530ee074df5811497",
+  "paths": [
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/REPORT.md",
+      "sha256": "344a41d3dff169e9f898d31075db13cdc47be5d7f08c0a873c9665378c2f096e",
+      "bytes": 3442
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/b114-whole-split-original-order-preimage.py",
+      "sha256": "98149d8911d908a98f5e15db2f32f68ade806b6c1b0cdd7c45cd80a97c05e61f",
+      "bytes": 4790
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/canonical/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-03.md",
+      "sha256": "0bb18c83c79a6a8094af1cc3c22421a488e72520e6c7abd79d724a4f38ff037b",
+      "bytes": 12239
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/canonical/policy-engine/pyproject.toml",
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/canonical/policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "sha256": "1bd053194643fbc10024d25dfa3fc7f935a77634fba531b214e144abc005d9e8",
+      "bytes": 8559
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/canonical/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "sha256": "864ceb96cd161c76f3df5d5ce014e99277ddce23f35dfd6b214242dde81936b5",
+      "bytes": 20971
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/canonical/policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "sha256": "32c1627e65bd7e33d6ca996dbcdbd6979e97fc29ad81106d953565a3a415e1b0",
+      "bytes": 4508
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/canonical/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "sha256": "9dcffa7b1276e18be70c9a3c1d9fc3e618b4f11b9cc8611f96de06a9744bb7e7",
+      "bytes": 20691
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/canonical/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "sha256": "beca4fa1db4a5b4073fa1ec1de88badc44f65d2dcb33ba4d2d199dcca0e6df45",
+      "bytes": 30826
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/canonical/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "sha256": "351932fae5958875cc6337f58d4355d278a917805623dd4c64ed4cb4582daf8c",
+      "bytes": 18136
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/canonical/policy-engine/tests/_helpers/search_strategies.py",
+      "sha256": "8d443fc9e91e643e016461548aca52292a5d44a9fd96fe707ef67a5b3f553687",
+      "bytes": 1741
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/canonical/policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+      "sha256": "25deba8b89a1ed4174b1e13e48e296fc8eb92b91849ef898c9e242f846064a49",
+      "bytes": 18630
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/canonical/policy-engine/uv.lock",
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "bytes": 779204
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/hnsw-profile-gap.json",
+      "sha256": "e8007b6f16801ffdfa96db6106c9823353b8b4cb6bef3a7b96b95b781d7a641b",
+      "bytes": 785
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/minimal-receiver-requirement.json",
+      "sha256": "2602eef777a1d1cb1382f396da51f849f547ab817c067f17596ce80da39012cc",
+      "bytes": 5405
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/owned-cold-planning-finding.json",
+      "sha256": "6c2ae36f29e967fbc263f2a119d086e6697e818e24b5e5e06bb7f18fbc8f95dd",
+      "bytes": 8419
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/owned-planning-finding.json",
+      "sha256": "218ae644ab72d593c264677dc385b2a11fddfa09c0fd9f293fe4af3566278c4a",
+      "bytes": 10038
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/owned-rejection-finding.json",
+      "sha256": "ece7fa8410c0b71b54632604c839a0975e434005a9654e6e1903154b1220dc90",
+      "bytes": 8599
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/source-receiver-manifest.json",
+      "sha256": "d343333ee27a02b5ba0bac739ea0efdf4a35b62b17990196a32e78d64684b5ae",
+      "bytes": 7726
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/supplier/policy-engine/pyproject.toml",
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/supplier/policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "sha256": "9021a922919d78d10669847426ae9e6ea590d92ca298db9d8dea084f5af38d5f",
+      "bytes": 15850
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/supplier/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "sha256": "8a945d516a27e55f740ab8eed3f9654e7668139c856c22fa1920f3e56acb5d4f",
+      "bytes": 42200
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/supplier/policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "sha256": "f2148ad25320a828605a9345e0d5e1ff91c55aa31ff6fa3cbc458ac2119758ef",
+      "bytes": 4897
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/supplier/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066",
+      "bytes": 51763
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/supplier/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "sha256": "c47c106ff48a3636d9ceb1ad6f067ae5a63836640bc60439405fbdf421350c6a",
+      "bytes": 33891
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/supplier/policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "sha256": "dd9e784ae1b5c1b497cb5c6cd279f826ba3dd3972b5746bd1b51c0487c632cd2",
+      "bytes": 8005
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/supplier/policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+      "sha256": "28240feb1d45a369396fc503acd9b8ec5e723225c0527d253563fbc407c62884",
+      "bytes": 18497
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/supplier/policy-engine/uv.lock",
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "bytes": 779204
+    }
+  ],
+  "additional_deciding_output_roots": [
+    "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-boundary",
+    "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-boundary-v2",
+    "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-packet",
+    "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-packet-v2",
+    "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-boundary",
+    "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-packet",
+    "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-reversed-boundary",
+    "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-reversed-packet",
+    "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-cold-plan-boundary",
+    "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-cold-plan-packet"
+  ],
+  "qualification": "read-only source boundary + measured supported profile gap; confirmed owned local acceptance FAIL; full B114/joined/numerical not inferred."
+}

@@ -1,0 +1,156 @@
+{
+  "source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+  "owner_module": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+  "owner_sha256": "beca4fa1db4a5b4073fa1ec1de88badc44f65d2dcb33ba4d2d199dcca0e6df45",
+  "test_module": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+  "test_sha256": "25deba8b89a1ed4174b1e13e48e296fc8eb92b91849ef898c9e242f846064a49",
+  "helper_module": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/tests/_helpers/search_strategies.py",
+  "helper_sha256": "8d443fc9e91e643e016461548aca52292a5d44a9fd96fe707ef67a5b3f553687",
+  "input_prefix_ast_sha256": "24831e0f06e456e4df1cc4249c5c7af3504cc21c39365c37ee2d2b8f02a7824c",
+  "config": {
+    "n_initial": 6,
+    "acquisition": "expected_improvement",
+    "ucb_beta": 2.0,
+    "num_restarts": 3,
+    "raw_samples": 32,
+    "max_train_size": 512,
+    "invalid_penalty": 10.0,
+    "seed": 21,
+    "fallback_on_failure": true,
+    "adaptive_acquisition": false,
+    "exploration_switch_threshold": 0.3,
+    "refit_interval": 5,
+    "warm_start_noise_factor": 0.1
+  },
+  "eligible_warm": [
+    {
+      "candidate_id": "warm-0",
+      "params": {
+        "x": -3.5
+      },
+      "params_normalized": [
+        0.15
+      ],
+      "objectives": [
+        {
+          "name": "score",
+          "raw_value": 0.0,
+          "direction": "minimize",
+          "weight": 1.0,
+          "is_satisfied": true,
+          "threshold": null
+        }
+      ],
+      "scalar_score": 0.0,
+      "stage_a_passed": true,
+      "stage_b_result": {
+        "simulation_results": {
+          "score": 0.0
+        }
+      },
+      "status": "success",
+      "timestamp": "2026-10-08T17:44:56.913340+00:00",
+      "wall_time_seconds": 0.0,
+      "provenance_ref": "origin/run-1/evaluation-0",
+      "metadata": {
+        "replicate_id": "replica-0",
+        "seed": 0,
+        "warm_start_compatibility": {
+          "search_space_fingerprint": "e45591cd40bfcdb151e7e855a44f355f34490218b20616676edc92c9b1d9bd2d",
+          "input_transform_fingerprint": "Normalize[0,1]",
+          "outcome_transform_fingerprint": "Standardize[m=1]",
+          "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+          "objective_fingerprint": "scalar_score[minimize]",
+          "context_fingerprint": "context/run-1"
+        }
+      }
+    },
+    {
+      "candidate_id": "warm-1",
+      "params": {
+        "x": -2.5
+      },
+      "params_normalized": [
+        0.25
+      ],
+      "objectives": [
+        {
+          "name": "score",
+          "raw_value": 1.0,
+          "direction": "minimize",
+          "weight": 1.0,
+          "is_satisfied": true,
+          "threshold": null
+        }
+      ],
+      "scalar_score": 1.0,
+      "stage_a_passed": true,
+      "stage_b_result": {
+        "simulation_results": {
+          "score": 1.0
+        }
+      },
+      "status": "success",
+      "timestamp": "2026-10-08T17:44:56.913357+00:00",
+      "wall_time_seconds": 0.0,
+      "provenance_ref": "origin/run-1/evaluation-1",
+      "metadata": {
+        "replicate_id": "replica-1",
+        "seed": 1,
+        "warm_start_compatibility": {
+          "search_space_fingerprint": "e45591cd40bfcdb151e7e855a44f355f34490218b20616676edc92c9b1d9bd2d",
+          "input_transform_fingerprint": "Normalize[0,1]",
+          "outcome_transform_fingerprint": "Standardize[m=1]",
+          "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+          "objective_fingerprint": "scalar_score[minimize]",
+          "context_fingerprint": "context/run-1"
+        }
+      }
+    }
+  ],
+  "current": [
+    {
+      "candidate_id": "current-0",
+      "params": {
+        "x": 4.0
+      },
+      "params_normalized": [
+        0.9
+      ],
+      "objectives": [
+        {
+          "name": "score",
+          "raw_value": 8.0,
+          "direction": "minimize",
+          "weight": 1.0,
+          "is_satisfied": true,
+          "threshold": null
+        }
+      ],
+      "scalar_score": 8.0,
+      "stage_a_passed": true,
+      "stage_b_result": {
+        "simulation_results": {
+          "score": 8.0
+        }
+      },
+      "status": "success",
+      "timestamp": "2026-10-08T17:44:56.913462+00:00",
+      "wall_time_seconds": 0.0,
+      "provenance_ref": "origin/run-2/evaluation-0",
+      "metadata": {
+        "replicate_id": "current-0",
+        "seed": 101,
+        "warm_start_compatibility": {
+          "search_space_fingerprint": "e45591cd40bfcdb151e7e855a44f355f34490218b20616676edc92c9b1d9bd2d",
+          "input_transform_fingerprint": "Normalize[0,1]",
+          "outcome_transform_fingerprint": "Standardize[m=1]",
+          "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+          "objective_fingerprint": "scalar_score[minimize]",
+          "context_fingerprint": "context/run-1"
+        }
+      }
+    }
+  ],
+  "batch_size": 2
+}

@@ -1,0 +1,84 @@
+{
+  "schema": "orch04.actual_import_origins.v1",
+  "modules": [
+    {
+      "module": "polisyos.scientist.methods.search.strategies.bayesian",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "sha256": "59ca17ed3b226c5a8ee09e842134e6d91356f00b45a2cea47a36a88b52baf1b8"
+    },
+    {
+      "module": "polisyos.scientist.methods.search.strategies.base",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "sha256": "9dcffa7b1276e18be70c9a3c1d9fc3e618b4f11b9cc8611f96de06a9744bb7e7"
+    },
+    {
+      "module": "polisyos.scientist.methods.search.strategies.space",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+      "sha256": "b8f599678d5e57b39276eedd2b6334edeb9d2b389128b67d0ee50e8a7b27cb0c"
+    },
+    {
+      "module": "polisyos.scientist.methods.search.strategies.types",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "sha256": "2ff5734c38a7c1e43ddf42f0ceecc90330f2aeabc4628695d20f1b9e5adf261e"
+    },
+    {
+      "module": "polisyos.scientist.methods.search.strategies.runtime",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/runtime.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/runtime.py",
+      "sha256": "b48723be537cc65c2a2bb83aac8af0981fa0f6d8b782042f9bc9d2291c7ba799"
+    },
+    {
+      "module": "polisyos.scientist.methods.search.strategies.resource_arbiter",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/resource_arbiter.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/resource_arbiter.py",
+      "sha256": "684e870d554072f15aef7fae25a39ea166bbab6d10cd1d874b5d268d4e62d91f"
+    },
+    {
+      "module": "polisyos.scientist.methods.search.strategies._deps",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+      "sha256": "2ffb9791c104bcc8921180837af087137afaae00ec47b655f429639b3e4e35e9"
+    },
+    {
+      "module": "numpy",
+      "actual_file": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/numpy/__init__.py",
+      "resolved_file": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/numpy/__init__.py",
+      "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38"
+    },
+    {
+      "module": "scipy",
+      "actual_file": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/scipy/__init__.py",
+      "resolved_file": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/scipy/__init__.py",
+      "sha256": "a72412a5c62442876e073a01da1910c84b7214d1382380b71a873b470420dd68"
+    },
+    {
+      "module": "torch",
+      "actual_file": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/torch/__init__.py",
+      "resolved_file": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/torch/__init__.py",
+      "sha256": "d6388b1e3b16c1f9a22a87898e5f205fa13a97bd65c163f4829a157e0d9d602f"
+    },
+    {
+      "module": "gpytorch",
+      "actual_file": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/gpytorch/__init__.py",
+      "resolved_file": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/gpytorch/__init__.py",
+      "sha256": "0ee8ea29d595cd3ec26b37abc93bbe98f8e293802ef85341b8f7faedf80572ee"
+    },
+    {
+      "module": "botorch",
+      "actual_file": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/botorch/__init__.py",
+      "resolved_file": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/botorch/__init__.py",
+      "sha256": "448b14d019f28371eb2f116b1a035118203b8e3b325c1bba34681ad41f8e2b41"
+    },
+    {
+      "module": "botorch.models.gp_regression",
+      "actual_file": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/botorch/models/gp_regression.py",
+      "resolved_file": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/botorch/models/gp_regression.py",
+      "sha256": "6108ebbcfac0602ecf5bc8ab5d200df72712267a6dd13b56d5036a5c7d7f6ccc"
+    }
+  ],
+  "scope": "actual import origins only, not numerical or semantic conformance"
+}

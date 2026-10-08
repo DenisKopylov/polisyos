@@ -1,0 +1,106 @@
+{
+  "schema": "ORCH04-minimal-selected-receiver-requirement-v1",
+  "utc": "2026-10-08T17:36:18.437352+00:00",
+  "canonical_source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+  "canonical_tree": "605764d3afec7ba005bd891530ee074df5811497",
+  "explicit_supplier_source": "8e864f4ed0eeedf509d836381b20976c413f2443",
+  "explicit_supplier_tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+  "scope_boundary": "The full named connected transfer workflow is a selected coverage scope. Original B114 does not itself require that class chain. Do not hold runnable direct original-criterion checks on the connected-workflow composition choice.",
+  "availability": "Explicit supplier implementation/test bytes exist in Git and exact evidence copies; no old unpublished-byte reconstruction. Current c1 does not select these receiver APIs or tests.",
+  "missing_receiver_pairing": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "canonical_missing": [
+        "NumericTransferBasis",
+        "RunFingerprint.numeric_basis",
+        "TransferLearningManager.target_basis",
+        "TransferLearningManager.admit_warm_start",
+        "row admission report"
+      ],
+      "supplier_locations": [
+        33,
+        90,
+        556,
+        687
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "canonical_missing": [
+        "WarmStartBridge.target_basis",
+        "WarmStartBridge.admit_warm_start",
+        "WarmStartBridge.last_admission_report"
+      ],
+      "supplier_locations": [
+        75,
+        79,
+        83
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "canonical_missing": [
+        "constructor warm_start_bridge/warm_start_fingerprint pairing",
+        "receiving optimizer numerical_basis/warm_start_admission callback"
+      ],
+      "supplier_locations": [
+        151,
+        152,
+        221,
+        242
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "canonical_missing": [
+        "supplier numerical_basis/warm_start_admission constructor protocol and full-source CAS origin checkpoint revalidation"
+      ],
+      "requirement": "Use selected matching receiver contracts; do not mechanically apply the larger supplier file or invent authority law."
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "requirement": "Retain selected full ArtifactRef/source-read identity binding across the transfer manager/vector storage contract."
+    }
+  ],
+  "existing_supplier_consumer_recipe": {
+    "candidate_command": [
+      "/workspace/ORCH04-environments/app/bin/python",
+      "-m",
+      "pytest",
+      "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "--junitxml=<evidence>/junit.xml"
+    ],
+    "actual_current_status": "UNRUN connected workflow: test path/receiver APIs absent from c1, plus profile has no hnswlib. Not attempted as import/surrogate PASS.",
+    "fixtures": "Supplier test_transfer.measured_history/changed_history use FileSystemCAS+native HNSW two-dimensional index, eight explicit analytic x/score rows, complete declared data/model/evaluator/split/scalarizer/owner-role references, NumericTransferBasis and RunFingerprint bindings. Fixtures are supplied bounded technical inputs, not production issuer/refinement law.",
+    "fixture_paths": [
+      "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py"
+    ]
+  },
+  "profile_gap": {
+    "dependency": "hnswlib==0.8.0",
+    "supported_extra": "policy-engine/pyproject.toml vector-search",
+    "same_pyproject_lock_blobs": true,
+    "actual_origin": null,
+    "measured_evidence": {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/hnsw-profile-gap.json",
+      "sha256": "e8007b6f16801ffdfa96db6106c9823353b8b4cb6bef3a7b96b95b781d7a641b",
+      "bytes": 785
+    },
+    "required_action": "If the matching receiver workflow is selected/reviewed, provision the supported frozen vector-search profile on measured writable storage and record installed origin. This is a dependency/profile gap, not proof of OOM or missing production law."
+  },
+  "minimum_G_companion": "Select and independently review the matching supplier transfer admission, bridge/generator/optimizer reader and fixture footprint, or specify a matching canonical receiver protocol. Do not ask for the already supplied bounded analytic rows as if they were absent. No new production packet or legal/refinement law is needed to execute that bounded synthetic consumer.",
+  "original_criterion_owned_failure": {
+    "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/owned-rejection-finding.json",
+    "sha256": "ece7fa8410c0b71b54632604c839a0975e434005a9654e6e1903154b1220dc90",
+    "bytes": 8599
+  },
+  "complete_source_preimages": {
+    "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/source-receiver-manifest.json",
+    "sha256": "d343333ee27a02b5ba0bac739ea0efdf4a35b62b17990196a32e78d64684b5ae",
+    "bytes": 7726
+  },
+  "product_source_changes": false,
+  "package_environment_changes": false,
+  "new_authority_rules": false
+}

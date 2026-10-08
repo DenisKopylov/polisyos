@@ -1,0 +1,236 @@
+{
+  "schema": "ORCH04-independent-verification-finding-v1",
+  "utc": "2026-10-08T17:46:04.629352+00:00",
+  "finding_id": "C11-B114-whole-split-cold-Sobol-plan",
+  "classification": "CONFIRMED owned original-criterion coherent cold-planning FAIL; actual supported sampler with no numerical GP training",
+  "source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+  "tree": "605764d3afec7ba005bd891530ee074df5811497",
+  "owner": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+  "entrypoints": [
+    "BayesianOptimizer.suggest",
+    "BayesianOptimizer.suggest_batch"
+  ],
+  "scope_lines": [
+    161,
+    165,
+    209,
+    213
+  ],
+  "sampler_read_contract": {
+    "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+    "git_blob": "c1b7c1582efe6acdfd5cc830f04f1f03e8f175bc",
+    "exact_preimage": {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/canonical/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "sha256": "9dcffa7b1276e18be70c9a3c1d9fc3e618b4f11b9cc8611f96de06a9744bb7e7",
+      "bytes": 20691
+    }
+  },
+  "original_criterion": {
+    "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/canonical/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-03.md",
+    "sha256": "0bb18c83c79a6a8094af1cc3c22421a488e72520e6c7abd79d724a4f38ff037b",
+    "bytes": 12239
+  },
+  "criterion_line": 66,
+  "exact_inputs": "Same unchanged committed native warm-test fixture first2 eligible warm rows plus current1, same seeded config n_initial6; whole and warm+new both contain same3 effective/selected rows. Batch size2. No source metadata/value mutation, sampler override or new law.",
+  "deciding_observations": {
+    "observations": {
+      "single_whole": {
+        "corpus_ids": [
+          "warm-0",
+          "warm-1",
+          "current-0"
+        ],
+        "selected_ids": [
+          "warm-0",
+          "warm-1",
+          "current-0"
+        ],
+        "below_initial_threshold": true,
+        "candidates": [
+          {
+            "params": {
+              "x": -2.696235328912735
+            },
+            "params_normalized": [
+              0.2303764671087265
+            ],
+            "source": "sobol_init"
+          }
+        ],
+        "cold_request_count": 3,
+        "fit_executed": false
+      },
+      "single_warm_plus_new": {
+        "corpus_ids": [
+          "warm-0",
+          "warm-1",
+          "current-0"
+        ],
+        "selected_ids": [
+          "warm-0",
+          "warm-1",
+          "current-0"
+        ],
+        "below_initial_threshold": true,
+        "candidates": [
+          {
+            "params": {
+              "x": 4.9451446533203125
+            },
+            "params_normalized": [
+              0.9945144653320312
+            ],
+            "source": "sobol_init"
+          }
+        ],
+        "cold_request_count": 1,
+        "fit_executed": false
+      },
+      "batch_whole": {
+        "corpus_ids": [
+          "warm-0",
+          "warm-1",
+          "current-0"
+        ],
+        "selected_ids": [
+          "warm-0",
+          "warm-1",
+          "current-0"
+        ],
+        "below_initial_threshold": true,
+        "candidates": [
+          {
+            "params": {
+              "x": -2.696235328912735
+            },
+            "params_normalized": [
+              0.2303764671087265
+            ],
+            "source": "sobol_init"
+          },
+          {
+            "params": {
+              "x": -4.311996102333069
+            },
+            "params_normalized": [
+              0.06880038976669312
+            ],
+            "source": "sobol_init"
+          }
+        ],
+        "cold_request_count": 3,
+        "fit_executed": false
+      },
+      "batch_warm_plus_new": {
+        "corpus_ids": [
+          "warm-0",
+          "warm-1",
+          "current-0"
+        ],
+        "selected_ids": [
+          "warm-0",
+          "warm-1",
+          "current-0"
+        ],
+        "below_initial_threshold": true,
+        "candidates": [
+          {
+            "params": {
+              "x": 4.9451446533203125
+            },
+            "params_normalized": [
+              0.9945144653320312
+            ],
+            "source": "sobol_init"
+          },
+          {
+            "params": {
+              "x": 0.16040921211242676
+            },
+            "params_normalized": [
+              0.5160409212112427
+            ],
+            "source": "sobol_init"
+          }
+        ],
+        "cold_request_count": 1,
+        "fit_executed": false
+      }
+    },
+    "same_single_corpus": true,
+    "same_batch_corpus": true,
+    "same_single_plan": false,
+    "same_batch_plan": false,
+    "scope": "Original B114 same below-threshold eligible corpus whole-vs-warm+new; actual supported Sobol candidates without fit/acquisition stubs or GP training; no request/refit counter equality imposed."
+  },
+  "mechanism": "Both entrypoints use compatible corpus count to select cold-start, but choose actual Sobol cache index from raw current request count. Whole index3 differs from splitindex1; batch3,4 differs from1,2 for identical eligible information.",
+  "minimal_owned_direction": "Use compatible effective corpus count for the cold Sobol sample index in both entrypoints, preserving current request/iteration/refit semantics.",
+  "execution": {
+    "argv": [
+      "/workspace/ORCH04-environments/app/bin/python",
+      "/workspace/ORCH04-evidence/native-tester/b114_cold_plan_boundary.py",
+      "--out",
+      "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-cold-plan-packet"
+    ],
+    "cwd": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine",
+    "source_commit": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+    "source_tree": "605764d3afec7ba005bd891530ee074df5811497",
+    "pid": 26714,
+    "start_utc": "2026-10-08T17:44:47.159349+00:00",
+    "finish_utc": "2026-10-08T17:44:58.446249+00:00",
+    "exit_code": 1,
+    "wall_seconds": 10.101899050999236,
+    "max_rss_kib": 1316584,
+    "source_delta_before": [],
+    "source_delta_after": [],
+    "source_manifest_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source-source-manifest.json",
+    "source_manifest_sha256": "1cacc40277fca4d0069f11296241ed4f0b900db696674941d4cb001f92718f0d",
+    "external_file_inputs": [
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/run_native.py",
+        "sha256": "7ef04c4846426d42e38a8598e26b728bfbc5bb32f034faba0c3da61dd670826d"
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/b114_cold_plan_boundary.py",
+        "sha256": "364988553eedf404ecf895090bf506759aef3548b67052b1081ac3ae85033815"
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/b114_cold_plan_boundary.py",
+      "sha256": "364988553eedf404ecf895090bf506759aef3548b67052b1081ac3ae85033815",
+      "bytes": 4219
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-cold-plan-boundary/execution.json",
+      "sha256": "8be7df11036754053ea0b63b0482ad5a74665f380787ecee83027aca62ee5caf",
+      "bytes": 5194
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-cold-plan-boundary/stdout.txt",
+      "sha256": "3f08fb6c4a40fb34082c8f233b452778ab703fc23a53bfb127ca28ec3a6c3604",
+      "bytes": 2910
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-cold-plan-boundary/stderr.txt",
+      "sha256": "62974866866aea268c8c5ed3219a9839bc568416abeb475448b69888a106b9a7",
+      "bytes": 2251
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-cold-plan-packet/inputs.json",
+      "sha256": "6a669cf1fadb00d773d59feca17b8e16703a613ff6d64016ea6bbf64f05f3a34",
+      "bytes": 5001
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-cold-plan-packet/observations.json",
+      "sha256": "3f08fb6c4a40fb34082c8f233b452778ab703fc23a53bfb127ca28ec3a6c3604",
+      "bytes": 2910
+    }
+  ],
+  "limits": [
+    "Actual Sobol plan only; no GP fit/acquisition numerical property or full connected transfer consumer.",
+    "Request counts and refit iterations are observed, not required equal.",
+    "No Core/report schema, production packet, issuer/refinement law, or sampler authority invented."
+  ]
+}

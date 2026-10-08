@@ -1,0 +1,39 @@
+{
+  "schema": "ORCH04-B114-matched-property-removal-v1",
+  "source": "03698439abfb1cb59f763397a182d8e0e393d40d",
+  "kind": "cold_index",
+  "source_files_modified": false,
+  "original_owner_module": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+  "original_owner_sha256": "59ca17ed3b226c5a8ee09e842134e6d91356f00b45a2cea47a36a88b52baf1b8",
+  "actual_base_module": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+  "actual_base_sha256": "9dcffa7b1276e18be70c9a3c1d9fc3e618b4f11b9cc8611f96de06a9744bb7e7",
+  "changes": [
+    {
+      "method": "suggest",
+      "actual_original_code_filename": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "preimage": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index-packet/suggest.preimage.py",
+      "preimage_sha256": "f070e38c137e3a96326e15947f981691310b71d224818d49fd58a9aa9b1030e1",
+      "postimage": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index-packet/suggest.postimage.py",
+      "postimage_sha256": "56c5e36027467c947588a7d15106deae81d54c53b2ac3676c6a80c60af063a4b",
+      "removed_effect": "self._sobol_candidate(len(training_corpus)",
+      "effect_identifier_marker_preserved": true,
+      "runtime_function_code_filename": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index-packet/suggest.postimage.py"
+    },
+    {
+      "method": "suggest_batch",
+      "actual_original_code_filename": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "preimage": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index-packet/suggest_batch.preimage.py",
+      "preimage_sha256": "1402489a35ef1151006b271a0c11860d1579b405c2488acb7948ef228e7e6ab3",
+      "postimage": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index-packet/suggest_batch.postimage.py",
+      "postimage_sha256": "d63a76a8b64191e633c26910819ff421216961f8b962afbec245d337d9683357",
+      "removed_effect": "self._sobol_candidate(len(training_corpus)",
+      "effect_identifier_marker_preserved": true,
+      "runtime_function_code_filename": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index-packet/suggest_batch.postimage.py"
+    }
+  ],
+  "pytest_argv": [
+    "tests/unit/scientist/search/strategies/test_bayesian.py::test_whole_and_warm_split_use_the_same_actual_cold_sobol_plan",
+    "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index/junit.xml"
+  ],
+  "qualification": "Only the named effect is removed in this process. Version/complete/count/per-record log/class/enum/reference/input markers remain. Original committed tests and ordinary conftest run; no product/test file edit, native numerical positive inferred from removal, or hook bypass."
+}

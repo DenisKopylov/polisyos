@@ -1,0 +1,1261 @@
+{
+  "schema": "orch04.C11.B114.evidence-index.v1",
+  "artifacts": [
+    {
+      "original_path": "/workspace/ORCH04-evidence/c11/b114-developer/execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/author/b114-developer/execution.json",
+      "sha256": "1af80b4e891676aeeb8f2b0a2441c9c63a0d11320a385aad5c81841d799cbac0",
+      "bytes": 3826
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c11/b114-developer/results.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/author/b114-developer/results.xml",
+      "sha256": "ff4a3910e76f7e15b24864070af8bb2294dba7899ea3898677c19153bbc79e79",
+      "bytes": 593
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c11/b114-developer/stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/author/b114-developer/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c11/b114-developer/stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/author/b114-developer/stdout.txt",
+      "sha256": "487a650b9bfedfcc64f88aeedf8406f87d89a49c1de4dc58e395c397f527cf86",
+      "bytes": 1277
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c11/b114-planning-developer/execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/author/b114-planning-developer/execution.json",
+      "sha256": "469aa8dc0b474b525a7abba8bb305c8a551a30370363b0c8a3fb787c97d83388",
+      "bytes": 3814
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c11/b114-planning-developer/results.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/author/b114-planning-developer/results.xml",
+      "sha256": "e342d6d38e6435c25cd075b7541a7be3e1f7a0750fab641314afb0392944018d",
+      "bytes": 1279
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c11/b114-planning-developer/stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/author/b114-planning-developer/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c11/b114-planning-developer/stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/author/b114-planning-developer/stdout.txt",
+      "sha256": "389e57916c890f808e194860a21e2bd8367aca603e2d7566ce833800de722c30",
+      "bytes": 2056
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c11/b114-planning-source-commit/execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/author/b114-planning-source-commit/execution.json",
+      "sha256": "c925313e9a8dfb988eefa1e2e53a879e6f652d2ddd12af336268527b6baf58e7",
+      "bytes": 3395
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c11/b114-planning-source-commit/stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/author/b114-planning-source-commit/stderr.txt",
+      "sha256": "4621bac8f9443c22865b79265f7c1c3da5bc0d8a5f8f27e3ed6f4b2840aa47ec",
+      "bytes": 831
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c11/b114-planning-source-commit/stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/author/b114-planning-source-commit/stdout.txt",
+      "sha256": "9781a66da220e2c653c38f80eb2ce697907919eddcdc5d2203ae51a4531e8ae2",
+      "bytes": 171
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c11/b114-source-commit/execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/author/b114-source-commit/execution.json",
+      "sha256": "4858239a3400e6611ef8026c0b229e89c38bc18c79bcfce48500bca57f1ffc16",
+      "bytes": 3404
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c11/b114-source-commit/stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/author/b114-source-commit/stderr.txt",
+      "sha256": "2709d836745c64b78f7932fbc3ef1a58af8d645650eed0b197dafc500e504ed2",
+      "bytes": 831
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c11/b114-source-commit/stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/author/b114-source-commit/stdout.txt",
+      "sha256": "86becc3bb8ce676db1083470265cf915b257412f73d80889bbb25fbde36b564b",
+      "bytes": 286
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c11/b114/source-freeze-final.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/author/b114/source-freeze-final.json",
+      "sha256": "4468b4e0af6a1cc9e3652b66afe8e11666024ad4b70c5dc240672e74a78fdb94",
+      "bytes": 114428
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c11/b114/source-freeze.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/author/b114/source-freeze.json",
+      "sha256": "bf09650b138f2451eff53945ac81ac0c8bbe5ecc021f63143cfc32dd326137ec",
+      "bytes": 113942
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/gp/FINAL-036.md",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/gp/FINAL-036.md",
+      "sha256": "58370ac43e466325717625ec6a48a332dbc4ebae3249a64723026d5d7a38083b",
+      "bytes": 2140
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/gp/analytic-final-036/checkpoint-metadata.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/gp/analytic-final-036/checkpoint-metadata.json",
+      "sha256": "8b5d5cbab00f56bed278e0515c7db169f7d54dcf1a5e987b386fa9fbb5f424e1",
+      "bytes": 2464
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/gp/analytic-final-036/execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/gp/analytic-final-036/execution.json",
+      "sha256": "b12b7e293f56b4f2491e0284bbcecff3e72c4bafe8e9da58855e253c8637b03f",
+      "bytes": 3592
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/gp/analytic-final-036/initial-model-state.pt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/gp/analytic-final-036/initial-model-state.pt",
+      "sha256": "29ef4d655666ddc7d322981013ce4cc203685360ff14637fb530ee9679c40cdd",
+      "bytes": 6576
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/gp/analytic-final-036/post-append-model-state.pt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/gp/analytic-final-036/post-append-model-state.pt",
+      "sha256": "29ef4d655666ddc7d322981013ce4cc203685360ff14637fb530ee9679c40cdd",
+      "bytes": 6576
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/gp/analytic-final-036/report.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/gp/analytic-final-036/report.json",
+      "sha256": "4ff9a6aea9982e6b41c55a7c820e41b510f285a7d517f1c732521c78abe47d81",
+      "bytes": 19518
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/gp/analytic-final-036/second-append-model-state.pt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/gp/analytic-final-036/second-append-model-state.pt",
+      "sha256": "29ef4d655666ddc7d322981013ce4cc203685360ff14637fb530ee9679c40cdd",
+      "bytes": 6576
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/gp/analytic-final-036/stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/gp/analytic-final-036/stderr.txt",
+      "sha256": "3623e42220fa0f67abbf8162d0bc4626e1e414bb3c75f5fca18dedf6d5fbcd04",
+      "bytes": 949
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/gp/analytic-final-036/stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/gp/analytic-final-036/stdout.txt",
+      "sha256": "f5ce5642b2b0db0f2e4c4de19f44b29566c3210cd2d5925d29e8a87f00ab1e70",
+      "bytes": 10501
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/gp/analytic_posterior.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/gp/analytic_posterior.py",
+      "sha256": "972d5629a86c9ea6a29977933e6b69cc32d3d8a8e2072c76689e722324937f63",
+      "bytes": 11592
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/gp/analytic_posterior_v2.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/gp/analytic_posterior_v2.py",
+      "sha256": "e0b16820946a76599315ac988f4b03c7027a4e857e6b31dba3bffe527d3b1638",
+      "bytes": 14079
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/gp/criterion-inputs.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/gp/criterion-inputs.json",
+      "sha256": "48415e8cfb8da4944d6f2bc9f1302d04d19c59c7522d0ad0e06f8c68ea415734",
+      "bytes": 12075
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/gp/environment-profile.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/gp/environment-profile.json",
+      "sha256": "e864e522edeaaf3924c795d9e73ed0247499a47a73a75e7e58cc8cd9b5cc22b2",
+      "bytes": 3680
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/gp/final-036-gp-receipt-before-bound-clarification.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/gp/final-036-gp-receipt-before-bound-clarification.json",
+      "sha256": "d448b46cdd5d235b8afb107bf96265fd53a16fc3d4fb7f93d5d2db07b82d419b",
+      "bytes": 8760
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/gp/final-036-gp-receipt.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/gp/final-036-gp-receipt.json",
+      "sha256": "1b6143ebb8f5850c748ec2b573759890abbc064da8d5d88d6e56823da6d417ac",
+      "bytes": 10098
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/gp/final-036-source-manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/gp/final-036-source-manifest.json",
+      "sha256": "9f36547663814244a18bc69fad3668fe56c95e0874e1c124302da254971bd839",
+      "bytes": 11734
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/gp/receipt-history-index.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/gp/receipt-history-index.json",
+      "sha256": "e1578e73230f6dcf921344014574057a3872d9dea5280804625d1fab6ebd8c23",
+      "bytes": 610
+    },
+    {
+      "original_path": "generated in authorized C11 receipt lane",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/ignored-export-requirements.json",
+      "sha256": "b2779de3d95b63e1d6cdf1f4003b49ce8ff31537978153b1b647faef99ef2ccb",
+      "bytes": 2643
+    },
+    {
+      "original_path": "generated in authorized C11 receipt lane",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/integrity.json",
+      "sha256": "0cc8e15f884b6225168078df36e4eb82d65f2b555c9dfd0bc020f5acf170d852",
+      "bytes": 618
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-actual-origin-verification.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-actual-origin-verification.json",
+      "sha256": "fd49c619fc7abae3129cb0fae66af457dc4b8bacbb6a78af9e115e37370179bb",
+      "bytes": 7084
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-actual-origins/environment-origins.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-actual-origins/environment-origins.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-actual-origins/environment-origins.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-actual-origins/environment-origins.stdout.txt",
+      "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+      "bytes": 11198
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-actual-origins/execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-actual-origins/execution.json",
+      "sha256": "e0f5f8cd6c28d756470f37c6b80503247aa8bca676e97608eea42d7749c3c165",
+      "bytes": 5611
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-actual-origins/stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-actual-origins/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-actual-origins/stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-actual-origins/stdout.txt",
+      "sha256": "284969e34cd1571ad010fa62f89f363ad5911fd3d7516a2f20aba6a2825271f1",
+      "bytes": 5644
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-adaptive-plan-boundary-packet/inputs.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-adaptive-plan-boundary-packet/inputs.json",
+      "sha256": "254c6ce7ea92241faf936e3b8aafbda731775521719fdbf8588642bac01a3952",
+      "bytes": 12653
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-adaptive-plan-boundary-packet/observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-adaptive-plan-boundary-packet/observations.json",
+      "sha256": "95f1f2195d92e789cd4f5e08d043efa1c324481e9e7b26602e2a3cb35b3da14a",
+      "bytes": 3346
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-adaptive-plan-boundary/environment-origins.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-adaptive-plan-boundary/environment-origins.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-adaptive-plan-boundary/environment-origins.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-adaptive-plan-boundary/environment-origins.stdout.txt",
+      "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+      "bytes": 11198
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-adaptive-plan-boundary/execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-adaptive-plan-boundary/execution.json",
+      "sha256": "b539cfc03d4f6a3b62e41b938160e72054d228190dc25a6f4342c51d38d4996e",
+      "bytes": 5325
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-adaptive-plan-boundary/stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-adaptive-plan-boundary/stderr.txt",
+      "sha256": "84a2730f5249c93191bd483b22546b633dcb96fc9052a1bfd0ee863ea1e2bdb5",
+      "bytes": 949
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-adaptive-plan-boundary/stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-adaptive-plan-boundary/stdout.txt",
+      "sha256": "95f1f2195d92e789cd4f5e08d043efa1c324481e9e7b26602e2a3cb35b3da14a",
+      "bytes": 3346
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-cold-plan-boundary-packet/inputs.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-cold-plan-boundary-packet/inputs.json",
+      "sha256": "32f6fbcd3db4dc0ffa4870d5629df9cc9d5ecc7cc2ab9060b1e66fc6bb6738de",
+      "bytes": 5419
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-cold-plan-boundary-packet/observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-cold-plan-boundary-packet/observations.json",
+      "sha256": "34236350b478b1a1e1c2e6cb565e6f01d3ba4e05d48d543b45a060359231b9fa",
+      "bytes": 2908
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-cold-plan-boundary/environment-origins.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-cold-plan-boundary/environment-origins.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-cold-plan-boundary/environment-origins.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-cold-plan-boundary/environment-origins.stdout.txt",
+      "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+      "bytes": 11198
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-cold-plan-boundary/execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-cold-plan-boundary/execution.json",
+      "sha256": "d5ce7256a7801bd261db222572df128b4485952469553dcefc7513669b9b3a68",
+      "bytes": 5288
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-cold-plan-boundary/stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-cold-plan-boundary/stderr.txt",
+      "sha256": "6f3673840f2ecdeb49f403598f4ca7b21e122ab202dbd15f4a3750310dbde274",
+      "bytes": 1761
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-cold-plan-boundary/stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-cold-plan-boundary/stdout.txt",
+      "sha256": "34236350b478b1a1e1c2e6cb565e6f01d3ba4e05d48d543b45a060359231b9fa",
+      "bytes": 2908
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-input-closure.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-input-closure.json",
+      "sha256": "88ee7d1b9d043725f2ead462ea39081b022033efa311b5c140f82c7876674da9",
+      "bytes": 6835
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-native/environment-origins.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-native/environment-origins.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-native/environment-origins.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-native/environment-origins.stdout.txt",
+      "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+      "bytes": 11198
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-native/execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-native/execution.json",
+      "sha256": "5051e0d8b04da74729dec1f9789d1304fef3d641822f9f26f089c3d628de6aa9",
+      "bytes": 5874
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-native/junit.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-native/junit.xml",
+      "sha256": "72e59c53822074c64e014695fba69d75a88b6eaa8240d1ac1cb010a3aa49c015",
+      "bytes": 2107
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-native/stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-native/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-native/stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-native/stdout.txt",
+      "sha256": "30412ee2faa30a13a0a64c047f422cfc1709547aaab1becefd9b7a6f5be6bcd2",
+      "bytes": 3011
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-rejection-boundary-packet/acceptance-postimage.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-rejection-boundary-packet/acceptance-postimage.py",
+      "sha256": "fe7bef8d50462ac55d8a7fa5dce39d5b8cf5e558b68acdaf523ed51e846dd7a7",
+      "bytes": 2012
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-rejection-boundary-packet/acceptance-preimage.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-rejection-boundary-packet/acceptance-preimage.py",
+      "sha256": "b612cec2f5b8163cb65394825a0449fad299f09fb8ddebaede5ba382f1301a53",
+      "bytes": 1988
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-rejection-boundary-packet/acceptance-removal.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-rejection-boundary-packet/acceptance-removal.json",
+      "sha256": "be735057a9a14ed72117720e228097e44198ddb76ed7114edc209e7a96889a00",
+      "bytes": 478
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-rejection-boundary-packet/inputs.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-rejection-boundary-packet/inputs.json",
+      "sha256": "d07e0020f86a4be9d575afc9616993a19378857f3d2e8465b9edef2197158d76",
+      "bytes": 15028
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-rejection-boundary-packet/observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-rejection-boundary-packet/observations.json",
+      "sha256": "863f0607ef8a9375e162bacbd4a7785498f7cab062bfcb818bda9d1d9594792f",
+      "bytes": 79733
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-rejection-boundary/environment-origins.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-rejection-boundary/environment-origins.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-rejection-boundary/environment-origins.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-rejection-boundary/environment-origins.stdout.txt",
+      "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+      "bytes": 11198
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-rejection-boundary/execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-rejection-boundary/execution.json",
+      "sha256": "748d242d1348dc65bbb671585ac11eb8d72b398cf310b55a53f3e1b462ac8a17",
+      "bytes": 5288
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-rejection-boundary/stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-rejection-boundary/stderr.txt",
+      "sha256": "84f3b2cb73d0b2327fda6893f78e9cc02f09fe31ce78f48b3d0605f1cf035ea7",
+      "bytes": 1657
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-rejection-boundary/stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-rejection-boundary/stdout.txt",
+      "sha256": "863f0607ef8a9375e162bacbd4a7785498f7cab062bfcb818bda9d1d9594792f",
+      "bytes": 79733
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus-packet/removal-manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-adaptive_corpus-packet/removal-manifest.json",
+      "sha256": "3040a119a98a5614f3e784c5bfc4f4c8b9d1e935320a3f7fb4cba1aa52749fc1",
+      "bytes": 2197
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus-packet/suggest.postimage.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-adaptive_corpus-packet/suggest.postimage.py",
+      "sha256": "512ca1a23939682de3cb3ba0c677695cc6fb4288c9523615d0131cfdd8c84899",
+      "bytes": 2082
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus-packet/suggest.preimage.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-adaptive_corpus-packet/suggest.preimage.py",
+      "sha256": "f070e38c137e3a96326e15947f981691310b71d224818d49fd58a9aa9b1030e1",
+      "bytes": 1986
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus/environment-origins.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-adaptive_corpus/environment-origins.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus/environment-origins.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-adaptive_corpus/environment-origins.stdout.txt",
+      "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+      "bytes": 11198
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus/execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-adaptive_corpus/execution.json",
+      "sha256": "ec1a087edc77bc34e142d47ca25f41381cf88006c483fbfedbe11247387db68b",
+      "bytes": 5571
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus/junit.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-adaptive_corpus/junit.xml",
+      "sha256": "3e34fe68b6125385632efc73846a201f1211d254d127123702b97c145dcfd9d4",
+      "bytes": 10367
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus/stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-adaptive_corpus/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus/stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-adaptive_corpus/stdout.txt",
+      "sha256": "7284b4052fa81fee5c900c80ef53e888823e51682ec8b0a4508c27f451f3b648",
+      "bytes": 13767
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index-packet/removal-manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-cold_index-packet/removal-manifest.json",
+      "sha256": "a85bf7b5c8d3ed5078aaa778d23e6eea499384e217a83db6d308e3cb3ee3af4f",
+      "bytes": 3133
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index-packet/suggest.postimage.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-cold_index-packet/suggest.postimage.py",
+      "sha256": "56c5e36027467c947588a7d15106deae81d54c53b2ac3676c6a80c60af063a4b",
+      "bytes": 2049
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index-packet/suggest.preimage.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-cold_index-packet/suggest.preimage.py",
+      "sha256": "f070e38c137e3a96326e15947f981691310b71d224818d49fd58a9aa9b1030e1",
+      "bytes": 1986
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index-packet/suggest_batch.postimage.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-cold_index-packet/suggest_batch.postimage.py",
+      "sha256": "d63a76a8b64191e633c26910819ff421216961f8b962afbec245d337d9683357",
+      "bytes": 2570
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index-packet/suggest_batch.preimage.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-cold_index-packet/suggest_batch.preimage.py",
+      "sha256": "1402489a35ef1151006b271a0c11860d1579b405c2488acb7948ef228e7e6ab3",
+      "bytes": 2507
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index/environment-origins.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-cold_index/environment-origins.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index/environment-origins.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-cold_index/environment-origins.stdout.txt",
+      "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+      "bytes": 11198
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index/execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-cold_index/execution.json",
+      "sha256": "7596406192146051ad6db6c58085982ad07142beb5d491cb6ef5db943dfa8422",
+      "bytes": 5546
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index/junit.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-cold_index/junit.xml",
+      "sha256": "d694e8d9c7f9701c8ee8d2521538fef957959204debafe36e99f9683587f4242",
+      "bytes": 4418
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index/stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-cold_index/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index/stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-cold_index/stdout.txt",
+      "sha256": "92bec7811dc134b8736d3b07c12bbf8c86569875578f33c35a86ad73ed5edc32",
+      "bytes": 7663
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union-packet/_effective_training_corpus.postimage.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-corpus_union-packet/_effective_training_corpus.postimage.py",
+      "sha256": "16c6114c1a53c731bbcbd1f06ce369eed9944bb00098580561a067f92899154a",
+      "bytes": 1343
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union-packet/_effective_training_corpus.preimage.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-corpus_union-packet/_effective_training_corpus.preimage.py",
+      "sha256": "294a58253bcccb26f1c8c13a832b520deb5c9c351f7c8c91c5b0fe0dd0ed6bfd",
+      "bytes": 1235
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union-packet/removal-manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-corpus_union-packet/removal-manifest.json",
+      "sha256": "dac5402bedb5cf51bff23b42fc73a5fb822e933f90f6dafdd34901b9a2170ae1",
+      "bytes": 2286
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union/environment-origins.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-corpus_union/environment-origins.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union/environment-origins.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-corpus_union/environment-origins.stdout.txt",
+      "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+      "bytes": 11198
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union/execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-corpus_union/execution.json",
+      "sha256": "118dc509dd31cdc8225d646d51b7391a9bb449f23f5c6597eb48f271f152b63e",
+      "bytes": 5572
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union/junit.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-corpus_union/junit.xml",
+      "sha256": "ac2c71f4ee48f54196270d87c69768ec56165b450f6d3f3792cd118f64ea7442",
+      "bytes": 6858
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union/stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-corpus_union/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union/stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-corpus_union/stdout.txt",
+      "sha256": "c1109a9844ded6324aae92819c6008845ef9104dd696a9cb3988df2fdb7906ce",
+      "bytes": 9616
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append-packet/_record_warm_start_rejection.postimage.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_append-packet/_record_warm_start_rejection.postimage.py",
+      "sha256": "385ed8c5d2861bca275e65e2652acbcc89d31a488374952ab8f8691493e343e9",
+      "bytes": 385
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append-packet/_record_warm_start_rejection.preimage.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_append-packet/_record_warm_start_rejection.preimage.py",
+      "sha256": "364e5c6e64b83341c02b751451870ac0d76936b2bb4f24c1db97057a54c9ea0e",
+      "bytes": 300
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append-packet/removal-manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_append-packet/removal-manifest.json",
+      "sha256": "b338dffd4502a730759b51a512e09e8da36e0ac10d245d6fefc85853fe31cadf",
+      "bytes": 2374
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append/environment-origins.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_append/environment-origins.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append/environment-origins.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_append/environment-origins.stdout.txt",
+      "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+      "bytes": 11198
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append/execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_append/execution.json",
+      "sha256": "340f16ca3e1063cc522f18a424ce5aaf590dbcfdc80b9800ce34843c12d48eba",
+      "bytes": 5580
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append/junit.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_append/junit.xml",
+      "sha256": "51676f64993e14655088018a3c05cccd79e2f64b17b00ac912c63b7dcfb2c4c0",
+      "bytes": 4363
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append/stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_append/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append/stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_append/stdout.txt",
+      "sha256": "6f89671427471001a6400ab9791ef7554a69d4b27720ff8ebb8106a837438c02",
+      "bytes": 6868
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-packet/removal-manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_restore-packet/removal-manifest.json",
+      "sha256": "8ca1500c8d8babdeb808dc6a28f43338a84596d40290090a6504dc67e050343d",
+      "bytes": 2234
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-packet/set_state.postimage.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_restore-packet/set_state.postimage.py",
+      "sha256": "1d3f23fc878ef1ed9a0ead22840da44c9abf3c1daf4782a3f294bb40e570cb40",
+      "bytes": 5498
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-packet/set_state.preimage.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_restore-packet/set_state.preimage.py",
+      "sha256": "7c7c7322325153fc0e04b22d2603880c548d2b4a29175b03a4e055541616e1a6",
+      "bytes": 5474
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-v2-packet/removal-manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_restore-v2-packet/removal-manifest.json",
+      "sha256": "ac8c8d8e429ba2a10dd51b31a60f33e662c227369e5c4c5b1cbf941da682ac5e",
+      "bytes": 2403
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-v2-packet/set_state.postimage.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_restore-v2-packet/set_state.postimage.py",
+      "sha256": "1d3f23fc878ef1ed9a0ead22840da44c9abf3c1daf4782a3f294bb40e570cb40",
+      "bytes": 5498
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-v2-packet/set_state.preimage.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_restore-v2-packet/set_state.preimage.py",
+      "sha256": "7c7c7322325153fc0e04b22d2603880c548d2b4a29175b03a4e055541616e1a6",
+      "bytes": 5474
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-v2/environment-origins.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_restore-v2/environment-origins.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-v2/environment-origins.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_restore-v2/environment-origins.stdout.txt",
+      "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+      "bytes": 11198
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-v2/execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_restore-v2/execution.json",
+      "sha256": "4cb1324a63d43ef7f226e4009578ac0a4f261bbe9be5ad62826bab98e13a100f",
+      "bytes": 5595
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-v2/junit.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_restore-v2/junit.xml",
+      "sha256": "98d76d7886eb62ee6805f245c6e26e3f40420487e630ef501a253100cab2eaf8",
+      "bytes": 4857
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-v2/stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_restore-v2/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-v2/stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_restore-v2/stdout.txt",
+      "sha256": "9ff512a90f07aeda90ec15d2c68f0efe024ca739962767c2bae8905d0403e843",
+      "bytes": 7318
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore/environment-origins.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_restore/environment-origins.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore/environment-origins.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_restore/environment-origins.stdout.txt",
+      "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+      "bytes": 11198
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore/execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_restore/execution.json",
+      "sha256": "1a89397bddbd03760aa057714f86badf8766d4fb297f21d616b03aac9f20abcb",
+      "bytes": 5583
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore/junit.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_restore/junit.xml",
+      "sha256": "df32761f94dff230330dd71b1d862ade2a79aa3c6c457959bfd8795f3003f8d8",
+      "bytes": 7040
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore/stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_restore/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore/stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-03698439-B114-removal-ledger_restore/stdout.txt",
+      "sha256": "0912eb7f2facb64d491a882699f2b6300446080a9e26ac6683eb03416fadf0ab",
+      "bytes": 9727
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-independent-B114-final-03698439-receipt.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/C11-independent-B114-final-03698439-receipt.json",
+      "sha256": "f036f7d0b58cd67bd027fce4df73ed45cc06161d088b202bbea4754372de1fdc",
+      "bytes": 84863
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/b114_cold_plan_boundary_final.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/b114_cold_plan_boundary_final.py",
+      "sha256": "57f97aaa59941c40e464bb1d81c24b3a2abf8a8e60d6cf501ec9199db7f88ca3",
+      "bytes": 4529
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/b114_property_removal.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/b114_property_removal.py",
+      "sha256": "71dfda35624b30e1e02afd37308d1c1d317ae026ddbab058a813c3acbac8f850",
+      "bytes": 3558
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/b114_property_removal_v2.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/b114_property_removal_v2.py",
+      "sha256": "0e35e710983f3bac5654861ebb53ca167472822979465ba7e185d1e74ee874b1",
+      "bytes": 4307
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/b114_rejection_boundary_final.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/b114_rejection_boundary_final.py",
+      "sha256": "70b625b43a5d3c721efe607d1963edd49feacefb50cac596571fa3a618a00be0",
+      "bytes": 5601
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/b114_whole_split_boundary_final.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/b114_whole_split_boundary_final.py",
+      "sha256": "4523b768bea6c0b143adfb5a5d22836a6ad000557ceeab89d3fe380397fc4785",
+      "bytes": 4992
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/inspect_origins.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/inspect_origins.py",
+      "sha256": "6cb91ad1a92b55f430b4846ac641f739a750488067e67fe2cf5829d223dba0a0",
+      "bytes": 451
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/run_native.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/native/run_native.py",
+      "sha256": "7ef04c4846426d42e38a8598e26b728bfbc5bb32f034faba0c3da61dd670826d",
+      "bytes": 3608
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-cold-plan-boundary/environment-origins.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-cold-plan-boundary/environment-origins.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-cold-plan-boundary/environment-origins.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-cold-plan-boundary/environment-origins.stdout.txt",
+      "sha256": "cf284814451b32d52c9c08ff95746fd2ed221a80f04444c51a1b478fe6e5de14",
+      "bytes": 11198
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-cold-plan-boundary/execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-cold-plan-boundary/execution.json",
+      "sha256": "8be7df11036754053ea0b63b0482ad5a74665f380787ecee83027aca62ee5caf",
+      "bytes": 5194
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-cold-plan-boundary/stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-cold-plan-boundary/stderr.txt",
+      "sha256": "62974866866aea268c8c5ed3219a9839bc568416abeb475448b69888a106b9a7",
+      "bytes": 2251
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-cold-plan-boundary/stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-cold-plan-boundary/stdout.txt",
+      "sha256": "3f08fb6c4a40fb34082c8f233b452778ab703fc23a53bfb127ca28ec3a6c3604",
+      "bytes": 2910
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-cold-plan-packet/inputs.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-cold-plan-packet/inputs.json",
+      "sha256": "6a669cf1fadb00d773d59feca17b8e16703a613ff6d64016ea6bbf64f05f3a34",
+      "bytes": 5001
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-cold-plan-packet/observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-cold-plan-packet/observations.json",
+      "sha256": "3f08fb6c4a40fb34082c8f233b452778ab703fc23a53bfb127ca28ec3a6c3604",
+      "bytes": 2910
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-boundary-v2/environment-origins.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-rejection-boundary-v2/environment-origins.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-boundary-v2/environment-origins.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-rejection-boundary-v2/environment-origins.stdout.txt",
+      "sha256": "cf284814451b32d52c9c08ff95746fd2ed221a80f04444c51a1b478fe6e5de14",
+      "bytes": 11198
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-boundary-v2/execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-rejection-boundary-v2/execution.json",
+      "sha256": "ac7cbb83ab8d7cd76b1236f7205e5ac37a68bc97d35852237f202214a57a6fc2",
+      "bytes": 5207
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-boundary-v2/stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-rejection-boundary-v2/stderr.txt",
+      "sha256": "7eaa251bc2c55905eacae92fd4f0dfcdb6e4ce0d7936ee9caa516c7c89387953",
+      "bytes": 1388
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-boundary-v2/stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-rejection-boundary-v2/stdout.txt",
+      "sha256": "73b192c3b6c702a2488989c543861a640bb0be01d6f0c0951a18006ee3a0f084",
+      "bytes": 75429
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-boundary/environment-origins.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-rejection-boundary/environment-origins.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-boundary/environment-origins.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-rejection-boundary/environment-origins.stdout.txt",
+      "sha256": "cf284814451b32d52c9c08ff95746fd2ed221a80f04444c51a1b478fe6e5de14",
+      "bytes": 11198
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-boundary/execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-rejection-boundary/execution.json",
+      "sha256": "4b06532c43244d9c53b39a436510ec934d23b4ae07f3a9d27733a4292cb582bf",
+      "bytes": 5197
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-boundary/stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-rejection-boundary/stderr.txt",
+      "sha256": "3b3b92101aff873b8879cb366f131801c3cbcf18bc1d5e773c8fd32af13ca95d",
+      "bytes": 2131
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-boundary/stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-rejection-boundary/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-packet-v2/acceptance-postimage.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-rejection-packet-v2/acceptance-postimage.py",
+      "sha256": "b80ac631ac77bcab3df0428ca12004cee3d161a7ff8cb7f8a48fb79e05568a4a",
+      "bytes": 1632
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-packet-v2/acceptance-preimage.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-rejection-packet-v2/acceptance-preimage.py",
+      "sha256": "d90e4083f8bc638690ac0a591e33ff524f9faacce228b4cfa74a9e831df78515",
+      "bytes": 1608
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-packet-v2/acceptance-removal.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-rejection-packet-v2/acceptance-removal.json",
+      "sha256": "08e24eee6fc6fb7b1743974d832503df9040946bda94400935dfe2cf249683ae",
+      "bytes": 526
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-packet-v2/inputs.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-rejection-packet-v2/inputs.json",
+      "sha256": "a6c79e10bfcc78f2b9607912373f662f3fbcc1b4b2c0fb86eb70588386ec4b15",
+      "bytes": 15028
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-packet-v2/observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-rejection-packet-v2/observations.json",
+      "sha256": "73b192c3b6c702a2488989c543861a640bb0be01d6f0c0951a18006ee3a0f084",
+      "bytes": 75429
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-boundary/environment-origins.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-whole-split-boundary/environment-origins.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-boundary/environment-origins.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-whole-split-boundary/environment-origins.stdout.txt",
+      "sha256": "cf284814451b32d52c9c08ff95746fd2ed221a80f04444c51a1b478fe6e5de14",
+      "bytes": 11198
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-boundary/execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-whole-split-boundary/execution.json",
+      "sha256": "f22a1a3d8783477ffe3c504993ab31ec560362242daf996a2bb40871cb45b608",
+      "bytes": 5209
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-boundary/stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-whole-split-boundary/stderr.txt",
+      "sha256": "4690ad7c00df5779a97bcbf6168468551551c98fe3a5c96ce62640e4c82185b9",
+      "bytes": 949
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-boundary/stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-whole-split-boundary/stdout.txt",
+      "sha256": "82727dd71506f08a71251ae5ab19fd5e2a5d901668ba00f6fede28d6dbf738cb",
+      "bytes": 3226
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-packet/inputs.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-whole-split-packet/inputs.json",
+      "sha256": "974818481194cd29736999f3923d5ba4a87abe48bd1f231c478ebf26a1e57b2f",
+      "bytes": 12597
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-packet/observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-whole-split-packet/observations.json",
+      "sha256": "82727dd71506f08a71251ae5ab19fd5e2a5d901668ba00f6fede28d6dbf738cb",
+      "bytes": 3226
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-reversed-boundary/environment-origins.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-whole-split-reversed-boundary/environment-origins.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-reversed-boundary/environment-origins.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-whole-split-reversed-boundary/environment-origins.stdout.txt",
+      "sha256": "cf284814451b32d52c9c08ff95746fd2ed221a80f04444c51a1b478fe6e5de14",
+      "bytes": 11198
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-reversed-boundary/execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-whole-split-reversed-boundary/execution.json",
+      "sha256": "8ba28a57caf82e36fe2dc386b80772cbc555a9b12ec04126d5008f53b94b5da7",
+      "bytes": 5245
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-reversed-boundary/stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-whole-split-reversed-boundary/stderr.txt",
+      "sha256": "ca77c54897c293456e3f973cdfbf8b34f0bbb8406370ee49738e7f762a94b026",
+      "bytes": 1303
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-reversed-boundary/stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-whole-split-reversed-boundary/stdout.txt",
+      "sha256": "11cbddbf532feb1784ea460eac6b7b0987d7fc86f9bfacb08770d89e2a9e8e72",
+      "bytes": 3229
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-reversed-packet/inputs.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-whole-split-reversed-packet/inputs.json",
+      "sha256": "d0f58b0f70d89029eb0e99960784e23d25d4832964503850f4deb9c153b140be",
+      "bytes": 12653
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-reversed-packet/observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/C11-c1bffbd5-B114-whole-split-reversed-packet/observations.json",
+      "sha256": "11cbddbf532feb1784ea460eac6b7b0987d7fc86f9bfacb08770d89e2a9e8e72",
+      "bytes": 3229
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/REPORT.md",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/REPORT.md",
+      "sha256": "344a41d3dff169e9f898d31075db13cdc47be5d7f08c0a873c9665378c2f096e",
+      "bytes": 3442
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/b114-whole-split-original-order-preimage.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/b114-whole-split-original-order-preimage.py",
+      "sha256": "98149d8911d908a98f5e15db2f32f68ade806b6c1b0cdd7c45cd80a97c05e61f",
+      "bytes": 4790
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/b114_cold_plan_boundary.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/b114_cold_plan_boundary.py",
+      "sha256": "364988553eedf404ecf895090bf506759aef3548b67052b1081ac3ae85033815",
+      "bytes": 4219
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/b114_cold_plan_boundary_final.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/b114_cold_plan_boundary_final.py",
+      "sha256": "57f97aaa59941c40e464bb1d81c24b3a2abf8a8e60d6cf501ec9199db7f88ca3",
+      "bytes": 4529
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/b114_property_removal.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/b114_property_removal.py",
+      "sha256": "71dfda35624b30e1e02afd37308d1c1d317ae026ddbab058a813c3acbac8f850",
+      "bytes": 3558
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/b114_rejection_boundary.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/b114_rejection_boundary.py",
+      "sha256": "d73410c8ad68104dc88d5621d09e36df43d9d6667d86c1612737564e11763c50",
+      "bytes": 5538
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/b114_rejection_boundary_final.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/b114_rejection_boundary_final.py",
+      "sha256": "70b625b43a5d3c721efe607d1963edd49feacefb50cac596571fa3a618a00be0",
+      "bytes": 5601
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/b114_rejection_boundary_v2.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/b114_rejection_boundary_v2.py",
+      "sha256": "2a491801a33397b4624ae8cde0b435b9879adc2dca1a584f5db76d485f0d31d5",
+      "bytes": 5612
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/b114_whole_split_boundary.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/b114_whole_split_boundary.py",
+      "sha256": "877b84989f3ada94950a73fbe4f57b665dce7251911c05f4d5853a5f45a809f6",
+      "bytes": 4985
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/b114_whole_split_boundary_final.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/b114_whole_split_boundary_final.py",
+      "sha256": "4523b768bea6c0b143adfb5a5d22836a6ad000557ceeab89d3fe380397fc4785",
+      "bytes": 4992
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/boundary-evidence-index.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/boundary-evidence-index.json",
+      "sha256": "e373d154f198a4d3ec3182184cd94f677c2ed5fd3cfc39233a66563e5641f1f6",
+      "bytes": 8448
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/hnsw-profile-gap.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/hnsw-profile-gap.json",
+      "sha256": "e8007b6f16801ffdfa96db6106c9823353b8b4cb6bef3a7b96b95b781d7a641b",
+      "bytes": 785
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/minimal-receiver-requirement.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/minimal-receiver-requirement.json",
+      "sha256": "2602eef777a1d1cb1382f396da51f849f547ab817c067f17596ce80da39012cc",
+      "bytes": 5405
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/owned-cold-planning-finding.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/owned-cold-planning-finding.json",
+      "sha256": "6c2ae36f29e967fbc263f2a119d086e6697e818e24b5e5e06bb7f18fbc8f95dd",
+      "bytes": 8419
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/owned-planning-finding.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/owned-planning-finding.json",
+      "sha256": "218ae644ab72d593c264677dc385b2a11fddfa09c0fd9f293fe4af3566278c4a",
+      "bytes": 10038
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/owned-rejection-finding.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/owned-rejection-finding.json",
+      "sha256": "ece7fa8410c0b71b54632604c839a0975e434005a9654e6e1903154b1220dc90",
+      "bytes": 8599
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/source-receiver-manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/original-findings/source-receiver-manifest.json",
+      "sha256": "d343333ee27a02b5ba0bac739ea0efdf4a35b62b17990196a32e78d64684b5ae",
+      "bytes": 7726
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c11/publication-readback.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/prior-publication/publication-readback.json",
+      "sha256": "d1a512badafbc1bd5907943b50369f897d110cca02b6edd25006c9bbdd2a54fb",
+      "bytes": 108354
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c11/03698439/REPORT-before-evidence-ack.md",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/review-final/REPORT-before-evidence-ack.md",
+      "sha256": "227e26cb481ed2a4355ad5c8c67c97a60021a5ffc6cbc29a6a219bc8d2c116bc",
+      "bytes": 4401
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c11/03698439/REPORT.md",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/review-final/REPORT.md",
+      "sha256": "fac1e3f77947daa52d1f4f41bb8fdd83278c7150443d27d23a4e1ff57f8db7af",
+      "bytes": 5783
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c11/03698439/ack-deciding-evidence.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/review-final/ack-deciding-evidence.py",
+      "sha256": "5c157d8537b585ddc3a9af3d1915c394bf955c47e60a74fd4450af635326f088",
+      "bytes": 13522
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c11/03698439/build-static-review.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/review-final/build-static-review.py",
+      "sha256": "922065595cc5be79f9ec2b07714bb6e74a234f19ec9ee94fef0f8fade3a81774",
+      "bytes": 9559
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c11/03698439/evidence-index.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/review-final/evidence-index.json",
+      "sha256": "c27226c9ec2720eeae01f0efe2334a49c62f1dd6481ac1ab43465b14e4079f98",
+      "bytes": 3189
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c11/03698439/final-result.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/review-final/final-result.json",
+      "sha256": "4b16568b9163050548cc0c2cdfd17afaea305e132c049f9b88ab3d3977d86e6b",
+      "bytes": 3853
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c11/03698439/invalid-ledger-restore-removal-ack.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/review-final/invalid-ledger-restore-removal-ack.json",
+      "sha256": "97021b55c52c86fae2751bbcfc8f89a5b6a18ba51f91e163808cbf4a3698a6dd",
+      "bytes": 2577
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c11/03698439/native-GP-evidence-ack.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/review-final/native-GP-evidence-ack.json",
+      "sha256": "374294de139fedc328bf4400a8606a6a0cd69d16c74306e680b6edf95e1b7c0c",
+      "bytes": 17445
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c11/03698439/postimages/policy-engine/release-fragments/unreleased/orch04-c11-b114-rejection-retention-20261008.md",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/review-final/postimages/policy-engine/release-fragments/unreleased/orch04-c11-b114-rejection-retention-20261008.md",
+      "sha256": "89b89d68d3cf4acba74a6ed3a6ba8b52652a5a3e1c3e8b5b16913d208eb8b0e9",
+      "bytes": 589
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c11/03698439/postimages/policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/review-final/postimages/policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+      "sha256": "acaacfd3c093c716792a89b8a20ace1a763fc294633d554825cb99c7eb473695",
+      "bytes": 4099
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c11/03698439/postimages/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/review-final/postimages/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "sha256": "59ca17ed3b226c5a8ee09e842134e6d91356f00b45a2cea47a36a88b52baf1b8",
+      "bytes": 33639
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c11/03698439/postimages/policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/review-final/postimages/policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+      "sha256": "e0e4099efc607946aefcf750a0577ab0a8543421b2431e45adf95a7c49a55efd",
+      "bytes": 29732
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c11/03698439/preimages/policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/review-final/preimages/policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+      "sha256": "ac7a06cb81d8bd0d97bf8593bd3c64a110f390ab5c529d53988db3bafc708c03",
+      "bytes": 2500
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c11/03698439/preimages/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/review-final/preimages/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "sha256": "beca4fa1db4a5b4073fa1ec1de88badc44f65d2dcb33ba4d2d199dcca0e6df45",
+      "bytes": 30826
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c11/03698439/preimages/policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/review-final/preimages/policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+      "sha256": "25deba8b89a1ed4174b1e13e48e296fc8eb92b91849ef898c9e242f846064a49",
+      "bytes": 18630
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c11/03698439/source-manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/review-final/source-manifest.json",
+      "sha256": "4ddff4adeb494c36a0ffac48aa403d0a1adc33afce91bb5756e6c825e7b69cd5",
+      "bytes": 133294
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c11/03698439/static-result.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/review-final/static-result.json",
+      "sha256": "404ab34147088ff8d3a57b51344967512f37941a3c79df23ac09b76daab547d7",
+      "bytes": 3345
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c11/B114-original-planning-finding.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/review/B114-original-planning-finding.json",
+      "sha256": "1711f347506f5b92eba7c241d38a65945103369744fa2d1e1779b79fbbe620eb",
+      "bytes": 9140
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c11/B114-original-rejection-finding.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/evidence/review/B114-original-rejection-finding.json",
+      "sha256": "fb059956444261b82007785ec648973a06a486a49ab918e6fdea9a66f4b16144",
+      "bytes": 8436
+    }
+  ],
+  "file_count": 209,
+  "total_bytes": 1913606
+}

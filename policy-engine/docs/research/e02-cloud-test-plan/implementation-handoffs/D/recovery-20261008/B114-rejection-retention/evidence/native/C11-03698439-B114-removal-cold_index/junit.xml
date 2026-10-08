@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="0.155" timestamp="2026-10-08T17:59:20.503089+00:00" hostname="9065c0936350"><testcase classname="tests.unit.scientist.search.strategies.test_bayesian" name="test_whole_and_warm_split_use_the_same_actual_cold_sobol_plan[False]" time="0.025"><failure message="AssertionError: assert [{'x': -2.696235328912735}] == [{'x': 4.9451446533203125}]&#10;  &#10;  At index 0 diff: {'x': -2.696235328912735} != {'x': 4.9451446533203125}&#10;  Use -v to get more diff">simple_space = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=&lt;ParameterType.CONTINUOUS: 'continuous'&gt;, log_scale=False, categories=None)])
+batch = False
+
+    @pytest.mark.parametrize("batch", [False, True])
+    def test_whole_and_warm_split_use_the_same_actual_cold_sobol_plan(
+        simple_space: SearchSpace, batch: bool
+    ) -&gt; None:
+        """Actual sampler inputs/parameters agree; current-request iteration stays separate."""
+        warm, current = _warm_planning_records(simple_space)
+        warm = warm[:2]
+        config = BayesianConfig(n_initial=6, seed=21)
+        whole = BayesianOptimizer(simple_space, config)
+        split = BayesianOptimizer(simple_space, config)
+        split.warm_start(warm)
+        corpus = whole._effective_training_corpus([*warm, *current])
+        assert len(corpus) == 3 &lt; config.n_initial
+        whole_candidates = (
+            whole.suggest_batch([*warm, *current], batch_size=2)
+            if batch
+            else [whole.suggest([*warm, *current])]
+        )
+        split_candidates = (
+            split.suggest_batch(current, batch_size=2) if batch else [split.suggest(current)]
+        )
+        assert all(c.source_strategy == "sobol_init" for c in [*whole_candidates, *split_candidates])
+&gt;       assert [c.params for c in whole_candidates] == [c.params for c in split_candidates]
+E       AssertionError: assert [{'x': -2.696235328912735}] == [{'x': 4.9451446533203125}]
+E         
+E         At index 0 diff: {'x': -2.696235328912735} != {'x': 4.9451446533203125}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/strategies/test_bayesian.py:296: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.search.strategies.test_bayesian" name="test_whole_and_warm_split_use_the_same_actual_cold_sobol_plan[True]" time="0.036"><failure message="AssertionError: assert [{'x': -2.696...996102333069}] == [{'x': 4.9451...921211242676}]&#10;  &#10;  At index 0 diff: {'x': -2.696235328912735} != {'x': 4.9451446533203125}&#10;  Use -v to get more diff">simple_space = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=&lt;ParameterType.CONTINUOUS: 'continuous'&gt;, log_scale=False, categories=None)])
+batch = True
+
+    @pytest.mark.parametrize("batch", [False, True])
+    def test_whole_and_warm_split_use_the_same_actual_cold_sobol_plan(
+        simple_space: SearchSpace, batch: bool
+    ) -&gt; None:
+        """Actual sampler inputs/parameters agree; current-request iteration stays separate."""
+        warm, current = _warm_planning_records(simple_space)
+        warm = warm[:2]
+        config = BayesianConfig(n_initial=6, seed=21)
+        whole = BayesianOptimizer(simple_space, config)
+        split = BayesianOptimizer(simple_space, config)
+        split.warm_start(warm)
+        corpus = whole._effective_training_corpus([*warm, *current])
+        assert len(corpus) == 3 &lt; config.n_initial
+        whole_candidates = (
+            whole.suggest_batch([*warm, *current], batch_size=2)
+            if batch
+            else [whole.suggest([*warm, *current])]
+        )
+        split_candidates = (
+            split.suggest_batch(current, batch_size=2) if batch else [split.suggest(current)]
+        )
+        assert all(c.source_strategy == "sobol_init" for c in [*whole_candidates, *split_candidates])
+&gt;       assert [c.params for c in whole_candidates] == [c.params for c in split_candidates]
+E       AssertionError: assert [{'x': -2.696...996102333069}] == [{'x': 4.9451...921211242676}]
+E         
+E         At index 0 diff: {'x': -2.696235328912735} != {'x': 4.9451446533203125}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/strategies/test_bayesian.py:296: AssertionError</failure></testcase></testsuite></testsuites>

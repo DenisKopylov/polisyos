@@ -1,0 +1,280 @@
+{
+  "schema": "ORCH04.independent-c11-B114-planning-finding.v1",
+  "reviewer": "/root/review_c11",
+  "utc": "2026-10-08T17:40:39.504158+00:00",
+  "id": "C11-review-4",
+  "priority": "P2",
+  "confidence": "high",
+  "source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+  "tree": "605764d3afec7ba005bd891530ee074df5811497",
+  "criterion": {
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "lines": [
+      2983,
+      2996
+    ],
+    "acceptance_line2995": "**Приёмка.** Один и тот же пригодный корпус, переданный целиком или через warm-start + новую часть, даёт согласованную обучающую выборку и план; отклонённые записи не исчезают без причины; идентичные артефакты не удваивают sample-count; намеренные независимые повторы остаются отдельными.",
+    "recommended_line2991": "**Рекомендуемое решение.** Сформировать один эффективный training corpus из совместимых исторических и текущих оценок до решения о cold-start и ограничения `max_train_size`. Проверять пространство, исходы, data/context vintage, split/доступ и независимость. Существующий механизм подвыборки оставить, но применить к действительно разрешённому корпусу. Непригодную историю сохранять с объяснением, не насильно добавлять в fit."
+  },
+  "owned_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+  "cause": {
+    "call_lines": [
+      181,
+      185
+    ],
+    "selector_lines": [
+      612,
+      648
+    ],
+    "description": "suggest derives effective training_corpus but passes raw caller evaluations to adaptive acquisition selector; warm and current partition changes count/recent window despite identical admitted training corpus"
+  },
+  "property": "One same eligible corpus whole versus warm plus current has coherent training sample and plan, including configured adaptive acquisition",
+  "observations": {
+    "observations": {
+      "whole": {
+        "native_ready": true,
+        "effective_ids": [
+          "warm-2-replica",
+          "warm-2",
+          "warm-5",
+          "warm-4",
+          "warm-3",
+          "warm-1",
+          "warm-0",
+          "current-0"
+        ],
+        "selected_ids": [
+          "warm-2-replica",
+          "warm-2",
+          "warm-5",
+          "warm-4",
+          "warm-3",
+          "warm-1",
+          "warm-0",
+          "current-0"
+        ],
+        "training_X": [
+          [
+            0.35
+          ],
+          [
+            0.35
+          ],
+          [
+            0.65
+          ],
+          [
+            0.55
+          ],
+          [
+            0.45
+          ],
+          [
+            0.25
+          ],
+          [
+            0.15
+          ],
+          [
+            0.9
+          ]
+        ],
+        "training_y_bo": [
+          [
+            -2.25
+          ],
+          [
+            -2.0
+          ],
+          [
+            -5.0
+          ],
+          [
+            -4.0
+          ],
+          [
+            -3.0
+          ],
+          [
+            -1.0
+          ],
+          [
+            -0.0
+          ],
+          [
+            -8.0
+          ]
+        ],
+        "fit_executed": false,
+        "actual_acquisition_caller_ids": [
+          "warm-2-replica",
+          "warm-2",
+          "warm-5",
+          "warm-4",
+          "warm-3",
+          "warm-2",
+          "warm-1",
+          "warm-0",
+          "current-0"
+        ],
+        "actual_plan": "upper_confidence_bound",
+        "actual_best_f": -0.0,
+        "soft_limit": false,
+        "candidate_route": "bayesian_acquisition",
+        "iteration": 9
+      },
+      "warm_plus_new": {
+        "native_ready": true,
+        "effective_ids": [
+          "warm-2-replica",
+          "warm-2",
+          "warm-5",
+          "warm-4",
+          "warm-3",
+          "warm-1",
+          "warm-0",
+          "current-0"
+        ],
+        "selected_ids": [
+          "warm-2-replica",
+          "warm-2",
+          "warm-5",
+          "warm-4",
+          "warm-3",
+          "warm-1",
+          "warm-0",
+          "current-0"
+        ],
+        "training_X": [
+          [
+            0.35
+          ],
+          [
+            0.35
+          ],
+          [
+            0.65
+          ],
+          [
+            0.55
+          ],
+          [
+            0.45
+          ],
+          [
+            0.25
+          ],
+          [
+            0.15
+          ],
+          [
+            0.9
+          ]
+        ],
+        "training_y_bo": [
+          [
+            -2.25
+          ],
+          [
+            -2.0
+          ],
+          [
+            -5.0
+          ],
+          [
+            -4.0
+          ],
+          [
+            -3.0
+          ],
+          [
+            -1.0
+          ],
+          [
+            -0.0
+          ],
+          [
+            -8.0
+          ]
+        ],
+        "fit_executed": false,
+        "actual_acquisition_caller_ids": [
+          "current-0"
+        ],
+        "actual_plan": "expected_improvement",
+        "actual_best_f": -0.0,
+        "soft_limit": false,
+        "candidate_route": "bayesian_acquisition",
+        "iteration": 1
+      }
+    },
+    "same_effective_ids": true,
+    "same_selected_ids": true,
+    "same_training_X": true,
+    "same_training_y_bo": true,
+    "same_plan": false,
+    "qualification": "Original B114 same eligible corpus whole-vs-warm+new, adaptive planning option; actual suggest route and native tensor preparation, local fit/acquisition spies; NO numerical fit/optimization or full-chain claim."
+  },
+  "deciding_execution": {
+    "pid": 25921,
+    "exit_code": 1,
+    "wall_seconds": 10.359021229999598,
+    "max_rss_kib": 1313828,
+    "source_delta_before": [],
+    "source_delta_after": []
+  },
+  "original_order_control": {
+    "pid": 25649,
+    "exit_code": 0,
+    "wall_seconds": 10.4015027989999,
+    "source_delta_before": [],
+    "source_delta_after": []
+  },
+  "P40": "second original B114 same-corpus intake branch; canonical widening must bind adaptive planning to admitted effective corpus, preserve duplicate artifact removal and independent replicas; not stronger transfer workflow",
+  "minimal_owned_requirement": "Use same effective eligible corpus for actual adaptive plan input; preserve current iteration/refit semantics and batch qEI contract. Full actual single/batch path review and targeted meaningful regression/removal after immutable repair. No new issuer law, no production/currentness claim.",
+  "qualification": "Actual native tensor preparation, suggest routing, existing adaptive selector; local fit/optimization spies so no numerical fit/acquisition or joined transfer/CAS witness",
+  "source_disposition": "HOLD_FOR_OWNED_APPEND_ONLY_B114_REPAIR",
+  "evidence": [
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-reversed-packet/inputs.json",
+      "bytes": 12653,
+      "sha256": "d0f58b0f70d89029eb0e99960784e23d25d4832964503850f4deb9c153b140be"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-reversed-packet/observations.json",
+      "bytes": 3229,
+      "sha256": "11cbddbf532feb1784ea460eac6b7b0987d7fc86f9bfacb08770d89e2a9e8e72"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-reversed-boundary/execution.json",
+      "bytes": 5245,
+      "sha256": "8ba28a57caf82e36fe2dc386b80772cbc555a9b12ec04126d5008f53b94b5da7"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-reversed-boundary/stdout.txt",
+      "bytes": 3229,
+      "sha256": "11cbddbf532feb1784ea460eac6b7b0987d7fc86f9bfacb08770d89e2a9e8e72"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-reversed-boundary/stderr.txt",
+      "bytes": 1303,
+      "sha256": "ca77c54897c293456e3f973cdfbf8b34f0bbb8406370ee49738e7f762a94b026"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/b114_whole_split_boundary.py",
+      "bytes": 4985,
+      "sha256": "877b84989f3ada94950a73fbe4f57b665dce7251911c05f4d5853a5f45a809f6"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-packet/observations.json",
+      "bytes": 3226,
+      "sha256": "82727dd71506f08a71251ae5ab19fd5e2a5d901668ba00f6fede28d6dbf738cb"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-whole-split-boundary/execution.json",
+      "bytes": 5209,
+      "sha256": "f22a1a3d8783477ffe3c504993ab31ec560362242daf996a2bb40871cb45b608"
+    }
+  ]
+}

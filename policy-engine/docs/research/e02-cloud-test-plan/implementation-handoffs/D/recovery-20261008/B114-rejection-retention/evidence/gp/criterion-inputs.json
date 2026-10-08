@@ -1,0 +1,105 @@
+[
+  {
+    "id": "B114",
+    "unit": "D",
+    "primary_bundle": "OPT-03",
+    "source_closure_owner_literal": "OPT-03",
+    "companion_bundles": [
+      "OPT-03"
+    ],
+    "ledger_status_historical": "partial",
+    "appendix_c_status_separate": "closed_bounded",
+    "task_refs": [
+      "D.md#bundle-opt-03"
+    ],
+    "criterion_refs": [
+      {
+        "criterion_id": "B114",
+        "document": "B_r19",
+        "lines": [
+          2983,
+          2996
+        ],
+        "sha256": "751ea1f4c2439927f429abb7d2be1bd0c15d45fd802529085431f219337fd766",
+        "card": "OPT-03"
+      }
+    ],
+    "closure_now": "not_adjudicated",
+    "selected_plan_not_executed": {
+      "selected_minimal_route": "**Рекомендуемое решение.** Сформировать один эффективный training corpus из совместимых исторических и текущих оценок до решения о cold-start и ограничения `max_train_size`. Проверять пространство, исходы, data/context vintage, split/доступ и независимость. Существующий механизм подвыборки оставить, но применить к действительно разрешённому корпусу. Непригодную историю сохранять с объяснением, не насильно добавлять в fit.",
+      "concrete_next_task": "Выполнить `selected_minimal_route`, сохранив её ограничение; затем закрыть только этот остаток: Transfer owner configured CASmanager->bridge->actual receiver combined workflow is independently reviewed; no full local production corpus transferred. Назначенный владелец: TRN owner controls source content/fingerprint admission; D canonical numerical receiver..",
+      "next_owner": "TRN owner controls source content/fingerprint admission; D canonical numerical receiver.",
+      "remaining_input": "Transfer owner configured CASmanager->bridge->actual receiver combined workflow is independently reviewed; no full local production corpus transferred; independent fixed-parameter analytic posterior/control is proposed but has no receipt yet.",
+      "consumer_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+      ],
+      "independent_oracle_after_integration": "Функциональный consumer: WarmStartBridge→BayesianCandidateGenerator→SearchLoopRunner реально подаёт разрешённые train_X/train_Y; затем независимый CPU oracle берёт 8–12 неповторяющихся 1D точек с невырожденной covariance, фиксирует fitted mean/kernel/likelihood parameters и сохранённые Normalize/Standardize state. В double precision отдельно вычисляет C=K(X,X)+σ²I, Cholesky C=LLᵀ, α=L⁻ᵀL⁻¹(y−m(X)), μ*=m(X*)+K(X*,X)α и полную latent Σ*=K(X*_norm,X*_norm)−VᵀV, V=L⁻¹K(X,X*); применяет тот же сохранённый input transform и unscales Y: mean×s_y, covariance×s_y². Сравнить original и restored `SingleTaskGP.posterior(observation_noise=False)` со своим oracle; для append пересчитать объединённые X/Y при замороженных fitted params. Не вызывать `model.posterior` внутри oracle. MLL-fit count: 0 на same-basis restore/append, >0 только на явно due refit. Это точный numerics acceptance, не calibration/production truth.",
+      "negative_control": "Сохранить корректный fitted-state positive control. Затем при неизменных contract/marker fields отдельно удалить state_dict load, подменить одно fitted lengthscale/likelihood noise, подменить Normalize/Standardize state или исключить admitted warm row. Независимо вычисленный mean и полная covariance обязаны отличаться от BoTorch consumer до публикации/мутации; spy показывает ноль fit на same-basis append и ожидаемый fit только при due refit. Не считать same-model `posterior()` replay отрицательным контролем.",
+      "acceptance_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
+      "capability_state_label": "verification_missing",
+      "P40": {
+        "bucket": "new_or_distinct_class",
+        "relation": null
+      },
+      "P41": "No inherited waiver: no evidence for this row of exact command at D slice base c40d4acae1ce58b597267255026d9356565828fd plus complete command-denominator intersection=0."
+    }
+  },
+  {
+    "id": "B115",
+    "unit": "D",
+    "primary_bundle": "OPT-03",
+    "source_closure_owner_literal": "OPT-03",
+    "companion_bundles": [
+      "OPT-03"
+    ],
+    "ledger_status_historical": "partial",
+    "appendix_c_status_separate": "closed_bounded",
+    "task_refs": [
+      "D.md#bundle-opt-03"
+    ],
+    "criterion_refs": [
+      {
+        "criterion_id": "B115",
+        "document": "B_r19",
+        "lines": [
+          2997,
+          3010
+        ],
+        "sha256": "4d5afea998b22ec18956bf039ae38fd1751fe457a8994ce87161fa2fdac20872",
+        "card": "OPT-03"
+      }
+    ],
+    "closure_now": "not_adjudicated",
+    "selected_plan_not_executed": {
+      "selected_minimal_route": "**Рекомендуемое решение.** Развести обновление наблюдений и оптимизацию гиперпараметров. Для совместимого состояния использовать поддерживаемый backend-путь условления/обновления данных с сохранением выученной модели; при новой выборке, трансформациях или архитектуре — контролируемый refit. BoTorch предоставляет `condition_on_observations`, но его применение должно соответствовать режиму модели, input/outcome transforms и noise; простое копирование произвольного state_dict между несовместимыми шкалами небезопасно.",
+      "concrete_next_task": "Выполнить `selected_minimal_route`, сохранив её ограничение; затем закрыть только этот остаток: Cross-backend bit identity, model origin authenticity, production history laws not established. Назначенный владелец: Canonical GP owner; scientific replay policy explicitly versioned sobol_ranked_restarts_v1..",
+      "next_owner": "Canonical GP owner; scientific replay policy explicitly versioned sobol_ranked_restarts_v1.",
+      "remaining_input": "Cross-backend bit identity, model origin authenticity, production history laws not established; independent fixed-parameter analytic posterior/control is proposed but has no receipt yet.",
+      "consumer_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+      ],
+      "independent_oracle_after_integration": "Функциональный consumer: WarmStartBridge→BayesianCandidateGenerator→SearchLoopRunner реально подаёт разрешённые train_X/train_Y; затем независимый CPU oracle берёт 8–12 неповторяющихся 1D точек с невырожденной covariance, фиксирует fitted mean/kernel/likelihood parameters и сохранённые Normalize/Standardize state. В double precision отдельно вычисляет C=K(X,X)+σ²I, Cholesky C=LLᵀ, α=L⁻ᵀL⁻¹(y−m(X)), μ*=m(X*)+K(X*,X)α и полную latent Σ*=K(X*_norm,X*_norm)−VᵀV, V=L⁻¹K(X,X*); применяет тот же сохранённый input transform и unscales Y: mean×s_y, covariance×s_y². Сравнить original и restored `SingleTaskGP.posterior(observation_noise=False)` со своим oracle; для append пересчитать объединённые X/Y при замороженных fitted params. Не вызывать `model.posterior` внутри oracle. MLL-fit count: 0 на same-basis restore/append, >0 только на явно due refit. Это точный numerics acceptance, не calibration/production truth.",
+      "negative_control": "Сохранить корректный fitted-state positive control. Затем при неизменных contract/marker fields отдельно удалить state_dict load, подменить одно fitted lengthscale/likelihood noise, подменить Normalize/Standardize state или исключить admitted warm row. Независимо вычисленный mean и полная covariance обязаны отличаться от BoTorch consumer до публикации/мутации; spy показывает ноль fit на same-basis append и ожидаемый fit только при due refit. Не считать same-model `posterior()` replay отрицательным контролем.",
+      "acceptance_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
+      "capability_state_label": "verification_missing",
+      "P40": {
+        "bucket": "same_class_one_level_deeper",
+        "relation": "same class one level deeper than B114 (persisted warm observations still lose fit parameters/transforms or hidden-refit).",
+        "linked_finding_ids": [
+          "B114",
+          "B115"
+        ],
+        "combined_owner_bundle": "OPT-03",
+        "combined_mechanism": "Восстанавливать ту же реальную GP модель, learned params/transforms, training corpus и RNG. Conditioning на новые observation — обычный путь; полный refit — только когда объявленная schedule требует его.",
+        "combined_independent_oracle": "Реальный CPU BoTorch SingleTaskGP: X/Y, transforms, learned params переживают persist/resume; spy показывает 0 скрытых fit и допускает due scheduled fit.",
+        "combined_acceptance_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
+        "required_falsifier": "At the one combined acceptance for this owner bundle, preserve contract fields and a positive control, execute every linked original counterexample, then remove the shared runtime mechanism while leaving markers/declared inputs intact; the relevant consumer/property assertions must fail, and pass again when restored. Candidate receipts are bounded evidence only; G97 integration and this audit did not execute this combined falsifier."
+      },
+      "P41": "No inherited waiver: no evidence for this row of exact command at D slice base c40d4acae1ce58b597267255026d9356565828fd plus complete command-denominator intersection=0."
+    }
+  }
+]

@@ -1,0 +1,88 @@
+{
+  "schema": "ORCH04.independent-c11-B114-review-index.v1",
+  "reviewer": "/root/review_c11",
+  "source": "03698439abfb1cb59f763397a182d8e0e393d40d",
+  "tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+  "files": [
+    {
+      "path": "REPORT-before-evidence-ack.md",
+      "sha256": "227e26cb481ed2a4355ad5c8c67c97a60021a5ffc6cbc29a6a219bc8d2c116bc",
+      "bytes": 4401
+    },
+    {
+      "path": "REPORT.md",
+      "sha256": "fac1e3f77947daa52d1f4f41bb8fdd83278c7150443d27d23a4e1ff57f8db7af",
+      "bytes": 5783
+    },
+    {
+      "path": "ack-deciding-evidence.py",
+      "sha256": "5c157d8537b585ddc3a9af3d1915c394bf955c47e60a74fd4450af635326f088",
+      "bytes": 13522
+    },
+    {
+      "path": "build-static-review.py",
+      "sha256": "922065595cc5be79f9ec2b07714bb6e74a234f19ec9ee94fef0f8fade3a81774",
+      "bytes": 9559
+    },
+    {
+      "path": "final-result.json",
+      "sha256": "4b16568b9163050548cc0c2cdfd17afaea305e132c049f9b88ab3d3977d86e6b",
+      "bytes": 3853
+    },
+    {
+      "path": "invalid-ledger-restore-removal-ack.json",
+      "sha256": "97021b55c52c86fae2751bbcfc8f89a5b6a18ba51f91e163808cbf4a3698a6dd",
+      "bytes": 2577
+    },
+    {
+      "path": "native-GP-evidence-ack.json",
+      "sha256": "374294de139fedc328bf4400a8606a6a0cd69d16c74306e680b6edf95e1b7c0c",
+      "bytes": 17445
+    },
+    {
+      "path": "postimages/policy-engine/release-fragments/unreleased/orch04-c11-b114-rejection-retention-20261008.md",
+      "sha256": "89b89d68d3cf4acba74a6ed3a6ba8b52652a5a3e1c3e8b5b16913d208eb8b0e9",
+      "bytes": 589
+    },
+    {
+      "path": "postimages/policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+      "sha256": "acaacfd3c093c716792a89b8a20ace1a763fc294633d554825cb99c7eb473695",
+      "bytes": 4099
+    },
+    {
+      "path": "postimages/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "sha256": "59ca17ed3b226c5a8ee09e842134e6d91356f00b45a2cea47a36a88b52baf1b8",
+      "bytes": 33639
+    },
+    {
+      "path": "postimages/policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+      "sha256": "e0e4099efc607946aefcf750a0577ab0a8543421b2431e45adf95a7c49a55efd",
+      "bytes": 29732
+    },
+    {
+      "path": "preimages/policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+      "sha256": "ac7a06cb81d8bd0d97bf8593bd3c64a110f390ab5c529d53988db3bafc708c03",
+      "bytes": 2500
+    },
+    {
+      "path": "preimages/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "sha256": "beca4fa1db4a5b4073fa1ec1de88badc44f65d2dcb33ba4d2d199dcca0e6df45",
+      "bytes": 30826
+    },
+    {
+      "path": "preimages/policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+      "sha256": "25deba8b89a1ed4174b1e13e48e296fc8eb92b91849ef898c9e242f846064a49",
+      "bytes": 18630
+    },
+    {
+      "path": "source-manifest.json",
+      "sha256": "4ddff4adeb494c36a0ffac48aa403d0a1adc33afce91bb5756e6c825e7b69cd5",
+      "bytes": 133294
+    },
+    {
+      "path": "static-result.json",
+      "sha256": "404ab34147088ff8d3a57b51344967512f37941a3c79df23ac09b76daab547d7",
+      "bytes": 3345
+    }
+  ]
+}

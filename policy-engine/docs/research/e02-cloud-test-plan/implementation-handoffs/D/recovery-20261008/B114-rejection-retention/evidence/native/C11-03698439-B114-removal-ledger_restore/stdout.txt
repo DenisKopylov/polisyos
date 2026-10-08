@@ -1,0 +1,166 @@
+{
+  "schema": "ORCH04-B114-matched-property-removal-v1",
+  "source": "03698439abfb1cb59f763397a182d8e0e393d40d",
+  "kind": "ledger_restore",
+  "source_files_modified": false,
+  "original_owner_module": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+  "original_owner_sha256": "59ca17ed3b226c5a8ee09e842134e6d91356f00b45a2cea47a36a88b52baf1b8",
+  "actual_base_module": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+  "actual_base_sha256": "9dcffa7b1276e18be70c9a3c1d9fc3e618b4f11b9cc8611f96de06a9744bb7e7",
+  "changes": [
+    {
+      "method": "set_state",
+      "actual_original_code_filename": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "preimage": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-packet/set_state.preimage.py",
+      "preimage_sha256": "7c7c7322325153fc0e04b22d2603880c548d2b4a29175b03a4e055541616e1a6",
+      "postimage": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-packet/set_state.postimage.py",
+      "postimage_sha256": "1d3f23fc878ef1ed9a0ead22840da44c9abf3c1daf4782a3f294bb40e570cb40",
+      "removed_effect": "self._warm_start_rejections = rejection_records",
+      "effect_identifier_marker_preserved": true,
+      "runtime_function_code_filename": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-packet/set_state.postimage.py"
+    }
+  ],
+  "pytest_argv": [
+    "tests/unit/scientist/search/strategies/test_bayesian.py::test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus",
+    "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore/junit.xml"
+  ],
+  "qualification": "Only the named effect is removed in this process. Version/complete/count/per-record log/class/enum/reference/input markers remain. Original committed tests and ordinary conftest run; no product/test file edit, native numerical positive inferred from removal, or hook bypass."
+}
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus _
+
+simple_space = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=<ParameterType.CONTINUOUS: 'continuous'>, log_scale=False, categories=None)])
+
+    def test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus(
+        simple_space: SearchSpace,
+    ) -> None:
+        strategy = BayesianOptimizer(simple_space, BayesianConfig(seed=19))
+        compatibility = {
+            "search_space_fingerprint": simple_space.sobol_space_fingerprint(),
+            "input_transform_fingerprint": "Normalize[0,1]",
+            "outcome_transform_fingerprint": "Standardize[m=1]",
+            "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+            "objective_fingerprint": "scalar_score[minimize]",
+            "context_fingerprint": "context/rejection-audit",
+        }
+        records = [
+            make_evaluation(
+                candidate_id=f"full-record-identity/{index}",
+                params={"x": float(index - 2)},
+                score=float(index),
+                space=simple_space,
+            )
+            for index in range(6)
+        ]
+        for index, evaluation in enumerate(records):
+            evaluation.provenance_ref = f"origin/rejection-audit/{index}"
+            evaluation.metadata = {
+                "replicate_id": f"replica-{index}",
+                "seed": index,
+                "warm_start_compatibility": dict(compatibility),
+                "payload": {"retained": [index]},
+            }
+        accepted, *rejected = records
+        rejected[0].stage_a_passed = False
+        rejected[1].provenance_ref = None
+        rejected[2].params_normalized = (0.25, 0.75)
+        rejected[3].metadata.pop("warm_start_compatibility")
+        rejected[4].metadata["warm_start_compatibility"]["context_fingerprint"] = "foreign"
+        reasons = [
+            "invalid outcome",
+            "missing provenance_ref",
+            "incompatible normalized parameters",
+            "missing or incompatible warm-start fingerprint",
+            "incompatible context fingerprint",
+        ]
+        expected = json.loads(
+            json.dumps(
+                [
+                    {"reason": reason, "evaluation": asdict(evaluation)}
+                    for reason, evaluation in zip(reasons, rejected, strict=True)
+                ],
+                default=str,
+            )
+        )
+        assert strategy.warm_start(records) is None
+        assert strategy._select_training_subset([]) == [accepted]
+        # Retain each rejected occurrence, including repeated complete record identities.
+        strategy.warm_start([rejected[1]])
+        expected.append(expected[1])
+        rejected[0].metadata["payload"]["retained"].append("changed by caller")
+        state = StrategyState.from_artifact(strategy.get_state().to_artifact())
+        history = state.metadata["warm_start_rejections"]
+        assert history["version"] == 1
+        assert history["complete"] is True
+        assert history["records"] == expected
+        assert strategy._select_training_subset([]) == [accepted]
+        restored = BayesianOptimizer(simple_space, BayesianConfig(seed=19))
+>       restored.set_state(state)
+
+tests/unit/scientist/search/strategies/test_bayesian.py:131: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.scientist.methods.search.strategies.bayesian.BayesianOptimizer object at 0x7fa796ecee90>
+state = StrategyState(strategy_name='BayesianOptimizer', iteration=0, rng_state={'python': {'codec': 'python_random', 'codec_v...': '2026-10-08 17:58:43.563847+00:00', 'wall_time_seconds': 0.0}, 'reason': 'missing provenance_ref'}], 'version': 1}})
+
+    def set_state(self, state: StrategyState) -> None:
+        """Restore a recorded GP basis and its actual full-refit boundary.
+    
+        Legacy model snapshots lack enough information for append continuation;
+        reject them explicitly rather than invent the missing fitting history.
+        """
+        rejection_history = state.metadata.get("warm_start_rejections")
+        if rejection_history is None:
+            rejection_records: list[dict[str, Any]] = []
+            rejection_history_complete = False
+        else:
+            if (
+                not isinstance(rejection_history, Mapping)
+                or type(rejection_history.get("version")) is not int
+                or rejection_history.get("version") != 1
+                or type(rejection_history.get("complete")) is not bool
+                or not isinstance(rejection_history.get("records"), list)
+            ):
+                raise ValueError("Warm-start rejection history is malformed or unsupported")
+            for record in rejection_history["records"]:
+                if (
+                    not isinstance(record, Mapping)
+                    or not isinstance(record.get("reason"), str)
+                    or record.get("reason") not in _WARM_REJECTION_REASONS
+                    or not isinstance(record.get("evaluation"), Mapping)
+                    or not isinstance(record["evaluation"].get("candidate_id"), str)
+                ):
+                    raise ValueError("Warm-start rejection record or reason is malformed")
+            rejection_records = deepcopy(rejection_history["records"])
+            rejection_history_complete = rejection_history["complete"]
+        continuation = state.metadata.get("gp_continuation")
+        if state.model_state is not None:
+            if not isinstance(continuation, Mapping) or continuation.get("version") != "1.0":
+                raise ValueError("GP continuation basis/refit history not established in snapshot")
+            if continuation.get("space_fingerprint") != self._space.sobol_space_fingerprint():
+                raise ValueError("GP continuation search space differs from the snapshot")
+            last_iteration = continuation.get("last_refit_iteration")
+            last_size = continuation.get("last_train_size")
+            if (
+                type(last_iteration) is not int
+                or type(last_size) is not int
+                or last_iteration < 0
+                or last_iteration > state.iteration
+                or last_size < 1
+            ):
+                raise ValueError("GP continuation has invalid full-refit counters")
+>       super().set_state(state)
+    ^^^^^^^
+E       RuntimeError: super(): __class__ cell not found
+
+../../C11-03698439-B114-removal-ledger_restore-packet/set_state.postimage.py:47: RuntimeError
+=============================== warnings summary ===============================
+../../../../ORCH04-environments/app/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/strategies/test_bayesian.py::test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus
+1 failed, 1 warning in 0.09s

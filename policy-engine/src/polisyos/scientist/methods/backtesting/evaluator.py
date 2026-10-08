@@ -3,29 +3,12 @@
 from __future__ import annotations
 
 import math
-import numbers
 from typing import Any
 
 import numpy as np
 
+from polisyos.calibration.interval_basis import _read_interval, _reconcile_interval_basis
 from polisyos.ir.analytics.backtest import BacktestScenario, OutcomeComparison
-
-
-def _read_interval(value: object) -> tuple[tuple[float, float] | None, str | None]:
-    """Admit the declared finite ordered pair without repairing its contents."""
-    if not isinstance(value, (list, tuple)) or len(value) != 2:
-        return None, "invalid_interval_shape"
-    if any(isinstance(bound, bool) or not isinstance(bound, numbers.Real) for bound in value):
-        return None, "non_numeric_interval"
-    try:
-        lower, upper = float(value[0]), float(value[1])
-    except (TypeError, ValueError, OverflowError):
-        return None, "non_finite_interval"
-    if not math.isfinite(lower) or not math.isfinite(upper):
-        return None, "non_finite_interval"
-    if lower > upper:
-        return None, "reversed_interval"
-    return (lower, upper), None
 
 
 class PredictionEvaluator:
@@ -235,7 +218,7 @@ class PredictionEvaluator:
         if interval_type is not None and not isinstance(interval_type, str):
             interval_type = str(interval_type)
 
-        return BacktestScenario(
+        scenario = BacktestScenario(
             scenario_id=scenario_id,
             scenario_label=scenario_label,
             jurisdiction=jurisdiction,
@@ -266,6 +249,13 @@ class PredictionEvaluator:
             percentage_error_count=len(percentage_errors),
             metadata=metadata_payload,
         )
+        if interval_contract_declared:
+            basis = _reconcile_interval_basis(scenario)
+            scenario.metadata["interval_admission"]["status"] = (
+                "evaluated" if basis.complete else "limited"
+            )
+            scenario.metadata["interval_admission"]["reconciled_issues"] = list(basis.issues)
+        return scenario
 
 
 __all__ = ["PredictionEvaluator"]

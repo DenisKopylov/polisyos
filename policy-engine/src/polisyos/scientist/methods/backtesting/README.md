@@ -39,6 +39,28 @@ Empirical interval hits measure these paired synthetic/observed cases, not causa
 population calibration, equivalence, or institutional authority. The historical heuristic trust
 profile on this source remains a separate accountable purpose/profile decision.
 
+### Interval basis through report consumers
+
+The internal `polisyos.calibration.interval_basis` check recomputes completeness from each
+scenario's actual bounds, observations, hits and declared counts. Temporal report construction,
+matrix scoring, empirical forecast evidence and calibration promotion all consume this same
+check. Missing or positive metadata labels cannot turn a partial interval roster into a complete
+one; retained producer limitations also remain blocking. Conditional coverage and valid point
+errors stay readable while an incomplete interval basis is unavailable for scoring or promotion.
+
+`CalibrationValidationRunner` injects its existing CAS into `CalibrationLeaderboard`.
+The optional constructor store argument is additive: callers without a store may still obtain
+diagnostic scores, but cannot establish promotion. With a store, the leaderboard resolves and
+verifies the report's kind, schema and bytes, scenario/kind roster and recomputed matrix scores.
+Complete legacy paired reports need no new metadata marker. Point-only reports remain supported,
+and a complete predictive ETS report's separate bridge-pending limitation does not itself imply
+an interval-basis defect.
+
+The current `OutcomeComparison` schema has metric names but no row/time identity. This check
+does not establish the authentic source roster or detect substituted equal rows whose declared
+counts remain consistent. A scientific population/axis admission needs the actual source/row
+contract; this internal consistency check supplies no Runtime or institutional authority.
+
 ## Public API
 
 - `HistoricalValidationPlan`, `MaskingStrategy`, `PredictionSource`

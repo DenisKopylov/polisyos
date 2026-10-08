@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 
+from polisyos.calibration.interval_basis import _reconcile_interval_basis
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.ir_adapter import build_ir_artifact_store, ensure_ir_artifact_store
 from polisyos.core.canon import from_canonical_bytes
@@ -329,8 +330,7 @@ class BacktestOrchestrator:
             data_source=plan.historical_data_ref or plan.historical_data_path or "",
             metadata=scenario_metadata,
         )
-        interval_admission = scenario.metadata.get("interval_admission")
-        if isinstance(interval_admission, dict) and interval_admission.get("status") == "limited":
+        if not _reconcile_interval_basis(scenario).complete:
             degraded_reasons.append("interval_admission_limited")
         return (
             scenario,
@@ -881,7 +881,14 @@ class BacktestOrchestrator:
             metadata_payload["trust_screening"] = trust_screening.value
 
         biases, statistical_degraded_reasons = self._detect_systematic_biases(scenarios)
-        all_degraded_reasons = [*degraded_reasons, *statistical_degraded_reasons]
+        interval_reasons = [
+            f"{scenario.scenario_id}: interval_admission_limited"
+            for scenario in scenarios
+            if not _reconcile_interval_basis(scenario).complete
+        ]
+        all_degraded_reasons = list(
+            dict.fromkeys([*degraded_reasons, *statistical_degraded_reasons, *interval_reasons])
+        )
         if trust_screening is not TrustScreeningMode.DEFAULT:
             all_degraded_reasons.append(f"trust_screening:{trust_screening.value}")
 

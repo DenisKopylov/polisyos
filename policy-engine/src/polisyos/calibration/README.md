@@ -24,3 +24,15 @@ separate `scientist/calibration` package root.
 - `apply_calibrator`
 - `compare_calibrators`
 - `to_validation_report`
+
+## Internal interval report consistency
+
+`interval_basis.py` is an internal helper shared by backtest report consumers. It reconciles
+finite ordered bounds, actual observed hits, requested/evaluated counts and retained limitations;
+its numerical consistency result does not establish scientific sampling law or authority.
+The forecast bridge rejects an incomplete interval basis while retaining descriptive conditional
+coverage. Complete predictive evidence can still be content-consistent when a separate consumer
+bridge is pending; genuine Runtime/S10 admission remains a separate contract.
+
+Scientist governance consumers may reuse this calibration helper. It has no package-root export
+and introduces no additional CAS, service or authority registry.

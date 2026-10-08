@@ -1,0 +1,26 @@
+id = "2026-10-08-c09-interval-consumer-basis"
+title = "Preserve incomplete interval basis through backtest consumers"
+type = "fixed"
+component = "scientist"
+owner = "team-scientist"
+summary = "Recompute one shared interval basis for temporal reports, matrix scores, forecast evidence and CAS-backed calibration promotion; incomplete requested pairs cannot be promoted by positive markers."
+change_class = "internal"
+surface_classification = "internal: report consumers and additive existing-CAS injection"
+compatibility = "Point-only and complete legacy paired reports remain supported. CalibrationLeaderboard's optional store argument is additive; store-free calls remain diagnostic, without promotion. No report schema or facade changes."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/methods/backtesting/README.md", "src/polisyos/calibration/README.md"]
+runbook_docs = ["src/polisyos/scientist/methods/backtesting/README.md"]
+evidence = ["tests/unit/scientist/methods/backtesting/test_interval_basis.py", "tests/unit/scientist/governance/test_interval_basis_promotion.py", "tests/unit/calibration/test_forecast_interval_basis.py"]
+
+[[compatibility_change]]
+id = "c09-existing-cas-interval-consumer"
+change_class = "internal"
+impact = "internal"
+surface = "internal: polisyos.scientist.governance.calibration_leaderboard"
+owner = "team-scientist"
+version_owner = "team-scientist"
+deprecation_window = "not_applicable"
+release_note = "CalibrationLeaderboard optionally accepts the existing runner CAS; legacy store-free calls remain diagnostic and cannot establish promotion."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/methods/backtesting/README.md"]
+runbook_docs = ["src/polisyos/scientist/methods/backtesting/README.md"]

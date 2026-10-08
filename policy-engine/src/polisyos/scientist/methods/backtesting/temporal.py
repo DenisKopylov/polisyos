@@ -8,6 +8,7 @@ from typing import Any
 
 import numpy as np
 
+from polisyos.calibration.interval_basis import _reconcile_interval_basis
 from polisyos.foundry.methods.catalog.causal.structural_time_series import TemporalTrajectoryResult
 from polisyos.foundry.methods.catalog.causal.temporal_estimand_compiler import TemporalCompileError
 from polisyos.ir.analytics.backtest import BacktestReport, BacktestScenario
@@ -166,6 +167,7 @@ def evaluate_temporal_trajectory(
     acceptance_checks["diagnostics_complete"] = bool(diagnostics_checks["complete"])
     for name, value in (extra_acceptance_checks or {}).items():
         acceptance_checks[str(name)] = bool(value)
+    acceptance_checks["interval_basis_complete"] = _reconcile_interval_basis(scenario).complete
 
     passes = all(acceptance_checks.values()) if acceptance_checks else True
     actual_outcome = "pass"
@@ -215,6 +217,7 @@ def evaluate_temporal_trajectory(
         ),
     }
 
+    interval_admission = dict(scenario.metadata.get("interval_admission", {}))
     scenario.metadata.update(
         {
             "temporal_metrics": {
@@ -235,6 +238,8 @@ def evaluate_temporal_trajectory(
             **dict(metadata or {}),
         }
     )
+    # Caller annotations cannot replace the evaluator's interval roster/basis.
+    scenario.metadata["interval_admission"] = interval_admission
 
     return TemporalEvaluationResult(
         scenario=scenario,
@@ -324,7 +329,11 @@ def summarize_temporal_evaluations(
     """Aggregate temporal evaluation outcomes for suite-level scorecards."""
 
     n_total = len(evaluations)
-    n_passed = sum(1 for item in evaluations if item.matches_expected_outcome)
+    n_passed = sum(
+        1
+        for item in evaluations
+        if item.matches_expected_outcome and _reconcile_interval_basis(item.scenario).complete
+    )
     safe_rejection_cases = [
         item for item in evaluations if item.expected_outcome == "safe_rejection"
     ]
@@ -354,6 +363,7 @@ def summarize_temporal_evaluations(
         item.uncertainty_metrics["band_coverage"]
         for item in evaluations
         if "band_coverage" in item.uncertainty_metrics
+        and _reconcile_interval_basis(item.scenario).complete
     ]
 
     diagnostics_presence_rate = _mean(
@@ -405,6 +415,11 @@ def build_temporal_backtest_report(
             if scenario.coverage_probability is not None
         ]
     )
+    interval_reasons = [
+        f"{scenario.scenario_id}: interval_admission_limited"
+        for scenario in scenarios
+        if not _reconcile_interval_basis(scenario).complete
+    ]
     return BacktestReport(
         report_id=report_id,
         scenarios=scenarios,
@@ -414,6 +429,9 @@ def build_temporal_backtest_report(
         overall_coverage_probability=overall_coverage,
         n_scenarios=len(scenarios),
         n_metrics_evaluated=sum(len(scenario.outcome_comparisons) for scenario in scenarios),
+        degraded=bool(interval_reasons),
+        degraded_reasons=interval_reasons,
+        trust_eligible=bool(scenarios) and not interval_reasons,
         metadata={
             "temporal_summary": summary,
             **dict(metadata or {}),

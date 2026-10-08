@@ -13,19 +13,26 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.calibration.forecast_bridge import _load_verified_report
+from polisyos.calibration.interval_basis import _reconcile_interval_basis
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.strategic import StrategicSolveResult
 from polisyos.foundry.methods.catalog.sensitivity.specification import SpecificationCurveEstimator
 from polisyos.ir.analytics.interference import InterferenceCertificate, NetworkInterferenceReport
 from polisyos.ir.analytics.transportability import TransportabilityResult, TransportabilityStatus
 from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
-from polisyos.scientist.methods.discovery.utility_judge import DownstreamUtilityReport
-from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixResult
+from polisyos.scientist.governance.backtest_matrix import (
+    BacktestKind,
+    BacktestMatrixResult,
+    _score_backtest_scenarios,
+)
 from polisyos.scientist.governance.calibration import (
     CalibrationAdversarialResult,
     CalibrationGovernanceReport,
 )
 from polisyos.scientist.governance.stress_scenarios import StressScenarioKind, StressScenarioResult
+from polisyos.scientist.methods.discovery.utility_judge import DownstreamUtilityReport
 
 _WEIGHTS: dict[str, float] = {
     "calibration_fit_score": 0.20,
@@ -91,7 +98,8 @@ class CalibrationLeaderboard:
     entries by eligibility, composite score, and deterministic tie-breakers.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, store: FileSystemCAS | None = None) -> None:
+        self._store = store
         self._specification_curve_estimator = SpecificationCurveEstimator()
 
     def build_entry(
@@ -113,6 +121,7 @@ class CalibrationLeaderboard:
     ) -> CalibrationLeaderboardEntry:
         """Assemble a leaderboard entry from governance and validation evidence."""
 
+        interval_basis_issues = self._backtest_basis_issues(backtest_matrix)
         metrics = CalibrationLeaderboardMetrics(
             calibration_fit_score=_clamp(calibration_fit_score),
             backtest_matrix_score=(
@@ -139,7 +148,15 @@ class CalibrationLeaderboard:
             governance_verdict=governance_report.resolved_verdict(),
             adversarial_passed=_adversarial_passed(governance_report.adversarial_results),
         )
-        gap_flags = _collect_gap_flags(metrics)
+        gap_flags = list(
+            dict.fromkeys(
+                [
+                    *_collect_gap_flags(metrics),
+                    *(backtest_matrix.gap_flags if backtest_matrix is not None else []),
+                    *interval_basis_issues,
+                ]
+            )
+        )
         metrics.gap_flags = gap_flags
         metrics.composite_score = _compute_composite_score(metrics)
         metrics.eligible_for_promotion = (
@@ -158,6 +175,62 @@ class CalibrationLeaderboard:
             ),
             metadata=dict(metadata or {}),
         )
+
+    def _backtest_basis_issues(self, matrix: BacktestMatrixResult | None) -> list[str]:
+        """Read the actual report before admitting a matrix's interval basis.
+
+        The store is the existing runner's CAS, not a separate authority service.
+        Legacy score-only calls remain diagnostic and cannot establish promotion.
+        """
+        if matrix is None:
+            return []
+        if self._store is None or matrix.backtest_report_ref is None:
+            return ["backtest_interval_basis_unresolved"]
+        try:
+            _, report = _load_verified_report(self._store, matrix.backtest_report_ref)
+        except (OSError, ValueError, KeyError):
+            return ["backtest_interval_basis_unresolved"]
+        issues: list[str] = []
+        if report.report_id != matrix.report_id:
+            issues.append("backtest_report_identity_mismatch")
+        report_ids = [scenario.scenario_id for scenario in report.scenarios]
+        matrix_ids = [
+            identifier for item in matrix.kind_results for identifier in item.scenario_ids
+        ]
+        if (
+            not report_ids
+            or sorted(report_ids) != sorted(matrix_ids)
+            or len(set(report_ids)) != len(report_ids)
+        ):
+            issues.append("backtest_scenario_roster_mismatch")
+        if {item.kind for item in matrix.kind_results} != set(BacktestKind) or len(
+            matrix.kind_results
+        ) != len(BacktestKind):
+            issues.append("backtest_kind_roster_mismatch")
+        scores: list[float] = []
+        for item in matrix.kind_results:
+            scenarios = [
+                scenario
+                for scenario in report.scenarios
+                if scenario.metadata.get("backtest_kind") == item.kind.value
+            ]
+            if sorted(scenario.scenario_id for scenario in scenarios) != sorted(item.scenario_ids):
+                issues.append("backtest_kind_scenario_mismatch")
+            if len(scenarios) != item.n_scenarios:
+                issues.append("backtest_kind_count_mismatch")
+            if any(not _reconcile_interval_basis(scenario).complete for scenario in scenarios):
+                issues.append("backtest_interval_basis_limited")
+            actual_score = _score_backtest_scenarios(scenarios)
+            if actual_score != item.score:
+                issues.append("backtest_kind_score_mismatch")
+            if item.status != "ok" or item.gap_flag is not None:
+                issues.append("backtest_kind_unavailable")
+            if actual_score is not None:
+                scores.append(actual_score)
+        actual_composite = sum(scores) / len(scores) if scores else None
+        if actual_composite != matrix.composite_score:
+            issues.append("backtest_composite_score_mismatch")
+        return list(dict.fromkeys(issues))
 
     def rank(
         self, entries: Sequence[CalibrationLeaderboardEntry]

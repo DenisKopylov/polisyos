@@ -15,6 +15,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.calibration.interval_basis import _reconcile_interval_basis
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.backtest import BacktestReportRef
@@ -202,16 +203,23 @@ class BacktestMatrixRunner:
                 notes.extend(str(item) for item in scenario_warnings)
 
             scenarios_for_kind = scenario_groups[kind]
+            limited_interval_basis = any(
+                not _reconcile_interval_basis(scenario).complete for scenario in scenarios_for_kind
+            )
+            gap_flag = f"limited_interval_basis:{kind.value}" if limited_interval_basis else None
+            if gap_flag is not None:
+                gap_flags.append(gap_flag)
             kind_results.append(
                 BacktestKindResult(
                     kind=kind,
-                    status="ok",
+                    status="gap" if limited_interval_basis else "ok",
                     score=_score_backtest_scenarios(scenarios_for_kind),
                     n_plans=len(plans),
                     n_scenarios=len(scenarios_for_kind),
                     scenario_ids=[scenario.scenario_id for scenario in scenarios_for_kind],
                     observation_families=list(_BACKTEST_KIND_FAMILIES[kind]),
                     notes=notes,
+                    gap_flag=gap_flag,
                     metadata={
                         "holdout_windows": list(bundle.holdout_windows),
                         "historical_payload_keys": sorted(bundle.historical_payloads.keys()),
@@ -287,7 +295,7 @@ class BacktestMatrixRunner:
 
 
 def _score_backtest_scenarios(scenarios: list[BacktestScenario]) -> float | None:
-    if not scenarios:
+    if not scenarios or any(not _reconcile_interval_basis(item).complete for item in scenarios):
         return None
     scenario_scores: list[float] = []
     for scenario in scenarios:

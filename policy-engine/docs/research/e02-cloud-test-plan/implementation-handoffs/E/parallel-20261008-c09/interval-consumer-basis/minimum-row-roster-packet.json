@@ -1,0 +1,28 @@
+{
+  "schema": "policyos.e02.minimum_dependency_packet.v1",
+  "original_owner": "E/C09 producer; C10 composed predictive consumer",
+  "property": "authentic ordered paired interval roster/currentness beyond numerical report consistency",
+  "source_choice": "existing ForecastOwner observed DataSnapshot and explicit train/holdout/horizon contract, not new row-ID schema",
+  "existing_source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+  "existing_fields": [
+    "ForecastOwnerRequest.observed_source_ref",
+    "ForecastOwnerRequest.split.train_end/holdout_start/holdout_end/horizon",
+    "ForecastOwnerRequest.target_metric",
+    "report manifest inputs",
+    "HistoricalValidationPlan.historical_data_ref",
+    "HistoricalValidationPlan.ground_truth_outcomes",
+    "ordered prediction_interval horizons",
+    "method/rule/model/policy refs"
+  ],
+  "minimum_packet": [
+    "actual resolved observed source/converted DataSnapshot refs and bytes",
+    "exact request split/target metric/ordered horizon roster",
+    "actual forecast and interval bundle refs/manifest lineage",
+    "selected report ref/manifest/bytes/current reader"
+  ],
+  "consumer_requirement": "C10 compare each ordered observation/prediction/bound tuple against source holdout and prediction horizons. Duplicate/omitted/substituted rows retaining counts must refuse or recompute. Do not reject repeated metric names or identical values by themselves.",
+  "this_slice": "checks declared counts, finite ordered actual bounds/hits, retained producer limitations and real report CAS profile/bytes plus matrix/kind roster; no authentic source-axis or Runtime/scientific authority admission",
+  "limitation": "OutcomeComparison contains metric_name but no row/time identity; a consistently substituted row tuple cannot be detected solely from this report schema.",
+  "positive_genuine_runtime_admission": "UNRUN; actual C10/S10 verifier context is separate from fixture-content predictive context",
+  "no_new_schema_or_service": true
+}

@@ -1,0 +1,33 @@
+{
+  "schema": "policyos.e02.C09.interval_consumer_preparation.v1",
+  "slice_base": "6d470eb884c31a8b19ee06058881cf0deaa492f5",
+  "slice_base_tree": "99f904d38e56fc5709a78a3a20c980b6e6fba9d4",
+  "G_interval_grant": "71ec2e0758cd7cd93423d3a91afe1a07cef61401",
+  "G_latest_doc_dependency": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+  "canonical_writer": "C09; original E producer ownership preserved",
+  "scope": "P40 same known interval-admissibility class across actual public consumers",
+  "invariant": "requested interval basis is admitted only when actual bounds/hits/typed roster/counts and retained producer limitations reconcile; positive markers alone cannot override it",
+  "actual_consumers": [
+    "PredictionEvaluator",
+    "BacktestOrchestrator",
+    "evaluate_temporal_trajectory/build_temporal_backtest_report",
+    "BacktestMatrixRunner/scorer",
+    "CalibrationValidationRunner\u2192existing CAS-backed CalibrationLeaderboard",
+    "produce/persist/load empirical forecast evidence"
+  ],
+  "ABI": "CalibrationLeaderboard(store=None) additive; existing store reused, no second CAS. Same exports and report schema; missing store yields diagnostic score plus explicit nonpromotion gap.",
+  "supported_controls": [
+    "point-only",
+    "complete paired legacy report lacking admission metadata",
+    "complete predictive ETS report with separate bridge_pending limitation",
+    "clean actual CAS report kind/schema/bytes and full matrix/kind/scenario roster"
+  ],
+  "artifact_profile_check": "Reuse existing forecast_bridge._load_verified_report rather than shape-only IR load.",
+  "limits": [
+    "historical heuristic trust-purpose remains unadjudicated",
+    "fixture governance approval/context not authentic Runtime/scientific authority",
+    "authentic ordered source-row roster is minimum-row-roster-packet.json; UNRUN composed consumer",
+    "no full original B172/B173/B21/E/global closure"
+  ],
+  "delta_only": "Prior CI intake79 and MC37 receipts remain historical exact-source bounded evidence; do not repeat old fullwaves. New changed consumer and sampling-label deltas require independent review/affected checks."
+}

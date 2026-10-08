@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import runpy
+from pathlib import Path
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.backtest import BacktestReportRef
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
@@ -14,14 +17,11 @@ from polisyos.ir.analytics.interference import (
 )
 from polisyos.ir.analytics.strategic import StrategicFallbackMode
 from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
-from polisyos.scientist.methods.discovery.utility_judge import (
-    DownstreamUtilityReport,
-    HypothesisUtilityScore,
-)
 from polisyos.scientist.governance.backtest_matrix import (
     BacktestKind,
     BacktestKindResult,
     BacktestMatrixResult,
+    BacktestMatrixRunner,
 )
 from polisyos.scientist.governance.calibration import (
     CalibrationAdversarialResult,
@@ -32,6 +32,10 @@ from polisyos.scientist.governance.stress_scenarios import (
     StressScenarioComparison,
     StressScenarioKind,
     StressScenarioResult,
+)
+from polisyos.scientist.methods.discovery.utility_judge import (
+    DownstreamUtilityReport,
+    HypothesisUtilityScore,
 )
 
 
@@ -150,14 +154,18 @@ def _network_interference_report() -> NetworkInterferenceReport:
     )
 
 
-def test_calibration_leaderboard_populates_all_metric_slots() -> None:
-    leaderboard = CalibrationLeaderboard()
+def test_calibration_leaderboard_populates_all_metric_slots(tmp_path, cas_store) -> None:
+    fixture = runpy.run_path(str(Path(__file__).with_name("test_interval_basis_promotion.py")))
+    matrix = BacktestMatrixRunner(cas_store).run(
+        {kind: fixture["_bundle"](tmp_path, kind, None) for kind in BacktestKind}
+    )
+    leaderboard = CalibrationLeaderboard(cas_store)
     entry = leaderboard.build_entry(
         run_id="R_lb_full",
         candidate_ref=_artifact_ref("a"),
         governance_report=_governance_report(),
         calibration_fit_score=0.92,
-        backtest_matrix=_backtest_matrix(),
+        backtest_matrix=matrix,
         stress_scenarios=_stress_result(),
         specification_curve_input=SpecificationCurveInput(
             specification_ids=["s1", "s2", "s3"],
@@ -188,6 +196,20 @@ def test_calibration_leaderboard_populates_all_metric_slots() -> None:
     assert metrics.strategic_response_plausibility is not None
     assert metrics.composite_score is not None
     assert metrics.eligible_for_promotion is True
+
+
+def test_legacy_score_without_resolvable_report_store_is_diagnostic_only() -> None:
+    entry = CalibrationLeaderboard().build_entry(
+        run_id="legacy-score",
+        candidate_ref=_artifact_ref("a"),
+        governance_report=_governance_report(),
+        calibration_fit_score=0.9,
+        backtest_matrix=_backtest_matrix(),
+        stress_scenarios=_stress_result(),
+    )
+    assert entry.metrics.backtest_matrix_score == 0.8
+    assert not entry.metrics.eligible_for_promotion
+    assert "backtest_interval_basis_unresolved" in entry.metrics.gap_flags
 
 
 def test_calibration_leaderboard_renormalizes_composite_on_optional_gaps() -> None:

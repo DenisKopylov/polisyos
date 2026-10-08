@@ -53,6 +53,7 @@ from polisyos.runtime.quality.generation_cycle import (
     generation_cycle_terminal_state,
     persist_joint_simulation_result,
     validate_generation_cycle_candidate_run,
+    validate_generation_cycle_run_history,
 )
 from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationHorizonController,
@@ -251,11 +252,23 @@ class RecursiveCycleNode(_StrictModel):
     @field_validator("cycle_run", mode="before")
     @classmethod
     def _load_persisted_leaf_run(cls, value: object) -> object:
-        """Route a serialized leaf through the canonical persisted N6 reader."""
+        """Reconcile every leaf with intrinsic N6 history, without currentness."""
 
-        if isinstance(value, Mapping):
-            return GenerationCycleRun.from_persisted_payload(value)
-        return value
+        if isinstance(value, GenerationCycleRun):
+            payload = value.model_dump(mode="json")
+        elif isinstance(value, Mapping):
+            payload = value
+        else:
+            return value
+        issues = validate_generation_cycle_run_history(payload)
+        if issues:
+            codes = ",".join(str(issue["code"]) for issue in issues)
+            raise ValueError(f"recursive_leaf_generation_cycle_history_invalid:{codes}")
+        return (
+            value
+            if isinstance(value, GenerationCycleRun)
+            else GenerationCycleRun.from_persisted_payload(payload)
+        )
 
     @model_validator(mode="after")
     def _only_leaves_run_n6(self) -> RecursiveCycleNode:

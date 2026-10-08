@@ -38,6 +38,14 @@
       "sha256": "7fcca83a8ed2d9d429f66c1fc43171b43795232381ef5d2af3761101fa288c7f",
       "git_blob": "ec55dbfbf83a31fe8521bd5ad5e7865bacf0497e",
       "author": "/root/native_c05_c12"
+    },
+    {
+      "file": "semantic_collect-c12-executed.py",
+      "bytes": 9890,
+      "sha256": "794af6f103834d7673b89c34a052f75a0ceef480c94309e00603ee213dee762e",
+      "git_blob": "0188211ab28ee583cddf8b8f669654435ee85c09",
+      "author": "/root/native_c05_c12",
+      "scope": "Exact historical script bytes used by C12 native semantic execution; general collector then extended before C05 wave."
     }
   ],
   "scope": "Frozen candidate inputs provided as arguments, isolated external outputs. No venv/assets/source snapshots published. Native outputs belong to per-role handoffs; this preservation commit does not assert new runtime verdict."

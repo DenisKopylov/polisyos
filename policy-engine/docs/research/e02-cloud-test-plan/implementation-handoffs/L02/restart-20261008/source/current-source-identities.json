@@ -1,0 +1,33 @@
+{
+  "G": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "refs": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+      "G_blob": "d0b90fd348a2556b5e23ae8e20409950ad9e712b",
+      "accepted_supplier_blob": "d0b90fd348a2556b5e23ae8e20409950ad9e712b",
+      "bytes": 73455,
+      "sha256": "453a9b79c8afe89c144ee5ba17519fa443586ca8790fc0b442ffb3bfc455a20d"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+      "G_blob": "200bf2121e7c9d473740fe4d388a8e7d2d382605",
+      "accepted_supplier_blob": "200bf2121e7c9d473740fe4d388a8e7d2d382605",
+      "bytes": 25409,
+      "sha256": "dbb0c2cec0b6a38ae3f9839f048647c5d59b91ba9f662d115021715ce4935231"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/README.md",
+      "G_blob": "cf521e93a4f52837a750d606f0a0e2d5919f6486",
+      "accepted_supplier_blob": "cf521e93a4f52837a750d606f0a0e2d5919f6486",
+      "bytes": 6728,
+      "sha256": "016828f1cc4bfadc446d79e0af19053147999291cc749e498ec5dbc3dbe74e4f"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-c09-sensitivity-response-basis.toml",
+      "G_blob": "b2fbee3228228f5ec621e25f816227f1c18fefdd",
+      "accepted_supplier_blob": "b2fbee3228228f5ec621e25f816227f1c18fefdd",
+      "bytes": 3162,
+      "sha256": "89b6725dec61d03fd4036e802b0ad22ad113ee0da100b2727a50824a33c9a30e"
+    }
+  ]
+}

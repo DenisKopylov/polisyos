@@ -1,0 +1,415 @@
+{
+  "schema": "policyos.e02.l02.qualified_restart_preparation.v1",
+  "raw_report_ref": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-restart-20261008/prepared/served-readiness.json",
+  "raw_bytes": 28601,
+  "raw_sha256": "9919dbda1bc9572f29002a6b7dbd5947b689c23bbdcd630aae0684bf6910e6fe",
+  "qualifications": [
+    "Three root-only absolute production pointers; kept in original ignored report, tracked source-relative paths remain.",
+    "Derived original criterion locator copy; unchanged full binding already in predecessor manifest/leaf refs."
+  ],
+  "payload": {
+    "schema": "policyos.e02.l02.served_readiness.v1",
+    "status": "prepared_read_only_unrun",
+    "scope": [
+      "V1",
+      "V3",
+      "V4",
+      "V6",
+      "V7"
+    ],
+    "repository": {
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+      "branch": "codex/e02-L02-authentic-20261008",
+      "worktree_head": "0cc9df727c2c921d64815e452a9b08681807ce13",
+      "worktree_tree": "e68bb3b32ff5d7b93818569a793f9594a4afa811",
+      "status_at_read": "clean",
+      "runtime_candidate": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "runtime_candidate_tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+      "prior_g_candidate": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+      "dispatch_source_pin": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+      "dispatch_source_tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617",
+      "selected_runtime_source_delta": "No changed paths between f00dd7661a8d3329fb1fa1b049decb0d1d2f277b and 0321633c0e6d9a87bccfbbe889a4998934c52dd3 among the specific runtime, producer, integration and unit files cited below. This is not G source acceptance or finding closure."
+    },
+    "instructions_read": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08/COMMON.md",
+        "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "blob": "9f4fff6450d0fc6babf3c28457f3387136a2228f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08/L02.md",
+        "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "blob": "21f0f5fd04557d37a087871061032b73a15b742b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/L02.md",
+        "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "blob": "e97385084b0101fcc6dca2c5aba5519ab55b3090"
+      },
+      {
+        "path": "policy-engine/CONTRIBUTING.md",
+        "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+        "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3"
+      },
+      {
+        "path": "AGENTS.md",
+        "note": "Full instructions supplied by user"
+      }
+    ],
+    "conclusion": {
+      "ready_authentic_owner_bound_tuple": "not_established",
+      "provider_available": [
+        "G032 has a candidate context admission owner and a served N4-to-N5 provider path.",
+        "G032 has ForecastOwner consuming a typed CAS DataSnapshotRef."
+      ],
+      "authentic_input_status": [
+        "Current L6 bytes and manifest payload were not read. L01 A packet says a current custodian-bound matching pair or legitimate versioned replacement was not established; its old mismatch observation is historical.",
+        "Tracked app/container fields default candidate profiles and model declarations to empty tuples; no file-backed profile pointer is present in that wiring.",
+        "The relevant L01 E packet does not identify V4/V7 task-bound source/profile or genuine paired holdouts."
+      ],
+      "bridge_status": [
+        "Closest served test is synthetic-profile fixture-backed, reads artifacts under test job scope, and does not perform a fresh HTTP GET.",
+        "No current-G served selector proves V6 later independent sibling failure while retaining prior successful CAS/history through a fresh served reader.",
+        "Forecast result is predictive_only and bridge_pending; default S10 empirical resolver is None and report-shape extraction yields numerator=0 and denominator=0."
+      ],
+      "candidate_band_boundary": "No issuer or law is required merely to exercise unprotected candidate N5. Keep grounding, source time and causal coupling as explicit unknown limitations; this does not authorize N8/N9 or causal/publish claims."
+    },
+    "maintained_pointers": {
+      "l6_root_config": {
+        "resolver": {
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/production_data.py",
+          "blob": "2a07d333f6272328e171a5c9f641420c2c419abf"
+        },
+        "configured_fields": [
+          "params.production_data_root",
+          "POLISYOS_PRODUCTION_DATA_ROOT"
+        ],
+        "manifest": "root/manifest.json",
+        "manifest_json_fields": [
+          "/bundles/ukraine_simulation/path",
+          "/bundles/ukraine_simulation/intervention_bundle_dir"
+        ],
+        "registry": {
+          "path": "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+          "blob": "f03a5304bb8d61190c7ff2a91b0671a04e7e9176",
+          "manifest_field": "production_data/manifest.json -> bundles.ukraine_simulation.path",
+          "relative_derived_paths": [
+            "production_data/<bundle.path>/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+            "production_data/<bundle.path>/production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json",
+            "production_data/<bundle.path>/production_bundle/bundles/method_contract_bundle_v1/observation_to_contract_manifest.json"
+          ]
+        },
+        "n4_loader": {
+          "path": "policy-engine/src/polisyos/runtime/quality/intervention_substrate.py",
+          "blob": "4fbc772508cc7183a95301556608a6c7101b2f15",
+          "repo_root": "ControlPlaneService._repo_root resolves to policy-engine product root",
+          "fixed_root": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles",
+          "required_relative_paths": [
+            "intervention_bundle_v1/intervention_knob_dictionary.json",
+            "intervention_bundle_v1/lex_intervention_map.json",
+            "method_contract_bundle_v1/observation_to_contract_manifest.json"
+          ],
+          "boundary": "substrate_registry follows the manifest bundle path; load_l6_intervention_substrate(repo_root) reads its fixed date path and does not consume the manifest/environment pointer. If they differ, registry metadata and N4 can identify different bytes. Current manifest values and bytes are unknown."
+        },
+        "l01_environment_note": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/A.json",
+          "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+          "blob": "b5f9840ecaad86ff502628843490f91af01c567c",
+          "note": "L01 records POLISYOS_PRODUCTION_DATA_ROOT unset in its shell. This is that packet's observation, not a global assertion."
+        }
+      },
+      "candidate_profile_config": {
+        "app": {
+          "path": "policy-engine/src/polisyos/runtime/http/app.py",
+          "blob": "8a4cf8347d16ee64d1923152ce074266de132dfa",
+          "defaults": [
+            "candidate_simulation_profiles=()",
+            "candidate_simulation_model_declarations=()"
+          ]
+        },
+        "container": {
+          "path": "policy-engine/src/polisyos/runtime/http/container.py",
+          "blob": "ea20395cf5e855732399f2a67cdb978ec46b1279",
+          "defaults": [
+            "RuntimeContainerConfig.candidate_simulation_profiles=()",
+            "RuntimeContainerConfig.candidate_simulation_model_declarations=()"
+          ],
+          "owner_created_if": "either tuple is nonempty"
+        },
+        "profile_contract": {
+          "path": "policy-engine/src/polisyos/runtime/quality/candidate_simulation.py",
+          "fields": [
+            "profile_id",
+            "purpose=synthetic_candidate_scenario",
+            "profile_selection_ref",
+            "context_inputs",
+            "rule",
+            "n5"
+          ],
+          "declaration_binding": [
+            "profile_config_ref",
+            "profile_content_hash",
+            "profile_selection_ref",
+            "target_world_slot",
+            "outcome_variable",
+            "target_unit_id",
+            "target_baseline",
+            "outcome_baseline"
+          ],
+          "config_pointer": "Typed objects are injected through app arguments; no file-backed pointer appears in tracked app/container wiring."
+        },
+        "owner_context": {
+          "path": "policy-engine/src/polisyos/runtime/quality/cycle_substrate.py",
+          "blob": "932fd33fef285dbb87c7a9a670a78d741829df09",
+          "binding_fields": [
+            "profile_selection_ref matches compiled problem",
+            "problem/WMR refs and substrate content hashes",
+            "job_id",
+            "run_id",
+            "tenant_id",
+            "cell_id",
+            "CAS context_job_ref"
+          ]
+        }
+      },
+      "forecast_provider_consumer": {
+        "producer": {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "blob": "e9302eb353ab7be6b03f4812ab9b473fb9555f64",
+          "request_fields": [
+            "observed_source_ref: DataSnapshotRef",
+            "contiguous TrainHoldoutSplit",
+            "target_metric",
+            "method_fqn",
+            "estimand=predictive_interval_coverage",
+            "calibration_rule",
+            "temporal_roles"
+          ],
+          "result": "persisted predictive evidence; authority_scope=predictive_only; bridge_status=bridge_pending"
+        },
+        "consumer": {
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+          "default": "RealValueOwnerGateway.empirical_evidence_resolver=None; report-shape extraction has empirical numerator/denominator 0",
+          "boundary": "No default S10 empirical resolver/default HTTP adoption is established."
+        }
+      }
+    },
+    "readiness": {
+      "V1": {
+        "criteria": [
+          "B01",
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B08",
+          "B10"
+        ],
+        "state": "Provider code present; authentic current input/profile/context and POST->N5->CAS/history->freshGET not established.",
+        "smallest_missing_tuple": "Three required L6 files at private local pointer, current manifest path/alias reconciliation, and one app-supplied typed profile/declaration pair matching the exact compiled problem; then one owner-scoped served POST and fresh GET. Candidate-only path may retain source/grounding unknowns.",
+        "consumer": "POST /api/v1/control/runs/nl -> persisted control-job scope -> ConfiguredCandidateSimulationContextAdmissionOwner -> N5 -> CAS."
+      },
+      "V6": {
+        "criteria": [
+          "B13",
+          "B01",
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B08",
+          "B10"
+        ],
+        "state": "Depends on V1 tuple; independent later-failure retention/fresh-reader proof is absent.",
+        "smallest_missing_tuple": "Same candidate-only V1 tuple plus a separate later sibling failure and fresh served/debug read retaining the earlier successful N5 CAS/history as typed partial with exact error. No additional issuer/law is required for candidate N5.",
+        "existing_test_limit": "The configured served fixture traps N8/N9 calls; it is candidate-only boundary evidence, not V6."
+      },
+      "V3": {
+        "criteria": [
+          "B09",
+          "B12",
+          "B27",
+          "B28",
+          "LA-046"
+        ],
+        "state": "Content-addressing/history mechanisms exist; ordinary source-driven same-candidate reissue is not established.",
+        "smallest_missing_input": "One selected source/profile and versioned observation-to-WMR rule; two scoped factual versions with substantive content changed while row count/order/stable identity stay fixed; an identity/write-time-only control; consumed second same-candidate WMR/N5/history occurrence and fresh replay. A sufficient generic method/model/constraint basis is acceptable if it is the selected source.",
+        "proxy_divergence": "Current same-candidate history unit test uses a synthetic generator/caller-supplied basis hash; it does not bind a resolved source-byte pair or distinguish identity/write-time-only changes."
+      },
+      "V4": {
+        "criteria": [
+          "B16",
+          "B32",
+          "LA-051"
+        ],
+        "state": "ForecastOwner provider exists; task-specific observed source/profile and default S10 bridge acceptance are not established.",
+        "smallest_missing_input": "CAS-resolvable DataSnapshotRef/DataSchema with exact metric/unit/source version/content digest, task population/geography/completeness, row identity/order and valid/transaction times, joined to actual method/estimand/purpose/horizon/rule."
+      },
+      "V7": {
+        "criteria": [
+          "B16",
+          "B32",
+          "LA-051"
+        ],
+        "state": "Authentic paired held-out observations and fresh S10/default HTTP grade consumer are not established.",
+        "smallest_missing_input": "Two genuine source-bound heldout slices for the same predictions, method, estimand, design, time roles and purpose, with different actual interval hits; recomputed counts persisted and consumed by fresh S10/default HTTP.",
+        "negative": "Same nominal CI without observations remains non-empirical; wrong/foreign/corrupt evidence ref refuses."
+      }
+    },
+    "current_g_task_source": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "blob": "a27cf7e78dc7c16df279a5136399ee0a5daeee9a",
+      "task_exit_properties": {
+        "V1": "POST->ownedcontext->N5->CAS->freshGET; synthetic configured witness stays bounded",
+        "V3": "admitted content change->same-candidate WMR/N5/history; ID/write-time-only control no reissue; REQ/ACQ separate",
+        "V4": "CAS resolver recomputes->fresh grade/default HTTP; predictive coverage is not causal calibration",
+        "V6": "actual producer then later independent failure; successful CAS/history/debug reader retains typed partial/exact error; corrupt ref refuses",
+        "V7": "measured counts->persisted evidence->fresh S10/default HTTP; same CI/different outcomes changes grade; predictive-only is not causal"
+      }
+    },
+    "candidate_blobs": {
+      "app": "policy-engine/src/polisyos/runtime/http/app.py@8a4cf8347d16ee64d1923152ce074266de132dfa",
+      "container": "policy-engine/src/polisyos/runtime/http/container.py@ea20395cf5e855732399f2a67cdb978ec46b1279",
+      "production_data": "policy-engine/src/polisyos/runtime/http/services/control/production_data.py@2a07d333f6272328e171a5c9f641420c2c419abf",
+      "substrate_registry": "policy-engine/src/polisyos/runtime/quality/substrate_registry.py@f03a5304bb8d61190c7ff2a91b0671a04e7e9176",
+      "intervention_substrate": "policy-engine/src/polisyos/runtime/quality/intervention_substrate.py@4fbc772508cc7183a95301556608a6c7101b2f15",
+      "cycle_substrate": "policy-engine/src/polisyos/runtime/quality/cycle_substrate.py@932fd33fef285dbb87c7a9a670a78d741829df09",
+      "run_lifecycle": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py@85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+      "generation_cycle": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "generation_source": "policy-engine/src/polisyos/runtime/quality/generation_source.py@727237e063321fa07ec14fd4c4ca4d724427f776",
+      "served_candidate_fixture": "policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py@061f5f53d74f0f904a9b6bdafeec3d8432ec8d7d",
+      "controlled_profile_helper": "policy-engine/tests/_helpers/controlled_candidate_profile.py@c987b343e740ae87114172be41d5df90278d1b98",
+      "test_generation_cycle": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py@5fb9c75d734a2398fd6639d983adafb8054d40da",
+      "test_generation_cycle_history": "policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py@cecafa6ff98f70269385ebe496a4668181a7d44c",
+      "forecast_owner": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py@e9302eb353ab7be6b03f4812ab9b473fb9555f64",
+      "forecast_bridge": "policy-engine/src/polisyos/calibration/forecast_bridge.py@db07beb895ca7c2262bcd945d3940bc46e008590",
+      "frc_owner_test": "policy-engine/tests/unit/remediation/test_frc_02_owner.py@f86ecee0c4630b5182e7132bff11ecdc88f372f5",
+      "frc_bridge_test": "policy-engine/tests/unit/remediation/test_frc_02_bridge.py@6a8158b17f2e7599190370ca0f9cd76c90da069a",
+      "frc_s10_test": "policy-engine/tests/unit/remediation/test_frc_02_s10.py@868e41d61a656e29ecfbb9b0dd738cb6ae448f45"
+    },
+    "prepared_commands": [
+      {
+        "name": "V1/V6 served context fixtures plus L6 manifest selection",
+        "cwd": "policy-engine",
+        "argv": [
+          ".venv/bin/python",
+          "-m",
+          "pytest",
+          "-o",
+          "addopts=",
+          "-q",
+          "tests/unit/runtime/quality/test_intervention_substrate.py::test_phase5_supplied_manifest_cannot_disappear_from_selection_or_context",
+          "tests/integration/runtime_quality/test_configured_candidate_simulation_served.py::test_served_unknown_candidate_profile_keeps_persisted_n4_candidate",
+          "tests/integration/runtime_quality/test_configured_candidate_simulation_served.py::test_served_unrefreshable_profile_evidence_keeps_n4_and_blocks_n5",
+          "tests/integration/runtime_quality/test_configured_candidate_simulation_served.py::test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects_drift"
+        ],
+        "outcome": "UNRUN",
+        "authenticity": "Fixture/synthetic profile controls. Last selector is closest N4->N5 positive and scoped CAS readback; no fresh HTTP GET or current authentic tuple."
+      },
+      {
+        "name": "V3 same-candidate history/source controls",
+        "cwd": "policy-engine",
+        "argv": [
+          ".venv/bin/python",
+          "-m",
+          "pytest",
+          "-o",
+          "addopts=",
+          "-q",
+          "tests/unit/runtime/quality/test_generation_cycle.py::test_same_candidate_new_basis_preserves_history_and_current_front",
+          "tests/unit/runtime/quality/test_generation_source.py::test_data_only_new_candidate_preserves_complete_source_identity"
+        ],
+        "outcome": "UNRUN",
+        "authenticity": "Synthetic generator/content-source fixtures; not source-driven ordinary served reissue."
+      },
+      {
+        "name": "V4/V7 heldout forecast and S10 controls",
+        "cwd": "policy-engine",
+        "argv": [
+          ".venv/bin/python",
+          "-m",
+          "pytest",
+          "-o",
+          "addopts=",
+          "-q",
+          "tests/unit/remediation/test_frc_02_owner.py::test_same_ets_shape_uses_held_out_observations_for_suitability",
+          "tests/unit/remediation/test_frc_02_bridge.py::test_observed_comparisons_change_empirical_admission_with_same_nominal_confidence",
+          "tests/unit/remediation/test_frc_02_s10.py::test_same_ets_shape_with_different_held_out_observations_changes_s10_suitability",
+          "tests/unit/remediation/test_frc_02_s10.py::test_missing_wrong_kind_or_foreign_evidence_ref_fails_closed",
+          "tests/unit/remediation/test_frc_02_s10.py::test_corrupt_existing_evidence_bytes_fail_closed_at_gateway"
+        ],
+        "outcome": "UNRUN",
+        "authenticity": "Controlled CAS/test fixtures only; no current task-bound source profile or genuine paired observations."
+      }
+    ],
+    "distinguishing_controls": {
+      "V1": {
+        "positive": "Exact compiled problem and selection ref; current L6 files; persisted context bound to problem/WMR/job/run/tenant/cell; N5 input/output CAS and history; then fresh GET recomputes from the selected ref.",
+        "foreign": "Foreign profile or context with plausible IDs but wrong WMR/problem/tenant/cell refuses before N5.",
+        "stale": "Expired worker lease or stale selected context evidence prevents N5.",
+        "corrupt": "Corrupt bytes behind selected context/N5 CAS ref fail verification despite unchanged markers.",
+        "removal": "Remove one required L6 file or the actual configured profile while preserving other markers; fail closed, do not substitute synthetic/default selection."
+      },
+      "V6": {
+        "positive": "Persist successful N5, trigger a separate later sibling failure, then fresh served/debug read retains the successful CAS/history with typed partial and exact sibling error.",
+        "negative": "Corrupt or foreign the retained success ref; reader refuses.",
+        "available_selector": "None in current G demonstrates this sequence."
+      },
+      "V3": {
+        "positive": "Substantive resolved source content change reissues the same candidate and produces a new WMR/N5/history occurrence.",
+        "negative": "Stable content with only identity/write-time/UUID change does not reissue; foreign or stale source ref refuses.",
+        "proxy": "Keep row count/order and markers fixed while changing row bytes; consumer behavior, not count/hash presence, distinguishes the change."
+      },
+      "V4_V7": {
+        "positive": "Resolve exact source/schema and method-specific request, recompute observed holdout hits, persist evidence, and read it through S10/default HTTP.",
+        "negative": "Same forecast/CI with genuine different outcomes changes V7 grade; no observations, wrong method/rule/purpose/time, foreign or corrupt ref stays non-empirical/refused.",
+        "proxy": "Nominal confidence or a finite CI/report shape is not held-out empirical evidence."
+      }
+    },
+    "source_acceptance_boundary": {
+      "runtime": "Use G032 for this readiness record; selected runtime sources/tests are unchanged from f00.",
+      "authentic_status": "No authentic current input/context tuple, ordinary fresh GET, V6 retained-success partial, or V7 paired-outcome grade was established.",
+      "formal_status": "Relevant connected findings remain G_closure=not_adjudicated.",
+      "labels": [
+        "provider path present",
+        "verification_missing for authentic V1/V6 fresh-read chain",
+        "semantic_test_missing for V3 source-content discriminator",
+        "bridge_missing for default S10 empirical adoption",
+        "semantic_test_missing for V7 authentic paired outcomes"
+      ]
+    },
+    "pattern_pass": {
+      "ids": [
+        "P01",
+        "P02",
+        "P05",
+        "P29",
+        "P32",
+        "P37",
+        "P38"
+      ],
+      "P37_basis": {
+        "manifest/env current values": "not_established",
+        "L6 bytes/provenance": "not_established",
+        "app profile/declaration tuple": "not_established",
+        "actual job/CAS binding": "fixture-only oracle not executed",
+        "paired empirical compatibility": "not_established"
+      },
+      "P38_property_vs_proxy": "The property is that N5 uses the exact configured owner-bound profile and current substrate bytes. The registry follows the root manifest; the N4 loader reads its fixed date path. A manifest marker can therefore agree while the runtime loader reads a different root. I do not claim the local values differ.",
+      "target": "Resolve and bind current typed profile and exact L6/CAS bytes, exercise ordinary served consumer and fresh GET, preserve candidate limitations; wire empirical forecast evidence through the S10 consumer."
+    },
+    "execution": {
+      "tests_run": 0,
+      "installs_or_bootstrap_run": 0,
+      "production_paths_or_payloads_read": 0,
+      "source_test_config_writes": 0,
+      "only_write": ".tmp/l02-restart-20261008/prepared/served-readiness.json"
+    }
+  },
+  "temporal_boundary": "Helper observations precede root five-file L6 reconciliation. Any host-input-not-assessed statement remains historical to that report; new specific observations are in l6.stdout, not a global host census."
+}

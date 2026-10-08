@@ -1,0 +1,51 @@
+{
+  "schema": "policyos.e02.l02.qualified_restart_preparation.v1",
+  "raw_report_ref": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-restart-20261008/prepared/mac-permission-qualification.json",
+  "raw_bytes": 2852,
+  "raw_sha256": "e7a118cf85e02da3b11df58ebc07dda612e29e84d3c7d3d94938714613200361",
+  "qualifications": [],
+  "payload": {
+    "schema": "policyos.e02.l02.mac-permission-qualification.v1",
+    "status": "metadata_only_qualification",
+    "frozen_report": {
+      "path": ".tmp/l02-restart-20261008/prepared/mac-profile-readiness.json",
+      "sha256": "4034f8c8685b8d9b56b9c139f756e6ac89f205229845aa721472c26ef9b0ea10",
+      "bytes": 13831,
+      "preserve_bytes": true
+    },
+    "LA-050": {
+      "previous_wording": [
+        "No production read was performed or authorized here.",
+        "No authorized production/history input is available for LA-050.",
+        "A genuine historical 0.9 input was not present."
+      ],
+      "qualification": "These statements describe the helper's metadata-only work and the bounded prior receipt; they are not a task-level new-permission ban and do not prove that an authorized historical input is unavailable.",
+      "prior_user_authorization": "The user's prior criterion-specific minimal identified read-only authorization remains in force.",
+      "current_historical_0_9_input_readiness": "not_established",
+      "evidence_boundary": "This helper inspected receipt/environment metadata only. It did not inspect historical payloads or assess current 0.9 input availability."
+    },
+    "authorization_interpretation": {
+      "no_read_this_helper": true,
+      "authorization_absent": "not_inferred",
+      "new_permission_required": "not_inferred",
+      "scope": "A future criterion-specific read remains limited to the already authorized minimal identified read-only scope; this qualification neither expands that scope nor withdraws it."
+    },
+    "Q2_routing_qualification": {
+      "portable_package_positive_preference": "C13 cloud, for independent installed/backend conformance on the exact declared supported profile after its relevant source/input gates.",
+      "scoped_checks": "An exact-candidate, criterion-scoped check may proceed when its immutable source and required input are identified and the existing lease/authorization supports it; a blanket global G freeze is not a prerequisite for every scoped check.",
+      "broad_portable_replay": "C13's single broad portable replay remains after final G source freeze.",
+      "source_refs": {
+        "G": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "L02": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/L02.md@e97385084b0101fcc6dca2c5aba5519ab55b3090",
+        "C13": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C13.md@d04683e69a7866c3c5a40292e9b895da24d797f4",
+        "Q2_task": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json@a27cf7e78dc7c16df279a5136399ee0a5daeee9a"
+      }
+    },
+    "non_actions": [
+      "No historical payload was read.",
+      "No test, install, restore, or backend launch was performed.",
+      "The frozen mac-profile-readiness.json was not edited."
+    ]
+  },
+  "temporal_boundary": "Helper observations precede root five-file L6 reconciliation. Any host-input-not-assessed statement remains historical to that report; new specific observations are in l6.stdout, not a global host census."
+}

@@ -1,0 +1,179 @@
+{
+  "schema": "policyos.e02.l02.qualified_restart_preparation.v1",
+  "raw_report_ref": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-restart-20261008/prepared/science-rights-readiness.json",
+  "raw_bytes": 16349,
+  "raw_sha256": "878dd1835927b810f3614cefa612a22f5cb501b3a0a3dbe265f237c1ad08a288",
+  "qualifications": [],
+  "payload": {
+    "schema": "policyos.e02.l02.science_rights_readiness.v1",
+    "role": "L02 read-only restart delta",
+    "pins": {
+      "l02": {
+        "commit": "0cc9df727c2c921d64815e452a9b08681807ce13",
+        "tree": "e68bb3b32ff5d7b93818569a793f9594a4afa811",
+        "branch": "codex/e02-L02-authentic-20261008",
+        "status_at_read": "clean"
+      },
+      "G": {
+        "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e"
+      },
+      "E_B190_topic_candidate": {
+        "branch": "origin/codex/e02-E-c09-sensitivity-20261008",
+        "head": "bb78b2b60dae0ed51e300f9369c580c622fe64d6",
+        "tree": "d7d620a52b4a97beb50093ac82467c413c56a035",
+        "G_accepted": false
+      }
+    },
+    "readback_refs": {
+      "restart_COMMON": "G032:policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08/COMMON.md@116b74d20e0bb9a9e9421bc48a6d95b86a373a79",
+      "restart_L02": "G032:policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08/L02.md@21f0f5fd04557d37a087871061032b73a15b742b",
+      "original_parallel_L02": "G032:policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/L02.md@e97385084b0101fcc6dca2c5aba5519ab55b3090",
+      "restart_inputs": "G032:policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08/inputs.json@a2eddda7928dc599bfe3c4ad993a14bfb1dc603c",
+      "connected_tasks": "G032:policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json@a27cf7e78dc7c16df279a5136399ee0a5daeee9a",
+      "connected_inputs": "G032:policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json@749255cd37f93955b176c748d63b2a3a7b7ee214",
+      "L01_D_packet": "G032:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/D.json@72e308ddcb908233e1104ae3e584cdca4340b8a0",
+      "L01_E_packet": "G032:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/E.json@f231760f768124688854f904c69ab0fe434b61e5",
+      "G_intake_1052": "G032:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1052/verdict.json@b266f0b2acc4d68abcfa28693a7c3e2d9a50e371",
+      "G_intake_1120": "G032:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1120/verdict.json@7dc1f2a669a3ebc381a569e05cdb8a7f6a7c19ef",
+      "G_intake_1159": "G032:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1159/verdict.json@8b7ff0226b2336107e004b23db7ae3e22f108928"
+    },
+    "scope_and_method": {
+      "read_only": true,
+      "tests_or_numeric_runs_by_this_helper": 0,
+      "production_payload_reads": 0,
+      "source_test_config_writes": 0,
+      "conclusion": "No global law/data/issuer barrier. Distinguish source-qualified synthetic supplier, candidate consumer code on E topic, current G consumer, and criterion-specific factual input readiness."
+    },
+    "B190": {
+      "original_criterion": {
+        "source": "198076863e143dea9f89f02734b13d50dae3eed5:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines": [
+          4752,
+          4761
+        ],
+        "criterion_sha256": "bb28f0e65d6317465c37bae99ed3a0bd89a03a3194f111e0f3faf24553724d53",
+        "scope": "Reuse an executed model, a persisted Jacobian, or a declared affine map with provenance and units; support zero/nonzero baseline, true constant, partial known output, and addressable unknown refusal. The criterion does not require a general production law."
+      },
+      "accepted_supplier": {
+        "accepted_source_commit": "f2c102fa2ee588b91b2baaa8c9d1c393699838c0",
+        "source_tree": "ded11abdc70d4c91bf19cdf6f4a203acb83a3a46",
+        "accepted_at_G_intake": "1052",
+        "accepted_scope": "bounded internal execute_scalar_state_response_v1 supplier and recomputing CAS reader",
+        "gate_eligible": false,
+        "formal_finding_closure": false,
+        "current_G_source": "policy-engine/src/polisyos/foundry/calibration/identifiability.py@d0b90fd348a2556b5e23ae8e20409950ad9e712b",
+        "current_G_source_test": "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py@200bf2121e7c9d473740fe4d388a8e7d2d382605"
+      },
+      "exact_bounded_fixture_tuple": {
+        "compiled_mechanism": "mechanism.runtime.income_tax@1.0.0",
+        "state": "two active agents; reported_income=[2,2]; initial government_balance=-2; current registered rate=0.5; natural tax_rate slot=0.125",
+        "requested_response": "balance -> government.balance",
+        "parameter_axis": "<tax node id>.rate, center=0.5, registry unit kind=rate",
+        "output_axis_unit": "government.balance, USD",
+        "law_oracle": "y(r)=4r-2; r={0.25,0.5,0.75} gives {-1,0,1} USD; persisted local J=4 USD per registered rate unit. Constant reported incomes give J=0; natural tax_rate slot has J=0.",
+        "diagnostic_config": {
+          "simulation_reps": 2,
+          "bootstrap_reps": 0,
+          "profile_grid_size": 0,
+          "seed": 29,
+          "finite_diff_rel_step": 0.01,
+          "observed_moment_bundle": {
+            "balance": 0.0
+          },
+          "parameter_center": {
+            "<tax node id>.rate": 0.5
+          },
+          "response_slots": {
+            "balance": "government.balance"
+          }
+        },
+        "covariance_caveat": "The test's independent Fraction calculation stipulates Var(rate)=1/16 and gets Var(balance)=1. That law is not inferred by the Jacobian producer and is not an admitted empirical/noise/covariance input. A downstream variance claim needs its own exact input law and ordered axes; a local dimensioned Jacobian does not."
+      },
+      "current_G_consumer": {
+        "source": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py@ef85325624efa365cd716b9633dc7ed6f1fe4e56",
+        "config_source": "policy-engine/src/polisyos/foundry/uncertainty/config.py@112098e1359877691d07a81126e201aacc8bd012",
+        "observed_binding": "Current Node reads params.propagation_sensitivity as caller-supplied numeric coefficients and uses operational Metrics; it does not read the B190 matrix ref or call _load_execute_response_matrix. Nonzero baselines use relative coefficient scaling; zero baselines use additive scaling. Current PropagationConfig defaults (confidence=.95, full covariance, MC n=1000/batch=200/seed=42) are generic propagation settings, not evaluator/law/source bindings.",
+        "G_status": "B190 supplier is accepted; this consumer bridge is not in G032 (current Node blob ef853...)."
+      },
+      "available_E_topic_node_candidate": {
+        "source_commit_chain": [
+          "4bc16a064fea5c1ef4d3b9b5ec6b011e2ec5d578",
+          "1236d8af01d7e861d5c90ca0de2de5e16844071c",
+          "0ebdc70c89ef50fcbd5938a1d80f318f173f171e",
+          "bb78b2b60dae0ed51e300f9369c580c622fe64d6"
+        ],
+        "node_source": "E/bb78:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py@439e6af4335132d11de1d64be7e1867e6a9dab36",
+        "node_test": "E/bb78:policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py@fcc229f05e8237cea72ad6361972bdf98d4a1e1c",
+        "simulator_test": "E/bb78:policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py@d8cb6e563e55f7188dd9c3336441caac899a54d3",
+        "candidate_behavior": "Adds a typed matrix request; binds current SimulationResult, selected matrix view, response slots, parameter center, diagnostic config, response units, and any supplied selected input-envelope views; reuses _load_execute_response_matrix; preserves known outputs alongside an addressable unknown; records non-authority; writes selected manifests and a fresh-reader closure.",
+        "candidate_config_tuple": "propagation_response_basis={matrix_ref,response_slots,response_units,parameter_center,diagnostic_config}; propagation_response_slots is the full requested roster; propagation_input_envelope_refs is supplied only for parameters whose law is required by the requested uncertainty output; propagation_config is parsed strictly on this path.",
+        "test_source_selectors_present_not_run_here": [
+          "test_native_node_dimensioned_response_and_constant",
+          "test_native_node_partial_requested_outputs_keep_known",
+          "test_native_node_missing_law_keeps_verified_constant",
+          "test_native_node_exact_basis_refuses_counterfeits",
+          "test_native_node_refuses_new_valid_cas_wrong_law",
+          "test_native_node_fresh_child_reads_actual_partial_report",
+          "test_native_node_refuses_new_cas_forged_jacobian",
+          "test_native_node_wrong_selected_manifest_refuses"
+        ],
+        "acceptance_and_verification": "Candidate code/tests exist on E topic but are not in current G and have no updated Node-specific deciding receipt in this fetched handoff. Handoff still names c9125bc as the runtime candidate and says Node adoption UNRUN; its 49 PASS and producer retained-marker probe do not qualify the later Node changes. Do not report candidate Node tests as PASS or consumer closure.",
+        "next_removal_control": "Review/test removal of the matrix/source-binding reader while keeping profile/axis/unit/non-authority markers; the recorded retained-marker probe is for the producer basis guard, not this later Node bridge."
+      },
+      "minimum_next_input_or_action": {
+        "portable_generic_route": "C13 can exercise the bounded synthetic end-to-end producer/Node/CAS/fresh-reader path on a frozen composition; no production law is needed for the B190 local-Jacobian criterion.",
+        "if_an_authentic_local_pair_is_criterion-required": "Use one exact current SimulationResultRef and the sensitivity ArtifactRef from that same model/run, with selected manifest and snapshot-leaf closure, registry/model identity, ordered parameter/response axes, units, center, and exact diagnostic config. Do not substitute a source-name string or independently selected matrix.",
+        "owner": "E/C09 canonical Scientist Node writer for its topic candidate; G must select/admit source and independently review; L02 supplies only the named authentic input/consumer check if a specific criterion requires that pair.",
+        "downstream_variance_only": "Add a source-qualified input law with exact parameter-axis order, units, dependence and current source/time when claiming propagated variance/SD. Do not require this for a Jacobian-only or declared-affine sensitivity criterion."
+      }
+    },
+    "other_S2_specific_missing_tuples": {
+      "B157": {
+        "original_ref": "B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5#L4117-L4128 sha256:c27f7a7ba4108a5f8f2027bed47b3d3bfa56955f30034c1ede266fc07d7c8284",
+        "L01_fact": "D packet says the actual numeric sample/draw stage owner is unappointed; required original positive UNRUN; production-input admission not established.",
+        "minimum_tuple": "Exact candidate/input/seed/config/basis refs; observed native draw/sample/work counts and result ref; effective reduced L3 and full L4 requests for both paths; same run/evaluation/attempt comparison of direct L4 versus L3-to-L4; unchanged caller context.",
+        "consumer_discriminator": "Actual FunnelOrchestrator/Level3MediumFidelity/Level4FullFidelity path; preserve labels and caller markers while removing the executed L3 reduction and require an independent work oracle to fail. A config echo or fixture sample count is not the owner fact."
+      },
+      "B194": {
+        "original_ref": "B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5#L4792-L4801 sha256:47058d366d7ff7e11ed2348e96b2f56659a999f1f0839a02edc92804b295711e",
+        "L01_E_packet_row": "/rows/38; proposal held; G closure not adjudicated",
+        "minimum_tuple": "Exact served model/evaluator/config, joint law, output domain, requested draw population, immutable source/run refs, and every attempted draw's terminal outcome. Add transient retry class only if that selected profile requires it.",
+        "current_boundary": "Generic dispatcher and draw reconciliation primitives do not instantiate the actual served evaluator route; E candidate source is not admitted as that route."
+      },
+      "B197": {
+        "original_ref": "B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5#L4922-L4935 sha256:2f5e64ff7238ff5a340224382fa2875b57ea9e960e0e50bfea7f349c6a83ff3d",
+        "L01_E_packet_row": "/rows/41; proposal held; G closure not adjudicated",
+        "minimum_tuple": "Actual CalibratorInputs; target/model/objective; source-time/unit/split join; declared likelihood/noise assumptions; and trainable-field to parameter-coordinate mapping, followed through persisted CalibrationReport v2 and a fresh Node/Welfare reader.",
+        "current_boundary": "Generic fit, curvature or sampler output and caller-supplied input fields do not establish source fit/noise authority; source-qualified calibration report and verifying consumer remain required for this claim."
+      }
+    },
+    "LA036_original_vs_conditional_law": {
+      "original_criterion": {
+        "source": "198076863e143dea9f89f02734b13d50dae3eed5:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "lines": [
+          2103,
+          2145
+        ],
+        "criterion_sha256": "ebc61d92552c6dfbf538aed17c8a7ed476ee4322fc9df09f7ed3b89e8c530a2a",
+        "meaning": "Different requested BERL method IDs must preserve requested identity while sharing a compatible effective fallback calculation, or explicitly report unsupported/refusal."
+      },
+      "current_G_divergence": "service.py@6c73971f16f63e7aaa5e60a07a706d2cefe82491 maps kernel_shap, kernel_shap_conditional and kernel_shap_marginal to KernelSHAPAdapter; shap_kernel.py@d2a598b5a03f6f2ea24f67a024ae7d056e2ba6d2 replaces coalition features in background rows and averages. That is marginal/background replacement, not a conditional observed-feature law.",
+      "original_recipe": "Existing tests at policy-engine/tests/unit/remediation/test_ber_01.py@15793d49bacc02677e93a2ea73d47c0e02a92f2d exercise alias requested IDs/effective identity and one shared raw calculation. This identity/fallback check does not require obtaining a production conditional law.",
+      "separate_conditional_claim_input": "If the requested product claim is truly E[f(X)|X_S=x_S], supply one content-resolved observed-feature joint law bound to exact model/source, feature variables and order, population/cohort, epoch/time, schema/support and verifier provenance; use the matching conditional oracle and fresh Runtime/Scientist consumers. F SCM training rows or E posterior parameter rows alone are not that law.",
+      "status_note": "Do not turn the conditional-law prerequisite into an all-law barrier for the original BERL alias/fallback criterion."
+    },
+    "T2_protected_fact_boundary": {
+      "connected_task_input": "A specific admitted owner fact/API required by the selected criterion, not every available issuer or L01 packet.",
+      "present_delta": "No admitted issuer fact tied to a protected S2 effect was supplied by these inputs; source acceptance and descriptive authority markers are not issuer admission.",
+      "minimum_if_triggered": "For the named effect, bind issuer identity/delegation and independently trusted verifier, exact subject/source/version/content, allowed operation/purpose/audience, time/currentness/revocation and the actual effect-owning consumer's revalidation. Probe foreign, forged, stale and revoked variants with zero effects.",
+      "scope": "This only gates that protected transition. It does not block a bounded candidate diagnostic, source-bound Jacobian or unrelated generic consumer test."
+    },
+    "latest_G_delta": {
+      "intake_1159": "Adds C08 trace HOLD and E required-kind BLOCKED findings. It supplies no B190 source or actual law/noise/issuer tuple; do not pool these outcomes into S2 readiness.",
+      "intake_1120": "L02 source-qualified metadata only; authentic/installed positives and formal closures remain unestablished.",
+      "readiness": "B190 producer supplier is G-accepted. The E topic Node bridge is available as a candidate. Current G Node blob is still ef853..., so the bridge is not G-accepted/current-G behavior. Candidate and accepted source facts remain separate."
+    }
+  },
+  "temporal_boundary": "Helper observations precede root five-file L6 reconciliation. Any host-input-not-assessed statement remains historical to that report; new specific observations are in l6.stdout, not a global host census."
+}

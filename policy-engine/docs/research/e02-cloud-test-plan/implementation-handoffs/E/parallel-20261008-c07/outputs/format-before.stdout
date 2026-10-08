@@ -1,0 +1,7 @@
+Would reformat: policy-engine/src/polisyos/ir/__init__.py
+Would reformat: policy-engine/src/polisyos/ir/analytics/uncertainty.py
+Would reformat: policy-engine/src/polisyos/ir/api.py
+Would reformat: policy-engine/src/polisyos/ir/migrations/schema_registry.py
+Would reformat: policy-engine/src/polisyos/ir/registry/refs.py
+Would reformat: policy-engine/tests/unit/ir/test_value_subject_relation.py
+6 files would be reformatted

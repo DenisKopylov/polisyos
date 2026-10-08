@@ -1,0 +1,52 @@
+{
+  "source": "804a6aba31125372b0b57a10041c6d6aad375ad5",
+  "tree": "bb1e30be80e5238ebd903ba327fa6dc4ac27c2b2",
+  "checks": [
+    {
+      "name": "ValueArtifactSubject",
+      "owner": "polisyos.ir.analytics.uncertainty",
+      "canonical_identity": true
+    },
+    {
+      "name": "ValueSubjectArtifactIdentity",
+      "owner": "polisyos.ir.analytics.uncertainty",
+      "canonical_identity": true
+    },
+    {
+      "name": "ValueSubjectRelation",
+      "owner": "polisyos.ir.analytics.uncertainty",
+      "canonical_identity": true
+    },
+    {
+      "name": "ValueArtifactSubjectRef",
+      "owner": "polisyos.ir.registry.refs",
+      "canonical_identity": true
+    },
+    {
+      "name": "ValueSubjectRelationRef",
+      "owner": "polisyos.ir.registry.refs",
+      "canonical_identity": true
+    },
+    {
+      "schema": "value_artifact_subject",
+      "exact_read": true,
+      "unknown_version_refused": true
+    },
+    {
+      "schema": "value_subject_relation",
+      "exact_read": true,
+      "unknown_version_refused": true
+    },
+    {
+      "release_fragment": "PASS",
+      "rendered_notes": "## [0.0.0-c07] - 2026-10-08\n\n### Added\n- `ir`: Persist content-bound relations between separate value uncertainty channels: Resolve producer-stamped complete quantity lineage and retain separate identification/native uncertainty artifacts with typed rate conversion.\n\n## Compatibility Notes\n- Additive schema 1.0 relation; existing ValueOuterSet and Envelope 1.1 unchanged. Default manifest views only; selected-view inputs refuse explicitly. A relation is nongating content consistency and never supplies scientific admission.\n\n## Change Classes\n- internal\n\n## Supported Surface Classification\n- public_stable: versioned IR subject/relation and typed refs; internal: producer/readback helpers\n"
+    }
+  ],
+  "environment": {
+    "python": "3.14.7",
+    "numpy": "2.3.5",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "uncertainty_origin": "/dev/shm/e02-orch03-20261008/c07/policy-engine/src/polisyos/ir/analytics/uncertainty.py"
+  }
+}

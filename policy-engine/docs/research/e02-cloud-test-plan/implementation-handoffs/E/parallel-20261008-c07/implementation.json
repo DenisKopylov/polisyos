@@ -1,0 +1,680 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "execution_role": "C07",
+  "canonical_writer": "ORCH03 direct C07; no children",
+  "original_finding_owner": "A",
+  "slice": "persisted-value-subject-relation",
+  "created_at": "2026-10-08T10:05:26.605704+00:00",
+  "closure_ids": [
+    "B31"
+  ],
+  "bundle_ids": [
+    "EMP-01"
+  ],
+  "closure_ids_meaning": "Original criterion covered by partial supplier slice; no finding closure asserted.",
+  "slice_base_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "slice_base_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "dependency_packet_commit": "7147ef63886dd95fb20cdb8ebb939d93663ca10d",
+  "implementation_commits": [
+    "804a6aba31125372b0b57a10041c6d6aad375ad5",
+    "741af2a08a8dc5fa36340bf700c092c7fb51f651"
+  ],
+  "candidate_source_sha": "741af2a08a8dc5fa36340bf700c092c7fb51f651",
+  "candidate_tree_sha": "bfae04d141187c30e4f6bc14dbbbae00f6ee116c",
+  "candidate_parent_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5",
+  "branch": "codex/e02-E-c07-20261008",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/C10-subject-join-input.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/G-composition-companions.json",
+    "policy-engine/release-fragments/unreleased/2026-10-08-c07-value-subject-relation.toml",
+    "policy-engine/src/polisyos/ir/__init__.py",
+    "policy-engine/src/polisyos/ir/analytics/README.md",
+    "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+    "policy-engine/src/polisyos/ir/api.py",
+    "policy-engine/src/polisyos/ir/migrations/schema_registry.py",
+    "policy-engine/src/polisyos/ir/registry/refs.py",
+    "policy-engine/tests/unit/ir/test_value_subject_relation.py"
+  ],
+  "whole_source_test_companion_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/C10-subject-join-input.json",
+      "candidate_blob": "1134fb84c20442365b41bd54e6de8b66d02cd78a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/G-composition-companions.json",
+      "candidate_blob": "1edc4ee1882ffbf68377ffb4d3529d91d70cc250"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-c07-value-subject-relation.toml",
+      "candidate_blob": "e75cbab2436a6221358d011e265994c6c2875d5b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "candidate_blob": "0d2af5164bc98694629fb323939365c63c1dace6"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "candidate_blob": "3035cb425f4726685c0f0486db90bc6d8ff8aa9e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "candidate_blob": "45ebb86faab317e8c6fbb8827933ba31ef5bcffc"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "candidate_blob": "80a62339e90c4fc6eba9b0b8c3de123cbeed8175"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/migrations/schema_registry.py",
+      "candidate_blob": "e4f006b5bc2fff66075c6345105707884e80d431"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/registry/refs.py",
+      "candidate_blob": "b30b46092c4daf5fbb6b1d62ec85fe95a0bca131"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_value_subject_relation.py",
+      "candidate_blob": "8ceb8bb659910a482d7bea227b0c8699bfac5cec"
+    }
+  ],
+  "baseline_cells": [],
+  "write_lease": "Root admitted sole C07 writer: uncertainty.py, refs.py; actual root/api/schema registration companions; named new test_value_subject_relation.py; mechanism README, unique release, own E documents. No Core/value_evidence/A consumer/generated/lock/source schema snapshots rewritten.",
+  "original_criterion": {
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "lines": [
+      593,
+      606
+    ],
+    "bytes": 2949,
+    "byte_binding_sha256": "9311ba1b0fb2e6a3f180546c6118406c5781dbbfb57e27b28075b95a92fe371f",
+    "full_original_text": "## B31. \u041f\u0440\u043e\u0435\u043a\u0446\u0438\u044f \u043d\u0435\u043e\u043f\u0440\u0435\u0434\u0435\u043b\u0451\u043d\u043d\u043e\u0441\u0442\u0438 \u0441\u0436\u0438\u043c\u0430\u0435\u0442 \u0438\u043d\u0442\u0435\u0440\u0432\u0430\u043b \u0438 \u0432\u0432\u043e\u0434\u0438\u0442 \u043f\u0440\u043e\u0438\u0437\u0432\u043e\u043b\u044c\u043d\u0443\u044e \u0448\u0438\u0440\u0438\u043d\u0443\n\n*\u0418\u0441\u0442\u043e\u0447\u043d\u0438\u043a \u043a\u0430\u0440\u0442\u043e\u0447\u043a\u0438: L:F29. \u0423\u043d\u0430\u0441\u043b\u0435\u0434\u043e\u0432\u0430\u043d\u043e \u0438\u0437 Library S01; \u043d\u0435 \u0434\u0443\u0431\u043b\u0438\u0440\u0443\u0435\u0442\u0441\u044f \u0441 A.*\n\n**\u041e\u0441\u043d\u043e\u0432\u0430\u043d\u0438\u0435:** \u041a\u043e\u0434 + \u0430\u0440\u0438\u0444\u043c\u0435\u0442\u0438\u0447\u0435\u0441\u043a\u0438\u0435 \u043f\u0440\u043e\u0431\u044b P4-02; \u043f\u043e\u043b\u043e\u0436\u0438\u0442\u0435\u043b\u044c\u043d\u044b\u0439 consumer \u043d\u0435 \u043f\u0440\u043e\u0434\u0435\u043c\u043e\u043d\u0441\u0442\u0440\u0438\u0440\u043e\u0432\u0430\u043d. **\u041f\u0440\u043e\u0438\u0441\u0445\u043e\u0436\u0434\u0435\u043d\u0438\u0435:** P4 \u2014 \u043d\u043e\u0432\u0430\u044f \u043d\u0430\u0445\u043e\u0434\u043a\u0430. **\u041f\u0440\u0438\u043e\u0440\u0438\u0442\u0435\u0442:** A \u0434\u043e \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f B08. **\u041e\u0445\u0432\u0430\u0442 \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f:** M \u2014 \u0437\u0430\u0442\u0440\u0430\u0433\u0438\u0432\u0430\u0435\u0442 \u0441\u0435\u043c\u0430\u043d\u0442\u0438\u043a\u0443 \u043a\u043e\u043d\u0442\u0440\u0430\u043a\u0442\u0430.\n\n**\u041d\u0430\u0431\u043b\u044e\u0434\u0435\u043d\u0438\u0435 \u0438 \u0431\u0430\u0440\u044c\u0435\u0440.** Helper \u0434\u043b\u044f point \u0434\u0435\u043b\u0430\u0435\u0442 lower=upper=estimate; \u0434\u043b\u044f proxy \u0441\u0438\u043c\u043c\u0435\u0442\u0440\u0438\u0437\u0443\u0435\u0442 \u0447\u0435\u0440\u0435\u0437 \u043f\u043e\u043b\u043e\u0432\u0438\u043d\u0443 \u0448\u0438\u0440\u0438\u043d\u044b, 10% estimate \u0438 \u043c\u0438\u043d\u0438\u043c\u0443\u043c 0.01. \u041f\u0440\u0438\u043c\u0435\u0440 estimate=2, CI=[0,10] \u0434\u0430\u0451\u0442 [-3,7], \u043d\u0435 \u043e\u0445\u0432\u0430\u0442\u044b\u0432\u0430\u044e\u0449\u0438\u0439 \u0438\u0441\u0445\u043e\u0434\u043d\u044b\u0439 \u0438\u043d\u0442\u0435\u0440\u0432\u0430\u043b. \u041c\u0438\u043d\u0438\u043c\u0443\u043c 0.01 \u043d\u0435 \u0438\u043d\u0432\u0430\u0440\u0438\u0430\u043d\u0442\u0435\u043d \u0441\u043c\u0435\u043d\u0435 \u0435\u0434\u0438\u043d\u0438\u0446. Canonical ValueOuterSet \u0441\u0430\u043c \u0442\u0440\u0435\u0431\u0443\u0435\u0442 \u043f\u043e\u0447\u0442\u0438 \u043d\u0443\u043b\u0435\u0432\u0443\u044e \u0448\u0438\u0440\u0438\u043d\u0443 point. [L.S22, L.S23]\n\n**\u041c\u0438\u043d\u0438\u043c\u0430\u043b\u044c\u043d\u043e\u0435 \u0440\u0430\u0441\u0448\u0438\u0440\u0435\u043d\u0438\u0435.** \u0421\u043d\u0430\u0447\u0430\u043b\u0430 \u043e\u043f\u0440\u0435\u0434\u0435\u043b\u0438\u0442\u044c, \u0447\u0442\u043e \u043d\u0435\u0441\u0443\u0442 bounds: \u0438\u0434\u0435\u043d\u0442\u0438\u0444\u0438\u043a\u0430\u0446\u0438\u043e\u043d\u043d\u043e\u0435 \u043c\u043d\u043e\u0436\u0435\u0441\u0442\u0432\u043e \u0438\u043b\u0438 \u0441\u0443\u043c\u043c\u0430\u0440\u043d\u0443\u044e \u043d\u0435\u043e\u043f\u0440\u0435\u0434\u0435\u043b\u0451\u043d\u043d\u043e\u0441\u0442\u044c. \u0421\u043e\u0445\u0440\u0430\u043d\u044f\u0442\u044c \u043d\u0430\u0442\u0438\u0432\u043d\u0443\u044e \u0441\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u0447\u0435\u0441\u043a\u0443\u044e/\u043c\u043e\u0434\u0435\u043b\u044c\u043d\u0443\u044e \u043d\u0435\u043e\u043f\u0440\u0435\u0434\u0435\u043b\u0451\u043d\u043d\u043e\u0441\u0442\u044c \u043e\u0442\u0434\u0435\u043b\u044c\u043d\u044b\u043c \u043f\u0440\u043e\u0432\u0435\u0440\u044f\u0435\u043c\u044b\u043c \u043a\u0430\u043d\u0430\u043b\u043e\u043c; \u043d\u0435 \u043e\u0431\u044a\u044f\u0432\u043b\u044f\u0442\u044c \u0435\u0451 \u0438\u0441\u0447\u0435\u0437\u043d\u0443\u0432\u0448\u0435\u0439 \u043f\u0440\u0438 point-identification. \u041d\u0435 \u0432\u0432\u043e\u0434\u0438\u0442\u044c \u0448\u0438\u0440\u0438\u043d\u0443 \u0431\u0435\u0437 \u043e\u0441\u043d\u043e\u0432\u0430\u043d\u0438\u044f. \u041a\u043e\u043e\u0440\u0434\u0438\u043d\u0430\u0442\u0443 \u0437\u0430\u0434\u0430\u0432\u0430\u0442\u044c \u043f\u0440\u0435\u0434\u043c\u0435\u0442\u043d\u044b\u043c estimand \u0438 \u0435\u0434\u0438\u043d\u0438\u0446\u0435\u0439, \u0430 \u043c\u0435\u0442\u043e\u0434 \u0445\u0440\u0430\u043d\u0438\u0442\u044c \u043a\u0430\u043a \u043f\u0440\u043e\u0438\u0441\u0445\u043e\u0436\u0434\u0435\u043d\u0438\u0435.\n\n**\u041f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442\u0430.** \u041d\u0435\u043d\u0443\u043b\u0435\u0432\u043e\u0439 \u0441\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u0438\u043d\u0442\u0435\u0440\u0432\u0430\u043b \u043d\u0435 \u0442\u0435\u0440\u044f\u0435\u0442\u0441\u044f; \u0430\u0441\u0438\u043c\u043c\u0435\u0442\u0440\u0438\u0447\u043d\u044b\u0439 \u0438\u043d\u0442\u0435\u0440\u0432\u0430\u043b \u043d\u0435 \u0441\u0443\u0436\u0430\u0435\u0442\u0441\u044f \u0431\u0435\u0437 \u043e\u0441\u043d\u043e\u0432\u0430\u043d\u0438\u044f; \u0441\u043c\u0435\u043d\u0430 \u0435\u0434\u0438\u043d\u0438\u0446 \u0441\u043e\u0433\u043b\u0430\u0441\u043e\u0432\u0430\u043d\u0430; \u0434\u0432\u0430 \u043c\u0435\u0442\u043e\u0434\u0430 \u043e\u0434\u043d\u043e\u0433\u043e estimand \u043d\u0435 \u0441\u0442\u0430\u043d\u043e\u0432\u044f\u0442\u0441\u044f \u0440\u0430\u0437\u043d\u044b\u043c\u0438 \u043f\u0440\u0435\u0434\u043c\u0435\u0442\u043d\u044b\u043c\u0438 \u043a\u043e\u043e\u0440\u0434\u0438\u043d\u0430\u0442\u0430\u043c\u0438 \u0442\u043e\u043b\u044c\u043a\u043e \u043f\u043e \u0438\u043c\u0435\u043d\u0438 \u043c\u0435\u0442\u043e\u0434\u0430.\n\n**\u0413\u0440\u0430\u043d\u0438\u0446\u0430 \u0432\u044b\u0432\u043e\u0434\u0430.** \u041d\u0443\u043b\u0435\u0432\u0430\u044f \u0448\u0438\u0440\u0438\u043d\u0430 \u0438\u0434\u0435\u043d\u0442\u0438\u0444\u0438\u043a\u0430\u0446\u0438\u043e\u043d\u043d\u043e\u0433\u043e \u043c\u043d\u043e\u0436\u0435\u0441\u0442\u0432\u0430 \u0441\u0430\u043c\u0430 \u043f\u043e \u0441\u0435\u0431\u0435 \u043d\u0435 \u043e\u0448\u0438\u0431\u043a\u0430. \u041e\u0448\u0438\u0431\u043a\u0430 \u0432\u043e\u0437\u043d\u0438\u043a\u043d\u0435\u0442, \u0435\u0441\u043b\u0438 \u0435\u0451 \u0432\u044b\u0434\u0430\u0442\u044c \u0437\u0430 \u043f\u043e\u043b\u043d\u0443\u044e \u0442\u043e\u0447\u043d\u043e\u0441\u0442\u044c \u0438\u043b\u0438 \u043f\u043e\u0442\u0435\u0440\u044f\u0442\u044c \u043e\u0442\u0434\u0435\u043b\u044c\u043d\u044b\u0439 \u043a\u0430\u043d\u0430\u043b \u043d\u0435\u043e\u043f\u0440\u0435\u0434\u0435\u043b\u0451\u043d\u043d\u043e\u0441\u0442\u0438. \u041d\u0435\u043b\u044c\u0437\u044f \u043b\u043e\u043a\u0430\u043b\u044c\u043d\u043e \u0440\u0430\u0441\u0448\u0438\u0440\u0438\u0442\u044c interval \u043f\u043e\u0434 \u043f\u0440\u0435\u0436\u043d\u0438\u043c point: \u044d\u0442\u043e \u043f\u0440\u043e\u0442\u0438\u0432\u043e\u0440\u0435\u0447\u0438\u0442 \u0442\u0435\u043a\u0443\u0449\u0435\u043c\u0443 \u0442\u0438\u043f\u0443. \u0428\u0442\u0430\u0442\u043d\u044b\u0439 N8 \u043f\u043e\u043a\u0430 \u043e\u0442\u043a\u0430\u0437\u044b\u0432\u0430\u0435\u0442, \u043f\u043e\u044d\u0442\u043e\u043c\u0443 \u043b\u043e\u0436\u043d\u044b\u0439 \u043e\u043f\u0443\u0431\u043b\u0438\u043a\u043e\u0432\u0430\u043d\u043d\u044b\u0439 \u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442 \u043d\u0435 \u0437\u0430\u044f\u0432\u043b\u044f\u0435\u0442\u0441\u044f.\n\n"
+  },
+  "source_inputs": {
+    "G_checkpoint": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "G_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+    "A_readonly_sha": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+    "A_tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+    "E_selected_supplier_sha": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+    "E_tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+    "selection": "C07 additive relation based on G1.1. Initial source pin is not whole carrier acceptance; no cumulative E merge or borrowed E PASS."
+  },
+  "property": {
+    "statement": "Two persisted default-view producer artifacts with exact resolved complete typed subject/estimand/unit/time/contrast/source/model lineage may be joined mechanically while preserving distinct identification/native channels; mismatch refuses and fresh reader recomputes manifests/bytes/full role roster. No authority minted.",
+    "runtime_path": [
+      "Synthetic typed contract producer (not admitted scientific method): ValueOuterSet point4 and UncertaintyEnvelope asymmetric[1,10]",
+      "Canonical FileSystemCAS: typed subject plus full lineage manifest for each artifact",
+      "Existing IR uncertainty.resolve/persist_value_subject_relation",
+      "Fresh FileSystemCAS plus load_value_subject_relation re-resolves actual dependencies and native owner loader",
+      "Separate ValueOuterSet.from_persisted_payload / load_uncertainty_envelope in fresh child; root/analytics same-object facade"
+    ],
+    "surface": [
+      "polisyos.ir.ValueArtifactSubject/ValueSubjectRelation and typed refs",
+      "polisyos.ir.analytics canonical same-object exports",
+      "Schema registry1.0 with exact-read/unknown-version refusal"
+    ],
+    "oracle": "Fraction ratio\u2194percent exact scaling; independent oracle_ir seven probes. Subject coordinate excludes method FQN; native interval/point/functionals untouched.",
+    "proxy_divergence": "Matching metadata says same estimand but resolved subject/population/time/contrast/unit/refs mismatch refuses; complete persisted relation/markers survive factor forgery but fresh recomputation rejects. An old default ref after producer selector loss reads old declared subject, so it cannot prove current producer quantity.",
+    "negative_controls": [
+      "8 complete quantity/unit mismatch cases",
+      "Missing/extra/duplicate producer roster",
+      "Actual source/model missing refs and foreign source/outcome contradiction",
+      "Fake relation ref and retained-marker factor forgery",
+      "Actual native bytes corruption",
+      "Actual samebytes/different Core selected manifest profile refused if selector preserved",
+      "Runtime predicates removed in scratch while markers remain:9 intended failures plus1 fresh-child positive"
+    ]
+  },
+  "authority": {
+    "purpose": "Mechanical CAS content/manifest/lineage consistency only",
+    "authority_scope": "resolved_content_join_only",
+    "production_value_eligible": false,
+    "verifier_provenance": "cas_bytes_manifest_lineage_recomputed.v1",
+    "scientific_identification": "not_established",
+    "Runtime_EvalSafety": "existing execution safety verifier purpose is distinct; no issuer/challenge fabricated by C07",
+    "actual_C10_fresh_ValuePort": "UNRUN"
+  },
+  "predicate_basis": "recomputed",
+  "predicates": {
+    "default_bytes_manifest_lineage": "recomputed",
+    "complete_subject_unit_equality": "recomputed",
+    "actual_current_producer_identity": "not_established",
+    "scientific_admission": "not_established",
+    "actual_A_ValuePort": "not_established"
+  },
+  "checks": [
+    {
+      "label": "final-affected",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "policy-engine/tests/unit/ir/test_value_subject_relation.py",
+        "policy-engine/tests/unit/ir/test_uncertainty.py",
+        "policy-engine/tests/unit/core/contracts/test_value_outer_set.py",
+        "policy-engine/tests/unit/foundry/methods/test_value_evidence.py",
+        "-q",
+        "-ra",
+        "--junitxml=/dev/shm/e02-orch03-20261008/c07-checks/final-affected.junit.xml",
+        "--basetemp=/dev/shm/e02-orch03-20261008/c07-checks/final-affected-tmp"
+      ],
+      "target_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5",
+      "target_tree": "bb1e30be80e5238ebd903ba327fa6dc4ac27c2b2",
+      "environment": "Python3.14.7 locked root .venv; explicit lane PYTHONPATH; isolated scratch",
+      "input_closure": "Source804 full four affected test files; 62 PASS, 0 unexpected failure/error/skip. Includes actual CAS plus fresh child and 44 existing envelope/core/value-evidence cases across three files; no scientific producer/ValuePort positive.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "resources": {
+        "wall_seconds": 16.809199509007158,
+        "maxrss_children_kib": 592760
+      },
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-affected.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-affected.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-affected.stderr"
+      ],
+      "counts": {
+        "tests": 62,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "nodeids_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-affected.junit.xml"
+    },
+    {
+      "label": "retained-marker",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "policy-engine/tests/unit/ir/test_value_subject_relation.py::test_resolved_quantity_mismatch_refuses_despite_matching_metadata",
+        "policy-engine/tests/unit/ir/test_value_subject_relation.py::test_complete_producer_roster_refuses_missing_extra_duplicate[extra]",
+        "policy-engine/tests/unit/ir/test_value_subject_relation.py::test_persisted_fresh_child_preserves_separate_asymmetric_channels",
+        "-q",
+        "-ra",
+        "--junitxml=/dev/shm/e02-orch03-20261008/c07-checks/retained-marker.junit.xml",
+        "--basetemp=/dev/shm/e02-orch03-20261008/c07-checks/retained-marker-tmp"
+      ],
+      "target_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5",
+      "target_tree": "bb1e30be80e5238ebd903ba327fa6dc4ac27c2b2",
+      "environment": "Python3.14.7 locked root .venv; explicit lane PYTHONPATH; isolated scratch",
+      "input_closure": "Source804 scratch remove runtime complete subject/unit and full role-set predicates, retaining models/enum/markers/diagnostics. Exactly9 intended DID NOT RAISE failures +1 fresh-child positive PASS. These expected controls are separate from unexpected failures.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "resources": {
+        "wall_seconds": 4.896750903018983,
+        "maxrss_children_kib": 225284
+      },
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/retained-marker.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/retained-marker.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/retained-marker.stderr"
+      ],
+      "counts": {
+        "tests": 10,
+        "failures": 9,
+        "errors": 0,
+        "skipped": 0
+      },
+      "nodeids_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/retained-marker.junit.xml",
+      "expected_outcome": "FAIL",
+      "unexpected_failures": 0,
+      "failure_reason": "DID NOT RAISE ValueError, all9; positive fresh child PASS"
+    },
+    {
+      "label": "final-ruff",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "policy-engine/src/polisyos/ir/registry/refs.py",
+        "policy-engine/src/polisyos/ir/api.py",
+        "policy-engine/src/polisyos/ir/__init__.py",
+        "policy-engine/src/polisyos/ir/migrations/schema_registry.py",
+        "policy-engine/tests/unit/ir/test_value_subject_relation.py"
+      ],
+      "target_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5",
+      "target_tree": "bb1e30be80e5238ebd903ba327fa6dc4ac27c2b2",
+      "environment": "Python3.14.7 locked root .venv; explicit lane PYTHONPATH; isolated scratch",
+      "input_closure": "Source804 six changed Python files.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "resources": {
+        "wall_seconds": 0.06544456299161538,
+        "maxrss_children_kib": 28044
+      },
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-ruff.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-ruff.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-ruff.stderr"
+      ]
+    },
+    {
+      "label": "final-format",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "policy-engine/src/polisyos/ir/registry/refs.py",
+        "policy-engine/src/polisyos/ir/api.py",
+        "policy-engine/src/polisyos/ir/__init__.py",
+        "policy-engine/src/polisyos/ir/migrations/schema_registry.py",
+        "policy-engine/tests/unit/ir/test_value_subject_relation.py"
+      ],
+      "target_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5",
+      "target_tree": "bb1e30be80e5238ebd903ba327fa6dc4ac27c2b2",
+      "environment": "Python3.14.7 locked root .venv; explicit lane PYTHONPATH; isolated scratch",
+      "input_closure": "Source804 full six-file formatter; four red owner files. Own3 blank lines corrected later; preserved original red.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "resources": {
+        "wall_seconds": 0.0945910640002694,
+        "maxrss_children_kib": 29272
+      },
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-format.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-format.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-format.stderr"
+      ]
+    },
+    {
+      "label": "final-companions",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/dev/shm/e02-orch03-20261008/c07-checks/check_companions.py"
+      ],
+      "target_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5",
+      "target_tree": "bb1e30be80e5238ebd903ba327fa6dc4ac27c2b2",
+      "environment": "Python3.14.7 locked root .venv; explicit lane PYTHONPATH; isolated scratch",
+      "input_closure": "Source804 five root/analytics same-object facade exports, two schema1.0 exact-read/unknown-version refusals, release fragment render:8 probes.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "resources": {
+        "wall_seconds": 0.5753674389852677,
+        "maxrss_children_kib": 65928
+      },
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-companions.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-companions.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-companions.stderr"
+      ]
+    },
+    {
+      "label": "final-ref-boundary",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/dev/shm/e02-orch03-20261008/c07-checks/check_ref_boundary.py"
+      ],
+      "target_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5",
+      "target_tree": "bb1e30be80e5238ebd903ba327fa6dc4ac27c2b2",
+      "environment": "Python3.14.7 locked root .venv; explicit lane PYTHONPATH; isolated scratch",
+      "input_closure": "Harness attempt1 seeded prior native payload then changed lineage on same bytes; normalized IR return selected old default. Intended selected changed-source case not exercised. Assertion missing_source did not refuse; this is not a default-reader counterexample or PASS.",
+      "outcome": "ERROR",
+      "exit_code": 1,
+      "resources": {
+        "wall_seconds": 1.147317055001622,
+        "maxrss_children_kib": 197904
+      },
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-ref-boundary.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-ref-boundary.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-ref-boundary.stderr"
+      ]
+    },
+    {
+      "label": "final-ref-boundary2",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/dev/shm/e02-orch03-20261008/c07-checks/check_ref_boundary2.py"
+      ],
+      "target_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5",
+      "target_tree": "bb1e30be80e5238ebd903ba327fa6dc4ac27c2b2",
+      "environment": "Python3.14.7 locked root .venv; explicit lane PYTHONPATH; isolated scratch",
+      "input_closure": "Harness attempt2 wrong attribute access on UncertaintyEnvelopeRef, which lacks manifest_profile_sha256. Setup AttributeError, not a product FAIL/PASS.",
+      "outcome": "ERROR",
+      "exit_code": 1,
+      "resources": {
+        "wall_seconds": 1.0611790839757305,
+        "maxrss_children_kib": 197372
+      },
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-ref-boundary2.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-ref-boundary2.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-ref-boundary2.stderr"
+      ]
+    },
+    {
+      "label": "final-ref-boundary3",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/dev/shm/e02-orch03-20261008/c07-checks/check_ref_boundary3.py"
+      ],
+      "target_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5",
+      "target_tree": "bb1e30be80e5238ebd903ba327fa6dc4ac27c2b2",
+      "environment": "Python3.14.7 locked root .venv; explicit lane PYTHONPATH; isolated scratch",
+      "input_closure": "Source804 corrected fresh-default cases: missing source/model refs, actual foreign source, resolved AST/outcome contradiction;4 PASS. Separate diagnostic shows prior actual producer selector loss. No current-producer or selected-view composition admission.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "resources": {
+        "wall_seconds": 1.2750311529962346,
+        "maxrss_children_kib": 198336
+      },
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-ref-boundary3.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-ref-boundary3.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-ref-boundary3.stderr"
+      ]
+    },
+    {
+      "label": "final-manifest-pair",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/dev/shm/e02-orch03-20261008/c07-checks/check_manifest_pair.py"
+      ],
+      "target_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5",
+      "target_tree": "bb1e30be80e5238ebd903ba327fa6dc4ac27c2b2",
+      "environment": "Python3.14.7 locked root .venv; explicit lane PYTHONPATH; isolated scratch",
+      "input_closure": "Diagnostic execution only: original Core put_json observer, both actual returned refs, full reopened default/selected manifests and bytes hash. Explicit selected C07 intake refuses. Underlying C06 selector-preservation property FAIL is separately recorded below.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "resources": {
+        "wall_seconds": 1.1454463050176855,
+        "maxrss_children_kib": 197644
+      },
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-manifest-pair.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-manifest-pair.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-manifest-pair.stderr"
+      ]
+    },
+    {
+      "label": "delta-defining",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "policy-engine/tests/unit/ir/test_value_subject_relation.py",
+        "-q",
+        "-ra",
+        "--junitxml=/dev/shm/e02-orch03-20261008/c07-checks/delta-defining.junit.xml",
+        "--basetemp=/dev/shm/e02-orch03-20261008/c07-checks/delta-defining-tmp"
+      ],
+      "target_sha": "741af2a08a8dc5fa36340bf700c092c7fb51f651",
+      "target_tree": "bfae04d141187c30e4f6bc14dbbbae00f6ee116c",
+      "environment": "Python3.14.7 locked root .venv; explicit lane PYTHONPATH; isolated scratch",
+      "input_closure": "Exact source741 after independent delta-only review:18 defining/import/CAS/fresh-child/negative cases;0 FAIL/ERROR/SKIP. No relabelled source804 whole-suite PASS.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "resources": {
+        "wall_seconds": 3.669320916000288,
+        "maxrss_children_kib": 231484
+      },
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/delta-defining.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/delta-defining.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/delta-defining.stderr"
+      ],
+      "counts": {
+        "tests": 18,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "nodeids_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/delta-defining.junit.xml"
+    },
+    {
+      "label": "delta-ruff",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "policy-engine/src/polisyos/ir/registry/refs.py",
+        "policy-engine/src/polisyos/ir/api.py",
+        "policy-engine/src/polisyos/ir/__init__.py",
+        "policy-engine/src/polisyos/ir/migrations/schema_registry.py",
+        "policy-engine/tests/unit/ir/test_value_subject_relation.py"
+      ],
+      "target_sha": "741af2a08a8dc5fa36340bf700c092c7fb51f651",
+      "target_tree": "bfae04d141187c30e4f6bc14dbbbae00f6ee116c",
+      "environment": "Python3.14.7 locked root .venv; explicit lane PYTHONPATH; isolated scratch",
+      "input_closure": "Exact source741 six changed Python files.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "resources": {
+        "wall_seconds": 0.06286987400380895,
+        "maxrss_children_kib": 34304
+      },
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/delta-ruff.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/delta-ruff.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/delta-ruff.stderr"
+      ]
+    },
+    {
+      "label": "delta-format",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "policy-engine/src/polisyos/ir/registry/refs.py",
+        "policy-engine/src/polisyos/ir/api.py",
+        "policy-engine/src/polisyos/ir/__init__.py",
+        "policy-engine/src/polisyos/ir/migrations/schema_registry.py",
+        "policy-engine/tests/unit/ir/test_value_subject_relation.py"
+      ],
+      "target_sha": "741af2a08a8dc5fa36340bf700c092c7fb51f651",
+      "target_tree": "bfae04d141187c30e4f6bc14dbbbae00f6ee116c",
+      "environment": "Python3.14.7 locked root .venv; explicit lane PYTHONPATH; isolated scratch",
+      "input_closure": "Exact source741 remaining full-file format red in uncertainty.py and refs.py;4 other files formatted. No inheritedP41 attribution; new-owned whitespace fixed.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "resources": {
+        "wall_seconds": 0.05904375499812886,
+        "maxrss_children_kib": 27740
+      },
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/delta-format.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/delta-format.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/delta-format.stderr"
+      ]
+    }
+  ],
+  "additional_measured_property": {
+    "C06_producer_selector_preservation": "FAIL confirmed by actual selected Core return versus selector-free IR ref",
+    "diagnostic_exit_code": 0,
+    "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/final-manifest-pair.stdout",
+    "scope": "Existing canonical IR adapter gap outside C07 default reader profile. This is not hidden as a passing producer or resolved authority."
+  },
+  "development_attempts": [
+    {
+      "source": "uncommitted development before804a",
+      "outputs": [
+        "author.stdout",
+        "author-child-error.stderr"
+      ],
+      "result": "1FAIL/14PASS: model subclass equality on fresh reader; normalized nested ref fixes persisted identity, native property not assumed passed."
+    },
+    {
+      "source": "uncommitted development before804a",
+      "outputs": [
+        "author2.stdout"
+      ],
+      "result": "15PASS author characterization after identity correction."
+    },
+    {
+      "source": "uncommitted development before804a",
+      "outputs": [
+        "author3.stdout"
+      ],
+      "result": "2FAIL/16PASS: added selected-view harness import/schema attribute error; actual Core integrity refusal had different expected regex. Corrected test harness, preserving Core refusal."
+    },
+    {
+      "source": "uncommitted development before804a",
+      "outputs": [
+        "author4.stdout"
+      ],
+      "result": "18PASS prefreeze author characterization; final deciding source804/741 results separate."
+    },
+    {
+      "outputs": [
+        "author-lint.stdout",
+        "author-lint2.stdout",
+        "root-export-sort.stdout",
+        "format-before.stdout",
+        "test-format.stdout",
+        "test-format2.stdout"
+      ],
+      "result": "All lint/format attempts retained. Five automatic lint fixes; root __all__ sort error corrected before freeze. Later exact formatter diff isolated owned3 blank lines; source741 fixes onlythose."
+    },
+    {
+      "result": "Initial Gcomposition metadata helper failed on nonexistent G posterior_summary.py; corrected nullblob representation. No product check or commit from failed metadata preparation."
+    }
+  ],
+  "delta_only_carry": {
+    "source804": "62-test/9-removal output remains bound to804a/treebb1. No whole741 PASS inferred.",
+    "source741_delta": "Only3 blank-line changes, independent Python3.14 AST equality, source74118 defining/import checks fresh. Tests/native law/relations/negative executable AST unchanged.",
+    "uncomposed_E_Profile2": "Original selected B201/B202 weighted-median compatibility + named weighted mean/inverse-CDF equal-tail/jointlaw/raw-type/nonlinear/multi-envelope invariants retain E inputs. Text3way0conflicts != composed runtime PASS; no E supplier claims on current G-based blobs."
+  },
+  "review": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/independent-review804.json",
+      "sha256": "614acff56e96159d5298373189356d4e7d7ee21745d9db8558468ac7d7e6c717",
+      "target_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5",
+      "verdict": "GO bounded nongating default-view relation; no B31 closure/G acceptance/ValuePort authority"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/independent-review741.json",
+      "sha256": "0cc55e166b0da2cd7ece126a720b7a65cf2e97f3831ff58138e733ee03038ad3",
+      "target_sha": "741af2a08a8dc5fa36340bf700c092c7fb51f651",
+      "verdict": "GO delta-only whitespace and explicit measured C06 limitation; source804 evidence not relabelled"
+    }
+  ],
+  "capability_state_or_finding_state": "Bounded default-view IR reader mechanism code-ready with PASS; full B31 original criterion remains limited pending actual canonical C10 producer/readback/scientific basis. Producer currentness/view-composition not established.",
+  "status": {
+    "technical_supplier_property": "PASS in declared default-reader profile",
+    "code_ready": "bounded mechanical leaf ready for G review; known whole-file format red disclosed",
+    "finding_recommendation": "limited, not original B31 closure",
+    "G_source_acceptance": "not_issued",
+    "G_formal_finding_closure": "not_issued"
+  },
+  "limitations_and_next_owner": [
+    {
+      "owner": "C10 actual generation/ValuePort producer consumer",
+      "state": "UNRUN",
+      "input": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/C10-subject-join-input.json",
+      "next": "Persist actual supported identification/native outputs plus exact subject/complete lineage, validate supported identification kind and actual payloadlaw/coordinates/contrast/unit, resolve existing genuine supplier scientific purpose independently from Runtime execution safety, reopen both channels+relation in actual fresh ValuePort. Never turn generic relation read into identification proof."
+    },
+    {
+      "owner": "C06 adapter in coordination with C07 refs",
+      "state": "confirmed selector loss; selected/current producer composition UNRUN",
+      "input": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/C06-selected-view-producer-loss.json",
+      "next": "Preserve automatically returned nondefault manifest selector before C10 adoption; then affected selected-view/currentness checks only."
+    },
+    {
+      "owner": "G composition/generated family",
+      "state": "UNRUN",
+      "input": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/G-composition-companions.json",
+      "next": "Select original E supplier source history, reconcile owned uncertainty/registry facade companions, recompute schema/public inventory/reference family and corrupt-field drift on selected freeze. C07 supplies complete blobs, no generated hand-edits."
+    },
+    {
+      "owner": "C09/C08 actual conditional feature-law producer; G selected intake/BERL adapter",
+      "state": "no new IR companion commissioned",
+      "next": "Specific supplier contract: observed_feature_law, exact observed-feature order/units, source+model content/manifest/bytes, population/cohort/time/epoch/support/conditioning profile. Existing finite weighted strata or supported Gaussian projection selected by actual owner; parameter posterior/GCM noise posterior is not observed-feature law."
+    },
+    {
+      "owner": "Current source quality owner/C07 only owned delta",
+      "state": "FAIL full-file format; P41 not_established",
+      "next": "Remaining uncertainty.py/refs.py formatter red disclosed; no zero-overlap denominator/inherited claim. All own3 spacing defects corrected, lintPASS. Broad scanner/global inventory/optional backends not run by this narrow slice."
+    },
+    {
+      "owner": "G/C13 selected integrated freeze",
+      "state": "UNRUN",
+      "next": "Portable broad composed replay after selected source freeze/allreviews. No production uploaded or general scientific/model/current-law authority claimed."
+    }
+  ],
+  "patterns": {
+    "P29": "Actual canonical CAS/manifests/current typed bytes plus fresh child, not markers alone.",
+    "P36": "B31 remains A/EMP01; E is relation supplier. Full original2949byte criterion, not shortlabel.",
+    "P37": "Mechanical predicates recomputed; current producer/scientific/A ValuePort unestablished.",
+    "P38": "Matching markers survive quantity and factor mismatch; removing actual predicate makes9 negatives fail.",
+    "P40": "Complete subject and full producer role-set choke point, bounded default-view reader. Second selector/currentness escape is disclosed class-wide C06 dependency with finite falsifier samebytes+changedlineage, not per-method ladder.",
+    "P41": "not_established; no inherited-red attribution or reused full-suite positive on changed source."
+  },
+  "baseline_results": {
+    "importer_command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+    "importer_output": "{\"ok\":true,\"files\":[\"cells.tsv\",\"properties.tsv\",\"events.jsonl\",\"gates.json\",\"routes.tsv\",\"verification.json\"]}",
+    "grade": "index_transfer/navigation_only, raw archives0; baseline not candidate PASS",
+    "targeted_queries": [
+      "B31",
+      "B201",
+      "B202"
+    ],
+    "ownership": "full finding-owners.tsv/card/coverage binding; B31 A/EMP01, B201/B202 E/UQS01"
+  },
+  "output_custody": {
+    "index": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/evidence-index.json",
+    "complete_moderate_outputs": "All source804 and source741 commands/returncodes/nodeids/stdout/stderr/resources, removal patch/harness, independent reviews and failed harness attempts committed separately from source.",
+    "preservation": "Source/docs/deciding outputs and scratch CAS/current activeenv retained; no cleanup or permanent deletion."
+  },
+  "admission": {
+    "carrier_sha": "de7b08ebbac72232c98d96ea74c3c0410864a7ba",
+    "carrier_tree": "fe76cc863f551b834b29aa78b659f688d52b1fad",
+    "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-admission/manifest.json",
+    "full_pair": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-admission/c07-create.json.gz",
+        "encoding": "gzip",
+        "stored_bytes": 12028,
+        "stored_sha256": "96af4f3060b5e2b326de5ff79fef3b192c02a8e33ba0738ca9e959266318bd29",
+        "decoded_bytes": 147849,
+        "decoded_sha256": "99435c62e397b68cea1df499fd33bd315356e924184f5573bf28ca2c77118f59",
+        "requested": {
+          "branch": "codex/e02-E-c07-20261008",
+          "mode": "create",
+          "path": "/dev/shm/e02-orch03-20261008/c07"
+        },
+        "status": "admitted",
+        "unresolved_inputs": []
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-admission/c07-resume.json.gz",
+        "encoding": "gzip",
+        "stored_bytes": 12530,
+        "stored_sha256": "3b3671d3e99a042f0bb274bb04263b9b72928398b515b029d68d2bce510085cb",
+        "decoded_bytes": 153610,
+        "decoded_sha256": "bb0e40fb0a887ce920ae42595839d104ffef7877ee43cfdf30873b26588cee7b",
+        "requested": {
+          "branch": "codex/e02-E-c07-20261008",
+          "mode": "resume",
+          "path": "/dev/shm/e02-orch03-20261008/c07"
+        },
+        "status": "admitted",
+        "unresolved_inputs": []
+      }
+    ],
+    "branch": "codex/e02-E-c07-20261008",
+    "path": "/dev/shm/e02-orch03-20261008/c07"
+  },
+  "transport": {
+    "source_pushed_and_remote_readback": "741af2a08a8dc5fa36340bf700c092c7fb51f651",
+    "source_tree": "bfae04d141187c30e4f6bc14dbbbae00f6ee116c",
+    "output_refs": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/source-push.stderr",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/outputs/source-remote-readback.stdout"
+    ],
+    "handoff_is_separate_commit": true,
+    "handoff_remote_readback": "To be read after receipt commit; this JSON does not name its own future SHA."
+  }
+}

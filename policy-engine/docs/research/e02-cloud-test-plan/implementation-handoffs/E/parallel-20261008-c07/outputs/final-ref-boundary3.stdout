@@ -1,0 +1,38 @@
+{
+  "source": "804a6aba31125372b0b57a10041c6d6aad375ad5",
+  "tree": "bb1e30be80e5238ebd903ba327fa6dc4ac27c2b2",
+  "profile": "synthetic contract CAS mechanics, default view only, nongating; no scientific producer/admission claim",
+  "probes": [
+    {
+      "name": "missing_source",
+      "status": "PASS",
+      "refusal": "Artifact not found: eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "type": "FileNotFoundError"
+    },
+    {
+      "name": "missing_model",
+      "status": "PASS",
+      "refusal": "Artifact not found: eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "type": "FileNotFoundError"
+    },
+    {
+      "name": "actual_foreign_source",
+      "status": "PASS",
+      "refusal": "value_subject_quantity_mismatch",
+      "type": "ValueError"
+    },
+    {
+      "name": "subject_outcome_contradicts_resolved_AST",
+      "status": "PASS",
+      "refusal": "value_subject_estimand_mismatch",
+      "type": "ValueError"
+    }
+  ],
+  "measured_C06_adapter_gap": {
+    "old_and_changed_native_payload_ID": "sha256:ac1bf574c8b06542f2c434892a130d9c38b79a32710a051e1d0b127a0c961700",
+    "returned_IR_selector": null,
+    "requested_new_subject_ID": "sha256:9c83b0b029386278b89c87de23156e03c96ed246751ab8744f4b5623b1b218ce",
+    "resolved_default_subject_ID": "sha256:7e6d22a3d558d3e855c2eabc17afca48a822c11646ea2b0b296ea0cc564b9679",
+    "result": "Same native bytes plus changed lineage created another Core manifest view; IR writer returned old default ref. This overlap is outside C07 default-view scope and requires C06 to preserve producer-returned selector before C10 adopts such producer."
+  }
+}

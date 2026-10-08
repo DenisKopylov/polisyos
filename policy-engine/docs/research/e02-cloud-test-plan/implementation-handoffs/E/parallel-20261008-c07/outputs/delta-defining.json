@@ -1,0 +1,21 @@
+{
+  "PYTHONPATH": "/dev/shm/e02-orch03-20261008/c07/policy-engine/src:/dev/shm/e02-orch03-20261008/c07/policy-engine",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "policy-engine/tests/unit/ir/test_value_subject_relation.py",
+    "-q",
+    "-ra",
+    "--junitxml=/dev/shm/e02-orch03-20261008/c07-checks/delta-defining.junit.xml",
+    "--basetemp=/dev/shm/e02-orch03-20261008/c07-checks/delta-defining-tmp"
+  ],
+  "cwd": "/dev/shm/e02-orch03-20261008/c07",
+  "label": "delta-defining",
+  "maxrss_children_kib": 231484,
+  "returncode": 0,
+  "source_sha": "741af2a08a8dc5fa36340bf700c092c7fb51f651",
+  "source_tree": "bfae04d141187c30e4f6bc14dbbbae00f6ee116c",
+  "started_unix": 1791453565.6830547,
+  "wall_seconds": 3.669320916000288
+}

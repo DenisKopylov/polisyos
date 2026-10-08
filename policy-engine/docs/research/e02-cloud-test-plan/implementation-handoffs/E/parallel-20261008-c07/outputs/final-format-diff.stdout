@@ -1,0 +1,140 @@
+--- policy-engine/src/polisyos/ir/__init__.py
++++ policy-engine/src/polisyos/ir/__init__.py
+@@ -337,7 +337,6 @@
+         "polisyos.ir.registry.refs",
+         "ValueSubjectRelationRef",
+     ),
+-
+     "ArticleExtractionResult": ("polisyos.ir.analytics.literature", "ArticleExtractionResult"),
+     "ArtifactRefModel": ("polisyos.ir.registry.refs", "ArtifactRefModel"),
+     "TrinityBundle": ("polisyos.ir.trinity", "TrinityBundle"),
+
+--- policy-engine/src/polisyos/ir/analytics/uncertainty.py
++++ policy-engine/src/polisyos/ir/analytics/uncertainty.py
+@@ -109,9 +109,7 @@
+         normalized = frozenset(self.capabilities)
+         if not all(isinstance(item, OutputContractCapability) for item in normalized):
+             raise TypeError("output_contract_declaration_capability_invalid")
+-        owns_value_projection = (
+-            OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION in normalized
+-        )
++        owns_value_projection = OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION in normalized
+         if owns_value_projection != isinstance(
+             self.value_uncertainty_projection_kind,
+             ValueUncertaintyProjectionKind,
+@@ -134,13 +132,9 @@
+     schema_version: Literal["polisyos.ir.native_value_estimand_binding.v1"] = (
+         "polisyos.ir.native_value_estimand_binding.v1"
+     )
+-    authority_scope: Literal["contract_only_nonproduction"] = (
+-        "contract_only_nonproduction"
+-    )
++    authority_scope: Literal["contract_only_nonproduction"] = "contract_only_nonproduction"
+     production_value_eligible: Literal[False] = False
+-    binding_kind: Literal["contract_projection_request"] = (
+-        "contract_projection_request"
+-    )
++    binding_kind: Literal["contract_projection_request"] = "contract_projection_request"
+     native_contract_id: str = Field(min_length=1)
+     producer_method_fqn: str = Field(min_length=1)
+     projection_input_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+@@ -194,19 +188,12 @@
+                 getattr(estimand, "treatment_or_exposure", None)
+             ),
+             "covariates_or_conditioning": tuple(
+-                str(item)
+-                for item in getattr(estimand, "covariates_or_conditioning", ())
+-            ),
+-            "adjustment_set": _optional_estimand_tuple(
+-                getattr(estimand, "adjustment_set", None)
++                str(item) for item in getattr(estimand, "covariates_or_conditioning", ())
+             ),
++            "adjustment_set": _optional_estimand_tuple(getattr(estimand, "adjustment_set", None)),
+             "population": str(getattr(estimand, "population", "") or ""),
+-            "sample_filter": _optional_estimand_text(
+-                getattr(estimand, "sample_filter", None)
+-            ),
+-            "time_horizon": _optional_estimand_text(
+-                getattr(estimand, "time_horizon", None)
+-            ),
++            "sample_filter": _optional_estimand_text(getattr(estimand, "sample_filter", None)),
++            "time_horizon": _optional_estimand_text(getattr(estimand, "time_horizon", None)),
+             "prediction_origin": _optional_estimand_text(
+                 getattr(estimand, "prediction_origin", None)
+             ),
+@@ -263,9 +250,7 @@
+ 
+     return OutputContractDeclaration(
+         contract_id=contract_id,
+-        capabilities=frozenset(
+-            {OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION}
+-        ),
++        capabilities=frozenset({OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION}),
+         value_uncertainty_projection_kind=projection_kind,
+     )
+ 
+@@ -281,8 +266,7 @@
+     except (TypeError, ValueError):
+         return False
+     return all(
+-        name in parameters
+-        and parameters[name].kind is inspect.Parameter.KEYWORD_ONLY
++        name in parameters and parameters[name].kind is inspect.Parameter.KEYWORD_ONLY
+         for name in ("estimand", "projection_binding")
+     )
+ 
+@@ -2439,6 +2423,7 @@
+         raise ValueError("value_subject_relation_stale_or_forged")
+     return recomputed
+ 
++
+ __all__ = [
+     "CertificateKind",
+     "ComposedFlavour",
+
+--- policy-engine/src/polisyos/ir/api.py
++++ policy-engine/src/polisyos/ir/api.py
+@@ -205,7 +205,6 @@
+         "polisyos.ir.registry.refs",
+         "ValueSubjectRelationRef",
+     ),
+-
+     "AccessTier": ("polisyos.ir.analytics.data_views", "AccessTier"),
+     "AdmittedClaimAdjudicationBatch": (
+         "polisyos.ir.analytics.literature",
+
+--- policy-engine/src/polisyos/ir/registry/refs.py
++++ policy-engine/src/polisyos/ir/registry/refs.py
+@@ -88,9 +88,7 @@
+ class ForecastInterventionCertificateRef(ArtifactRefModel):
+     """Stable handle for persisted forecast-as-treatment certificates."""
+ 
+-    kind: Literal["ir.forecast_intervention_certificate"] = (
+-        "ir.forecast_intervention_certificate"
+-    )
++    kind: Literal["ir.forecast_intervention_certificate"] = "ir.forecast_intervention_certificate"
+     media_type: Literal["application/json"] = "application/json"
+ 
+ 
+@@ -111,18 +109,14 @@
+ class DynamicMicrosimValidationReportRef(ArtifactRefModel):
+     """Stable handle for persisted dynamic microsim validation gate reports."""
+ 
+-    kind: Literal["ir.dynamic_microsim_validation_report"] = (
+-        "ir.dynamic_microsim_validation_report"
+-    )
++    kind: Literal["ir.dynamic_microsim_validation_report"] = "ir.dynamic_microsim_validation_report"
+     media_type: Literal["application/json"] = "application/json"
+ 
+ 
+ class TemporalGraphCausalCertificateRef(ArtifactRefModel):
+     """Stable handle for persisted temporal graph DSCM causal certificates."""
+ 
+-    kind: Literal["ir.temporal_graph_causal_certificate"] = (
+-        "ir.temporal_graph_causal_certificate"
+-    )
++    kind: Literal["ir.temporal_graph_causal_certificate"] = "ir.temporal_graph_causal_certificate"
+     media_type: Literal["application/json"] = "application/json"
+ 
+ 
+

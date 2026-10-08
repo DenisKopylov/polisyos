@@ -1,0 +1,23 @@
+{
+  "PYTHONPATH": "/dev/shm/e02-orch03-20261008/c07-checks/retained-marker-source804/policy-engine/src:/dev/shm/e02-orch03-20261008/c07-checks/retained-marker-source804/policy-engine",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "policy-engine/tests/unit/ir/test_value_subject_relation.py::test_resolved_quantity_mismatch_refuses_despite_matching_metadata",
+    "policy-engine/tests/unit/ir/test_value_subject_relation.py::test_complete_producer_roster_refuses_missing_extra_duplicate[extra]",
+    "policy-engine/tests/unit/ir/test_value_subject_relation.py::test_persisted_fresh_child_preserves_separate_asymmetric_channels",
+    "-q",
+    "-ra",
+    "--junitxml=/dev/shm/e02-orch03-20261008/c07-checks/retained-marker.junit.xml",
+    "--basetemp=/dev/shm/e02-orch03-20261008/c07-checks/retained-marker-tmp"
+  ],
+  "cwd": "/dev/shm/e02-orch03-20261008/c07-checks/retained-marker-source804",
+  "maxrss_children_kib": 225284,
+  "result_policy": "Expected negative-control FAIL; not unexpected product failures. One unchanged same-unit positive remains. Exact 9 FAIL / 1 PASS required.",
+  "returncode": 1,
+  "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5",
+  "source_tree": "bb1e30be80e5238ebd903ba327fa6dc4ac27c2b2",
+  "started_unix": 1791452601.6217408,
+  "wall_seconds": 4.896750903018983
+}

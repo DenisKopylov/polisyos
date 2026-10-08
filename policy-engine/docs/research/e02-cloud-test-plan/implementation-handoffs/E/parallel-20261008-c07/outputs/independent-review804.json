@@ -1,0 +1,116 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "reviewer": "ORCH03 direct oracle_ir; independent from C07 author",
+  "target": {
+    "slice_base_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "candidate_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5",
+    "candidate_tree_sha": "bb1e30be80e5238ebd903ba327fa6dc4ac27c2b2",
+    "implementation_parent": "7147ef63886dd95fb20cdb8ebb939d93663ca10d"
+  },
+  "original_finding": {
+    "id": "B31",
+    "original_unit": "A",
+    "bundle": "EMP-01",
+    "criterion_original_lines": [
+      593,
+      606
+    ],
+    "byte_binding_sha256": "9311ba1b0fb2e6a3f180546c6118406c5781dbbfb57e27b28075b95a92fe371f"
+  },
+  "reviewed_complete_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/C10-subject-join-input.json",
+      "candidate_blob": "1134fb84c20442365b41bd54e6de8b66d02cd78a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/G-composition-companions.json",
+      "candidate_blob": "1edc4ee1882ffbf68377ffb4d3529d91d70cc250"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-c07-value-subject-relation.toml",
+      "candidate_blob": "e75cbab2436a6221358d011e265994c6c2875d5b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "candidate_blob": "611f1b873d6e203cfe3fd9e9dbb38ac5046ed252"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "candidate_blob": "3035cb425f4726685c0f0486db90bc6d8ff8aa9e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "candidate_blob": "2b6c4d324b333c5dd2feaffac2de2447800ff48b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "candidate_blob": "ae9c2e4084a2d9ccba8268e944ecc369033a4bfc"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/migrations/schema_registry.py",
+      "candidate_blob": "e4f006b5bc2fff66075c6345105707884e80d431"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/registry/refs.py",
+      "candidate_blob": "b30b46092c4daf5fbb6b1d62ec85fe95a0bca131"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_value_subject_relation.py",
+      "candidate_blob": "8ceb8bb659910a482d7bea227b0c8699bfac5cec"
+    }
+  ],
+  "verdict": "GO for bounded nongating default-view content-relation leaf; not B31 closure, G acceptance or composed scientific ValuePort admission",
+  "specification": "GO in declared content-only scope: separate exact artifacts, recomputed complete producer role roster, typed identity/rate scaling, complete subject comparison and reader recomputation; markers cannot replace resolved subject. Native interval/point/functionals unchanged. No global Envelope version/new scheduler/issuer.",
+  "engineering_quality": "GO; additive strict/frozen models, existing ArtifactStore/EstimandAST/UnitSpec/uncertainty owner reuse, same-object root/analytics facade, registry and unique README/release companions. No architecture crossing to upper Runtime/A layer.",
+  "checks": [
+    {
+      "command": "PYTHONPATH=/dev/shm/e02-orch03-20261008/oracle-ir/source804/policy-engine/src /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /dev/shm/e02-orch03-20261008/oracle-ir/check804.py",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "scope": "7 independent reviewer probes; author fixture reused for setup only; independent Fraction oracle. Exact Git-exported source, no writer checkout mutations",
+      "stdout": "{\n  \"source\": \"804a6aba31125372b0b57a10041c6d6aad375ad5\",\n  \"tree\": \"bb1e30be80e5238ebd903ba327fa6dc4ac27c2b2\",\n  \"pid\": 1030346,\n  \"scope\": \"non-author review probes; author fixture only producer setup, Fraction oracle independent; not actual C10 ValuePort or scientific authority\",\n  \"results\": [\n    {\n      \"name\": \"independent_fraction_rate_conversion_and_reopen\",\n      \"outcome\": \"PASS\",\n      \"detail\": {\n        \"factor\": 100.0,\n        \"native_ci\": [\n          0.01,\n          0.1\n        ],\n        \"identification_ref\": \"sha256:3a2bf50f0b69ee76f6474d6ad81dc3ba53e315fca511df0d3322e6869dc4c98a\",\n        \"native_ref\": \"sha256:c30ae9554cc7ef6e607b313079919bf4732e7068484d9d5a369ac3a0687ce839\",\n        \"authority\": false\n      },\n      \"wall_s\": 0.0559262849856168\n    },\n    {\n      \"name\": \"foreign_time\",\n      \"outcome\": \"PASS\",\n      \"detail\": {\n        \"refusal\": \"value_subject_quantity_mismatch\"\n      },\n      \"wall_s\": 0.033101062988862395\n    },\n    {\n      \"name\": \"foreign_contrast\",\n      \"outcome\": \"PASS\",\n      \"detail\": {\n        \"refusal\": \"value_subject_quantity_mismatch\"\n      },\n      \"wall_s\": 0.030995023989817128\n    },\n    {\n      \"name\": \"foreign_population\",\n      \"outcome\": \"PASS\",\n      \"detail\": {\n        \"refusal\": \"value_subject_quantity_mismatch\"\n      },\n      \"wall_s\": 0.032110489992192015\n    },\n    {\n      \"name\": \"roster_missing\",\n      \"outcome\": \"PASS\",\n      \"detail\": {\n        \"refusal\": \"value_subject_lineage_missing_or_duplicate\"\n      },\n      \"wall_s\": 0.027157042000908405\n    },\n    {\n      \"name\": \"roster_extra\",\n      \"outcome\": \"PASS\",\n      \"detail\": {\n        \"refusal\": \"value_subject_complete_lineage_mismatch\"\n      },\n      \"wall_s\": 0.02757922699674964\n    },\n    {\n      \"name\": \"roster_duplicate\",\n      \"outcome\": \"PASS\",\n      \"detail\": {\n        \"refusal\": \"value_subject_lineage_missing_or_duplicate\"\n      },\n      \"wall_s\": 0.026448363991221413\n    }\n  ]\n}\n",
+      "stderr": "",
+      "output_sha256": "858c7f55bd4086ae27d0017ad7bcf388604ea067d5b6b3de16581b01ae549d7c",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "dependency_versions": {
+          "numpy": "2.3.5",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2"
+        },
+        "uncertainty_origin": "/dev/shm/e02-orch03-20261008/oracle-ir/source804/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "origin_sha256": "64ad1c9d2b43acb9f795fd8482693cfed4ae0de3c3e3351816c91d70e5dea5d1"
+      }
+    },
+    {
+      "command": "git merge-file -p C07-uncertainty.py baseG-uncertainty.py E-uncertainty.py",
+      "input_refs": {
+        "C07": "804a6aba31125372b0b57a10041c6d6aad375ad5",
+        "baseG": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "E": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c"
+      },
+      "outcome": "PASS file composition only",
+      "exit_code": 0,
+      "complete_deciding_output": "returncode0; conflict_markers0; stderr empty; output108776bytes. This does not create or accept integrated source; E-source runtime composition remains UNRUN."
+    }
+  ],
+  "authority_and_residuals": [
+    "production_value_eligible is a Literal[False]. verifier_provenance cas_bytes_manifest_lineage_recomputed.v1 describes mechanical identity only; no scientific authority is minted.",
+    "Selected Core manifest views are supported by Core but current IR normalization is lossy; leaf refuses explicit nondefault profile before normalization. C06 adapter partner named and falsifier real samepayload/differentview required.",
+    "Generic identification_ref payload semantics are left to canonical C10 producer/reader: this IR leaf validates lineage/content, not a typed identification-set law. Actual C10 adoption must resolve its supported identification kind/payload and read ValueOuterSet (or other chosen owner contract), preserving separate native channel. Do not treat generic relation load alone as proof of identification.",
+    "Current G/A ValuePort producer, genuine scientific admission/verifier provenance and actual A fresh consumer remain UNRUN pending specific committed C10 packet. Execution EvalSafety currentchallenge proves execution admission only.",
+    "E8d Profile2 is a separate uncomposed supplier; dependency docs preserve exact blobs/decision and generated-family request. No borrowed E PASS or applied global inventory/generated snapshots claimed. Three-way clean text is not composed runtime evidence.",
+    "Author final affected defining/importer/warnings and matched property-removal wave must follow this review; reviewer did not rerun historical E/F suites."
+  ],
+  "p37_predicates": {
+    "bytes_manifest_lineage": "recomputed",
+    "resolved_subject_unit_equal": "recomputed",
+    "scientific_admission": "not_established",
+    "actual_A_ValuePort": "not_established"
+  },
+  "p40_bucket": "same unverified subject join class; one complete subject/role-set reader choke point with explicit nongating and default-view bounds, not per-method flags",
+  "negative_design_review": "Missing/duplicate/extra complete role roster; foreign contrast/population/epoch/time/origin/unit/estimand; real selectedview; actual bytes corruption; persisted factor forgery leaving markers; separate freshchild complete read. Author removal must delete actual quantity/full-roster behavior while labels remain and observe FAIL.",
+  "review_mutations": "Only reviewer-owned scratch Git export/harness; no production/test source, checkout branch or integration mutation; no permanent deletion."
+}

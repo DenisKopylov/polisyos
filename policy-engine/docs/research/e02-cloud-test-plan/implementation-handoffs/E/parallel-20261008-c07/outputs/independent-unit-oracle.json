@@ -1,0 +1,29 @@
+{
+  "source": "independent rational unit arithmetic; not product execution or authority",
+  "cases": [
+    {
+      "input_unit": "percent",
+      "output_unit": "ratio",
+      "scale": "1/100",
+      "identification_input": [
+        4,
+        4
+      ],
+      "native_input": [
+        1,
+        10
+      ],
+      "identification_expected": [
+        "1/25",
+        "1/25"
+      ],
+      "native_expected": [
+        "1/100",
+        "1/10"
+      ]
+    }
+  ],
+  "identity_width": 0,
+  "native_width": "9/100",
+  "outcome": "PASS oracle arithmetic only"
+}

@@ -1,0 +1,35 @@
+--- source804/uncertainty.py
++++ removed-property/uncertainty.py
+@@ -2281,7 +2281,7 @@
+         for item in inputs
+         if isinstance(item, dict)
+     ]
+-    if len(actual) != len(inputs) or sorted(actual) != sorted(expected):
++    if False and (len(actual) != len(inputs) or sorted(actual) != sorted(expected)):
+         raise ValueError("value_subject_complete_lineage_mismatch")
+     from polisyos.ir.analytics.estimand import load_estimand_ast
+ 
+@@ -2298,13 +2298,16 @@
+     native: ValueArtifactSubject, identified: ValueArtifactSubject
+ ) -> float:
+     """Compare the complete quantity identity, allowing only typed rate scaling."""
+-    if native.model_dump(exclude={"unit"}) != identified.model_dump(exclude={"unit"}):
+-        raise ValueError("value_subject_quantity_mismatch")
+-    if native.unit == identified.unit:
+-        return 1.0
+-    if isinstance(native.unit, RateUnit) and isinstance(identified.unit, RateUnit):
+-        return 100.0 if native.unit.base == "ratio" else 0.01
+-    raise ValueError("value_subject_unit_mismatch")
++    if False:
++        if native.model_dump(exclude={"unit"}) != identified.model_dump(exclude={"unit"}):
++            raise ValueError("value_subject_quantity_mismatch")
++        if native.unit == identified.unit:
++            return 1.0
++        if isinstance(native.unit, RateUnit) and isinstance(identified.unit, RateUnit):
++            return 100.0 if native.unit.base == "ratio" else 0.01
++        raise ValueError("value_subject_unit_mismatch")
++    
++    return 1.0
+ 
+ 
+ def resolve_value_subject_relation(

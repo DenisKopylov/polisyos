@@ -1,0 +1,71 @@
+{
+  "source": "804a6aba31125372b0b57a10041c6d6aad375ad5",
+  "tree": "bb1e30be80e5238ebd903ba327fa6dc4ac27c2b2",
+  "pid": 1030346,
+  "scope": "non-author review probes; author fixture only producer setup, Fraction oracle independent; not actual C10 ValuePort or scientific authority",
+  "results": [
+    {
+      "name": "independent_fraction_rate_conversion_and_reopen",
+      "outcome": "PASS",
+      "detail": {
+        "factor": 100.0,
+        "native_ci": [
+          0.01,
+          0.1
+        ],
+        "identification_ref": "sha256:3a2bf50f0b69ee76f6474d6ad81dc3ba53e315fca511df0d3322e6869dc4c98a",
+        "native_ref": "sha256:c30ae9554cc7ef6e607b313079919bf4732e7068484d9d5a369ac3a0687ce839",
+        "authority": false
+      },
+      "wall_s": 0.0559262849856168
+    },
+    {
+      "name": "foreign_time",
+      "outcome": "PASS",
+      "detail": {
+        "refusal": "value_subject_quantity_mismatch"
+      },
+      "wall_s": 0.033101062988862395
+    },
+    {
+      "name": "foreign_contrast",
+      "outcome": "PASS",
+      "detail": {
+        "refusal": "value_subject_quantity_mismatch"
+      },
+      "wall_s": 0.030995023989817128
+    },
+    {
+      "name": "foreign_population",
+      "outcome": "PASS",
+      "detail": {
+        "refusal": "value_subject_quantity_mismatch"
+      },
+      "wall_s": 0.032110489992192015
+    },
+    {
+      "name": "roster_missing",
+      "outcome": "PASS",
+      "detail": {
+        "refusal": "value_subject_lineage_missing_or_duplicate"
+      },
+      "wall_s": 0.027157042000908405
+    },
+    {
+      "name": "roster_extra",
+      "outcome": "PASS",
+      "detail": {
+        "refusal": "value_subject_complete_lineage_mismatch"
+      },
+      "wall_s": 0.02757922699674964
+    },
+    {
+      "name": "roster_duplicate",
+      "outcome": "PASS",
+      "detail": {
+        "refusal": "value_subject_lineage_missing_or_duplicate"
+      },
+      "wall_s": 0.026448363991221413
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+..............F.F.                                                       [100%]
+=================================== FAILURES ===================================
+____________ test_selected_manifest_view_is_explicitly_unsupported _____________
+
+tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c07-checks/author3-tmp/test_selected_manifest_view_is0')
+
+    def test_selected_manifest_view_is_explicitly_unsupported(tmp_path):
+        from polisyos.core.artifacts.manifest import ProducerInfo
+        from polisyos.core.artifacts.store import PutOptions
+    
+        store, _, identified_ref, native_ref = _producer_pair(tmp_path)
+        old_manifest = store.get_manifest(str(identified_ref.artifact_id))
+        selected = store.put_json(
+>           get_json_artifact(store, identified_ref.artifact_id),
+            ^^^^^^^^^^^^^^^^^
+            PutOptions(
+                kind=identified_ref.kind,
+                media_type=identified_ref.media_type,
+                schema=old_manifest.schema_info,
+                inputs=old_manifest.inputs,
+                producer=ProducerInfo(component="fixture.producer", version="different-view"),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+E       NameError: name 'get_json_artifact' is not defined
+
+policy-engine/tests/unit/ir/test_value_subject_relation.py:269: NameError
+__________ test_actual_bytes_corruption_refuses_before_combined_claim __________
+
+tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c07-checks/author3-tmp/test_actual_bytes_corruption_r0')
+
+    def test_actual_bytes_corruption_refuses_before_combined_claim(tmp_path):
+        store, _, identified_ref, native_ref = _producer_pair(tmp_path)
+        relation_ref = persist_value_subject_relation(
+            store,
+            identification_ref=identified_ref,
+            native_uncertainty_ref=native_ref,
+        )
+        blob, _ = store._paths(native_ref.artifact_id)
+        blob.chmod(0o600)
+        blob.write_bytes(b'{"status":"success","subject":"retained-marker"}')
+        with pytest.raises(ValueError, match="value_subject_artifact_content_mismatch"):
+>           load_value_subject_relation(FileSystemCAS(store.root), relation_ref)
+
+policy-engine/tests/unit/ir/test_value_subject_relation.py:321: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+policy-engine/src/polisyos/ir/analytics/uncertainty.py:2380: in load_value_subject_relation
+    recomputed = resolve_value_subject_relation(
+policy-engine/src/polisyos/ir/analytics/uncertainty.py:2305: in resolve_value_subject_relation
+    native, native_subject, native_quantity = _value_subject_for_artifact(store, native_uncertainty_ref)
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/ir/analytics/uncertainty.py:2252: in _value_subject_for_artifact
+    artifact_identity, manifest = _value_subject_identity(store, ref)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/ir/analytics/uncertainty.py:2228: in _value_subject_identity
+    raw = store.get_bytes(str(ref.artifact_id))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:392: in wrapped
+    result = method(self, artifact_id, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:1286: in get_bytes
+    data = self._read_verified_blob(aid, blob, manifest_ref=ref)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:4007: in _read_verified_blob
+    return _read_verified_blob(
+policy-engine/src/polisyos/core/artifacts/_integrity_ops.py:110: in read_verified_blob
+    validate_read_integrity(artifact_id, data, manifest)
+policy-engine/src/polisyos/core/artifacts/_integrity_ops.py:69: in validate_read_integrity
+    _validate_read_integrity_with_digest(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+artifact_id = ArtifactID(root='sha256:ac1bf574c8b06542f2c434892a130d9c38b79a32710a051e1d0b127a0c961700')
+
+    def _validate_read_integrity_with_digest(
+        artifact_id: ArtifactID,
+        *,
+        data: bytes,
+        manifest: ArtifactManifest,
+        actual_sha256_hex: str,
+    ) -> None:
+        """Validate a loaded pair without recomputing a caller-independent digest."""
+        validate_manifest_identity(artifact_id, manifest)
+        if actual_sha256_hex != artifact_id.hex:
+>           raise ArtifactIntegrityError(
+                f"Blob sha256 mismatch for {artifact_id}: {actual_sha256_hex}"
+            )
+E           polisyos.core.artifacts._integrity_ops.ArtifactIntegrityError: Blob sha256 mismatch for sha256:ac1bf574c8b06542f2c434892a130d9c38b79a32710a051e1d0b127a0c961700: e53b4a24cbdbb01642cf31f9f5d66005acb565aabfa6cb516fc894a117b6a7ce
+
+policy-engine/src/polisyos/core/artifacts/_integrity_ops.py:87: ArtifactIntegrityError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c07-checks/author3-tmp/test_actual_bytes_corruption_r0')
+
+    def test_actual_bytes_corruption_refuses_before_combined_claim(tmp_path):
+        store, _, identified_ref, native_ref = _producer_pair(tmp_path)
+        relation_ref = persist_value_subject_relation(
+            store,
+            identification_ref=identified_ref,
+            native_uncertainty_ref=native_ref,
+        )
+        blob, _ = store._paths(native_ref.artifact_id)
+        blob.chmod(0o600)
+        blob.write_bytes(b'{"status":"success","subject":"retained-marker"}')
+>       with pytest.raises(ValueError, match="value_subject_artifact_content_mismatch"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'value_subject_artifact_content_mismatch'
+E         Actual message: 'Blob sha256 mismatch for sha256:ac1bf574c8b06542f2c434892a130d9c38b79a32710a051e1d0b127a0c961700: e53b4a24cbdbb01642cf31f9f5d66005acb565aabfa6cb516fc894a117b6a7ce'
+
+policy-engine/tests/unit/ir/test_value_subject_relation.py:320: AssertionError
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/ir/test_value_subject_relation.py::test_selected_manifest_view_is_explicitly_unsupported
+FAILED policy-engine/tests/unit/ir/test_value_subject_relation.py::test_actual_bytes_corruption_refuses_before_combined_claim

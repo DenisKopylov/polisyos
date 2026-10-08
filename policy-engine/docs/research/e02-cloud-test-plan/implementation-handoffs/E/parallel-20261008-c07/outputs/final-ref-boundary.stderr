@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/dev/shm/e02-orch03-20261008/c07-checks/check_ref_boundary.py", line 27, in <module>
+    else: raise AssertionError(name+' did not refuse')
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: missing_source did not refuse

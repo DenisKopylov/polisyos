@@ -1,0 +1,12 @@
+{
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "dependency_versions": {
+    "numpy": "2.3.5",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2"
+  },
+  "uncertainty_origin": "/dev/shm/e02-orch03-20261008/oracle-ir/source804/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+  "origin_sha256": "64ad1c9d2b43acb9f795fd8482693cfed4ae0de3c3e3351816c91d70e5dea5d1"
+}

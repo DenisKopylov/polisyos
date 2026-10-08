@@ -1,0 +1,159 @@
+{
+  "source": "804a6aba31125372b0b57a10041c6d6aad375ad5",
+  "tree": "bb1e30be80e5238ebd903ba327fa6dc4ac27c2b2",
+  "probe": "Observed original Core put_json return before canonical IR normalization; actual writes/readers execute, no replacement producer or fabricated success",
+  "actual_Core_refs": [
+    {
+      "artifact_id": "sha256:ac1bf574c8b06542f2c434892a130d9c38b79a32710a051e1d0b127a0c961700",
+      "kind": "ir.uncertainty_envelope",
+      "media_type": "application/json"
+    },
+    {
+      "artifact_id": "sha256:ac1bf574c8b06542f2c434892a130d9c38b79a32710a051e1d0b127a0c961700",
+      "kind": "ir.uncertainty_envelope",
+      "media_type": "application/json",
+      "manifest_profile_sha256": "sha256:eb8a03bd0981e8fde87ce9e5c0d7def78f939aeecc2ffe4035051d32ebfbcb19"
+    }
+  ],
+  "actual_IR_returned_ref": {
+    "artifact_id": "sha256:ac1bf574c8b06542f2c434892a130d9c38b79a32710a051e1d0b127a0c961700",
+    "kind": "ir.uncertainty_envelope",
+    "media_type": "application/json"
+  },
+  "actual_reopened_manifests": [
+    {
+      "manifest_schema_version": "v3",
+      "artifact_id": "sha256:ac1bf574c8b06542f2c434892a130d9c38b79a32710a051e1d0b127a0c961700",
+      "kind": "ir.uncertainty_envelope",
+      "media_type": "application/json",
+      "byte_size": 727,
+      "created_at": "2026-10-08T09:51:46Z",
+      "artifact_schema": {
+        "name": "ir.uncertainty_envelope",
+        "version": "1.1"
+      },
+      "canon": {
+        "name": "polisyos.canon.json",
+        "version": "0.2.0",
+        "forbid_floats": false,
+        "forbid_nan_inf": true,
+        "exclude_none": true,
+        "max_depth": 128,
+        "sort_keys": true,
+        "separators": [
+          ",",
+          ":"
+        ],
+        "ensure_ascii": false
+      },
+      "inputs": [
+        {
+          "artifact_id": "sha256:7e6d22a3d558d3e855c2eabc17afca48a822c11646ea2b0b296ea0cc564b9679",
+          "role": "value_subject"
+        },
+        {
+          "artifact_id": "sha256:9accb4f64bdf48dddbb12aa1ef82bf4816fce944c86891ef0f7c3a52443dc20f",
+          "role": "value_estimand"
+        },
+        {
+          "artifact_id": "sha256:6cd65c8217d3b828937938bbf8b4b30c77762e6eeeb6d17d9acc2b2f8ae0482c",
+          "role": "value_source"
+        }
+      ],
+      "producer": null,
+      "env": null,
+      "governance": null,
+      "tenant_context": null,
+      "same_input_closure": null,
+      "authority": null,
+      "integrity": {
+        "sha256": "ac1bf574c8b06542f2c434892a130d9c38b79a32710a051e1d0b127a0c961700",
+        "optional": null
+      },
+      "warnings": []
+    },
+    {
+      "manifest_schema_version": "v3",
+      "artifact_id": "sha256:ac1bf574c8b06542f2c434892a130d9c38b79a32710a051e1d0b127a0c961700",
+      "kind": "ir.uncertainty_envelope",
+      "media_type": "application/json",
+      "byte_size": 727,
+      "created_at": "2026-10-08T09:51:46Z",
+      "artifact_schema": {
+        "name": "ir.uncertainty_envelope",
+        "version": "1.1"
+      },
+      "canon": {
+        "name": "polisyos.canon.json",
+        "version": "0.2.0",
+        "forbid_floats": false,
+        "forbid_nan_inf": true,
+        "exclude_none": true,
+        "max_depth": 128,
+        "sort_keys": true,
+        "separators": [
+          ",",
+          ":"
+        ],
+        "ensure_ascii": false
+      },
+      "inputs": [
+        {
+          "artifact_id": "sha256:9c83b0b029386278b89c87de23156e03c96ed246751ab8744f4b5623b1b218ce",
+          "role": "value_subject"
+        },
+        {
+          "artifact_id": "sha256:9accb4f64bdf48dddbb12aa1ef82bf4816fce944c86891ef0f7c3a52443dc20f",
+          "role": "value_estimand"
+        },
+        {
+          "artifact_id": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "role": "value_source"
+        }
+      ],
+      "producer": null,
+      "env": null,
+      "governance": null,
+      "tenant_context": null,
+      "same_input_closure": null,
+      "authority": null,
+      "integrity": {
+        "sha256": "ac1bf574c8b06542f2c434892a130d9c38b79a32710a051e1d0b127a0c961700",
+        "optional": null
+      },
+      "warnings": []
+    }
+  ],
+  "bytes_sha256": "ac1bf574c8b06542f2c434892a130d9c38b79a32710a051e1d0b127a0c961700",
+  "default_reader_resolved_subject": {
+    "schema_version": "1.0",
+    "estimand_ref": {
+      "artifact_id": "sha256:9accb4f64bdf48dddbb12aa1ef82bf4816fce944c86891ef0f7c3a52443dc20f",
+      "kind": "ir.estimand_ast",
+      "media_type": "application/json"
+    },
+    "estimand_id": "ate-X-Y",
+    "outcome": "Y",
+    "control_value": 0.0,
+    "treatment_value": 1.0,
+    "population": "synthetic-adults",
+    "unit": {
+      "kind": "rate",
+      "base": "percent"
+    },
+    "scale": "identity",
+    "time_horizon": "cross_section",
+    "prediction_origin": null,
+    "epoch": "synthetic-v1",
+    "source_refs": [
+      {
+        "artifact_id": "sha256:6cd65c8217d3b828937938bbf8b4b30c77762e6eeeb6d17d9acc2b2f8ae0482c",
+        "kind": "synthetic.value_source",
+        "media_type": "application/json"
+      }
+    ],
+    "model_ref": null
+  },
+  "explicit_selected_ref_refusal": "value_subject_selected_manifest_view_unsupported",
+  "conclusion": "Default reader is mechanical/content-bound only; producer selector loss remains C06 dependency, producer currentness/view composition not established; no scientific admission."
+}

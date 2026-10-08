@@ -1,0 +1,112 @@
+F..............                                                          [100%]
+=================================== FAILURES ===================================
+______ test_persisted_fresh_child_preserves_separate_asymmetric_channels _______
+
+tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c07-checks/author-tmp/test_persisted_fresh_child_pre0')
+
+    def test_persisted_fresh_child_preserves_separate_asymmetric_channels(tmp_path):
+        store, subject, identified_ref, native_ref = _producer_pair(tmp_path)
+        relation_ref = persist_value_subject_relation(
+            store, identification_ref=identified_ref, native_uncertainty_ref=native_ref,
+        )
+        script = """
+    import json,sys
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.contracts.value_outer_set import ValueOuterSet
+    from polisyos.ir.artifacts import get_json_artifact
+    from polisyos.ir.registry.refs import ValueSubjectRelationRef, UncertaintyEnvelopeRef
+    from polisyos.ir.analytics.uncertainty import load_value_subject_relation, load_uncertainty_envelope
+    store=FileSystemCAS(sys.argv[1])
+    r=load_value_subject_relation(store,ValueSubjectRelationRef.model_validate_json(sys.argv[2]))
+    o=ValueOuterSet.from_persisted_payload(get_json_artifact(store,r.identification.ref.artifact_id))
+    n=load_uncertainty_envelope(store,UncertaintyEnvelopeRef.model_validate(r.native_uncertainty.ref))
+    print(json.dumps({'pid':__import__('os').getpid(),'point':o.lower,'identification_width':o.width,
+    'native_ci':n.confidence_interval,'native_point':n.point_estimate,'coordinate':o.coordinates,
+    'authority':r.production_value_eligible,'factor':r.native_to_identification_factor}))
+    """
+>       child = subprocess.run([sys.executable, "-c", script, str(store.root),
+                                relation_ref.model_dump_json()], check=True, capture_output=True, text=True)
+
+policy-engine/tests/unit/ir/test_value_subject_relation.py:103: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = True, timeout = None, check = True
+popenargs = (['/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python', '-c', "\nimport json,sys\nfrom polisyos.core.ar...8a9b9181e987821a39e95611222b12fcea4359866c27e3","kind":"ir.value_subject_relation","media_type":"application/json"}'],)
+kwargs = {'stderr': -1, 'stdout': -1, 'text': True}
+process = <Popen: returncode: 1 args: ['/workspace/e02-F-closeout-20261006/policy-engi...>
+stdout = ''
+stderr = 'Traceback (most recent call last):\n  File "<string>", line 9, in <module>\n    r=load_value_subject_relation(store,V...\n    raise ValueError("value_subject_relation_stale_or_forged")\nValueError: value_subject_relation_stale_or_forged\n'
+retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout (seconds) is given and the process takes too long,
+         a TimeoutExpired exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python', '-c', "\nimport json,sys\nfrom polisyos.core.artifacts.store import FileSystemCAS\nfrom polisyos.core.contracts.value_outer_set import ValueOuterSet\nfrom polisyos.ir.artifacts import get_json_artifact\nfrom polisyos.ir.registry.refs import ValueSubjectRelationRef, UncertaintyEnvelopeRef\nfrom polisyos.ir.analytics.uncertainty import load_value_subject_relation, load_uncertainty_envelope\nstore=FileSystemCAS(sys.argv[1])\nr=load_value_subject_relation(store,ValueSubjectRelationRef.model_validate_json(sys.argv[2]))\no=ValueOuterSet.from_persisted_payload(get_json_artifact(store,r.identification.ref.artifact_id))\nn=load_uncertainty_envelope(store,UncertaintyEnvelopeRef.model_validate(r.native_uncertainty.ref))\nprint(json.dumps({'pid':__import__('os').getpid(),'point':o.lower,'identification_width':o.width,\n'native_ci':n.confidence_interval,'native_point':n.point_estimate,'coordinate':o.coordinates,\n'authority':r.production_value_eligible,'factor':r.native_to_identification_factor}))\n", '/dev/shm/e02-orch03-20261008/c07-checks/author-tmp/test_persisted_fresh_child_pre0/cas', '{"artifact_id":"sha256:5d84f3987dba798c228a9b9181e987821a39e95611222b12fcea4359866c27e3","kind":"ir.value_subject_relation","media_type":"application/json"}']' returned non-zero exit status 1.
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/subprocess.py:578: CalledProcessError
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/ir/test_value_subject_relation.py::test_persisted_fresh_child_preserves_separate_asymmetric_channels

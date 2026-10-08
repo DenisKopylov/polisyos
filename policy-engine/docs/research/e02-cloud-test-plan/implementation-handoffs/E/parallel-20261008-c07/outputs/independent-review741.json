@@ -1,0 +1,248 @@
+{
+  "schema": "policyos.e02.independent_delta_review.v1",
+  "reviewer": "ORCH03 oracle_ir; not C07 author",
+  "candidate_sha": "741af2a08a8dc5fa36340bf700c092c7fb51f651",
+  "candidate_tree_sha": "bfae04d141187c30e4f6bc14dbbbae00f6ee116c",
+  "parent_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5",
+  "original_slice_base": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "supersedes_source_for_whitespace_only": {
+    "previous_full_review": "/dev/shm/e02-orch03-20261008/oracle-ir/review804.json",
+    "previous_full_review_sha256": "614acff56e96159d5298373189356d4e7d7ee21745d9db8558468ac7d7e6c717"
+  },
+  "verdict": "GO delta-only; bounded nongating default-CAS content join, not current producer admission or B31 closure",
+  "complete_delta": "Exactly3blank-line changes: remove one map-separator blank in root/api; add one blank before uncertainty.__all__. No other changed file; no AST difference in anychangedfile.",
+  "independent_AST_recomputation": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "rows": [
+      {
+        "path": "policy-engine/src/polisyos/ir/__init__.py",
+        "AST_equal": true,
+        "AST_sha256": "c2a943e2c852b2efb0e244473d2c32c2613e8b416c247e0a68bc088f507ce560"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "AST_equal": true,
+        "AST_sha256": "069f7afd65d9f81f381d7e1737b9e644c561b9ba8af7a0b36816f9286aaac391"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/api.py",
+        "AST_equal": true,
+        "AST_sha256": "cb8219ee42672d3f0d7a9d64dc66e147395de7f38e385caffab73c9ef88de07b"
+      }
+    ]
+  },
+  "test_blobs_unchanged": [
+    {
+      "path": "policy-engine/tests/unit/ir/test_value_subject_relation.py",
+      "unchanged_blob": "8ceb8bb659910a482d7bea227b0c8699bfac5cec"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty.py",
+      "unchanged_blob": "e99b42f117ce25679a871fa88b4d87450d00468f"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/contracts/test_value_outer_set.py",
+      "unchanged_blob": "ee000d8de60a77899d21c6e05b898e832d2a33c6"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_value_evidence.py",
+      "unchanged_blob": "b2b3d53a5845c4cf006c669db78f5aa7017e4c1a"
+    }
+  ],
+  "source804_evidence_review": {
+    "runtime_JUnit": {
+      "PASS": 62,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "matched_removal_JUnit": {
+      "expected_FAIL": 9,
+      "unchanged_positive_PASS": 1,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "removal_definition": "Complete subject/unit predicate and complete lineage-role comparison made unreachable; models, LiteralFalse authority, diagnostic messages and provenance markers retained. Foreign resolved subjects and extra lineage now fail the retained negatives.",
+    "carry_rule": "Keep source804 labels and decidingbytes. Threewhitespace/AST-identityforwarddelta supports bounded semanticcarry; do not rename 62cases as a full new741run. Exact18newdefining/import+quality must followGO; not yetclaimed."
+  },
+  "measured_manifest_pair": {
+    "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5",
+    "actual_original_Core_path": "Observed original FileSystemCAS.put_json return, actual typedref/default/selected get_bytes/get_manifest; instrumentation observes returnedref only and does not fabricateproduceroutput.",
+    "same_payload_ID": "sha256:ac1bf574c8b06542f2c434892a130d9c38b79a32710a051e1d0b127a0c961700",
+    "actual_selected_manifest_profile": "sha256:eb8a03bd0981e8fde87ce9e5c0d7def78f939aeecc2ffe4035051d32ebfbcb19",
+    "requested_new_subject": "sha256:9c83b0b029386278b89c87de23156e03c96ed246751ab8744f4b5623b1b218ce",
+    "resolved_default_old_subject": "sha256:7e6d22a3d558d3e855c2eabc17afca48a822c11646ea2b0b296ea0cc564b9679",
+    "conclusion": "Same bytes/different lineage creates a nondefault Core view automatically; IR output drops thatselector and selects olddefault. C07 rejects an explicitselectedref but cannotreconstructlostselector. This is a measured C06 producer/adapter input boundary; not a counterexample to the declared default-manifest mechanical reader. Do not admit current producer/source/scientific authority from this selectorlessref.",
+    "required_next_capability": "C06 preserves automatically producer-returned exact Core ArtifactRef/InputRef selected profile through IR writer/ref normalization before C10 adopts such supplier; explicit defaultview subject join alone neverprovescurrentness."
+  },
+  "attempts_preserved": [
+    {
+      "name": "final-ref-boundary",
+      "returncode": 1,
+      "classification": "Harness setup did two nativewrites of samebytes with differentlineage thenexpected defaultreader toseechanged selectedmanifest. Complete actualmanifesttrace establisheswhythis is outofdeclareddefaultprofile, not silentlyreclassified PASS; observed AssertionError missing_source didnotrefuse retained."
+    },
+    {
+      "name": "final-ref-boundary2",
+      "returncode": 1,
+      "classification": "Harness AttributeError: UncertaintyEnvelopeRef has no manifest_profile_sha256 attribute; full tracebackretained. Not product semanticFAIL/PASS."
+    },
+    {
+      "name": "final-ref-boundary3",
+      "returncode": 0,
+      "classification": "Corrected isolated cases create one currentdefault nativeoutput each; missing_source/missing_model/actual_foreign_source/subject_outcome_contradicts_AST all refuse:4boundedPASS. Producer-selector-loss diagnostic separatelyretained."
+    }
+  ],
+  "artifacts_reviewed_full_moderate_outputs": [
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/final-affected.json",
+      "bytes": 1003,
+      "sha256": "9a0ba0e0a5d8762e71c02d62ad06524a22b790d59aed93f3567d37790dcce525",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/final-affected.stdout",
+      "bytes": 80,
+      "sha256": "de0615cf37b5c81f3262e96c1af6d39e3e1ed022fb623f364a1d3c083a4e551f",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/final-affected.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/final-affected.junit.xml",
+      "bytes": 9748,
+      "sha256": "cdc35652fca399fe80fda933e60cea17e081bff898d317ee274296adf340ca19",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/retained-marker.json",
+      "bytes": 1374,
+      "sha256": "9edb71ad383488c7f54fbdc64d8b343bf05a6a3b4d0d344796908d8cde379143",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/retained-marker.stdout",
+      "bytes": 11282,
+      "sha256": "9c9f675b60accdaf11a8bb2538835a972300016967150abf7a6e5ecb034c33f0",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/retained-marker.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/retained-marker.junit.xml",
+      "bytes": 11701,
+      "sha256": "061a3758f3f6a655feeb1c6e54008e10879470e46417e89e5dedf1c368b8d9f2",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/retained-marker.patch",
+      "bytes": 1570,
+      "sha256": "162e72b0971c651929ca0842284ce0476924d503241c911e612f48026033b326",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/retained-marker-mutation.json",
+      "bytes": 732,
+      "sha256": "8f882049f2e6e30b9c08625466b1fdb69f80f0e0e205e501628de0617808b5f4",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/final-manifest-pair.json",
+      "bytes": 610,
+      "sha256": "2f7f9364ebecb2791119b27594c2892ac1520a91701d5c54bd36fa9d1847922c",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/final-manifest-pair.stdout",
+      "bytes": 5342,
+      "sha256": "bea13e543fe73f68683706eb71be67e407b3db4c63bc84225259dee5716cdba0",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/final-manifest-pair.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/check_manifest_pair.py",
+      "bytes": 2853,
+      "sha256": "2c26857a3cf298335c2146769cfbf7e566e08147d2107bf42a44ed25f1e83d18",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/final-ref-boundary.json",
+      "bytes": 607,
+      "sha256": "5011e2c77b44957ce8cfd966f34737db22830ab50b098d5fc29a5a5774a8606b",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/final-ref-boundary.stderr",
+      "bytes": 284,
+      "sha256": "9519d425108d33b55bef4c79021bc7d16ffe218b5d4cd66b718e061cc8ce6325",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/check_ref_boundary.attempt1.py",
+      "bytes": 2119,
+      "sha256": "ba43f064c6741c44dccaa3f445f395218c2e503580525213d342ef691778cc07",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/final-ref-boundary2.json",
+      "bytes": 610,
+      "sha256": "264e31f2b9bb661a944c1b28f81e6b3ec0c64fbd7a11e8a31df0ff4b3ae37dcf",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/final-ref-boundary2.stderr",
+      "bytes": 627,
+      "sha256": "da7d529f6ced8d48366304df019244cdd604866fd410447f40c91667463fad58",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/check_ref_boundary.attempt2.py",
+      "bytes": 3546,
+      "sha256": "cfcdc149ea3ffd8b4c9d746b8691cbd9a6dd196967498f89f44a3dfa7be2a32c",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/final-ref-boundary3.json",
+      "bytes": 610,
+      "sha256": "1986d24c8ec4e47b03d24a2c1ab54817f466e7901673a2d3284db49b9e941910",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/final-ref-boundary3.stdout",
+      "bytes": 1661,
+      "sha256": "986ab495817cef01237c9193d9b8c3fdfd837066ac5b9c44f333dcda9cf0e2bc",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/final-ref-boundary3.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-checks/check_ref_boundary3.py",
+      "bytes": 3578,
+      "sha256": "f10d8b891ee888ca5a256e182b6d13cebaa2c37c7d157d593bd504e7a0e4d336",
+      "source_sha": "804a6aba31125372b0b57a10041c6d6aad375ad5"
+    }
+  ],
+  "limitations": [
+    "production_value_eligible=False and resolved_content_join_only remain unchanged. Mechanical CAS bytes/manifest/lineage/subject equality is recomputed, not scientific verifier provenance.",
+    "C10 actual producer/ValuePort plus genuine scientific-verifier/current-context receipt and independent freshreader remain UNRUN; execution EvalSafety only verifies execution admission.",
+    "E8dProfile2 composition/generatedIR/publicinventory remains separate G packet, not borrowedPASS; no sharedschema/lock/generatedinventory writes byreviewer.",
+    "Generic identificationpayload semantics still canonical C10 ownedproducer/reader responsibility; IRloadalone cannotclaimidentification.",
+    "No new fullE/Fsuite, no productionpayload, no sourceedit, no cloudcleanup; reviewer scratchonly."
+  ]
+}

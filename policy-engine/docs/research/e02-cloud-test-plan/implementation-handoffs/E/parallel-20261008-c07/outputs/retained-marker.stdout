@@ -1,0 +1,226 @@
+FFFFFFFFF.                                                               [100%]
+=================================== FAILURES ===================================
+_ test_resolved_quantity_mismatch_refuses_despite_matching_metadata[changes0] __
+
+tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c07-checks/retained-marker-tmp/test_resolved_quantity_mismatc0')
+changes = {'population': 'foreign'}
+
+    @pytest.mark.parametrize(
+        "changes",
+        [
+            {"population": "foreign"},
+            {"control_value": 2.0},
+            {"treatment_value": 2.0},
+            {"time_horizon": "other"},
+            {"prediction_origin": "other"},
+            {"epoch": "other"},
+            {"estimand_id": "foreign"},
+            {"unit": CountUnit(label="persons")},
+        ],
+    )
+    def test_resolved_quantity_mismatch_refuses_despite_matching_metadata(tmp_path, changes):
+        store, _, identified_ref, native_ref = _producer_pair(tmp_path, native_changes=changes)
+>       with pytest.raises(ValueError, match="value_subject_(quantity|unit)_mismatch"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+policy-engine/tests/unit/ir/test_value_subject_relation.py:207: Failed
+_ test_resolved_quantity_mismatch_refuses_despite_matching_metadata[changes1] __
+
+tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c07-checks/retained-marker-tmp/test_resolved_quantity_mismatc1')
+changes = {'control_value': 2.0}
+
+    @pytest.mark.parametrize(
+        "changes",
+        [
+            {"population": "foreign"},
+            {"control_value": 2.0},
+            {"treatment_value": 2.0},
+            {"time_horizon": "other"},
+            {"prediction_origin": "other"},
+            {"epoch": "other"},
+            {"estimand_id": "foreign"},
+            {"unit": CountUnit(label="persons")},
+        ],
+    )
+    def test_resolved_quantity_mismatch_refuses_despite_matching_metadata(tmp_path, changes):
+        store, _, identified_ref, native_ref = _producer_pair(tmp_path, native_changes=changes)
+>       with pytest.raises(ValueError, match="value_subject_(quantity|unit)_mismatch"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+policy-engine/tests/unit/ir/test_value_subject_relation.py:207: Failed
+_ test_resolved_quantity_mismatch_refuses_despite_matching_metadata[changes2] __
+
+tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c07-checks/retained-marker-tmp/test_resolved_quantity_mismatc2')
+changes = {'treatment_value': 2.0}
+
+    @pytest.mark.parametrize(
+        "changes",
+        [
+            {"population": "foreign"},
+            {"control_value": 2.0},
+            {"treatment_value": 2.0},
+            {"time_horizon": "other"},
+            {"prediction_origin": "other"},
+            {"epoch": "other"},
+            {"estimand_id": "foreign"},
+            {"unit": CountUnit(label="persons")},
+        ],
+    )
+    def test_resolved_quantity_mismatch_refuses_despite_matching_metadata(tmp_path, changes):
+        store, _, identified_ref, native_ref = _producer_pair(tmp_path, native_changes=changes)
+>       with pytest.raises(ValueError, match="value_subject_(quantity|unit)_mismatch"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+policy-engine/tests/unit/ir/test_value_subject_relation.py:207: Failed
+_ test_resolved_quantity_mismatch_refuses_despite_matching_metadata[changes3] __
+
+tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c07-checks/retained-marker-tmp/test_resolved_quantity_mismatc3')
+changes = {'time_horizon': 'other'}
+
+    @pytest.mark.parametrize(
+        "changes",
+        [
+            {"population": "foreign"},
+            {"control_value": 2.0},
+            {"treatment_value": 2.0},
+            {"time_horizon": "other"},
+            {"prediction_origin": "other"},
+            {"epoch": "other"},
+            {"estimand_id": "foreign"},
+            {"unit": CountUnit(label="persons")},
+        ],
+    )
+    def test_resolved_quantity_mismatch_refuses_despite_matching_metadata(tmp_path, changes):
+        store, _, identified_ref, native_ref = _producer_pair(tmp_path, native_changes=changes)
+>       with pytest.raises(ValueError, match="value_subject_(quantity|unit)_mismatch"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+policy-engine/tests/unit/ir/test_value_subject_relation.py:207: Failed
+_ test_resolved_quantity_mismatch_refuses_despite_matching_metadata[changes4] __
+
+tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c07-checks/retained-marker-tmp/test_resolved_quantity_mismatc4')
+changes = {'prediction_origin': 'other'}
+
+    @pytest.mark.parametrize(
+        "changes",
+        [
+            {"population": "foreign"},
+            {"control_value": 2.0},
+            {"treatment_value": 2.0},
+            {"time_horizon": "other"},
+            {"prediction_origin": "other"},
+            {"epoch": "other"},
+            {"estimand_id": "foreign"},
+            {"unit": CountUnit(label="persons")},
+        ],
+    )
+    def test_resolved_quantity_mismatch_refuses_despite_matching_metadata(tmp_path, changes):
+        store, _, identified_ref, native_ref = _producer_pair(tmp_path, native_changes=changes)
+>       with pytest.raises(ValueError, match="value_subject_(quantity|unit)_mismatch"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+policy-engine/tests/unit/ir/test_value_subject_relation.py:207: Failed
+_ test_resolved_quantity_mismatch_refuses_despite_matching_metadata[changes5] __
+
+tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c07-checks/retained-marker-tmp/test_resolved_quantity_mismatc5')
+changes = {'epoch': 'other'}
+
+    @pytest.mark.parametrize(
+        "changes",
+        [
+            {"population": "foreign"},
+            {"control_value": 2.0},
+            {"treatment_value": 2.0},
+            {"time_horizon": "other"},
+            {"prediction_origin": "other"},
+            {"epoch": "other"},
+            {"estimand_id": "foreign"},
+            {"unit": CountUnit(label="persons")},
+        ],
+    )
+    def test_resolved_quantity_mismatch_refuses_despite_matching_metadata(tmp_path, changes):
+        store, _, identified_ref, native_ref = _producer_pair(tmp_path, native_changes=changes)
+>       with pytest.raises(ValueError, match="value_subject_(quantity|unit)_mismatch"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+policy-engine/tests/unit/ir/test_value_subject_relation.py:207: Failed
+_ test_resolved_quantity_mismatch_refuses_despite_matching_metadata[changes6] __
+
+tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c07-checks/retained-marker-tmp/test_resolved_quantity_mismatc6')
+changes = {'estimand_id': 'foreign'}
+
+    @pytest.mark.parametrize(
+        "changes",
+        [
+            {"population": "foreign"},
+            {"control_value": 2.0},
+            {"treatment_value": 2.0},
+            {"time_horizon": "other"},
+            {"prediction_origin": "other"},
+            {"epoch": "other"},
+            {"estimand_id": "foreign"},
+            {"unit": CountUnit(label="persons")},
+        ],
+    )
+    def test_resolved_quantity_mismatch_refuses_despite_matching_metadata(tmp_path, changes):
+        store, _, identified_ref, native_ref = _producer_pair(tmp_path, native_changes=changes)
+>       with pytest.raises(ValueError, match="value_subject_(quantity|unit)_mismatch"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+policy-engine/tests/unit/ir/test_value_subject_relation.py:207: Failed
+_ test_resolved_quantity_mismatch_refuses_despite_matching_metadata[changes7] __
+
+tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c07-checks/retained-marker-tmp/test_resolved_quantity_mismatc7')
+changes = {'unit': CountUnit(kind='count', label='persons')}
+
+    @pytest.mark.parametrize(
+        "changes",
+        [
+            {"population": "foreign"},
+            {"control_value": 2.0},
+            {"treatment_value": 2.0},
+            {"time_horizon": "other"},
+            {"prediction_origin": "other"},
+            {"epoch": "other"},
+            {"estimand_id": "foreign"},
+            {"unit": CountUnit(label="persons")},
+        ],
+    )
+    def test_resolved_quantity_mismatch_refuses_despite_matching_metadata(tmp_path, changes):
+        store, _, identified_ref, native_ref = _producer_pair(tmp_path, native_changes=changes)
+>       with pytest.raises(ValueError, match="value_subject_(quantity|unit)_mismatch"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+policy-engine/tests/unit/ir/test_value_subject_relation.py:207: Failed
+_____ test_complete_producer_roster_refuses_missing_extra_duplicate[extra] _____
+
+tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c07-checks/retained-marker-tmp/test_complete_producer_roster_0')
+change = 'extra'
+
+    @pytest.mark.parametrize("change", ["missing", "duplicate", "extra"])
+    def test_complete_producer_roster_refuses_missing_extra_duplicate(tmp_path, change):
+        store, _, identified_ref, native_ref = _producer_pair(tmp_path, lineage_change=change)
+>       with pytest.raises(ValueError, match="value_subject_(lineage|complete_lineage)"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+policy-engine/tests/unit/ir/test_value_subject_relation.py:218: Failed
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/ir/test_value_subject_relation.py::test_resolved_quantity_mismatch_refuses_despite_matching_metadata[changes0]
+FAILED policy-engine/tests/unit/ir/test_value_subject_relation.py::test_resolved_quantity_mismatch_refuses_despite_matching_metadata[changes1]
+FAILED policy-engine/tests/unit/ir/test_value_subject_relation.py::test_resolved_quantity_mismatch_refuses_despite_matching_metadata[changes2]
+FAILED policy-engine/tests/unit/ir/test_value_subject_relation.py::test_resolved_quantity_mismatch_refuses_despite_matching_metadata[changes3]
+FAILED policy-engine/tests/unit/ir/test_value_subject_relation.py::test_resolved_quantity_mismatch_refuses_despite_matching_metadata[changes4]
+FAILED policy-engine/tests/unit/ir/test_value_subject_relation.py::test_resolved_quantity_mismatch_refuses_despite_matching_metadata[changes5]
+FAILED policy-engine/tests/unit/ir/test_value_subject_relation.py::test_resolved_quantity_mismatch_refuses_despite_matching_metadata[changes6]
+FAILED policy-engine/tests/unit/ir/test_value_subject_relation.py::test_resolved_quantity_mismatch_refuses_despite_matching_metadata[changes7]
+FAILED policy-engine/tests/unit/ir/test_value_subject_relation.py::test_complete_producer_roster_refuses_missing_extra_duplicate[extra]
+9 failed, 1 passed in 3.01s

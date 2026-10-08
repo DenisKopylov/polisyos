@@ -1,0 +1,76 @@
+{
+  "schema": "policyos.e02.l02.source_root_preflight_handoff.v1",
+  "execution_role": "L02",
+  "mode": "read_only_verification",
+  "branch": "codex/e02-L02-authentic-20261008",
+  "slice_base_sha": "a0e6ab0f3ce6c1c50b8eb73e29dea0d3928caf3e",
+  "slice_base_tree": "6038ab197007c496c16281d98f83118dee63ee9c",
+  "evidence_commit": "18be88029cc8602709ba821bff51f46e3669c242",
+  "evidence_tree": "13c5f838d30257a8ac4998a04ab0655c0ce94280",
+  "runtime_source_sha": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "runtime_source_tree": "4caee698bd9a6c61277a1608bb38376b669f0372",
+  "latest_G_readback": "source-root-20261008-delivery/latest-G-readback.json; same immutable source, selected dependency delta empty",
+  "previous_runtime_target": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "source_test_architecture_config_lock_changes": "none; full immutable source comparison preserved",
+  "evidence_paths": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/source-root-20261008@18be88029cc8602709ba821bff51f46e3669c242",
+  "checks": "Exact command/fullstdout/fullstderr in frozen evidence; additional metadata-only source origin recompute in source-root-20261008-delivery. No pytest/JUnit job executed.",
+  "reader_outcome": {
+    "positive": "Returned typed L6 bundle using exactly3 selected actual controls through explicit read-only projection; optional3 absent",
+    "negative_missing": "l6_control_artifact_missing forLexmap before productionopens",
+    "negative_forged_hash": "intervention_substrate_bundle_content_hash_mismatch with payloadmarkersretained",
+    "fresh_snapshot": "in-memory semantic content revalidation, not persistedCAS/HTTPGET",
+    "source_origins": "1430 actual file-backed PolicyOS module origins independently matched Git; source archive execution with existing localdeps, not installedwheel"
+  },
+  "source_root_outcome": {
+    "source_derived_roots": "HTTP owner parents6 passes todesign_generation; direct qualitycycle parents4; conditional caller/contextbranches may avoidloader",
+    "path_comparison": "Primary and explicitprojection required3 resolve tosavedidentities; receipt/snapshot sourcedefaults differ",
+    "actual_serving_process_root_profile_context": "not_established within narrowPID/executable/TCPscope",
+    "request_env_production_data_root": "separate resolver in tracedcall path; not proof of controllingfixedloader"
+  },
+  "property_vs_predicate": "Loader parses JSON and derives semanticselfidentity; no nominated raw-final-manifest descriptor/currentnesspreflight here. See frozen property-predicate-packet.json. No protectedeffect escape or RuntimewholePASS inferred.",
+  "historical_raw_identity": "Old5-input observer/L01 two rawdescriptor mismatches reused only for nominated3; current before/after savedstatmatch, no newraw-bytechecksum. Still no stale/intentionalupdate/mixedrelease adjudication.",
+  "authority_or_law_issued": false,
+  "source_acceptance": "No new runtime source admission byL02; Gselected immutablecomposition named separately",
+  "technical_proposal": "C10/A existing source/context intake binds actual servingroot/versionedinputbasis if authenticclaim isrequested, otherwise candidateunknown remains typed. L01/nominatedcustodian supplies existing matchingpair or legitimate versionedreplacement/currentness. No secondvalidator atL02.",
+  "original_unit_receipt": {
+    "unit": "A",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/source-root-20261008-l02.json",
+    "bytes": 7880,
+    "sha256": "f22e1841b36164227afd8ebaecdd79572cdc9cc1940df6e6a00e0f641e610df9",
+    "criterion_ids": [
+      "B01",
+      "B02",
+      "B03"
+    ],
+    "authentic_outcome": "UNRUN",
+    "formal_G_closure": "not_adjudicated unchanged"
+  },
+  "other_original_unit_receipts": "Previous source-qualified B/C/D/E/F leaves at a0e remain historical bounded state; no unchanged consumer tests/results raised or rewritten in this slice.",
+  "new_L01_scope_only": {
+    "source": "5bcc319d1c2c08d7abba82fe87b818e502caea78",
+    "selected_refs": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/packets/C-i3.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/packets/C-legal.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/packets/E-b194.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/packets/F-b56.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/handoffs/C.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/handoffs/E.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/handoffs/F.json"
+    ],
+    "explicit_denominator": "4 namedpacketJSON +3 namedunit-handoffJSON; A-l6 separately inspected forL6. Wildcard shorthand in frozenadjacentinputsummary is editorial only.",
+    "new_ready_authentic_tuple": false,
+    "boundaries_ref": "source-root-20261008/new-relevant-input-boundaries.json@18be; I3snapshot/livecursor, I4generation/model/caller, B194evaluator/draw, B56aggregateworkload separatelynot_established; no globalall-inputbarrier"
+  },
+  "independent_review": {
+    "path": "source-root-20261008-delivery/frozen-review.json",
+    "sha256": "dd152d8edbfc8e7609a0f23e8acc443b0a798094ce4994ec84741d272ff23ea0",
+    "verdict": "GO_BOUNDED",
+    "blocking_findings": 0,
+    "nonblocking": "Adjacent packetglobprecision correctedbyexplicitselectedrefs inthishandoff; no source/propertychange or numericalrerun"
+  },
+  "cleanup": "nativeTrash receipt in source-root-20261008-delivery;3 inactive repeatable directories only. Production/venvs/code/private/auditreports preserved, Trash notemptied.",
+  "publication": "normalown-topicpush only; firstevidence remote24payloadreadback matches18be; finalhandoff remoteHEAD/tree/bytes readback follows",
+  "baseline_result_pack": "unusedinthisslice, no transfer-derivedPASS",
+  "formal_closure_ids": [],
+  "created_at_utc": "2026-10-08T18:15:09.440377+00:00"
+}

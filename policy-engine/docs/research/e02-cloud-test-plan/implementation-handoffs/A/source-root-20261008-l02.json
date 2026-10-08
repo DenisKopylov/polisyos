@@ -1,0 +1,119 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "execution_role": "L02",
+  "slice": "l6-source-root-existing-reader",
+  "mode": "read_only_verification",
+  "branch": "codex/e02-L02-authentic-20261008",
+  "slice_base_sha": "a0e6ab0f3ce6c1c50b8eb73e29dea0d3928caf3e",
+  "slice_base_tree": "6038ab197007c496c16281d98f83118dee63ee9c",
+  "implementation_commits": [
+    "18be88029cc8602709ba821bff51f46e3669c242"
+  ],
+  "candidate_tree_sha": "13c5f838d30257a8ac4998a04ab0655c0ce94280",
+  "implementation_role": "Verification/evidence documentation only; no product source/test/config/lock/generated mutation",
+  "runtime_source_sha": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "runtime_source_tree": "4caee698bd9a6c61277a1608bb38376b669f0372",
+  "criterion_ids": [
+    "B01",
+    "B02",
+    "B03"
+  ],
+  "bundle_ids": [
+    "CYC-01"
+  ],
+  "closure_ids": [],
+  "criterion_source": "criterion-scope.json and checks/criterion-readback.json@18be88029cc8602709ba821bff51f46e3669c242",
+  "source_family": "bootstrap/source-family.json@18be88029cc8602709ba821bff51f46e3669c242",
+  "changed_paths": "Complete25paths under implementation-handoffs/L02/source-root-20261008 in a0e→18be diff; all receipt docs. Supplemental handoff/review/metadata receipts only.",
+  "baseline_cells": [],
+  "checks": [
+    {
+      "kind": "workspace_resume",
+      "command": "source-root-20261008/bootstrap/admission.command.json@18be88029cc8602709ba821bff51f46e3669c242",
+      "output": "source-root-20261008/bootstrap/admission.stdout.gz (lossless fullJSON) and .stderr@18be",
+      "outcome": "admitted complete0; snapshot not reservation"
+    },
+    {
+      "kind": "existing_L6_reader_and_negatives",
+      "command": "source-root-20261008/checks/loader.command.json@18be88029cc8602709ba821bff51f46e3669c242",
+      "stdout": "source-root-20261008/checks/loader.stdout@18be88029cc8602709ba821bff51f46e3669c242",
+      "stderr": "source-root-20261008/checks/loader.stderr@18be88029cc8602709ba821bff51f46e3669c242",
+      "outcome": "Reader returned typed bundle from3 selected controls; missingLexmap refused before productionopen; forged semanticselfidentity refused",
+      "environment": "source snapshot exact G + tracked architecture/lock companions; Python3.14.0/Pydantic2.12.5 Macarm64 existingdeps; no installedwheel/servingclaim",
+      "input_closure": "Three required actual control links resolving to historical private identities; optional3 absent; current before/after stat match, no new raw-payload checksum; parser default JSON duplicate-member/sequential observation limits remain",
+      "wall_s": 19.30890987504972,
+      "maxrss_bytes": 725663744
+    },
+    {
+      "kind": "first_setup_attempt",
+      "command": "source-root-20261008/checks/setup-source-only.command.json@18be",
+      "stdout": "source-root-20261008/checks/setup-source-only.stdout@18be",
+      "stderr": "source-root-20261008/checks/setup-source-only.stderr@18be",
+      "outcome": "ERROR source-only archive missing tracked architecture digest-domain registry before reader; exact companions added. No productfailure or inheritedred attribution."
+    },
+    {
+      "kind": "source/root_and_sourceorigins",
+      "output": "source-root-20261008/checks/{root-path-comparison,source-origin-readback,process-scope}.json@18be; supplemental origin-recompute fullcommand/stdout/stderr",
+      "outcome": "1430 actual file-backed PolicyOS origins matchGit; primary/projection path-only comparison matches nominated3; own/snapshot defaults differ; live servingroot not_established"
+    }
+  ],
+  "property": {
+    "statement": "Selected reader/root path binding and actual L6 intake predicate; raw manifest authenticity/currentness is distinct from computed semantic selfidentity",
+    "runtime_path": [
+      "nominated actual3controls through local read-only projection",
+      "existing default_l6_bundle_paths/load_l6_intervention_substrate",
+      "returned InterventionSubstrateBundle",
+      "verify_intervention_substrate_bundle_content_hash returns fresh IN-MEMORY snapshot"
+    ],
+    "persisted_artifact_history_bridge_effect": "UNRUN; source reader preflight only",
+    "surface": "read-only local receipt; HTTP/job/effect out_of_scope for this preflight",
+    "independent_oracle": "Saved private resolved identities/stat fingerprints, audit open-event target matching, actual source origins againstGit; raw mismatches historicalobserver independentL01",
+    "proxy_divergence": "Actual reader accepts selected JSON and hashes parsed values without nominated final-manifest raw descriptors; historical two descriptor mismatches cannot become identity refusal merely from observer exit0. No protected effect attempted.",
+    "negative_controls": [
+      "OmitLexmap while retaining other2controls",
+      "Forge semantic bundlecontenthash with payloadmarkers retained"
+    ]
+  },
+  "predicate_basis": "Reader/sourcepath/semanticidentity recomputed; currentness/liveServingProfile/sourceReplacement/authority not_established",
+  "source_acceptance": "No new runtime source admission by L02; immutable G target recorded, family unchanged from G032",
+  "technical_proposal": "C10 existing source intake/context bridge binds selected serving root/versioned basis or carries sourceunknown as candidate limitation; manifest-backed authentic claim needs actual descriptor binding. L01/custodian supplies matching or legitimate replacement basis.",
+  "supported_profile_limits": [
+    "Exact3required control projection; all3optionalabsent; not primary all6-controlload.",
+    "Fresh snapshot equality is IN-MEMORY content-hash revalidation, not persisted CAS/history/freshHTTPGET.",
+    "Stable stat continuity cannot rule out changed bytes with preserved stat; no new raw checksums read.",
+    "No actual serving module origin/profile/context observed.",
+    "No scientific/issuer authority, numerical simulation, DoWhy/installed/backend positive, B212 or wholecapability closure."
+  ],
+  "capability_state_or_finding_state": {
+    "reader_preflight": "bounded completed witness",
+    "authentic_B01_B02_B03": "UNRUN; no exact selected served source/profile/context+matching version basis",
+    "formal_G_closure": "not_adjudicated, unchanged"
+  },
+  "limitations_and_next_owner": [
+    {
+      "owner": "C10/A",
+      "input": "actual served module/root, profile/context/problem/job/run/tenant/cell tuple and selected versioned source basis",
+      "next": "ordinary owner-bound POST→N5→persisted CAS/history→freshGET with ownforeign/stale/removal controls; V6 separately successfulsimulation+siblingfailure"
+    },
+    {
+      "owner": "L01/nominated L6 custodian",
+      "input": "existing matching bytes/manifest pair OR legitimate versioned replacement and currentness for thatsourceclaim",
+      "next": "choose/evidenceactualversion, no L02 hash repair or authority emission"
+    },
+    {
+      "owner": "G",
+      "next": "independent source/finding admission; no L02 formal update"
+    }
+  ],
+  "created_at_utc": "2026-10-08T18:11:08.724204+00:00",
+  "independent_frozen_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/source-root-20261008-delivery/frozen-review.json",
+    "sha256": "dd152d8edbfc8e7609a0f23e8acc443b0a798094ce4994ec84741d272ff23ea0",
+    "target": "18be88029cc8602709ba821bff51f46e3669c242",
+    "verdict": "GO_BOUNDED",
+    "blocking_findings": []
+  },
+  "supplemental_receipts": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/source-root-20261008-delivery/",
+  "cleanup": "After reader execution and frozen review: exact Git runtime snapshot plus2 read-only symlink roots moved nativeTrash. Existingdeps/production/private/auditoutputs preserved; Trash not emptied. Prior snapshot paths are historical; reconstruct from Git if a specific new criterion requires rerun."
+}

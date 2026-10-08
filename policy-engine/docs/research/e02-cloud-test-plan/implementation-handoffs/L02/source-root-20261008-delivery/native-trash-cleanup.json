@@ -1,0 +1,55 @@
+{
+  "utc": "2026-10-08T18:13:30.582381+00:00",
+  "cleanup_scope": [
+    {
+      "candidate": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c",
+      "kind": "exact tracked runtime snapshot",
+      "native_trash_argv": [
+        "osascript",
+        "-e",
+        "tell application \"Finder\" to delete POSIX file \"/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c\""
+      ],
+      "exit_code": 0,
+      "stdout": "folder dee58973f7673299070b7c7374f419b0adb8175c of item .Trash of folder deniskopylov of folder Users of startup disk\n",
+      "stderr": "",
+      "original_path_absent": true
+    },
+    {
+      "candidate": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/input-projection",
+      "kind": "read-only symlink input projection",
+      "native_trash_argv": [
+        "osascript",
+        "-e",
+        "tell application \"Finder\" to delete POSIX file \"/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/input-projection\""
+      ],
+      "exit_code": 0,
+      "stdout": "folder input-projection of item .Trash of folder deniskopylov of folder Users of startup disk\n",
+      "stderr": "",
+      "original_path_absent": true
+    },
+    {
+      "candidate": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/missing-lexmap",
+      "kind": "read-only symlink input projection",
+      "native_trash_argv": [
+        "osascript",
+        "-e",
+        "tell application \"Finder\" to delete POSIX file \"/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/missing-lexmap\""
+      ],
+      "exit_code": 0,
+      "stdout": "folder missing-lexmap of item .Trash of folder deniskopylov of folder Users of startup disk\n",
+      "stderr": "",
+      "original_path_absent": true
+    }
+  ],
+  "private_audit_reports_preserved": true,
+  "existing_venvs_and_production_inputs_preserved": true,
+  "production_stat_matches_saved": {
+    "knob_dictionary": true,
+    "lex_map": true,
+    "observation_contract": true
+  },
+  "trash_emptied": false,
+  "active_users_basis": "reader subprocess completed; lsof exact reader file returned1/no handles; reviewers use immutable Git and retained ignored origins/receipts",
+  "unique_source_basis": "source/architecture snapshot is reproducible from immutable Git archive; canonical tracked source and all deciding outputs remain",
+  "actual_targets_followed": false
+}

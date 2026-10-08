@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "from pathlib import Path\nimport subprocess,json,hashlib\nr=Path.cwd();b=r/'.tmp/l02-source-root-20261008';g='dee58973f7673299070b7c7374f419b0adb8175c';rows=json.loads((b/'raw/module-origins.json').read_text());tree={}\nfor line in subprocess.check_output(['git','ls-tree','-r',g,'policy-engine/src'],text=True).splitlines():\n meta,path=line.split('\\t',1);tree[path]=meta.split()[2]\nassert len(rows)==1430\nwrong=[row['module'] for row in rows if tree.get(row['path'])!=row['git_blob']];assert not wrong\nprint(json.dumps({'source':g,'module_origin_file_sha256':hashlib.sha256((b/'raw/module-origins.json').read_bytes()).hexdigest(),'actual_file_backed_module_denominator':len(rows),'Git_blob_mismatches':wrong,'outcome':'PASS exact-source origin readback; no payload reads'}))\n"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+  "wall_s": 0.06603620800888166,
+  "exit_code": 0,
+  "timeout_s": 30,
+  "utc": "2026-10-08T18:07:21.695391+00:00"
+}

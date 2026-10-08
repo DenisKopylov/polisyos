@@ -1,0 +1,8 @@
+{
+  "source": "remote ordinary topic fetch",
+  "commit": "18be88029cc8602709ba821bff51f46e3669c242",
+  "tree": "13c5f838d30257a8ac4998a04ab0655c0ce94280",
+  "expected": "18be88029cc8602709ba821bff51f46e3669c242",
+  "payloads": 24,
+  "mismatches": []
+}

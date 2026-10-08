@@ -1,0 +1,22 @@
+{
+  "id": "B157",
+  "bundle": "FUN-02",
+  "minimum_next_input": [
+    "Exact candidate/input/seed/config/basis refs",
+    "Actual executed draw/sample/work count and source result ref",
+    "Effective L3 reduced and L4 full requests for both paths",
+    "Direct-L4 vs L3→L4 same run/eval/attempt records and unmutated caller context"
+  ],
+  "smallest_discriminator": "Hold fidelity labels and caller markers constant while removing the actual L3 reduction; an independent executed-work oracle must then fail. Positive comparison must observe native work on the same candidate/input/seed and compare direct L4 with L3→L4.",
+  "four_planes": {
+    "internal_configured_owner": "D consumes effective L3/L4 configuration in FUN-02. The requested canonical producer owner is the actual A/B numerical sample/draw stage owner; appointment is false and no owner was appointed.",
+    "external_fact": "Missing: exact candidate/input/seed/config/basis refs; actual executed sample/draw/work counts and result ref; L3 reduced effective request and measured cheaper work/cost; L4 full effective request on both paths; unmutated caller context and same run/evaluation/attempt scope.",
+    "our_admission": "The runtime builder configures L3 to subsample_fraction=0.35, bootstrap_draws=64, matching estimator, medium scenario, top_k_subgroups=3, and L4 full fidelity. The L3 feedback reports fidelity configuration; this is not observed native draws/work. The consumer is the actual direct L4 vs L3→L4 FunnelOrchestrator on one boundary.",
+    "claim_reaction": "Keep held with producer_missing. A configuration echo, Foundry sample count, or synthetic fixture cannot prove native sample/work counts for the same run."
+  },
+  "status": "held",
+  "actual_owner_positive": "UNRUN",
+  "G_closure": "not_adjudicated",
+  "source_packet": "L01/parallel-20261008-l01/packets/D.json@0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "qualification": "Exact preserved input requirements; no new issuer, fiscal law or refinement procedure supplied by this implementation."
+}

@@ -1,0 +1,23 @@
+{
+  "id": "B164",
+  "bundle": "FUN-03",
+  "minimum_next_input": [
+    "Actual current permit ref with purpose/subject/input/target binding",
+    "Existing issuer and independent current verifier API/source",
+    "Serialized revoke-before-commit write protocol",
+    "Real prepared payload/ref and write target",
+    "One valid current permit positive and one revoked/lost-permission zero-effect control"
+  ],
+  "smallest_discriminator": "Even when the adjacent internal boolean helper returns true, the current L6 effectful runner must remain blocked without the typed permit bridge. A truthy object such as {\"allowed\":false} must never authorize. A later positive requires an independently verified current permit at the actual writer; revoke after preflight but before commit must cause zero effects, while the valid current permit persists only the specifically permitted effect.",
+  "four_planes": {
+    "internal_configured_owner": "The L6 consumer and effect boundary are internal. The runtime already has _policy_promotion_runner and _policy_promotion_owner_recheck, which checks the candidate/evidence/run binding using an ephemeral promotion_write_allowed boolean; that is a local preflight, not a typed permit issuer/current verifier. The actual permit/current-verifier/serialized-commit owner is requested for confirmation by A/B/G; appointment is false. No external approver is invented.",
+    "external_fact": "Missing: actual issued permit ref bound to purpose/subject/input/target; current verifier/owner API and source; serialized revoke-before-commit writer protocol; real prepared payload/ref; and a current positive permit plus revoked/lost-permission control.",
+    "our_admission": "At D production source 3b31, Level6PromotionStage.evaluate refuses the effectful runner path when the permit/verifier/revoke-serialized commit bridge is absent and emits promotion_admission_status=bridge_missing. The adjacent internal boolean helper checks candidate and evidence-bundle/run binding, but Level6 does not admit that boolean as a current typed permit. A supplied prepared promotion payload is interpreted read-only. The committed tests exercise false/truthy marker shapes and the revoke barrier; there is no valid-permit positive.",
+    "claim_reaction": "Report current L6 behavior as fail-closed bridge_missing and capability as not_established. Keep held. Do not describe the earlier G truthy normalizer as a current D defect."
+  },
+  "status": "held",
+  "actual_owner_positive": "UNRUN",
+  "G_closure": "not_adjudicated",
+  "source_packet": "L01/parallel-20261008-l01/packets/D.json@0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "qualification": "Exact preserved input requirements; no new issuer, fiscal law or refinement procedure supplied by this implementation."
+}

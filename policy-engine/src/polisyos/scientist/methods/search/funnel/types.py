@@ -127,6 +127,7 @@ def statistical_uncertainty_from_ci_width(
         recommended_action=recommended_action,
     )
 
+
 # ---------------------------------------------------------------------------
 # §8.5 — CheapSignalVector
 # ---------------------------------------------------------------------------
@@ -184,6 +185,7 @@ class FunnelStageResult(StageResult):
     compute_actual_usd: float = 0.0
     fidelity_level: int = 0
     audit_refs: list[ArtifactRef] = field(default_factory=list)
+    uncertainty_observation_ref: ArtifactRef | None = None
     actionable_side_information_ref: ArtifactRef | None = None
     terminal_action: (
         Literal[

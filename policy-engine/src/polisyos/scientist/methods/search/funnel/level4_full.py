@@ -21,6 +21,7 @@ from polisyos.scientist.methods.search.funnel.types import (
     statistical_uncertainty_from_ci_width,
 )
 from polisyos.scientist.methods.search.stages import ExpensiveStage
+from polisyos.scientist.methods.search.uncertainty import search_uncertainty_observation_ref
 from polisyos.scientist.orchestration.workflows.engine_base import WorkflowEngine
 
 logger = get_logger(__name__)
@@ -141,6 +142,9 @@ class Level4FullFidelity(FunnelStage):
             compute_actual_usd=max(self._estimated_cost_usd, duration * self._cost_per_second_usd),
             fidelity_level=self.fidelity_level,
             audit_refs=audit_refs,
+            uncertainty_observation_ref=search_uncertainty_observation_ref(
+                result.simulation_results
+            ),
             actionable_side_information_ref=side_information_ref,
         )
 

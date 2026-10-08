@@ -80,3 +80,18 @@ uv run pytest tests/unit/scientist/search/test_controller_api.py tests/unit/scie
 ## Last Updated
 
 - Last updated: 2026-05-05
+
+## Configured uncertainty observation intake
+
+`uncertainty.py` defines routing-only `SearchUncertaintyBasis` and
+`SearchUncertaintyObservation` artifacts. The funnel resolves native producer
+observation refs from CAS, binds the full configured basis and candidate, checks
+that the supplied envelope equals the stage envelope, and preserves exact selected
+manifest views in input lineage. Missing, foreign, corrupted, or substituted inputs
+leave current uncertainty `not_established`; historical maxima remain available.
+
+Current observations are aggregated conservatively across every supplied risk.
+No observation supersedes another: producer provenance, current scientific
+refinement law and publication authority are not supplied by CAS identity.
+B161 lowering remains held until the actual producer-owned refinement contract
+is admitted. L3/L4 forward native producer observation refs without minting them.

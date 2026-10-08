@@ -1,0 +1,31 @@
+{
+  "slice_base_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "lineage": "fresh G-based implementation + explicitly inspected D scoped L6 source/test supplier; no old unpublished C11 byte reconstruction",
+  "unavailable_old_receipt": "f9903d8e803c17743554a58d3f45c6c66d686191",
+  "inputs": [
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/D.json",
+      "blob": "72e308ddcb908233e1104ae3e584cdca4340b8a0",
+      "sha256": "16b8538556a1276ce8fe161a8aff365a171907ae12522a63a31a3f48098a8fdb",
+      "qualification": "available explicit input, no historical PASS or G source acceptance transferred"
+    },
+    {
+      "commit": "8e864f4ed0eeedf509d836381b20976c413f2443",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+      "blob": "5154ebfe71891ca5a3046a05e0b03cb79a755a4a",
+      "sha256": "31d00ab5bd721d4f3d63e7581df74a49bc87e91f548ed7bb61d4c9770d730c19",
+      "qualification": "available explicit input, no historical PASS or G source acceptance transferred"
+    },
+    {
+      "commit": "8e864f4ed0eeedf509d836381b20976c413f2443",
+      "path": "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py",
+      "blob": "a5d97c881ffb1f56d770f0d77b0f39729f1c089e",
+      "sha256": "3c8eae482bae140471b79f6c021601f379718e904c00f1feb47bb125e0fc773f",
+      "qualification": "available explicit input, no historical PASS or G source acceptance transferred"
+    }
+  ],
+  "B161_refinement_positive": "held; producer law not established",
+  "LA036": "conditional law/model supplier contract absent in this fresh G scope; remains held, no inferred law",
+  "registration_companion": "Canonical G builtin assembly has no E/F extension node producer modules in scientist/nodes/builtins; exact supplied registration node/module list required from G+E/F. Existing catalog exercised via fresh component factories, no speculative node registration."
+}

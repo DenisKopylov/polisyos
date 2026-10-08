@@ -1,0 +1,18 @@
+id = "2026-10-08-e02-c06-ir-reader-profile"
+title = "IR readers require a complete supported persisted canon profile"
+type = "fixed"
+component = "ir-artifacts"
+owner = "team-polisyos"
+summary = "The IR reader accepts complete JSON-mode Mapping manifests and obeys persisted depth while rejecting missing, malformed or unsupported profiles before payload-byte reads."
+evidence = [
+  "tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_accepts_complete_json_manifest_mapping_without_byte_mutation",
+  "tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_uses_nondefault_persisted_depth_through_existing_g_producer",
+  "tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes",
+]
+compatibility = "The read boundary is narrowed: profile-less artifacts are rejected. Only complete supported canon profiles are admitted; JSON separators lists of exactly two strings are normalized. Existing put_json producer and supported IR tag profile are preserved."
+change_class = "internal"
+surface_classification = "internal: polisyos.ir.artifacts is not a supported entrypoint"
+migration = "No stored bytes or CAS identifiers are rewritten. Historical profile-less compatibility requires a separate source-qualified decision before deployment of this reader change."
+api = "Existing get_json_artifact imports are preserved. Reads now validate persisted canon metadata and use its max_depth."
+limitations = "This reader change does not intercept raw Core writes or establish historical external compatibility; C02 supplies the selected Core emission/admission contract."
+generated_client_compatibility = "not_applicable"

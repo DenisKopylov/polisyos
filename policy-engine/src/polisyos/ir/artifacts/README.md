@@ -17,6 +17,11 @@ store contract, schema metadata и helpers, через которые `analytics
 - **Store protocol** — `ArtifactStore` определяет минимальный JSON/bytes contract для persistence.
 - **Schema metadata** — `SchemaInfo`, `CanonInfo` и `PutOptions` описывают сохраненный payload.
 - **Lineage normalization** — input refs и artifact refs нормализуются до записи.
+- **Profile-aware reads** — `get_json_artifact()` requires a complete supported persisted
+  IR canon profile before reading payload bytes and uses that profile's `max_depth`.
+  JSON-mode Mapping manifests accept a `separators` list only when it contains exactly
+  two strings; other profile fields remain strict. Profile-less historical artifacts
+  are unsupported by this reader proposal and require a separate compatibility decision.
 - **Shared helpers** — analytics и observation bundles используют один и тот же `put_json_artifact()` / `get_json_artifact()` surface.
 
 ## Public API

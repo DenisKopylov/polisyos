@@ -3,11 +3,29 @@
 from __future__ import annotations
 
 import math
+import numbers
 from typing import Any
 
 import numpy as np
 
 from polisyos.ir.analytics.backtest import BacktestScenario, OutcomeComparison
+
+
+def _read_interval(value: object) -> tuple[tuple[float, float] | None, str | None]:
+    """Admit the declared finite ordered pair without repairing its contents."""
+    if not isinstance(value, (list, tuple)) or len(value) != 2:
+        return None, "invalid_interval_shape"
+    if any(isinstance(bound, bool) or not isinstance(bound, numbers.Real) for bound in value):
+        return None, "non_numeric_interval"
+    try:
+        lower, upper = float(value[0]), float(value[1])
+    except (TypeError, ValueError, OverflowError):
+        return None, "non_finite_interval"
+    if not math.isfinite(lower) or not math.isfinite(upper):
+        return None, "non_finite_interval"
+    if lower > upper:
+        return None, "reversed_interval"
+    return (lower, upper), None
 
 
 class PredictionEvaluator:
@@ -65,15 +83,29 @@ class PredictionEvaluator:
         interval_available_count = 0
         interval_evaluated_count = 0
         interval_hit_count = 0
+        interval_limitations: list[dict[str, Any]] = []
 
         ci_map = intervals or {}
         interval_contract_declared = bool(ci_map)
+        for metric_name in ci_map:
+            if metric_name not in y_true:
+                interval_limitations.append(
+                    {"metric_name": metric_name, "time_index": None, "reason": "unknown_metric"}
+                )
 
         for metric_name, true_vals in y_true.items():
             pred_raw = y_pred.get(metric_name, [])
             pred_vals = pred_raw if isinstance(pred_raw, (list, tuple)) else []
             ci_raw = ci_map.get(metric_name, [])
             ci_vals = ci_raw if isinstance(ci_raw, (list, tuple)) else []
+            for idx in range(len(true_vals), len(ci_vals)):
+                interval_limitations.append(
+                    {
+                        "metric_name": metric_name,
+                        "time_index": idx,
+                        "reason": "unexpected_interval_time_index",
+                    }
+                )
             for idx, y_t_raw in enumerate(true_vals):
                 requested_count += 1
                 if interval_contract_declared:
@@ -113,28 +145,34 @@ class PredictionEvaluator:
                 hi = None
                 within_ci: bool | None = None
                 if idx < len(ci_vals):
-                    try:
-                        lo = float(ci_vals[idx][0])
-                        hi = float(ci_vals[idx][1])
-                    except (TypeError, ValueError, IndexError, OverflowError):
-                        lo = None
-                        hi = None
-                    if (
-                        lo is not None
-                        and hi is not None
-                        and math.isfinite(lo)
-                        and math.isfinite(hi)
-                    ):
-                        if lo > hi:
-                            lo, hi = hi, lo
+                    interval, interval_reason = _read_interval(ci_vals[idx])
+                    if interval is not None:
+                        lo, hi = interval
                         interval_available_count += 1
                         interval_evaluated_count += 1
                         within_ci = bool(lo <= y_true_val <= hi)
                         if within_ci:
                             interval_hit_count += 1
                     else:
-                        lo = None
-                        hi = None
+                        interval_limitations.append(
+                            {
+                                "metric_name": metric_name,
+                                "time_index": idx,
+                                "reason": interval_reason,
+                            }
+                        )
+                elif interval_contract_declared:
+                    interval_limitations.append(
+                        {
+                            "metric_name": metric_name,
+                            "time_index": idx,
+                            "reason": (
+                                "missing_interval"
+                                if isinstance(ci_raw, (list, tuple))
+                                else "invalid_interval_series"
+                            ),
+                        }
+                    )
 
                 comparisons.append(
                     OutcomeComparison(
@@ -154,13 +192,21 @@ class PredictionEvaluator:
                     percentage_errors.append(percentage_error)
                 compared_count += 1
 
+        if interval_contract_declared:
+            for metric_name, idx in sorted([*missing_cells, *invalid_cells]):
+                interval_limitations.append(
+                    {
+                        "metric_name": metric_name,
+                        "time_index": idx,
+                        "reason": "point_comparison_unavailable",
+                    }
+                )
+
         rmse = float(np.sqrt(np.mean(squared_errors))) if squared_errors else None
         mae = float(np.mean(absolute_errors)) if absolute_errors else None
         mape = float(np.mean(percentage_errors)) if percentage_errors else None
         coverage = (
-            interval_hit_count / interval_evaluated_count
-            if interval_evaluated_count > 0
-            else None
+            interval_hit_count / interval_evaluated_count if interval_evaluated_count > 0 else None
         )
         interval_availability = (
             interval_available_count / interval_requested_count
@@ -168,11 +214,23 @@ class PredictionEvaluator:
             else None
         )
         interval_hit_rate = (
-            interval_hit_count / interval_evaluated_count
-            if interval_evaluated_count > 0
-            else None
+            interval_hit_count / interval_evaluated_count if interval_evaluated_count > 0 else None
         )
         metadata_payload = dict(metadata or {})
+        if interval_contract_declared:
+            metadata_payload["interval_admission"] = {
+                "status": "limited" if interval_limitations else "evaluated",
+                "basis": "recomputed",
+                "requested_count": interval_requested_count,
+                "evaluated_count": interval_evaluated_count,
+                "coverage_scope": (
+                    "evaluated_pairs_only" if interval_limitations else "declared_pairs"
+                ),
+                "limitations": interval_limitations,
+            }
+        else:
+            # Caller metadata is not evidence that this evaluator admitted an interval.
+            metadata_payload.pop("interval_admission", None)
         interval_type = metadata_payload.get("interval_type")
         if interval_type is not None and not isinstance(interval_type, str):
             interval_type = str(interval_type)

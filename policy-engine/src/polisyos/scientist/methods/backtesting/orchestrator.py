@@ -329,6 +329,9 @@ class BacktestOrchestrator:
             data_source=plan.historical_data_ref or plan.historical_data_path or "",
             metadata=scenario_metadata,
         )
+        interval_admission = scenario.metadata.get("interval_admission")
+        if isinstance(interval_admission, dict) and interval_admission.get("status") == "limited":
+            degraded_reasons.append("interval_admission_limited")
         return (
             scenario,
             warnings,

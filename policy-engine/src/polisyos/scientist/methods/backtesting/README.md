@@ -20,6 +20,25 @@ governance calibration и backtest matrix контуром.
 - **Temporal evaluation** — trajectory и safe-rejection checks для time-aware scenarios.
 - **Trust eligibility** — degraded paths остаются diagnostic, но не повышают trust profile.
 
+### Paired interval admission
+
+`PredictionEvaluator` accepts each supplied interval only as a finite, ordered numeric
+pair. It does not reorder reversed bounds, truncate extra components, or coerce strings
+and booleans at this direct API. `HistoricalValidationPlan` retains its existing Pydantic
+float-coercion contract; validation there is distinct from this post-validation seam.
+
+Invalid, missing, or foreign metric/time interval entries preserve usable point comparisons
+and the complete requested metric/time-cell denominator. Their intervals remain unavailable.
+The existing scenario metadata carries recomputed `interval_admission` limitations, counts
+and `coverage_scope`: partial coverage describes only evaluated pairs. Backtest orchestration
+consumes a limited interval admission as a degraded, non-trust-eligible report; the limitation
+survives CAS persistence and a fresh reader. Point-only requests do not acquire an interval
+limitation. No report or interval schema has changed.
+
+Empirical interval hits measure these paired synthetic/observed cases, not causal identification,
+population calibration, equivalence, or institutional authority. The historical heuristic trust
+profile on this source remains a separate accountable purpose/profile decision.
+
 ## Public API
 
 - `HistoricalValidationPlan`, `MaskingStrategy`, `PredictionSource`

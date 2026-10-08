@@ -1,0 +1,75 @@
+{
+  "schema": "policyos.e02.orch03.additional_source_lease.v1",
+  "root_topic": "codex/e02-F-closeout-20261006",
+  "root_receipt_parent": "8077016f144712b00a05f0b3b6701c51852f1d21",
+  "G_dependency": {
+    "sha": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+    "tree": "2239b2c97f840ab28ee4b921e964618548dd2c25",
+    "delta": "143documentation/evidence additions only vs71ec; no product/test/lock delta",
+    "review": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/README.md"
+  },
+  "C08": {
+    "writer": "/root/c08",
+    "reviewer": "/root/oracle_ir",
+    "branch": "codex/e02-F-c08-20261008",
+    "worktree": "/dev/shm/e02-orch03-20261008/c08",
+    "base": "ab48c152514b025618cd6e3fc9acc70a1ed773ee",
+    "base_tree": "c8de2a22c30ecfdafaee4da753d1958d4f947af4",
+    "paths": [
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py",
+      "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py",
+      "policy-engine/tests/unit/ir/analytics/test_causal_proof_graph_binding.py",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+      "policy-engine/release-fragments/unreleased/2026-10-08-c08-proof-source-binding.toml",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_native_query_marginal.py",
+      "policy-engine/release-fragments/unreleased/2026-10-08-c08-native-dag-query.toml"
+    ],
+    "own_receipt_namespace": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/",
+    "contract": "Actual original graph persist/ref/input roster; common and conditional proof fresh reader recomputes typed graph payload identity; mismatched graph refuses. Separate top-level complete observed static DAG exact existing g-formula before ancestral shortcut; no latent/PAG/universalID rewrite.",
+    "excluded": [
+      "scientist/methods/search/funnel/level2_causal.py (C11 writer; Git dependency packet only)",
+      "C07 uncertainty/ref adapters",
+      "DTO/schema/facade/lock/global generator/inventory"
+    ],
+    "admission": {
+      "mode": "resume",
+      "requested_pair": [
+        "codex/e02-F-c08-20261008",
+        "/dev/shm/e02-orch03-20261008/c08"
+      ],
+      "result": "admitted",
+      "returncode": 0,
+      "full_json": "parallel-20261008-c08-proof-resume.json.gz",
+      "stored_bytes": 13896,
+      "stored_sha256": "80d3c83b51b36422769214b8ec79ebf3f8828952fc89a3e19bf2e523a5b564a5",
+      "decoded_bytes": 171103,
+      "decoded_sha256": "2bc0b76187560520e960a566ae460df65e388ce8e8e910f85ed714f2d00c9803"
+    }
+  },
+  "C09_MC": {
+    "writer": "/root/c09",
+    "reviewer": "/root/oracle_empirical",
+    "branch": "codex/e02-E-c09-20261008",
+    "worktree": "/dev/shm/e02-orch03-20261008/c09",
+    "base": "6d470eb884c31a8b19ee06058881cf0deaa492f5",
+    "base_tree": "99f904d38e56fc5709a78a3a20c980b6e6fba9d4",
+    "paths": [
+      "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py",
+      "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "policy-engine/release-fragments/unreleased/2026-10-08-c09-mc-mean-error.toml"
+    ],
+    "contract": "Observed carrier/profile-specific sampling-law label, keep unsupported SEMnull/nongating and complete denominator. No estimator/SEM arithmetic change or old37 numerical repetition.",
+    "admission_carry": "8077016f144712b00a05f0b3b6701c51852f1d21 exact C09 resume already admitted before phase2 mutation."
+  },
+  "root_is_coordinator_not_source_writer": true,
+  "single_direct_level": true,
+  "source_freeze_review_affected_wave": true,
+  "formal_G_closure": 0,
+  "source_acceptance": "not granted by this lease",
+  "cloud_quotas_added": false,
+  "integration_main_writes": false,
+  "cleanup": "none"
+}

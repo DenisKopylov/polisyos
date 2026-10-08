@@ -1,0 +1,14 @@
+{
+  "state": "ERROR/readback harness setup; no product verdict",
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+    "/dev/shm/e02-orch03-20261008/c08-scratch/verify-proof-publication.py"
+  ],
+  "returncode": 1,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"/dev/shm/e02-orch03-20261008/c08-scratch/verify-proof-publication.py\", line 7, in <module>\n    assert head==remote==advertised\n           ^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n",
+  "observed_refs": "222d0867d47428bdb1835c6e6a68c2787bc05be9\nf5f1c4b6c1096032892f2433decafd55b589f4c5\n222d0867d47428bdb1835c6e6a68c2787bc05be9\n",
+  "fetch_configuration": "+refs/heads/main:refs/remotes/origin/main\n",
+  "reason": "Branch-specific ordinary fetch updated FETCH_HEAD only because origin tracks only main; advertised remote and FETCH_HEAD both equal published222d. A stale local tracking ref is not failed remote publication.",
+  "correction": "Ordinary explicit branch-to-origin-tracking refspec, no force/history rewrite; revalidate exact Git bytes."
+}

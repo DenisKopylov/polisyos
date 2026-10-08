@@ -1,0 +1,63 @@
+{
+  "wrapper_sha256": "8472fde9323bf0af81fd600c2e6e4a082b6b39b0beb339ad711177f14da37060",
+  "rows": [
+    {
+      "role": "dfk",
+      "path": "tools/devx/architecture/guardrails.py",
+      "git_blob": "6a2784631e836a35dc09e0034e02d86bf21ed14e",
+      "exact_frozen_and_retained_equal": true,
+      "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a"
+    },
+    {
+      "role": "dfk",
+      "path": "pyproject.toml",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "exact_frozen_and_retained_equal": true,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    },
+    {
+      "role": "dfk",
+      "path": "uv.lock",
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "exact_frozen_and_retained_equal": true,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    },
+    {
+      "role": "can",
+      "path": "tools/devx/architecture/guardrails.py",
+      "git_blob": "857be8f06a84656c12fbcd8415eabfc6bf18ee10",
+      "exact_frozen_and_retained_equal": true,
+      "sha256": "6068c84d43217d19d9b96c65fd36d0a239297da6f98840e8994e6b04ec3fae2e"
+    },
+    {
+      "role": "can",
+      "path": "pyproject.toml",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "exact_frozen_and_retained_equal": true,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    },
+    {
+      "role": "can",
+      "path": "uv.lock",
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "exact_frozen_and_retained_equal": true,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    },
+    {
+      "role": "dfk",
+      "path": "architecture/generated_artifacts.toml",
+      "git_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+      "exact_frozen_and_retained_equal": true,
+      "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0"
+    },
+    {
+      "role": "can",
+      "path": "architecture/generated_artifacts.toml",
+      "git_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+      "exact_frozen_and_retained_equal": true,
+      "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0"
+    }
+  ],
+  "source_acceptance": "not_admitted_by_G",
+  "scope": "selected-family observation wrapper, no whole architecture green"
+}

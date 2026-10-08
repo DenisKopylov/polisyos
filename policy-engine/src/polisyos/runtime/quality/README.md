@@ -510,3 +510,29 @@ Stage 2 delivery boundaries and deciding evidence are recorded in
 under the appended Stage 2 sections. Historical labels in the temporal-surface
 paragraph describe its unchanged consumer; they do not establish absence of the
 new canonical owner mechanisms. No institution is appointed by these modules.
+
+### ORCH04 C10 candidate leaf recovery
+
+`recursive_generation_cycle.py` preserves a budget-stopped child, completed leaves,
+and the pending sibling frontier as a distinct partial artifact. A partial graph
+has no completed root terminal. `RecursiveLeafContextOwner` binds the full child
+`DesignProblem` and configured candidate handoff to the actual context-job owner,
+persists a candidate-only CAS capsule, and rechecks current configuration on fresh
+historical reads. It cannot reuse a parent EvalSafety grant. Missing child owners
+refuse before N6. The downstream boolean callback is emitted only after those
+complete owner reads; it is not an independently supplied currentness premise.
+
+N8 keeps requested data modalities and other original problem hints separate from
+available owner-row modalities. No transformation is supplied by this consumer.
+`derive_n4_candidate_child_problems` restricts existing declared lever semantics
+using complete actual typed N4 atom output, deduplicates semantic operator/target
+subsets, and preserves the full subject/constraints/evidence/model/time problem.
+The internal compiler intake requires a separately admitted full handoff for each
+child and the explicit at-most-two candidate exploration budget profile. It does
+not infer independent composability or reuse root execution authority. Ordinary
+HTTP still selects its singleton default until an actual configured N4 source and
+child profile selection is composed. Historical underscored lever names are not
+silently aliased to qualified atom slots. This is an input/selected-composition
+limitation; the bounded producer and child intake mechanisms are available.
+Overview renders qualified component observations; its ordinary API intake still
+requires the separately owned DTO/validator and persisted-reader companions.

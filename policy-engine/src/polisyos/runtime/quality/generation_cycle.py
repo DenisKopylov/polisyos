@@ -11676,7 +11676,7 @@ def _selector_problem_for_value_profile(
     return _selector_problem_with_owner_context(
         problem,
         {
-            "value_required_data_modalities": profile.available_data_modalities,
+            "value_available_data_modalities": profile.available_data_modalities,
             "value_data_characteristics": {
                 "n_obs": profile.owner_row_count,
                 "n_units": profile.unit_count,
@@ -11696,7 +11696,9 @@ def _selector_problem_with_owner_context(
 ) -> DesignProblem:
     """Project owner data context without discarding problem authority."""
 
-    return problem.model_copy(update={"runtime_hints": dict(context)})
+    return problem.model_copy(
+        update={"runtime_hints": {**problem.runtime_hints, **context}}
+    )
 
 
 def _run_value_transport(

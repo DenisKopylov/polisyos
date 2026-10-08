@@ -331,6 +331,146 @@ function TimelinePanelContent({ runId }: { runId: string }) {
   );
 }
 
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function textList(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string")
+    : [];
+}
+
+function CandidateSimulationPanel({ run }: { run: unknown }) {
+  const { t } = useI18n();
+  const record = asRecord(run);
+  const values = Array.isArray(record?.conditional_simulation_values)
+    ? record.conditional_simulation_values
+    : [];
+  const checkpoint = asRecord(record?.recursive_cycle_checkpoint);
+  const checkpointKnown =
+    checkpoint?.schema_version ===
+      "policyos.runtime.recursive_cycle_checkpoint.v1" &&
+    checkpoint.status === "partial" &&
+    checkpoint.publication_authority === false &&
+    checkpoint.root_n9_status === "not_run";
+  if (values.length === 0 && checkpoint === null) {
+    return null;
+  }
+  // This consumer displays owner observations. It never issues publication,
+  // causal, or current execution authority from the presence of these fields.
+  return (
+    <Card className="space-y-4" data-testid="overview-candidate-simulation">
+      <h4>{t("pages.runs.candidateSimulation.title")}</h4>
+      <p className="text-muted text-sm">
+        {t("pages.runs.candidateSimulation.authority")}
+      </p>
+      {values.map((value, index) => {
+        const row = asRecord(value);
+        const observation = asRecord(row?.observation);
+        if (!row || !observation || row.run_id !== record?.run_id) {
+          return (
+            <p key={index} data-testid="overview-simulation-refused">
+              {t("pages.runs.candidateSimulation.refused")}
+            </p>
+          );
+        }
+        const evidence = asRecord(observation.conditional_interaction_evidence);
+        return (
+          <div key={index} className="space-y-2 border-t pt-3">
+            <strong>
+              {typeof row.candidate_id === "string"
+                ? row.candidate_id
+                : t("pages.runs.candidateSimulation.candidateUnavailable")}
+            </strong>
+            <p data-testid="overview-simulation-status">
+              {typeof observation.status === "string"
+                ? observation.status
+                : t("pages.runs.candidateSimulation.notEstablished")}
+            </p>
+            <p>
+              {typeof observation.reason === "string"
+                ? observation.reason
+                : t("pages.runs.candidateSimulation.valueUnavailable")}
+            </p>
+            <ul>
+              {textList(observation.authority_blockers).map((blocker) => (
+                <li key={blocker}>{blocker}</li>
+              ))}
+            </ul>
+            {typeof row.world_model_record_content_hash === "string" ? (
+              <p className="text-xs break-all">
+                {t("pages.runs.candidateSimulation.worldModel", {
+                  ref: row.world_model_record_content_hash,
+                })}
+              </p>
+            ) : null}
+            {evidence ? (
+              <p data-testid="overview-simulation-boundaries">
+                {[
+                  t("pages.runs.candidateSimulation.unitStatus", {
+                    status: String(
+                      evidence.unit_binding_status ??
+                        t("pages.runs.candidateSimulation.notEstablished"),
+                    ),
+                  }),
+                  t("pages.runs.candidateSimulation.timeStatus", {
+                    status: String(
+                      evidence.time_binding_status ??
+                        t("pages.runs.candidateSimulation.notEstablished"),
+                    ),
+                  }),
+                  t("pages.runs.candidateSimulation.samplingStatus", {
+                    status: String(
+                      evidence.sampling_uncertainty_status ??
+                        t("pages.runs.candidateSimulation.notEstablished"),
+                    ),
+                  }),
+                ].join("; ")}
+              </p>
+            ) : null}
+          </div>
+        );
+      })}
+      {checkpointKnown && checkpoint ? (
+        <div data-testid="overview-recursive-checkpoint" className="space-y-2">
+          <h5>{t("pages.runs.candidateSimulation.checkpointTitle")}</h5>
+          <p>{t("pages.runs.candidateSimulation.checkpointBody")}</p>
+          <p>
+            {t("pages.runs.candidateSimulation.frontier", {
+              refs: textList(checkpoint.pending_frontier).join(", "),
+            })}
+          </p>
+          <p>
+            {t("pages.runs.candidateSimulation.completed", {
+              refs: textList(checkpoint.completed_design_refs).join(", "),
+            })}
+          </p>
+          <p>
+            {t("pages.runs.candidateSimulation.rootN9", {
+              status: String(
+                checkpoint.root_n9_status ??
+                  t("pages.runs.candidateSimulation.notEstablished"),
+              ),
+            })}
+          </p>
+          {Object.entries(asRecord(checkpoint.leaf_terminal_kinds) ?? {}).map(
+            ([child, kind]) => (
+              <p key={child}>{`${child}: ${String(kind)}`}</p>
+            ),
+          )}
+        </div>
+      ) : checkpoint ? (
+        <p data-testid="overview-checkpoint-refused">
+          {t("pages.runs.candidateSimulation.checkpointRefused")}
+        </p>
+      ) : null}
+    </Card>
+  );
+}
+
 export default function OverviewTab() {
   const { t } = useI18n();
   const whatIfEnabled = useFeatureFlag("enableWhatIfAnalysis");
@@ -344,6 +484,7 @@ export default function OverviewTab() {
 
   return (
     <div className="space-y-5" data-testid="run-tab-overview">
+      <CandidateSimulationPanel run={summary.run} />
       <div className="grid gap-5 xl:grid-cols-2">
         <Card className="space-y-4">
           <div className="panel-header">

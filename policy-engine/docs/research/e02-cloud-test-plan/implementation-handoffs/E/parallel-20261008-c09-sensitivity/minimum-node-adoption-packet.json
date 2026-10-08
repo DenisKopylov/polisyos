@@ -1,0 +1,95 @@
+{
+  "schema": "policyos.e02.minimum_partner_packet.v1",
+  "state": "supplier_source_ready_pending_review_and_canonical_adoption",
+  "original_unit": "E",
+  "finding": "B190",
+  "bundle": "UQP-01",
+  "original_binding": {
+    "source": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "lines": [
+      4752,
+      4761
+    ],
+    "sha256": "bb28f0e65d6317465c37bae99ed3a0bd89a03a3194f111e0f3faf24553724d53"
+  },
+  "base": {
+    "sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767"
+  },
+  "source_selection": {
+    "selected": "G identifiability blob aad1abdd89ac8dda43918981bc21f4a9755601a2",
+    "other_E_blob": "712bb1a7c8e0e72f418163a912eb6134bbf07b29",
+    "other_E_sha": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+    "reason": "E nullable-curvature delta is unrelated to execute-state response; do not copy cumulative E carrier or that patch."
+  },
+  "producer": {
+    "fqn": "polisyos.foundry.calibration.identifiability.identifiability_diagnostic",
+    "argument": "response_slots",
+    "profile": "execute_scalar_state_response_v1",
+    "request": "inline observed moments and node_id.parameter center; registered global scalar state slots; persist sensitivity; bootstrap_reps=0; profile_grid_size=0; explicit bound initial StateSnapshot 2.2 with exact nested NPZ/schema refs and checksums",
+    "artifact": "foundry.identifiability_sensitivity_matrix with response_basis and exact manifest inputs",
+    "bridge": "internal _load_execute_response_matrix recomputes exact source/units/config/ordered axes and J/weighting/Fisher from persisted actual state replays",
+    "surface": "existing local identifiability diagnostic, non-gating"
+  },
+  "native_fixture": {
+    "method": "mechanism.runtime.income_tax@1.0.0",
+    "agents": 2,
+    "reported_income": [
+      2,
+      2
+    ],
+    "active": [
+      true,
+      true
+    ],
+    "initial_government_balance": -2,
+    "center_rate": 0.5,
+    "response_slot": "government.balance",
+    "unit": "USD",
+    "parameter_unit": "ratio",
+    "oracle": "y(r)=4r-2; independent Fraction J=4; Var(rate)=1/16 gives Var(y)=1",
+    "baseline": "zero response is not a zero sensitivity; constant reported incomes yield genuine J=0"
+  },
+  "partner_requirements": [
+    {
+      "owner": "canonical E uncertainty/Scientist Node adapter owner (G routes lease)",
+      "trigger": "a composed Node requests execute-produced sensitivity",
+      "fields": [
+        "exact producer source SHA/tree and matrix ref with selected manifest",
+        "expected SimulationResult source ref",
+        "ordered response_slots and parameter_center",
+        "exact diagnostic configuration and registry-bound units",
+        "declared input error law, covariance axes and dependence only when that downstream consumer requires them"
+      ],
+      "action": "reuse the internal recomputing reader; preserve unknown partial responses; separately validate law/target/context admission; do not infer authority from diagnostic IDENTIFIED or numerical rank",
+      "outside_lease": [
+        "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "polisyos.calibration adapters",
+        "polisyos.ir"
+      ],
+      "status": "UNRUN composed Node adoption; no production data prerequisite for generic mechanics",
+      "consumer_implementation": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py"
+    },
+    {
+      "owner": "canonical public-surface inventory owner (G routes lease)",
+      "trigger": "adopt or classify the additive package-specific response_slots keyword; existing root-stable Foundry supported_entrypoints does not list calibration",
+      "fields": [
+        "existing identifiability_diagnostic facade/FQN and additive keyword",
+        "internal response basis/reader scope",
+        "source-qualified release fragment and package README"
+      ],
+      "action": "canonical owner classifies the existing package-specific export and updates inventory/compatibility only where required; internal reader is not promoted to root-stable; no new facade or registry, historical callers unchanged",
+      "status": "internal classification explicitly reviewed against existing Foundry supported window; no root-stable new export or universal external-caller absence claimed"
+    }
+  ],
+  "limits": [
+    "local numerical diagnostic, always gate_eligible=false; no scientific/causal/Runtime admission",
+    "not empirical calibration, law inference, production fiscal suitability or universal nonlinear sensitivity",
+    "inline center/moments only; no bootstrap/profile basis or vector summaries",
+    "selected InputRef manifest views preserve selectors and verify type; differing-type selected views refuse rather than being flattened",
+    "persisted request/config records identify the actual caller invocation; they are not verifier-issued scientific authority",
+    "finite current StateSnapshot 2.2 source/replay leaf closure is verified; no generic recursive source/authority resolver or implicit unbound data-state fallback"
+  ],
+  "claim": "does not close original B190 or any all35 F finding; supplier property evidence and composed adoption are separate"
+}

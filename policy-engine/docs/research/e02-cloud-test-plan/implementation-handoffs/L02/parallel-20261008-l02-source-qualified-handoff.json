@@ -1,0 +1,74 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "L02",
+  "original_units": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F"
+  ],
+  "execution_role": "L02",
+  "mode": "read_only_verification",
+  "branch": "codex/e02-L02-authentic-20261008",
+  "slice_base_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "checked_source_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "implementation_commits": [
+    "45c82745292baeeb5414b7367dde931872ee0417"
+  ],
+  "receipt_document_tree_sha": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+  "implementation_role": "Read-only verification evidence; no production/test/code implementation",
+  "closure_ids": [],
+  "whole_receipt_footprint": "49 declared receipt-document paths at implementation commit; all source/test/config/lock/generated paths unchanged",
+  "source_qualified_original_unit_leaves": [
+    {
+      "unit": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/parallel-20261008-l02-authentic-source-qualified.json",
+      "bytes": 38157,
+      "sha256": "71e6e17a9fdbbb2ff5527572442e627bdb3699e1a313a42e678d73ab02b4b915",
+      "finding_rows": 21
+    },
+    {
+      "unit": "B",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/parallel-20261008-l02-authentic-source-qualified.json",
+      "bytes": 11023,
+      "sha256": "ac866d0470e14d3caf6a53c8e0e12c496893174fddb4b0f7253227b3d09c6bfa",
+      "finding_rows": 3
+    },
+    {
+      "unit": "C",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/parallel-20261008-l02-authentic-source-qualified.json",
+      "bytes": 33823,
+      "sha256": "95dc564abd68a8e42dbaad5cdcd18fa10e90af0c3603807dfc67b3674c511cc8",
+      "finding_rows": 18
+    },
+    {
+      "unit": "D",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/parallel-20261008-l02-authentic-source-qualified.json",
+      "bytes": 12335,
+      "sha256": "bb503ba9f485f1b535ee2cad3e146655c33fde0d4a669042332d453f6a33bf38",
+      "finding_rows": 4
+    },
+    {
+      "unit": "E",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-l02-authentic-source-qualified.json",
+      "bytes": 23635,
+      "sha256": "2c95c5124dc4d81771c35a24a6b0953a5a0ff4c9cb86ccb4f638e460525d3ed7",
+      "finding_rows": 11
+    },
+    {
+      "unit": "F",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-l02-authentic-source-qualified.json",
+      "bytes": 9175,
+      "sha256": "0806ab37261ac8c8901dee585f69617b1ff4bac339631c53599329058a9d94fa",
+      "finding_rows": 1
+    }
+  ],
+  "result": "One independently qualified Mac source-refusal slice; all ten authentic/Mac task recipes and scoped LA032 have exact source/input/consumer/negative boundaries. No authentic or installed positive is claimed.",
+  "formal_G_closure": "not_adjudicated",
+  "next_owner_delivery": "Git only; G reads exact per-unit leaf and supplies relevant source composition/input/lease. L01 gives only criterion-specific factual packets, not semantic authority ratification.",
+  "broad_replay": "Not run; C13/G frozen portable/data-dependent closeout owns it after sourcefreeze. Narrow Mac refusal check does not wait for unrelated supplier tasks.",
+  "receipt_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/manifest.json@45c82745292baeeb5414b7367dde931872ee0417",
+  "created_at_utc": "2026-10-08T10:20:00.822191+00:00"
+}

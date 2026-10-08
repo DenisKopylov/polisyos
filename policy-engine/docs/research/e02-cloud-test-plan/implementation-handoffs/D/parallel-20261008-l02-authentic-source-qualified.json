@@ -1,0 +1,245 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "execution_role": "L02",
+  "mode": "read_only_verification",
+  "slice": "parallel-20261008-l02 D source-qualified authentic/declared-Mac consumer boundaries",
+  "branch": "codex/e02-L02-authentic-20261008",
+  "closure_ids": [],
+  "bundle_ids": [
+    "FUN-02",
+    "FUN-03",
+    "TRN-01",
+    "TRN-03"
+  ],
+  "slice_base_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "slice_base_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "implementation_commits": [
+    "45c82745292baeeb5414b7367dde931872ee0417"
+  ],
+  "implementation_role": "Verification receipt documents only; no runtime implementation authored",
+  "receipt_document_tree_sha": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+  "checked_source_candidate_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "candidate_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "manifest_ref": {
+    "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+    "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/manifest.json",
+    "sha256": "c8b83ebe68bbd3568d9bceb7626863c3acb5616ab2c717bf2a3d13130b0cc769"
+  },
+  "own_source_test_config_generated_changed_paths": [],
+  "complete_receipt_footprint": "git diff --name-status f00dd7661a8d3329fb1fa1b049decb0d1d2f277b 45c82745292baeeb5414b7367dde931872ee0417; all49 paths are the declared L02 receipt namespace",
+  "task_parts": [
+    "S2",
+    "T2"
+  ],
+  "finding_rows": [
+    {
+      "finding_id": "B131",
+      "original_unit": "D",
+      "original_primary_bundle": "TRN-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B131",
+          "document": "B_r19",
+          "lines": [
+            3459,
+            3472
+          ],
+          "sha256": "60545080be6e14231a07b082abb322b91f9b304c40dbed2d2cc701223470910c",
+          "card": "TRN-01"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "T2"
+      ],
+      "role_findings_pointer": "/rows/176",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    },
+    {
+      "finding_id": "B137",
+      "original_unit": "D",
+      "original_primary_bundle": "TRN-03",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B137",
+          "document": "B_r19",
+          "lines": [
+            3543,
+            3556
+          ],
+          "sha256": "133330308d63d9cf44d4105d556e1e4740ff31b519643791722beb8a8a7bc961",
+          "card": "TRN-03"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "T2"
+      ],
+      "role_findings_pointer": "/rows/182",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    },
+    {
+      "finding_id": "B157",
+      "original_unit": "D",
+      "original_primary_bundle": "FUN-02",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B157",
+          "document": "B_r19",
+          "lines": [
+            4117,
+            4128
+          ],
+          "sha256": "c27f7a7ba4108a5f8f2027bed47b3d3bfa56955f30034c1ede266fc07d7c8284",
+          "card": "FUN-02"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "S2"
+      ],
+      "role_findings_pointer": "/rows/184",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    },
+    {
+      "finding_id": "B164",
+      "original_unit": "D",
+      "original_primary_bundle": "FUN-03",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B164",
+          "document": "B_r19",
+          "lines": [
+            4201,
+            4212
+          ],
+          "sha256": "ed8189c34e88eec186ca2c6c3d764e796f0cc4f967c601f6a5ec223c43b6c137",
+          "card": "FUN-03"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "T2"
+      ],
+      "role_findings_pointer": "/rows/191",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    }
+  ],
+  "prepared_source_and_consumer_refs": [
+    {
+      "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+      "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_input_packets.json",
+      "bytes": 34334,
+      "sha256": "a6104430660f645c96d0308a5ab5dbae21695cf78400e5bec4fbd607d859907f"
+    },
+    {
+      "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+      "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_law_intake.json",
+      "bytes": 42953,
+      "sha256": "ae55d88e496cd90a80eceb1cfa491ce95d0ea425bb13c0b712df884f0b6519c4"
+    },
+    {
+      "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+      "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_protected_ab.json",
+      "bytes": 37255,
+      "sha256": "49ec47048de9ff39ff8f38f217cd2bf7bcd3e8640e089600c312c1930f19a5d9"
+    },
+    {
+      "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+      "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_protected_d.json",
+      "bytes": 29014,
+      "sha256": "520c92f31d26e6973071b78f1e43b2c7f8ae842bb02e7a99aca3f679cde77250"
+    },
+    {
+      "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+      "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_protected_e.json",
+      "bytes": 57815,
+      "sha256": "e799113371758ce768a2356393e9979d970fac4c1f01cdcdb85ed3af29d103a9"
+    },
+    {
+      "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+      "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_source_admission.json",
+      "bytes": 120628,
+      "sha256": "581ba3d87460e78c24f66c1a7b253eca07e55c1c3dac08ffbdff2fa164e04d57"
+    },
+    {
+      "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+      "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_source_rights.json",
+      "bytes": 42235,
+      "sha256": "1dc7c61b533dae0a39f199394e007a3077f93bed7d0cd69e5944f4d49e574300"
+    }
+  ],
+  "checks": [
+    {
+      "name": "canonical workspace admission create/immediate-create/resume",
+      "outcome": "PASS",
+      "output_manifest": "manifest_ref /payloads bootstrap complete JSON",
+      "limit": "Pair admission only, not product acceptance"
+    },
+    {
+      "name": "results importer --check",
+      "outcome": "PASS",
+      "output_manifest": "manifest_ref /payloads observations/results-import-check.stdout",
+      "limit": "Transfer/navigation only, raw VM archives0, no product closure"
+    },
+    {
+      "name": "authentic POST/producer/persisted/fresh consumer or installed positive",
+      "outcome": "UNRUN",
+      "limit": "Exact relevant G partner composition, L01 criterion-specific factual packet or effect-owning API not established; boundaries and minimum exact next inputs are per-task in prepared refs"
+    }
+  ],
+  "property": {
+    "statement": "Criterion-specific authentic producer→typed artifact→persisted CAS/history→fresh declared consumer/surface, with independent positive/foreign/stale/fake/removal; declared Mac support/refusal separately qualified",
+    "runtime_path": "Exact mapped path per finding in prepared_source_and_consumer_refs; no synthesized substitute path",
+    "proxy_divergence": "Fixture/native-method PASS or dispatch/root SHA is not authentic source/owner/currentness/consumer evidence. Preparation marks each exact divergent case and falsifier.",
+    "negative_controls": "Prepared per-property controls remain UNRUN for authentic qualification; do not transfer the Mac finite-point fake-control to those properties"
+  },
+  "predicate_basis": {
+    "candidate_source_identity": "independently_reconciled",
+    "actual_authentic_input_and_consumer_property": "not_established",
+    "formal_G_closure": "not_established"
+  },
+  "source_acceptance": "Scoping follows committed G admission packets; F852 nine source paths admitted/preserved. f00 prompt commit adds documents and does not admit A/B/C/D/E owner candidates or a common authentic task composition.",
+  "capability_state_or_finding_state": "UNRUN/not_established for authentic/installed qualifiers; original finding owner proposals are unchanged",
+  "limitations_and_next_owner": "Referenced per-task source-qualified packets provide smallest existing-capability option or exact named source/input/API boundary and canonical next owner. LA032 C05 proposal/G lease and L01 facts remain separate.",
+  "data_boundary": "No production rows/text/vectors/weights or secrets read/copied/uploaded by L02; scratch isolated, existing Python env reused",
+  "formal_G_closure": "not_adjudicated; no ledger update",
+  "created_at_utc": "2026-10-08T10:20:00.821244+00:00"
+}

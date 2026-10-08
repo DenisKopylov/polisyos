@@ -1,0 +1,729 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "execution_role": "L02",
+  "mode": "read_only_verification",
+  "slice": "parallel-20261008-l02 C source-qualified authentic/declared-Mac consumer boundaries",
+  "branch": "codex/e02-L02-authentic-20261008",
+  "closure_ids": [],
+  "bundle_ids": [
+    "BER-01",
+    "CAN-01",
+    "DFK-01",
+    "DFK-02",
+    "EMB-03",
+    "HYG-02",
+    "ING-01",
+    "ING-03",
+    "MIG-04",
+    "PLG-03",
+    "SCL-01",
+    "SCL-03",
+    "UDF-05"
+  ],
+  "slice_base_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "slice_base_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "implementation_commits": [
+    "45c82745292baeeb5414b7367dde931872ee0417"
+  ],
+  "implementation_role": "Verification receipt documents only; no runtime implementation authored",
+  "receipt_document_tree_sha": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+  "checked_source_candidate_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "candidate_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "manifest_ref": {
+    "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+    "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/manifest.json",
+    "sha256": "c8b83ebe68bbd3568d9bceb7626863c3acb5616ab2c717bf2a3d13130b0cc769"
+  },
+  "own_source_test_config_generated_changed_paths": [],
+  "complete_receipt_footprint": "git diff --name-status f00dd7661a8d3329fb1fa1b049decb0d1d2f277b 45c82745292baeeb5414b7367dde931872ee0417; all49 paths are the declared L02 receipt namespace",
+  "task_parts": [
+    "I3",
+    "I4",
+    "Q2",
+    "S2",
+    "T2"
+  ],
+  "finding_rows": [
+    {
+      "finding_id": "LA-005",
+      "original_unit": "C",
+      "original_primary_bundle": "DFK-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-005",
+          "document": "LA_r09",
+          "lines": [
+            198,
+            224
+          ],
+          "sha256": "ec6ce93b380334ba9e5d13e13ce8ecf637afd057b99008b3aa1b462d29194266",
+          "card": "DFK-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/94",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    },
+    {
+      "finding_id": "LA-006",
+      "original_unit": "C",
+      "original_primary_bundle": "DFK-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-006",
+          "document": "LA_r09",
+          "lines": [
+            225,
+            253
+          ],
+          "sha256": "4bc6fa503bce03a1516620c492168088242d61e0ba90697a9377480c13d189fe",
+          "card": "DFK-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/95",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    },
+    {
+      "finding_id": "LA-018",
+      "original_unit": "C",
+      "original_primary_bundle": "HYG-02",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-018",
+          "document": "LA_r09",
+          "lines": [
+            571,
+            597
+          ],
+          "sha256": "b28c10a9c4c31b5fad21560ddaf3888df77a534d2cb9fdb992853637ccd91421",
+          "card": "HYG-02"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "T2"
+      ],
+      "role_findings_pointer": "/rows/103",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    },
+    {
+      "finding_id": "LA-021",
+      "original_unit": "C",
+      "original_primary_bundle": "CAN-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-021",
+          "document": "LA_r09",
+          "lines": [
+            990,
+            1021
+          ],
+          "sha256": "6bf9986ec241a8980ff624f30d08973fba07f5c8e1402652a276da1bce22aa7b",
+          "card": "CAN-01"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/104",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    },
+    {
+      "finding_id": "LA-023",
+      "original_unit": "C",
+      "original_primary_bundle": "PLG-03",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-023",
+          "document": "LA_r09",
+          "lines": [
+            1052,
+            1083
+          ],
+          "sha256": "b06af2883398bbe4c039459613c259f92c15a4722d59b57dd28b6397f3e72ac3",
+          "card": "PLG-02"
+        },
+        {
+          "criterion_id": "LA-023",
+          "document": "LA_r09",
+          "lines": [
+            1052,
+            1083
+          ],
+          "sha256": "b06af2883398bbe4c039459613c259f92c15a4722d59b57dd28b6397f3e72ac3",
+          "card": "PLG-03"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/106",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    },
+    {
+      "finding_id": "LA-024",
+      "original_unit": "C",
+      "original_primary_bundle": "SCL-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-024",
+          "document": "LA_r09",
+          "lines": [
+            1084,
+            1113
+          ],
+          "sha256": "ac5148dc11d7ccb7f825d8d672b2be62db9fee78d7c8a0f15150889bd154ef67",
+          "card": "SCL-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "T2"
+      ],
+      "role_findings_pointer": "/rows/107",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    },
+    {
+      "finding_id": "LA-025",
+      "original_unit": "C",
+      "original_primary_bundle": "SCL-03",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-025",
+          "document": "LA_r09",
+          "lines": [
+            1114,
+            1149
+          ],
+          "sha256": "2bc4e727677c0b073b03c2cd763b0dc65c25b0917ab5e423ee9f7d4442c05da4",
+          "card": "SCL-03"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "T2"
+      ],
+      "role_findings_pointer": "/rows/108",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    },
+    {
+      "finding_id": "LA-026",
+      "original_unit": "C",
+      "original_primary_bundle": "DFK-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-026",
+          "document": "LA_r09",
+          "lines": [
+            1372,
+            1417
+          ],
+          "sha256": "48da21eccebfe89cf7cc0ed9dba75b26752d06f78625f92088e3cb9ebc88fa1a",
+          "card": "DFK-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/109",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    },
+    {
+      "finding_id": "LA-027",
+      "original_unit": "C",
+      "original_primary_bundle": "DFK-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-027",
+          "document": "LA_r09",
+          "lines": [
+            1418,
+            1465
+          ],
+          "sha256": "a78cbc850be0ec8fdbec3076613780d16dfc169517f5f1568f42a6a80cd3e8ce",
+          "card": "DFK-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/110",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    },
+    {
+      "finding_id": "LA-028",
+      "original_unit": "C",
+      "original_primary_bundle": "DFK-02",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-028",
+          "document": "LA_r09",
+          "lines": [
+            1466,
+            1517
+          ],
+          "sha256": "ca582afd9387c0ba6c4c4bbc9278a6da82d00d06d347269c089531d12355b2f6",
+          "card": "DFK-02"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "I4"
+      ],
+      "role_findings_pointer": "/rows/111",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    },
+    {
+      "finding_id": "LA-032",
+      "original_unit": "C",
+      "original_primary_bundle": "UDF-05",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-032",
+          "document": "LA_r09",
+          "lines": [
+            1668,
+            1715
+          ],
+          "sha256": "5f5c7a56a652a0328e25fd8b6091a2f780750d9eaee8f10c0129b2f9f0609cf2",
+          "card": "UDF-05"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "I4"
+      ],
+      "role_findings_pointer": "/rows/115",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    },
+    {
+      "finding_id": "LA-036",
+      "original_unit": "C",
+      "original_primary_bundle": "BER-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-036",
+          "document": "LA_r09",
+          "lines": [
+            2103,
+            2145
+          ],
+          "sha256": "ebc61d92552c6dfbf538aed17c8a7ed476ee4322fc9df09f7ed3b89e8c530a2a",
+          "card": "BER-01"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "S2"
+      ],
+      "role_findings_pointer": "/rows/117",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    },
+    {
+      "finding_id": "LA-040",
+      "original_unit": "C",
+      "original_primary_bundle": "EMB-03",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-040",
+          "document": "LA_r09",
+          "lines": [
+            2556,
+            2594
+          ],
+          "sha256": "04d9279a2c0e0e0f10649e69a1a06e4e8a4128b384d5b44f2c9cd45fff8ba67a",
+          "card": "EMB-03"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "I4"
+      ],
+      "role_findings_pointer": "/rows/120",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    },
+    {
+      "finding_id": "LA-042",
+      "original_unit": "C",
+      "original_primary_bundle": "EMB-03",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-042",
+          "document": "LA_r09",
+          "lines": [
+            2632,
+            2660
+          ],
+          "sha256": "7e63e0b9e9c68ba15ec62b843a0ba22bd8294466741f4a23521983be635b5724",
+          "card": "EMB-03"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/122",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    },
+    {
+      "finding_id": "LA-050",
+      "original_unit": "C",
+      "original_primary_bundle": "MIG-04",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-050",
+          "document": "LA_r09",
+          "lines": [
+            3397,
+            3431
+          ],
+          "sha256": "929111170bede523485d77e9bd1ae74702f9a8dfbbc4422d8c6cdc85252bac05",
+          "card": "MIG-04"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/128",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    },
+    {
+      "finding_id": "B79",
+      "original_unit": "C",
+      "original_primary_bundle": "ING-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B79",
+          "document": "B_r19",
+          "lines": [
+            2153,
+            2166
+          ],
+          "sha256": "27bcd616e4c3651c5234684c5f00bfc90929f35b417c71f57e4740fa2afb567d",
+          "card": "ING-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "I3"
+      ],
+      "role_findings_pointer": "/rows/129",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    },
+    {
+      "finding_id": "B80",
+      "original_unit": "C",
+      "original_primary_bundle": "ING-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B80",
+          "document": "B_r19",
+          "lines": [
+            2167,
+            2180
+          ],
+          "sha256": "4c1a2181de7a1faab9b419139aacb69af646339f4920a172f21dbe2c4d0cbdad",
+          "card": "ING-01"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "I3"
+      ],
+      "role_findings_pointer": "/rows/130",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    },
+    {
+      "finding_id": "B83",
+      "original_unit": "C",
+      "original_primary_bundle": "ING-03",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B83",
+          "document": "B_r19",
+          "lines": [
+            2209,
+            2222
+          ],
+          "sha256": "33f33619aeda80550a33302bfc571497c218ec5f0f6ea09fa22d447e74d58441",
+          "card": "ING-03"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "I3"
+      ],
+      "role_findings_pointer": "/rows/133",
+      "original_criterion_and_role_qualifier_are_separate": true,
+      "L02_measured_scope": "No authentic or installed positive executed; candidate/source/input boundary researched",
+      "authentic_or_installed_qualification": "UNRUN",
+      "code_outcome": "No production/test/config changes by L02; source acceptance remains the exact scoped G owner decision",
+      "technical_proposal": "Retain existing owner proposal; do not promote finding from preparation or seven Mac refusal cases",
+      "minimum_input_and_next_owner_pointer": "Exact per-finding and task recipe in referenced prepared packets; no blanket all-of supplier barrier"
+    }
+  ],
+  "prepared_source_and_consumer_refs": [
+    {
+      "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+      "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_ingestion.json",
+      "bytes": 27222,
+      "sha256": "7bb19ab468b382b631bbfe93040a058a2ebcc8cc1aa02afefa6ffb4abb553b15"
+    },
+    {
+      "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+      "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_input_packets.json",
+      "bytes": 34334,
+      "sha256": "a6104430660f645c96d0308a5ab5dbae21695cf78400e5bec4fbd607d859907f"
+    },
+    {
+      "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+      "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_law_intake.json",
+      "bytes": 42953,
+      "sha256": "ae55d88e496cd90a80eceb1cfa491ce95d0ea425bb13c0b712df884f0b6519c4"
+    },
+    {
+      "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+      "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_mac_a.json",
+      "bytes": 107957,
+      "sha256": "4915c73bdd4c5d9e3494ec32609752ef5d093071daf3bd12c960fea5b4ea6de3"
+    },
+    {
+      "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+      "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_mac_c.json",
+      "bytes": 13692,
+      "sha256": "9dc77c5b3c07f4a20b0b4f417ed39a0fe04a908eaf8f33acd0c9014bafb8601d"
+    },
+    {
+      "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+      "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_mac_numeric.json",
+      "bytes": 24975,
+      "sha256": "9a3c4870ff48cb9109c3796d53bf23eb26791a8f467019b5c7cf6b20ab912d1d"
+    },
+    {
+      "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+      "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_protected_ab.json",
+      "bytes": 37255,
+      "sha256": "49ec47048de9ff39ff8f38f217cd2bf7bcd3e8640e089600c312c1930f19a5d9"
+    },
+    {
+      "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+      "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_protected_d.json",
+      "bytes": 29014,
+      "sha256": "520c92f31d26e6973071b78f1e43b2c7f8ae842bb02e7a99aca3f679cde77250"
+    },
+    {
+      "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+      "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_protected_e.json",
+      "bytes": 57815,
+      "sha256": "e799113371758ce768a2356393e9979d970fac4c1f01cdcdb85ed3af29d103a9"
+    },
+    {
+      "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+      "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_serving.json",
+      "bytes": 33068,
+      "sha256": "899d03373a461ae1763162b5b626b0b5d95f76e874fc01427a97603705b9528b"
+    },
+    {
+      "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+      "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_source_admission.json",
+      "bytes": 120628,
+      "sha256": "581ba3d87460e78c24f66c1a7b253eca07e55c1c3dac08ffbdff2fa164e04d57"
+    },
+    {
+      "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+      "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_source_rights.json",
+      "bytes": 42235,
+      "sha256": "1dc7c61b533dae0a39f199394e007a3077f93bed7d0cd69e5944f4d49e574300"
+    },
+    {
+      "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+      "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_udf_inventory.json",
+      "bytes": 41757,
+      "sha256": "6cf85eafdb462684820340558547d9df60aa4df480ac63777132194ca53cd7a4"
+    }
+  ],
+  "checks": [
+    {
+      "name": "canonical workspace admission create/immediate-create/resume",
+      "outcome": "PASS",
+      "output_manifest": "manifest_ref /payloads bootstrap complete JSON",
+      "limit": "Pair admission only, not product acceptance"
+    },
+    {
+      "name": "results importer --check",
+      "outcome": "PASS",
+      "output_manifest": "manifest_ref /payloads observations/results-import-check.stdout",
+      "limit": "Transfer/navigation only, raw VM archives0, no product closure"
+    },
+    {
+      "name": "authentic POST/producer/persisted/fresh consumer or installed positive",
+      "outcome": "UNRUN",
+      "limit": "Exact relevant G partner composition, L01 criterion-specific factual packet or effect-owning API not established; boundaries and minimum exact next inputs are per-task in prepared refs"
+    }
+  ],
+  "property": {
+    "statement": "Criterion-specific authentic producer→typed artifact→persisted CAS/history→fresh declared consumer/surface, with independent positive/foreign/stale/fake/removal; declared Mac support/refusal separately qualified",
+    "runtime_path": "Exact mapped path per finding in prepared_source_and_consumer_refs; no synthesized substitute path",
+    "proxy_divergence": "Fixture/native-method PASS or dispatch/root SHA is not authentic source/owner/currentness/consumer evidence. Preparation marks each exact divergent case and falsifier.",
+    "negative_controls": "Prepared per-property controls remain UNRUN for authentic qualification; do not transfer the Mac finite-point fake-control to those properties"
+  },
+  "predicate_basis": {
+    "candidate_source_identity": "independently_reconciled",
+    "actual_authentic_input_and_consumer_property": "not_established",
+    "formal_G_closure": "not_established"
+  },
+  "source_acceptance": "Scoping follows committed G admission packets; F852 nine source paths admitted/preserved. f00 prompt commit adds documents and does not admit A/B/C/D/E owner candidates or a common authentic task composition.",
+  "capability_state_or_finding_state": "UNRUN/not_established for authentic/installed qualifiers; original finding owner proposals are unchanged",
+  "limitations_and_next_owner": "Referenced per-task source-qualified packets provide smallest existing-capability option or exact named source/input/API boundary and canonical next owner. LA032 C05 proposal/G lease and L01 facts remain separate.",
+  "data_boundary": "No production rows/text/vectors/weights or secrets read/copied/uploaded by L02; scratch isolated, existing Python env reused",
+  "formal_G_closure": "not_adjudicated; no ledger update",
+  "created_at_utc": "2026-10-08T10:20:00.820861+00:00"
+}

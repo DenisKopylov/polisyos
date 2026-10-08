@@ -1,0 +1,1212 @@
+{
+  "kind": "c05-fallback",
+  "removal": {
+    "kind": "none",
+    "quantity": null,
+    "held_markers": true,
+    "source_files_changed": false
+  },
+  "owned_fixture_source": "/workspace/orch02-c05/policy-engine/tests/unit/remediation/test_dfi_03.py",
+  "source_sha256": "298a8aa19e46f3d508bec214c5a713ccb272612e0945b263336514fd69475735",
+  "oracle": "literal actual SQL/benchmark/native outputs; assertion observations continue beyond digest failures",
+  "verdict": "PASS",
+  "error": null,
+  "events": [
+    {
+      "line": 2049,
+      "expression": "catalog_harvester._load_wvs_indicator_catalog_from_local_file() == catalog_harvester._WVS_STATIC_INDICATORS",
+      "holds": true,
+      "actual_left": [
+        {
+          "id": "A009",
+          "name": "State of health (subjective)",
+          "description": "WVS longitudinal subjective health item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "health_outcomes"
+          ]
+        },
+        {
+          "id": "A165",
+          "name": "Most people can be trusted",
+          "description": "WVS longitudinal social trust question",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_trust"
+          ]
+        },
+        {
+          "id": "A170",
+          "name": "Satisfaction with your life",
+          "description": "WVS longitudinal life satisfaction item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "A173",
+          "name": "How much freedom of choice and control",
+          "description": "WVS longitudinal freedom-of-choice item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "cultural_cluster"
+          ]
+        },
+        {
+          "id": "A214",
+          "name": "I see myself as someone who is generally trusting",
+          "description": "WVS longitudinal generalized trust item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_trust"
+          ]
+        },
+        {
+          "id": "D059",
+          "name": "Men make better political leaders than women do",
+          "description": "WVS longitudinal gender norms item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "gender_equality"
+          ]
+        },
+        {
+          "id": "E023",
+          "name": "Interest in politics",
+          "description": "WVS longitudinal political interest item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "E025",
+          "name": "Political action: Signing a petition",
+          "description": "WVS longitudinal petition participation item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "E035",
+          "name": "Income equality",
+          "description": "WVS longitudinal income equality preference item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "inequality"
+          ]
+        },
+        {
+          "id": "E069_07",
+          "name": "Confidence: Parliament",
+          "description": "WVS longitudinal institutional confidence item for parliament",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "public_trust",
+            "institutional_quality"
+          ]
+        },
+        {
+          "id": "E069_11",
+          "name": "Confidence: The Government",
+          "description": "WVS longitudinal institutional confidence item for government",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "public_trust",
+            "institutional_quality"
+          ]
+        },
+        {
+          "id": "E069_17",
+          "name": "Confidence: Justice System/Courts",
+          "description": "WVS longitudinal institutional confidence item for courts",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "judicial_quality",
+            "institutional_quality"
+          ]
+        },
+        {
+          "id": "E110",
+          "name": "Satisfaction with the way democracy develops",
+          "description": "WVS longitudinal democracy satisfaction item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "democracy_quality"
+          ]
+        },
+        {
+          "id": "E117",
+          "name": "Political system: Having a democratic political system",
+          "description": "WVS longitudinal democracy preference item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "democracy_quality"
+          ]
+        },
+        {
+          "id": "E196",
+          "name": "Extent of political corruption",
+          "description": "WVS longitudinal perceived political corruption item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "corruption_level"
+          ]
+        },
+        {
+          "id": "E233",
+          "name": "Democracy: Women have the same rights as men",
+          "description": "WVS longitudinal gender equality in democracy item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "gender_equality"
+          ]
+        },
+        {
+          "id": "E286",
+          "name": "Social activism: Donating to a group or campaign",
+          "description": "WVS longitudinal social activism donation item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "F108",
+          "name": "Government protects freedom",
+          "description": "WVS longitudinal freedom protection item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "democracy_quality"
+          ]
+        },
+        {
+          "id": "G007_64",
+          "name": "Trust: People in general",
+          "description": "WVS longitudinal trust in people in general item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_trust"
+          ]
+        },
+        {
+          "id": "Y022",
+          "name": "Welzel equality sub-index",
+          "description": "WVS longitudinal equality composite item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "gender_equality"
+          ]
+        }
+      ],
+      "expected_right": [
+        {
+          "id": "A009",
+          "name": "State of health (subjective)",
+          "description": "WVS longitudinal subjective health item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "health_outcomes"
+          ]
+        },
+        {
+          "id": "A165",
+          "name": "Most people can be trusted",
+          "description": "WVS longitudinal social trust question",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_trust"
+          ]
+        },
+        {
+          "id": "A170",
+          "name": "Satisfaction with your life",
+          "description": "WVS longitudinal life satisfaction item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "A173",
+          "name": "How much freedom of choice and control",
+          "description": "WVS longitudinal freedom-of-choice item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "cultural_cluster"
+          ]
+        },
+        {
+          "id": "A214",
+          "name": "I see myself as someone who is generally trusting",
+          "description": "WVS longitudinal generalized trust item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_trust"
+          ]
+        },
+        {
+          "id": "D059",
+          "name": "Men make better political leaders than women do",
+          "description": "WVS longitudinal gender norms item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "gender_equality"
+          ]
+        },
+        {
+          "id": "E023",
+          "name": "Interest in politics",
+          "description": "WVS longitudinal political interest item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "E025",
+          "name": "Political action: Signing a petition",
+          "description": "WVS longitudinal petition participation item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "E035",
+          "name": "Income equality",
+          "description": "WVS longitudinal income equality preference item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "inequality"
+          ]
+        },
+        {
+          "id": "E069_07",
+          "name": "Confidence: Parliament",
+          "description": "WVS longitudinal institutional confidence item for parliament",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "public_trust",
+            "institutional_quality"
+          ]
+        },
+        {
+          "id": "E069_11",
+          "name": "Confidence: The Government",
+          "description": "WVS longitudinal institutional confidence item for government",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "public_trust",
+            "institutional_quality"
+          ]
+        },
+        {
+          "id": "E069_17",
+          "name": "Confidence: Justice System/Courts",
+          "description": "WVS longitudinal institutional confidence item for courts",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "judicial_quality",
+            "institutional_quality"
+          ]
+        },
+        {
+          "id": "E110",
+          "name": "Satisfaction with the way democracy develops",
+          "description": "WVS longitudinal democracy satisfaction item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "democracy_quality"
+          ]
+        },
+        {
+          "id": "E117",
+          "name": "Political system: Having a democratic political system",
+          "description": "WVS longitudinal democracy preference item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "democracy_quality"
+          ]
+        },
+        {
+          "id": "E196",
+          "name": "Extent of political corruption",
+          "description": "WVS longitudinal perceived political corruption item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "corruption_level"
+          ]
+        },
+        {
+          "id": "E233",
+          "name": "Democracy: Women have the same rights as men",
+          "description": "WVS longitudinal gender equality in democracy item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "gender_equality"
+          ]
+        },
+        {
+          "id": "E286",
+          "name": "Social activism: Donating to a group or campaign",
+          "description": "WVS longitudinal social activism donation item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "F108",
+          "name": "Government protects freedom",
+          "description": "WVS longitudinal freedom protection item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "democracy_quality"
+          ]
+        },
+        {
+          "id": "G007_64",
+          "name": "Trust: People in general",
+          "description": "WVS longitudinal trust in people in general item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_trust"
+          ]
+        },
+        {
+          "id": "Y022",
+          "name": "Welzel equality sub-index",
+          "description": "WVS longitudinal equality composite item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "gender_equality"
+          ]
+        }
+      ]
+    },
+    {
+      "line": 2062,
+      "expression": "catalog_harvester._load_wvs_indicator_catalog_from_local_file()[0]['name'] == 'Fixture first'",
+      "holds": true,
+      "actual_left": "Fixture first",
+      "expected_right": "Fixture first"
+    },
+    {
+      "line": 2067,
+      "expression": "present_signature != absent_signature",
+      "holds": true,
+      "actual_left": "d42a6b6edf003753d410bd006dd51094d366f45de1da2eb3ceba32928229d640",
+      "expected_right": "2f579ca2d90f460afeb1d8ecf475b7e3f3255b47c46130ff330b7686d081df3a"
+    },
+    {
+      "line": 2070,
+      "expression": "config.run_signature == present_signature",
+      "holds": true,
+      "actual_left": "d42a6b6edf003753d410bd006dd51094d366f45de1da2eb3ceba32928229d640",
+      "expected_right": "d42a6b6edf003753d410bd006dd51094d366f45de1da2eb3ceba32928229d640"
+    },
+    {
+      "line": 2074,
+      "expression": "variable_path.stat().st_mtime_ns == previous_stat.st_mtime_ns",
+      "holds": true,
+      "actual_left": 1791475421410634568,
+      "expected_right": 1791475421410634568
+    },
+    {
+      "line": 2075,
+      "expression": "catalog_harvester._load_wvs_indicator_catalog_from_local_file()[0]['name'] == 'Fixture later'",
+      "holds": true,
+      "actual_left": "Fixture later",
+      "expected_right": "Fixture later"
+    },
+    {
+      "line": 2079,
+      "expression": "config.run_signature != present_signature",
+      "holds": true,
+      "actual_left": "1c8bb21ffca080ad9bc45e322992bf871186c321ccb99fe98b01d409194f2548",
+      "expected_right": "d42a6b6edf003753d410bd006dd51094d366f45de1da2eb3ceba32928229d640"
+    },
+    {
+      "line": 2083,
+      "expression": "catalog_harvester._load_wvs_indicator_catalog_from_local_file()[0]['name'] == 'Primary YAML'",
+      "holds": true,
+      "actual_left": "Primary YAML",
+      "expected_right": "Primary YAML"
+    },
+    {
+      "line": 2088,
+      "expression": "config.run_signature == primary_signature",
+      "holds": true,
+      "actual_left": "42bb6622ff70ffdbdedbb732fadd0b7e93a2c04f7feb0464f07b78f6e6d187d8",
+      "expected_right": "42bb6622ff70ffdbdedbb732fadd0b7e93a2c04f7feb0464f07b78f6e6d187d8"
+    },
+    {
+      "line": 2089,
+      "expression": "catalog_harvester._load_wvs_indicator_catalog_from_local_file()[0]['name'] == 'Primary YAML'",
+      "holds": true,
+      "actual_left": "Primary YAML",
+      "expected_right": "Primary YAML"
+    },
+    {
+      "line": 2098,
+      "expression": "catalog_harvester._load_wvs_indicator_catalog_from_local_file() == catalog_harvester._WVS_STATIC_INDICATORS",
+      "holds": true,
+      "actual_left": [
+        {
+          "id": "A009",
+          "name": "State of health (subjective)",
+          "description": "WVS longitudinal subjective health item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "health_outcomes"
+          ]
+        },
+        {
+          "id": "A165",
+          "name": "Most people can be trusted",
+          "description": "WVS longitudinal social trust question",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_trust"
+          ]
+        },
+        {
+          "id": "A170",
+          "name": "Satisfaction with your life",
+          "description": "WVS longitudinal life satisfaction item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "A173",
+          "name": "How much freedom of choice and control",
+          "description": "WVS longitudinal freedom-of-choice item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "cultural_cluster"
+          ]
+        },
+        {
+          "id": "A214",
+          "name": "I see myself as someone who is generally trusting",
+          "description": "WVS longitudinal generalized trust item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_trust"
+          ]
+        },
+        {
+          "id": "D059",
+          "name": "Men make better political leaders than women do",
+          "description": "WVS longitudinal gender norms item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "gender_equality"
+          ]
+        },
+        {
+          "id": "E023",
+          "name": "Interest in politics",
+          "description": "WVS longitudinal political interest item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "E025",
+          "name": "Political action: Signing a petition",
+          "description": "WVS longitudinal petition participation item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "E035",
+          "name": "Income equality",
+          "description": "WVS longitudinal income equality preference item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "inequality"
+          ]
+        },
+        {
+          "id": "E069_07",
+          "name": "Confidence: Parliament",
+          "description": "WVS longitudinal institutional confidence item for parliament",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "public_trust",
+            "institutional_quality"
+          ]
+        },
+        {
+          "id": "E069_11",
+          "name": "Confidence: The Government",
+          "description": "WVS longitudinal institutional confidence item for government",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "public_trust",
+            "institutional_quality"
+          ]
+        },
+        {
+          "id": "E069_17",
+          "name": "Confidence: Justice System/Courts",
+          "description": "WVS longitudinal institutional confidence item for courts",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "judicial_quality",
+            "institutional_quality"
+          ]
+        },
+        {
+          "id": "E110",
+          "name": "Satisfaction with the way democracy develops",
+          "description": "WVS longitudinal democracy satisfaction item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "democracy_quality"
+          ]
+        },
+        {
+          "id": "E117",
+          "name": "Political system: Having a democratic political system",
+          "description": "WVS longitudinal democracy preference item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "democracy_quality"
+          ]
+        },
+        {
+          "id": "E196",
+          "name": "Extent of political corruption",
+          "description": "WVS longitudinal perceived political corruption item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "corruption_level"
+          ]
+        },
+        {
+          "id": "E233",
+          "name": "Democracy: Women have the same rights as men",
+          "description": "WVS longitudinal gender equality in democracy item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "gender_equality"
+          ]
+        },
+        {
+          "id": "E286",
+          "name": "Social activism: Donating to a group or campaign",
+          "description": "WVS longitudinal social activism donation item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "F108",
+          "name": "Government protects freedom",
+          "description": "WVS longitudinal freedom protection item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "democracy_quality"
+          ]
+        },
+        {
+          "id": "G007_64",
+          "name": "Trust: People in general",
+          "description": "WVS longitudinal trust in people in general item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_trust"
+          ]
+        },
+        {
+          "id": "Y022",
+          "name": "Welzel equality sub-index",
+          "description": "WVS longitudinal equality composite item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "gender_equality"
+          ]
+        }
+      ],
+      "expected_right": [
+        {
+          "id": "A009",
+          "name": "State of health (subjective)",
+          "description": "WVS longitudinal subjective health item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "health_outcomes"
+          ]
+        },
+        {
+          "id": "A165",
+          "name": "Most people can be trusted",
+          "description": "WVS longitudinal social trust question",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_trust"
+          ]
+        },
+        {
+          "id": "A170",
+          "name": "Satisfaction with your life",
+          "description": "WVS longitudinal life satisfaction item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "A173",
+          "name": "How much freedom of choice and control",
+          "description": "WVS longitudinal freedom-of-choice item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "cultural_cluster"
+          ]
+        },
+        {
+          "id": "A214",
+          "name": "I see myself as someone who is generally trusting",
+          "description": "WVS longitudinal generalized trust item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_trust"
+          ]
+        },
+        {
+          "id": "D059",
+          "name": "Men make better political leaders than women do",
+          "description": "WVS longitudinal gender norms item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "gender_equality"
+          ]
+        },
+        {
+          "id": "E023",
+          "name": "Interest in politics",
+          "description": "WVS longitudinal political interest item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "E025",
+          "name": "Political action: Signing a petition",
+          "description": "WVS longitudinal petition participation item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "E035",
+          "name": "Income equality",
+          "description": "WVS longitudinal income equality preference item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "inequality"
+          ]
+        },
+        {
+          "id": "E069_07",
+          "name": "Confidence: Parliament",
+          "description": "WVS longitudinal institutional confidence item for parliament",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "public_trust",
+            "institutional_quality"
+          ]
+        },
+        {
+          "id": "E069_11",
+          "name": "Confidence: The Government",
+          "description": "WVS longitudinal institutional confidence item for government",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "public_trust",
+            "institutional_quality"
+          ]
+        },
+        {
+          "id": "E069_17",
+          "name": "Confidence: Justice System/Courts",
+          "description": "WVS longitudinal institutional confidence item for courts",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "judicial_quality",
+            "institutional_quality"
+          ]
+        },
+        {
+          "id": "E110",
+          "name": "Satisfaction with the way democracy develops",
+          "description": "WVS longitudinal democracy satisfaction item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "democracy_quality"
+          ]
+        },
+        {
+          "id": "E117",
+          "name": "Political system: Having a democratic political system",
+          "description": "WVS longitudinal democracy preference item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "democracy_quality"
+          ]
+        },
+        {
+          "id": "E196",
+          "name": "Extent of political corruption",
+          "description": "WVS longitudinal perceived political corruption item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "corruption_level"
+          ]
+        },
+        {
+          "id": "E233",
+          "name": "Democracy: Women have the same rights as men",
+          "description": "WVS longitudinal gender equality in democracy item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "gender_equality"
+          ]
+        },
+        {
+          "id": "E286",
+          "name": "Social activism: Donating to a group or campaign",
+          "description": "WVS longitudinal social activism donation item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "F108",
+          "name": "Government protects freedom",
+          "description": "WVS longitudinal freedom protection item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "democracy_quality"
+          ]
+        },
+        {
+          "id": "G007_64",
+          "name": "Trust: People in general",
+          "description": "WVS longitudinal trust in people in general item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_trust"
+          ]
+        },
+        {
+          "id": "Y022",
+          "name": "Welzel equality sub-index",
+          "description": "WVS longitudinal equality composite item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "gender_equality"
+          ]
+        }
+      ]
+    },
+    {
+      "line": 2102,
+      "expression": "catalog_harvester._load_wvs_indicator_catalog_from_local_file() == catalog_harvester._WVS_STATIC_INDICATORS",
+      "holds": true,
+      "actual_left": [
+        {
+          "id": "A009",
+          "name": "State of health (subjective)",
+          "description": "WVS longitudinal subjective health item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "health_outcomes"
+          ]
+        },
+        {
+          "id": "A165",
+          "name": "Most people can be trusted",
+          "description": "WVS longitudinal social trust question",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_trust"
+          ]
+        },
+        {
+          "id": "A170",
+          "name": "Satisfaction with your life",
+          "description": "WVS longitudinal life satisfaction item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "A173",
+          "name": "How much freedom of choice and control",
+          "description": "WVS longitudinal freedom-of-choice item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "cultural_cluster"
+          ]
+        },
+        {
+          "id": "A214",
+          "name": "I see myself as someone who is generally trusting",
+          "description": "WVS longitudinal generalized trust item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_trust"
+          ]
+        },
+        {
+          "id": "D059",
+          "name": "Men make better political leaders than women do",
+          "description": "WVS longitudinal gender norms item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "gender_equality"
+          ]
+        },
+        {
+          "id": "E023",
+          "name": "Interest in politics",
+          "description": "WVS longitudinal political interest item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "E025",
+          "name": "Political action: Signing a petition",
+          "description": "WVS longitudinal petition participation item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "E035",
+          "name": "Income equality",
+          "description": "WVS longitudinal income equality preference item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "inequality"
+          ]
+        },
+        {
+          "id": "E069_07",
+          "name": "Confidence: Parliament",
+          "description": "WVS longitudinal institutional confidence item for parliament",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "public_trust",
+            "institutional_quality"
+          ]
+        },
+        {
+          "id": "E069_11",
+          "name": "Confidence: The Government",
+          "description": "WVS longitudinal institutional confidence item for government",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "public_trust",
+            "institutional_quality"
+          ]
+        },
+        {
+          "id": "E069_17",
+          "name": "Confidence: Justice System/Courts",
+          "description": "WVS longitudinal institutional confidence item for courts",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "judicial_quality",
+            "institutional_quality"
+          ]
+        },
+        {
+          "id": "E110",
+          "name": "Satisfaction with the way democracy develops",
+          "description": "WVS longitudinal democracy satisfaction item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "democracy_quality"
+          ]
+        },
+        {
+          "id": "E117",
+          "name": "Political system: Having a democratic political system",
+          "description": "WVS longitudinal democracy preference item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "democracy_quality"
+          ]
+        },
+        {
+          "id": "E196",
+          "name": "Extent of political corruption",
+          "description": "WVS longitudinal perceived political corruption item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "corruption_level"
+          ]
+        },
+        {
+          "id": "E233",
+          "name": "Democracy: Women have the same rights as men",
+          "description": "WVS longitudinal gender equality in democracy item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "gender_equality"
+          ]
+        },
+        {
+          "id": "E286",
+          "name": "Social activism: Donating to a group or campaign",
+          "description": "WVS longitudinal social activism donation item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "F108",
+          "name": "Government protects freedom",
+          "description": "WVS longitudinal freedom protection item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "democracy_quality"
+          ]
+        },
+        {
+          "id": "G007_64",
+          "name": "Trust: People in general",
+          "description": "WVS longitudinal trust in people in general item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_trust"
+          ]
+        },
+        {
+          "id": "Y022",
+          "name": "Welzel equality sub-index",
+          "description": "WVS longitudinal equality composite item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "gender_equality"
+          ]
+        }
+      ],
+      "expected_right": [
+        {
+          "id": "A009",
+          "name": "State of health (subjective)",
+          "description": "WVS longitudinal subjective health item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "health_outcomes"
+          ]
+        },
+        {
+          "id": "A165",
+          "name": "Most people can be trusted",
+          "description": "WVS longitudinal social trust question",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_trust"
+          ]
+        },
+        {
+          "id": "A170",
+          "name": "Satisfaction with your life",
+          "description": "WVS longitudinal life satisfaction item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "A173",
+          "name": "How much freedom of choice and control",
+          "description": "WVS longitudinal freedom-of-choice item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "cultural_cluster"
+          ]
+        },
+        {
+          "id": "A214",
+          "name": "I see myself as someone who is generally trusting",
+          "description": "WVS longitudinal generalized trust item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_trust"
+          ]
+        },
+        {
+          "id": "D059",
+          "name": "Men make better political leaders than women do",
+          "description": "WVS longitudinal gender norms item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "gender_equality"
+          ]
+        },
+        {
+          "id": "E023",
+          "name": "Interest in politics",
+          "description": "WVS longitudinal political interest item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "E025",
+          "name": "Political action: Signing a petition",
+          "description": "WVS longitudinal petition participation item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "E035",
+          "name": "Income equality",
+          "description": "WVS longitudinal income equality preference item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "inequality"
+          ]
+        },
+        {
+          "id": "E069_07",
+          "name": "Confidence: Parliament",
+          "description": "WVS longitudinal institutional confidence item for parliament",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "public_trust",
+            "institutional_quality"
+          ]
+        },
+        {
+          "id": "E069_11",
+          "name": "Confidence: The Government",
+          "description": "WVS longitudinal institutional confidence item for government",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "public_trust",
+            "institutional_quality"
+          ]
+        },
+        {
+          "id": "E069_17",
+          "name": "Confidence: Justice System/Courts",
+          "description": "WVS longitudinal institutional confidence item for courts",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "judicial_quality",
+            "institutional_quality"
+          ]
+        },
+        {
+          "id": "E110",
+          "name": "Satisfaction with the way democracy develops",
+          "description": "WVS longitudinal democracy satisfaction item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "democracy_quality"
+          ]
+        },
+        {
+          "id": "E117",
+          "name": "Political system: Having a democratic political system",
+          "description": "WVS longitudinal democracy preference item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "democracy_quality"
+          ]
+        },
+        {
+          "id": "E196",
+          "name": "Extent of political corruption",
+          "description": "WVS longitudinal perceived political corruption item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "corruption_level"
+          ]
+        },
+        {
+          "id": "E233",
+          "name": "Democracy: Women have the same rights as men",
+          "description": "WVS longitudinal gender equality in democracy item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "gender_equality"
+          ]
+        },
+        {
+          "id": "E286",
+          "name": "Social activism: Donating to a group or campaign",
+          "description": "WVS longitudinal social activism donation item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_capital"
+          ]
+        },
+        {
+          "id": "F108",
+          "name": "Government protects freedom",
+          "description": "WVS longitudinal freedom protection item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "democracy_quality"
+          ]
+        },
+        {
+          "id": "G007_64",
+          "name": "Trust: People in general",
+          "description": "WVS longitudinal trust in people in general item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "social_trust"
+          ]
+        },
+        {
+          "id": "Y022",
+          "name": "Welzel equality sub-index",
+          "description": "WVS longitudinal equality composite item",
+          "wave": "timeseries",
+          "harvest_metric_candidates": [
+            "gender_equality"
+          ]
+        }
+      ]
+    },
+    {
+      "line": 2105,
+      "expression": "config.run_signature != absent_signature",
+      "holds": true,
+      "actual_left": "3c2348b8eba549bf98c247a90090177a8ca11d7883459c6f5bfa1432db9da165",
+      "expected_right": "2f579ca2d90f460afeb1d8ecf475b7e3f3255b47c46130ff330b7686d081df3a"
+    }
+  ],
+  "marker_and_fixture_outputs": "/workspace/orch02-native-c05-c12/raw/c05-fallback-intact/semantic-f3uyeefy"
+}

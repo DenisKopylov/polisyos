@@ -1,0 +1,46 @@
+{
+  "schema": "policyos.e02.c05.footprint_dag_check.v1",
+  "source_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+  "source_tree": "47950716278e09cd1c4ddf6fa0acefbcdd013e50",
+  "slice_base_sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+  "candidate_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-08-e02-c05-catalog-profile-currentness.toml",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+    "policy-engine/src/polisyos/fabric/retrieval/service.py",
+    "policy-engine/tests/unit/remediation/test_dfi_03.py",
+    "policy-engine/tests/unit/remediation/test_dfk_02.py"
+  ],
+  "file_type_counts": {
+    ".toml": 1,
+    ".md": 1,
+    ".py": 8
+  },
+  "full_after_blob_match": true,
+  "independent_dependency_rows": 34,
+  "dependency_denominator": "Every declared writer source-manifest dependency row plus named direct lazy-import/runtime/test rows. Bounded source/config/test dependency list, not entire dynamic/external closure.",
+  "base_parents": [
+    "42a8b499860acdb67b73ea9c5c7f53a874d71f08",
+    "ab44166335130463178e65dfc29a252c96afe479"
+  ],
+  "DFI_is_ancestor": true,
+  "historical_ranges": [
+    {
+      "base": "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63",
+      "candidate": "ab44166335130463178e65dfc29a252c96afe479",
+      "path_entries": 30,
+      "denominator": "complete unfiltered Git diff range; paths may recur between ranges"
+    },
+    {
+      "base": "ab44166335130463178e65dfc29a252c96afe479",
+      "candidate": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "path_entries": 36,
+      "denominator": "complete unfiltered Git diff range; paths may recur between ranges"
+    }
+  ],
+  "G_composition": "held/source selection unresolved, not tested or admitted by own-base results"
+}

@@ -1,0 +1,54 @@
+{
+  "schema": "orch02.native-command.v1",
+  "source_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+  "source_tree": "47950716278e09cd1c4ddf6fa0acefbcdd013e50",
+  "branch": "codex/e02-C-orch02-c05-recovery",
+  "repo": "/workspace/orch02-c05",
+  "cwd": "/workspace/orch02-c05/policy-engine",
+  "argv": [
+    "/workspace/orch02-native-c05-c12/venv/bin/python",
+    "/workspace/orch02-native-c05-c12/semantic_collect-c05-executed.py",
+    "--repo",
+    "/workspace/orch02-c05",
+    "--kind",
+    "c05-profile",
+    "--remove",
+    "member"
+  ],
+  "timeout_seconds": 90,
+  "timeout_basis": "measured prior suite",
+  "environment": {
+    "PYTHONPATH": "/workspace/orch02-c05/policy-engine/src:/workspace/orch02-c05/policy-engine/tests:/workspace/orch02-native-c05-c12",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_CAS_DIR": "/workspace/orch02-native-c05-c12/raw/c05-profile-member-removed/cas"
+  },
+  "source_status_before": "",
+  "harness_sha256": "a796365861b52967dd1b47fba6bbc8c2a43fdd2ac3c775bed89f87e31854cd2d",
+  "command_python_input": {
+    "/workspace/orch02-native-c05-c12/semantic_collect-c05-executed.py": "4628cd39a969cc3b7d9dab47187453d709884f9dbe630df2279a8d5376286f79"
+  },
+  "disk_available_bytes_before": 23299727360,
+  "exit_code": 0,
+  "wall_seconds": 20.65052543600018,
+  "source_status_after": "",
+  "source_sha_after": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+  "disk_available_bytes_after": 23159697408,
+  "outputs": {
+    "semantic.json": {
+      "bytes": 29524,
+      "sha256": "dc3b15dac7af89525a5ec84a7b1260589000841316a6aaa920ff30acf393130f"
+    },
+    "stdout.txt": {
+      "bytes": 29524,
+      "sha256": "dc3b15dac7af89525a5ec84a7b1260589000841316a6aaa920ff30acf393130f"
+    },
+    "stderr.txt": {
+      "bytes": 189,
+      "sha256": "171e2c134ef5e4a431d3af99a5be5a7d19f4f13871eec46eb660a2d4eef9ef46"
+    },
+    "resource.json": {
+      "bytes": 289,
+      "sha256": "30cfc06567ac1ad5ffec22e9190c4e55e3bb5e2c9e289d454edebdab9ab7708a"
+    }
+  }
+}

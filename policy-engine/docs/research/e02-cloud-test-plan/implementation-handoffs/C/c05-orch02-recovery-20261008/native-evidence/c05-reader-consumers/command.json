@@ -1,0 +1,65 @@
+{
+  "schema": "orch02.native-command.v1",
+  "source_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+  "source_tree": "47950716278e09cd1c4ddf6fa0acefbcdd013e50",
+  "branch": "codex/e02-C-orch02-c05-recovery",
+  "repo": "/workspace/orch02-c05",
+  "cwd": "/workspace/orch02-c05/policy-engine",
+  "argv": [
+    "/workspace/orch02-native-c05-c12/venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-p",
+    "orch02_capture",
+    "--basetemp",
+    "/workspace/orch02-native-c05-c12/raw/c05-reader-consumers/basetemp",
+    "--junitxml",
+    "/workspace/orch02-native-c05-c12/raw/c05-reader-consumers/junit.xml",
+    "-q",
+    "tests/unit/data_forge/domains/catalog/batch/core_sources/test_loaders.py",
+    "tests/unit/data_forge/domains/catalog/batch/core_sources/test_api.py",
+    "tests/unit/data_forge/domains/catalog/knowledge/test_proxy_penalties.py",
+    "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_load_wvs_bulk_rows_aggregates_social_trust_as_weighted_share",
+    "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_core_sources_ingest_adds_proxy_alignment_for_health_spending"
+  ],
+  "timeout_seconds": null,
+  "timeout_basis": "first wall measurement; no arbitrary cutoff",
+  "environment": {
+    "PYTHONPATH": "/workspace/orch02-c05/policy-engine/src:/workspace/orch02-c05/policy-engine/tests:/workspace/orch02-native-c05-c12",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_CAS_DIR": "/workspace/orch02-native-c05-c12/raw/c05-reader-consumers/cas"
+  },
+  "source_status_before": "",
+  "harness_sha256": "a796365861b52967dd1b47fba6bbc8c2a43fdd2ac3c775bed89f87e31854cd2d",
+  "command_python_input": {},
+  "disk_available_bytes_before": 23361683456,
+  "exit_code": 0,
+  "wall_seconds": 13.697199640000008,
+  "source_status_after": "",
+  "source_sha_after": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+  "disk_available_bytes_after": 23329120256,
+  "outputs": {
+    "junit.xml": {
+      "bytes": 1792,
+      "sha256": "11c248dc30bf37537a3d41033073417b983bdcaab2ec864c61866ab7e60c5f79"
+    },
+    "stdout.txt": {
+      "bytes": 559,
+      "sha256": "42cdd8d06f851741ff38ee9a0ab59e1bc1783a24e39a2e63c75a7b55231dcd4f"
+    },
+    "runtime-origins.json": {
+      "bytes": 89357,
+      "sha256": "32eb991435ffbdeaab9e1d3caeba178d0e3b244ad2825e857f5a6fc9cce4346a"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "resource.json": {
+      "bytes": 285,
+      "sha256": "81c90bec229eb2f86ade74a66bf7231a89e4ad7c16ed942aae8bfa9a5dbb0a07"
+    }
+  }
+}

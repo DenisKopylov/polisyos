@@ -1,0 +1,129 @@
+{
+  "kind": "c05-proxy",
+  "removal": {
+    "kind": "cache",
+    "quantity": "restore obsolete path-only warm snapshot in actual owner reader; current basis remains",
+    "held_markers": true,
+    "source_files_changed": false
+  },
+  "owned_fixture_source": "/workspace/orch02-c05/policy-engine/tests/unit/remediation/test_dfi_03.py",
+  "source_sha256": "298a8aa19e46f3d508bec214c5a713ccb272612e0945b263336514fd69475735",
+  "oracle": "literal actual SQL/benchmark/native outputs; assertion observations continue beyond digest failures",
+  "verdict": "INCONCLUSIVE",
+  "error": null,
+  "events": [
+    {
+      "line": 1939,
+      "expression": "core_registry._upsert_catalog_alignments(connection, alignments) == 1",
+      "holds": true,
+      "actual_left": 1,
+      "expected_right": 1
+    },
+    {
+      "line": 1945,
+      "expression": "persisted_alignment() == ('economic.gdp', 0.8, 0.2, 'metric_binding_proxy:fixture_metric', True)",
+      "holds": true,
+      "actual_left": [
+        "economic.gdp",
+        0.8,
+        0.2,
+        "metric_binding_proxy:fixture_metric",
+        true
+      ],
+      "expected_right": [
+        "economic.gdp",
+        0.8,
+        0.2,
+        "metric_binding_proxy:fixture_metric",
+        true
+      ]
+    },
+    {
+      "line": 1955,
+      "expression": "config.run_signature == signature",
+      "holds": true,
+      "actual_left": "73a820e3be4dadba4ee6aa437aa0939f2488cdc4175f0d6e1d18440fd0f5edba",
+      "expected_right": "73a820e3be4dadba4ee6aa437aa0939f2488cdc4175f0d6e1d18440fd0f5edba"
+    },
+    {
+      "line": 1956,
+      "expression": "proxy_penalties.metric_proxy_alignments('fixture_metric')[0].proxy_penalty == 0.2",
+      "holds": true,
+      "actual_left": 0.2,
+      "expected_right": 0.2
+    },
+    {
+      "line": 1962,
+      "expression": "proxy_path.stat().st_mtime_ns == previous_stat.st_mtime_ns",
+      "holds": true,
+      "actual_left": 1791475420552265031,
+      "expected_right": 1791475420552265031
+    },
+    {
+      "line": 1939,
+      "expression": "core_registry._upsert_catalog_alignments(connection, alignments) == 1",
+      "holds": true,
+      "actual_left": 1,
+      "expected_right": 1
+    },
+    {
+      "line": 1964,
+      "expression": "changed == ('economic.gdp', 0.8, 0.4, 'metric_binding_proxy:fixture_metric', True)",
+      "holds": false,
+      "actual_left": [
+        "economic.gdp",
+        0.8,
+        0.2,
+        "metric_binding_proxy:fixture_metric",
+        true
+      ],
+      "expected_right": [
+        "economic.gdp",
+        0.8,
+        0.4,
+        "metric_binding_proxy:fixture_metric",
+        true
+      ]
+    },
+    {
+      "line": 1965,
+      "expression": "config.run_signature != signature",
+      "holds": true,
+      "actual_left": "c834783196d926b9b8cf8cc5b78087489f3dfb407ee9ee906173bd55b81189fb",
+      "expected_right": "73a820e3be4dadba4ee6aa437aa0939f2488cdc4175f0d6e1d18440fd0f5edba"
+    },
+    {
+      "line": 1968,
+      "expression": "proxy_penalties.metric_proxy_alignments('fixture_metric') == ()",
+      "holds": false,
+      "actual_left": [
+        "ProxyMetricAlignmentSpec(metric_name='fixture_metric', canonical_var='economic.gdp', confidence=0.8, proxy_penalty=0.2, country_overrides={}, year_overrides=())"
+      ],
+      "expected_right": []
+    },
+    {
+      "line": 1970,
+      "expression": "absent_signature != changed_signature",
+      "holds": true,
+      "actual_left": "85538ebcd73bb2ab60ffa8c45e9c43df92d9d71691dc8d149d6442d5377afed1",
+      "expected_right": "c834783196d926b9b8cf8cc5b78087489f3dfb407ee9ee906173bd55b81189fb"
+    },
+    {
+      "line": 1972,
+      "expression": "proxy_penalties.metric_proxy_alignments('fixture_metric') == ()",
+      "holds": false,
+      "actual_left": [
+        "ProxyMetricAlignmentSpec(metric_name='fixture_metric', canonical_var='economic.gdp', confidence=0.8, proxy_penalty=0.2, country_overrides={}, year_overrides=())"
+      ],
+      "expected_right": []
+    },
+    {
+      "line": 1973,
+      "expression": "config.run_signature != absent_signature",
+      "holds": true,
+      "actual_left": "8e777ea43dd04ab3d1903e95dfa7e9cc1dbc06be160a907073d9dba1cd8f7cd0",
+      "expected_right": "85538ebcd73bb2ab60ffa8c45e9c43df92d9d71691dc8d149d6442d5377afed1"
+    }
+  ],
+  "marker_and_fixture_outputs": "/workspace/orch02-native-c05-c12/raw/c05-proxy-cache-removed/semantic-1asyl6l7"
+}

@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "polisyos.runtime.quality.production_invocation",
+    "--base",
+    "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+    "--receipt",
+    "/workspace/orch02-c05/policy-engine/_build/c05-orch02-recovery-20261008/raw/production-invocation.json"
+  ],
+  "cwd": "/workspace/orch02-c05/policy-engine",
+  "source_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+  "source_tree": "47950716278e09cd1c4ddf6fa0acefbcdd013e50",
+  "exit_code": 3,
+  "wall_seconds": 305.37824464499977,
+  "stdout": "production-invocation.stdout.txt",
+  "stderr": "production-invocation.stderr.txt",
+  "ignored_receipt": "/workspace/orch02-c05/policy-engine/_build/c05-orch02-recovery-20261008/raw/production-invocation.json",
+  "is_ignored": true,
+  "runtime_invocation_established": false
+}

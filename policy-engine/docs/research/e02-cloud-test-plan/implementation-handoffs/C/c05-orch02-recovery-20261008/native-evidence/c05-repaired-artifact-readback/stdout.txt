@@ -1,0 +1,86 @@
+{
+  "verdict": "PASS_PERSISTED_REPAIRED_OUTPUT_READBACK",
+  "scope": "Independent read-only SQL and cross-artifact observations after the full owned test; no producer rerun or live fixture-profile reconstruction",
+  "cases": [
+    {
+      "fixture": "/workspace/orch02-native-c05-c12/raw/c05-full-native/basetemp/test_material_input_change_rec0",
+      "mutation": "profile_url",
+      "actual_rows": [
+        [
+          "wb-gdp",
+          "NY.GDP.MKTP.CD",
+          "UA",
+          2020,
+          2.2
+        ]
+      ],
+      "actual_evidence": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ],
+      "checkpoint_stage_receipt_equal": true,
+      "receipt_digest": "sha256:6ddfdfdbac39350d1cbe467a50461202736ae76f0f75e304d6ab61f1cf2c44ea",
+      "benchmark_mode": "full-ready",
+      "benchmark_current": true,
+      "artifact_origins": {
+        "/workspace/orch02-native-c05-c12/raw/c05-full-native/basetemp/test_material_input_change_rec0/snapshot/datasets/graph/dataset_catalog.duckdb": {
+          "bytes": 10498048,
+          "sha256": "667c78bb9ec9627e2106b26f5927f00622fd0c83b99bb59e770392d88ab8b542"
+        },
+        "/workspace/orch02-native-c05-c12/raw/c05-full-native/basetemp/test_material_input_change_rec0/snapshot/datasets/manifests/observation_ingest_checkpoint.json": {
+          "bytes": 4460,
+          "sha256": "563b79fcaa50f3ff2e91c230731c5dd38311d2109bd786d8b0df76e7e7c4603c"
+        },
+        "/workspace/orch02-native-c05-c12/raw/c05-full-native/basetemp/test_material_input_change_rec0/snapshot/datasets/manifests/stage_state.json": {
+          "bytes": 21780,
+          "sha256": "54fb6cc48b02b65f82f2c34227f0be46e467fa42d0a3a08ef2239834338a9971"
+        },
+        "/workspace/orch02-native-c05-c12/raw/c05-full-native/basetemp/test_material_input_change_rec0/snapshot/datasets/benchmark_report.json": {
+          "bytes": 25106,
+          "sha256": "a358c315a04794cbc9bf1064466da380b3ae16bcff159a21f568c1acbd9c25bf"
+        }
+      }
+    },
+    {
+      "fixture": "/workspace/orch02-native-c05-c12/raw/c05-full-native/basetemp/test_material_input_change_rec1",
+      "mutation": "seed_evidence",
+      "actual_rows": [
+        [
+          "wb-gdp",
+          "NY.GDP.MKTP.CD",
+          "UA",
+          2020,
+          1.1
+        ]
+      ],
+      "actual_evidence": [
+        [
+          "seed_worldbank_alt;source=worldbank"
+        ]
+      ],
+      "checkpoint_stage_receipt_equal": true,
+      "receipt_digest": "sha256:f29490e782b86f21400c23b02588ceed0c79748377fb68d75e3b44a350cbab60",
+      "benchmark_mode": "full-ready",
+      "benchmark_current": true,
+      "artifact_origins": {
+        "/workspace/orch02-native-c05-c12/raw/c05-full-native/basetemp/test_material_input_change_rec1/snapshot/datasets/graph/dataset_catalog.duckdb": {
+          "bytes": 10760192,
+          "sha256": "f17e435466bf4c5b5e620c3cbc86625f1bc24bf382648fdaf9d229e0f9b5c085"
+        },
+        "/workspace/orch02-native-c05-c12/raw/c05-full-native/basetemp/test_material_input_change_rec1/snapshot/datasets/manifests/observation_ingest_checkpoint.json": {
+          "bytes": 4460,
+          "sha256": "0c83946fc60c9b8a8f194d7d2cf902d94956d5acae589c1716264f4a93d6e078"
+        },
+        "/workspace/orch02-native-c05-c12/raw/c05-full-native/basetemp/test_material_input_change_rec1/snapshot/datasets/manifests/stage_state.json": {
+          "bytes": 21780,
+          "sha256": "240463ded797351594c24fef9ce19202883f37759172dd238eb363d70869b146"
+        },
+        "/workspace/orch02-native-c05-c12/raw/c05-full-native/basetemp/test_material_input_change_rec1/snapshot/datasets/benchmark_report.json": {
+          "bytes": 25106,
+          "sha256": "99079a5e61244bb7172325a5972669da8b7c553b0e1c15b33aef91bc0a33162e"
+        }
+      }
+    }
+  ]
+}

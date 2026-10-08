@@ -1,0 +1,269 @@
+{
+  "kind": "c05-legacy",
+  "removal": {
+    "kind": "none",
+    "quantity": null,
+    "held_markers": true,
+    "source_files_changed": false
+  },
+  "owned_fixture_source": "/workspace/orch02-c05/policy-engine/tests/unit/remediation/test_dfi_03.py",
+  "source_sha256": "298a8aa19e46f3d508bec214c5a713ccb272612e0945b263336514fd69475735",
+  "oracle": "literal actual SQL/benchmark/native outputs; assertion observations continue beyond digest failures",
+  "verdict": "PASS",
+  "error": null,
+  "events": [
+    {
+      "line": 2131,
+      "expression": "branches[-1] == 'parallel'",
+      "holds": true,
+      "actual_left": "parallel",
+      "expected_right": "parallel",
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2134,
+      "expression": "config.run_signature == false_signature",
+      "holds": true,
+      "actual_left": "62eeff6d4d9f35c2d50a5236eddd7935bf4388e55672116009a8287d9f064b35",
+      "expected_right": "62eeff6d4d9f35c2d50a5236eddd7935bf4388e55672116009a8287d9f064b35",
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2135,
+      "expression": "core_api._legacy_serial_mode_enabled() is False",
+      "holds": true,
+      "actual_left": false,
+      "expected_right": false,
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2134,
+      "expression": "config.run_signature == false_signature",
+      "holds": true,
+      "actual_left": "62eeff6d4d9f35c2d50a5236eddd7935bf4388e55672116009a8287d9f064b35",
+      "expected_right": "62eeff6d4d9f35c2d50a5236eddd7935bf4388e55672116009a8287d9f064b35",
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2135,
+      "expression": "core_api._legacy_serial_mode_enabled() is False",
+      "holds": true,
+      "actual_left": false,
+      "expected_right": false,
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2134,
+      "expression": "config.run_signature == false_signature",
+      "holds": true,
+      "actual_left": "62eeff6d4d9f35c2d50a5236eddd7935bf4388e55672116009a8287d9f064b35",
+      "expected_right": "62eeff6d4d9f35c2d50a5236eddd7935bf4388e55672116009a8287d9f064b35",
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2135,
+      "expression": "core_api._legacy_serial_mode_enabled() is False",
+      "holds": true,
+      "actual_left": false,
+      "expected_right": false,
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2134,
+      "expression": "config.run_signature == false_signature",
+      "holds": true,
+      "actual_left": "62eeff6d4d9f35c2d50a5236eddd7935bf4388e55672116009a8287d9f064b35",
+      "expected_right": "62eeff6d4d9f35c2d50a5236eddd7935bf4388e55672116009a8287d9f064b35",
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2135,
+      "expression": "core_api._legacy_serial_mode_enabled() is False",
+      "holds": true,
+      "actual_left": false,
+      "expected_right": false,
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2134,
+      "expression": "config.run_signature == false_signature",
+      "holds": true,
+      "actual_left": "62eeff6d4d9f35c2d50a5236eddd7935bf4388e55672116009a8287d9f064b35",
+      "expected_right": "62eeff6d4d9f35c2d50a5236eddd7935bf4388e55672116009a8287d9f064b35",
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2135,
+      "expression": "core_api._legacy_serial_mode_enabled() is False",
+      "holds": true,
+      "actual_left": false,
+      "expected_right": false,
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2140,
+      "expression": "signature != false_signature",
+      "holds": true,
+      "actual_left": "b7e80e746876b6ce9cf73bc388973fbe6d7674202afbb821eb1aca96f417a136",
+      "expected_right": "62eeff6d4d9f35c2d50a5236eddd7935bf4388e55672116009a8287d9f064b35",
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2143,
+      "expression": "signature == true_signature",
+      "holds": true,
+      "actual_left": "b7e80e746876b6ce9cf73bc388973fbe6d7674202afbb821eb1aca96f417a136",
+      "expected_right": "b7e80e746876b6ce9cf73bc388973fbe6d7674202afbb821eb1aca96f417a136",
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2144,
+      "expression": "core_api._legacy_serial_mode_enabled() is True",
+      "holds": true,
+      "actual_left": true,
+      "expected_right": true,
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2140,
+      "expression": "signature != false_signature",
+      "holds": true,
+      "actual_left": "b7e80e746876b6ce9cf73bc388973fbe6d7674202afbb821eb1aca96f417a136",
+      "expected_right": "62eeff6d4d9f35c2d50a5236eddd7935bf4388e55672116009a8287d9f064b35",
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2143,
+      "expression": "signature == true_signature",
+      "holds": true,
+      "actual_left": "b7e80e746876b6ce9cf73bc388973fbe6d7674202afbb821eb1aca96f417a136",
+      "expected_right": "b7e80e746876b6ce9cf73bc388973fbe6d7674202afbb821eb1aca96f417a136",
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2144,
+      "expression": "core_api._legacy_serial_mode_enabled() is True",
+      "holds": true,
+      "actual_left": true,
+      "expected_right": true,
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2140,
+      "expression": "signature != false_signature",
+      "holds": true,
+      "actual_left": "b7e80e746876b6ce9cf73bc388973fbe6d7674202afbb821eb1aca96f417a136",
+      "expected_right": "62eeff6d4d9f35c2d50a5236eddd7935bf4388e55672116009a8287d9f064b35",
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2143,
+      "expression": "signature == true_signature",
+      "holds": true,
+      "actual_left": "b7e80e746876b6ce9cf73bc388973fbe6d7674202afbb821eb1aca96f417a136",
+      "expected_right": "b7e80e746876b6ce9cf73bc388973fbe6d7674202afbb821eb1aca96f417a136",
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2144,
+      "expression": "core_api._legacy_serial_mode_enabled() is True",
+      "holds": true,
+      "actual_left": true,
+      "expected_right": true,
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2140,
+      "expression": "signature != false_signature",
+      "holds": true,
+      "actual_left": "b7e80e746876b6ce9cf73bc388973fbe6d7674202afbb821eb1aca96f417a136",
+      "expected_right": "62eeff6d4d9f35c2d50a5236eddd7935bf4388e55672116009a8287d9f064b35",
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2143,
+      "expression": "signature == true_signature",
+      "holds": true,
+      "actual_left": "b7e80e746876b6ce9cf73bc388973fbe6d7674202afbb821eb1aca96f417a136",
+      "expected_right": "b7e80e746876b6ce9cf73bc388973fbe6d7674202afbb821eb1aca96f417a136",
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2144,
+      "expression": "core_api._legacy_serial_mode_enabled() is True",
+      "holds": true,
+      "actual_left": true,
+      "expected_right": true,
+      "branches": [
+        "parallel"
+      ]
+    },
+    {
+      "line": 2146,
+      "expression": "branches[-1] == 'legacy'",
+      "holds": true,
+      "actual_left": "legacy",
+      "expected_right": "legacy",
+      "branches": [
+        "parallel",
+        "legacy"
+      ]
+    },
+    {
+      "line": 2148,
+      "expression": "config.run_signature == false_signature",
+      "holds": true,
+      "actual_left": "62eeff6d4d9f35c2d50a5236eddd7935bf4388e55672116009a8287d9f064b35",
+      "expected_right": "62eeff6d4d9f35c2d50a5236eddd7935bf4388e55672116009a8287d9f064b35",
+      "branches": [
+        "parallel",
+        "legacy"
+      ]
+    }
+  ],
+  "marker_and_fixture_outputs": "/workspace/orch02-native-c05-c12/raw/c05-legacy-intact/semantic-pgly_x2x"
+}

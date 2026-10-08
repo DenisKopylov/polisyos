@@ -1,0 +1,1385 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:3:1
+   |
+ 1 |   """Stage 0b: ingest transportability sources into registry/alignment/observation tables."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import asyncio
+ 6 | | import contextlib
+ 7 | | import csv
+ 8 | | import gzip
+ 9 | | import hashlib
+10 | | import io
+11 | | import json
+12 | | import math
+13 | | import os
+14 | | import re
+15 | | import time
+16 | | import zipfile
+17 | | from collections import OrderedDict, defaultdict, deque
+18 | | from dataclasses import dataclass, replace
+19 | | from datetime import UTC, datetime, timedelta
+20 | | from functools import lru_cache
+21 | | from importlib import import_module
+22 | | from itertools import islice
+23 | | from pathlib import Path
+24 | | from typing import TYPE_CHECKING, Any
+25 | | from urllib.parse import urlparse
+26 | |
+27 | | import aiohttp
+28 | | import duckdb
+29 | | import pandas as pd
+30 | |
+31 | | from polisyos.common.async_tools import run_coro_sync
+32 | | from polisyos.common.logger import get_logger
+33 | | from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+34 | |     CatalogTransportDataset,
+35 | |     CoreSourcesIngestStats,
+36 | |     ObservationFetchKey,
+37 | |     ObservationFetchPayload,
+38 | |     ObservationInsertStats,
+39 | |     ObservationPlan,
+40 | |     ObservationShard,
+41 | |     ObservationShardResult,
+42 | |     ObservationWriteItem,
+43 | |     SupportSketch,
+44 | |     WriterFlushState,
+45 | |     _ObservationRuntimeMetrics,
+46 | |     _SourceBudgetWindow,
+47 | | )
+48 | | from polisyos.data_forge.domains.catalog.batch.checkpoints import load_json, write_json
+49 | | from polisyos.data_forge.domains.catalog.batch.material_inputs import (
+50 | |     _MaterialFileSnapshot,
+51 | |     _material_file_snapshot,
+52 | |     _material_yaml_snapshot,
+53 | | )
+54 | | from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
+55 | |     country_scope_members,
+56 | |     iso2_to_iso3,
+57 | |     iso2_to_numeric,
+58 | |     normalize_country_code,
+59 | | )
+60 | | from polisyos.data_forge.domains.catalog.knowledge.proxy_penalties import metric_proxy_alignments
+61 | | from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
+62 | |     AlignmentMethod,
+63 | |     VariableAlignment,
+64 | |     align_semantic,
+65 | |     calibrate_alignment_confidence,
+66 | |     load_seed_alignments,
+67 | | )
+68 | | from polisyos.data_forge.kernel.pipeline.manifests import write_raw_manifest, write_stage_manifest
+69 | | from polisyos.data_forge.read_api.academic import CANONICAL_VARIABLES
+70 | | from polisyos.fabric.connectors.base import (
+71 | |     AsyncFetchLease,
+72 | |     ConnectionConfig,
+73 | |     DatasetCapabilitySnapshot,
+74 | |     FetchRequest,
+75 | | )
+76 | | from polisyos.fabric.connectors.profiles.models import SourceExecutionPolicy
+77 | | from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+78 | | from polisyos.fabric.connectors.profiles.resolver import (
+79 | |     resolve_connection_config,
+80 | |     resolve_execution_policy,
+81 | | )
+82 | | from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
+83 | | from polisyos.fabric.connectors.sources.sdmx_source import SDMXSourceConnector
+84 | | from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
+85 | | from polisyos.fabric.connectors.sources.unpd import UNPDConnector
+86 | | from polisyos.fabric.connectors.sources.who import WHOConnector
+87 | | from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+   | |____________________________________________________________________________^
+88 |
+89 |   if TYPE_CHECKING:
+   |
+help: Organize imports
+
+F401 [*] `contextlib` imported but unused
+ --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:6:8
+  |
+5 | import asyncio
+6 | import contextlib
+  |        ^^^^^^^^^^
+7 | import csv
+8 | import gzip
+  |
+help: Remove unused import: `contextlib`
+
+F401 [*] `time` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:15:8
+   |
+13 | import os
+14 | import re
+15 | import time
+   |        ^^^^
+16 | import zipfile
+17 | from collections import OrderedDict, defaultdict, deque
+   |
+help: Remove unused import: `time`
+
+F401 [*] `collections.OrderedDict` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:17:25
+   |
+15 | import time
+16 | import zipfile
+17 | from collections import OrderedDict, defaultdict, deque
+   |                         ^^^^^^^^^^^
+18 | from dataclasses import dataclass, replace
+19 | from datetime import UTC, datetime, timedelta
+   |
+help: Remove unused import
+
+F401 [*] `collections.defaultdict` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:17:38
+   |
+15 | import time
+16 | import zipfile
+17 | from collections import OrderedDict, defaultdict, deque
+   |                                      ^^^^^^^^^^^
+18 | from dataclasses import dataclass, replace
+19 | from datetime import UTC, datetime, timedelta
+   |
+help: Remove unused import
+
+F401 [*] `collections.deque` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:17:51
+   |
+15 | import time
+16 | import zipfile
+17 | from collections import OrderedDict, defaultdict, deque
+   |                                                   ^^^^^
+18 | from dataclasses import dataclass, replace
+19 | from datetime import UTC, datetime, timedelta
+   |
+help: Remove unused import
+
+F401 [*] `dataclasses.dataclass` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:18:25
+   |
+16 | import zipfile
+17 | from collections import OrderedDict, defaultdict, deque
+18 | from dataclasses import dataclass, replace
+   |                         ^^^^^^^^^
+19 | from datetime import UTC, datetime, timedelta
+20 | from functools import lru_cache
+   |
+help: Remove unused import
+
+F401 [*] `dataclasses.replace` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:18:36
+   |
+16 | import zipfile
+17 | from collections import OrderedDict, defaultdict, deque
+18 | from dataclasses import dataclass, replace
+   |                                    ^^^^^^^
+19 | from datetime import UTC, datetime, timedelta
+20 | from functools import lru_cache
+   |
+help: Remove unused import
+
+F401 [*] `datetime.timedelta` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:19:37
+   |
+17 | from collections import OrderedDict, defaultdict, deque
+18 | from dataclasses import dataclass, replace
+19 | from datetime import UTC, datetime, timedelta
+   |                                     ^^^^^^^^^
+20 | from functools import lru_cache
+21 | from importlib import import_module
+   |
+help: Remove unused import: `datetime.timedelta`
+
+F401 [*] `polisyos.common.async_tools.run_coro_sync` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:31:41
+   |
+29 | import pandas as pd
+30 |
+31 | from polisyos.common.async_tools import run_coro_sync
+   |                                         ^^^^^^^^^^^^^
+32 | from polisyos.common.logger import get_logger
+33 | from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+   |
+help: Remove unused import: `polisyos.common.async_tools.run_coro_sync`
+
+F401 [*] `polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts.CatalogTransportDataset` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:34:5
+   |
+32 | from polisyos.common.logger import get_logger
+33 | from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+34 |     CatalogTransportDataset,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+35 |     CoreSourcesIngestStats,
+36 |     ObservationFetchKey,
+   |
+help: Remove unused import
+
+F401 [*] `polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts.ObservationFetchKey` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:36:5
+   |
+34 |     CatalogTransportDataset,
+35 |     CoreSourcesIngestStats,
+36 |     ObservationFetchKey,
+   |     ^^^^^^^^^^^^^^^^^^^
+37 |     ObservationFetchPayload,
+38 |     ObservationInsertStats,
+   |
+help: Remove unused import
+
+F401 [*] `polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts.ObservationFetchPayload` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:37:5
+   |
+35 |     CoreSourcesIngestStats,
+36 |     ObservationFetchKey,
+37 |     ObservationFetchPayload,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+38 |     ObservationInsertStats,
+39 |     ObservationPlan,
+   |
+help: Remove unused import
+
+F401 [*] `polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts.ObservationPlan` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:39:5
+   |
+37 |     ObservationFetchPayload,
+38 |     ObservationInsertStats,
+39 |     ObservationPlan,
+   |     ^^^^^^^^^^^^^^^
+40 |     ObservationShard,
+41 |     ObservationShardResult,
+   |
+help: Remove unused import
+
+F401 [*] `polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts.ObservationShardResult` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:41:5
+   |
+39 |     ObservationPlan,
+40 |     ObservationShard,
+41 |     ObservationShardResult,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+42 |     ObservationWriteItem,
+43 |     SupportSketch,
+   |
+help: Remove unused import
+
+F401 [*] `polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts.ObservationWriteItem` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:42:5
+   |
+40 |     ObservationShard,
+41 |     ObservationShardResult,
+42 |     ObservationWriteItem,
+   |     ^^^^^^^^^^^^^^^^^^^^
+43 |     SupportSketch,
+44 |     WriterFlushState,
+   |
+help: Remove unused import
+
+F401 [*] `polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts.SupportSketch` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:43:5
+   |
+41 |     ObservationShardResult,
+42 |     ObservationWriteItem,
+43 |     SupportSketch,
+   |     ^^^^^^^^^^^^^
+44 |     WriterFlushState,
+45 |     _ObservationRuntimeMetrics,
+   |
+help: Remove unused import
+
+F401 [*] `polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts.WriterFlushState` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:44:5
+   |
+42 |     ObservationWriteItem,
+43 |     SupportSketch,
+44 |     WriterFlushState,
+   |     ^^^^^^^^^^^^^^^^
+45 |     _ObservationRuntimeMetrics,
+46 |     _SourceBudgetWindow,
+   |
+help: Remove unused import
+
+F401 [*] `polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts._ObservationRuntimeMetrics` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:45:5
+   |
+43 |     SupportSketch,
+44 |     WriterFlushState,
+45 |     _ObservationRuntimeMetrics,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+46 |     _SourceBudgetWindow,
+47 | )
+   |
+help: Remove unused import
+
+F401 [*] `polisyos.data_forge.domains.catalog.batch.checkpoints.load_json` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:48:67
+   |
+46 |     _SourceBudgetWindow,
+47 | )
+48 | from polisyos.data_forge.domains.catalog.batch.checkpoints import load_json, write_json
+   |                                                                   ^^^^^^^^^
+49 | from polisyos.data_forge.domains.catalog.batch.material_inputs import (
+50 |     _MaterialFileSnapshot,
+   |
+help: Remove unused import: `polisyos.data_forge.domains.catalog.batch.checkpoints.load_json`
+
+F401 [*] `polisyos.data_forge.domains.catalog.knowledge.country_codes.iso2_to_numeric` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:57:5
+   |
+55 |     country_scope_members,
+56 |     iso2_to_iso3,
+57 |     iso2_to_numeric,
+   |     ^^^^^^^^^^^^^^^
+58 |     normalize_country_code,
+59 | )
+   |
+help: Remove unused import
+
+F401 [*] `polisyos.data_forge.domains.catalog.knowledge.country_codes.normalize_country_code` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:58:5
+   |
+56 |     iso2_to_iso3,
+57 |     iso2_to_numeric,
+58 |     normalize_country_code,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+59 | )
+60 | from polisyos.data_forge.domains.catalog.knowledge.proxy_penalties import metric_proxy_alignments
+   |
+help: Remove unused import
+
+F401 [*] `polisyos.data_forge.domains.catalog.knowledge.proxy_penalties.metric_proxy_alignments` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:60:75
+   |
+58 |     normalize_country_code,
+59 | )
+60 | from polisyos.data_forge.domains.catalog.knowledge.proxy_penalties import metric_proxy_alignments
+   |                                                                           ^^^^^^^^^^^^^^^^^^^^^^^
+61 | from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
+62 |     AlignmentMethod,
+   |
+help: Remove unused import: `polisyos.data_forge.domains.catalog.knowledge.proxy_penalties.metric_proxy_alignments`
+
+F401 [*] `polisyos.data_forge.domains.catalog.knowledge.variable_alignment.AlignmentMethod` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:62:5
+   |
+60 | from polisyos.data_forge.domains.catalog.knowledge.proxy_penalties import metric_proxy_alignments
+61 | from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
+62 |     AlignmentMethod,
+   |     ^^^^^^^^^^^^^^^
+63 |     VariableAlignment,
+64 |     align_semantic,
+   |
+help: Remove unused import
+
+F401 [*] `polisyos.data_forge.domains.catalog.knowledge.variable_alignment.VariableAlignment` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:63:5
+   |
+61 | from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
+62 |     AlignmentMethod,
+63 |     VariableAlignment,
+   |     ^^^^^^^^^^^^^^^^^
+64 |     align_semantic,
+65 |     calibrate_alignment_confidence,
+   |
+help: Remove unused import
+
+F401 [*] `polisyos.data_forge.domains.catalog.knowledge.variable_alignment.align_semantic` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:64:5
+   |
+62 |     AlignmentMethod,
+63 |     VariableAlignment,
+64 |     align_semantic,
+   |     ^^^^^^^^^^^^^^
+65 |     calibrate_alignment_confidence,
+66 |     load_seed_alignments,
+   |
+help: Remove unused import
+
+F401 [*] `polisyos.data_forge.domains.catalog.knowledge.variable_alignment.calibrate_alignment_confidence` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:65:5
+   |
+63 |     VariableAlignment,
+64 |     align_semantic,
+65 |     calibrate_alignment_confidence,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+66 |     load_seed_alignments,
+67 | )
+   |
+help: Remove unused import
+
+F401 [*] `polisyos.data_forge.domains.catalog.knowledge.variable_alignment.load_seed_alignments` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:66:5
+   |
+64 |     align_semantic,
+65 |     calibrate_alignment_confidence,
+66 |     load_seed_alignments,
+   |     ^^^^^^^^^^^^^^^^^^^^
+67 | )
+68 | from polisyos.data_forge.kernel.pipeline.manifests import write_raw_manifest, write_stage_manifest
+   |
+help: Remove unused import
+
+F401 [*] `polisyos.data_forge.kernel.pipeline.manifests.write_stage_manifest` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:68:79
+   |
+66 |     load_seed_alignments,
+67 | )
+68 | from polisyos.data_forge.kernel.pipeline.manifests import write_raw_manifest, write_stage_manifest
+   |                                                                               ^^^^^^^^^^^^^^^^^^^^
+69 | from polisyos.data_forge.read_api.academic import CANONICAL_VARIABLES
+70 | from polisyos.fabric.connectors.base import (
+   |
+help: Remove unused import: `polisyos.data_forge.kernel.pipeline.manifests.write_stage_manifest`
+
+F401 [*] `polisyos.fabric.connectors.base.AsyncFetchLease` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:71:5
+   |
+69 | from polisyos.data_forge.read_api.academic import CANONICAL_VARIABLES
+70 | from polisyos.fabric.connectors.base import (
+71 |     AsyncFetchLease,
+   |     ^^^^^^^^^^^^^^^
+72 |     ConnectionConfig,
+73 |     DatasetCapabilitySnapshot,
+   |
+help: Remove unused import
+
+F401 [*] `polisyos.fabric.connectors.base.ConnectionConfig` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:72:5
+   |
+70 | from polisyos.fabric.connectors.base import (
+71 |     AsyncFetchLease,
+72 |     ConnectionConfig,
+   |     ^^^^^^^^^^^^^^^^
+73 |     DatasetCapabilitySnapshot,
+74 |     FetchRequest,
+   |
+help: Remove unused import
+
+F401 [*] `polisyos.fabric.connectors.base.DatasetCapabilitySnapshot` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:73:5
+   |
+71 |     AsyncFetchLease,
+72 |     ConnectionConfig,
+73 |     DatasetCapabilitySnapshot,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+74 |     FetchRequest,
+75 | )
+   |
+help: Remove unused import
+
+TC001 Move application import `polisyos.fabric.connectors.profiles.models.SourceExecutionPolicy` into a type-checking block
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:76:56
+   |
+74 |     FetchRequest,
+75 | )
+76 | from polisyos.fabric.connectors.profiles.models import SourceExecutionPolicy
+   |                                                        ^^^^^^^^^^^^^^^^^^^^^
+77 | from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+78 | from polisyos.fabric.connectors.profiles.resolver import (
+   |
+help: Move into type-checking block
+
+F401 [*] `polisyos.fabric.connectors.profiles.registry.SourceProfileRegistry` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:77:58
+   |
+75 | )
+76 | from polisyos.fabric.connectors.profiles.models import SourceExecutionPolicy
+77 | from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+   |                                                          ^^^^^^^^^^^^^^^^^^^^^
+78 | from polisyos.fabric.connectors.profiles.resolver import (
+79 |     resolve_connection_config,
+   |
+help: Remove unused import: `polisyos.fabric.connectors.profiles.registry.SourceProfileRegistry`
+
+F401 [*] `polisyos.fabric.connectors.profiles.resolver.resolve_connection_config` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:79:5
+   |
+77 | from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+78 | from polisyos.fabric.connectors.profiles.resolver import (
+79 |     resolve_connection_config,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+80 |     resolve_execution_policy,
+81 | )
+   |
+help: Remove unused import
+
+F401 [*] `polisyos.fabric.connectors.profiles.resolver.resolve_execution_policy` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:80:5
+   |
+78 | from polisyos.fabric.connectors.profiles.resolver import (
+79 |     resolve_connection_config,
+80 |     resolve_execution_policy,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+81 | )
+82 | from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
+   |
+help: Remove unused import
+
+F401 [*] `polisyos.fabric.connectors.sources.eurostat.EurostatConnector` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:82:57
+   |
+80 |     resolve_execution_policy,
+81 | )
+82 | from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
+   |                                                         ^^^^^^^^^^^^^^^^^
+83 | from polisyos.fabric.connectors.sources.sdmx_source import SDMXSourceConnector
+84 | from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
+   |
+help: Remove unused import: `polisyos.fabric.connectors.sources.eurostat.EurostatConnector`
+
+F401 [*] `polisyos.fabric.connectors.sources.sdmx_source.SDMXSourceConnector` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:83:60
+   |
+81 | )
+82 | from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
+83 | from polisyos.fabric.connectors.sources.sdmx_source import SDMXSourceConnector
+   |                                                            ^^^^^^^^^^^^^^^^^^^
+84 | from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
+85 | from polisyos.fabric.connectors.sources.unpd import UNPDConnector
+   |
+help: Remove unused import: `polisyos.fabric.connectors.sources.sdmx_source.SDMXSourceConnector`
+
+F401 [*] `polisyos.fabric.connectors.sources.unesco_uis.UNESCOUISConnector` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:84:59
+   |
+82 | from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
+83 | from polisyos.fabric.connectors.sources.sdmx_source import SDMXSourceConnector
+84 | from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
+   |                                                           ^^^^^^^^^^^^^^^^^^
+85 | from polisyos.fabric.connectors.sources.unpd import UNPDConnector
+86 | from polisyos.fabric.connectors.sources.who import WHOConnector
+   |
+help: Remove unused import: `polisyos.fabric.connectors.sources.unesco_uis.UNESCOUISConnector`
+
+F401 [*] `polisyos.fabric.connectors.sources.unpd.UNPDConnector` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:85:53
+   |
+83 | from polisyos.fabric.connectors.sources.sdmx_source import SDMXSourceConnector
+84 | from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
+85 | from polisyos.fabric.connectors.sources.unpd import UNPDConnector
+   |                                                     ^^^^^^^^^^^^^
+86 | from polisyos.fabric.connectors.sources.who import WHOConnector
+87 | from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+   |
+help: Remove unused import: `polisyos.fabric.connectors.sources.unpd.UNPDConnector`
+
+F401 [*] `polisyos.fabric.connectors.sources.who.WHOConnector` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:86:52
+   |
+84 | from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
+85 | from polisyos.fabric.connectors.sources.unpd import UNPDConnector
+86 | from polisyos.fabric.connectors.sources.who import WHOConnector
+   |                                                    ^^^^^^^^^^^^
+87 | from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+   |
+help: Remove unused import: `polisyos.fabric.connectors.sources.who.WHOConnector`
+
+F401 [*] `polisyos.fabric.connectors.sources.world_bank.WorldBankConnector` imported but unused
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:87:59
+   |
+85 | from polisyos.fabric.connectors.sources.unpd import UNPDConnector
+86 | from polisyos.fabric.connectors.sources.who import WHOConnector
+87 | from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+   |                                                           ^^^^^^^^^^^^^^^^^^
+88 |
+89 | if TYPE_CHECKING:
+   |
+help: Remove unused import: `polisyos.fabric.connectors.sources.world_bank.WorldBankConnector`
+
+TC004 Move import `polisyos.data_forge.domains.catalog.batch.core_sources.api._execute_source_fetch` out of type-checking block. Import is used for more than type hinting.
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:91:76
+   |
+89 | if TYPE_CHECKING:
+90 |     from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
+91 |     from polisyos.data_forge.domains.catalog.batch.core_sources.api import _execute_source_fetch
+   |                                                                            ^^^^^^^^^^^^^^^^^^^^^
+92 |     from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (
+93 |         _as_float,
+   |
+help: Move out of type-checking block
+
+TC004 Move import `polisyos.data_forge.domains.catalog.batch.core_sources.transformers._as_float` out of type-checking block. Import is used for more than type hinting.
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:93:9
+   |
+91 |     from polisyos.data_forge.domains.catalog.batch.core_sources.api import _execute_source_fetch
+92 |     from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (
+93 |         _as_float,
+   |         ^^^^^^^^^
+94 |         _as_int,
+95 |         _country_to_numeric,
+   |
+help: Move out of type-checking block
+
+TC004 Move import `polisyos.data_forge.domains.catalog.batch.core_sources.transformers._as_int` out of type-checking block. Import is used for more than type hinting.
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:94:9
+   |
+92 |     from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (
+93 |         _as_float,
+94 |         _as_int,
+   |         ^^^^^^^
+95 |         _country_to_numeric,
+96 |         _extract_year,
+   |
+help: Move out of type-checking block
+
+TC004 Move import `polisyos.data_forge.domains.catalog.batch.core_sources.transformers._country_to_numeric` out of type-checking block. Import is used for more than type hinting.
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:95:9
+   |
+93 |         _as_float,
+94 |         _as_int,
+95 |         _country_to_numeric,
+   |         ^^^^^^^^^^^^^^^^^^^
+96 |         _extract_year,
+97 |         _filters_to_tuple,
+   |
+help: Move out of type-checking block
+
+TC004 Move import `polisyos.data_forge.domains.catalog.batch.core_sources.transformers._extract_year` out of type-checking block. Import is used for more than type hinting.
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:96:9
+   |
+94 |         _as_int,
+95 |         _country_to_numeric,
+96 |         _extract_year,
+   |         ^^^^^^^^^^^^^
+97 |         _filters_to_tuple,
+98 |         _load_json_dict,
+   |
+help: Move out of type-checking block
+
+TC004 Move import `polisyos.data_forge.domains.catalog.batch.core_sources.transformers._filters_to_tuple` out of type-checking block. Import is used for more than type hinting.
+  --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:97:9
+   |
+95 |         _country_to_numeric,
+96 |         _extract_year,
+97 |         _filters_to_tuple,
+   |         ^^^^^^^^^^^^^^^^^
+98 |         _load_json_dict,
+99 |         _normalize_country_code,
+   |
+help: Move out of type-checking block
+
+TC004 Move import `polisyos.data_forge.domains.catalog.batch.core_sources.transformers._load_json_dict` out of type-checking block. Import is used for more than type hinting.
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:98:9
+    |
+ 96 |         _extract_year,
+ 97 |         _filters_to_tuple,
+ 98 |         _load_json_dict,
+    |         ^^^^^^^^^^^^^^^
+ 99 |         _normalize_country_code,
+100 |         _normalize_observation_row,
+    |
+help: Move out of type-checking block
+
+TC004 Move import `polisyos.data_forge.domains.catalog.batch.core_sources.transformers._normalize_country_code` out of type-checking block. Import is used for more than type hinting.
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:99:9
+    |
+ 97 |         _filters_to_tuple,
+ 98 |         _load_json_dict,
+ 99 |         _normalize_country_code,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+100 |         _normalize_observation_row,
+101 |         _shard_countries,
+    |
+help: Move out of type-checking block
+
+TC004 Move import `polisyos.data_forge.domains.catalog.batch.core_sources.transformers._normalize_observation_row` out of type-checking block. Import is used for more than type hinting.
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:100:9
+    |
+ 98 |         _load_json_dict,
+ 99 |         _normalize_country_code,
+100 |         _normalize_observation_row,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+101 |         _shard_countries,
+102 |         _to_iso3,
+    |
+help: Move out of type-checking block
+
+TC004 Move import `polisyos.data_forge.domains.catalog.batch.core_sources.transformers._shard_countries` out of type-checking block. Import is used for more than type hinting.
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:101:9
+    |
+ 99 |         _normalize_country_code,
+100 |         _normalize_observation_row,
+101 |         _shard_countries,
+    |         ^^^^^^^^^^^^^^^^
+102 |         _to_iso3,
+103 |     )
+    |
+help: Move out of type-checking block
+
+F401 [*] `polisyos.data_forge.domains.catalog.batch.core_sources.transformers._to_iso3` imported but unused
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:102:9
+    |
+100 |         _normalize_observation_row,
+101 |         _shard_countries,
+102 |         _to_iso3,
+    |         ^^^^^^^^
+103 |     )
+104 |     from polisyos.data_forge.domains.catalog.batch.core_sources.writers import (
+    |
+help: Remove unused import: `polisyos.data_forge.domains.catalog.batch.core_sources.transformers._to_iso3`
+
+TC004 Move import `polisyos.data_forge.domains.catalog.batch.core_sources.writers._WVSObservationAccumulator` out of type-checking block. Import is used for more than type hinting.
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:105:9
+    |
+103 |     )
+104 |     from polisyos.data_forge.domains.catalog.batch.core_sources.writers import (
+105 |         _WVSObservationAccumulator,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+106 |     )
+    |
+help: Move out of type-checking block
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `__resolve_implementation_dependency`
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:117:67
+    |
+117 | def __resolve_implementation_dependency(name: str, owner: str) -> Any:
+    |                                                                   ^^^
+118 |     """Resolve a split-module dependency without facade-global injection."""
+119 |     has_context_override, context_override = resolve_core_sources_compatibility_binding(
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `__make_implementation_proxy`
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:131:59
+    |
+131 | def __make_implementation_proxy(name: str, owner: str) -> Any:
+    |                                                           ^^^
+132 |     """Create a lazy, owner-bound compatibility callable for a split module."""
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `*args`
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:134:24
+    |
+132 |     """Create a lazy, owner-bound compatibility callable for a split module."""
+133 |
+134 |     def __proxy(*args: Any, **kwargs: Any) -> Any:
+    |                        ^^^
+135 |         return __resolve_implementation_dependency(name, owner)(*args, **kwargs)
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `**kwargs`
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:134:39
+    |
+132 |     """Create a lazy, owner-bound compatibility callable for a split module."""
+133 |
+134 |     def __proxy(*args: Any, **kwargs: Any) -> Any:
+    |                                       ^^^
+135 |         return __resolve_implementation_dependency(name, owner)(*args, **kwargs)
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `__proxy`
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:134:47
+    |
+132 |     """Create a lazy, owner-bound compatibility callable for a split module."""
+133 |
+134 |     def __proxy(*args: Any, **kwargs: Any) -> Any:
+    |                                               ^^^
+135 |         return __resolve_implementation_dependency(name, owner)(*args, **kwargs)
+    |
+
+S608 Possible SQL injection vector through string-based query construction
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:401:13
+    |
+399 |           country_placeholders = ", ".join("?" for _ in sorted(target_countries))
+400 |           query = (
+401 | /             f"SELECT {', '.join(quoted_cols)} "
+402 | |             "FROM read_csv("
+403 | |             "?, header=true, delim=',', quote='\"', escape='\"', all_varchar=true, "
+404 | |             "strict_mode=false, ignore_errors=true, null_padding=true, max_line_size=2000000"
+405 | |             ") "
+406 | |             f'WHERE "COUNTRY_ALPHA" IN ({country_placeholders}) '
+407 | |             'AND try_cast("S020" AS INTEGER) BETWEEN ? AND ?'
+    | |_____________________________________________________________^
+408 |           )
+409 |           start_year, end_year = year_window
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `raw_value`
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:532:32
+    |
+531 | def _normalize_wvs_response_value_typed(
+532 |     indicator: str, raw_value: Any, *, response_type: str | None = None
+    |                                ^^^
+533 | ) -> float | None:
+534 |     """Normalize a WVS response value using response_type from registry."""
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `values`
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:593:34
+    |
+593 | def _iter_chunked_values(values: Any, chunk_size: int) -> Any:
+    |                                  ^^^
+594 |     iterator = iter(values)
+595 |     while True:
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `_iter_chunked_values`
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:593:59
+    |
+593 | def _iter_chunked_values(values: Any, chunk_size: int) -> Any:
+    |                                                           ^^^
+594 |     iterator = iter(values)
+595 |     while True:
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `observation_ids`
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:604:22
+    |
+602 | def _existing_observation_ids(
+603 |     con: duckdb.DuckDBPyConnection,
+604 |     observation_ids: Any,
+    |                      ^^^
+605 | ) -> set[str]:
+606 |     matches: set[str] = set()
+    |
+
+S608 Possible SQL injection vector through string-based query construction
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:611:13
+    |
+609 |         placeholders = ", ".join("?" for _ in chunk)
+610 |         rows = con.execute(
+611 |             f"SELECT observation_id FROM ds_observations WHERE observation_id IN ({placeholders})",
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+612 |             list(chunk),
+613 |         ).fetchall()
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `payload`
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:618:36
+    |
+618 | def _records_from_payload(payload: Any) -> list[dict[str, Any]]:
+    |                                    ^^^
+619 |     if payload is None:
+620 |         return []
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `value`
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:638:29
+    |
+638 | def _safe_path_token(value: Any) -> str:
+    |                             ^^^
+639 |     text = re.sub(r"[^A-Za-z0-9._-]+", "_", str(value or "").strip())
+640 |     text = text.strip("._")
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `value`
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:722:32
+    |
+722 | def _bulk_parse_numeric(value: Any) -> float | None:
+    |                                ^^^
+723 |     if value is None:
+724 |         return None
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `records`
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:744:28
+    |
+744 | def _iter_batches(records: Any, *, size: int = 50_000) -> Any:
+    |                            ^^^
+745 |     batch: list[dict[str, Any]] = []
+746 |     for row in records:
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `_iter_batches`
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:744:59
+    |
+744 | def _iter_batches(records: Any, *, size: int = 50_000) -> Any:
+    |                                                           ^^^
+745 |     batch: list[dict[str, Any]] = []
+746 |     for row in records:
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `records`
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:759:14
+    |
+757 | def _write_bulk_records_to_parquet(
+758 |     *,
+759 |     records: Any,
+    |              ^^^
+760 |     normalized_path: Path,
+761 |     table_name: str,
+    |
+
+S608 Possible SQL injection vector through string-based query construction
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:777:33
+    |
+775 |             try:
+776 |                 if not created:
+777 |                     con.execute(f"CREATE TABLE {table_ident} AS SELECT * FROM bulk_batch_df")
+    |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+778 |                     created = True
+779 |                 else:
+    |
+
+S608 Possible SQL injection vector through string-based query construction
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:780:33
+    |
+778 |                     created = True
+779 |                 else:
+780 |                     con.execute(f"INSERT INTO {table_ident} SELECT * FROM bulk_batch_df")
+    |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+781 |             finally:
+782 |                 con.unregister("bulk_batch_df")
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `record_result`
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:815:20
+    |
+813 |     *,
+814 |     source: str,
+815 |     record_result: Any | None,
+    |                    ^^^^^^^^^^
+816 |     request_count: int,
+817 |     bytes_downloaded: int,
+    |
+
+SIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:838:5
+    |
+836 |       if headers:
+837 |           request_headers.update(headers)
+838 | /     async with aiohttp.ClientSession(timeout=timeout, headers=request_headers) as session:
+839 | |         async with session.get(url, params=params) as resp:
+    | |___________________________________________________________^
+840 |               if resp.status >= 400:
+841 |                   raise RuntimeError(f"HTTP {resp.status} for {url}")
+    |
+help: Combine `with` statements
+
+SIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:863:5
+    |
+861 |       timeout = aiohttp.ClientTimeout(total=900)
+862 |       path.parent.mkdir(parents=True, exist_ok=True)
+863 | /     async with aiohttp.ClientSession(timeout=timeout, headers=headers or {}) as session:
+864 | |         async with session.get(url) as resp:
+    | |____________________________________________^
+865 |               if resp.status >= 400:
+866 |                   raise RuntimeError(f"HTTP {resp.status} for {url}")
+    |
+help: Combine `with` statements
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `_iter_eurostat_bulk_records`
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:910:52
+    |
+910 | def _iter_eurostat_bulk_records(tsv_path: Path) -> Any:
+    |                                                    ^^^
+911 |     with open(tsv_path, encoding="utf-8", newline="") as fh:
+912 |         reader = csv.reader(fh, delimiter="\t")
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `_iter_ilo_bulk_records`
+   --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:944:48
+    |
+944 | def _iter_ilo_bulk_records(gzip_path: Path) -> Any:
+    |                                                ^^^
+945 |     with gzip.open(gzip_path, "rt", encoding="utf-8", newline="") as fh:
+946 |         reader = csv.DictReader(fh)
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `_iter_uis_bulk_records`
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:998:67
+     |
+ 998 | def _iter_uis_bulk_records(zip_path: Path, *, dataset_id: str) -> Any:
+     |                                                                   ^^^
+ 999 |     dataset_token = str(dataset_id or "").strip().upper()
+1000 |     with zipfile.ZipFile(zip_path, "r") as archive:
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `record_result`
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1072:20
+     |
+1070 |     shard: ObservationShard,
+1071 |     config: DatasetBatchConfig,
+1072 |     record_result: Any | None,
+     |                    ^^^^^^^^^^
+1073 | ) -> dict[str, Any]:
+1074 |     normalized_path = _bulk_normalized_path(config, shard=shard)
+     |
+
+RUF034 Useless `if`-`else` condition
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1084:57
+     |
+1082 |         source=shard.plan.source,
+1083 |         record_result=record_result,
+1084 |         request_count=int(download["request_count"]) + (0 if inventory_path.exists() else 0),
+     |                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1085 |         bytes_downloaded=int(download["bytes_downloaded"]),
+1086 |     )
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `record_result`
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1116:20
+     |
+1114 |     shard: ObservationShard,
+1115 |     config: DatasetBatchConfig,
+1116 |     record_result: Any | None,
+     |                    ^^^^^^^^^^
+1117 | ) -> dict[str, Any]:
+1118 |     normalized_path = _bulk_normalized_path(config, shard=shard)
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `record_result`
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1161:20
+     |
+1159 |     shard: ObservationShard,
+1160 |     config: DatasetBatchConfig,
+1161 |     record_result: Any | None,
+     |                    ^^^^^^^^^^
+1162 | ) -> dict[str, Any]:
+1163 |     normalized_path = _bulk_normalized_path(config, shard=shard)
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `record_result`
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1234:20
+     |
+1232 |     shard: ObservationShard,
+1233 |     config: DatasetBatchConfig,
+1234 |     record_result: Any | None,
+     |                    ^^^^^^^^^^
+1235 | ) -> dict[str, Any]:
+1236 |     normalized_path = _bulk_normalized_path(config, shard=shard)
+     |
+
+E501 Line too long (136 > 100)
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1270:101
+     |
+1268 | …
+1269 | …
+1270 | …ed} AS VARCHAR), '(19|20)\\\\d{{2}}') AS INTEGER), try_cast({quoted} AS INTEGER))",
+     |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1271 | …
+1272 | …
+     |
+
+S608 Possible SQL injection vector through string-based query construction
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1369:13
+     |
+1367 |     with duckdb.connect() as con:
+1368 |         total_row = con.execute(
+1369 |             f"SELECT count(*) FROM (SELECT DISTINCT {select_clause} FROM read_parquet(?))",
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1370 |             [str(normalized_path)],
+1371 |         ).fetchone()
+     |
+
+S608 Possible SQL injection vector through string-based query construction
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1378:13
+     |
+1376 |           sample_size = min(sample_size, 200)
+1377 |           frame = con.execute(
+1378 | /             f"SELECT DISTINCT {select_clause} "
+1379 | |             "FROM read_parquet(?) "
+1380 | |             f"ORDER BY hash({hash_expr}) LIMIT ?",
+     | |_________________________________________________^
+1381 |               [str(normalized_path), int(sample_size)],
+1382 |           ).df()
+     |
+
+F821 Undefined name `_ConnectorSessionCache`
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1496:12
+     |
+1494 |     series_constraints: dict[str, Any],
+1495 |     year_bounds: tuple[int, int],
+1496 |     cache: _ConnectorSessionCache,
+     |            ^^^^^^^^^^^^^^^^^^^^^^
+1497 |     policy: SourceExecutionPolicy,
+1498 |     budget_windows: dict[str, _SourceBudgetWindow],
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `record_result`
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1500:20
+     |
+1498 |     budget_windows: dict[str, _SourceBudgetWindow],
+1499 |     state_lock: asyncio.Lock,
+1500 |     record_result: Any | None,
+     |                    ^^^^^^^^^^
+1501 |     budget_wait_observer: Any | None,
+1502 | ) -> list[dict[str, Any]]:
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `budget_wait_observer`
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1501:27
+     |
+1499 |     state_lock: asyncio.Lock,
+1500 |     record_result: Any | None,
+1501 |     budget_wait_observer: Any | None,
+     |                           ^^^^^^^^^^
+1502 | ) -> list[dict[str, Any]]:
+1503 |     filters = {
+     |
+
+F821 Undefined name `_ConnectorSessionCache`
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1571:12
+     |
+1569 |     raw_path: Path,
+1570 |     bulk_url: str,
+1571 |     cache: _ConnectorSessionCache,
+     |            ^^^^^^^^^^^^^^^^^^^^^^
+1572 |     policy: SourceExecutionPolicy,
+1573 |     budget_windows: dict[str, _SourceBudgetWindow],
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `record_result`
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1575:20
+     |
+1573 |     budget_windows: dict[str, _SourceBudgetWindow],
+1574 |     state_lock: asyncio.Lock,
+1575 |     record_result: Any | None,
+     |                    ^^^^^^^^^^
+1576 |     budget_wait_observer: Any | None,
+1577 | ) -> None:
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `budget_wait_observer`
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1576:27
+     |
+1574 |     state_lock: asyncio.Lock,
+1575 |     record_result: Any | None,
+1576 |     budget_wait_observer: Any | None,
+     |                           ^^^^^^^^^^
+1577 | ) -> None:
+1578 |     if config.is_sampled_run or config.preflight_only or config.run_profile == "preflight_core":
+     |
+
+F821 Undefined name `_ConnectorSessionCache`
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1710:12
+     |
+1708 |     shard: ObservationShard,
+1709 |     *,
+1710 |     cache: _ConnectorSessionCache,
+     |            ^^^^^^^^^^^^^^^^^^^^^^
+1711 |     config: DatasetBatchConfig,
+1712 |     policy: SourceExecutionPolicy,
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `record_result`
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1715:20
+     |
+1713 |     budget_windows: dict[str, _SourceBudgetWindow],
+1714 |     state_lock: asyncio.Lock,
+1715 |     record_result: Any | None = None,
+     |                    ^^^^^^^^^^
+1716 |     budget_wait_observer: Any | None = None,
+1717 | ) -> list[dict[str, Any]]:
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `budget_wait_observer`
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1716:27
+     |
+1714 |     state_lock: asyncio.Lock,
+1715 |     record_result: Any | None = None,
+1716 |     budget_wait_observer: Any | None = None,
+     |                           ^^^^^^^^^^
+1717 | ) -> list[dict[str, Any]]:
+1718 |     materialized = await _ensure_remote_bulk_materialized(
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `raw_value`
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1820:62
+     |
+1820 | def _normalize_wvs_response_value(indicator: str, raw_value: Any) -> float | None:
+     |                                                              ^^^
+1821 |     value = _as_float(raw_value)
+1822 |     if value is None:
+     |
+
+E501 Line too long (109 > 100)
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1850:101
+     |
+1848 |     url = f"https://ghoapi.azureedge.net/api/{indicator_id}"
+1849 |     params = {
+1850 |         "$filter": f"SpatialDim eq '{iso3}' and TimeDim ge {int(start_year)} and TimeDim le {int(end_year)}",
+     |                                                                                                     ^^^^^^^^^
+1851 |     }
+1852 |     payload = await _http_get_json(url, params=params)
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `_http_get_json`
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1900:6
+     |
+1898 |     params: dict[str, Any] | None = None,
+1899 |     headers: dict[str, str] | None = None,
+1900 | ) -> Any:
+     |      ^^^
+1901 |     timeout = aiohttp.ClientTimeout(total=60)
+1902 |     request_headers = {"Accept": "application/json"}
+     |
+
+SIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements
+    --> src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1905:5
+     |
+1903 |       if headers:
+1904 |           request_headers.update(headers)
+1905 | /     async with aiohttp.ClientSession(timeout=timeout, headers=request_headers) as session:
+1906 | |         async with session.get(url, params=params) as resp:
+     | |___________________________________________________________^
+1907 |               if resp.status >= 400:
+1908 |                   raise RuntimeError(f"HTTP {resp.status} for {url}")
+     |
+help: Combine `with` statements
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/polisyos/data_forge/domains/catalog/batch/harvester.py:3:1
+   |
+ 1 |   """Stage 1: source-driven harvest with wave support and raw manifests."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import asyncio
+ 6 | | import json
+ 7 | | import re
+ 8 | | import xml.etree.ElementTree as ET
+ 9 | | from datetime import UTC, datetime
+10 | | from functools import lru_cache
+11 | | from io import BytesIO
+12 | | from pathlib import Path
+13 | | from typing import TYPE_CHECKING, Any
+14 | |
+15 | | import aiohttp
+16 | |
+17 | | from polisyos.common.logger import get_logger
+18 | | from polisyos.data_forge.domains.catalog.batch.checkpoints import (
+19 | |     load_json,
+20 | |     write_json,
+21 | | )
+22 | | from polisyos.data_forge.domains.catalog.batch.ckan_curation import curate_ckan_package
+23 | | from polisyos.data_forge.domains.catalog.batch.material_inputs import (
+24 | |     _MaterialFileSnapshot,
+25 | |     _material_file_snapshot,
+26 | |     _material_yaml_snapshot,
+27 | | )
+28 | | from polisyos.data_forge.domains.catalog.batch.normalizer import map_to_polisyos_metrics
+29 | | from polisyos.data_forge.domains.catalog.metrics_map import load_metrics_map
+30 | | from polisyos.data_forge.kernel.io.hashing import sha256_file
+31 | | from polisyos.data_forge.kernel.pipeline.manifests import write_raw_manifest, write_stage_manifest
+   | |__________________________________________________________________________________________________^
+32 |
+33 |   if TYPE_CHECKING:
+   |
+help: Organize imports
+
+B010 [*] Do not call `setattr` with a constant attribute value. It is not any safer than normal property access.
+   --> src/polisyos/data_forge/domains/catalog/batch/harvester.py:990:1
+    |
+989 |   # Retain cache-reset hooks for callers of the existing private readers.
+990 | / setattr(
+991 | |     _load_wvs_indicator_registry, "cache_clear", _load_wvs_indicator_registry_snapshot.cache_clear
+992 | | )
+    | |_^
+993 |   setattr(
+994 |       _load_wvs_indicator_catalog_from_local_file,
+    |
+help: Replace `setattr` with assignment
+
+B010 [*] Do not call `setattr` with a constant attribute value. It is not any safer than normal property access.
+   --> src/polisyos/data_forge/domains/catalog/batch/harvester.py:993:1
+    |
+991 |       _load_wvs_indicator_registry, "cache_clear", _load_wvs_indicator_registry_snapshot.cache_clear
+992 |   )
+993 | / setattr(
+994 | |     _load_wvs_indicator_catalog_from_local_file,
+995 | |     "cache_clear",
+996 | |     _load_wvs_indicator_catalog_snapshot.cache_clear,
+997 | | )
+    | |_^
+    |
+help: Replace `setattr` with assignment
+
+TC003 Move standard library import `pathlib.Path` into a type-checking block
+ --> src/polisyos/data_forge/domains/catalog/batch/material_inputs.py:7:21
+  |
+5 | from dataclasses import dataclass
+6 | from functools import lru_cache
+7 | from pathlib import Path
+  |                     ^^^^
+8 | from typing import Any
+  |
+help: Move into type-checking block
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `_material_yaml_snapshot`
+  --> src/polisyos/data_forge/domains/catalog/batch/material_inputs.py:44:65
+   |
+43 | @lru_cache(maxsize=32)
+44 | def _material_yaml_snapshot(snapshot: _MaterialFileSnapshot) -> Any:
+   |                                                                 ^^^
+45 |     """Parse UTF-8 YAML with a cache keyed by path, presence and current bytes."""
+46 |     if snapshot.raw is None:
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py:3:1
+   |
+ 1 |   """Config-backed proxy penalty registry."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | from dataclasses import dataclass, field
+ 6 | | from functools import lru_cache
+ 7 | | from pathlib import Path
+ 8 | |
+ 9 | | from polisyos.data_forge.domains.catalog.batch.material_inputs import (
+10 | |     _MaterialFileSnapshot,
+11 | |     _material_file_snapshot,
+12 | |     _material_yaml_snapshot,
+13 | | )
+   | |_^
+14 |
+15 |   try:
+   |
+help: Organize imports
+
+B010 [*] Do not call `setattr` with a constant attribute value. It is not any safer than normal property access.
+   --> src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py:125:1
+    |
+124 |   # Retain the previous cache-reset hook while caching by current content.
+125 | / setattr(
+126 | |     load_proxy_metric_alignments,
+127 | |     "cache_clear",
+128 | |     _load_proxy_metric_alignments_snapshot.cache_clear,
+129 | | )
+    | |_^
+    |
+help: Replace `setattr` with assignment
+
+I001 [*] Import block is un-sorted or un-formatted
+    --> tests/unit/remediation/test_dfi_03.py:1635:5
+     |
+1633 |       monkeypatch: pytest.MonkeyPatch, tmp_path: Path, material_change: str
+1634 |   ) -> None:
+1635 | /     from datetime import UTC, datetime
+1636 | |
+1637 | |     import pandas as pd
+1638 | |
+1639 | |     from polisyos.data_forge.domains.catalog.batch.core_sources import api as core_api
+1640 | |     from polisyos.data_forge.domains.catalog.batch.core_sources.validators import (
+1641 | |         _current_core_output_receipt_state,
+1642 | |     )
+1643 | |     from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
+1644 | |     from polisyos.data_forge.domains.catalog.knowledge.types import DatasetRecord, DistributionRecord
+1645 | |     from polisyos.fabric.connectors.base import ConnectionHandle, DatasetCapabilitySnapshot
+1646 | |     from polisyos.fabric.connectors.profiles.models import SourceProfile
+1647 | |     from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+1648 | |     from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+     | |________________________________________________________________________________^
+1649 |
+1650 |       profiles = SourceProfileRegistry()
+     |
+help: Organize imports
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> tests/unit/remediation/test_dfk_02.py:591:5
+    |
+589 |       monkeypatch: pytest.MonkeyPatch, tmp_path
+590 |   ) -> None:
+591 | /     import os
+592 | |
+593 | |     from polisyos.core.contracts.control import DataNeed, DataResolveRequest
+594 | |     from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
+595 | |     from polisyos.data_forge.domains.catalog.knowledge.search import DatasetCatalogGraph
+596 | |     from polisyos.data_forge.domains.catalog.knowledge.types import DatasetRecord, DistributionRecord
+    | |_____________________________________________________________________________________________________^
+597 |
+598 |       registry_path = tmp_path / "registry.yaml"
+    |
+help: Organize imports
+
+Found 109 errors.
+[*] 49 fixable with the `--fix` option (13 hidden fixes can be enabled with the `--unsafe-fixes` option).

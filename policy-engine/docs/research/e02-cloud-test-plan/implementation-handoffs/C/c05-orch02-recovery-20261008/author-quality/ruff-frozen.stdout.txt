@@ -1,0 +1,2676 @@
+[
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 18,
+      "row": 6
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 7
+          },
+          "location": {
+            "column": 1,
+            "row": 6
+          }
+        }
+      ],
+      "message": "Remove unused import: `contextlib`"
+    },
+    "location": {
+      "column": 8,
+      "row": 6
+    },
+    "message": "`contextlib` imported but unused",
+    "noqa_row": 6,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 12,
+      "row": 15
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 16
+          },
+          "location": {
+            "column": 1,
+            "row": 15
+          }
+        }
+      ],
+      "message": "Remove unused import: `time`"
+    },
+    "location": {
+      "column": 8,
+      "row": 15
+    },
+    "message": "`time` imported but unused",
+    "noqa_row": 15,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 36,
+      "row": 17
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 18
+          },
+          "location": {
+            "column": 1,
+            "row": 17
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 25,
+      "row": 17
+    },
+    "message": "`collections.OrderedDict` imported but unused",
+    "noqa_row": 17,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 49,
+      "row": 17
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 18
+          },
+          "location": {
+            "column": 1,
+            "row": 17
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 38,
+      "row": 17
+    },
+    "message": "`collections.defaultdict` imported but unused",
+    "noqa_row": 17,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 56,
+      "row": 17
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 18
+          },
+          "location": {
+            "column": 1,
+            "row": 17
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 51,
+      "row": 17
+    },
+    "message": "`collections.deque` imported but unused",
+    "noqa_row": 17,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 34,
+      "row": 18
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 19
+          },
+          "location": {
+            "column": 1,
+            "row": 18
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 25,
+      "row": 18
+    },
+    "message": "`dataclasses.dataclass` imported but unused",
+    "noqa_row": 18,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 43,
+      "row": 18
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 19
+          },
+          "location": {
+            "column": 1,
+            "row": 18
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 36,
+      "row": 18
+    },
+    "message": "`dataclasses.replace` imported but unused",
+    "noqa_row": 18,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 46,
+      "row": 19
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import UTC, datetime",
+          "end_location": {
+            "column": 46,
+            "row": 19
+          },
+          "location": {
+            "column": 1,
+            "row": 19
+          }
+        }
+      ],
+      "message": "Remove unused import: `datetime.timedelta`"
+    },
+    "location": {
+      "column": 37,
+      "row": 19
+    },
+    "message": "`datetime.timedelta` imported but unused",
+    "noqa_row": 19,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 54,
+      "row": 31
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 32
+          },
+          "location": {
+            "column": 1,
+            "row": 31
+          }
+        }
+      ],
+      "message": "Remove unused import: `polisyos.common.async_tools.run_coro_sync`"
+    },
+    "location": {
+      "column": 41,
+      "row": 31
+    },
+    "message": "`polisyos.common.async_tools.run_coro_sync` imported but unused",
+    "noqa_row": 31,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 28,
+      "row": 34
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (\n    CoreSourcesIngestStats,\n    ObservationInsertStats,\n    ObservationShard,\n    _SourceBudgetWindow,\n)",
+          "end_location": {
+            "column": 2,
+            "row": 47
+          },
+          "location": {
+            "column": 1,
+            "row": 33
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 34
+    },
+    "message": "`polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts.CatalogTransportDataset` imported but unused",
+    "noqa_row": 34,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 24,
+      "row": 36
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (\n    CoreSourcesIngestStats,\n    ObservationInsertStats,\n    ObservationShard,\n    _SourceBudgetWindow,\n)",
+          "end_location": {
+            "column": 2,
+            "row": 47
+          },
+          "location": {
+            "column": 1,
+            "row": 33
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 36
+    },
+    "message": "`polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts.ObservationFetchKey` imported but unused",
+    "noqa_row": 36,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 28,
+      "row": 37
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (\n    CoreSourcesIngestStats,\n    ObservationInsertStats,\n    ObservationShard,\n    _SourceBudgetWindow,\n)",
+          "end_location": {
+            "column": 2,
+            "row": 47
+          },
+          "location": {
+            "column": 1,
+            "row": 33
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 37
+    },
+    "message": "`polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts.ObservationFetchPayload` imported but unused",
+    "noqa_row": 37,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 20,
+      "row": 39
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (\n    CoreSourcesIngestStats,\n    ObservationInsertStats,\n    ObservationShard,\n    _SourceBudgetWindow,\n)",
+          "end_location": {
+            "column": 2,
+            "row": 47
+          },
+          "location": {
+            "column": 1,
+            "row": 33
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 39
+    },
+    "message": "`polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts.ObservationPlan` imported but unused",
+    "noqa_row": 39,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 27,
+      "row": 41
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (\n    CoreSourcesIngestStats,\n    ObservationInsertStats,\n    ObservationShard,\n    _SourceBudgetWindow,\n)",
+          "end_location": {
+            "column": 2,
+            "row": 47
+          },
+          "location": {
+            "column": 1,
+            "row": 33
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 41
+    },
+    "message": "`polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts.ObservationShardResult` imported but unused",
+    "noqa_row": 41,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 25,
+      "row": 42
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (\n    CoreSourcesIngestStats,\n    ObservationInsertStats,\n    ObservationShard,\n    _SourceBudgetWindow,\n)",
+          "end_location": {
+            "column": 2,
+            "row": 47
+          },
+          "location": {
+            "column": 1,
+            "row": 33
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 42
+    },
+    "message": "`polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts.ObservationWriteItem` imported but unused",
+    "noqa_row": 42,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 18,
+      "row": 43
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (\n    CoreSourcesIngestStats,\n    ObservationInsertStats,\n    ObservationShard,\n    _SourceBudgetWindow,\n)",
+          "end_location": {
+            "column": 2,
+            "row": 47
+          },
+          "location": {
+            "column": 1,
+            "row": 33
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 43
+    },
+    "message": "`polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts.SupportSketch` imported but unused",
+    "noqa_row": 43,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 21,
+      "row": 44
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (\n    CoreSourcesIngestStats,\n    ObservationInsertStats,\n    ObservationShard,\n    _SourceBudgetWindow,\n)",
+          "end_location": {
+            "column": 2,
+            "row": 47
+          },
+          "location": {
+            "column": 1,
+            "row": 33
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 44
+    },
+    "message": "`polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts.WriterFlushState` imported but unused",
+    "noqa_row": 44,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 31,
+      "row": 45
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (\n    CoreSourcesIngestStats,\n    ObservationInsertStats,\n    ObservationShard,\n    _SourceBudgetWindow,\n)",
+          "end_location": {
+            "column": 2,
+            "row": 47
+          },
+          "location": {
+            "column": 1,
+            "row": 33
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 45
+    },
+    "message": "`polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts._ObservationRuntimeMetrics` imported but unused",
+    "noqa_row": 45,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 76,
+      "row": 48
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.checkpoints import write_json",
+          "end_location": {
+            "column": 88,
+            "row": 48
+          },
+          "location": {
+            "column": 1,
+            "row": 48
+          }
+        }
+      ],
+      "message": "Remove unused import: `polisyos.data_forge.domains.catalog.batch.checkpoints.load_json`"
+    },
+    "location": {
+      "column": 67,
+      "row": 48
+    },
+    "message": "`polisyos.data_forge.domains.catalog.batch.checkpoints.load_json` imported but unused",
+    "noqa_row": 48,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 20,
+      "row": 57
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.knowledge.country_codes import (\n    country_scope_members,\n    iso2_to_iso3,\n)",
+          "end_location": {
+            "column": 2,
+            "row": 59
+          },
+          "location": {
+            "column": 1,
+            "row": 54
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 57
+    },
+    "message": "`polisyos.data_forge.domains.catalog.knowledge.country_codes.iso2_to_numeric` imported but unused",
+    "noqa_row": 57,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 27,
+      "row": 58
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.knowledge.country_codes import (\n    country_scope_members,\n    iso2_to_iso3,\n)",
+          "end_location": {
+            "column": 2,
+            "row": 59
+          },
+          "location": {
+            "column": 1,
+            "row": 54
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 58
+    },
+    "message": "`polisyos.data_forge.domains.catalog.knowledge.country_codes.normalize_country_code` imported but unused",
+    "noqa_row": 58,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 98,
+      "row": 60
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 61
+          },
+          "location": {
+            "column": 1,
+            "row": 60
+          }
+        }
+      ],
+      "message": "Remove unused import: `polisyos.data_forge.domains.catalog.knowledge.proxy_penalties.metric_proxy_alignments`"
+    },
+    "location": {
+      "column": 75,
+      "row": 60
+    },
+    "message": "`polisyos.data_forge.domains.catalog.knowledge.proxy_penalties.metric_proxy_alignments` imported but unused",
+    "noqa_row": 60,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 20,
+      "row": 62
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 68
+          },
+          "location": {
+            "column": 1,
+            "row": 61
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 62
+    },
+    "message": "`polisyos.data_forge.domains.catalog.knowledge.variable_alignment.AlignmentMethod` imported but unused",
+    "noqa_row": 62,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 22,
+      "row": 63
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 68
+          },
+          "location": {
+            "column": 1,
+            "row": 61
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 63
+    },
+    "message": "`polisyos.data_forge.domains.catalog.knowledge.variable_alignment.VariableAlignment` imported but unused",
+    "noqa_row": 63,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 19,
+      "row": 64
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 68
+          },
+          "location": {
+            "column": 1,
+            "row": 61
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 64
+    },
+    "message": "`polisyos.data_forge.domains.catalog.knowledge.variable_alignment.align_semantic` imported but unused",
+    "noqa_row": 64,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 35,
+      "row": 65
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 68
+          },
+          "location": {
+            "column": 1,
+            "row": 61
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 65
+    },
+    "message": "`polisyos.data_forge.domains.catalog.knowledge.variable_alignment.calibrate_alignment_confidence` imported but unused",
+    "noqa_row": 65,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 25,
+      "row": 66
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 68
+          },
+          "location": {
+            "column": 1,
+            "row": 61
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 66
+    },
+    "message": "`polisyos.data_forge.domains.catalog.knowledge.variable_alignment.load_seed_alignments` imported but unused",
+    "noqa_row": 66,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 99,
+      "row": 68
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.kernel.pipeline.manifests import write_raw_manifest",
+          "end_location": {
+            "column": 99,
+            "row": 68
+          },
+          "location": {
+            "column": 1,
+            "row": 68
+          }
+        }
+      ],
+      "message": "Remove unused import: `polisyos.data_forge.kernel.pipeline.manifests.write_stage_manifest`"
+    },
+    "location": {
+      "column": 79,
+      "row": 68
+    },
+    "message": "`polisyos.data_forge.kernel.pipeline.manifests.write_stage_manifest` imported but unused",
+    "noqa_row": 68,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 20,
+      "row": 71
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from polisyos.fabric.connectors.base import (\n    FetchRequest,\n)",
+          "end_location": {
+            "column": 2,
+            "row": 75
+          },
+          "location": {
+            "column": 1,
+            "row": 70
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 71
+    },
+    "message": "`polisyos.fabric.connectors.base.AsyncFetchLease` imported but unused",
+    "noqa_row": 71,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 21,
+      "row": 72
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from polisyos.fabric.connectors.base import (\n    FetchRequest,\n)",
+          "end_location": {
+            "column": 2,
+            "row": 75
+          },
+          "location": {
+            "column": 1,
+            "row": 70
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 72
+    },
+    "message": "`polisyos.fabric.connectors.base.ConnectionConfig` imported but unused",
+    "noqa_row": 72,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 30,
+      "row": 73
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from polisyos.fabric.connectors.base import (\n    FetchRequest,\n)",
+          "end_location": {
+            "column": 2,
+            "row": 75
+          },
+          "location": {
+            "column": 1,
+            "row": 70
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 73
+    },
+    "message": "`polisyos.fabric.connectors.base.DatasetCapabilitySnapshot` imported but unused",
+    "noqa_row": 73,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "TC001",
+    "end_location": {
+      "column": 77,
+      "row": 76
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "from typing import TYPE_CHECKING, Any",
+          "end_location": {
+            "column": 38,
+            "row": 24
+          },
+          "location": {
+            "column": 1,
+            "row": 24
+          }
+        },
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 77
+          },
+          "location": {
+            "column": 1,
+            "row": 76
+          }
+        },
+        {
+          "content": "    from polisyos.fabric.connectors.profiles.models import SourceExecutionPolicy\n",
+          "end_location": {
+            "column": 1,
+            "row": 90
+          },
+          "location": {
+            "column": 1,
+            "row": 90
+          }
+        }
+      ],
+      "message": "Move into type-checking block"
+    },
+    "location": {
+      "column": 56,
+      "row": 76
+    },
+    "message": "Move application import `polisyos.fabric.connectors.profiles.models.SourceExecutionPolicy` into a type-checking block",
+    "noqa_row": 76,
+    "url": "https://docs.astral.sh/ruff/rules/typing-only-first-party-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 79,
+      "row": 77
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 78
+          },
+          "location": {
+            "column": 1,
+            "row": 77
+          }
+        }
+      ],
+      "message": "Remove unused import: `polisyos.fabric.connectors.profiles.registry.SourceProfileRegistry`"
+    },
+    "location": {
+      "column": 58,
+      "row": 77
+    },
+    "message": "`polisyos.fabric.connectors.profiles.registry.SourceProfileRegistry` imported but unused",
+    "noqa_row": 77,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 30,
+      "row": 79
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 82
+          },
+          "location": {
+            "column": 1,
+            "row": 78
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 79
+    },
+    "message": "`polisyos.fabric.connectors.profiles.resolver.resolve_connection_config` imported but unused",
+    "noqa_row": 79,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 29,
+      "row": 80
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 82
+          },
+          "location": {
+            "column": 1,
+            "row": 78
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 80
+    },
+    "message": "`polisyos.fabric.connectors.profiles.resolver.resolve_execution_policy` imported but unused",
+    "noqa_row": 80,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 74,
+      "row": 82
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 83
+          },
+          "location": {
+            "column": 1,
+            "row": 82
+          }
+        }
+      ],
+      "message": "Remove unused import: `polisyos.fabric.connectors.sources.eurostat.EurostatConnector`"
+    },
+    "location": {
+      "column": 57,
+      "row": 82
+    },
+    "message": "`polisyos.fabric.connectors.sources.eurostat.EurostatConnector` imported but unused",
+    "noqa_row": 82,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 79,
+      "row": 83
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 84
+          },
+          "location": {
+            "column": 1,
+            "row": 83
+          }
+        }
+      ],
+      "message": "Remove unused import: `polisyos.fabric.connectors.sources.sdmx_source.SDMXSourceConnector`"
+    },
+    "location": {
+      "column": 60,
+      "row": 83
+    },
+    "message": "`polisyos.fabric.connectors.sources.sdmx_source.SDMXSourceConnector` imported but unused",
+    "noqa_row": 83,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 77,
+      "row": 84
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 85
+          },
+          "location": {
+            "column": 1,
+            "row": 84
+          }
+        }
+      ],
+      "message": "Remove unused import: `polisyos.fabric.connectors.sources.unesco_uis.UNESCOUISConnector`"
+    },
+    "location": {
+      "column": 59,
+      "row": 84
+    },
+    "message": "`polisyos.fabric.connectors.sources.unesco_uis.UNESCOUISConnector` imported but unused",
+    "noqa_row": 84,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 66,
+      "row": 85
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 86
+          },
+          "location": {
+            "column": 1,
+            "row": 85
+          }
+        }
+      ],
+      "message": "Remove unused import: `polisyos.fabric.connectors.sources.unpd.UNPDConnector`"
+    },
+    "location": {
+      "column": 53,
+      "row": 85
+    },
+    "message": "`polisyos.fabric.connectors.sources.unpd.UNPDConnector` imported but unused",
+    "noqa_row": 85,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 64,
+      "row": 86
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 87
+          },
+          "location": {
+            "column": 1,
+            "row": 86
+          }
+        }
+      ],
+      "message": "Remove unused import: `polisyos.fabric.connectors.sources.who.WHOConnector`"
+    },
+    "location": {
+      "column": 52,
+      "row": 86
+    },
+    "message": "`polisyos.fabric.connectors.sources.who.WHOConnector` imported but unused",
+    "noqa_row": 86,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 77,
+      "row": 87
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 88
+          },
+          "location": {
+            "column": 1,
+            "row": 87
+          }
+        }
+      ],
+      "message": "Remove unused import: `polisyos.fabric.connectors.sources.world_bank.WorldBankConnector`"
+    },
+    "location": {
+      "column": 59,
+      "row": 87
+    },
+    "message": "`polisyos.fabric.connectors.sources.world_bank.WorldBankConnector` imported but unused",
+    "noqa_row": 87,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "TC004",
+    "end_location": {
+      "column": 97,
+      "row": 91
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 92
+          },
+          "location": {
+            "column": 1,
+            "row": 91
+          }
+        },
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.core_sources.api import _execute_source_fetch\n",
+          "end_location": {
+            "column": 1,
+            "row": 111
+          },
+          "location": {
+            "column": 1,
+            "row": 111
+          }
+        }
+      ],
+      "message": "Move out of type-checking block"
+    },
+    "location": {
+      "column": 76,
+      "row": 91
+    },
+    "message": "Move import `polisyos.data_forge.domains.catalog.batch.core_sources.api._execute_source_fetch` out of type-checking block. Import is used for more than type hinting.",
+    "noqa_row": 91,
+    "url": "https://docs.astral.sh/ruff/rules/runtime-import-in-type-checking-block"
+  },
+  {
+    "cell": null,
+    "code": "TC004",
+    "end_location": {
+      "column": 18,
+      "row": 93
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (\n        _to_iso3,\n    )",
+          "end_location": {
+            "column": 6,
+            "row": 103
+          },
+          "location": {
+            "column": 5,
+            "row": 92
+          }
+        },
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (\n        _as_float,\n        _as_int,\n        _country_to_numeric,\n        _extract_year,\n        _filters_to_tuple,\n        _load_json_dict,\n        _normalize_country_code,\n        _normalize_observation_row,\n        _shard_countries,\n    )\n",
+          "end_location": {
+            "column": 1,
+            "row": 111
+          },
+          "location": {
+            "column": 1,
+            "row": 111
+          }
+        }
+      ],
+      "message": "Move out of type-checking block"
+    },
+    "location": {
+      "column": 9,
+      "row": 93
+    },
+    "message": "Move import `polisyos.data_forge.domains.catalog.batch.core_sources.transformers._as_float` out of type-checking block. Import is used for more than type hinting.",
+    "noqa_row": 93,
+    "url": "https://docs.astral.sh/ruff/rules/runtime-import-in-type-checking-block"
+  },
+  {
+    "cell": null,
+    "code": "TC004",
+    "end_location": {
+      "column": 16,
+      "row": 94
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (\n        _to_iso3,\n    )",
+          "end_location": {
+            "column": 6,
+            "row": 103
+          },
+          "location": {
+            "column": 5,
+            "row": 92
+          }
+        },
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (\n        _as_float,\n        _as_int,\n        _country_to_numeric,\n        _extract_year,\n        _filters_to_tuple,\n        _load_json_dict,\n        _normalize_country_code,\n        _normalize_observation_row,\n        _shard_countries,\n    )\n",
+          "end_location": {
+            "column": 1,
+            "row": 111
+          },
+          "location": {
+            "column": 1,
+            "row": 111
+          }
+        }
+      ],
+      "message": "Move out of type-checking block"
+    },
+    "location": {
+      "column": 9,
+      "row": 94
+    },
+    "message": "Move import `polisyos.data_forge.domains.catalog.batch.core_sources.transformers._as_int` out of type-checking block. Import is used for more than type hinting.",
+    "noqa_row": 94,
+    "url": "https://docs.astral.sh/ruff/rules/runtime-import-in-type-checking-block"
+  },
+  {
+    "cell": null,
+    "code": "TC004",
+    "end_location": {
+      "column": 28,
+      "row": 95
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (\n        _to_iso3,\n    )",
+          "end_location": {
+            "column": 6,
+            "row": 103
+          },
+          "location": {
+            "column": 5,
+            "row": 92
+          }
+        },
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (\n        _as_float,\n        _as_int,\n        _country_to_numeric,\n        _extract_year,\n        _filters_to_tuple,\n        _load_json_dict,\n        _normalize_country_code,\n        _normalize_observation_row,\n        _shard_countries,\n    )\n",
+          "end_location": {
+            "column": 1,
+            "row": 111
+          },
+          "location": {
+            "column": 1,
+            "row": 111
+          }
+        }
+      ],
+      "message": "Move out of type-checking block"
+    },
+    "location": {
+      "column": 9,
+      "row": 95
+    },
+    "message": "Move import `polisyos.data_forge.domains.catalog.batch.core_sources.transformers._country_to_numeric` out of type-checking block. Import is used for more than type hinting.",
+    "noqa_row": 95,
+    "url": "https://docs.astral.sh/ruff/rules/runtime-import-in-type-checking-block"
+  },
+  {
+    "cell": null,
+    "code": "TC004",
+    "end_location": {
+      "column": 22,
+      "row": 96
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (\n        _to_iso3,\n    )",
+          "end_location": {
+            "column": 6,
+            "row": 103
+          },
+          "location": {
+            "column": 5,
+            "row": 92
+          }
+        },
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (\n        _as_float,\n        _as_int,\n        _country_to_numeric,\n        _extract_year,\n        _filters_to_tuple,\n        _load_json_dict,\n        _normalize_country_code,\n        _normalize_observation_row,\n        _shard_countries,\n    )\n",
+          "end_location": {
+            "column": 1,
+            "row": 111
+          },
+          "location": {
+            "column": 1,
+            "row": 111
+          }
+        }
+      ],
+      "message": "Move out of type-checking block"
+    },
+    "location": {
+      "column": 9,
+      "row": 96
+    },
+    "message": "Move import `polisyos.data_forge.domains.catalog.batch.core_sources.transformers._extract_year` out of type-checking block. Import is used for more than type hinting.",
+    "noqa_row": 96,
+    "url": "https://docs.astral.sh/ruff/rules/runtime-import-in-type-checking-block"
+  },
+  {
+    "cell": null,
+    "code": "TC004",
+    "end_location": {
+      "column": 26,
+      "row": 97
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (\n        _to_iso3,\n    )",
+          "end_location": {
+            "column": 6,
+            "row": 103
+          },
+          "location": {
+            "column": 5,
+            "row": 92
+          }
+        },
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (\n        _as_float,\n        _as_int,\n        _country_to_numeric,\n        _extract_year,\n        _filters_to_tuple,\n        _load_json_dict,\n        _normalize_country_code,\n        _normalize_observation_row,\n        _shard_countries,\n    )\n",
+          "end_location": {
+            "column": 1,
+            "row": 111
+          },
+          "location": {
+            "column": 1,
+            "row": 111
+          }
+        }
+      ],
+      "message": "Move out of type-checking block"
+    },
+    "location": {
+      "column": 9,
+      "row": 97
+    },
+    "message": "Move import `polisyos.data_forge.domains.catalog.batch.core_sources.transformers._filters_to_tuple` out of type-checking block. Import is used for more than type hinting.",
+    "noqa_row": 97,
+    "url": "https://docs.astral.sh/ruff/rules/runtime-import-in-type-checking-block"
+  },
+  {
+    "cell": null,
+    "code": "TC004",
+    "end_location": {
+      "column": 24,
+      "row": 98
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (\n        _to_iso3,\n    )",
+          "end_location": {
+            "column": 6,
+            "row": 103
+          },
+          "location": {
+            "column": 5,
+            "row": 92
+          }
+        },
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (\n        _as_float,\n        _as_int,\n        _country_to_numeric,\n        _extract_year,\n        _filters_to_tuple,\n        _load_json_dict,\n        _normalize_country_code,\n        _normalize_observation_row,\n        _shard_countries,\n    )\n",
+          "end_location": {
+            "column": 1,
+            "row": 111
+          },
+          "location": {
+            "column": 1,
+            "row": 111
+          }
+        }
+      ],
+      "message": "Move out of type-checking block"
+    },
+    "location": {
+      "column": 9,
+      "row": 98
+    },
+    "message": "Move import `polisyos.data_forge.domains.catalog.batch.core_sources.transformers._load_json_dict` out of type-checking block. Import is used for more than type hinting.",
+    "noqa_row": 98,
+    "url": "https://docs.astral.sh/ruff/rules/runtime-import-in-type-checking-block"
+  },
+  {
+    "cell": null,
+    "code": "TC004",
+    "end_location": {
+      "column": 32,
+      "row": 99
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (\n        _to_iso3,\n    )",
+          "end_location": {
+            "column": 6,
+            "row": 103
+          },
+          "location": {
+            "column": 5,
+            "row": 92
+          }
+        },
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (\n        _as_float,\n        _as_int,\n        _country_to_numeric,\n        _extract_year,\n        _filters_to_tuple,\n        _load_json_dict,\n        _normalize_country_code,\n        _normalize_observation_row,\n        _shard_countries,\n    )\n",
+          "end_location": {
+            "column": 1,
+            "row": 111
+          },
+          "location": {
+            "column": 1,
+            "row": 111
+          }
+        }
+      ],
+      "message": "Move out of type-checking block"
+    },
+    "location": {
+      "column": 9,
+      "row": 99
+    },
+    "message": "Move import `polisyos.data_forge.domains.catalog.batch.core_sources.transformers._normalize_country_code` out of type-checking block. Import is used for more than type hinting.",
+    "noqa_row": 99,
+    "url": "https://docs.astral.sh/ruff/rules/runtime-import-in-type-checking-block"
+  },
+  {
+    "cell": null,
+    "code": "TC004",
+    "end_location": {
+      "column": 35,
+      "row": 100
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (\n        _to_iso3,\n    )",
+          "end_location": {
+            "column": 6,
+            "row": 103
+          },
+          "location": {
+            "column": 5,
+            "row": 92
+          }
+        },
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (\n        _as_float,\n        _as_int,\n        _country_to_numeric,\n        _extract_year,\n        _filters_to_tuple,\n        _load_json_dict,\n        _normalize_country_code,\n        _normalize_observation_row,\n        _shard_countries,\n    )\n",
+          "end_location": {
+            "column": 1,
+            "row": 111
+          },
+          "location": {
+            "column": 1,
+            "row": 111
+          }
+        }
+      ],
+      "message": "Move out of type-checking block"
+    },
+    "location": {
+      "column": 9,
+      "row": 100
+    },
+    "message": "Move import `polisyos.data_forge.domains.catalog.batch.core_sources.transformers._normalize_observation_row` out of type-checking block. Import is used for more than type hinting.",
+    "noqa_row": 100,
+    "url": "https://docs.astral.sh/ruff/rules/runtime-import-in-type-checking-block"
+  },
+  {
+    "cell": null,
+    "code": "TC004",
+    "end_location": {
+      "column": 25,
+      "row": 101
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (\n        _to_iso3,\n    )",
+          "end_location": {
+            "column": 6,
+            "row": 103
+          },
+          "location": {
+            "column": 5,
+            "row": 92
+          }
+        },
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (\n        _as_float,\n        _as_int,\n        _country_to_numeric,\n        _extract_year,\n        _filters_to_tuple,\n        _load_json_dict,\n        _normalize_country_code,\n        _normalize_observation_row,\n        _shard_countries,\n    )\n",
+          "end_location": {
+            "column": 1,
+            "row": 111
+          },
+          "location": {
+            "column": 1,
+            "row": 111
+          }
+        }
+      ],
+      "message": "Move out of type-checking block"
+    },
+    "location": {
+      "column": 9,
+      "row": 101
+    },
+    "message": "Move import `polisyos.data_forge.domains.catalog.batch.core_sources.transformers._shard_countries` out of type-checking block. Import is used for more than type hinting.",
+    "noqa_row": 101,
+    "url": "https://docs.astral.sh/ruff/rules/runtime-import-in-type-checking-block"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 17,
+      "row": 102
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (\n        _as_float,\n        _as_int,\n        _country_to_numeric,\n        _extract_year,\n        _filters_to_tuple,\n        _load_json_dict,\n        _normalize_country_code,\n        _normalize_observation_row,\n        _shard_countries,\n    )",
+          "end_location": {
+            "column": 6,
+            "row": 103
+          },
+          "location": {
+            "column": 5,
+            "row": 92
+          }
+        }
+      ],
+      "message": "Remove unused import: `polisyos.data_forge.domains.catalog.batch.core_sources.transformers._to_iso3`"
+    },
+    "location": {
+      "column": 9,
+      "row": 102
+    },
+    "message": "`polisyos.data_forge.domains.catalog.batch.core_sources.transformers._to_iso3` imported but unused",
+    "noqa_row": 102,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "TC004",
+    "end_location": {
+      "column": 35,
+      "row": 105
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 107
+          },
+          "location": {
+            "column": 1,
+            "row": 104
+          }
+        },
+        {
+          "content": "from polisyos.data_forge.domains.catalog.batch.core_sources.writers import (\n        _WVSObservationAccumulator,\n    )\n",
+          "end_location": {
+            "column": 1,
+            "row": 111
+          },
+          "location": {
+            "column": 1,
+            "row": 111
+          }
+        }
+      ],
+      "message": "Move out of type-checking block"
+    },
+    "location": {
+      "column": 9,
+      "row": 105
+    },
+    "message": "Move import `polisyos.data_forge.domains.catalog.batch.core_sources.writers._WVSObservationAccumulator` out of type-checking block. Import is used for more than type hinting.",
+    "noqa_row": 105,
+    "url": "https://docs.astral.sh/ruff/rules/runtime-import-in-type-checking-block"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 70,
+      "row": 117
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 67,
+      "row": 117
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `__resolve_implementation_dependency`",
+    "noqa_row": 117,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 62,
+      "row": 131
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 59,
+      "row": 131
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `__make_implementation_proxy`",
+    "noqa_row": 131,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 27,
+      "row": 134
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 24,
+      "row": 134
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `*args`",
+    "noqa_row": 134,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 42,
+      "row": 134
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 39,
+      "row": 134
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `**kwargs`",
+    "noqa_row": 134,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 50,
+      "row": 134
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 47,
+      "row": 134
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `__proxy`",
+    "noqa_row": 134,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "S608",
+    "end_location": {
+      "column": 62,
+      "row": 401
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 395
+    },
+    "message": "Possible SQL injection vector through string-based query construction",
+    "noqa_row": 395,
+    "url": "https://docs.astral.sh/ruff/rules/hardcoded-sql-expression"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 35,
+      "row": 526
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 32,
+      "row": 526
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `raw_value`",
+    "noqa_row": 526,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 37,
+      "row": 589
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 34,
+      "row": 589
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `values`",
+    "noqa_row": 589,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 62,
+      "row": 589
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 59,
+      "row": 589
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `_iter_chunked_values`",
+    "noqa_row": 589,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 25,
+      "row": 600
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 22,
+      "row": 600
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `observation_ids`",
+    "noqa_row": 600,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "S608",
+    "end_location": {
+      "column": 99,
+      "row": 607
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 607
+    },
+    "message": "Possible SQL injection vector through string-based query construction",
+    "noqa_row": 607,
+    "url": "https://docs.astral.sh/ruff/rules/hardcoded-sql-expression"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 39,
+      "row": 614
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 36,
+      "row": 614
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `payload`",
+    "noqa_row": 614,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 32,
+      "row": 634
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 634
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `value`",
+    "noqa_row": 634,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 35,
+      "row": 718
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 32,
+      "row": 718
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `value`",
+    "noqa_row": 718,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 31,
+      "row": 740
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 28,
+      "row": 740
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `records`",
+    "noqa_row": 740,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 62,
+      "row": 740
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 59,
+      "row": 740
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `_iter_batches`",
+    "noqa_row": 740,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 17,
+      "row": 755
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 14,
+      "row": 755
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `records`",
+    "noqa_row": 755,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "S608",
+    "end_location": {
+      "column": 93,
+      "row": 773
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 33,
+      "row": 773
+    },
+    "message": "Possible SQL injection vector through string-based query construction",
+    "noqa_row": 773,
+    "url": "https://docs.astral.sh/ruff/rules/hardcoded-sql-expression"
+  },
+  {
+    "cell": null,
+    "code": "S608",
+    "end_location": {
+      "column": 89,
+      "row": 776
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 33,
+      "row": 776
+    },
+    "message": "Possible SQL injection vector through string-based query construction",
+    "noqa_row": 776,
+    "url": "https://docs.astral.sh/ruff/rules/hardcoded-sql-expression"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 30,
+      "row": 811
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 811
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `record_result`",
+    "noqa_row": 811,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "SIM117",
+    "end_location": {
+      "column": 60,
+      "row": 835
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 834
+    },
+    "message": "Use a single `with` statement with multiple contexts instead of nested `with` statements",
+    "noqa_row": 834,
+    "url": "https://docs.astral.sh/ruff/rules/multiple-with-statements"
+  },
+  {
+    "cell": null,
+    "code": "SIM117",
+    "end_location": {
+      "column": 45,
+      "row": 860
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 859
+    },
+    "message": "Use a single `with` statement with multiple contexts instead of nested `with` statements",
+    "noqa_row": 859,
+    "url": "https://docs.astral.sh/ruff/rules/multiple-with-statements"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 55,
+      "row": 906
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 52,
+      "row": 906
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `_iter_eurostat_bulk_records`",
+    "noqa_row": 906,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 51,
+      "row": 940
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 48,
+      "row": 940
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `_iter_ilo_bulk_records`",
+    "noqa_row": 940,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 70,
+      "row": 994
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 67,
+      "row": 994
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `_iter_uis_bulk_records`",
+    "noqa_row": 994,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 30,
+      "row": 1068
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 1068
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `record_result`",
+    "noqa_row": 1068,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "RUF034",
+    "end_location": {
+      "column": 92,
+      "row": 1080
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 57,
+      "row": 1080
+    },
+    "message": "Useless `if`-`else` condition",
+    "noqa_row": 1080,
+    "url": "https://docs.astral.sh/ruff/rules/useless-if-else"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 30,
+      "row": 1112
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 1112
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `record_result`",
+    "noqa_row": 1112,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 30,
+      "row": 1157
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 1157
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `record_result`",
+    "noqa_row": 1157,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 30,
+      "row": 1230
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 1230
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `record_result`",
+    "noqa_row": 1230,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 137,
+      "row": 1266
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 1266
+    },
+    "message": "Line too long (136 > 100)",
+    "noqa_row": 1266,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "S608",
+    "end_location": {
+      "column": 91,
+      "row": 1365
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 1365
+    },
+    "message": "Possible SQL injection vector through string-based query construction",
+    "noqa_row": 1365,
+    "url": "https://docs.astral.sh/ruff/rules/hardcoded-sql-expression"
+  },
+  {
+    "cell": null,
+    "code": "S608",
+    "end_location": {
+      "column": 50,
+      "row": 1376
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 1374
+    },
+    "message": "Possible SQL injection vector through string-based query construction",
+    "noqa_row": 1374,
+    "url": "https://docs.astral.sh/ruff/rules/hardcoded-sql-expression"
+  },
+  {
+    "cell": null,
+    "code": "F821",
+    "end_location": {
+      "column": 34,
+      "row": 1492
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 12,
+      "row": 1492
+    },
+    "message": "Undefined name `_ConnectorSessionCache`",
+    "noqa_row": 1492,
+    "url": "https://docs.astral.sh/ruff/rules/undefined-name"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 30,
+      "row": 1496
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 1496
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `record_result`",
+    "noqa_row": 1496,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 37,
+      "row": 1497
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 27,
+      "row": 1497
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `budget_wait_observer`",
+    "noqa_row": 1497,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "F821",
+    "end_location": {
+      "column": 34,
+      "row": 1567
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 12,
+      "row": 1567
+    },
+    "message": "Undefined name `_ConnectorSessionCache`",
+    "noqa_row": 1567,
+    "url": "https://docs.astral.sh/ruff/rules/undefined-name"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 30,
+      "row": 1571
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 1571
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `record_result`",
+    "noqa_row": 1571,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 37,
+      "row": 1572
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 27,
+      "row": 1572
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `budget_wait_observer`",
+    "noqa_row": 1572,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "F821",
+    "end_location": {
+      "column": 34,
+      "row": 1706
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 12,
+      "row": 1706
+    },
+    "message": "Undefined name `_ConnectorSessionCache`",
+    "noqa_row": 1706,
+    "url": "https://docs.astral.sh/ruff/rules/undefined-name"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 30,
+      "row": 1711
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 1711
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `record_result`",
+    "noqa_row": 1711,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 37,
+      "row": 1712
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 27,
+      "row": 1712
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `budget_wait_observer`",
+    "noqa_row": 1712,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 65,
+      "row": 1816
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 62,
+      "row": 1816
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `raw_value`",
+    "noqa_row": 1816,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 110,
+      "row": 1848
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 1848
+    },
+    "message": "Line too long (109 > 100)",
+    "noqa_row": 1848,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "ANN401",
+    "end_location": {
+      "column": 9,
+      "row": 1896
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 6,
+      "row": 1896
+    },
+    "message": "Dynamically typed expressions (typing.Any) are disallowed in `_http_get_json`",
+    "noqa_row": 1896,
+    "url": "https://docs.astral.sh/ruff/rules/any-type"
+  },
+  {
+    "cell": null,
+    "code": "SIM117",
+    "end_location": {
+      "column": 60,
+      "row": 1902
+    },
+    "filename": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 1901
+    },
+    "message": "Use a single `with` statement with multiple contexts instead of nested `with` statements",
+    "noqa_row": 1901,
+    "url": "https://docs.astral.sh/ruff/rules/multiple-with-statements"
+  }
+]

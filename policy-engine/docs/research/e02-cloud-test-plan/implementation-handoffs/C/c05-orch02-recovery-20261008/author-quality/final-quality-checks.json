@@ -1,0 +1,61 @@
+[
+  {
+    "name": "mypy-frozen",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "architecture/tooling/mypy/generated.ini",
+      "--follow-imports=silent",
+      "--cache-dir",
+      "/workspace/orch02-recovery/c05-author-checks/mypy-cache",
+      "src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+      "src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "src/polisyos/fabric/retrieval/service.py"
+    ],
+    "cwd": "/workspace/orch02-c05/policy-engine",
+    "env_override": {
+      "PYTHONPATH": "/workspace/orch02-c05/policy-engine/src:/workspace/orch02-c05/policy-engine"
+    },
+    "source": {
+      "sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "tree": "47950716278e09cd1c4ddf6fa0acefbcdd013e50"
+    },
+    "exit_code": 1,
+    "wall_seconds": 1.2993314909999754,
+    "stdout": "mypy-frozen.stdout.txt",
+    "stderr": "mypy-frozen.stderr.txt",
+    "stdout_lines": 21,
+    "stderr_lines": 0
+  },
+  {
+    "name": "architecture-frozen",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "tools.cli",
+      "architecture",
+      "guardrails",
+      "check",
+      "--skip-generated-checks"
+    ],
+    "cwd": "/workspace/orch02-c05/policy-engine",
+    "env_override": {
+      "PYTHONPATH": "/workspace/orch02-c05/policy-engine/src:/workspace/orch02-c05/policy-engine"
+    },
+    "source": {
+      "sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "tree": "47950716278e09cd1c4ddf6fa0acefbcdd013e50"
+    },
+    "exit_code": 1,
+    "wall_seconds": 41.84873867500005,
+    "stdout": "architecture-frozen.stdout.txt",
+    "stderr": "architecture-frozen.stderr.txt",
+    "stdout_lines": 2044,
+    "stderr_lines": 0
+  }
+]

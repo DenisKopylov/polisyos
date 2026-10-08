@@ -1,0 +1,2 @@
+2026-10-08 16:05:55.190 | INFO     | polisyos.common.logger:_call:120 - Loaded 1 WVS indicators from registry
+2026-10-08 16:05:55.241 | INFO     | polisyos.common.logger:_call:120 - Loaded 1 WVS indicators from registry

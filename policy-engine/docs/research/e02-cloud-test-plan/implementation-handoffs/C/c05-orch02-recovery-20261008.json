@@ -1,0 +1,1125 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "date": "2026-10-08",
+  "unit": "C",
+  "execution_role": "C05",
+  "slice": "orch02-catalog-finite-material-currentness",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "LA-041",
+    "LA-028"
+  ],
+  "bundle_ids": [
+    "DFI-03",
+    "DFK-02"
+  ],
+  "slice_base_sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+  "slice_base_tree_sha": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+  "implementation_commits": [
+    "b297fe0986feaa0d56c61d991f04bbc6a1e3ca36",
+    "0bde01f5febf3b6e66315c864bc0cc20b0776068",
+    "66151f3b7c806fdd0af0e6b2f71762e4defcc023"
+  ],
+  "candidate_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+  "candidate_tree_sha": "47950716278e09cd1c4ddf6fa0acefbcdd013e50",
+  "branch": "codex/e02-C-orch02-c05-recovery",
+  "pull_request": null,
+  "source_acceptance": {
+    "own_lane_admission": "create/resume exact CAT base PASS; sole physical writer C05",
+    "technical_proposal": "Faithful V5 plus scoped introduced style/type repairs, independent source-only GO, fresh own-base bounded native specification/evidence GO; engineering quality FAIL and G composition remain separate.",
+    "G_composition": "held; CAT/DFI DAG differs from fetched G and requires G07 source selection",
+    "formal_G_closure": "not_adjudicated",
+    "engineering_quality": "FAIL; Ruff99, targeted mypy14 and architecture; no P41 inherited-green exception"
+  },
+  "source_DAG": {
+    "CAT": {
+      "sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+      "parents": [
+        "42a8b499860acdb67b73ea9c5c7f53a874d71f08",
+        "ab44166335130463178e65dfc29a252c96afe479"
+      ]
+    },
+    "DFI": {
+      "sha": "ab44166335130463178e65dfc29a252c96afe479",
+      "tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+      "ancestor_of_CAT": true
+    },
+    "fetched_G": {
+      "sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e"
+    },
+    "range_note": "Historical DFI30 and CAT36 are complete range-specific path entries, not 66 unique paths. Native evidence is fresh own-base evidence and transfers no historical PASS."
+  },
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-08-e02-c05-catalog-profile-currentness.toml",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+    "policy-engine/src/polisyos/fabric/retrieval/service.py",
+    "policy-engine/tests/unit/remediation/test_dfi_03.py",
+    "policy-engine/tests/unit/remediation/test_dfk_02.py"
+  ],
+  "full_footprint_preimage_V5_postimage_final_G_and_dependency_identity": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/independent-review/c05-source-binding-66151f3b.json",
+    "git_blob": "d292ffcee662d0b6c484809fd0b663420987d8de",
+    "sha256": "8a8dc71905a534d14c6cdcc9132459061729066691921cc3a6f85d8496cce22c",
+    "bytes": 23418
+  },
+  "identity_reconciliation": {
+    "all10_declared_preimages_or_absences": "recomputed and matched exact CAT",
+    "all10_faithful_V5_postimages": "recomputed from committed b297 and matched verified patch proposal blobs",
+    "writer_material_dependencies": {
+      "rows": 29,
+      "basis": "27 leaf-pinned dependencies plus graph_builder and benchmark direct-path checks; exact pins matched CAT"
+    },
+    "independent_source_dependencies": {
+      "rows": 34,
+      "basis": "Every declared writer source-manifest dependency row plus named direct lazy-import/runtime/test rows. Bounded source/config/test dependency list, not entire dynamic/external closure."
+    },
+    "G_comparison": "Eight existing footprint paths and substantive source/dependency owners differ; same labels or tested CAT do not authorize G composition."
+  },
+  "admission_and_environment_git_refs": [
+    {
+      "source_sha": "329f81e7e1f431f010bb8193ade522a4c37f276c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/admission/c05-create.json",
+      "git_blob": "34686c6cb985d0b676ffb81bcd0f57b22182e289"
+    },
+    {
+      "source_sha": "329f81e7e1f431f010bb8193ade522a4c37f276c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/admission/c05-resume.json",
+      "git_blob": "8545067b840c0d79f8bd585fb8aafbeb2134cde4"
+    },
+    {
+      "source_sha": "329f81e7e1f431f010bb8193ade522a4c37f276c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/admission/lease-board.json",
+      "git_blob": "7f0a97c72b44e0b113c7d131ebedbc39db3c8d85"
+    },
+    {
+      "source_sha": "329f81e7e1f431f010bb8193ade522a4c37f276c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/environment/host-tools-transport.json",
+      "git_blob": "2fd40b3d05b5e426d7398d5346ad0b6e8bac2203"
+    },
+    {
+      "source_sha": "329f81e7e1f431f010bb8193ade522a4c37f276c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/environment/managed-runtime-status.json",
+      "git_blob": "9ccc87400aecec10ab09f2aaf2ff29b236b213bc"
+    },
+    {
+      "source_sha": "329f81e7e1f431f010bb8193ade522a4c37f276c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/recovery-manifest.json",
+      "git_blob": "3a2886b0ecd2d43a5a477c18440740ab24a18bf4"
+    }
+  ],
+  "instruction_refs": [
+    {
+      "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "AGENTS.md",
+      "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98"
+    },
+    {
+      "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/CONTRIBUTING.md",
+      "git_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf"
+    },
+    {
+      "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+      "git_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e"
+    },
+    {
+      "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08/COMMON.md",
+      "git_blob": "9f4fff6450d0fc6babf3c28457f3387136a2228f"
+    },
+    {
+      "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/COMMON.md",
+      "git_blob": "116b74d20e0bb9a9e9421bc48a6d95b86a373a79"
+    },
+    {
+      "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C05.md",
+      "git_blob": "b035de96ed5199453bc672342758dba71fa599bd"
+    },
+    {
+      "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json",
+      "git_blob": "f2e8d2096b86148fb93d4eb61520d22002228a1d"
+    },
+    {
+      "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/07-source-selection.md",
+      "git_blob": "f501af90dc634286f6948bfc77b6711c5b60cb73"
+    },
+    {
+      "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1159/continuation-leases.json",
+      "git_blob": "3f62faf9cb571e3872290614a4dcbb0b29641c4a"
+    },
+    {
+      "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "git_blob": "652fb2d0b3fbcaa48681adf2e79b66486b4a65a1"
+    }
+  ],
+  "property": {
+    "statement": "On the existing Catalog producer/checkpoint/benchmark and internal retrieval paths, covered same-ID profile changes and finite selected local policy/member byte changes invalidate reuse before consumers reuse stale state; unchanged or mtime-only controls preserve reuse. Warm policy caches read current file snapshots and one bulk WVS operation binds one registry snapshot.",
+    "runtime_path": [
+      "DatasetBatchConfig.configuration_signature -> existing material GenerationBasis -> actual core ingest -> DuckDB canonical evidence/values -> receipt/checkpoint -> fresh benchmark before reuse",
+      "Content-bound proxy alignment snapshot -> actual proxy SQL application -> persisted evidence penalty",
+      "Current core/harvest WVS snapshot and conditional named XLSX fallback -> actual CSV metadata normalization/title and legacy bulk response -> persisted provenance/value",
+      "Actual internal RetrievalService.resolve(run_profile=CatalogRunProfile) -> current canonical CatalogSourceRegistry/shared selection -> selected source retrieval or missing/foreign/disabled seed refusal"
+    ],
+    "non_test_production_callers": [
+      "catalog.batch.pipeline.run_dataset_pipeline and run_content_stage_with_receipt -> core_sources.api.run_core_sources_ingest_async -> validators/core output receipts and benchmark.run_benchmark",
+      "catalog.batch.core_sources.api._ingest_catalog_observations -> actual legacy/parallel dispatcher; loaders._load_wvs_bulk_duckdb -> typed response normalization",
+      "catalog.batch.core_sources.registry persisted proxy-alignment SQL path -> knowledge.proxy_penalties.metric_proxy_alignments; harvester.harvest_one_source -> harvester._harvest_wvs and current named metadata fallback",
+      "fabric.retrieval.service.RetrievalService.resolve internal request; actual ordinary served request/profile bridge remains named C10/G task"
+    ],
+    "proxy_divergence": "Profile labels, file path or mtime can stay unchanged while a selected URL/policy/seed member changes actual SQL, provenance or fresh benchmark readiness. A cached digest or early assertion alone cannot decide; independent matched removals inspect actual before-repair benchmark, literal SQL/condition/title and operation call count.",
+    "negative_controls": [
+      "same-ID changed covered profile fields with preserved file stat; unchanged positive and mtime-only controls",
+      "required seed absence refusal; optional missing versus present-empty bound distinctly; unselected fallback directory ignored while selected I/O error refuses",
+      "actual foreign/missing/disabled mandatory Catalog seed and None versus explicit-empty request controls",
+      "paired contribution/cache/operation-forwarding removal collectors on the same frozen source with markers and remaining controls intact"
+    ],
+    "bounded_input_quantity": [
+      "required source registry, metrics map and canonical API seed alignments",
+      "optional proxy alignments and both canonical core/harvest WVS locators",
+      "only actual selected named WVS metadata XLSX fallback",
+      "complete actual singleton SourceProfileRegistry with covered resolved connection/execution policy fields",
+      "normalized actual legacy serial-mode selector"
+    ],
+    "rule_version": "policyos.catalog.producer_material_inputs.v1 over existing policyos.generation_basis.v1",
+    "time_roles": "File mtimes are nonauthoritative controls; member bytes/presence and resolved profile/policy content define this basis. Source observation time, remote revision and concurrent whole-operation input epoch are outside this finite basis."
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_classification": {
+    "member bytes/presence, resolved covered profile and normalized legacy mode": "recomputed",
+    "fixture SQL/result/provenance and fresh consumer behavior": "independently_reconciled",
+    "complete full LA-041 material/output/resume/source-registry universe": "not_established",
+    "production source authority, actual served profile bridge and authentic production result": "not_established"
+  },
+  "baseline_cells": {
+    "LA-041": {
+      "count": 9,
+      "states": {
+        "PASS": 9
+      },
+      "cell_ids": [
+        "F02-P123",
+        "F04-P079",
+        "F04-P130",
+        "F06-P141",
+        "F09-P079",
+        "F09-P127",
+        "F10-P112",
+        "F13-P151",
+        "F15-P091"
+      ],
+      "grade": "source_reported_compact_text_only; candidate_routes",
+      "raw_archives_received": 0,
+      "future_candidate_verdict": "none"
+    },
+    "LA-028": {
+      "count": 14,
+      "states": {
+        "FAILED": 6,
+        "PASS": 8
+      },
+      "cell_ids": [
+        "F02-P065",
+        "F02-P079",
+        "F03-P079",
+        "F04-P053",
+        "F05-P075",
+        "F05-P087",
+        "F07-P058",
+        "F08-P079",
+        "F09-P057",
+        "F10-P055",
+        "F10-P067",
+        "F13-P062",
+        "F13-P090",
+        "F15-P076"
+      ],
+      "grade": "source_reported_compact_text_only; candidate_routes",
+      "raw_archives_received": 0,
+      "future_candidate_verdict": "none"
+    }
+  },
+  "checks": [
+    {
+      "name": "ruff-frozen",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--output-format",
+        "json",
+        "src/polisyos/data_forge/domains/catalog/batch/config.py",
+        "tests/unit/remediation/test_dfi_03.py",
+        "src/polisyos/fabric/retrieval/service.py",
+        "tests/unit/remediation/test_dfk_02.py",
+        "src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+        "src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+        "src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+        "src/polisyos/data_forge/domains/catalog/batch/harvester.py"
+      ],
+      "cwd": "/workspace/orch02-c05/policy-engine",
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment": "read-only shared Python3.14.2; explicit own source/PYTHONPATH where relevant",
+      "input_closure": "eight exact changed Python files under frozen own pyproject",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/author-quality/ruff-frozen.stdout.txt",
+        "git_blob": "063e17e2c70775654b322b42e3d08b07dba9d60b",
+        "sha256": "27bff92ef4cac708857501ba87f8d306573ce8a37b159f869060c506c4abaac6",
+        "bytes": 77949
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/author-quality/ruff-frozen.stderr.txt",
+        "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "name": "ruff-format-frozen",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/data_forge/domains/catalog/batch/config.py",
+        "tests/unit/remediation/test_dfi_03.py",
+        "src/polisyos/fabric/retrieval/service.py",
+        "tests/unit/remediation/test_dfk_02.py",
+        "src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+        "src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+        "src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+        "src/polisyos/data_forge/domains/catalog/batch/harvester.py"
+      ],
+      "cwd": "/workspace/orch02-c05/policy-engine",
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment": "read-only shared Python3.14.2; explicit own source/PYTHONPATH where relevant",
+      "input_closure": "eight exact changed Python files under frozen own pyproject",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/author-quality/ruff-format-frozen.stdout.txt",
+        "git_blob": "bca3ee507c1d69eaf29c54fa12b2bfe1ae507dcc",
+        "sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985",
+        "bytes": 26
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/author-quality/ruff-format-frozen.stderr.txt",
+        "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "name": "mypy-frozen",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "mypy",
+        "--config-file",
+        "architecture/tooling/mypy/generated.ini",
+        "--follow-imports=silent",
+        "--cache-dir",
+        "/workspace/orch02-recovery/c05-author-checks/mypy-cache",
+        "src/polisyos/data_forge/domains/catalog/batch/config.py",
+        "src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+        "src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+        "src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+        "src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+        "src/polisyos/fabric/retrieval/service.py"
+      ],
+      "cwd": "/workspace/orch02-c05/policy-engine",
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment": {
+        "PYTHONPATH": "/workspace/orch02-c05/policy-engine/src:/workspace/orch02-c05/policy-engine"
+      },
+      "input_closure": "targeted6sourcefiles with follow-imports=silent",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 1.2993314909999754,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/author-quality/mypy-frozen.stdout.txt",
+        "git_blob": "eed66c5fa41283ee892c8151d2d15d81427d3a35",
+        "sha256": "84e23eeb549e73bf2715e7cf7eb8780906cd518101282a248693478b6c326cb9",
+        "bytes": 2708
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/author-quality/mypy-frozen.stderr.txt",
+        "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "P41": "not_established; no waiver"
+    },
+    {
+      "name": "architecture-frozen",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.cli",
+        "architecture",
+        "guardrails",
+        "check",
+        "--skip-generated-checks"
+      ],
+      "cwd": "/workspace/orch02-c05/policy-engine",
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment": {
+        "PYTHONPATH": "/workspace/orch02-c05/policy-engine/src:/workspace/orch02-c05/policy-engine"
+      },
+      "input_closure": "architecture tool full source denominator; generated checks explicitly omitted",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 41.84873867500005,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/author-quality/architecture-frozen.stdout.txt",
+        "git_blob": "708653210cd0b81838e5a850cb288dc943f7d1e4",
+        "sha256": "ca3406a26936e876c155cce135845bd586be8117ad6e12982708ab501b8451c7",
+        "bytes": 118114
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/author-quality/architecture-frozen.stderr.txt",
+        "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "P41": "not_established; no waiver"
+    },
+    {
+      "name": "syntax_and_own_import_origins",
+      "command": "compile() all8 changed Python files; importlib.import_module six changed mechanisms, all __file__ under own src",
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment": "shared Python3.14.2, PYTHONPATH own src+policy root",
+      "input_closure": "eight Python footprint files plus imported6module origins",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/author-quality/compile-import-frozen.json",
+        "git_blob": "3ed0ea9502c60fe1c0b9c756f1c00476968483d6",
+        "sha256": "37b73fbe5f1b4fa35b338793dbb5a874c4277e16dec749d3115d2da327494225",
+        "bytes": 2181
+      },
+      "behavioral_claim": "none"
+    },
+    {
+      "name": "results_import_integrity",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/results/import_results.py",
+        "--check"
+      ],
+      "target_sha": "b297fe0986feaa0d56c61d991f04bbc6a1e3ca36",
+      "environment": "shared Python3.14.2; results bytes unchanged final661",
+      "input_closure": "full declared six generated results files, then verification.json and address-only9/14 cell queries",
+      "outcome": "PASS",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/author-quality/results-import.stdout.txt",
+        "git_blob": "4b77a2bc39db327d4a0589d0613bd93b280ce634",
+        "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+        "bytes": 112
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/author-quality/results-import.stderr.txt",
+        "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "claim": "Results-pack internal integrity only; source-reported compact text provides navigation and transfers no candidate behavior verdict.",
+      "source_pin_qualification": "Observed HEAD b297; scoped style repairs were pending in unrelated owned source/tests. Results importer/data files were untouched and match both exact CAT and frozen661. This integrity check is not a native source verdict.",
+      "results_input_identities": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+          "git_blob": "ad440fe4effad1853be8c3f898d278d607cba08d"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+          "git_blob": "cad358a5161df08d72388d3eb5c58897645360cc"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv",
+          "git_blob": "51c6234d89edf66d0a88025572b24960fce0c22d"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/properties.tsv",
+          "git_blob": "612a6239bc7b3d4a88f64d99ba1d9cc41b33eb5b"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/events.jsonl",
+          "git_blob": "deb58d3f56d1f1f27a1e10b1dda44e3ad70cb0b1"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/gates.json",
+          "git_blob": "1ef44080bd3dc9e44618e8fd4d2f3c1665cc1463"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv",
+          "git_blob": "484108de4691f41cfac81996eeff477607774c05"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/verification.json",
+          "git_blob": "b4d46edbd185add382dbc3a86f762274a3c5e781"
+        }
+      ]
+    },
+    {
+      "name": "baseline_navigation_LA-041",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "LA-041",
+        "--details"
+      ],
+      "target_sha": "0bde01f5febf3b6e66315c864bc0cc20b0776068",
+      "environment": "read-only own results pack",
+      "input_closure": "all addressed 9 cells, no result sampling",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/author-quality/baseline-LA041.json",
+        "git_blob": "3ca3ee9dbe294a74110510f632d16cd9fd03fde5",
+        "sha256": "ff9ad7aa46c49dc240345362c5e92a289e69fdbe742c16fea006f2b746d970e9",
+        "bytes": 11346
+      },
+      "claim": "Query completion/navigation only; not future candidate PASS or finding closure."
+    },
+    {
+      "name": "baseline_navigation_LA-028",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "LA-028",
+        "--details"
+      ],
+      "target_sha": "0bde01f5febf3b6e66315c864bc0cc20b0776068",
+      "environment": "read-only own results pack",
+      "input_closure": "all addressed 14 cells, no result sampling",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/author-quality/baseline-LA028.json",
+        "git_blob": "8d6c6ba11db3cd470d5e02fd1e3f89f3cdbd7690",
+        "sha256": "ea409ef415dccba9071a2f7a4aa6502cde121e22b35a7a261918dfb93de37fce",
+        "bytes": 25525
+      },
+      "claim": "Query completion/navigation only; not future candidate PASS or finding closure."
+    },
+    {
+      "name": "static_production_invocation",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--base",
+        "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "--receipt",
+        "/workspace/orch02-c05/policy-engine/_build/c05-orch02-recovery-20261008/raw/production-invocation.json"
+      ],
+      "cwd": "/workspace/orch02-c05/policy-engine",
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment": "shared read-only Python3.14.2 with own PYTHONPATH",
+      "input_closure": "complete tracked Python/project scripts at exact CAT and661 according to existing static tool; deferred/property/dynamic receiver/callback dispatch remains unresolved",
+      "outcome": "UNRUN",
+      "measured_status": "UNRESOLVED",
+      "exit_code": 3,
+      "wall_seconds": 305.37824464499977,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/author-quality/production-invocation.stdout.txt",
+        "git_blob": "a4932f708b37a2df0dd1a8bac3653072742772c8",
+        "sha256": "6c21568fd15bf4da503483b84446fb798d0602b59e0dd066920e30881bb391f9",
+        "bytes": 1669
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/author-quality/production-invocation.stderr.txt",
+        "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "full_raw_receipt": {
+        "path": "/workspace/orch02-c05/policy-engine/_build/c05-orch02-recovery-20261008/raw/production-invocation.json",
+        "bytes": 170643028,
+        "sha256": "5f0ad035224cbf13ebf14cd3cf35ec0f845b2700bcb9859fd18c581775bea3f3"
+      },
+      "scope": "Completed partial static measurement with no resolved regression; runtime invocation/non-invocation not established by this instrument. Fresh native observation is a separate check."
+    },
+    {
+      "name": "c05-bulk-forwarding-removed",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-bulk-forwarding-removed/command.json",
+        "git_blob": "3484c354e27d7ba330a7c97dd5f5621af6459602",
+        "sha256": "fab3dc2a18b838b6b0e0a8bf482df16c8a5849d31456129b578ea945a2ee8b81",
+        "bytes": 1982
+      },
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment_ref": "native-receipt.json#/environment; isolated native HNSW0.8.0 with read-only shared package set",
+      "input_closure": "exact native fixture/script/module/harness identities in command/native receipt and custody manifest; no production input",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 7.213539728000114,
+      "RSS_KiB": 222636,
+      "outputs_ref": "native-artifact-manifest.json#/artifacts with check=c05-bulk-forwarding-removed",
+      "raw_semantic_label": "DISCRIMINATING",
+      "raw_semantic_error": null,
+      "interpretation": "Native positive or discriminating negative as labeled; output bytes and full command preserved."
+    },
+    {
+      "name": "c05-bulk-intact",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-bulk-intact/command.json",
+        "git_blob": "88e55af57af5af4a87aba3cfaf17b639303f3b82",
+        "sha256": "3300de029ba14100b33ac7a350380d03d8b408abe0fe71f2bea8c076710208c8",
+        "bytes": 1965
+      },
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment_ref": "native-receipt.json#/environment; isolated native HNSW0.8.0 with read-only shared package set",
+      "input_closure": "exact native fixture/script/module/harness identities in command/native receipt and custody manifest; no production input",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 10.419204337999872,
+      "RSS_KiB": 222164,
+      "outputs_ref": "native-artifact-manifest.json#/artifacts with check=c05-bulk-intact",
+      "raw_semantic_label": "PASS",
+      "raw_semantic_error": null,
+      "interpretation": "Native positive or discriminating negative as labeled; output bytes and full command preserved."
+    },
+    {
+      "name": "c05-fallback-cache-removed",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-fallback-cache-removed/command.json",
+        "git_blob": "5ed1fdebcadc87f3a45cccf53401dcc62f92c818",
+        "sha256": "6cad8d8550e420b84dbeeff9e0583359503762d88269c7d5ac6e85caaa5bbea0",
+        "bytes": 1989
+      },
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment_ref": "native-receipt.json#/environment; isolated native HNSW0.8.0 with read-only shared package set",
+      "input_closure": "exact native fixture/script/module/harness identities in command/native receipt and custody manifest; no production input",
+      "outcome": "ERROR",
+      "exit_code": 1,
+      "wall_seconds": 12.904801656000018,
+      "RSS_KiB": 222544,
+      "outputs_ref": "native-artifact-manifest.json#/artifacts with check=c05-fallback-cache-removed",
+      "raw_semantic_label": "INCONCLUSIVE",
+      "raw_semantic_error": {
+        "type": "Failed",
+        "message": "DID NOT RAISE <class 'IsADirectoryError'>"
+      },
+      "interpretation": "Historical observer setup/classifier output, preserved as INCONCLUSIVE/exit1; no product FAIL inferred. Narrow justified followup or independent literal field/refusal classification is recorded separately in final native review.",
+      "independent_literal_discriminator": "DISCRIMINATING independently_reconciled: stale name and/or missed selected-directory I/O refusal; raw classifier label/exit remain unchanged."
+    },
+    {
+      "name": "c05-fallback-intact",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-fallback-intact/command.json",
+        "git_blob": "ba6efbfcc5ff1ad958bf2fe04da0d3ed0f2599d8",
+        "sha256": "4d7591e22829f562265da74117a58ef7595f7b46a636dea626b30f0974f94a32",
+        "bytes": 1976
+      },
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment_ref": "native-receipt.json#/environment; isolated native HNSW0.8.0 with read-only shared package set",
+      "input_closure": "exact native fixture/script/module/harness identities in command/native receipt and custody manifest; no production input",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 6.739242568999998,
+      "RSS_KiB": 222660,
+      "outputs_ref": "native-artifact-manifest.json#/artifacts with check=c05-fallback-intact",
+      "raw_semantic_label": "PASS",
+      "raw_semantic_error": null,
+      "interpretation": "Native positive or discriminating negative as labeled; output bytes and full command preserved."
+    },
+    {
+      "name": "c05-full-native",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-full-native/command.json",
+        "git_blob": "53e2697a14d0b34c5d3f9e46e48e7b45566cb258",
+        "sha256": "58aaf07602b986de6e5af79156ac5e22234522d70b85d0219d4e2f1292f05310",
+        "bytes": 2234
+      },
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment_ref": "native-receipt.json#/environment; isolated native HNSW0.8.0 with read-only shared package set",
+      "input_closure": "exact native fixture/script/module/harness identities in command/native receipt and custody manifest; no production input",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 85.0779417199999,
+      "RSS_KiB": 357028,
+      "outputs_ref": "native-artifact-manifest.json#/artifacts with check=c05-full-native",
+      "raw_semantic_label": null,
+      "raw_semantic_error": null,
+      "interpretation": "Native positive or discriminating negative as labeled; output bytes and full command preserved."
+    },
+    {
+      "name": "c05-legacy-intact",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-legacy-intact/command.json",
+        "git_blob": "2ce30d9c88b134f2226296ca554b9b57fef58657",
+        "sha256": "9280c45dd4ae4004b517d4f129f2b9c715f2e39892ec89f0dd5ed5f06aa69044",
+        "bytes": 1976
+      },
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment_ref": "native-receipt.json#/environment; isolated native HNSW0.8.0 with read-only shared package set",
+      "input_closure": "exact native fixture/script/module/harness identities in command/native receipt and custody manifest; no production input",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 11.94153391299983,
+      "RSS_KiB": 222620,
+      "outputs_ref": "native-artifact-manifest.json#/artifacts with check=c05-legacy-intact",
+      "raw_semantic_label": "PASS",
+      "raw_semantic_error": null,
+      "interpretation": "Native positive or discriminating negative as labeled; output bytes and full command preserved."
+    },
+    {
+      "name": "c05-legacy-member-removed",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-legacy-member-removed/command.json",
+        "git_blob": "01970cb453ccc899bbc1fb0ddefbc98f2b12002b",
+        "sha256": "91ed86b61bb372fdc057e18df4c43f50c1a67c11edb2bfb983826ca8f1f7b160",
+        "bytes": 1986
+      },
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment_ref": "native-receipt.json#/environment; isolated native HNSW0.8.0 with read-only shared package set",
+      "input_closure": "exact native fixture/script/module/harness identities in command/native receipt and custody manifest; no production input",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 14.57603883999991,
+      "RSS_KiB": 222752,
+      "outputs_ref": "native-artifact-manifest.json#/artifacts with check=c05-legacy-member-removed",
+      "raw_semantic_label": "DISCRIMINATING",
+      "raw_semantic_error": null,
+      "interpretation": "Native positive or discriminating negative as labeled; output bytes and full command preserved."
+    },
+    {
+      "name": "c05-profile-intact",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-profile-intact/command.json",
+        "git_blob": "e120a9ababa1a460a7dce95cac73d10844753962",
+        "sha256": "db854ebd76b22642cfa7d219147f62a4e46475e2fd33ca8c8fe9160c0698073e",
+        "bytes": 1972
+      },
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment_ref": "native-receipt.json#/environment; isolated native HNSW0.8.0 with read-only shared package set",
+      "input_closure": "exact native fixture/script/module/harness identities in command/native receipt and custody manifest; no production input",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 18.238537177999888,
+      "RSS_KiB": 255612,
+      "outputs_ref": "native-artifact-manifest.json#/artifacts with check=c05-profile-intact",
+      "raw_semantic_label": "PASS",
+      "raw_semantic_error": null,
+      "interpretation": "Native positive or discriminating negative as labeled; output bytes and full command preserved."
+    },
+    {
+      "name": "c05-profile-member-removed",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-profile-member-removed/command.json",
+        "git_blob": "9ba5fe8e3889e28a37849ca79dc95b68e9fb19a5",
+        "sha256": "dcc6f2caace6bcb7a5b65b4272f80e256e700742a851145c7970daea6351c63c",
+        "bytes": 1984
+      },
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment_ref": "native-receipt.json#/environment; isolated native HNSW0.8.0 with read-only shared package set",
+      "input_closure": "exact native fixture/script/module/harness identities in command/native receipt and custody manifest; no production input",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 20.65052543600018,
+      "RSS_KiB": 252132,
+      "outputs_ref": "native-artifact-manifest.json#/artifacts with check=c05-profile-member-removed",
+      "raw_semantic_label": "DISCRIMINATING",
+      "raw_semantic_error": null,
+      "interpretation": "Native positive or discriminating negative as labeled; output bytes and full command preserved."
+    },
+    {
+      "name": "c05-proxy-cache-removed",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-proxy-cache-removed/command.json",
+        "git_blob": "f4d16550246a7305d4d6e56dcf6c35a0c6fb2f03",
+        "sha256": "bfd2057b41341ea233739986d487b71d9cd7ef1af84003398bf51375166be666",
+        "bytes": 1975
+      },
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment_ref": "native-receipt.json#/environment; isolated native HNSW0.8.0 with read-only shared package set",
+      "input_closure": "exact native fixture/script/module/harness identities in command/native receipt and custody manifest; no production input",
+      "outcome": "ERROR",
+      "exit_code": 1,
+      "wall_seconds": 6.6389260140001625,
+      "RSS_KiB": 226680,
+      "outputs_ref": "native-artifact-manifest.json#/artifacts with check=c05-proxy-cache-removed",
+      "raw_semantic_label": "INCONCLUSIVE",
+      "raw_semantic_error": null,
+      "interpretation": "Historical observer setup/classifier output, preserved as INCONCLUSIVE/exit1; no product FAIL inferred. Narrow justified followup or independent literal field/refusal classification is recorded separately in final native review."
+    },
+    {
+      "name": "c05-proxy-cache-removed-v2",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-proxy-cache-removed-v2/command.json",
+        "git_blob": "4ea79c3c50d9ff8e6de49170b6e567ae0517b23a",
+        "sha256": "b6795dd4611ff89a4ae9d169aac71c00b6633e2b546650e0edb704d51fb6be0f",
+        "bytes": 1983
+      },
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment_ref": "native-receipt.json#/environment; isolated native HNSW0.8.0 with read-only shared package set",
+      "input_closure": "exact native fixture/script/module/harness identities in command/native receipt and custody manifest; no production input",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 5.204965843999844,
+      "RSS_KiB": 226528,
+      "outputs_ref": "native-artifact-manifest.json#/artifacts with check=c05-proxy-cache-removed-v2",
+      "raw_semantic_label": "DISCRIMINATING",
+      "raw_semantic_error": null,
+      "interpretation": "Native positive or discriminating negative as labeled; output bytes and full command preserved."
+    },
+    {
+      "name": "c05-proxy-intact",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-proxy-intact/command.json",
+        "git_blob": "b4982297eb141bfae040667884ba0a981d193ecf",
+        "sha256": "df76d530c8582e0244129d0a560f344a6b3dce66c6e756a3717a779c37ede9a0",
+        "bytes": 1966
+      },
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment_ref": "native-receipt.json#/environment; isolated native HNSW0.8.0 with read-only shared package set",
+      "input_closure": "exact native fixture/script/module/harness identities in command/native receipt and custody manifest; no production input",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 7.878546383999947,
+      "RSS_KiB": 226872,
+      "outputs_ref": "native-artifact-manifest.json#/artifacts with check=c05-proxy-intact",
+      "raw_semantic_label": "PASS",
+      "raw_semantic_error": null,
+      "interpretation": "Native positive or discriminating negative as labeled; output bytes and full command preserved."
+    },
+    {
+      "name": "c05-reader-consumers",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-reader-consumers/command.json",
+        "git_blob": "d70a042575ee5a3b99053930cbdbfcbab15e9a52",
+        "sha256": "f439e3a831c058d40261ae562af346ee871db0a0595da2e5590ef4782539f3f0",
+        "bytes": 2627
+      },
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment_ref": "native-receipt.json#/environment; isolated native HNSW0.8.0 with read-only shared package set",
+      "input_closure": "exact native fixture/script/module/harness identities in command/native receipt and custody manifest; no production input",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 13.697199640000008,
+      "RSS_KiB": 308904,
+      "outputs_ref": "native-artifact-manifest.json#/artifacts with check=c05-reader-consumers",
+      "raw_semantic_label": null,
+      "raw_semantic_error": null,
+      "interpretation": "Native positive or discriminating negative as labeled; output bytes and full command preserved."
+    },
+    {
+      "name": "c05-repaired-artifact-readback",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-repaired-artifact-readback/command.json",
+        "git_blob": "d112afaab6d1839911296c3b148d1e61aa8cc6e4",
+        "sha256": "523022b86fc55c9205db667ba47ac07049412e04dfb7aeee1b92584fa3679599",
+        "bytes": 1863
+      },
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment_ref": "native-receipt.json#/environment; isolated native HNSW0.8.0 with read-only shared package set",
+      "input_closure": "exact native fixture/script/module/harness identities in command/native receipt and custody manifest; no production input",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.4524738130000969,
+      "RSS_KiB": 51200,
+      "outputs_ref": "native-artifact-manifest.json#/artifacts with check=c05-repaired-artifact-readback",
+      "raw_semantic_label": "PASS_PERSISTED_REPAIRED_OUTPUT_READBACK",
+      "raw_semantic_error": null,
+      "interpretation": "Native positive or discriminating negative as labeled; output bytes and full command preserved."
+    },
+    {
+      "name": "c05-seed-intact",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-seed-intact/command.json",
+        "git_blob": "e989fa41ff4a72efedf2764b4841562db0fb3a37",
+        "sha256": "adf002a67b14deb29a22d81a68b7f06f964a40c1a671dc4b87cd54933a228e93",
+        "bytes": 1966
+      },
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment_ref": "native-receipt.json#/environment; isolated native HNSW0.8.0 with read-only shared package set",
+      "input_closure": "exact native fixture/script/module/harness identities in command/native receipt and custody manifest; no production input",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 15.337273779000043,
+      "RSS_KiB": 251884,
+      "outputs_ref": "native-artifact-manifest.json#/artifacts with check=c05-seed-intact",
+      "raw_semantic_label": "PASS",
+      "raw_semantic_error": null,
+      "interpretation": "Native positive or discriminating negative as labeled; output bytes and full command preserved."
+    },
+    {
+      "name": "c05-seed-member-removed",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-seed-member-removed/command.json",
+        "git_blob": "a08702212ccaf6ec1858db3ad00205e1f3e3d783",
+        "sha256": "2f448a24fc629508772eaafa363d0efb16e6d3758c5aa75d9c65da97aabbc020",
+        "bytes": 1979
+      },
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment_ref": "native-receipt.json#/environment; isolated native HNSW0.8.0 with read-only shared package set",
+      "input_closure": "exact native fixture/script/module/harness identities in command/native receipt and custody manifest; no production input",
+      "outcome": "ERROR",
+      "exit_code": 1,
+      "wall_seconds": 19.885412892999966,
+      "RSS_KiB": 253836,
+      "outputs_ref": "native-artifact-manifest.json#/artifacts with check=c05-seed-member-removed",
+      "raw_semantic_label": "INCONCLUSIVE",
+      "raw_semantic_error": null,
+      "interpretation": "Historical observer setup/classifier output, preserved as INCONCLUSIVE/exit1; no product FAIL inferred. Narrow justified followup or independent literal field/refusal classification is recorded separately in final native review."
+    },
+    {
+      "name": "c05-seed-member-removed-v2",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-seed-member-removed-v2/command.json",
+        "git_blob": "662d2c02716f8b4fd76036ef87d4da4d0535b562",
+        "sha256": "cf4ab24c57255b0a26722c0de1bec74ff6a1bfbeb80e1d88d33d96fed2109349",
+        "bytes": 1988
+      },
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment_ref": "native-receipt.json#/environment; isolated native HNSW0.8.0 with read-only shared package set",
+      "input_closure": "exact native fixture/script/module/harness identities in command/native receipt and custody manifest; no production input",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 12.007219476000046,
+      "RSS_KiB": 256024,
+      "outputs_ref": "native-artifact-manifest.json#/artifacts with check=c05-seed-member-removed-v2",
+      "raw_semantic_label": "DISCRIMINATING",
+      "raw_semantic_error": null,
+      "interpretation": "Native positive or discriminating negative as labeled; output bytes and full command preserved."
+    },
+    {
+      "name": "c05-wvs-core-cache-removed-v2",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-wvs-core-cache-removed-v2/command.json",
+        "git_blob": "cd4f9f08ebc0db668c40d0d051d8abcc764479ed",
+        "sha256": "c9263af1bfc1ffdff550b7cf850a112cf33b33f6228193ae9f5196ecab7711c4",
+        "bytes": 1992
+      },
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment_ref": "native-receipt.json#/environment; isolated native HNSW0.8.0 with read-only shared package set",
+      "input_closure": "exact native fixture/script/module/harness identities in command/native receipt and custody manifest; no production input",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 5.4021120279999195,
+      "RSS_KiB": 215948,
+      "outputs_ref": "native-artifact-manifest.json#/artifacts with check=c05-wvs-core-cache-removed-v2",
+      "raw_semantic_label": "DISCRIMINATING",
+      "raw_semantic_error": null,
+      "interpretation": "Native positive or discriminating negative as labeled; output bytes and full command preserved."
+    },
+    {
+      "name": "c05-wvs-harvest-cache-removed-v2",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-wvs-harvest-cache-removed-v2/command.json",
+        "git_blob": "ce95e2017a9e0916639934ede2181b4c54f17473",
+        "sha256": "a575208e4517c7339df37f48f18d3f5214bc427880e816a195e19d389ec5cf7a",
+        "bytes": 1989
+      },
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment_ref": "native-receipt.json#/environment; isolated native HNSW0.8.0 with read-only shared package set",
+      "input_closure": "exact native fixture/script/module/harness identities in command/native receipt and custody manifest; no production input",
+      "outcome": "ERROR",
+      "exit_code": 1,
+      "wall_seconds": 3.673950727999909,
+      "RSS_KiB": 215856,
+      "outputs_ref": "native-artifact-manifest.json#/artifacts with check=c05-wvs-harvest-cache-removed-v2",
+      "raw_semantic_label": "INCONCLUSIVE",
+      "raw_semantic_error": null,
+      "interpretation": "Historical observer setup/classifier output, preserved as INCONCLUSIVE/exit1; no product FAIL inferred. Narrow justified followup or independent literal field/refusal classification is recorded separately in final native review.",
+      "independent_literal_discriminator": "DISCRIMINATING independently_reconciled: stale name and/or missed selected-directory I/O refusal; raw classifier label/exit remain unchanged."
+    },
+    {
+      "name": "c05-wvs-intact",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-wvs-intact/command.json",
+        "git_blob": "60962221aa3f885263dec67081c48fd76c20cae8",
+        "sha256": "a3abc88726188065446f094d53b11cbaff84d8c33d09032cb1e636689adb24ee",
+        "bytes": 1963
+      },
+      "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "environment_ref": "native-receipt.json#/environment; isolated native HNSW0.8.0 with read-only shared package set",
+      "input_closure": "exact native fixture/script/module/harness identities in command/native receipt and custody manifest; no production input",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 6.03802342400013,
+      "RSS_KiB": 215748,
+      "outputs_ref": "native-artifact-manifest.json#/artifacts with check=c05-wvs-intact",
+      "raw_semantic_label": "PASS",
+      "raw_semantic_error": null,
+      "interpretation": "Native positive or discriminating negative as labeled; output bytes and full command preserved."
+    }
+  ],
+  "quality_evidence": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/author-quality-manifest.json",
+    "git_blob": "7909f7a15977842ea2eb6cbd8d5aa41b3cda641b",
+    "sha256": "357fff5715aed4b5b5cb72752d7319ead11c2da07fbf43b8187313376f6d778b",
+    "bytes": 14983
+  },
+  "independent_source_review": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/independent-review/c05-independent-source-review-0bde01f5.md",
+      "git_blob": "172a9d9bb90d1fcff80a0b63d43177caa27a3302",
+      "sha256": "e71b35915c97b28cc9a8fff81708f74cfc68095dc8218d73d747720da840b4c9",
+      "bytes": 11402
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/independent-review/c05-independent-source-review-66151f3b.md",
+      "git_blob": "48d33f0586beefad287b2b4cbc3c13bfba5ef6a6",
+      "sha256": "2202132a08d60db660b17de3654be853e2ba5db489634f8c19685e28ba63bf45",
+      "bytes": 1784
+    }
+  ],
+  "scoped_partner_requirements": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/scoped-requirements.json",
+    "git_blob": "625e56fbebe85564bd81a0f1cf67dca2d9c1030b",
+    "sha256": "8266e1ef68a1707744c78864c492b2094b6344cfebe41da6ffe789bb03e1c250",
+    "bytes": 14034
+  },
+  "capability_state_or_finding_state": "Bounded own-base finite material currentness and internal readers verified by fresh native112cases plus independent semantic removals/readback; engineering quality FAIL; G source composition held; production served input/consumer not_established; no formal finding closure.",
+  "limitations_and_next_owner": [
+    {
+      "boundary": "Full LA-041 output completeness, source registry semantics and whole-resume correctness are not established by a finite basis or hashes.",
+      "owner": "G/C05 original I1 criterion and exact accepted full source; defining whole-input/output/resume oracle remains required."
+    },
+    {
+      "boundary": "ALL headers, including nonsecret content negotiation, credentials/auth overlays, separately injected retrieval profile registries, remote response/revision and raw observation corpus are excluded.",
+      "owner": "Canonical profile/source owner supplies nonsecret revision or explicit invalidation and an exact extended source/lease; current declared residual is not patched by more local aliases."
+    },
+    {
+      "boundary": "Snapshot reuse is content currentness between accesses, not an atomic concurrent multi-member corpus/profile snapshot.",
+      "owner": "Canonical producer/input snapshot owner if that stronger profile is required."
+    },
+    {
+      "boundary": "Source quality gates remain FAIL and generated freshness is UNRUN. Initial and final complete outputs retained; per-file diagnostic similarity grants no P41 waiver.",
+      "owner": "G assesses exact accepted composition and canonical source-quality owners; no shared baseline/lock/exception/generated edits by C05."
+    },
+    {
+      "boundary": "CAT/DFI differ from fetched G; own-base native PASS does not accept or test a G composition.",
+      "owner": "G07 source selection and formal admission, then affected consumer check on selected composition."
+    },
+    {
+      "boundary": "Actual served positive requires C10 request/profile bridge and L01/L02 configured input/authentic read-only consumer. Generic fixture work remains independent.",
+      "owner": "C10/A canonical request consumer, G public companions, L01 actual source/profile fact packet, L02 authentic exact-candidate consumer."
+    },
+    {
+      "boundary": "LA-032 source-to-state inventory authority/producer mapping and code lease remain unestablished; existing L01 mixed-layout quantity is reused and no local producer added. B19/B36 supplier contracts remain requirements.",
+      "owner": "See exact scoped-requirements.json; G/C-W19/L01/L02 for LA-032, C08/C10 supplier/consumer and G exact transform lease for B19/B36."
+    },
+    {
+      "boundary": "Release companion was frozen before native wave and says pending verification; this separate source-qualified receipt records the later execution result.",
+      "owner": "Receipt overrides only that historical verification status; no implementation bytes changed after freeze."
+    }
+  ],
+  "history_and_mutations": {
+    "append_only": true,
+    "source_frozen_before_independent_native": true,
+    "post_freeze_source_edits": false,
+    "main_or_integration_push": false,
+    "shared_lock_API_generated_C10served_C02Core_edits": false,
+    "hooks_disabled": false,
+    "production_inputs_uploaded": false,
+    "cleanup": false
+  },
+  "publication": {
+    "implementation": "normal own-topic push and explicit fetch/readback exact66151f3b/tree47950716; full transport output tracked under author-quality",
+    "handoff": "separate commit follows implementation; exact remote readback supplied after commit; handoff cites no own future commit SHA"
+  },
+  "native_evidence": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-receipt.json",
+    "git_blob": "5ec39a976e8917213b73662357cdcdbb21361625",
+    "sha256": "93046f021642ff7dd51b31c4cd38209477cfffcf5765de604b44c6d1f65425ec",
+    "bytes": 34864
+  },
+  "native_complete_deciding_output_custody": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-artifact-manifest.json",
+    "git_blob": "22ce2f688f70eb63b2f5de54ebecbee1353bf8de",
+    "sha256": "fca48a443484287075e2ccb220eaf5c26f2dbede18df8d6d8d37dbff6957f27b",
+    "bytes": 54222
+  },
+  "native_independent_final_review": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/independent-review/c05-independent-native-final-review-66151f3b.md",
+      "git_blob": "6f98a0a30756fe8ca7a9e7399e6583fb45143958",
+      "sha256": "2d6d6f9fff1238a08e1851143814dac71ebf3f2724a07935070aa10b30790e5d",
+      "bytes": 3445
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/independent-review/c05-independent-native-final-review-66151f3b.json",
+      "git_blob": "e2422183f575b579d188b3416a9da6a7b38415f8",
+      "sha256": "99a2ec6b4436a46009bddf17054334749dffd60ed5301adc31b2fb48aca2f22f",
+      "bytes": 7117
+    }
+  ],
+  "exact_executed_harness_git_refs": [
+    {
+      "source_sha": "8170ff50337fcef96fff035f4ff3fca1321d35c3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/native-harness-c05-c12/manifest.json",
+      "git_blob": "e9adcef9c36afeea57669ed5ef07ca1361612796",
+      "execution_name_alias": "manifest.json"
+    },
+    {
+      "source_sha": "8170ff50337fcef96fff035f4ff3fca1321d35c3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/native-harness-c05-c12/run_gate-c05-executed.py",
+      "git_blob": "2f081098459fbc03ca5d7ba8cabd17ee9e456500",
+      "execution_name_alias": "run_gate-c05-executed.py"
+    },
+    {
+      "source_sha": "8170ff50337fcef96fff035f4ff3fca1321d35c3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/native-harness-c05-c12/orch02_capture-c05-executed.py",
+      "git_blob": "31969dd55be2b87b8bd44b6d2e7a84eedd55c223",
+      "execution_name_alias": "orch02_capture-c05-executed.py"
+    },
+    {
+      "source_sha": "8170ff50337fcef96fff035f4ff3fca1321d35c3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/native-harness-c05-c12/semantic_collect.py",
+      "git_blob": "bbc6ff02a55a49a080c058e2ba3e66f8dd112770",
+      "execution_name_alias": "semantic_collect-c05-executed.py"
+    },
+    {
+      "source_sha": "8170ff50337fcef96fff035f4ff3fca1321d35c3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/native-harness-c05-c12/semantic_collect-c05-v2-executed.py",
+      "git_blob": "c6e94094c6072372cb197e66f4ce88e0ae05455d",
+      "execution_name_alias": "semantic_collect-c05-v2-executed.py"
+    },
+    {
+      "source_sha": "8170ff50337fcef96fff035f4ff3fca1321d35c3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/native-harness-c05-c12/c05_artifact_readback.py",
+      "git_blob": "915035fe823c96d046c4910aec6dcaa7d8182994",
+      "execution_name_alias": "c05_artifact_readback.py"
+    }
+  ],
+  "native_observation_denominator": {
+    "commands": 20,
+    "deciding_output_streams": 82,
+    "native_cases": 112,
+    "full103_partition": {
+      "DFI03": 43,
+      "DFK02": 36,
+      "retrieval": 24
+    },
+    "affected_readers": 9,
+    "failures_errors_skips": 0,
+    "raw_INCONCLUSIVE_count": 4,
+    "reason": "All20 raw command directories included; no selected-only green replay; classification failures preserved and separately interpreted."
+  },
+  "compatibility_and_companions": {
+    "nearest_owned_doc": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md",
+    "unique_release_fragment": "policy-engine/release-fragments/unreleased/2026-10-08-e02-c05-catalog-profile-currentness.toml",
+    "unchanged_public_signature": true,
+    "old_receipt_policy": "Readable; missing new material basis produces existing cache miss/recomputation. Cache_clear seams retained. No fabricated default CatalogRunProfile.",
+    "generated_owner": "G; generated check UNRUN; no shared source/API/schema/lock edits"
+  }
+}

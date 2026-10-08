@@ -1,0 +1,95 @@
+{
+  "kind": "c05-bulk",
+  "removal": {
+    "kind": "none",
+    "quantity": null,
+    "held_markers": true,
+    "source_files_changed": false
+  },
+  "owned_fixture_source": "/workspace/orch02-c05/policy-engine/tests/unit/remediation/test_dfi_03.py",
+  "source_sha256": "298a8aa19e46f3d508bec214c5a713ccb272612e0945b263336514fd69475735",
+  "oracle": "literal actual SQL/benchmark/native outputs; assertion observations continue beyond digest failures",
+  "verdict": "PASS",
+  "error": null,
+  "events": [
+    {
+      "line": 2181,
+      "expression": "reads == [registry_path]",
+      "holds": true,
+      "actual_left": [
+        "/workspace/orch02-native-c05-c12/raw/c05-bulk-intact/semantic-uxq1g4ph/wvs.yaml"
+      ],
+      "expected_right": [
+        "/workspace/orch02-native-c05-c12/raw/c05-bulk-intact/semantic-uxq1g4ph/wvs.yaml"
+      ],
+      "reads": [
+        "/workspace/orch02-native-c05-c12/raw/c05-bulk-intact/semantic-uxq1g4ph/wvs.yaml"
+      ]
+    },
+    {
+      "line": 2182,
+      "expression": "initial['A165'][0]['sample_size'] == 3",
+      "holds": true,
+      "actual_left": 3,
+      "expected_right": 3,
+      "reads": [
+        "/workspace/orch02-native-c05-c12/raw/c05-bulk-intact/semantic-uxq1g4ph/wvs.yaml"
+      ]
+    },
+    {
+      "line": 2183,
+      "expression": "initial['A165'][0]['value'] == 0.0",
+      "holds": true,
+      "actual_left": 0.0,
+      "expected_right": 0.0,
+      "reads": [
+        "/workspace/orch02-native-c05-c12/raw/c05-bulk-intact/semantic-uxq1g4ph/wvs.yaml"
+      ]
+    },
+    {
+      "line": 2189,
+      "expression": "reads == [registry_path]",
+      "holds": true,
+      "actual_left": [
+        "/workspace/orch02-native-c05-c12/raw/c05-bulk-intact/semantic-uxq1g4ph/wvs.yaml"
+      ],
+      "expected_right": [
+        "/workspace/orch02-native-c05-c12/raw/c05-bulk-intact/semantic-uxq1g4ph/wvs.yaml"
+      ],
+      "reads": [
+        "/workspace/orch02-native-c05-c12/raw/c05-bulk-intact/semantic-uxq1g4ph/wvs.yaml"
+      ]
+    },
+    {
+      "line": 2190,
+      "expression": "changed['A165'][0]['sample_size'] == 3",
+      "holds": true,
+      "actual_left": 3,
+      "expected_right": 3,
+      "reads": [
+        "/workspace/orch02-native-c05-c12/raw/c05-bulk-intact/semantic-uxq1g4ph/wvs.yaml"
+      ]
+    },
+    {
+      "line": 2191,
+      "expression": "changed['A165'][0]['value'] == 2.0",
+      "holds": true,
+      "actual_left": 2.0,
+      "expected_right": 2.0,
+      "reads": [
+        "/workspace/orch02-native-c05-c12/raw/c05-bulk-intact/semantic-uxq1g4ph/wvs.yaml"
+      ]
+    },
+    {
+      "line": 2192,
+      "expression": "config.run_signature != signature",
+      "holds": true,
+      "actual_left": "566d1013a241d798ba4e33766043c6b762fb2455712a60ca4af7e3a106c1e1d2",
+      "expected_right": "5d5dd1025f87e036bd96621555a80fafa0bfe6c6eeb09f77b5bbc4d1f92c9098",
+      "reads": [
+        "/workspace/orch02-native-c05-c12/raw/c05-bulk-intact/semantic-uxq1g4ph/wvs.yaml"
+      ]
+    }
+  ],
+  "marker_and_fixture_outputs": "/workspace/orch02-native-c05-c12/raw/c05-bulk-intact/semantic-uxq1g4ph"
+}

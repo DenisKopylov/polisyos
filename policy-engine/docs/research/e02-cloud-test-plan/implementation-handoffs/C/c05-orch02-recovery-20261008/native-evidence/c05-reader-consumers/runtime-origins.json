@@ -1,0 +1,1512 @@
+{
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "executable": "/workspace/orch02-native-c05-c12/venv/bin/python",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "packages": {
+    "pytest": "9.0.2",
+    "numpy": "2.3.5",
+    "duckdb": "1.4.3",
+    "hnswlib": "0.8.0",
+    "pandas": "2.3.3",
+    "pyyaml": "6.0.3",
+    "openpyxl": "3.1.5",
+    "pydantic": "2.12.5"
+  },
+  "origins": {
+    "pytest": {
+      "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+      "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+    },
+    "numpy._core._multiarray_umath": {
+      "path": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/numpy/_core/_multiarray_umath.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "61052ef771d926665ca135b1840662516f058d5c98843aa429ef2abdd7f46a04"
+    },
+    "numpy": {
+      "path": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/numpy/__init__.py",
+      "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38"
+    },
+    "polisyos": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/__init__.py",
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    "polisyos.core": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/__init__.py",
+      "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40"
+    },
+    "polisyos.common": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/common/__init__.py",
+      "sha256": "80cb9fa767bae18ffe0514ca9b1fb09f45263c754a921b77671d3deada89e080"
+    },
+    "polisyos.common.canonical": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/common/canonical.py",
+      "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41"
+    },
+    "polisyos.core.canon.canon_json": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/canon/canon_json.py",
+      "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95"
+    },
+    "polisyos.common.hashing": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/common/hashing.py",
+      "sha256": "4ecfe5e4ed78585a25dfd4ee7de1eee10f4d4b467bca95fd6716537a68ef3ead"
+    },
+    "polisyos.core.canon.hashing": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/canon/hashing.py",
+      "sha256": "a32caf919317c5667ac02bde68fa6a1d0fa064e1edeb44c89bc066a14a9272c0"
+    },
+    "polisyos.core.canon": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/canon/__init__.py",
+      "sha256": "e33a7486224d5e15cd418ac4dab69bb38ac6b1593d739a4b7ac24ea4d477dfb3"
+    },
+    "polisyos.common.logger": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/common/logger.py",
+      "sha256": "d496cd41f388b185cc4c9c9bcb5d7f7c2c3eecba02fc9f437ae5f02f2201e5a0"
+    },
+    "polisyos.core.discovery.base": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/discovery/base.py",
+      "sha256": "c6ca686a2823557950e9e801419f404ee58c5f7b74666c2a9518719db9f0f7bf"
+    },
+    "polisyos.core.discovery": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/discovery/__init__.py",
+      "sha256": "050b0b60b19d7ae358b9927baa279b8efc70f999b18a083b62ee7588c9a474ce"
+    },
+    "polisyos.core.components.capabilities": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/components/capabilities.py",
+      "sha256": "899ac56d56e4c85e1447c707c1e8637ef9798cc2b1a7373b002a84cadfed9a8a"
+    },
+    "polisyos.core.components.ids": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/components/ids.py",
+      "sha256": "7cac29d83cbe0775829892a9e32339c53ef7b06c0dabef95e9341b99e26c5c6c"
+    },
+    "polisyos.core.components.metadata": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/components/metadata.py",
+      "sha256": "efba84687477aaf838aa55db88c82eedfdbbc0b414020d9190cc6e2b0b10df05"
+    },
+    "polisyos.core.components.protocols": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/components/protocols.py",
+      "sha256": "a755d4f4bf0c008265afc9be48f84f854c0604d9d0aa669bc8c872d834af7a01"
+    },
+    "polisyos.core.components.discovery": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/components/discovery.py",
+      "sha256": "d82889dc55e74b6e80d4243364a980e2f763c65930a803c9b8efdfbb074e7b22"
+    },
+    "polisyos.core.registry.generic": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/registry/generic.py",
+      "sha256": "b1e1708fa846adf841fc4f54faa126c0b2605f005ce12c0c1e1ce9a79758553c"
+    },
+    "polisyos.core.registry.base": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/registry/base.py",
+      "sha256": "140b47ccc131641a2a3cf3bbb91f899e6ef7429348ba2be3bd59afa7b275a015"
+    },
+    "polisyos.core.registry": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/registry/__init__.py",
+      "sha256": "3c0133c05fcda3e0270a117f54ca2b401f1e2dce02c2291c247c786a2e4f6e6d"
+    },
+    "polisyos.core.components.registry": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/components/registry.py",
+      "sha256": "e15806f4df623df06293e3e50ded6c160b9e3f14257174b263608734fbdc41fe"
+    },
+    "polisyos.core.components.bootstrap": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/components/bootstrap.py",
+      "sha256": "6a5d7216f16bd1d659cc8b9876d776fcc862bc18c0bfd27b58247b0b771b4d10"
+    },
+    "polisyos.core.components.compliance": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/components/compliance.py",
+      "sha256": "b34a3adb344e6332d2912faee4156f64d800bac5f9244920b41a2080325c1e1b"
+    },
+    "polisyos.core.components": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/components/__init__.py",
+      "sha256": "7be43542a1e235b4a32cb13f2a0924fac8cc43087433515c063f7f7b683dfd89"
+    },
+    "polisyos.core.artifacts.ids": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/artifacts/ids.py",
+      "sha256": "96ab03d78510679bb9195ce79a58dd1559be8f7ccf1de2e6d10031c172ae07e6"
+    },
+    "polisyos.core.artifacts.manifest": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d"
+    },
+    "polisyos.core.artifacts._integrity_ops": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+      "sha256": "c85c7c0a79abfde0131206dc7a98a360ef5cfd6bf19cdd199bb6fa8e40ff5c34"
+    },
+    "polisyos.common.serialization": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/common/serialization.py",
+      "sha256": "03c7fc1756449d77aff0819a79038c632724a398fee1091b2423bffca9d93d24"
+    },
+    "polisyos.core.artifacts._manifest_lifecycle": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+      "sha256": "b0948bf37ec2fd9e7d0b893db319b63bfdc21290564a7aa414e80a97cbebf966"
+    },
+    "polisyos.core.artifacts.signing": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/artifacts/signing.py",
+      "sha256": "5d4a19ab6a2c8b5caacb3c7c74caf3625c24d4e5e51873d131292a682738b568"
+    },
+    "polisyos.core.artifacts._transfer_ops": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "sha256": "7d131caba0deae2ddc9762e2c5a989d51934b3e731e0d6552047bec46d902812"
+    },
+    "polisyos.common.async_tools": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/common/async_tools.py",
+      "sha256": "5153fff118f7d791abb72b6878b409ca226ceceb2411fd413756f66a694d8406"
+    },
+    "polisyos.core.artifacts.protocol": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "sha256": "2a45894dd5f69a377248fdb80b5157ed99bffdcf2362908c5a2c6e93d68d72d2"
+    },
+    "polisyos.core.artifacts.async_store": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/artifacts/async_store.py",
+      "sha256": "6b50f6cc1cf136e6eac66c3ff72745481495a13e18ab0d2ae8209f88863919fe"
+    },
+    "polisyos.core.artifacts.backends": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/artifacts/backends/__init__.py",
+      "sha256": "c1b63ae18ac92ae67fac24338d775c0dd17253682d0240e32f92bd98398a998a"
+    },
+    "polisyos.core.artifacts.backends.config": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/artifacts/backends/config.py",
+      "sha256": "0c942402af1a304c32bccd285fd78a3aeeebc13a1f02c23b3242c1f6ead2f99d"
+    },
+    "polisyos.core.artifacts.cas_integrity_report": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+      "sha256": "52ff5c08997516419f0097ae2710dcc5d602a12aaaa55a5b290be101c7b1bc2d"
+    },
+    "polisyos.core.artifacts.graph": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/artifacts/graph.py",
+      "sha256": "26fe822573a2c9787fafe015195121b70a1a2a7ff89e3bf20d182a92d4909e1f"
+    },
+    "polisyos.core.artifacts._atomic_write": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/artifacts/_atomic_write.py",
+      "sha256": "afa41fe64aa388d65ec89db504d2f651447c5a92b5a8cea0384a6793c924ebcf"
+    },
+    "polisyos.core.artifacts.ownership": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/artifacts/ownership.py",
+      "sha256": "79216c9596812628119769a4dcdb9520c04dd097df5501e1b878e5270fd98b9a"
+    },
+    "polisyos.core.artifacts.registry": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/artifacts/registry.py",
+      "sha256": "e665dc55703db9d4c4a9b4f4040c665a8a85c300ae9c668d67480f6241ccaf28"
+    },
+    "polisyos.core.observability.config": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/observability/config.py",
+      "sha256": "08cacb20670ed714ce97f90e0d42a9ce5ce4f57b629395fe70fba4dd2d5e0be0"
+    },
+    "polisyos.core.observability.determinism": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/observability/determinism.py",
+      "sha256": "989adf82b32a6ea03d11c11920364d97cc2fb64982b5bc54006b76b36e4bd7de"
+    },
+    "polisyos.core.security": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/security/__init__.py",
+      "sha256": "eaf1cfb96501a334d6f4f164bec3921fb209e2b28fd764eb448a52617cd96564"
+    },
+    "polisyos.core.errors.base": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/errors/base.py",
+      "sha256": "f013683b373b4bf947dbdaf0b5e6fc4c830da6fa6b74ef431d59a215bbbeaaed"
+    },
+    "polisyos.core.errors": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/errors/__init__.py",
+      "sha256": "e1bbe5e46a1f67d2c9d01175400036782717be128130ab15c63768af1003cdec"
+    },
+    "polisyos.core.security.exceptions": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/security/exceptions.py",
+      "sha256": "7ec972cde8fc7da7d79b553a4ea5441cffff35add96787c5ffab515250083f92"
+    },
+    "polisyos.core.security.db_backend": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/security/db_backend.py",
+      "sha256": "e2a24be263f3afe4faa445cf0b0500cfeacec2fbe1949a911b138f8ba4c84727"
+    },
+    "polisyos.core.security.tenant_context": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/security/tenant_context.py",
+      "sha256": "f9051375fa189e5bc3e020356eccc4d14f6c1e6402080cd4261396ef3b56c9e0"
+    },
+    "polisyos.core.observability.tracer": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/observability/tracer.py",
+      "sha256": "bac8b15dc232b3e1589198d68e89c2e785f0cf7d5f80352344fba99644b71a8d"
+    },
+    "polisyos.core.observability.decorators": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/observability/decorators.py",
+      "sha256": "909bf120a4650ee6ef0f0b6d0e02af3d23283c172e77e8646aad976c4913d27d"
+    },
+    "polisyos.core.observability.logs": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/observability/logs.py",
+      "sha256": "9d51eda431ee4a4d9e839866500d792e4f527c1bec08731f247a5ad083d72f4f"
+    },
+    "polisyos.core.observability._metrics_helpers": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/observability/_metrics_helpers.py",
+      "sha256": "d168be218d7a3e9dfbb457342127d088d65ee31b417d5766d6a5bc4588964355"
+    },
+    "polisyos.core.observability._metrics_registry_base": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/observability/_metrics_registry_base.py",
+      "sha256": "922eac01d723a6e30070fd887f469b8c6c0c735d922b1fb76185cb0e47d62f85"
+    },
+    "polisyos.core.observability.metrics_parts": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/observability/metrics_parts.py",
+      "sha256": "45d3d3183677aeed557e0d410cdce412387c29e526bc33c81c16ad324a4287ac"
+    },
+    "polisyos.core.observability.metrics": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/observability/metrics.py",
+      "sha256": "9148d24d122b591e2a9f16d1aaafee161dd37746cbab024686b1750e549ba022"
+    },
+    "polisyos.core.observability.pricing": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/observability/pricing.py",
+      "sha256": "3a0920548c07468519635b3e9f1dc9c579d8e423739b4b83a001e73d032fe311"
+    },
+    "polisyos.core.observability.propagation": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/observability/propagation.py",
+      "sha256": "0662550de014f5f6eefbb85a371328503f630186b9df376d610fd444fd843a96"
+    },
+    "polisyos.core.observability": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/observability/__init__.py",
+      "sha256": "13e425237dd9ce7dfc45a18eb5a57f77cad6196d72a97f30450bcb19fdf61377"
+    },
+    "polisyos.core.artifacts._layout": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/artifacts/_layout.py",
+      "sha256": "693f2a119d9b413e3091f0fbf5b1dc093ad3786c7af5cc15ed0c3209e660f194"
+    },
+    "polisyos.core.artifacts._signature_ops": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+      "sha256": "4473a4742a27ff022f59383b201a0473838931aa58d635a061c99ba8b6b6af93"
+    },
+    "polisyos.core.artifacts.write_contract": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/artifacts/write_contract.py",
+      "sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef"
+    },
+    "polisyos.core.artifacts.store": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/artifacts/store.py",
+      "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+    },
+    "polisyos.core.artifacts": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "sha256": "bf4757743e4618d1576f62a1a34a4469f0988b6f42a8708554f9b2696ba10a7f"
+    },
+    "_duckdb": {
+      "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_duckdb.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "a2b1ae52d4116fc609184d407e11a8d15465da34095341e08c53847d752fb5fc"
+    },
+    "duckdb": {
+      "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb/__init__.py",
+      "sha256": "2b20aa68f219791777a195cfec5f87fff610299d26bfbc1e6ef7692476c704a1"
+    },
+    "polisyos.data_forge.read_api.surfaces": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/read_api/surfaces.py",
+      "sha256": "91f36c51abc9db63546785d511a8fc757720938ab873d30d14302345a6ef4bd1"
+    },
+    "polisyos.data_forge.read_api": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/read_api/__init__.py",
+      "sha256": "0c7aa7d42b0569a4e99c9542dab7aaef4f1cd6afc2cae1b31cf186e63a3a7e8e"
+    },
+    "polisyos.data_forge._version": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/_version.py",
+      "sha256": "b052cca3a5c163f495d237bf5a7dd0c14dbcfe283ef2f9c5ce8e0c5f9e4f10c4"
+    },
+    "polisyos.data_forge": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/__init__.py",
+      "sha256": "468fb2656309e00210089ba25f34c84b393f9d25e23f081e188ecc8f8d64160a"
+    },
+    "polisyos.data_forge.domains": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/__init__.py",
+      "sha256": "f2bf9c006fb96ba4d5422a822555ebfc02346bac5ef172b98b1760d9dd9d1fd1"
+    },
+    "polisyos.data_forge.kernel": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/kernel/__init__.py",
+      "sha256": "07600a94ef958f4c8c2dac1765d02327ed9469bf1ae99f10fe640461315e39b2"
+    },
+    "polisyos.data_forge.errors": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/errors.py",
+      "sha256": "3b51811e2cd85dad4294ead00df98f725cd8678df055fc517306bc308311518a"
+    },
+    "polisyos.fabric": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/__init__.py",
+      "sha256": "2bd8701c7440b97d241a087ec3300c22fbef86b31bf36149ce6cd85e35812ae3"
+    },
+    "polisyos.fabric.evidence.decision_data": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/evidence/decision_data.py",
+      "sha256": "3a6bcd16a5acc77cdf97903e76fe89e224566def4eaebbb216767ce96ebbc205"
+    },
+    "polisyos.core.contracts": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/contracts/__init__.py",
+      "sha256": "9b711f5139397946be246aca817aacfb31c7637385cac570cff71872470e7d4e"
+    },
+    "polisyos.ir.api": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/api.py",
+      "sha256": "50eef6b0cb043705d1bd03069e6e1ecd5cfe995575faedb2c5af1fd4e544e384"
+    },
+    "polisyos.ir": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/__init__.py",
+      "sha256": "7758c7b1b07ceb5906fa322a83bd156dadb4b33dfce8e2653198d3f961606e3c"
+    },
+    "polisyos.ir.registry": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/registry/__init__.py",
+      "sha256": "edebf2f8452d62b447bc593d9935c75183857653b281f82fd46dc571e38116f2"
+    },
+    "polisyos.ir.artifacts.contracts": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/artifacts/contracts.py",
+      "sha256": "9caecf307c06ca3efe13b7b234d10e860e734bfd415823e3cd6650f3d0ed1c9b"
+    },
+    "polisyos.ir.model_layer": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/model_layer/__init__.py",
+      "sha256": "7ed768ff9143dc957510f4f22ac51c44bb2c2791a68b5209185cd2eb8bb72993"
+    },
+    "polisyos.ir.model_layer.canon": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/model_layer/canon.py",
+      "sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b"
+    },
+    "polisyos.ir.artifacts.io": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/artifacts/io.py",
+      "sha256": "e876f8d65572ef11992a5ba7336decffea966af7e5b6df12a48ec7dae25b08f3"
+    },
+    "polisyos.ir.artifacts.lineage": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/artifacts/lineage.py",
+      "sha256": "52627f8886454ecb4b3d23435754eb3e68ecd8245761765bf2eef02a8c6722ff"
+    },
+    "polisyos.ir.observation": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/observation/__init__.py",
+      "sha256": "b230861e7a7deb64941bbe5393073cc825f45924634e531efa943d27da4f6686"
+    },
+    "polisyos.ir._internal": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/_internal/__init__.py",
+      "sha256": "26efcf5ea5aa8d7138a675fef7ccd2f17083279ddf38f6fda5c028830dab3756"
+    },
+    "polisyos.ir.model_layer.types": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/model_layer/types.py",
+      "sha256": "9420f2ccde75f9ffe37a1f2acacd37b330aac1489daf77a42da9ab6da1c6bde6"
+    },
+    "polisyos.ir._internal.validation": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/_internal/validation.py",
+      "sha256": "d1cb68bfec95789a5067cf352adae538875297e67423dc344f3453885b2d8b4b"
+    },
+    "polisyos.ir.kernel": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/kernel/__init__.py",
+      "sha256": "1a1124a1b02cca8854bb0f42b56fa8ec97363d2025b351557c2f2bf9eec4b04a"
+    },
+    "polisyos.ir.kernel.base": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/kernel/base.py",
+      "sha256": "ca08c309aefc4d39bc5d96850e44c8801f30441f49c67da4aa3aed92d9091607"
+    },
+    "polisyos.ir.observation.contracts": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/observation/contracts.py",
+      "sha256": "4154ee4d25e789791e2d590e73425f1856f376e01deb73d8225257ef8415b6c7"
+    },
+    "polisyos.ir.artifacts.transport": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/artifacts/transport.py",
+      "sha256": "ae135cb10626f01d4bae2d5f9853cc133be4ea80650b15920f375b6246eb6a0d"
+    },
+    "polisyos.ir.artifacts": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/artifacts/__init__.py",
+      "sha256": "0ed2e21568bd6e97323957da0a8970ca172b64a61a8b77e8ed6cb773bb550134"
+    },
+    "polisyos.ir.registry.refs": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/registry/refs.py",
+      "sha256": "4135199d208ea8970114df0d53a45b92f4e880b32451387a59de43be4987ed19"
+    },
+    "polisyos.core.contracts.uncertainty": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/contracts/uncertainty.py",
+      "sha256": "39098b2e757991cf87c9ced1ecd06ccfeca71b5cfa0dec568aa0f40d4ed17928"
+    },
+    "polisyos.core.contracts.fabric": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/contracts/fabric.py",
+      "sha256": "390415a884778be3f78415c6610db9ea51e26484466d246859a912076a557bf7"
+    },
+    "polisyos.core.contracts.provenance": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/contracts/provenance.py",
+      "sha256": "7ddd190110f8226643d902d5c8a278e1141550ca35ee2f02df1fbd167e184ad7"
+    },
+    "polisyos.fabric.provenance.core": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/provenance/core.py",
+      "sha256": "46e003dacac68fe3cfeaa206905b61093ee820724d91572e61dfbffd994d8dbf"
+    },
+    "polisyos.core.audit.models": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/audit/models.py",
+      "sha256": "3182af1a0fbbc09955575c6c5ed4215b51f383d271d033df264abcec680ea5a2"
+    },
+    "polisyos.core.audit._assembler_archive": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/audit/_assembler_archive.py",
+      "sha256": "048ec385304c2f6a176c1a41f30569bddf116a7280800999b34f9b7682c2733c"
+    },
+    "polisyos.core.trace.record": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/trace/record.py",
+      "sha256": "67d759b571cafc07559b4875636bd040bab7c640470320567da161a79171cbf7"
+    },
+    "polisyos.core.trace.sink": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/trace/sink.py",
+      "sha256": "abcdc30944206159100ea2c3ebc8c4e2855741455a5e08c2085196278a4c93cc"
+    },
+    "polisyos.core.trace": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/trace/__init__.py",
+      "sha256": "da9e8b72508ee15502f8bb13b4b46da89cf5b67384059d5f377d254e9e9d10dc"
+    },
+    "polisyos.core.run.manifest": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/run/manifest.py",
+      "sha256": "9f6ceff0f2da613da4861540f73c88240ca353d3a8ed713891e0cfb18979afde"
+    },
+    "polisyos.core.run.context": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/run/context.py",
+      "sha256": "c91029ec1e99435dbdbd234e47e796e90fcbe1f8897e7ac07f4abf9c75f4bc2c"
+    },
+    "polisyos.core.run": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/run/__init__.py",
+      "sha256": "6ee2f44052fb820dc40d0d3584b021c58ed20729a9e7d198bf7a4ef2c478c6e1"
+    },
+    "polisyos.core.audit._assembler_errors": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/audit/_assembler_errors.py",
+      "sha256": "1e63adaf01bd90c8271b35f319b9c64a089a4c523c7ae7b61bc5af07a96f4b82"
+    },
+    "polisyos.core.audit._assembler_provenance": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/audit/_assembler_provenance.py",
+      "sha256": "954559f77a93ad450ae4b2c2aa7004211e2e4a4b4f4df6b1ae13bc8727f83cb5"
+    },
+    "polisyos.core.audit._assembler_slsa": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/audit/_assembler_slsa.py",
+      "sha256": "267648ebaadf7b7b22e4382373e61677062863812fe96d94fe5bd34976d4531e"
+    },
+    "polisyos.core.audit.prov_json": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/audit/prov_json.py",
+      "sha256": "3af91619eeda67c999c184b4b1a8ee11da09e1406a2a4a5e8bcabfd58069ea65"
+    },
+    "polisyos.core.audit._assembler_core": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/audit/_assembler_core.py",
+      "sha256": "e2e6f4ece186da32381b449bbccdcbe1010f1184d978107d0c82749f40c032bb"
+    },
+    "polisyos.core.audit.assembler": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/audit/assembler.py",
+      "sha256": "5efc5cf77a83b8bcf41a3de92d282efe9734af476e5ecbfd50f416fb5d5b4ba4"
+    },
+    "polisyos.core.audit.report": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/audit/report.py",
+      "sha256": "9aa70a910eddda6c8b56ea2559075994fd7e93c0101069c9ce96d880d72e965a"
+    },
+    "polisyos.core.audit.safe_tar": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/audit/safe_tar.py",
+      "sha256": "fca3afb1da058649d45f038b95c768110a7b7f50795072922b3ef725b91d48bb"
+    },
+    "polisyos.core.audit.verifier": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/audit/verifier.py",
+      "sha256": "a240a388f24c9def282c6dc5f60cec8fcb9fdd4b5415ea4acbe2f70340780da4"
+    },
+    "polisyos.core.audit": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/audit/__init__.py",
+      "sha256": "c3d9cdcebe4b7be596b116f4dc65e97b5a450df115fc7d9782c7047c3178b001"
+    },
+    "polisyos.fabric.data_plane": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/data_plane/__init__.py",
+      "sha256": "38e9ae9c90273509d18b33947469b7c543571b1e08dd38c284aa083883e77912"
+    },
+    "polisyos.fabric.data_plane.temporal": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/data_plane/temporal.py",
+      "sha256": "06958de926a07d6e2da887a2e19d4699922379d1f90648d3dc4f8e64bdcde2a5"
+    },
+    "polisyos.fabric.provenance.export_provo": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/provenance/export_provo.py",
+      "sha256": "533ee7d17d01a6fab9d14b714a831bd4ffe4dc452460fd4738d2d96c21ceadd6"
+    },
+    "polisyos.fabric.provenance.lineage": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/provenance/lineage.py",
+      "sha256": "54d59e4249b8938a8c0bdc16ea91455ed9189f4df6b4fffea522ebf0aa0bd04b"
+    },
+    "polisyos.fabric.provenance": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/provenance/__init__.py",
+      "sha256": "5d43d3091de181f7867d0858f49fc72cad586b01467f8870497bf9b5a4900c07"
+    },
+    "polisyos.fabric.numerics.finite": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/numerics/finite.py",
+      "sha256": "c387146812cdf8ba4851f580c1d2e9d92955d8475bd13efc8897fe3e1313474a"
+    },
+    "polisyos.fabric.numerics": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/numerics/__init__.py",
+      "sha256": "a98c3b63aa74ca1a631accff678d70216d8420c722459bf2db7351cfacec87a7"
+    },
+    "polisyos.fabric.quality.safety": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/quality/safety.py",
+      "sha256": "682fd06a860658125c62c0b0dd39f63bd06dc2a054c004cbee66e536397053ec"
+    },
+    "polisyos.fabric.quality.quality": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/quality/quality.py",
+      "sha256": "8dc607b2fd88a44f796e81dd6eb62e0b7f8098a06af742d4392d4e8fcd632ea9"
+    },
+    "polisyos.fabric.quality.fitness_report": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/quality/fitness_report.py",
+      "sha256": "966180409817f49018d67f1396002ddeb2bdcb7541eba5fafa73a05d54d69d68"
+    },
+    "polisyos.fabric.quality.processing_guarantees": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/quality/processing_guarantees.py",
+      "sha256": "a09cf1206959e15e720a87f92572fe7ffdb5ad86b6f199b68ebde4f7f5113800"
+    },
+    "polisyos.fabric.quality": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/quality/__init__.py",
+      "sha256": "9600f49bb3ac6915eb41017f2f5ccbeee4b67ea1b7777697dc796bca6cb69151"
+    },
+    "polisyos.fabric.security.adapters": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/security/adapters.py",
+      "sha256": "d516583a33fa08c0b9e53cde311f0f969f8e4634249295720cefa5812c6ff748"
+    },
+    "polisyos.core.security.identity": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/security/identity.py",
+      "sha256": "3b9891de3ab17fb03c49223a459dcd6e04d6155b12cce058ff4b21f3b1fdccb5"
+    },
+    "polisyos.core.security.access_scope": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/security/access_scope.py",
+      "sha256": "55633d848a8dc258a7a28d00ebd69d267ca605992af330269ba5d3398a32fb12"
+    },
+    "polisyos.fabric.io": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/io/__init__.py",
+      "sha256": "0580738d4da80d17f8010810cb978f75cbbb9469c6149da72b72af037b9613ae"
+    },
+    "polisyos.fabric.io.atomic": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/io/atomic.py",
+      "sha256": "e85c51a0938d6e871ca6056040e72cfe5e96d069023ed2dbde668b353d4b4c77"
+    },
+    "polisyos.fabric.security.access_control": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/security/access_control.py",
+      "sha256": "ce369220bcfa8a25785acad9bdbec68cf91f4e3055d4bafa87395b9bbf7c9166"
+    },
+    "polisyos.fabric.security.column_mask": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/security/column_mask.py",
+      "sha256": "9095edfaa5495c7cfa587bfdf195531bcec07edb659c72e91257f1bda475e97e"
+    },
+    "polisyos.fabric.security.retention": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/security/retention.py",
+      "sha256": "d54abca66a755eabc0b02d1c0bc628ccf3ecac1b88daa51983a886519b4110e2"
+    },
+    "polisyos.fabric.security.governed_artifacts": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/security/governed_artifacts.py",
+      "sha256": "fc168a854e7ef1b75f1bb912ffd7b21120120dd949270a83bb1763fdb0f86275"
+    },
+    "polisyos.fabric.security": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/security/__init__.py",
+      "sha256": "f3daf5478d0686b00935ccfa3aca7623906990b0ab94f353bea6bfc4b2bf64e1"
+    },
+    "polisyos.fabric.evidence.evidence": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/evidence/evidence.py",
+      "sha256": "8f429c74d028b7f969f6cbfb51c8dfc200eb55027e013ea4f095f025b64c2407"
+    },
+    "polisyos.fabric.identity.manifest": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/identity/manifest.py",
+      "sha256": "d9b63a4ab032cfc0a3a3ffc39814fe78a59707774e12f4eb5cc08f65e9dbaaab"
+    },
+    "polisyos.ir.loading": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/loading/__init__.py",
+      "sha256": "fef617a9b4f54086f8fc83fa31095fe5b2ca71b4f0e744b1f57d7e8543a4c04c"
+    },
+    "polisyos.ir.loading.fact_log": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/loading/fact_log.py",
+      "sha256": "26cd379e23be37ee759245a5b666c2256b75f2357cdb990283ff26118ca153ff"
+    },
+    "polisyos.fabric.identity.segment_manifest": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/identity/segment_manifest.py",
+      "sha256": "1ca53ac92b3a6f7ed45c39ee321927bfdb4513e0ea99a6318a558083208d6079"
+    },
+    "polisyos.fabric.identity": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/identity/__init__.py",
+      "sha256": "0a6c271a716a831bbe94de204730d8ce554c6c39728feefed35aa43cd4c68b9b"
+    },
+    "polisyos.fabric.evidence.fact_writer": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/evidence/fact_writer.py",
+      "sha256": "ed54d23caab5ae066e89ad5a115f3e8568430f9fb1dcdae85d66b674598e5d60"
+    },
+    "polisyos.fabric.evidence": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/evidence/__init__.py",
+      "sha256": "d0a06375772f532f2cde1ff4ae187a683064cc75ebb4399b69f876c398a0a763"
+    },
+    "polisyos.ir.world": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/world/__init__.py",
+      "sha256": "f259dc167171766c15b68c0006d0995a10bed5458b139d828956a135739a58e3"
+    },
+    "polisyos.ir.world.abi": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/world/abi.py",
+      "sha256": "5af6c7fd2164010565995166f3a82f9c5af423b7e1db1470d293c4beb8066831"
+    },
+    "polisyos.ir.loading.citations": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/loading/citations.py",
+      "sha256": "67aefae947b32cbf50f6c8408e1d434caa9a3354e58affb4adfc88a8c407d298"
+    },
+    "polisyos.ir.world.claim": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/world/claim.py",
+      "sha256": "c8dddfb5a0b5376a63c33ffedb39fdf97124a811e52e7d4a022aab233560918c"
+    },
+    "polisyos.ir.world.doc": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/world/doc.py",
+      "sha256": "af033b44d3377f4ff6fce5bd2a2023da2662c5496842bec16daf52957e48bda4"
+    },
+    "polisyos.ir.world.event": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/world/event.py",
+      "sha256": "226eddc8e5b9b10b4f2ea9f2be60be142bda0507577280afa3066b2bbb6bdac6"
+    },
+    "polisyos.ir.world.ids": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/world/ids.py",
+      "sha256": "9aa361f0f449285b3c6566b47bc3420cebf395beb102553b389fe0b50c968cb2"
+    },
+    "polisyos.ir.world.predicates": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/world/predicates.py",
+      "sha256": "e3151b79aa2dd0da162777bc5fc6373802629d3c5f64cf012b3d40f13e44afa2"
+    },
+    "polisyos.fabric.world.store.errors": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/world/store/errors.py",
+      "sha256": "342005fcca47f32fa696578b8172ee32c6aa5cbce0a627459bc78274661d1bcf"
+    },
+    "polisyos.fabric._adapters": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/_adapters/__init__.py",
+      "sha256": "28922aeeb106540cb982aa42554df9814c15938674b056f56aeaef091263000d"
+    },
+    "polisyos.fabric._adapters.observability": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/_adapters/observability.py",
+      "sha256": "7ed4578be91e2d28b201c05e19bfbac0eb3f355635aa78fbb3b669fa34673502"
+    },
+    "polisyos.fabric.world.providers": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/world/providers.py",
+      "sha256": "922fa97d9a3666449407b5db677a7c0d94a50c45c2f6a726d5538acc82c73bbe"
+    },
+    "polisyos.fabric.world.store.segments": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/world/store/segments.py",
+      "sha256": "77682ddb713a79188133fa464a6aef4c81f8fc58ec46fb8e48c48e415f107f88"
+    },
+    "polisyos.fabric.world.store.emit": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/world/store/emit.py",
+      "sha256": "2f1c0a8702e0dde5900eaaa14edc1f59474399b9e33289ee2d2aae6e423c7306"
+    },
+    "polisyos.fabric.world.store.persist": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/world/store/persist.py",
+      "sha256": "3437d8632d310004bde5e71ee4bacfb5f45b9e3ca9d7779804823c4a516aacf3"
+    },
+    "polisyos.fabric.world.store.provenance": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/world/store/provenance.py",
+      "sha256": "071e036d85c096df0018b5de8260e4d4fb3c72c4d9b9454ae87dd48ccc4eb73b"
+    },
+    "polisyos.fabric.data_plane.quarantine": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/data_plane/quarantine.py",
+      "sha256": "58a80a91a06b537f8d54f3a09536e0a80e86405c424430169b26a6bea61393c6"
+    },
+    "polisyos.fabric.world.store.quarantine": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/world/store/quarantine.py",
+      "sha256": "5f7997e018702a21c3ee3d6b6f7ea93fb8a40b82fe662fe704c9182f4557b05e"
+    },
+    "polisyos.ir.world.conflict": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/world/conflict.py",
+      "sha256": "ebb0f9076abfea5e8788e246e8c1bf1c892fdd6fb1e39d6b0e1252d5339c9409"
+    },
+    "polisyos.ir.world.quality": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/world/quality.py",
+      "sha256": "f8ebcd4cf7c2969b87d12176097e18ba09f72c1aea8665d0511003809a926a70"
+    },
+    "polisyos.ir.world.trust": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/world/trust.py",
+      "sha256": "05c785d7ac4cbe38c88da25b639e2be6fc5d8c22c31b24d41adce92aaffd640d"
+    },
+    "polisyos.fabric.world.store.validate": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/world/store/validate.py",
+      "sha256": "855ed0f71a225d56f16f1d8d92132e4947826cc3b4d48fb29f1e16d898601647"
+    },
+    "polisyos.fabric.world.store": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/world/store/__init__.py",
+      "sha256": "5f40a547f69d83478cb63a9137458a670038283874509ff9c227736803408445"
+    },
+    "polisyos.fabric.world.write": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/world/write.py",
+      "sha256": "6c5393add049cf3ab3e2c37eed4f4a4b78f4108337a9f133b45a194ef6e247e3"
+    },
+    "polisyos.fabric.io.db": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/io/db.py",
+      "sha256": "4526f09f8f9dce95f5a73041a8f9288fcb0e9104589dd0546c341953bec2afed"
+    },
+    "polisyos.fabric.world.materialize.errors": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/world/materialize/errors.py",
+      "sha256": "747e63c33d3b44a145ad6830bf66d755b4b7ab42abc947e920f68bc31569c4c8"
+    },
+    "polisyos.fabric.world.materialize.projections": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/world/materialize/projections.py",
+      "sha256": "13e39318453a57e065275c9e34978116579209f1737a17df3bdccd71e932b747"
+    },
+    "polisyos.fabric.world.materialize.sql": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/world/materialize/sql.py",
+      "sha256": "2b13c45596324748dfd2f858a097b867bdf45d05dbd8539b83d0f6adc729165f"
+    },
+    "polisyos.fabric.world.materialize.staging": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/world/materialize/staging.py",
+      "sha256": "ed78c8d9769d4a1e4edce9f5f9a3a6c1a205fdd15835665573c7abf1ea6835b3"
+    },
+    "polisyos.fabric.world.materialize.duckdb": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/world/materialize/duckdb.py",
+      "sha256": "fbb54a033152ff1fd54c8d4f11d6690eaa75ab467d7b0c9a372c21c92f122e53"
+    },
+    "polisyos.fabric.world.materialize.kuzu": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/world/materialize/kuzu.py",
+      "sha256": "3b0d9e2d0226aeb719d3ead2f2ac514b6f23fb5ef1f54767c55e780ea99668c6"
+    },
+    "polisyos.fabric.world.materialize.rules": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/world/materialize/rules.py",
+      "sha256": "5d187f64f4bec56cafe33e0a3917ddb40c23ac77231c61fbf015863640e755f9"
+    },
+    "polisyos.fabric.world.materialize": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/world/materialize/__init__.py",
+      "sha256": "28962be87dca10385871731506ea2defd53ada1eb75fedf2e281ab0bdadd19bf"
+    },
+    "polisyos.fabric.world": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/world/__init__.py",
+      "sha256": "a619518516504923c5a42a7406b04e99d07dc5aeeae0e290a7fdd7e29ff4f45e"
+    },
+    "polisyos.data_forge.kernel._base": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/kernel/_base.py",
+      "sha256": "9444c27fd52f03e8ee54861046f4a07ce5e85254c8bf324138138758eede4918"
+    },
+    "polisyos.data_forge.kernel.artifacts": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/kernel/artifacts.py",
+      "sha256": "30402f002e2de58017368353d320f10ebd4456963204995b39fb3eca608204b5"
+    },
+    "polisyos.data_forge.kernel.pipeline.partitions": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/kernel/pipeline/partitions.py",
+      "sha256": "5355224c7ecabc598b0ccadd28aecc7ceff2dcf9ac2984fe1b7dad01e5f57388"
+    },
+    "polisyos.data_forge.kernel.pipeline.assets": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/kernel/pipeline/assets.py",
+      "sha256": "350cf810a15a7e6be6d897fbae60cc0476a85ce491f1c3a8d391b4213f001714"
+    },
+    "polisyos.data_forge.kernel.io.atomic": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/kernel/io/atomic.py",
+      "sha256": "38cae9207be0d3d3d6ff810f62b79a433b13ff0dd0b9aac86a53d2fbb9598c41"
+    },
+    "polisyos.data_forge.kernel.io.hashing": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/kernel/io/hashing.py",
+      "sha256": "be74a13ba66a1652244b6f0b8b06597828f41e633cc7fe416f5f6f2649459ff1"
+    },
+    "polisyos.data_forge.kernel.io.paths": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/kernel/io/paths.py",
+      "sha256": "92acf90117cd28d52315101c16fff7ce5472b3cd198bd56843d98f402f576bd2"
+    },
+    "polisyos.data_forge.kernel.io": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/kernel/io/__init__.py",
+      "sha256": "4f109359705b73eb4c80f976d27a100166625ab36efb5a6dfd35c7d087da33b8"
+    },
+    "polisyos.data_forge.kernel.pipeline.manifests": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py",
+      "sha256": "081a4790578f1f023c0990af074bcffdc52c6ed144bfae2607427311731a3898"
+    },
+    "polisyos.data_forge.kernel.pipeline.materialize": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/kernel/pipeline/materialize.py",
+      "sha256": "29dc523b59971695d05d50a44f5ede3ee17caed7551fa69806518d185f1dc328"
+    },
+    "polisyos.data_forge.kernel.pipeline": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/kernel/pipeline/__init__.py",
+      "sha256": "7adb6d18681f41d4af9a0e6ddbb66336701d4c5534c7a370e049507dedf71e2d"
+    },
+    "polisyos.data_forge.domains.catalog.assets": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/assets.py",
+      "sha256": "67de295dd1f4ebebe8c5f9740ee6b89b94eaae9f70d85adb248dccc3f7e17c53"
+    },
+    "polisyos.data_forge.domains.catalog.shadow": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/shadow.py",
+      "sha256": "78fe2703d628ff09076a8ebca7511ddc5d342f43b0dc830dc53d59d759b12779"
+    },
+    "polisyos.data_forge.domains.catalog.quality": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/quality.py",
+      "sha256": "119dee11e0e48a30d9ac2458021b84a786137047a24aef435099016686d6b670"
+    },
+    "polisyos.data_forge.domains.catalog.knowledge": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/__init__.py",
+      "sha256": "fe81504ecbb102070a335682b3d38d39700f87a9f408584bbcff2b6b3357fa52"
+    },
+    "polisyos.core.llm.cost": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/llm/cost.py",
+      "sha256": "502d16e322fcbadff094eb0cd3ade4c289ca604ecfeb4ff514e62c11b49f93b0"
+    },
+    "polisyos.core.llm.protocols": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/llm/protocols.py",
+      "sha256": "591d7cd709f470ccf6684fa9dff44b48235d405ed8f1ccabfea39cf01e741e3e"
+    },
+    "polisyos.core.llm.response": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/llm/response.py",
+      "sha256": "e1eb1142786bee44c0400547ac020bb45ca0df5037f995a593f7f0c6c8245627"
+    },
+    "polisyos.core.resilience.retry": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/resilience/retry.py",
+      "sha256": "08b2d4db030005b8f582af2adc85d8b0516f54d14dc70372cb1bc449275997f3"
+    },
+    "polisyos.core.resilience": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/resilience/__init__.py",
+      "sha256": "0be35fe64f80c0a53e5f1982c69c4a2f6121166f4b9b9cbe5cfba09cb7b8ad74"
+    },
+    "polisyos.core.llm.retry": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/llm/retry.py",
+      "sha256": "f321dcab248a4379b08bfc53f075584b61129a6988c8570b12b5532161d6750a"
+    },
+    "polisyos.core.llm.sanitization": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/llm/sanitization.py",
+      "sha256": "c0c1fc588a0ba8cc7070bc64440b1fae86c8c5f0e82bd4d6838189f5285a5a4b"
+    },
+    "polisyos.core.llm.traced_client": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/llm/traced_client.py",
+      "sha256": "b9ea8f9975b60d9e808c017ba3fca55e98b4ac642249a51677c167f5f57eafea"
+    },
+    "polisyos.core.llm": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/llm/__init__.py",
+      "sha256": "e8382029341226839ad5e9b14110d11233c9aca0c9d32b39ae275533a3cc4128"
+    },
+    "polisyos.ir.connectors": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/connectors/__init__.py",
+      "sha256": "73ac4426d8bc2cf07de492c45533e14c4bb5d5ab430a7aefb6dde446fa886ac3"
+    },
+    "polisyos.fabric.connectors.base": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/base.py",
+      "sha256": "b5ac7224955922b7712604f7be929a734cd1a4fc2381d2fc62db9152595493c5"
+    },
+    "polisyos.fabric.connectors.contracts.governance": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/contracts/governance.py",
+      "sha256": "717b0ba3c0799cafa115f7085aec17da3104a32cfa7b70fb9b70142877d561c1"
+    },
+    "polisyos.ir.kernel.units": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/kernel/units.py",
+      "sha256": "47be6475ab0523e1a276a78162becf8eb43f3b4915c3dcae04cfae65075b35d4"
+    },
+    "polisyos.fabric.connectors.contracts._schema_errors": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/contracts/_schema_errors.py",
+      "sha256": "344a4625fbf195a095a661977c2511038f0e368e4560f33a30493c83d0d5ee28"
+    },
+    "polisyos.fabric.connectors.contracts._schema_types": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/contracts/_schema_types.py",
+      "sha256": "f4bffa52e4a2d38dd44db7913c2cf15e98eaee517e11df0aec7f769e5ac0f317"
+    },
+    "polisyos.fabric.connectors.contracts._schema_field": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/contracts/_schema_field.py",
+      "sha256": "7ecb87f0a670faac12c326055bbfb76a00d054e8485e630e144b6cbcd7e0f5df"
+    },
+    "polisyos.fabric.connectors.contracts._schema_core": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/contracts/_schema_core.py",
+      "sha256": "c9ddfda7eec2ec10ff9311c60c3c2b005198e83642d5d7eb1fea2ed50ab09b28"
+    },
+    "polisyos.fabric.connectors.contracts.schema": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/contracts/schema.py",
+      "sha256": "a55fb7143925cf91864da967b3482fe4035e38058100a8de8f1694d96abad7b6"
+    },
+    "polisyos.fabric.connectors.contracts.contract": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/contracts/contract.py",
+      "sha256": "f3b6695477c5fc107017fb8f5a4446695a2211c03ead6cb297bb1d56fc4c5691"
+    },
+    "polisyos.fabric.connectors.contracts.evolution": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/contracts/evolution.py",
+      "sha256": "cae3c1964f9e7afbc0e557dd28f277c218c9d3a835a69d4fbb2c34b36f84b484"
+    },
+    "polisyos.fabric.connectors.contracts.governance_checks": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/contracts/governance_checks.py",
+      "sha256": "7d97a3bfe30e9225bd1c45f4a7ad6259ac0ffb26ec3afdabf8ae5abe5b8a4f40"
+    },
+    "polisyos.fabric.connectors.contracts.contract_registry": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/contracts/contract_registry.py",
+      "sha256": "ff0ced5bfedef59a82c4f4a901ce526bb24d6be1c36d891df4d2b321432d2955"
+    },
+    "polisyos.fabric.connectors.contracts._inference_config": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/contracts/_inference_config.py",
+      "sha256": "38273bf454e3a3fc856d3d3b0f010f17979b0d4470863572d9d5284cd920214a"
+    },
+    "polisyos.fabric.connectors.contracts._inference_result": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/contracts/_inference_result.py",
+      "sha256": "23e30c5a41cb2a60f2d16526683b8ed6cb6f1f6dacdc4e2ef216437f1e923fdd"
+    },
+    "polisyos.fabric.connectors.contracts._inference_engine": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/contracts/_inference_engine.py",
+      "sha256": "5d9959c94ab8d5c4d83dfee9bc1c3e19a21da1f94ab469cefb9fc535c3858225"
+    },
+    "polisyos.fabric.connectors.contracts._inference_validation": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/contracts/_inference_validation.py",
+      "sha256": "f30c35ca779f2a719a20566781c3a5c0ee0e38553486431aa6f997bfb9a6df03"
+    },
+    "polisyos.fabric.connectors.contracts.inference": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/contracts/inference.py",
+      "sha256": "f0417b8677087c39ee649f552066f96d3c5b99640d43cd980225c80e2cb6e90a"
+    },
+    "polisyos.fabric.connectors.contracts.registry": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/contracts/registry.py",
+      "sha256": "9801241358792033ff3e5d254a9e0067133d09949b92b8cff0ad313075615337"
+    },
+    "polisyos.fabric.connectors.contracts.source_contract": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/contracts/source_contract.py",
+      "sha256": "66ecd493fb781ecdbd6a9a80d52061bc41f5d45da48a78fad329a39366d1d0fe"
+    },
+    "polisyos.fabric.connectors.types._coercion_errors": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/types/_coercion_errors.py",
+      "sha256": "4c21ef8cd159909f4d77e278389d0f6aac6d3f4dd9740ed1d6e3b80886d80093"
+    },
+    "polisyos.fabric.connectors.types._coercion_policies": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/types/_coercion_policies.py",
+      "sha256": "2628fbab0d908e546288fc5b60e0a4056005cce1128b2fd35e0587361765d5a9"
+    },
+    "polisyos.fabric._internal": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/_internal/__init__.py",
+      "sha256": "a9e3d0e9942dd30f2a39b1e9e31b33e8bfa6ad86292d23c3d053fec918d3ec73"
+    },
+    "polisyos.fabric._internal.numeric_parsing": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/_internal/numeric_parsing.py",
+      "sha256": "dfaebaa2a77e937dffeea5b7ea382e0529fb9fb49e86799b86ce2a21dafc1392"
+    },
+    "polisyos.fabric.connectors.types._coercion_rules": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/types/_coercion_rules.py",
+      "sha256": "9137906d12f2f0db623a3b5929489d0193a7fb7da4e83beb1fba1e96a9425977"
+    },
+    "polisyos.fabric.connectors.types._coercion_engine": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/types/_coercion_engine.py",
+      "sha256": "2192fe83868ab216b779b055803463f277c8294e3e70dcf03998ae522e9205f8"
+    },
+    "polisyos.fabric.connectors.types.coercion": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/types/coercion.py",
+      "sha256": "6e9293bd22f499c40b65361bd98eff391634ebd4236593a8e50e2abb91fc805f"
+    },
+    "polisyos.fabric.connectors.types.connector_types": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/types/connector_types.py",
+      "sha256": "76f3858856955d895cec79f1fdf5ac23173bc49cf4ea01202b5203601eef51a1"
+    },
+    "polisyos.fabric.connectors.types.dimensions": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/types/dimensions.py",
+      "sha256": "e9506ef8fda1701a0c54734bdbded6353501491909e24ac27891c7cdc715710a"
+    },
+    "polisyos.fabric.connectors.types.temporal": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/types/temporal.py",
+      "sha256": "bec4afcd2e38585e0e92d507ab7587964a3e41d6208cbb6d0d25dd3acb1c8fb0"
+    },
+    "polisyos.fabric.connectors.types._units_base": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/types/_units_base.py",
+      "sha256": "5657b45b2176aef424fa5ca70841f060f2374f06d216b6424a5156781a67f66b"
+    },
+    "polisyos.fabric.connectors.types._units_errors": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/types/_units_errors.py",
+      "sha256": "8a6703f52323c74bb3613a45dcce1bec568b7acad2801a3617aa33fddb326f1b"
+    },
+    "polisyos.fabric.connectors.types._units_prefixes": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/types/_units_prefixes.py",
+      "sha256": "e2ff233432fbb58bb547857ad943f4242adf074288db11c63217efd22d209d3c"
+    },
+    "polisyos.fabric.connectors.types._units_core": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/types/_units_core.py",
+      "sha256": "6f05ccd585d5250699b21245e0ef6f762a437709453b8a62f16c46f5b34358bc"
+    },
+    "polisyos.fabric.connectors.types._units_registry": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/types/_units_registry.py",
+      "sha256": "0cb955efdcc6c6448c3df49dfa20168db5798469a470221215f8d76c609d9850"
+    },
+    "polisyos.fabric.connectors.types.units": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/types/units.py",
+      "sha256": "17fddcd9ed97cd972600d3081a23afc1b207a74fb9f9ff8f608312f6a203761e"
+    },
+    "polisyos.fabric.connectors.types": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/types/__init__.py",
+      "sha256": "76a7f51eef2446ff0b1364ca55fb0536a42184a2d056e2e3656535e614e87bf9"
+    },
+    "polisyos.fabric.connectors.contracts.validation_middleware": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/contracts/validation_middleware.py",
+      "sha256": "38639eb540e8a8e50f6fa060bf2c4ceb82e03985284eec3b43898844db8c0ab1"
+    },
+    "polisyos.fabric.connectors.contracts": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/contracts/__init__.py",
+      "sha256": "7908640c14a3a058f7bab40650c65fa94536ba414e79c45342b2517badce6766"
+    },
+    "polisyos.fabric.connectors.cache._store_models": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/cache/_store_models.py",
+      "sha256": "2bdb0a6d58b2cc599b2b9aada50910d14a55014183fb53fe26abf4932104bb51"
+    },
+    "polisyos.fabric.connectors.cache._store_index": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/cache/_store_index.py",
+      "sha256": "a23985a9e12e8fad8049a629d0326957818c398247562b8cbc74d668e4d908a0"
+    },
+    "polisyos.fabric.connectors.cache._store_serialization": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/cache/_store_serialization.py",
+      "sha256": "573cd024546110236fe9cba85eca621f8fbd5bcaa78ad2926f1ebc215f6639b0"
+    },
+    "polisyos.fabric.connectors.cache.policy": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/cache/policy.py",
+      "sha256": "f74134d5434183de582c5df8ffe57465ea73c9e0706e750d26a02fb660e53c69"
+    },
+    "polisyos.fabric.connectors.cache._store_core": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/cache/_store_core.py",
+      "sha256": "5ddc7e55ac0fc2f112ae509df30d29acaa82df09b48aa2ba52ff61b4c4c2098d"
+    },
+    "polisyos.fabric.connectors.cache.store": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/cache/store.py",
+      "sha256": "e5f782ee3cf9fab3b175bbc24d70d2db069095e2a3fdecd590d31d859d36b1bd"
+    },
+    "polisyos.fabric.connectors.cache.invalidation": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/cache/invalidation.py",
+      "sha256": "78304ca3d0db2eb86a31bfa76fbca77c2a7e5c177216f4ca21ea9e7fa389dd74"
+    },
+    "polisyos.fabric.connectors.cache.prefetch": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/cache/prefetch.py",
+      "sha256": "06e26bc975aeae47a03d9cd585e8a5dd51cdfd513c3b856e2efc7c6d870c490c"
+    },
+    "polisyos.fabric.connectors.cache.proxy": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/cache/proxy.py",
+      "sha256": "1267c4417b069dbc62d59b279f94a81c070a8bccfbdc2ee3b3965c9b7ba28b40"
+    },
+    "polisyos.fabric.connectors.cache.schema_aware": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/cache/schema_aware.py",
+      "sha256": "ae349256d2f0e887f031fafb1845e3aa28314a0edbb9d9f845726df427dd7e73"
+    },
+    "polisyos.fabric.connectors.cache": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/cache/__init__.py",
+      "sha256": "80aa15aa9437636acc25c8cdccbce899a7b18e600ceacda58f5c7fd667ad5ca9"
+    },
+    "polisyos.fabric.connectors.capabilities": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/capabilities.py",
+      "sha256": "bb4c35a82227b2ecbe4c29808680f78a9f7532dec641093d3ac10048e18ddfd6"
+    },
+    "polisyos.fabric.connectors.discovery": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/discovery.py",
+      "sha256": "18fed67e69b3b7c344f9c57f88d2f4febbdd14dfd9a33acf9e221a28e02eb5c9"
+    },
+    "polisyos.fabric.connectors.family_contracts": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/family_contracts.py",
+      "sha256": "71ede8ec66d8a5128268bb44eb33fc53d8b186da111393016eeac5bfcdc9bcd7"
+    },
+    "polisyos.fabric.connectors.governance_metadata": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/governance_metadata.py",
+      "sha256": "e5e43ffbd2d68b76435b89e1b991ef427370cf7dfdc4c140d09d72c5b3bd27c4"
+    },
+    "polisyos.fabric.connectors.pool": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/pool.py",
+      "sha256": "e0066f511fe9b04fa0359b89987a4e3aced861263cdf0f1476abc3f3edffd2d7"
+    },
+    "polisyos.fabric.connectors.profiles.models": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/profiles/models.py",
+      "sha256": "cd1278772bb443d2a8b4b2e37e0d8c1e8fd3a32c4e6007cc92d0b5c0209b809a"
+    },
+    "polisyos.fabric.connectors.profiles.registry": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/profiles/registry.py",
+      "sha256": "f1d560f500db8c4cb39ab23552bd266ffbc736d3dffbe11c1a3a47579b19f250"
+    },
+    "polisyos.fabric.connectors.profiles": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/profiles/__init__.py",
+      "sha256": "411aa99f3012b58d43b24b01d283998bd1f2c2db987df157701dda0aa18d831e"
+    },
+    "polisyos.fabric.connectors.profiles.resolver": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/profiles/resolver.py",
+      "sha256": "7df7feb14129eb11fea7d9467e36c9f2e27b821726a5453e9f947eca7b6c2bfc"
+    },
+    "polisyos.fabric.connectors._registry_errors": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/_registry_errors.py",
+      "sha256": "68f3dcf11bbef42f33bb16c5d1f79c8993255051f90990f59adb482fd3acd26f"
+    },
+    "polisyos.fabric.connectors._registry_models": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/_registry_models.py",
+      "sha256": "0bd5d823066aaa2f75e1bd8089fbcef385bcdba6c24b44cc9264079804a971e6"
+    },
+    "polisyos.fabric.connectors._registry_lifecycle": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+      "sha256": "50871b4cae9d88a6426e9036572e58893f7fe9bec257be8d50e6244c00e42b31"
+    },
+    "polisyos.fabric.connectors.registry_core_parts": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py",
+      "sha256": "08d9e9da61ed238233af222e009d139853db60ddf1e4975efe546a02a61e5f2f"
+    },
+    "polisyos.fabric.connectors.registry_core": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/registry_core.py",
+      "sha256": "1f148b9e26139eb774b48d3aada940ca44a2ac8bebd4274133c091d4a1fffe5a"
+    },
+    "polisyos.fabric.connectors.registry": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/registry.py",
+      "sha256": "9b1d8efbd3dcff030db88ab7a28080beb0877adf1ac78e270292cf26b45ded05"
+    },
+    "polisyos.fabric.connectors.resilience._bounded_registry": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+      "sha256": "12818fa5fd5afdd1b87175e626af5bc7d69db695272b909ce091cfa814198a08"
+    },
+    "polisyos.fabric.connectors.resilience.circuit_breaker": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+      "sha256": "07f24deae0a79a045d4da8ec30cf03c6f0c5cae0a94ecceb48870d39ee88b6ea"
+    },
+    "polisyos.fabric.connectors.resilience.fallback": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/resilience/fallback.py",
+      "sha256": "c85fdb3889c1e6e933c4a5ebcea04bde74684b5c687ec849385aed86b9f1eb69"
+    },
+    "polisyos.fabric.connectors.resilience.rate_limiter": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+      "sha256": "c082c55003b6710aac7bcb1a207f67d0083fe1da499b998d60f1a0d8228becbe"
+    },
+    "polisyos.fabric.connectors.resilience.retry": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/resilience/retry.py",
+      "sha256": "5c342313bf65ef8832698eecb4ac5bb7e0930c47cf7177ea7c0a7dada1ad7e9d"
+    },
+    "polisyos.fabric.connectors.resilience": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/resilience/__init__.py",
+      "sha256": "653342554eff4831b8b3ab218524572659291e904e4e454dfd0f0f41e3698b4d"
+    },
+    "polisyos.fabric.connectors.http_limits": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/http_limits.py",
+      "sha256": "15d1ca4307f66343a4681562fc36eb7450047f4ea4455c1570f719a7b5ad71d0"
+    },
+    "polisyos.fabric.connectors.sources.http_common": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/http_common.py",
+      "sha256": "bdb7e30073532cbac14cc38c3a22d6a50e760e0f6d14010e6b22b27f9a8a2d20"
+    },
+    "polisyos.fabric.connectors.sources.http_base": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/http_base.py",
+      "sha256": "d36be5ce12da72589092dda9e79a53f139b6cedba3a9b638eb9b7a1658961db1"
+    },
+    "polisyos.fabric.connectors.sources.ckan_catalog": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/ckan_catalog.py",
+      "sha256": "cfac059e7490ddf1879a7044899cab05cf030ce78e32a47e87409ae1840577b1"
+    },
+    "polisyos.fabric.connectors.sources.ckan_resource": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/ckan_resource.py",
+      "sha256": "eebd115e85a54cbdea5ff915d21765305895aeb91df0d2a6f409dc39041b40af"
+    },
+    "polisyos.fabric.connectors.sources._contracts._governance": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/_contracts/_governance.py",
+      "sha256": "30f3d57dffae141f90feae3217d0974fea89a36dbff89534ba7ae346ac8ad381"
+    },
+    "polisyos.fabric.connectors.sources._contracts.eurostat_contracts": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/_contracts/eurostat_contracts.py",
+      "sha256": "f975a8f6fa3204c40e94a1c8ecdc00242395ea9fb4044c40b072e3f01abe69ee"
+    },
+    "polisyos.fabric.connectors.sources._contracts.sdmx_contracts": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/_contracts/sdmx_contracts.py",
+      "sha256": "18bb31ebcdf7aaa3cd99d570a573feb02c0c3a539f689e85e0d4bb0c1ca0c230"
+    },
+    "polisyos.fabric.connectors.sources._contracts.ukons_contracts": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/_contracts/ukons_contracts.py",
+      "sha256": "d8000c9eb0a280959ff11bc659901fc9ccb8f85034f7a50f190c686fed58a065"
+    },
+    "polisyos.fabric.connectors.sources._contracts.world_bank_contracts": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/_contracts/world_bank_contracts.py",
+      "sha256": "1e4f1b85a910c9e68c8075eef839daf29ac983ba4e502a96937b57319ee69837"
+    },
+    "polisyos.fabric.connectors.sources._contracts.wvs_contracts": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/_contracts/wvs_contracts.py",
+      "sha256": "4179f5b147dea536fbcefc891fd8a4e920e69b8d2ef0899bdea4fa913ac00087"
+    },
+    "polisyos.fabric.connectors.sources._contracts": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/_contracts/__init__.py",
+      "sha256": "4af8f0ddf04ec47b87c9c6f443d6e593699edaac7ac67def8d302c0b24c1fc5c"
+    },
+    "polisyos.fabric.connectors.sources.eurostat": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/eurostat.py",
+      "sha256": "c4308fcfb8137a2d1a04f4ac5c3f5e878f2d5f0a24a83e1d81b6b748dab65ea5"
+    },
+    "polisyos.fabric.connectors.sources._file_common": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/_file_common.py",
+      "sha256": "a3ccf9c8444e20a71898ba963f25d63cc0fd0d396921505b4d39a8ce44b40567"
+    },
+    "polisyos.fabric.connectors.sources.event_stream": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py",
+      "sha256": "63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48"
+    },
+    "polisyos.fabric.connectors.sources.file_tabular": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/file_tabular.py",
+      "sha256": "914cf5487a32cc9d8676aa0c913ad64ed5bc7c3ff02909a23abd8afac167edb1"
+    },
+    "polisyos.fabric.connectors.sources.geojson": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/geojson.py",
+      "sha256": "67df52c49a707f754ca3894707872db6e16f6772819786535194ccd25ee3d98f"
+    },
+    "polisyos.fabric.data_plane.tabular": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/data_plane/tabular.py",
+      "sha256": "defad8bca650d9f4d6a9c2c90ac926003a2e6911598e75421026df8629860ff7"
+    },
+    "polisyos.fabric.connectors.sources.graphql_api": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/graphql_api.py",
+      "sha256": "634965323ef6ffc39b7691e9ff1b11c6589c94cb3b7fdd9c58ec88a0fc853282"
+    },
+    "polisyos.fabric.connectors.sources.object_storage": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/object_storage.py",
+      "sha256": "05ca3e400b8eeb416c288c472fe8cb49e2d2b2659c1a4a5f28ccd26ece35c1a8"
+    },
+    "polisyos.fabric.connectors.sources.opendatasoft": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/opendatasoft.py",
+      "sha256": "8ea650ab1d5192a75ad6879cd4437c0d1a67c7eccb1c0bb35960df52f4c7f672"
+    },
+    "polisyos.fabric.connectors.reference.rest_json": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/reference/rest_json.py",
+      "sha256": "b256152d8f36ffd09dcc0062fc47c8e0209b496f672cc451da59a09302b58816"
+    },
+    "polisyos.fabric.connectors.reference.sdmx": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/reference/sdmx.py",
+      "sha256": "2a7bc75b228771849b33b091aa41f26e26c0b2905de6df53a39f52139a5b3609"
+    },
+    "polisyos.fabric.connectors.reference.static_csv": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/reference/static_csv.py",
+      "sha256": "770558cf2c526fe1ee7a5af3d36197def4ae329fb3acb59ac74383f4ba647be9"
+    },
+    "polisyos.fabric.connectors.reference": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/reference/__init__.py",
+      "sha256": "03014c492200fb39a566a25c2f8b8e82306e86061e5b1c612298112c5c7c3c2a"
+    },
+    "polisyos.fabric.connectors.sources.rest_json": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/rest_json.py",
+      "sha256": "95adc947c8bd66cd90237581e541cb99b2a73a4a494fe0ce79a2f5afd8c8ad28"
+    },
+    "polisyos.fabric.connectors.sources.sdmx_source": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/sdmx_source.py",
+      "sha256": "db1104706c925739cfe65af6031f212e2c5b81523b57f990fdb677263ca2bb72"
+    },
+    "polisyos.fabric.connectors.sources.socrata": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/socrata.py",
+      "sha256": "bd1818075479639f0f99266c1bed241999089dd5c16a596370ca18b407052624"
+    },
+    "polisyos.fabric.connectors.sources.sparql": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/sparql.py",
+      "sha256": "02b630812765b90a37ae9a97bac846751142968803364ea8bf81518c2f214a25"
+    },
+    "polisyos.fabric.connectors.sources.sql_query": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/sql_query.py",
+      "sha256": "b177510d09f6e1b9cee56f3b1a1e30227a5b43c104c832042bc2d64bf953703c"
+    },
+    "polisyos.fabric.connectors.sources.ukons": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/ukons.py",
+      "sha256": "6e9a0146172c82c34ee163bad3e334780499861037df5c4f9b77741a169e4dd7"
+    },
+    "polisyos.fabric.connectors.sources.unesco_uis": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/unesco_uis.py",
+      "sha256": "951400f8f12d4d5f32294e11ef5f560abdef605236944ee59f182bb1d39e6460"
+    },
+    "polisyos.fabric.connectors.sources.unpd": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/unpd.py",
+      "sha256": "d659ee8bae3c1df9ef3c232da627d6642919a0e0776084566ee1bb82331aace1"
+    },
+    "polisyos.fabric.connectors.sources.who": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/who.py",
+      "sha256": "37a0c5a01992980ac766a69c90351ca32a2d03eb57ebfd4a8ea8f70afee22506"
+    },
+    "polisyos.fabric.connectors.sources.world_bank": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/world_bank.py",
+      "sha256": "02d44b5ce1a112aee1cc28f305cd76184abb5472964f011a4eddca205873f285"
+    },
+    "polisyos.fabric.connectors.sources.wvs": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+      "sha256": "f5cdb1fa17c92ed55f1c22af5ec8531a3afc77d3aaeceaff47f3662e0e550362"
+    },
+    "polisyos.fabric.connectors.sources": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/sources/__init__.py",
+      "sha256": "3d839a1dbcdc78afdf87e16d5fd8899bc9fb68c1ba3db3b08b58b29b93f07aeb"
+    },
+    "polisyos.fabric.connectors.validation": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/validation.py",
+      "sha256": "ccf689e0a26399ae7c11b393287d3ee1c906d2a5f07cc9f4b59725947d9f2bb8"
+    },
+    "polisyos.fabric.connectors": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/__init__.py",
+      "sha256": "b94d11e4f49ab084f28cd1e262ccec2e3d5bbdc356890d4756daabff80b3b593"
+    },
+    "polisyos.core.contracts.epoch": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/core/contracts/epoch.py",
+      "sha256": "743f7184a27de865a9f8a944163998282b1a3f047fbc93bc038205fe2c2248fb"
+    },
+    "polisyos.fabric.data_plane.evidence_journal": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/data_plane/evidence_journal.py",
+      "sha256": "f669ec9654a123cd0ec708df52fe4affd5c75201bc51bfd5a76d2428ec23f702"
+    },
+    "polisyos.data_forge.domains.catalog.knowledge.overlay": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+      "sha256": "ed902ef5d990a9e352e70a196f4a1d13ac25f6778d46a79828252cc7a35674e5"
+    },
+    "polisyos.data_forge.domains.catalog.knowledge.variable_alignment": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+      "sha256": "6dbfbb04cddff8d1af11ed226e68092a2763a8d007b73f911f4ed9eaa5e54cd9"
+    },
+    "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/acquisition_authority.py",
+      "sha256": "984953283f027fd2fbda70ca5f1c04c2c7670a5bf7916b011c0b872cc4d00155"
+    },
+    "polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/derivation_catalog_selection.py",
+      "sha256": "488e4d317fea727c2a2ccf586f57e5a3621e9d97c3f8b79b45d5fdee36797d52"
+    },
+    "polisyos.data_forge.domains.catalog.selection": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/selection.py",
+      "sha256": "b1759577b117ab5400db47913b1eef05d0d54684adf0b8b91831616297471de8"
+    },
+    "polisyos.data_forge.domains.catalog.source_modules": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/source_modules.py",
+      "sha256": "582275c5a5bb4f4f395a8402b6f10d8f97e813ae1246da6cc7598f1bb4d46b0a"
+    },
+    "polisyos.data_forge.domains.catalog.registry": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/registry.py",
+      "sha256": "9c873a02b832b6d01dd3bff85193e73a89e78cf03926bba9c6d47081c93f206a"
+    },
+    "polisyos.data_forge.kernel.schemas.evolution": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/kernel/schemas/evolution.py",
+      "sha256": "8ab5cbaababd5c36368b82e5cb29f0433bed95d84cf18d8c120be35982a521ac"
+    },
+    "polisyos.data_forge.kernel.schemas.migrations": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/kernel/schemas/migrations.py",
+      "sha256": "d9b57b46e368ef2cd9737f45ceb256f9b59e26fd16da66c00d968f46cdbe9a05"
+    },
+    "polisyos.data_forge.kernel.schemas.registry": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/kernel/schemas/registry.py",
+      "sha256": "b99be674837a6b3cb565eb9584804cf7d7ed29f2beae5304a8481043819940b8"
+    },
+    "polisyos.data_forge.kernel.schemas": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/kernel/schemas/__init__.py",
+      "sha256": "a1699faed4cc01753760dfe569e667526e7d5ab8e01189666df99193924844ad"
+    },
+    "polisyos.data_forge.domains.catalog.schemas": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/schemas.py",
+      "sha256": "d9273e7d8e3e393de59640dc75711543c447f95ea57a5cd20db2f07dae72fd25"
+    },
+    "polisyos.data_forge.domains.catalog": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/__init__.py",
+      "sha256": "8f1b6f490f93b10fa4ffeb55d197e4070779666694c1866fa3bef43a932b87ae"
+    },
+    "polisyos.data_forge.domains.catalog.batch": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/__init__.py",
+      "sha256": "00c80ee456e8a76f43c7dbe9a9dd6a8e601922d6052098dc037c4fd5e82cf812"
+    },
+    "polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+      "sha256": "823d8e9f11a3a225d27f643d0b2a7fb04ad7f687f1a1ca476625396b266d4071"
+    },
+    "polisyos.data_forge.domains.catalog.batch.core_sources": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/__init__.py",
+      "sha256": "4678e757f94a8645dba41b4523de3c96858b90cc88b23cc70c3befffede48d80"
+    },
+    "polisyos.data_forge.domains.catalog.batch.checkpoints": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/checkpoints.py",
+      "sha256": "fc4dd1cf2f148bc2298a44c08705986ed858eead2b028e5a7129edc65750c73d"
+    },
+    "polisyos.data_forge.domains.catalog.knowledge.country_codes": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/country_codes.py",
+      "sha256": "9f0ca18d3c50fa569bdaede8c319c25afaffb933efcbd6a733d0cab74661ba89"
+    },
+    "polisyos.data_forge.domains.catalog.batch.material_inputs": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+      "sha256": "27fda210162bfcd1934b17251a54dc1219ed8c4a2407bee3572c64e029521ed5"
+    },
+    "polisyos.data_forge.domains.catalog.knowledge.proxy_penalties": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "sha256": "bb582119da0cae49ca12fd85795a528edb8ec4b7d196c63aa480572ee6bd6088"
+    },
+    "polisyos.data_forge.read_api._lazy": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/read_api/_lazy.py",
+      "sha256": "144f2536c6b6f4902c34439d11d6bdba3a71b4523ddb5c9574b09e8c2f5ec1b6"
+    },
+    "polisyos.data_forge.read_api.academic": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/read_api/academic.py",
+      "sha256": "0042f4ec272743870cd62da3598eec0f56d01996feedf68f031b86b38dcedbd0"
+    },
+    "polisyos.data_forge.domains.academic.assets": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/academic/assets.py",
+      "sha256": "a2c999ff70aea212734fa3bf7eabb232d187ab0be606ea5677dbeadb7f2221bb"
+    },
+    "polisyos.data_forge.domains.academic.batch_assets": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/academic/batch_assets.py",
+      "sha256": "97f4d9e8ff60e15637cfc3618f9a1d56d187074f48340ebe470a0f5c48d2019e"
+    },
+    "polisyos.data_forge.domains.academic.knowledge": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/__init__.py",
+      "sha256": "c16dd70ddc0a5704116aea72517fe7011c2049ba04b72a2a830a8c9fb8759132"
+    },
+    "polisyos.ir.analytics": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/analytics/__init__.py",
+      "sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174"
+    },
+    "polisyos.ir.analytics.causal_graph": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "sha256": "121f33acc4b5bbc0541b3bb5cc331c3e77d9a3f2e684359af58211e56f44e1a1"
+    },
+    "polisyos.ir.analytics.context": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/analytics/context.py",
+      "sha256": "926af367ab113b2ca537cb259b9b12ea37579e2f027587da1a83eab2c27db6a9"
+    },
+    "polisyos.ir.analytics.literature": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/ir/analytics/literature.py",
+      "sha256": "d8ad210cffcf66f1f4d02132655e6d5fb2c69c6a5b46f41444f168d748fd3597"
+    },
+    "polisyos.data_forge.domains.academic.knowledge.types": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/types.py",
+      "sha256": "db761a0d4b6aa6e1c6599ded3a518905d31e6031a5a47062cfe29ac88fd6a253"
+    },
+    "polisyos.data_forge.kernel.io.generation_basis": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+      "sha256": "86ba6f9022c385ae8f031a7d7d2e67eabe348a074c7d8ddaf712e3d381270412"
+    },
+    "polisyos.data_forge.domains.academic.knowledge.skg_store": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_store.py",
+      "sha256": "d10fe6a8388036f898cd44205c11b9a8961428c8559ba7ac0e64a1b0efccc5c5"
+    },
+    "polisyos.data_forge.domains.academic.shadow": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/academic/shadow.py",
+      "sha256": "3dad689e9076e5fd626dc4aa7c53467a4bf1e6899d49fba149a4a8d4c2d6c5cb"
+    },
+    "polisyos.data_forge.domains.academic.quality": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/academic/quality.py",
+      "sha256": "b39cd8efbcf11aa2defbc7ed64130bbfde868d16c8a98814dce96b789bb76af8"
+    },
+    "polisyos.data_forge.domains.academic.schemas": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/academic/schemas.py",
+      "sha256": "cae8265c58e08a01c70a4f390df2afa0842bee13c783370e76bd5eaf2646b2ca"
+    },
+    "polisyos.data_forge.domains.academic.skg": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/academic/skg.py",
+      "sha256": "567e8271661ce68c0c3ea096dc8ec12118d33f3ab22823a7c123cf9c6915cdf3"
+    },
+    "polisyos.data_forge.domains.academic": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/academic/__init__.py",
+      "sha256": "b5abd6577d11c9a6b1da1684dfc5b24b4ea29b1fcf5ae1c6054d07c0258b20a4"
+    },
+    "polisyos.data_forge.domains.academic.knowledge.canonical_seed": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/canonical_seed.py",
+      "sha256": "0753836180766cf212c3e9f5ff50668ea9dae036664b10d379c30b2300afaa97"
+    },
+    "polisyos.data_forge.domains.catalog.batch.core_sources.writers": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+      "sha256": "72cd351f03257d8b71938e01aff4e3041fce5b23c7d02af9aeef08f1fa081e74"
+    },
+    "polisyos.data_forge.domains.catalog.batch.core_sources.api": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+      "sha256": "7a25cf5f669d066a706d5082cbf0e867250da2cf2cf0c87e8c8da34bb44b9202"
+    },
+    "polisyos.data_forge.domains.catalog.batch.core_sources.loaders": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "sha256": "563161e6de302abae5af6c7dbd58fef3555158f60f8dd06969900dd5a5c90186"
+    },
+    "polisyos.data_forge.domains.catalog.batch.core_sources.registry": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+      "sha256": "6880b48c3e8b244e9b875b04f687881c985c3a0c65a562953f7045d1c7631cca"
+    },
+    "polisyos.data_forge.domains.catalog.batch.core_sources.transformers": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+      "sha256": "ffa2a88eb3e5ae7817ef5fe06a26b4c87423363e03a7d327d33910dcb25db04d"
+    },
+    "polisyos.data_forge.domains.catalog.batch.core_sources.validators": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+      "sha256": "6502672e9c26661e2ae25c5ecc701da9584aa248b06af1b1cd5eb07267627466"
+    },
+    "polisyos.data_forge.domains.catalog.batch.core_sources_ingest": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py",
+      "sha256": "deaaa3e548a603c7bba2f766acaa2997b41ef93e6eea295481b62655ea330d19"
+    },
+    "polisyos.data_forge.domains.catalog.batch.source_registry": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py",
+      "sha256": "45b495ce015e0ee7efdf2ab10d69cd0d165c406b331f56e77d8ce93e0c2d28ed"
+    },
+    "polisyos.data_forge.domains.catalog.batch.config": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "sha256": "984c132b22716ccd0e22c175b4437e8943f9f68dbae1c08c44efdb480630b51a"
+    },
+    "polisyos.data_forge.domains.catalog.batch.ckan_curation": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/ckan_curation.py",
+      "sha256": "dbc1152d6e079f5da3fe065bd20985fb660441e0dbb0e3b15f75a5028cc19f91"
+    },
+    "polisyos.data_forge.domains.catalog.knowledge.types": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/types.py",
+      "sha256": "ed089faee129ba1ce9101f00e65a702b00af22582f07afd0c7a867674b7070ab"
+    },
+    "polisyos.data_forge.domains.catalog.metrics_map": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/metrics_map.py",
+      "sha256": "785915687ba2f70476252e6f80b8188d1250afee35e30ce3c140ccd35be8d053"
+    },
+    "polisyos.data_forge.domains.catalog.batch.normalizer": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/normalizer.py",
+      "sha256": "529e0b6e914e9d9e9bd275aa0791c422e1a88f8572cdada9d59a3a5fc87932fe"
+    },
+    "polisyos.data_forge.domains.catalog.batch.graph_builder": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/graph_builder.py",
+      "sha256": "4831403a2d505773e75bf6572e0323464ea2f9e9b3312d1111ac1572dc328f9f"
+    },
+    "polisyos.data_forge.domains.catalog.batch.harvester": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "sha256": "0f3dc393ca07fb702db41a7e815d8b04218e275cfbc656c29641ad48edba7c66"
+    },
+    "polisyos.fabric.connectors.profiles.builtin_profiles": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/connectors/profiles/builtin_profiles.py",
+      "sha256": "c4df26aeed69547cf7289d2c3839919174a729384ce02c86e5e3ffe4479b7156"
+    },
+    "polisyos.data_forge.domains.academic.knowledge.runtime_canonical_registry": {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/runtime_canonical_registry.py",
+      "sha256": "b7243a4fdd4f12cae09489c5274de6985d6016b2b4ba4bee0f66a9d028d23e9d"
+    }
+  },
+  "pytest_exitstatus": 0,
+  "origin_denominator": "complete loaded sys.modules set matching polisyos/tools namespaces plus named native modules, with a filesystem __file__; unexecuted modules are not runtime input evidence",
+  "cache_relocation": "external hypothesis database; source/tests unchanged"
+}

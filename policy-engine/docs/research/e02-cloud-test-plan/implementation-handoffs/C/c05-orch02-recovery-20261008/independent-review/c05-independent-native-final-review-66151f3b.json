@@ -1,0 +1,97 @@
+{
+  "schema": "policyos.e02.orch02.independent-native-final-review.v1",
+  "reviewer": "/root/recovery_review",
+  "timestamp_utc": "2026-10-08T16:16:20.910571+00:00",
+  "original_owner": "C",
+  "role": "C05",
+  "source": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+  "source_tree": "47950716278e09cd1c4ddf6fa0acefbcdd013e50",
+  "verdict": "GO for source-qualified original-C bounded own-base native evidence/handoff preparation; specification mechanics PASS, engineering gates FAIL, G acceptance/production/formal closure withheld",
+  "receipt": {
+    "path": "/workspace/orch02-native-c05-c12/c05-native-receipt.json",
+    "bytes": 34864,
+    "sha256": "93046f021642ff7dd51b31c4cd38209477cfffcf5765de604b44c6d1f65425ec"
+  },
+  "complete_observation_denominator": {
+    "commands": 20,
+    "deciding_output_streams": 82,
+    "all_sizes_SHA256_command_fields_source_clean_pins_resource_RSS_harness_inputs_reconciled": true,
+    "historical_inconclusive_commands_preserved": true
+  },
+  "native_tests": {
+    "full": {
+      "cases": 103,
+      "DFI03": 43,
+      "DFK02": 36,
+      "retrieval": 24,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "wall_seconds": 85.0779417199999,
+      "RSS_KiB": 357028
+    },
+    "affected_reader_cases": 9,
+    "all_tests": 112
+  },
+  "source_review_bindings": [
+    "c05-independent-source-review-0bde01f5.md",
+    "c05-independent-source-review-66151f3b.md",
+    "c05-source-binding-66151f3b.json"
+  ],
+  "native_origins": "Independent recomputation verified all430 and367 recorded polisyos dotted-name source module origins against exact661 Gitobjects. Recorded native SO hashes also matched. Captured denominator is loaded modules with recorded filesystem origins, not external/unexecuted dependencies.",
+  "harnesses": {
+    "run_gate-c05-executed.py": {
+      "path": "/workspace/orch02-native-c05-c12/run_gate-c05-executed.py",
+      "sha256": "a796365861b52967dd1b47fba6bbc8c2a43fdd2ac3c775bed89f87e31854cd2d"
+    },
+    "orch02_capture-c05-executed.py": {
+      "path": "/workspace/orch02-native-c05-c12/orch02_capture-c05-executed.py",
+      "sha256": "e5aa09b5339bde18248914d6d67e8005b65231181219e0cb890a699eaa01d6d5"
+    },
+    "semantic_collect-c05-executed.py": {
+      "path": "/workspace/orch02-native-c05-c12/semantic_collect-c05-executed.py",
+      "sha256": "4628cd39a969cc3b7d9dab47187453d709884f9dbe630df2279a8d5376286f79"
+    },
+    "semantic_collect-c05-v2-executed.py": {
+      "path": "/workspace/orch02-native-c05-c12/semantic_collect-c05-v2-executed.py",
+      "sha256": "9585ce6f8916bbfb784a348a9c433d927df30ff7ad258b8c3a87bdc7e5c4723b"
+    },
+    "c05_artifact_readback.py": {
+      "path": "/workspace/orch02-native-c05-c12/c05_artifact_readback.py",
+      "sha256": "d93326e33bf35beddcebb914e8a991b85510c42d6d05cd238214a9be531d960e"
+    }
+  },
+  "matched_removal": {
+    "profile_seed": "Only corresponding GenerationBasis contribution frozen before initial producer. Existing producer/reader/bench/markers retained; fresh pre-repair benchmark wrongly full-ready/currenttrue over old1.1/worldbank_wdi; intact partial-eval/currentfalse. V2 matches actual seed role:path:presence; initial no-removal probe retains intact refusal and is setup_ERROR/inconclusive.",
+    "proxy": "Actual current basis changes but obsolete owner warm reader leaves SQLpenalty0.2 versus literal0.4. First classifier ignored changed tuple; raw artifact kept, corrected narrow probe same actual divergence.",
+    "coreWVS": "Changed basis but old snapshot leaves weighted_mean metadata versusweighted_mode. Same scalar1.0 does not attest numericalmode.",
+    "harvestWVS": "Actual name Fixture first versusFixture later; no exception. Independent direct observed field classification DISCRIMINATING; original INCONCLUSIVE/exit1 unchanged.",
+    "fallback": "Actual static State of health (subjective) over selected XLSXFixture first/later and Primary YAML; missing selected-input IsADirectoryError refusal. Independent actual data/branch/refusal classification DISCRIMINATING; original INCONCLUSIVE/exit1/DID_NOT_RAISE error unchanged.",
+    "legacy": "Real empty-plan parallel and legacy dispatcher branches change while normalized runtime contribution removal falsely holds same signature. This pairs real branch with missing material input; no nonemptyworkload/wholeprovenance claim.",
+    "bulk": "Operation response_type forwarding only removed; actual4registryreads vs1 while sample_size3 and numeric0\u21922 controls retained. Owned call count proof, not performancePASS."
+  },
+  "repaired_artifact_readback": {
+    "path": "/workspace/orch02-native-c05-c12/raw/c05-repaired-artifact-readback/semantic.json",
+    "bytes": 3798,
+    "sha256": "8fc09fff37c9768adc8eeba1c30dc626487dd3eb87c55ee33aab173e64079621",
+    "observations": "From the single completed full-native fixture outputs: profile SQL2.2 +worldbank_wdi; seed SQL1.1 +worldbank_alt; checkpoint/stage receipt equal and finalbenchmarkfull-ready/currenttrue/digest match. All8actualfixtureartifact hashes independently verified; immutable reader script inspected, no rerun/producer reconstruction.",
+    "postrun_boundary": "Independent native tester read-only persisted artifact observation, separate command from full test; not contemporaneous all-object capture."
+  },
+  "quality": {
+    "Ruff": "FAIL99 scopedloader output",
+    "mypy": "FAIL14 scopedsource output",
+    "architecture": "Limited --skip-generated-checks FAILdeepimport drift; no generatedfreshness/fullarchitecture verdict",
+    "P41": "not_established; no inherited-green/waiver"
+  },
+  "P40": "No new escaped behavioral class found. WVS/proxy/seed/profile/mode are the same declared effective-input and reader-currentness class; faulty observer labels are harness limitations. HeaderAccept falsifier demonstrates already declared finite input boundary, retained native definingtest not repaired/hidden.",
+  "limitations": [
+    "All header policy including actual resolved Accept application/json->text/csv is omitted and signature unchanged (full defining test exposes this); no full effective-policy/LA041 closure",
+    "Credentials/environmentauth, raw remote/corpus versions, separately injected profiles, transactional concurrency, actual serving request mapping and installed wheel resource authority not established",
+    "WVS aggregation annotation is not numericalmean-vs-mode proof; legacy branch is empty-plan only; owned readcount is not total performance acceptance",
+    "LA032 C-W19 producer/state/target/prior/donor inventory and sourceversion not established, no competing producer or four-reader acceptance",
+    "G composition/public surfaces/quality gates/production authority and formal finding closure remain separate"
+  ],
+  "G_composition": "held; eightexistingpreimages/allnewpaths +34reviewdependencyrows bound G032, canonicalsource selection and own delta refresh required",
+  "formal_closure": [],
+  "review_actions": "Read-only complete deciding output/source/harness review; no tests replay/source mutation. Handoff exact refs/footprint/presentation review remains final publication step."
+}

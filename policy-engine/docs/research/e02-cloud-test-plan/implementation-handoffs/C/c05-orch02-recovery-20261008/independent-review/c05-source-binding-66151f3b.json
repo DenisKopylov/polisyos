@@ -1,0 +1,470 @@
+{
+  "schema": "policyos.e02.orch02.independent-source-binding.v1",
+  "reviewer": "/root/recovery_review",
+  "role": "C05",
+  "timestamp_utc": "2026-10-08T16:01:05.573346+00:00",
+  "base": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+  "source": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+  "tree": "47950716278e09cd1c4ddf6fa0acefbcdd013e50",
+  "parents": [
+    "0bde01f5febf3b6e66315c864bc0cc20b0776068"
+  ],
+  "faithful_V5_application": "b297fe0986feaa0d56c61d991f04bbc6a1e3ca36",
+  "G": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "base_actual_parents": [
+    "42a8b499860acdb67b73ea9c5c7f53a874d71f08",
+    "ab44166335130463178e65dfc29a252c96afe479"
+  ],
+  "DFI_is_ancestor": true,
+  "full_changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-08-e02-c05-catalog-profile-currentness.toml",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+    "policy-engine/src/polisyos/fabric/retrieval/service.py",
+    "policy-engine/tests/unit/remediation/test_dfi_03.py",
+    "policy-engine/tests/unit/remediation/test_dfk_02.py"
+  ],
+  "footprint": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "role": "owned_mechanism",
+      "declared_base": "ca2ecfd6227edcce605bbc3091cddc6b38a86d55",
+      "actual_base": "ca2ecfd6227edcce605bbc3091cddc6b38a86d55",
+      "faithful_proposal_blob": "8a9ecb6817ade55fdd5eb78b3cc9b8c79b2f2dcb",
+      "final_blob": "b7369e1f1f79576691a7a7b1d424847b1ef2eb07",
+      "G_blob": "f688aee6a609a5d7e7c7f656cef89659928783c0",
+      "G_matches_base": false
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dfi_03.py",
+      "role": "owned_test",
+      "declared_base": "b5bce675d93a1c3d30d6c92b7491e76bca016e86",
+      "actual_base": "b5bce675d93a1c3d30d6c92b7491e76bca016e86",
+      "faithful_proposal_blob": "fc7bbc0cfa1911fd98e20e7089846c1f1b5b0e17",
+      "final_blob": "d1d40d167adaaf0984d00b1c4e27dd0cc636f90e",
+      "G_blob": "e61580cd72b37ab1e430f335174e694eba58c4ad",
+      "G_matches_base": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "role": "owned_mechanism",
+      "declared_base": "db82bce59407cebe887060fde8831d5cdec5c770",
+      "actual_base": "db82bce59407cebe887060fde8831d5cdec5c770",
+      "faithful_proposal_blob": "bd2fd09dbbf2191cfb081a0d763671587368cf35",
+      "final_blob": "bd2fd09dbbf2191cfb081a0d763671587368cf35",
+      "G_blob": "115db3f1239630ef609e2bc69f9f0922a0c198cd",
+      "G_matches_base": false
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dfk_02.py",
+      "role": "owned_test",
+      "declared_base": "d94ca9df44a8e424e2deee6529993f31b360fc21",
+      "actual_base": "d94ca9df44a8e424e2deee6529993f31b360fc21",
+      "faithful_proposal_blob": "0e953d6341b4e160585ff4ee22e9752560cd0843",
+      "final_blob": "6955626335354c08af77bf86a312c80f18ae0525",
+      "G_blob": "1e8263b473c448fc39a85e6169d305079b51050c",
+      "G_matches_base": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+      "role": "owned_mechanism",
+      "declared_base": null,
+      "actual_base": null,
+      "faithful_proposal_blob": "2281fbd58795ff21957b508ce2ee6b3b47b8c48a",
+      "final_blob": "6805747595f68ae20491a59459bebc3ce685ead3",
+      "G_blob": null,
+      "G_matches_base": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "role": "owned_mechanism",
+      "declared_base": "6051df0d52dfa67ccfedf6eb39f85fdc5e7ae930",
+      "actual_base": "6051df0d52dfa67ccfedf6eb39f85fdc5e7ae930",
+      "faithful_proposal_blob": "1ff325154d37641232213c1719ad2c6b7f9251fd",
+      "final_blob": "f2ec1bfbd185df599ed23e668da9facad1560bbf",
+      "G_blob": "e6dda2023438f9c65f3ee59c5959c154092b11fa",
+      "G_matches_base": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "role": "owned_mechanism",
+      "declared_base": "5761244862016d7c14835fa1aa9610e4c46e689d",
+      "actual_base": "5761244862016d7c14835fa1aa9610e4c46e689d",
+      "faithful_proposal_blob": "b870fdfa80dd0dff1cacb6a559d0cc46afd077bc",
+      "final_blob": "553e036c992f74cc69c7c672944388479526b85c",
+      "G_blob": "fb6d0f4d9bbc52b20cbdf0ceec88e411348948ba",
+      "G_matches_base": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "role": "owned_mechanism",
+      "declared_base": "b380babb25e7479ad4cc751e4009df8684332ecb",
+      "actual_base": "b380babb25e7479ad4cc751e4009df8684332ecb",
+      "faithful_proposal_blob": "e885868bc8d00674eda0ca0cc8329ab925805902",
+      "final_blob": "1155f3befa77d13e85e241cc3ab51353bb13fd18",
+      "G_blob": "7f2da42fadbeb5a0ccd1ae8b1d3b2f0e9844a25d",
+      "G_matches_base": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md",
+      "role": "nearest_local_documentation",
+      "declared_base": "6aee56a6b6a1aac7563613355c8011f3909c70d6",
+      "actual_base": "6aee56a6b6a1aac7563613355c8011f3909c70d6",
+      "faithful_proposal_blob": "3c6b8e9cb0dc396eea833d6fa2d516e60f700c9c",
+      "final_blob": "3c6b8e9cb0dc396eea833d6fa2d516e60f700c9c",
+      "G_blob": "4f40f366c18ab5e17f4c5ff22fb5337923304208",
+      "G_matches_base": false
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-c05-catalog-profile-currentness.toml",
+      "role": "unique_release_companion",
+      "declared_base": null,
+      "actual_base": null,
+      "faithful_proposal_blob": "ed976b6fe22e57bf37ae63f3ec89854a5cabee1e",
+      "final_blob": "ed976b6fe22e57bf37ae63f3ec89854a5cabee1e",
+      "G_blob": null,
+      "G_matches_base": true
+    }
+  ],
+  "dependency_denominator": "Every declared writer source-manifest dependency row plus named direct lazy-import/runtime/test rows. Bounded source/config/test dependency list, not entire dynamic/external closure.",
+  "dependencies": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+      "base_blob": "b1b60eefd5513ebdf717bdd4eb39b1bbd9538eac",
+      "source_blob": "b1b60eefd5513ebdf717bdd4eb39b1bbd9538eac",
+      "G_blob": "19ca41eead188afac99ed21cca386c460763e15d",
+      "changed_in_delta": false,
+      "G_matches_source": false,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+      "base_blob": "eeaa31f6d2d9cdd8bedeac6e5c61996f2f5777c1",
+      "source_blob": "eeaa31f6d2d9cdd8bedeac6e5c61996f2f5777c1",
+      "G_blob": "ba41f373de71d42a7b7f5c1b84cc6a4f511460a8",
+      "changed_in_delta": false,
+      "G_matches_source": false,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+      "base_blob": "6d9ffc41ddcb95cdab7e249eac634f3a2114de1e",
+      "source_blob": "6d9ffc41ddcb95cdab7e249eac634f3a2114de1e",
+      "G_blob": "4c0b0e74cd199ceaeabc6eff5a2b6a4a24688b21",
+      "changed_in_delta": false,
+      "G_matches_source": false,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/profiles/models.py",
+      "base_blob": "0bf6568675eaf10ca7cdd37f9c6f4527a9d7753d",
+      "source_blob": "0bf6568675eaf10ca7cdd37f9c6f4527a9d7753d",
+      "G_blob": "0bf6568675eaf10ca7cdd37f9c6f4527a9d7753d",
+      "changed_in_delta": false,
+      "G_matches_source": true,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/profiles/registry.py",
+      "base_blob": "3a5d0614b4e3cdd330ca4ea92c61d734149999a0",
+      "source_blob": "3a5d0614b4e3cdd330ca4ea92c61d734149999a0",
+      "G_blob": "3a5d0614b4e3cdd330ca4ea92c61d734149999a0",
+      "changed_in_delta": false,
+      "G_matches_source": true,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/profiles/resolver.py",
+      "base_blob": "8600211a2a66c8258cb58e20fbfd70d8a031408a",
+      "source_blob": "8600211a2a66c8258cb58e20fbfd70d8a031408a",
+      "G_blob": "8600211a2a66c8258cb58e20fbfd70d8a031408a",
+      "changed_in_delta": false,
+      "G_matches_source": true,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/base.py",
+      "base_blob": "791d3927acc040a7932e69a4886339f08b190bb1",
+      "source_blob": "791d3927acc040a7932e69a4886339f08b190bb1",
+      "G_blob": "791d3927acc040a7932e69a4886339f08b190bb1",
+      "changed_in_delta": false,
+      "G_matches_source": true,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/registry.py",
+      "base_blob": "aebd4168dd9140db918e43db9220f338b60ffd60",
+      "source_blob": "aebd4168dd9140db918e43db9220f338b60ffd60",
+      "G_blob": "142040537e37167e9f97955d4f19cbcaf76002c6",
+      "changed_in_delta": false,
+      "G_matches_source": false,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/selection.py",
+      "base_blob": "5b98667f1929a9390b175167884bc2b1fa6d759b",
+      "source_blob": "5b98667f1929a9390b175167884bc2b1fa6d759b",
+      "G_blob": null,
+      "changed_in_delta": false,
+      "G_matches_source": false,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/retrieval/providers.py",
+      "base_blob": "258e0bf73c28dab3bfc7161efefbb35db55a5a77",
+      "source_blob": "258e0bf73c28dab3bfc7161efefbb35db55a5a77",
+      "G_blob": "258e0bf73c28dab3bfc7161efefbb35db55a5a77",
+      "changed_in_delta": false,
+      "G_matches_source": true,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/architecture/packages/boundaries.toml",
+      "base_blob": "964fbd1d6af68d98aa5c09468065185ec1990ba9",
+      "source_blob": "964fbd1d6af68d98aa5c09468065185ec1990ba9",
+      "G_blob": "964fbd1d6af68d98aa5c09468065185ec1990ba9",
+      "changed_in_delta": false,
+      "G_matches_source": true,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "base_blob": "5761244862016d7c14835fa1aa9610e4c46e689d",
+      "source_blob": "553e036c992f74cc69c7c672944388479526b85c",
+      "G_blob": "fb6d0f4d9bbc52b20cbdf0ceec88e411348948ba",
+      "changed_in_delta": true,
+      "G_matches_source": false,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+      "base_blob": "306849ff45191eac4d8fa7dadab86e4c21ee3057",
+      "source_blob": "306849ff45191eac4d8fa7dadab86e4c21ee3057",
+      "G_blob": "abe7878b7ccd24414349e660dd1664c1b7137ab5",
+      "changed_in_delta": false,
+      "G_matches_source": false,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+      "base_blob": "c7f39ed894869d54a46d75ccf3a0ee85844a2c35",
+      "source_blob": "c7f39ed894869d54a46d75ccf3a0ee85844a2c35",
+      "G_blob": "21d43040f1418712dcf568a096f371e646ae4e25",
+      "changed_in_delta": false,
+      "G_matches_source": false,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/seed_variable_alignments.yaml",
+      "base_blob": "49d63f6e693ab9488fad50b25d75b042f3dff9dd",
+      "source_blob": "49d63f6e693ab9488fad50b25d75b042f3dff9dd",
+      "G_blob": "49d63f6e693ab9488fad50b25d75b042f3dff9dd",
+      "changed_in_delta": false,
+      "G_matches_source": true,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py",
+      "base_blob": "e2cd05ff2e8a47f2bc45fcc15f61f1f90c127e35",
+      "source_blob": "e2cd05ff2e8a47f2bc45fcc15f61f1f90c127e35",
+      "G_blob": "4d752c653fbd43fd30c3120ead94e0ff643ac7ec",
+      "changed_in_delta": false,
+      "G_matches_source": false,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/proxy_metric_alignments.yaml",
+      "base_blob": "649cd9a249ca12745b4ed9c9871d2aca57eb0a61",
+      "source_blob": "649cd9a249ca12745b4ed9c9871d2aca57eb0a61",
+      "G_blob": "649cd9a249ca12745b4ed9c9871d2aca57eb0a61",
+      "changed_in_delta": false,
+      "G_matches_source": true,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/wvs_indicator_registry.yaml",
+      "base_blob": "e28c9dfc7e83f3c7d2fbf020312dcfdd66bee3a0",
+      "source_blob": "e28c9dfc7e83f3c7d2fbf020312dcfdd66bee3a0",
+      "G_blob": "e28c9dfc7e83f3c7d2fbf020312dcfdd66bee3a0",
+      "changed_in_delta": false,
+      "G_matches_source": true,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+      "base_blob": "19eb50522b801341e40f30a113e33f5317be8842",
+      "source_blob": "19eb50522b801341e40f30a113e33f5317be8842",
+      "G_blob": "9a4c6ff1d96cfc8b546e8c82c4723a8ec6651d1a",
+      "changed_in_delta": false,
+      "G_matches_source": false,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+      "base_blob": "87d3a8250d375861a44de7d1697c9c05d11d9c10",
+      "source_blob": "87d3a8250d375861a44de7d1697c9c05d11d9c10",
+      "G_blob": "f9808edde2972c8be45a56121f605dd6e21e4d18",
+      "changed_in_delta": false,
+      "G_matches_source": false,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+      "base_blob": "243930ca1ee404572c82adffaf53497722c67935",
+      "source_blob": "243930ca1ee404572c82adffaf53497722c67935",
+      "G_blob": "68d88e2bb22c6d7df56c2286ce0e6e1468f4661e",
+      "changed_in_delta": false,
+      "G_matches_source": false,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/metrics_map.yaml",
+      "base_blob": "7f6cf78a02e4e58219353548af604de49e796442",
+      "source_blob": "7f6cf78a02e4e58219353548af604de49e796442",
+      "G_blob": "7f6cf78a02e4e58219353548af604de49e796442",
+      "changed_in_delta": false,
+      "G_matches_source": true,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/source_registry.yaml",
+      "base_blob": "0cd1ad66cc19ae6d8ea28395c5a258eb165d1e51",
+      "source_blob": "0cd1ad66cc19ae6d8ea28395c5a258eb165d1e51",
+      "G_blob": "0cd1ad66cc19ae6d8ea28395c5a258eb165d1e51",
+      "changed_in_delta": false,
+      "G_matches_source": true,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "base_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "source_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "G_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "changed_in_delta": false,
+      "G_matches_source": true,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "base_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "source_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "G_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "changed_in_delta": false,
+      "G_matches_source": true,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/.python-version",
+      "base_blob": "6324d401a069f4020efcf0ff07442724b52f47c2",
+      "source_blob": "6324d401a069f4020efcf0ff07442724b52f47c2",
+      "G_blob": "6324d401a069f4020efcf0ff07442724b52f47c2",
+      "changed_in_delta": false,
+      "G_matches_source": true,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/graph_builder.py",
+      "base_blob": "ebf2c748de9ef961c5d48f304dfbdab87b892bce",
+      "source_blob": "ebf2c748de9ef961c5d48f304dfbdab87b892bce",
+      "G_blob": "ebf2c748de9ef961c5d48f304dfbdab87b892bce",
+      "changed_in_delta": false,
+      "G_matches_source": true,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py",
+      "base_blob": "f6f24dd85418848664a93d2ed6cf63593561d237",
+      "source_blob": "f6f24dd85418848664a93d2ed6cf63593561d237",
+      "G_blob": "aab8fa8d7c0ae21129ee7bc7615d92f70125fd02",
+      "changed_in_delta": false,
+      "G_matches_source": false,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/country_codes.py",
+      "base_blob": "f8c37446f5cd595e88e2630352e4326d67a4d21b",
+      "source_blob": "f8c37446f5cd595e88e2630352e4326d67a4d21b",
+      "G_blob": "f8c37446f5cd595e88e2630352e4326d67a4d21b",
+      "changed_in_delta": false,
+      "G_matches_source": true,
+      "source_of_denominator": "exact writer source-manifest dependency rows independently recomputed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "base_blob": "99400c33e76b13c81e8cb0352d59e58a98eb72c0",
+      "source_blob": "99400c33e76b13c81e8cb0352d59e58a98eb72c0",
+      "G_blob": "2c72928690b4981542475bc0f7861bb808c921b1",
+      "changed_in_delta": false,
+      "G_matches_source": false,
+      "source_of_denominator": "reviewer actual direct lazy-import/runtime/test dependency"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/_lazy.py",
+      "base_blob": "3731c19a9f4982cef3b0a28efcf2d88084b0fc29",
+      "source_blob": "3731c19a9f4982cef3b0a28efcf2d88084b0fc29",
+      "G_blob": "3731c19a9f4982cef3b0a28efcf2d88084b0fc29",
+      "changed_in_delta": false,
+      "G_matches_source": true,
+      "source_of_denominator": "reviewer actual direct lazy-import/runtime/test dependency"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/__init__.py",
+      "base_blob": "16130b4b1e94aca825a89e82f8a5c60a5b562e52",
+      "source_blob": "16130b4b1e94aca825a89e82f8a5c60a5b562e52",
+      "G_blob": "16130b4b1e94aca825a89e82f8a5c60a5b562e52",
+      "changed_in_delta": false,
+      "G_matches_source": true,
+      "source_of_denominator": "reviewer actual direct lazy-import/runtime/test dependency"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/__init__.py",
+      "base_blob": "d0980a93abf3f7da319d76928aa007c6be68c074",
+      "source_blob": "d0980a93abf3f7da319d76928aa007c6be68c074",
+      "G_blob": "d0980a93abf3f7da319d76928aa007c6be68c074",
+      "changed_in_delta": false,
+      "G_matches_source": true,
+      "source_of_denominator": "reviewer actual direct lazy-import/runtime/test dependency"
+    },
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "base_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "source_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "G_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "changed_in_delta": false,
+      "G_matches_source": true,
+      "source_of_denominator": "reviewer actual direct lazy-import/runtime/test dependency"
+    }
+  ],
+  "forward_delta_AST_controls": {
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py": {
+      "AST_equal_after_import_name_order_normalization": true
+    },
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py": {
+      "AST_equal_after_import_name_order_normalization": true
+    },
+    "policy-engine/tests/unit/remediation/test_dfi_03.py": {
+      "AST_equal_after_import_name_order_normalization": true
+    },
+    "policy-engine/tests/unit/remediation/test_dfk_02.py": {
+      "AST_equal_after_import_name_order_normalization": true
+    }
+  },
+  "native": "UNRUN by reviewer; independent native tester wave pending",
+  "G_composition_acceptance": "not_established",
+  "quality": "Writer Ruff/mypy failures retained as failures; no P41 inherited-green claim.",
+  "prior_source_review": "c05-independent-source-review-0bde01f5.md",
+  "final_typing_delta": {
+    "changed_paths": [
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py"
+    ],
+    "semantic_review": "Canonical API import and dynamic getter/cast preserve exact installed locator and monkeypatch seam; four nested WVS generic annotations only. No new behavior defect found. Callable import is type-only and cast type is a string, preventing runtime symbol lookup.",
+    "source_only_verdict": "GO",
+    "quality": "Ruff99/mypy14/architecture drift remain explicit FAIL; P41 inherited-green not_established",
+    "native": "Independent affected full wave authorized on this exact source; no transferred prior PASS."
+  }
+}

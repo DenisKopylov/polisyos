@@ -1,0 +1,24 @@
+src/polisyos/data_forge/domains/catalog/batch/material_inputs.py:48: error: Library stubs not installed for "yaml"  [import-untyped]
+src/polisyos/data_forge/domains/catalog/batch/material_inputs.py:48: note: Hint: "python3 -m pip install types-PyYAML"
+src/polisyos/data_forge/domains/catalog/batch/material_inputs.py:48: note: (or run "mypy --install-types" to install all missing stub packages)
+src/polisyos/data_forge/domains/catalog/batch/material_inputs.py:48: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
+src/polisyos/fabric/retrieval/service.py:225: error: "object" not callable  [operator]
+src/polisyos/fabric/retrieval/service.py:239: error: "object" not callable  [operator]
+src/polisyos/fabric/retrieval/service.py:254: error: "object" not callable  [operator]
+src/polisyos/fabric/retrieval/service.py:257: error: "object" not callable  [operator]
+src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:29: error: Library stubs not installed for "pandas"  [import-untyped]
+src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:29: note: Hint: "python3 -m pip install pandas-stubs"
+src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:70: error: Module "polisyos.fabric.connectors.base" does not explicitly export attribute "FetchRequest"  [attr-defined]
+src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:182: error: "object" has no attribute "keys"  [attr-defined]
+src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:302: error: Missing type parameters for generic type "dict"  [type-arg]
+src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:309: error: Missing type parameters for generic type "dict"  [type-arg]
+src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:336: error: Missing type parameters for generic type "dict"  [type-arg]
+src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:346: error: Missing type parameters for generic type "dict"  [type-arg]
+src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:434: error: Missing type parameters for generic type "tuple"  [type-arg]
+src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:498: error: Name "result" already defined on line 410  [no-redef]
+src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1490: error: Name "_ConnectorSessionCache" is not defined  [name-defined]
+src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1565: error: Name "_ConnectorSessionCache" is not defined  [name-defined]
+src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1704: error: Name "_ConnectorSessionCache" is not defined  [name-defined]
+src/polisyos/data_forge/domains/catalog/batch/config.py:300: error: Module "polisyos.data_forge.domains.catalog.batch.core_sources.api" has no attribute "_seed_alignments_path"; maybe "load_seed_alignments"?  [attr-defined]
+src/polisyos/data_forge/domains/catalog/batch/config.py:402: error: Value of type variable "SupportsRichComparisonT" of "sorted" cannot be "object"  [type-var]
+Found 19 errors in 4 files (checked 6 source files)

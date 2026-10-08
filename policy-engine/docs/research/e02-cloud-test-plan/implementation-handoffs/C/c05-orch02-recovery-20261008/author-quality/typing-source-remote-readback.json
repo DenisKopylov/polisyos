@@ -1,0 +1,32 @@
+{
+  "branch": "codex/e02-C-orch02-c05-recovery",
+  "readback_head": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+  "readback_tree": "47950716278e09cd1c4ddf6fa0acefbcdd013e50",
+  "head_matches": true,
+  "tree_diff_exit": 0,
+  "transport": "normal Git push and explicit-refspec fetch, inherited environment, no override",
+  "checks": [
+    {
+      "command": [
+        "git",
+        "push",
+        "origin",
+        "HEAD:refs/heads/codex/e02-C-orch02-c05-recovery"
+      ],
+      "exit_code": 0,
+      "stdout": "typing-source-push.stdout.txt",
+      "stderr": "typing-source-push.stderr.txt"
+    },
+    {
+      "command": [
+        "git",
+        "fetch",
+        "origin",
+        "refs/heads/codex/e02-C-orch02-c05-recovery:refs/remotes/origin/codex/e02-C-orch02-c05-recovery"
+      ],
+      "exit_code": 0,
+      "stdout": "typing-source-readback-fetch.stdout.txt",
+      "stderr": "typing-source-readback-fetch.stderr.txt"
+    }
+  ]
+}

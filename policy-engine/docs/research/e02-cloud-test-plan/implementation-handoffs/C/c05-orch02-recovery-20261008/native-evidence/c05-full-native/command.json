@@ -1,0 +1,63 @@
+{
+  "schema": "orch02.native-command.v1",
+  "source_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+  "source_tree": "47950716278e09cd1c4ddf6fa0acefbcdd013e50",
+  "branch": "codex/e02-C-orch02-c05-recovery",
+  "repo": "/workspace/orch02-c05",
+  "cwd": "/workspace/orch02-c05/policy-engine",
+  "argv": [
+    "/workspace/orch02-native-c05-c12/venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-p",
+    "orch02_capture",
+    "--basetemp",
+    "/workspace/orch02-native-c05-c12/raw/c05-full-native/basetemp",
+    "--junitxml",
+    "/workspace/orch02-native-c05-c12/raw/c05-full-native/junit.xml",
+    "-q",
+    "tests/unit/remediation/test_dfi_03.py",
+    "tests/unit/remediation/test_dfk_02.py",
+    "tests/unit/fabric/test_retrieval_service_catalog.py"
+  ],
+  "timeout_seconds": null,
+  "timeout_basis": "first wall measurement; no arbitrary cutoff",
+  "environment": {
+    "PYTHONPATH": "/workspace/orch02-c05/policy-engine/src:/workspace/orch02-c05/policy-engine/tests:/workspace/orch02-native-c05-c12",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_CAS_DIR": "/workspace/orch02-native-c05-c12/raw/c05-full-native/cas"
+  },
+  "source_status_before": "",
+  "harness_sha256": "a796365861b52967dd1b47fba6bbc8c2a43fdd2ac3c775bed89f87e31854cd2d",
+  "command_python_input": {},
+  "disk_available_bytes_before": 23361675264,
+  "exit_code": 0,
+  "wall_seconds": 85.0779417199999,
+  "source_status_after": "",
+  "source_sha_after": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+  "disk_available_bytes_after": 23146696704,
+  "outputs": {
+    "junit.xml": {
+      "bytes": 17846,
+      "sha256": "3234b22c25e3803a772d4b99b0c95de66ef43cbd5410b119f88e3c5cbe8850d6"
+    },
+    "stdout.txt": {
+      "bytes": 639,
+      "sha256": "d71d0d769681b0b2ad1d543d61de3a86cc2311dd7c83c7acb19b9089a09ccc8c"
+    },
+    "runtime-origins.json": {
+      "bytes": 104531,
+      "sha256": "6f02cb2152add81a3feb7364b74eb051d220417899ef77682c8619f7bc3f8161"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "resource.json": {
+      "bytes": 294,
+      "sha256": "a9501024fcfcedcd04cfb42b166be1738c4d2c14a5811a1f90a0710420c00088"
+    }
+  }
+}

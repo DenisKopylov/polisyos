@@ -1,0 +1,4 @@
+2026-10-08 16:03:41.441 | INFO     | polisyos.common.logger:_call:120 - Loaded 1 WVS indicators from Excel codebook
+2026-10-08 16:03:41.472 | INFO     | polisyos.common.logger:_call:120 - Loaded 1 WVS indicators from Excel codebook
+2026-10-08 16:03:41.487 | INFO     | polisyos.common.logger:_call:120 - Loaded 1 WVS indicators from registry
+2026-10-08 16:03:41.497 | WARNING  | polisyos.common.logger:_call:120 - Failed to load WVS indicator registry from /workspace/orch02-native-c05-c12/raw/c05-fallback-intact/semantic-f3uyeefy/wvs.yaml

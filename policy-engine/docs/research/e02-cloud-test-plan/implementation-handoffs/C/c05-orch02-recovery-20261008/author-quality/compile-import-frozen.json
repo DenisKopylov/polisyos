@@ -1,0 +1,35 @@
+{
+  "source": {
+    "sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+    "tree": "47950716278e09cd1c4ddf6fa0acefbcdd013e50"
+  },
+  "environment": {
+    "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "pythonpath": [
+      "",
+      "/workspace/orch02-c05/policy-engine/src",
+      "/workspace/orch02-c05/policy-engine"
+    ]
+  },
+  "compiled": [
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+    "policy-engine/tests/unit/remediation/test_dfi_03.py",
+    "policy-engine/src/polisyos/fabric/retrieval/service.py",
+    "policy-engine/tests/unit/remediation/test_dfk_02.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py"
+  ],
+  "origins": {
+    "polisyos.data_forge.domains.catalog.batch.config": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+    "polisyos.data_forge.domains.catalog.batch.material_inputs": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+    "polisyos.data_forge.domains.catalog.batch.core_sources.loaders": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "polisyos.data_forge.domains.catalog.batch.harvester": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+    "polisyos.data_forge.domains.catalog.knowledge.proxy_penalties": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+    "polisyos.fabric.retrieval.service": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/retrieval/service.py"
+  },
+  "outcome": "PASS",
+  "scope": "syntax compilation of 8 changed Python files and import origins of 6 changed mechanism modules; no runtime behavior claim"
+}

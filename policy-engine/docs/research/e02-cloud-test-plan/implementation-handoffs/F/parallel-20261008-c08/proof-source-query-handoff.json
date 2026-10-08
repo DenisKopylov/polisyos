@@ -1,0 +1,1149 @@
+{
+  "schema": "e02.implementation-handoff/v1",
+  "role": "C08 direct ORCH03 specialist",
+  "original_unit": "F",
+  "canonical_writer": "/root/c08",
+  "independent_reviewer": "/root/oracle_ir",
+  "branch": "codex/e02-F-c08-20261008",
+  "slice_base": {
+    "sha": "ab48c152514b025618cd6e3fc9acc70a1ed773ee",
+    "tree": "c8de2a22c30ecfdafaee4da753d1958d4f947af4"
+  },
+  "runtime_test_source": {
+    "sha": "5e3f2cdfe700186bec621d8b7e6ed48f8af6098d",
+    "tree": "4065489cce119da0c7623464edbba37799d7550a",
+    "parents": [
+      "1e955a2c00872d3f0dccfd52b0fc66fd0c84a5a1"
+    ]
+  },
+  "candidate_with_reviewed_passive_companions": {
+    "sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+    "tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+    "parents": [
+      "96258000e70847dcd1ec54607664e81c92bfa3d6"
+    ]
+  },
+  "passive_companion_chain": [
+    {
+      "sha": "f5f1c4b6c1096032892f2433decafd55b589f4c5",
+      "tree": "15d8d4bed0da00e38396ee9423ae9bde6f7e974e",
+      "parents": [
+        "5e3f2cdfe700186bec621d8b7e6ed48f8af6098d"
+      ]
+    },
+    {
+      "sha": "96258000e70847dcd1ec54607664e81c92bfa3d6",
+      "tree": "f03d6323f337515432ebb5e89ba0c9d1befba08e",
+      "parents": [
+        "f5f1c4b6c1096032892f2433decafd55b589f4c5"
+      ]
+    },
+    {
+      "sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+      "tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+      "parents": [
+        "96258000e70847dcd1ec54607664e81c92bfa3d6"
+      ]
+    }
+  ],
+  "host_admission": {
+    "root_custody_commit": "27ad60afe4cfedea9a9c0ff71d9abd22c30836d9",
+    "root_resume_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-c08-proof-resume.json.gz",
+    "decoded_bytes": 171103,
+    "decoded_sha256": "2bc0b76187560520e960a566ae460df65e388ce8e8e910f85ed714f2d00c9803",
+    "stored_sha256": "80d3c83b51b36422769214b8ec79ebf3f8828952fc89a3e19bf2e523a5b564a5",
+    "branch": "codex/e02-F-c08-20261008",
+    "path": "/dev/shm/e02-orch03-20261008/c08",
+    "state": "resume admitted exact pair before source changes; point-in-time snapshot, not reservation"
+  },
+  "G_checkpoint_and_grant": {
+    "checkpoint": "a139e9d076231e2762477f7ac7a1f0d7b0a57dba",
+    "tree": "dbeadaeefd8f34097a097a7faadd78a897d680c9",
+    "historical_source_dependency": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+    "role": "supplemental exact-path lease; source HOLD; no formal closure",
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1120/README.md",
+        "blob": "8ece561d6004719f427fe146da7fbfad5162d140",
+        "bytes": 5671,
+        "sha256": "b9bd2c9365736bb9833f12b7debe85d92e344739379821cd659d1bff2d4bca7e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1120/continuation-leases.json",
+        "blob": "5e4e32136c1a94ada49733876d949f96520ba79f",
+        "bytes": 5180,
+        "sha256": "df443131d334fed8398952448f7241b117e90d786e874fb6d9f1c5db1d42492d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1120/verdict.json",
+        "blob": "7dc1f2a669a3ebc381a569e05cdb8a7f6a7c19ef",
+        "bytes": 4780,
+        "sha256": "bf95a0c74676dfb4dba0ee864f0f7e525f2897bd262f19ee42a086da7e573706"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1120/reviews/ORCH03-followup-lease-review.md",
+        "blob": "23730ef91efb590e9b0c843e46a8bd10c89edd62",
+        "bytes": 4129,
+        "sha256": "6ad016141f7c87f350b016f0e70f39a6611e71621041f1d394bbb061b9a9df39"
+      }
+    ]
+  },
+  "full_source_test_companion_footprint": {
+    "base": "ab48c152514b025618cd6e3fc9acc70a1ed773ee",
+    "candidate": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+    "tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/C11-proof-graph-source-requirement.json",
+        "base": null,
+        "candidate": {
+          "blob": "d365c521cd96a7eed243c0cc7d23d6c4e4b145b0",
+          "sha256": "49d6dfd09a3a33005ba7f12881c8f2810c165f8eb451057dc0a9ae7994299d23",
+          "bytes": 2041
+        }
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-08-c08-native-dag-query.toml",
+        "base": null,
+        "candidate": {
+          "blob": "4a9a61b83873fad90590b00d689568ffc439f555",
+          "sha256": "353b2a5ccf44de6f04cb788edd263bdcfdf1ce26d33d41f66e02cec4a4d72d8b",
+          "bytes": 2038
+        }
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-08-c08-proof-source-binding.toml",
+        "base": null,
+        "candidate": {
+          "blob": "2441a71009162579b3a463bda26dd1c4c0c05ac7",
+          "sha256": "21f52e77afddeeebb2cfeace85f31e1d1bb6077e00db110b0b94f12ad7fd0499",
+          "bytes": 2239
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+        "base": {
+          "blob": "9fbbb8da21fcfdfe8b9e43c174ec6e9d8be5ee02",
+          "sha256": "86c5e5e039a6c8f42d595dacf0ca2f2d3b48d8a8def9123df4c32933fea93ea7",
+          "bytes": 17249
+        },
+        "candidate": {
+          "blob": "3448aec4806d95cb0a6fea0ed3f4c98838a26f3f",
+          "sha256": "71e602bc5984257c1ad1271eaaab77aa76a6991b146adfdf629b18368661e87f",
+          "bytes": 19876
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py",
+        "base": {
+          "blob": "0b3957382db622aa2c76e9daca1cc06ddf2e7bac",
+          "sha256": "f83894506f5dec4569a2708326daa28dfeeb41d4c8516ce80a504ef4860bb582",
+          "bytes": 192496
+        },
+        "candidate": {
+          "blob": "fa16aad551a6ec83fefafcbf3a4598acb0b70fdd",
+          "sha256": "c95c17e72a642cf2ef8bcdd6baa3ae2af041b2348b1ec29ae6d0cd6527f2ff8f",
+          "bytes": 193183
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+        "base": {
+          "blob": "29adb99b728ab4035619f159d717df03e3077605",
+          "sha256": "54a919c33f3b0ba0720116d587590da5d86fa487f09a6c4d681bbc0cf84c6cef",
+          "bytes": 81117
+        },
+        "candidate": {
+          "blob": "918adaaf9fa717d120e28e64c2e847f0b221452d",
+          "sha256": "73edd6c80bde8c418b546745426d5f40aaa8a28c079961f321c6177396afd6c2",
+          "bytes": 81938
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "base": {
+          "blob": "874a75fd95bbd920db2b6fd56457d25a23b22589",
+          "sha256": "0c94715bbf1e0b04a6076a770acce717d55ee60dee53a561a99a8e63448398b8",
+          "bytes": 76407
+        },
+        "candidate": {
+          "blob": "e60a0a19f3bac6fbf1d7d29584f11db27b0dcc93",
+          "sha256": "6b18eec19b91b76a3112efd3e10d498243a68c5c4eef7673022928a6899e2c00",
+          "bytes": 79671
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_characterization.py",
+        "base": {
+          "blob": "38435f71c82e091b7be01a1146367d6cd380327b",
+          "sha256": "c492a09cf18c2f64a7e839b1726329b43f27bba601c13b97b90e1b30effec8e3",
+          "bytes": 8392
+        },
+        "candidate": {
+          "blob": "d54f226a65d3306201b2ec11a2df180822e9b11b",
+          "sha256": "7684626bc8321ca863296959d411722f1ea15fe410ae7265cf8af33317cb5d79",
+          "bytes": 8412
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_native_query_marginal.py",
+        "base": null,
+        "candidate": {
+          "blob": "88e208b29b98358e6a2f46f490a36007131ae254",
+          "sha256": "8f61a02fb2501c20651cf84359db8c2af64a207a5d18d53b5da5145fe682aa86",
+          "bytes": 4458
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py",
+        "base": {
+          "blob": "dd9d28ebb9a914d9c27ce57f3ebc07b8658874f6",
+          "sha256": "6404051323d4cb8592135f3a22594a4d009bc84829826b9fbd5e44af896512df",
+          "bytes": 3957
+        },
+        "candidate": {
+          "blob": "1b482ae5bb0dbc89428191689f19601b9e9c6281",
+          "sha256": "8defda735b053fad6166bc5f122d51bf66d0e8d069470454b3d464c29b3eda3a",
+          "bytes": 7683
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/analytics/test_causal_proof_graph_binding.py",
+        "base": null,
+        "candidate": {
+          "blob": "79c2f877098a019d5283c540a24512da4461670e",
+          "sha256": "0bc0be52aa1f4d2fc5e2300d6b8a6b60ae4e56dde15a119ea3d85bf03db154e1",
+          "bytes": 7372
+        }
+      }
+    ]
+  },
+  "source_test_blobs_unchanged_through_passive_companions": [
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+    "policy-engine/src/polisyos/ir/analytics/causal.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_characterization.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_native_query_marginal.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py",
+    "policy-engine/tests/unit/ir/analytics/test_causal_proof_graph_binding.py"
+  ],
+  "original_criterion_bindings": [
+    {
+      "finding_id": "B214",
+      "original_unit": "F",
+      "bundle": "GRF-03",
+      "bindings": [
+        {
+          "criterion_id": "B214",
+          "document": "B_r19",
+          "lines": [
+            5218,
+            5229
+          ],
+          "sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+          "card": "GRF-03",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "original_text": "## B214. Проекция PAG/CPDAG разворачивает известное направление и может создать цикл\n\n**Приоритет:** высокий при передаче графа DAG-потребителю; нормализация известного направления дешева, выбор допустимого расширения — отдельная задача. **Основание:** полный _graph_projection.py, CausalGraphModel и GCM-fit caller; GP01–GP04. [C20.R08–R10]\n\n**Проблема.** Единственный признанный полностью ориентированным случай — tail на src и arrow на dst. Случай arrow на src и tail на dst означает известное обратное направление, но обрабатывается как неопределённость: метки меняются на tail/arrow без перестановки концов. Для неопределённых рёбер применяется тот же порядок хранения, после чего graph_type заменяется на DAG через model_copy без повторной валидации.\n\n**Воспроизведение.** В PAG ребро X←Y стало X→Y и получило orientation_uncertain=True. Полный неориентированный CPDAG-треугольник, записанный A—B, B—C, C—A, стал циклом A→B→C→A с меткой DAG. Численная фикстура графа — не полный native DTO; допустимость такого reversed edge и запрет циклов в настоящем DAG проверены чтением контракта.\n\n**Рекомендуемое исправление.** Сначала канонически нормализовать уже известные направления, сохраняя origin и marks. Затем либо использовать допускающий частичную ориентацию идентификатор, либо строить согласованное расширение с проверкой направлений, ацикличности и свойств класса эквивалентности. Для PAG произвольный выбор одного DAG вообще не заменяет causal-identification по допустимому семейству; исследовательскую модель нужно сохранять условной.\n\n**Положительные контроли.** Готовый корректный DAG возвращается без изменения; bidirected edge заменяется общим latent U и двумя исходящими рёбрами. Это полезные существующие части. Уточнение не должно превращать все частично определённые графы в полный отказ: можно сохранять несколько допустимых моделей или ограниченный результат. Простое удаление ребра цикла либо отключение DAG-validation неприемлемо. Исправленная нормализация одного известного reversed edge проверена отдельно; общий sound-extension алгоритм здесь не реализован.\n\n"
+        }
+      ]
+    },
+    {
+      "finding_id": "B56",
+      "original_unit": "F",
+      "bundle": "FIT-01",
+      "bindings": [
+        {
+          "criterion_id": "B56",
+          "document": "B_r19",
+          "lines": [
+            1409,
+            1424
+          ],
+          "sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b",
+          "card": "FIT-01",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "original_text": "## B56. Внутренняя параллельность folds не связана с общим ресурсом исследования\n\n**Происхождение:** C04-08. **Основание:** `ATENuisanceContract` и `_fit_crossfit_nuisance_bundle_uncached`; PW1–PW3. **Приоритет:** условная оптимизация нескольких одновременных fit; охват S/M. [C04.K05]\n\n**Проблема.** По умолчанию используются пять folds и три повторения. Если `parallel_folds=True` и `max_parallel_folds=0`, число workers берётся из числа tasks — здесь 15 на один fit. Каждый fit создаёт собственный `ThreadPoolExecutor`. Четыре внешних одновременных fit могут тем самым запросить 60 внутренних рабочих потоков ещё до учёта прочих стадий. Это расчёт конфигурационной ёмкости, не наблюдение 60 реально загруженных CPU и не измеренное замедление.\n\n**Важный существующий контроль.** У создаваемых LightGBM и RandomForest в прочитанных ветвях явно стоит `n_jobs=1`. Значит, часть вложенной параллельности уже ограничена. Неверно утверждать, что весь проект бесконтрольно размножает все native threads. Но лимит конкретного модельного backend не объединяет несколько независимых fold-пулов внешнего цикла. [C04.K05]\n\n**Рекомендуемое решение.** Сначала использовать уже имеющийся `max_parallel_folds` и передавать его из действительного ресурса текущего исследования. Для первого малого прогона практичный выбор — распараллелить один уровень: несколько моделей с внутренним cap=1 либо один fit с ограниченным числом folds. Затем измерять полезную пропускную способность и память и перераспределять разрешённый ресурс. Не нужен новый кластерный scheduler.\n\nЕсли нужен общий механизм допуска, он должен исключать циклическое ожидание: внешняя работа не должна занять все ресурсы, удерживать их и ждать внутренних задач, которым нужны те же ресурсы. Механическая замена всех пулов одним общим пулом может создать именно такой тупик. Сохранять детерминированные seeds, порядок агрегации и реальное число повторений; ограничение работников не должно сокращать число научных повторений молча.\n\n**Приёмка.** При заданном общем ресурсе сумма допущенной работы ограничена; задачи ожидают без потери результатов; тот же набор folds/repeats исполнен независимо от уровня параллелизма; численные результаты и provenance согласованы. Измерять общее время, пиковую память, число активных workers и ожидание, а не предполагать, что максимальный worker-count оптимален.\n\n**Граница.** Это возможность настройки и композиции, не доказанный дефект одиночного запуска. PW показывает точную формулу выбора 15, 2 и 1 работников при разных разрешённых настройках. Нет универсальной рекомендации «всё сделать последовательным» и нет новой постоянной границы мощности системы.\n\n"
+        }
+      ]
+    }
+  ],
+  "producer_artifact_bridge_consumer_surface": [
+    {
+      "property": "Finite CPDAG common/conditional proof retains and resolves original graph",
+      "producer": "CausalEngine.identify_effect → audit",
+      "artifact": "existing typed CausalGraphModel and ProofBundle CAS artifacts",
+      "bridge": "existing persist_causal_graph_model, persist_proof_bundle; full real causal_graph InputRef",
+      "consumer": "load_proof_bundle → load_causal_graph_model → independent fresh child",
+      "surface": "ProofBundle.graph_ref, partial_graph_query graph_payload_sha256; typed refusal before publication/read",
+      "scope": "Fresh default-manifest artifacts only; partial profile original graph bound for both common and conditional. Authority false remains scope disclosure, not authority proof."
+    },
+    {
+      "property": "Native observed static DAG original interventional query marginalized correctly",
+      "producer": "existing native ID/IDC callers",
+      "artifact": "existing symbolic expression AST/proof steps",
+      "bridge": "narrow complete-observed static DAG early reuse of existing _dag_g_formula",
+      "consumer": "independent finite Fraction original-law interpreter and actual query consumer",
+      "surface": "original treatment/query retained; outcome/joint conditional functional",
+      "scope": "No latent/PAG/partial-observed/temporal/universal ID claim; exact unsimplified IDC expression is supported mathematical equivalent."
+    }
+  ],
+  "runtime_changes": [
+    "Audit persists original typed graph for both common and conditional partial profile proofs.",
+    "Existing IR writer resolves real graph ID/manifest/bytes and recomputes typed payload identity; validates full exact graph InputRef before proof publication.",
+    "Existing IR reader resolves real graph/hash and exactly one matching default-manifest causal_graph InputRef. Missing/wrong/changed graph and role refuse; no hash=ID shortcut.",
+    "Complete-observed static DAG native ID reuses existing g-formula before ancestral shortcut and keeps original treatment/query."
+  ],
+  "compatibility": {
+    "structured_rows": 2,
+    "focused_canonical_validator": {
+      "candidate": "96258000e70847dcd1ec54607664e81c92bfa3d6",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/dev/shm/e02-orch03-20261008/oracle-ir/C08-release-check.py"
+      ],
+      "canonical_callable": "tools.ops_runners.release.check_compatibility_release_gates._validate_fragments",
+      "breaking_classes": [
+        "persisted-artifact-format"
+      ],
+      "fragments": 2,
+      "structured_rows": 2,
+      "returncode": 0,
+      "errors": 0,
+      "findings": 0,
+      "global_gate": "UNRUN/not claimed"
+    },
+    "historical_partial_proofs": "Unbound old finite-profile proofs now refuse current reader; preserve bytes and re-persist original graph/lineage. Ordinary legacy proofs without partial profile retain supported reads.",
+    "DTO_schema_signatures_exports": "unchanged; curated IR facade exports no changed helper",
+    "IDC_internal_snapshot": "affected expected AST/proof-step changed to exact unsimplified conditional-law factorization with independent Fraction value check",
+    "public_inventory_reviewed": false
+  },
+  "independent_review": {
+    "decision": "GO bounded delta",
+    "passive_decision": "GO with exact runtime/test blob carry",
+    "receipt_origin": "/dev/shm/e02-orch03-20261008/oracle-ir/reviewC08-5e3-a5.json",
+    "receipt_bytes": 26506,
+    "receipt_sha256": "ef327df6e4ac0b7488b842aa03e3e2bdf1f59122b168a74c99329afd2cb5c707",
+    "checks": {
+      "runtime_state": "PASS",
+      "candidate": "5e3f2cdfe700186bec621d8b7e6ed48f8af6098d",
+      "exact_git_module_origin_checks": 767,
+      "foreign_polisyos_origins": 0,
+      "Fraction_queries": 12,
+      "Fraction_discriminator": "Independent finite declared CPT enumeration via fractions.Fraction; six DAGs including two distinct nuisance priors, fork/collider/mediator/direct. Full joint(Y,Z) targets and conditional collider IDC are compared pointwise against original interventional law, not native AST-derived expected values.",
+      "decisive_expected_values": {
+        "isolated_X_Z_to_Y": [
+          "7/10",
+          "7/10"
+        ],
+        "changed_Z_prior": [
+          "3/10",
+          "3/10"
+        ],
+        "fork": [
+          "11/25",
+          "11/25"
+        ],
+        "mediator": [
+          "7/20",
+          "13/20"
+        ],
+        "fork_plus_direct": [
+          "9/50",
+          "17/25"
+        ],
+        "collider_conditional_Z1": [
+          "15/17",
+          "9/13"
+        ]
+      },
+      "actual_graph_producers": 2,
+      "fresh_child_consumers": 2,
+      "fresh_unique_payload_reader_negatives": 10,
+      "negative_scope": "Wrong ref/hash, missing/wrong/duplicate lineage on valid new default CAS payloads; AST/status/graph markers and authority_eligible=False retained. Unique inert review nonce ensures raw negatives cannot alias a previously valid default proof manifest.",
+      "source_compatibility": "Only test_idc_algorithm_ratio_characterization_snapshot AST changes in existing characterization; unchanged direct-backdoor and ADMG snapshot function ASTs preserved. Proof DTO/signatures/schema exports and IR facade mapping unchanged. Curated ir.analytics exports no persist/load ProofBundle helper; persisted-profile read-window nevertheless documented explicitly.",
+      "focused_fragment_validator": {
+        "candidate": "96258000e70847dcd1ec54607664e81c92bfa3d6",
+        "command": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "/dev/shm/e02-orch03-20261008/oracle-ir/C08-release-check.py"
+        ],
+        "canonical_callable": "tools.ops_runners.release.check_compatibility_release_gates._validate_fragments",
+        "breaking_classes": [
+          "persisted-artifact-format"
+        ],
+        "fragments": 2,
+        "structured_rows": 2,
+        "returncode": 0,
+        "errors": 0,
+        "findings": 0,
+        "global_gate": "UNRUN/not claimed"
+      }
+    },
+    "all_attempts": [
+      {
+        "name": "native/graph probe1",
+        "command": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "/dev/shm/e02-orch03-20261008/oracle-ir/attempt1-C08-independent-probe.py"
+        ],
+        "returncode": 1,
+        "classification": "HARNESS_ASSERTION / selected-view profile observation. Numeric probes and first actual graph positive reached; no incomplete overall PASS. Identical payload re-persisted after valid default proof returned default binding via IR ref. Does not establish fresh-default-reader defect."
+      },
+      {
+        "name": "native/graph probe2",
+        "command": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-probe.py"
+        ],
+        "returncode": 0,
+        "classification": "PASS scoped numerical/default fresh graph binding + retained-marker negatives"
+      },
+      {
+        "name": "selected/default trace1",
+        "command": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "/dev/shm/e02-orch03-20261008/oracle-ir/attempt1-C08-default-view-trace.py"
+        ],
+        "returncode": 1,
+        "classification": "ERROR/harness API setup; nonexistent FileSystemCAS.get_json call before trace result. No product verdict."
+      },
+      {
+        "name": "selected/default trace2",
+        "command": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "/dev/shm/e02-orch03-20261008/oracle-ir/C08-default-view-trace.py"
+        ],
+        "returncode": 0,
+        "classification": "Observed exact selected-manifest loss and old valid default readback; recorded as limitation, not selected admission PASS"
+      },
+      {
+        "name": "focused fragment validator",
+        "command": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "/dev/shm/e02-orch03-20261008/oracle-ir/C08-release-check.py"
+        ],
+        "returncode": 0,
+        "classification": "PASS exact two structured companion rows; global packaging/inventory not run"
+      }
+    ]
+  },
+  "author_final_wave": {
+    "complete": [
+      {
+        "label": "proof-final-main",
+        "source_sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+        "source_tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+        "cwd": "/dev/shm/e02-orch03-20261008/c08",
+        "argv": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-o",
+          "addopts=",
+          "-o",
+          "cache_dir=/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-main-cache",
+          "--import-mode=importlib",
+          "--basetemp",
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-main-temp",
+          "--junitxml",
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-main.xml",
+          "-v",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_native_query_marginal.py",
+          "policy-engine/tests/unit/ir/analytics/test_causal_proof_graph_binding.py"
+        ],
+        "returncode": -9,
+        "wall_seconds": 639.7142324039887,
+        "max_rss_kib": 378232,
+        "environment": {
+          "PYTHONPATH": "/dev/shm/e02-orch03-20261008/c08/policy-engine/src:/dev/shm/e02-orch03-20261008/c08/policy-engine/tools",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "LANG": "C.UTF-8"
+        },
+        "outputs": {
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-main.stdout": {
+            "bytes": 998,
+            "sha256": "8480bdbd2a36411ec2a64dd028d4e68e7e844653795eb1d41d13de5cbbc96dde"
+          },
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-main.stderr": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "label": "proof-final-characterization",
+        "source_sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+        "source_tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+        "cwd": "/dev/shm/e02-orch03-20261008/c08",
+        "argv": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-o",
+          "addopts=",
+          "-o",
+          "cache_dir=/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-characterization-cache",
+          "--import-mode=importlib",
+          "--basetemp",
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-characterization-temp",
+          "--junitxml",
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-characterization.xml",
+          "-v",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_characterization.py"
+        ],
+        "returncode": -9,
+        "wall_seconds": 563.8619602980034,
+        "max_rss_kib": 265524,
+        "environment": {
+          "PYTHONPATH": "/dev/shm/e02-orch03-20261008/c08/policy-engine/src:/dev/shm/e02-orch03-20261008/c08/policy-engine/tools",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "LANG": "C.UTF-8"
+        },
+        "outputs": {
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-characterization.stdout": {
+            "bytes": 1971,
+            "sha256": "f85c0256cbf7f875cc5d262251268806e7bb6f4144fb13b552ecdc8c65230e53"
+          },
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-characterization.stderr": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "label": "proof-final-child",
+        "source_sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+        "source_tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+        "cwd": "/dev/shm/e02-orch03-20261008/c08",
+        "argv": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "/dev/shm/e02-orch03-20261008/c08-scratch/probe-bound-proof-child.py"
+        ],
+        "returncode": -9,
+        "wall_seconds": 610.8432627090078,
+        "max_rss_kib": 312568,
+        "environment": {
+          "PYTHONPATH": "/dev/shm/e02-orch03-20261008/c08/policy-engine/src:/dev/shm/e02-orch03-20261008/c08/policy-engine/tools",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "LANG": "C.UTF-8"
+        },
+        "outputs": {
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-child.stdout": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-child.stderr": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "label": "proof-final-hash-removal",
+        "source_sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+        "source_tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+        "cwd": "/dev/shm/e02-orch03-20261008/c08",
+        "argv": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "/dev/shm/e02-orch03-20261008/c08-scratch/run-property-removal.py",
+          "graph-hash"
+        ],
+        "returncode": -9,
+        "wall_seconds": 505.1163465180143,
+        "max_rss_kib": 228452,
+        "environment": {
+          "PYTHONPATH": "/dev/shm/e02-orch03-20261008/c08/policy-engine/src:/dev/shm/e02-orch03-20261008/c08/policy-engine/tools",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "LANG": "C.UTF-8"
+        },
+        "outputs": {
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-hash-removal.stdout": {
+            "bytes": 1000,
+            "sha256": "3d04999c6ed5de5a44b3f210b54f1d48a98a56fc5a87e4a8d4b5c793247c5e78"
+          },
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-hash-removal.stderr": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "label": "proof-final-legacy",
+        "source_sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+        "source_tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+        "cwd": "/dev/shm/e02-orch03-20261008/c08",
+        "argv": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-o",
+          "addopts=",
+          "-o",
+          "cache_dir=/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-legacy-cache",
+          "--import-mode=importlib",
+          "--basetemp",
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-legacy-temp",
+          "--junitxml",
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-legacy.xml",
+          "-v",
+          "policy-engine/tests/unit/ir/analytics/test_phase_a_contracts.py::test_canonical_artifacts_round_trip_via_store",
+          "policy-engine/tests/unit/ir/analytics/test_phase1_closure_contracts.py::test_recoverability_and_joint_refs_flow_into_proof_and_readiness",
+          "policy-engine/tests/unit/ir/analytics/test_phase1_closure_contracts.py::test_proximal_certificate_ref_attaches_to_proof_bundle",
+          "policy-engine/tests/unit/ir/analytics/test_phase1_closure_contracts.py::test_bridge_plausibility_ref_attaches_to_proof_bundle",
+          "policy-engine/tests/unit/ir/analytics/test_proof_composability_contract.py::test_proof_composability_artifacts_round_trip_and_attach_to_bundle"
+        ],
+        "returncode": 0,
+        "wall_seconds": 644.0036802070099,
+        "max_rss_kib": 417224,
+        "environment": {
+          "PYTHONPATH": "/dev/shm/e02-orch03-20261008/c08/policy-engine/src:/dev/shm/e02-orch03-20261008/c08/policy-engine/tools",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "LANG": "C.UTF-8"
+        },
+        "outputs": {
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-legacy.stdout": {
+            "bytes": 1903,
+            "sha256": "352488f5fc3a95c8ccbb1f9acc5f72c7969da47d0063f3d5e8960ddd0b9e2a62"
+          },
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-legacy.stderr": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "label": "proof-final-native-removal",
+        "source_sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+        "source_tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+        "cwd": "/dev/shm/e02-orch03-20261008/c08",
+        "argv": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "/dev/shm/e02-orch03-20261008/c08-scratch/run-property-removal.py",
+          "native-query"
+        ],
+        "returncode": 1,
+        "wall_seconds": 643.9761220520013,
+        "max_rss_kib": 421420,
+        "environment": {
+          "PYTHONPATH": "/dev/shm/e02-orch03-20261008/c08/policy-engine/src:/dev/shm/e02-orch03-20261008/c08/policy-engine/tools",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "LANG": "C.UTF-8"
+        },
+        "outputs": {
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-native-removal.stdout": {
+            "bytes": 5604,
+            "sha256": "cef7f6d036d41ef3199feb0d734e46267106f3d437af9d2b95e3d761f6fb6198"
+          },
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-native-removal.stderr": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      }
+    ],
+    "result_summary": {
+      "source_sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+      "source_tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+      "runtime_test_source": "5e3f2cdfe700186bec621d8b7e6ed48f8af6098d",
+      "all_attempts": [
+        {
+          "label": "proof-final-main",
+          "source_sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+          "source_tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+          "cwd": "/dev/shm/e02-orch03-20261008/c08",
+          "argv": [
+            "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-o",
+            "cache_dir=/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-main-cache",
+            "--import-mode=importlib",
+            "--basetemp",
+            "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-main-temp",
+            "--junitxml",
+            "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-main.xml",
+            "-v",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_native_query_marginal.py",
+            "policy-engine/tests/unit/ir/analytics/test_causal_proof_graph_binding.py"
+          ],
+          "returncode": -9,
+          "wall_seconds": 639.7142324039887,
+          "max_rss_kib": 378232,
+          "environment": {
+            "PYTHONPATH": "/dev/shm/e02-orch03-20261008/c08/policy-engine/src:/dev/shm/e02-orch03-20261008/c08/policy-engine/tools",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "LANG": "C.UTF-8"
+          },
+          "outputs": {
+            "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-main.stdout": {
+              "bytes": 998,
+              "sha256": "8480bdbd2a36411ec2a64dd028d4e68e7e844653795eb1d41d13de5cbbc96dde"
+            },
+            "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-main.stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "check_state": "ERROR/incomplete: SIGKILL before complete deciding result",
+          "selector_state": "UNRUN/unknown for unfinished selectors"
+        },
+        {
+          "label": "proof-final-characterization",
+          "source_sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+          "source_tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+          "cwd": "/dev/shm/e02-orch03-20261008/c08",
+          "argv": [
+            "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-o",
+            "cache_dir=/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-characterization-cache",
+            "--import-mode=importlib",
+            "--basetemp",
+            "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-characterization-temp",
+            "--junitxml",
+            "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-characterization.xml",
+            "-v",
+            "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_characterization.py"
+          ],
+          "returncode": -9,
+          "wall_seconds": 563.8619602980034,
+          "max_rss_kib": 265524,
+          "environment": {
+            "PYTHONPATH": "/dev/shm/e02-orch03-20261008/c08/policy-engine/src:/dev/shm/e02-orch03-20261008/c08/policy-engine/tools",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "LANG": "C.UTF-8"
+          },
+          "outputs": {
+            "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-characterization.stdout": {
+              "bytes": 1971,
+              "sha256": "f85c0256cbf7f875cc5d262251268806e7bb6f4144fb13b552ecdc8c65230e53"
+            },
+            "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-characterization.stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "check_state": "ERROR/incomplete: SIGKILL before complete deciding result",
+          "selector_state": "UNRUN/unknown for unfinished selectors",
+          "partial_observation": "3 visible completed call PASS before interrupt; full6 check ERROR/incomplete, no6PASS claim"
+        },
+        {
+          "label": "proof-final-legacy",
+          "source_sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+          "source_tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+          "cwd": "/dev/shm/e02-orch03-20261008/c08",
+          "argv": [
+            "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-o",
+            "cache_dir=/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-legacy-cache",
+            "--import-mode=importlib",
+            "--basetemp",
+            "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-legacy-temp",
+            "--junitxml",
+            "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-legacy.xml",
+            "-v",
+            "policy-engine/tests/unit/ir/analytics/test_phase_a_contracts.py::test_canonical_artifacts_round_trip_via_store",
+            "policy-engine/tests/unit/ir/analytics/test_phase1_closure_contracts.py::test_recoverability_and_joint_refs_flow_into_proof_and_readiness",
+            "policy-engine/tests/unit/ir/analytics/test_phase1_closure_contracts.py::test_proximal_certificate_ref_attaches_to_proof_bundle",
+            "policy-engine/tests/unit/ir/analytics/test_phase1_closure_contracts.py::test_bridge_plausibility_ref_attaches_to_proof_bundle",
+            "policy-engine/tests/unit/ir/analytics/test_proof_composability_contract.py::test_proof_composability_artifacts_round_trip_and_attach_to_bundle"
+          ],
+          "returncode": 0,
+          "wall_seconds": 644.0036802070099,
+          "max_rss_kib": 417224,
+          "environment": {
+            "PYTHONPATH": "/dev/shm/e02-orch03-20261008/c08/policy-engine/src:/dev/shm/e02-orch03-20261008/c08/policy-engine/tools",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "LANG": "C.UTF-8"
+          },
+          "outputs": {
+            "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-legacy.stdout": {
+              "bytes": 1903,
+              "sha256": "352488f5fc3a95c8ccbb1f9acc5f72c7969da47d0063f3d5e8960ddd0b9e2a62"
+            },
+            "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-legacy.stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "check_state": "PASS",
+          "selector_state": "5 PASS, 0 FAIL/ERROR/SKIP"
+        },
+        {
+          "label": "proof-final-child",
+          "source_sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+          "source_tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+          "cwd": "/dev/shm/e02-orch03-20261008/c08",
+          "argv": [
+            "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+            "/dev/shm/e02-orch03-20261008/c08-scratch/probe-bound-proof-child.py"
+          ],
+          "returncode": -9,
+          "wall_seconds": 610.8432627090078,
+          "max_rss_kib": 312568,
+          "environment": {
+            "PYTHONPATH": "/dev/shm/e02-orch03-20261008/c08/policy-engine/src:/dev/shm/e02-orch03-20261008/c08/policy-engine/tools",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "LANG": "C.UTF-8"
+          },
+          "outputs": {
+            "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-child.stdout": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-child.stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "check_state": "ERROR/incomplete: SIGKILL before complete deciding result",
+          "selector_state": "UNRUN/unknown for unfinished selectors"
+        },
+        {
+          "label": "proof-final-hash-removal",
+          "source_sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+          "source_tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+          "cwd": "/dev/shm/e02-orch03-20261008/c08",
+          "argv": [
+            "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+            "/dev/shm/e02-orch03-20261008/c08-scratch/run-property-removal.py",
+            "graph-hash"
+          ],
+          "returncode": -9,
+          "wall_seconds": 505.1163465180143,
+          "max_rss_kib": 228452,
+          "environment": {
+            "PYTHONPATH": "/dev/shm/e02-orch03-20261008/c08/policy-engine/src:/dev/shm/e02-orch03-20261008/c08/policy-engine/tools",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "LANG": "C.UTF-8"
+          },
+          "outputs": {
+            "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-hash-removal.stdout": {
+              "bytes": 1000,
+              "sha256": "3d04999c6ed5de5a44b3f210b54f1d48a98a56fc5a87e4a8d4b5c793247c5e78"
+            },
+            "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-hash-removal.stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "check_state": "ERROR/incomplete: SIGKILL before complete deciding result",
+          "selector_state": "UNRUN/unknown for unfinished selectors"
+        },
+        {
+          "label": "proof-final-native-removal",
+          "source_sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+          "source_tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+          "cwd": "/dev/shm/e02-orch03-20261008/c08",
+          "argv": [
+            "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+            "/dev/shm/e02-orch03-20261008/c08-scratch/run-property-removal.py",
+            "native-query"
+          ],
+          "returncode": 1,
+          "wall_seconds": 643.9761220520013,
+          "max_rss_kib": 421420,
+          "environment": {
+            "PYTHONPATH": "/dev/shm/e02-orch03-20261008/c08/policy-engine/src:/dev/shm/e02-orch03-20261008/c08/policy-engine/tools",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "LANG": "C.UTF-8"
+          },
+          "outputs": {
+            "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-native-removal.stdout": {
+              "bytes": 5604,
+              "sha256": "cef7f6d036d41ef3199feb0d734e46267106f3d437af9d2b95e3d761f6fb6198"
+            },
+            "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-native-removal.stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "check_state": "PASS control: two expected behavioral FAIL with runtime property removed",
+          "selector_state": "2 expected control FAIL, 0 setup ERROR/SKIP"
+        }
+      ],
+      "completed_ordinary_tests": 5,
+      "completed_expected_removal_failures": 2,
+      "SIGKILL_incomplete_profiles": 4,
+      "unexpected_product_FAIL_established": false,
+      "final_main26_PASS": false,
+      "characterization6_PASS": false,
+      "no_retry_while_executor_unavailable": true
+    },
+    "completed_legacy_checks": 5,
+    "native_removal_expected_test_failures": 2,
+    "four_interrupted_scopes": "ERROR/incomplete at returncode -9; unfinished nodeids UNRUN/unknown. Three observed characterization call PASS do not establish six-case suite PASS.",
+    "main26_PASS": false,
+    "characterization6_PASS": false,
+    "graph_hash_removal_result": "UNRUN/incomplete",
+    "independent_12_queries_2_children_10_negatives": "Separate source-qualified reviewer results; not a replacement for interrupted author wave.",
+    "unexpected_product_FAIL_established": false,
+    "chronology": "Non-author runtime GO and passive companion GO received in coordinator session before author wave. Final receipt-file mtime is not first GO timestamp; Git byte timestamp-only chronology not_established."
+  },
+  "retained_marker_controls": {
+    "native_query": {
+      "check": "PASS control / two expected behavioral FAIL",
+      "runtime_removal": "remove early g-formula branch only, keep status/enum/diagnostic fields and source markers",
+      "deciding_output": "proof-final-native-removal.stdout",
+      "source_files_mutated": false
+    },
+    "graph_payload_identity": {
+      "check": "UNRUN after -9 ERROR/incomplete",
+      "runtime_removal": "remove graph bytes/typed payload hash recomputation guard only, keep valid actual graph/CAS, proof AST/status/basis markers; fresh valid proof with stale hash must no longer refuse",
+      "complete_attempt_output": "proof-final-hash-removal.stdout",
+      "source_files_mutated": false
+    }
+  },
+  "selected_manifest_dependency": {
+    "observation": "Same exact proof bytes under inputs=[] receive a real selected Core manifest with empty lineage. IR ProofBundleRef retains ArtifactID only; existing reader resolves original default manifest with causal_graph lineage. Reading old valid default does not attest new producer lineage/currentness.",
+    "actual_core_selected_ref": {
+      "artifact_id": "sha256:3fb528df0032c2282304a27e66e57c15c94abe0ad0db62887c863d6dc6a0f96f",
+      "kind": "ir.proof_bundle",
+      "media_type": "application/json",
+      "manifest_profile_sha256": "sha256:551989b7dc3ff22347fc42d122337eaabbb17162b328ebf074d996b0e9e81d70"
+    },
+    "actual_ir_ref": {
+      "artifact_id": "sha256:3fb528df0032c2282304a27e66e57c15c94abe0ad0db62887c863d6dc6a0f96f",
+      "kind": "ir.proof_bundle",
+      "media_type": "application/json"
+    },
+    "default_inputs": [
+      {
+        "artifact_id": "sha256:8f8b0f4394499648df2198725d8a6bd6c5564f8e07e89c8eeefd2feeb2695146",
+        "role": "causal_graph"
+      }
+    ],
+    "selected_inputs": [],
+    "state": "selected-view/currentness/protected admission UNRUN",
+    "minimum_owner_packet": {
+      "owner": "C06 canonical Core/IR ref adapter",
+      "requirements": [
+        "Exact typed Core ref including manifest_profile_sha256 retained by producer/IR ref/inputs.",
+        "Resolver/verifier reading the exact selected manifest, bytes and complete lineage; source/target/current context admission separately supplied.",
+        "Affected proof persist/load and C11 callers composed on a frozen exact candidate; no self-issued authority."
+      ]
+    }
+  },
+  "C11_dependency": {
+    "owner": "C11 canonical Level2CausalPlausibility writer",
+    "packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/C11-proof-graph-source-requirement.json",
+    "state": "UNRUN partner direct producer/adoption/composition; no C11 source write in this leaf"
+  },
+  "B56_dependency": {
+    "finding": "B56",
+    "owner": "C01 Runtime admission plus Scientist actual MethodJob bridge owner",
+    "check": "UNRUN",
+    "outcome": "limited",
+    "state": "bridge_missing / implemented_but_not_orchestrated",
+    "lookup_origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C01-B56-published-admission-lookup.json",
+    "lookup_sha256": "1b6d5aec011b103bdb801b2ec61ca99390f1a0da0bc3f35934335106a39ee08e",
+    "minimum_owner_packet_origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C01-B56-minimum-owner-packet.json",
+    "minimum_packet_sha256": "c4113c9325377489cfaf3b18a094275b208bf5164d810fb185a9c5fe2bc4b74b",
+    "required": "Actual owner/API/cap and Runtime→RunCausalEvaluationNode→configured MethodJob→TMLE bridge; same complete explicitly configured nonsecret synthetic job/fold/repeat/seed/split denominator in two settings, all-results/CAS/fresh reader and active/wait/wall/RSS measurements.",
+    "old_four_study_24fold": "Custom StudyNode/LocalWorkerPool fixture; does not establish actual MethodJob Runtime shared admission.",
+    "production_required": false,
+    "L01": "Only if chosen profile requires protected payload.",
+    "new_scheduler": false,
+    "cloud_quotas": false
+  },
+  "row_decisions": [
+    {
+      "finding_id": "B214",
+      "bundle": "GRF-03",
+      "technical_original_scope": "Finite supported completion math unchanged; fresh default proof original graph readback independently PASS.",
+      "current_check": "Independent scoped PASS; author defining26 ERROR/incomplete and graph-hash removal UNRUN",
+      "F_recommendation": "limited",
+      "code_ready": "frozen/reviewed scoped source ready for G review, final author verification incomplete",
+      "reason": "General identified/conditional/partial authority projection, selected-manifest/currentness and partner Level2 composition remain unestablished. No universal completion or authority claim.",
+      "G_code_acceptance": "HOLD/not granted",
+      "formal_G_closure": "not granted"
+    },
+    {
+      "finding_id": "B56",
+      "bundle": "FIT-01",
+      "technical_original_scope": "No new fitting/scheduler change; actual common admission measurement not executed",
+      "current_check": "UNRUN",
+      "F_recommendation": "limited",
+      "code_ready": "dependency packet ready only",
+      "reason": "Canonical owner/API/cap and actual Runtime/MethodJob bridge missing; configured synthetic workload permitted",
+      "G_code_acceptance": "not granted",
+      "formal_G_closure": "not granted"
+    }
+  ],
+  "existing_35_index": "Historical all35 unchanged; this source-owned property follow-up does not assign new IDs, revise unrelated recommendations, or close findings. B214/B56 exact original bindings retained.",
+  "quality": {
+    "focused_new_7_source_test_Ruff": "PASS; full output retained",
+    "focused_format": "FAIL: two would reformat (artifacts.py, characterization.py), five already formatted. No inherited claim.",
+    "P41": "not_established; no exact-base/full-disjoint denominator proof of inherited red",
+    "historical": "Source-qualified old maintained-loader Ruff355, global Ruff103/public-surface38, scanner -9 ERROR/incomplete remain separate and not erased.",
+    "global_release_schema_packaging": "UNRUN; C13/G own broad replay after composition freeze"
+  },
+  "results_pack": "True importer --check PASS; verification raw archives absent/transfer navigation only; current scoped result states do not inherit baseline query PASS.",
+  "environment": {
+    "actual_product_profile": "Python3.14.7 source checkout, configured dependencies and 767 independent module origin checks; no wheel/sdist/production/backend/authority claim",
+    "pressure": "Actual cgroup memory pressure and cumulative OOM counters observed; four child returncodes -9 establish execution interruption, not attribution of a particular OOM PID/product failure. No job killed/cleanup/quota applied.",
+    "receipt_assembly": "Stdlib Python3.12 courier only, not product profile substitution"
+  },
+  "minimum_recovery_recipe": {
+    "candidate": {
+      "sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+      "tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+      "runtime_test_source": "5e3f2cdfe700186bec621d8b7e6ed48f8af6098d"
+    },
+    "state": "UNRUN recovery; no retry on unavailable executor",
+    "requires": [
+      "Functional admitted executor and genuine configured Python 3.14 profile/dependencies.",
+      "Exact candidate Git bytes and unchanged reviewed source; isolated new scratch/cache/CAS paths.",
+      "No new CPU/thread/process/test quotas; serialize only shared mutable state."
+    ],
+    "commands": [
+      {
+        "label": "proof-final-main",
+        "cwd": "/dev/shm/e02-orch03-20261008/c08",
+        "argv": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-o",
+          "addopts=",
+          "-o",
+          "cache_dir=/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-main-cache",
+          "--import-mode=importlib",
+          "--basetemp",
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-main-temp",
+          "--junitxml",
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-main.xml",
+          "-v",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_native_query_marginal.py",
+          "policy-engine/tests/unit/ir/analytics/test_causal_proof_graph_binding.py"
+        ],
+        "environment": {
+          "PYTHONPATH": "/dev/shm/e02-orch03-20261008/c08/policy-engine/src:/dev/shm/e02-orch03-20261008/c08/policy-engine/tools",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "LANG": "C.UTF-8"
+        },
+        "previous_returncode": -9,
+        "previous_state": "ERROR/incomplete",
+        "expected_scope": "26 defining/consumer cases",
+        "path_rebinding": "On this same lane replace each exact old cache/temp/JUnit target by a new concrete unused absolute target before execution; other host requires read-only source-origin validation and its own exact admission. No unresolved shell placeholders."
+      },
+      {
+        "label": "proof-final-characterization",
+        "cwd": "/dev/shm/e02-orch03-20261008/c08",
+        "argv": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-o",
+          "addopts=",
+          "-o",
+          "cache_dir=/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-characterization-cache",
+          "--import-mode=importlib",
+          "--basetemp",
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-characterization-temp",
+          "--junitxml",
+          "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-characterization.xml",
+          "-v",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_characterization.py"
+        ],
+        "environment": {
+          "PYTHONPATH": "/dev/shm/e02-orch03-20261008/c08/policy-engine/src:/dev/shm/e02-orch03-20261008/c08/policy-engine/tools",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "LANG": "C.UTF-8"
+        },
+        "previous_returncode": -9,
+        "previous_state": "ERROR/incomplete",
+        "expected_scope": "6 characterization cases, only three observed complete call PASS in interrupted attempt",
+        "path_rebinding": "On this same lane replace each exact old cache/temp/JUnit target by a new concrete unused absolute target before execution; other host requires read-only source-origin validation and its own exact admission. No unresolved shell placeholders."
+      },
+      {
+        "label": "proof-final-child",
+        "cwd": "/dev/shm/e02-orch03-20261008/c08",
+        "argv": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "/dev/shm/e02-orch03-20261008/c08-scratch/probe-bound-proof-child.py"
+        ],
+        "environment": {
+          "PYTHONPATH": "/dev/shm/e02-orch03-20261008/c08/policy-engine/src:/dev/shm/e02-orch03-20261008/c08/policy-engine/tools",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "LANG": "C.UTF-8"
+        },
+        "previous_returncode": -9,
+        "previous_state": "ERROR/incomplete",
+        "expected_scope": "two author fresh child consumers",
+        "path_rebinding": "On this same lane replace each exact old cache/temp/JUnit target by a new concrete unused absolute target before execution; other host requires read-only source-origin validation and its own exact admission. No unresolved shell placeholders."
+      },
+      {
+        "label": "proof-final-hash-removal",
+        "cwd": "/dev/shm/e02-orch03-20261008/c08",
+        "argv": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "/dev/shm/e02-orch03-20261008/c08-scratch/run-property-removal.py",
+          "graph-hash"
+        ],
+        "environment": {
+          "PYTHONPATH": "/dev/shm/e02-orch03-20261008/c08/policy-engine/src:/dev/shm/e02-orch03-20261008/c08/policy-engine/tools",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "LANG": "C.UTF-8"
+        },
+        "previous_returncode": -9,
+        "previous_state": "ERROR/incomplete",
+        "expected_scope": "one graph-hash runtime removal negative: expected test FAIL when guard removed",
+        "path_rebinding": "On this same lane replace each exact old cache/temp/JUnit target by a new concrete unused absolute target before execution; other host requires read-only source-origin validation and its own exact admission. No unresolved shell placeholders."
+      }
+    ],
+    "no_full_wave": [
+      "No old full35/full91/catalog/4165 repeat.",
+      "No completed legacy/native removal rerun absent relevant change."
+    ]
+  },
+  "transport_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/manifest.json",
+    "bytes": 131530,
+    "sha256": "065f0ca83cabb9201ecdd8ae4bc81a7891f124739be51525d91a5078e02e77ac",
+    "entries": 177,
+    "all_entries_decode_match": true
+  },
+  "cleanup": {
+    "performed": false,
+    "valuable": "Source/docs/unique inputs/deciding outputs and all active environments preserved.",
+    "retired_candidates_after_publication": [
+      "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-legacy-cache",
+      "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-legacy-temp"
+    ],
+    "action": "No deletion/Trash emptying; candidates only."
+  },
+  "patterns": [
+    "P01",
+    "P02",
+    "P05",
+    "P09",
+    "P10",
+    "P14",
+    "P27",
+    "P29",
+    "P32",
+    "P35",
+    "P36",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ],
+  "authority": "No scientific/institutional authority issued; numeric/status/AST markers and package identity do not create admitted authority.",
+  "G_acceptance": "New source HOLD pending forward handoff, C06/default-view/partner conditions and G independent composition decision; formal finding closure0."
+}

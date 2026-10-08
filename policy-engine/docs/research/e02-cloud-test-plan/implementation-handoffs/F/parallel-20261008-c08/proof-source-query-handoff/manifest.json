@@ -1,0 +1,1918 @@
+{
+  "schema": "e02.lossless-output-transport/v1",
+  "candidate": {
+    "sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+    "tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+    "runtime_test_source": "5e3f2cdfe700186bec621d8b7e6ed48f8af6098d"
+  },
+  "entries": [
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/reviewC08-5e3-a5.json",
+      "category": "independent deciding review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/000-reviewC08-5e3-a5.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 26506,
+      "decoded_sha256": "ef327df6e4ac0b7488b842aa03e3e2bdf1f59122b168a74c99329afd2cb5c707",
+      "stored_bytes": 8042,
+      "stored_sha256": "99274a13c0fa09dc8d66159a4b401866266eeaa3bf8bbcceeb179b3e9389e5f6"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-5e3-full.patch",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/001-C08-5e3-full.patch.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 38455,
+      "decoded_sha256": "0a043d3a8b6223b436da7fbd10b3f740ac145dcc8e6106ab4c65e38c00207e44",
+      "stored_bytes": 9641,
+      "stored_sha256": "2d34dcdba62e003fad9327c463042500028e4fbf6ac9691d79eccc4c1447fe8e"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-962-structured-record-check.json",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/002-C08-962-structured-record-check.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 2657,
+      "decoded_sha256": "cfaff664663a4cd9862caebb9fa3478fc143519864662fdc106a88054d2fe7f6",
+      "stored_bytes": 1088,
+      "stored_sha256": "62fcfda9f46b7f59e0998279313fd550946842bbd4b501d6ca577bfd67d574bd"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-child-False.stderr",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/003-C08-child-False.stderr.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-child-False.stdout",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/004-C08-child-False.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 2370,
+      "decoded_sha256": "eef91b428c6789da0729a235530d2a975cb8e9c068dd56c5ccc30e48ddc8a96b",
+      "stored_bytes": 924,
+      "stored_sha256": "df1e2199155845dd9b9729b3aa45817e40cc9af62f366d5057024a6b214f401c"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-child-True.stderr",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/005-C08-child-True.stderr.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-child-True.stdout",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/006-C08-child-True.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 2919,
+      "decoded_sha256": "4d94c6e6686183eff7257818982c936536137fa6de8ebe25805b4cd2c9c9b795",
+      "stored_bytes": 979,
+      "stored_sha256": "465d524d8c4821f216b66ca5d00abd5bc29c486f79d4cabf09c1227b5f45abeb"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-default-view-trace.json",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/007-C08-default-view-trace.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 3521,
+      "decoded_sha256": "85b7cd4d17f5e905cdc211c4832e3c675cbb8cbc7c63c03bd1884f2a7d373671",
+      "stored_bytes": 903,
+      "stored_sha256": "ca26641b1ccd75e3887d7b49bfd6cf220a4c8e15474b02593fb60bf91ebdd25b"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-default-view-trace.py",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/008-C08-default-view-trace.py.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 2374,
+      "decoded_sha256": "6e3f69d77dffe2f898d827f2fd15235765e41b5be8dfffb779da1eaf223a206f",
+      "stored_bytes": 1104,
+      "stored_sha256": "fa12ba73f1ab00ac8eb5e0a40d28102cc6d72ff9c1fd3e0c8b9fb5457894dda1"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-default-view-trace.stderr",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/009-C08-default-view-trace.stderr.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-default-view-trace.stdout",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/010-C08-default-view-trace.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 49,
+      "decoded_sha256": "12ee1218ceff296cb751bd89cd8d9d011c53914813521b2a711b915bbee3d4dd",
+      "stored_bytes": 68,
+      "stored_sha256": "0f505b9457df460afeace46cfd1c82873c8d7bfe0617f6d1c099f32d7bb82408"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-graph-oracle-preparation.json",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/011-C08-graph-oracle-preparation.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 4704,
+      "decoded_sha256": "e12cc282f1a40643436338260c027a1299c78d5bc918a2326b043bf74c172563",
+      "stored_bytes": 2088,
+      "stored_sha256": "3c8704a47a4d0dc7d108f04e14316bf0ccc12b27afdb75abbb3d9ac8eba88fab"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-probe.json",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/012-C08-independent-probe.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 322309,
+      "decoded_sha256": "bc9f827ebfda1065d2c35eb34e9a97623122cc088ec2a5c101cdca3c87237731",
+      "stored_bytes": 49409,
+      "stored_sha256": "057f623aeba351451718906351a9b360d4bc4b21ebaad9f3cf378ca31377bdfb"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-probe.py",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/013-C08-independent-probe.py.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 7629,
+      "decoded_sha256": "c9db0ef6a0032fbf168c8815ea0a8a8413d5e8628560cdbd79462e160d310fe1",
+      "stored_bytes": 2903,
+      "stored_sha256": "73d5390f04d243a91b1a292e2bc6ff0ccac2bf6e74fa06a4cc7b841de4cf1540"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-probe.stderr",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/014-C08-independent-probe.stderr.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-probe.stdout",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/015-C08-independent-probe.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 132,
+      "decoded_sha256": "e19a449b4c703c755ec3b1431d955f50d6007c0f2ed28894696b104bb55ee133",
+      "stored_bytes": 128,
+      "stored_sha256": "65dd9b5aa915e9cc78049264a3349896d91be26aee9f268676e8d93d55d73afe"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-release-check.py",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/016-C08-release-check.py.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 934,
+      "decoded_sha256": "a691bb0bdba86cf66f16953265b875dfd3232673bec6b25640192c9a1eb04e22",
+      "stored_bytes": 554,
+      "stored_sha256": "3a4e09f183a2c0bfb7a91c1814ad3c6ad9567fb13fb1cc27580bdeafb70909ce"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-release-check.stderr",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/017-C08-release-check.stderr.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-release-check.stdout",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/018-C08-release-check.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 165,
+      "decoded_sha256": "02fe5856574240017ae992f37fcc8a2a549186e8900d116b419bde4609833fe8",
+      "stored_bytes": 147,
+      "stored_sha256": "651d7412793a9c590739fc25aedd349654132de2aa89d9e9be4adfd95551f521"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/attempt1-C08-default-view-trace.py",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/019-attempt1-C08-default-view-trace.py.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 2361,
+      "decoded_sha256": "ed8ff2209652708c7621171827fdf8f7686c894f5bca2c3d1932803744441d5e",
+      "stored_bytes": 1101,
+      "stored_sha256": "233f952844f9bb1ca9e8d359cab819822b8518e6e87c56ea6b8477c4d3197b88"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/attempt1-C08-default-view-trace.stderr",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/020-attempt1-C08-default-view-trace.stderr.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 276,
+      "decoded_sha256": "e992e4b0961e7c3be0e265039568f9076dcdf59e735f6147241d1e3ad9680632",
+      "stored_bytes": 225,
+      "stored_sha256": "ad284536d35882a1a1a978b62ccc86ac197d1f9b9e91f0ce93dd79a562d87f00"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/attempt1-C08-default-view-trace.stdout",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/021-attempt1-C08-default-view-trace.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/attempt1-C08-independent-probe.py",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/022-attempt1-C08-independent-probe.py.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 7539,
+      "decoded_sha256": "bd5c6929f5de9307f5b291d51a67127e1bd4ae2e886160868d792c3128ad2954",
+      "stored_bytes": 2878,
+      "stored_sha256": "7ac24bfb07f5121e35fec4ea6d048ee5274aadf68f3daf13ed992e90c73cbded"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/attempt1-C08-independent-probe.stderr",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/023-attempt1-C08-independent-probe.stderr.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 309,
+      "decoded_sha256": "d1fb856e0255c2624e61dbd74763fc30e9df659b826a5c7d272bc1ac306f974c",
+      "stored_bytes": 205,
+      "stored_sha256": "4b5e2f6f0997e31a00565f4235f6ae0eab91a44d41c40a2dc846b77a6abfa07a"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/attempt1-C08-independent-probe.stdout",
+      "category": "independent complete scripts/outputs/all harness attempts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/024-attempt1-C08-independent-probe.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/ownership/transactions/locks/stripe-06.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/025-stripe-06.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/ownership/transactions/locks/stripe-29.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/026-stripe-29.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/027-stripe-34.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/ownership/transactions/locks/stripe-47.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/028-stripe-47.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/ownership/transactions/locks/stripe-62.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/029-stripe-62.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/ownership/transactions/root.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/030-root.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/sha256/3f/b5/3fb528df0032c2282304a27e66e57c15c94abe0ad0db62887c863d6dc6a0f96f.blob",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/031-3fb528df0032c2282304a27e66e57c15c94abe0ad0db62887c863d6dc6a0f96f.blob.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 3328,
+      "decoded_sha256": "3fb528df0032c2282304a27e66e57c15c94abe0ad0db62887c863d6dc6a0f96f",
+      "stored_bytes": 1205,
+      "stored_sha256": "48c08089944b9a122d55f57e9fe009c389cf8da6810733fd9fbbd511dca72805"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/sha256/3f/b5/3fb528df0032c2282304a27e66e57c15c94abe0ad0db62887c863d6dc6a0f96f.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/032-3fb528df0032c2282304a27e66e57c15c94abe0ad0db62887c863d6dc6a0f96f.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "90776956753ad1da83d33fb10d167133fcfa917435ed0b45f48ee23fdf28bcb0",
+      "stored_bytes": 421,
+      "stored_sha256": "5f7bc4cc6ccc515b033866b0bd24233aedf6a6b409442b900aadedfed6e07a30"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/sha256/3f/b5/3fb528df0032c2282304a27e66e57c15c94abe0ad0db62887c863d6dc6a0f96f.view.551989b7dc3ff22347fc42d122337eaabbb17162b328ebf074d996b0e9e81d70.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/033-3fb528df0032c2282304a27e66e57c15c94abe0ad0db62887c863d6dc6a0f96f.view.551989b7dc3ff22347fc42d122337eaabbb17162b328ebf074d996b0e9e81d70.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 596,
+      "decoded_sha256": "27911bdcad35d7d655123c7383a9fb85ae5d36701e2083b0c6dbf9568f53178e",
+      "stored_bytes": 358,
+      "stored_sha256": "056e0ee0d25025d8706003263ba976bc8d75e1cd58416cf152865fbad4cf8ed5"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/sha256/3f/b5/3fb528df0032c2282304a27e66e57c15c94abe0ad0db62887c863d6dc6a0f96f.view.db0ae7657b948bec993041c912e048ca2983b177c7bb60b7dcd852019974d956.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/034-3fb528df0032c2282304a27e66e57c15c94abe0ad0db62887c863d6dc6a0f96f.view.db0ae7657b948bec993041c912e048ca2983b177c7bb60b7dcd852019974d956.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "90776956753ad1da83d33fb10d167133fcfa917435ed0b45f48ee23fdf28bcb0",
+      "stored_bytes": 421,
+      "stored_sha256": "5f7bc4cc6ccc515b033866b0bd24233aedf6a6b409442b900aadedfed6e07a30"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/sha256/45/ea/45eaa0b9d3d1439155299b56ab2f1dd133963c8c5476e44417aeca20f096a0fe.blob",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/035-45eaa0b9d3d1439155299b56ab2f1dd133963c8c5476e44417aeca20f096a0fe.blob.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 3328,
+      "decoded_sha256": "45eaa0b9d3d1439155299b56ab2f1dd133963c8c5476e44417aeca20f096a0fe",
+      "stored_bytes": 1206,
+      "stored_sha256": "b8c726b6fe743427b97644644bb2127c02dc6ca63de30b070d4d83aded568a1a"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/sha256/45/ea/45eaa0b9d3d1439155299b56ab2f1dd133963c8c5476e44417aeca20f096a0fe.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/036-45eaa0b9d3d1439155299b56ab2f1dd133963c8c5476e44417aeca20f096a0fe.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "906cbfd6b57c3f7514f4fc21233add71b3d258d8a80e8c40aba22765f678f2cc",
+      "stored_bytes": 421,
+      "stored_sha256": "533b2bcaa7b5da69e724fd4ce2d7b6f0bc459cba2eed3bf342e5f54250050bf6"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/sha256/45/ea/45eaa0b9d3d1439155299b56ab2f1dd133963c8c5476e44417aeca20f096a0fe.view.db0ae7657b948bec993041c912e048ca2983b177c7bb60b7dcd852019974d956.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/037-45eaa0b9d3d1439155299b56ab2f1dd133963c8c5476e44417aeca20f096a0fe.view.db0ae7657b948bec993041c912e048ca2983b177c7bb60b7dcd852019974d956.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "906cbfd6b57c3f7514f4fc21233add71b3d258d8a80e8c40aba22765f678f2cc",
+      "stored_bytes": 421,
+      "stored_sha256": "533b2bcaa7b5da69e724fd4ce2d7b6f0bc459cba2eed3bf342e5f54250050bf6"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/sha256/8f/10/8f1032c86dba15d210ad30eb6c28826b6b93492bfcfd58b993ea70596f8753e2.blob",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/038-8f1032c86dba15d210ad30eb6c28826b6b93492bfcfd58b993ea70596f8753e2.blob.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 3328,
+      "decoded_sha256": "8f1032c86dba15d210ad30eb6c28826b6b93492bfcfd58b993ea70596f8753e2",
+      "stored_bytes": 1253,
+      "stored_sha256": "414c61aedc248f50d4f7b8abfd9f4336ef52e4e7d0563ff367395b6ac18d7902"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/sha256/8f/10/8f1032c86dba15d210ad30eb6c28826b6b93492bfcfd58b993ea70596f8753e2.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/039-8f1032c86dba15d210ad30eb6c28826b6b93492bfcfd58b993ea70596f8753e2.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "39937a62ad77ee6d2b306f1405586f89d287a3ee8ebbe9c639a46826fab15eab",
+      "stored_bytes": 421,
+      "stored_sha256": "69be65235e774662b9db9ea811f70fa71f3c40844139a9787d631a64c7b2aaa5"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/sha256/8f/10/8f1032c86dba15d210ad30eb6c28826b6b93492bfcfd58b993ea70596f8753e2.view.db0ae7657b948bec993041c912e048ca2983b177c7bb60b7dcd852019974d956.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/040-8f1032c86dba15d210ad30eb6c28826b6b93492bfcfd58b993ea70596f8753e2.view.db0ae7657b948bec993041c912e048ca2983b177c7bb60b7dcd852019974d956.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "39937a62ad77ee6d2b306f1405586f89d287a3ee8ebbe9c639a46826fab15eab",
+      "stored_bytes": 421,
+      "stored_sha256": "69be65235e774662b9db9ea811f70fa71f3c40844139a9787d631a64c7b2aaa5"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/sha256/8f/8b/8f8b0f4394499648df2198725d8a6bd6c5564f8e07e89c8eeefd2feeb2695146.blob",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/041-8f8b0f4394499648df2198725d8a6bd6c5564f8e07e89c8eeefd2feeb2695146.blob.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 522,
+      "decoded_sha256": "8f8b0f4394499648df2198725d8a6bd6c5564f8e07e89c8eeefd2feeb2695146",
+      "stored_bytes": 273,
+      "stored_sha256": "a890236e6b869c92facf9d856c6038f431e120b10c07aeab0e687c1721e07aed"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/sha256/8f/8b/8f8b0f4394499648df2198725d8a6bd6c5564f8e07e89c8eeefd2feeb2695146.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/042-8f8b0f4394499648df2198725d8a6bd6c5564f8e07e89c8eeefd2feeb2695146.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 607,
+      "decoded_sha256": "a416795debc0e712ea2940fd7a438e1995637146accfe5d0f474c8589a8b6b96",
+      "stored_bytes": 362,
+      "stored_sha256": "619417792ad6413bf69e7db060a32807bff5952a4b236171b9ba69cd0800799d"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/sha256/8f/8b/8f8b0f4394499648df2198725d8a6bd6c5564f8e07e89c8eeefd2feeb2695146.view.2dba9e0183db6116994a119010af991353dc9b66c6c7902c2f08bfa7fe16ff5e.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/043-8f8b0f4394499648df2198725d8a6bd6c5564f8e07e89c8eeefd2feeb2695146.view.2dba9e0183db6116994a119010af991353dc9b66c6c7902c2f08bfa7fe16ff5e.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 607,
+      "decoded_sha256": "a416795debc0e712ea2940fd7a438e1995637146accfe5d0f474c8589a8b6b96",
+      "stored_bytes": 362,
+      "stored_sha256": "619417792ad6413bf69e7db060a32807bff5952a4b236171b9ba69cd0800799d"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/sha256/a4/76/a476ec9c6a3df466418fd77cad0fa96f044c54022b86a77c8a91482a3ac887dd.blob",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/044-a476ec9c6a3df466418fd77cad0fa96f044c54022b86a77c8a91482a3ac887dd.blob.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 521,
+      "decoded_sha256": "a476ec9c6a3df466418fd77cad0fa96f044c54022b86a77c8a91482a3ac887dd",
+      "stored_bytes": 276,
+      "stored_sha256": "1a66997bf10be65540ea975acc1e3b022ab0046d8811a87c903e43b485c4503f"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/sha256/a4/76/a476ec9c6a3df466418fd77cad0fa96f044c54022b86a77c8a91482a3ac887dd.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/045-a476ec9c6a3df466418fd77cad0fa96f044c54022b86a77c8a91482a3ac887dd.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 607,
+      "decoded_sha256": "83a34374223d17aa55ef50ae109a04956850c4f0f4a8159387c7ac5f2f6db99a",
+      "stored_bytes": 362,
+      "stored_sha256": "fd9a02fb4015414ce45f8b457047d9bead077d4b582f62ba655143c43a05bfb7"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-CAS-False/artifacts/sha256/a4/76/a476ec9c6a3df466418fd77cad0fa96f044c54022b86a77c8a91482a3ac887dd.view.2dba9e0183db6116994a119010af991353dc9b66c6c7902c2f08bfa7fe16ff5e.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/046-a476ec9c6a3df466418fd77cad0fa96f044c54022b86a77c8a91482a3ac887dd.view.2dba9e0183db6116994a119010af991353dc9b66c6c7902c2f08bfa7fe16ff5e.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 607,
+      "decoded_sha256": "83a34374223d17aa55ef50ae109a04956850c4f0f4a8159387c7ac5f2f6db99a",
+      "stored_bytes": 362,
+      "stored_sha256": "fd9a02fb4015414ce45f8b457047d9bead077d4b582f62ba655143c43a05bfb7"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/ownership/transactions/locks/stripe-04.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/047-stripe-04.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/ownership/transactions/locks/stripe-06.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/048-stripe-06.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/ownership/transactions/locks/stripe-16.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/049-stripe-16.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/ownership/transactions/locks/stripe-29.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/050-stripe-29.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/051-stripe-32.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/ownership/transactions/locks/stripe-36.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/052-stripe-36.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/ownership/transactions/locks/stripe-47.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/053-stripe-47.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/ownership/transactions/locks/stripe-54.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/054-stripe-54.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/ownership/transactions/root.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/055-root.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/39/e9/39e9b3a72d0a62f8d9911d5343e843e9674e6e52e3f2e1b73e54b3b033cf87b6.blob",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/056-39e9b3a72d0a62f8d9911d5343e843e9674e6e52e3f2e1b73e54b3b033cf87b6.blob.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 3367,
+      "decoded_sha256": "39e9b3a72d0a62f8d9911d5343e843e9674e6e52e3f2e1b73e54b3b033cf87b6",
+      "stored_bytes": 1275,
+      "stored_sha256": "405db103cb6f9eedd4f9f451ad260b5869294db4aec9f7d4419e1f77408e33bd"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/39/e9/39e9b3a72d0a62f8d9911d5343e843e9674e6e52e3f2e1b73e54b3b033cf87b6.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/057-39e9b3a72d0a62f8d9911d5343e843e9674e6e52e3f2e1b73e54b3b033cf87b6.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "ddca07d72c7f2b0a983a61ea43d16d96445cc6e3c6046b59ccf0d3dc5775d3c2",
+      "stored_bytes": 423,
+      "stored_sha256": "4987c897af2a1549092096a2f8055e2c1052ebc6b9ba83c7756100d340c49aa9"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/39/e9/39e9b3a72d0a62f8d9911d5343e843e9674e6e52e3f2e1b73e54b3b033cf87b6.view.db0ae7657b948bec993041c912e048ca2983b177c7bb60b7dcd852019974d956.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/058-39e9b3a72d0a62f8d9911d5343e843e9674e6e52e3f2e1b73e54b3b033cf87b6.view.db0ae7657b948bec993041c912e048ca2983b177c7bb60b7dcd852019974d956.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "ddca07d72c7f2b0a983a61ea43d16d96445cc6e3c6046b59ccf0d3dc5775d3c2",
+      "stored_bytes": 423,
+      "stored_sha256": "4987c897af2a1549092096a2f8055e2c1052ebc6b9ba83c7756100d340c49aa9"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/3f/b5/3fb528df0032c2282304a27e66e57c15c94abe0ad0db62887c863d6dc6a0f96f.blob",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/059-3fb528df0032c2282304a27e66e57c15c94abe0ad0db62887c863d6dc6a0f96f.blob.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 3328,
+      "decoded_sha256": "3fb528df0032c2282304a27e66e57c15c94abe0ad0db62887c863d6dc6a0f96f",
+      "stored_bytes": 1205,
+      "stored_sha256": "48c08089944b9a122d55f57e9fe009c389cf8da6810733fd9fbbd511dca72805"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/3f/b5/3fb528df0032c2282304a27e66e57c15c94abe0ad0db62887c863d6dc6a0f96f.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/060-3fb528df0032c2282304a27e66e57c15c94abe0ad0db62887c863d6dc6a0f96f.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "d90f8f4092d277499c87a8bcaca040f432620490e579ec2e17b6cd09d9cf74a7",
+      "stored_bytes": 419,
+      "stored_sha256": "972f5bf08be1843b83492ef5dd43e80eab9a3c3d39e230078f5ce58175c7c54c"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/3f/b5/3fb528df0032c2282304a27e66e57c15c94abe0ad0db62887c863d6dc6a0f96f.view.db0ae7657b948bec993041c912e048ca2983b177c7bb60b7dcd852019974d956.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/061-3fb528df0032c2282304a27e66e57c15c94abe0ad0db62887c863d6dc6a0f96f.view.db0ae7657b948bec993041c912e048ca2983b177c7bb60b7dcd852019974d956.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "d90f8f4092d277499c87a8bcaca040f432620490e579ec2e17b6cd09d9cf74a7",
+      "stored_bytes": 419,
+      "stored_sha256": "972f5bf08be1843b83492ef5dd43e80eab9a3c3d39e230078f5ce58175c7c54c"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/55/27/5527072c3ef568954825f843c340ff23a57ab59dd7b14bfaa9b7c2e26cdd5120.blob",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/062-5527072c3ef568954825f843c340ff23a57ab59dd7b14bfaa9b7c2e26cdd5120.blob.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 3368,
+      "decoded_sha256": "5527072c3ef568954825f843c340ff23a57ab59dd7b14bfaa9b7c2e26cdd5120",
+      "stored_bytes": 1227,
+      "stored_sha256": "7970003c23f53b002bd2a39c9cd37e2f65110d13de65629f1bc32fa1f0a6362f"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/55/27/5527072c3ef568954825f843c340ff23a57ab59dd7b14bfaa9b7c2e26cdd5120.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/063-5527072c3ef568954825f843c340ff23a57ab59dd7b14bfaa9b7c2e26cdd5120.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "c5b867d3c5cad65899dd3e48f1c076b6e7911316c23139b449ce7d716230c690",
+      "stored_bytes": 421,
+      "stored_sha256": "0862ef03471bfa691505a3b182540c9bc297889bf5067452a44ac9e624de8d42"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/55/27/5527072c3ef568954825f843c340ff23a57ab59dd7b14bfaa9b7c2e26cdd5120.view.db0ae7657b948bec993041c912e048ca2983b177c7bb60b7dcd852019974d956.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/064-5527072c3ef568954825f843c340ff23a57ab59dd7b14bfaa9b7c2e26cdd5120.view.db0ae7657b948bec993041c912e048ca2983b177c7bb60b7dcd852019974d956.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "c5b867d3c5cad65899dd3e48f1c076b6e7911316c23139b449ce7d716230c690",
+      "stored_bytes": 421,
+      "stored_sha256": "0862ef03471bfa691505a3b182540c9bc297889bf5067452a44ac9e624de8d42"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/68/5b/685bf4294894702eb3caf62307f1e829fe5abcab58ecabc28ff95867f6fadaa4.blob",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/065-685bf4294894702eb3caf62307f1e829fe5abcab58ecabc28ff95867f6fadaa4.blob.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 3373,
+      "decoded_sha256": "685bf4294894702eb3caf62307f1e829fe5abcab58ecabc28ff95867f6fadaa4",
+      "stored_bytes": 1229,
+      "stored_sha256": "2b98160b521b6b544e0dde961bcadbaeeebe227c3707ebee3775cd9a90d4d644"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/68/5b/685bf4294894702eb3caf62307f1e829fe5abcab58ecabc28ff95867f6fadaa4.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/066-685bf4294894702eb3caf62307f1e829fe5abcab58ecabc28ff95867f6fadaa4.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 819,
+      "decoded_sha256": "f533cc54f9dffd174c7d183da3c781e1ef9d33cd9880872c42e73c488e492498",
+      "stored_bytes": 428,
+      "stored_sha256": "41cc0f217823991e5d937f0679db8774ea31c8a6fd590c092e5f0067b1ffb418"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/68/5b/685bf4294894702eb3caf62307f1e829fe5abcab58ecabc28ff95867f6fadaa4.view.ed765383994288b9626bacccd18f5d2f7032bb8aa29266db999acce7d632f497.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/067-685bf4294894702eb3caf62307f1e829fe5abcab58ecabc28ff95867f6fadaa4.view.ed765383994288b9626bacccd18f5d2f7032bb8aa29266db999acce7d632f497.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 819,
+      "decoded_sha256": "f533cc54f9dffd174c7d183da3c781e1ef9d33cd9880872c42e73c488e492498",
+      "stored_bytes": 428,
+      "stored_sha256": "41cc0f217823991e5d937f0679db8774ea31c8a6fd590c092e5f0067b1ffb418"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/8f/8b/8f8b0f4394499648df2198725d8a6bd6c5564f8e07e89c8eeefd2feeb2695146.blob",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/068-8f8b0f4394499648df2198725d8a6bd6c5564f8e07e89c8eeefd2feeb2695146.blob.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 522,
+      "decoded_sha256": "8f8b0f4394499648df2198725d8a6bd6c5564f8e07e89c8eeefd2feeb2695146",
+      "stored_bytes": 273,
+      "stored_sha256": "a890236e6b869c92facf9d856c6038f431e120b10c07aeab0e687c1721e07aed"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/8f/8b/8f8b0f4394499648df2198725d8a6bd6c5564f8e07e89c8eeefd2feeb2695146.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/069-8f8b0f4394499648df2198725d8a6bd6c5564f8e07e89c8eeefd2feeb2695146.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 607,
+      "decoded_sha256": "2715e941eabd70a507b763720d733263cc98c818e964c5814d77519386c36aa2",
+      "stored_bytes": 362,
+      "stored_sha256": "cb5241aa3af988263211df11615d852080c479d04b8b5876c40f0135480953f8"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/8f/8b/8f8b0f4394499648df2198725d8a6bd6c5564f8e07e89c8eeefd2feeb2695146.view.2dba9e0183db6116994a119010af991353dc9b66c6c7902c2f08bfa7fe16ff5e.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/070-8f8b0f4394499648df2198725d8a6bd6c5564f8e07e89c8eeefd2feeb2695146.view.2dba9e0183db6116994a119010af991353dc9b66c6c7902c2f08bfa7fe16ff5e.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 607,
+      "decoded_sha256": "2715e941eabd70a507b763720d733263cc98c818e964c5814d77519386c36aa2",
+      "stored_bytes": 362,
+      "stored_sha256": "cb5241aa3af988263211df11615d852080c479d04b8b5876c40f0135480953f8"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/a4/76/a476ec9c6a3df466418fd77cad0fa96f044c54022b86a77c8a91482a3ac887dd.blob",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/071-a476ec9c6a3df466418fd77cad0fa96f044c54022b86a77c8a91482a3ac887dd.blob.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 521,
+      "decoded_sha256": "a476ec9c6a3df466418fd77cad0fa96f044c54022b86a77c8a91482a3ac887dd",
+      "stored_bytes": 276,
+      "stored_sha256": "1a66997bf10be65540ea975acc1e3b022ab0046d8811a87c903e43b485c4503f"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/a4/76/a476ec9c6a3df466418fd77cad0fa96f044c54022b86a77c8a91482a3ac887dd.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/072-a476ec9c6a3df466418fd77cad0fa96f044c54022b86a77c8a91482a3ac887dd.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 607,
+      "decoded_sha256": "5afa27160ac5807fb732a7ceff1df983de46a3315621af6eae03c63221791092",
+      "stored_bytes": 361,
+      "stored_sha256": "e00b5c3e61ecfd081a08fac9e46aad6cc975cf7a18c25727407fb4a719507d13"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/a4/76/a476ec9c6a3df466418fd77cad0fa96f044c54022b86a77c8a91482a3ac887dd.view.2dba9e0183db6116994a119010af991353dc9b66c6c7902c2f08bfa7fe16ff5e.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/073-a476ec9c6a3df466418fd77cad0fa96f044c54022b86a77c8a91482a3ac887dd.view.2dba9e0183db6116994a119010af991353dc9b66c6c7902c2f08bfa7fe16ff5e.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 607,
+      "decoded_sha256": "5afa27160ac5807fb732a7ceff1df983de46a3315621af6eae03c63221791092",
+      "stored_bytes": 361,
+      "stored_sha256": "e00b5c3e61ecfd081a08fac9e46aad6cc975cf7a18c25727407fb4a719507d13"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/c7/4c/c74c751e5d9f902550710868de1c6ee9efe294365e6701a2108bfac776610204.blob",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/074-c74c751e5d9f902550710868de1c6ee9efe294365e6701a2108bfac776610204.blob.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 3369,
+      "decoded_sha256": "c74c751e5d9f902550710868de1c6ee9efe294365e6701a2108bfac776610204",
+      "stored_bytes": 1228,
+      "stored_sha256": "d5005787ae2465237fe45c61704c17e897ecb5844d375be285182d109e69913c"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/c7/4c/c74c751e5d9f902550710868de1c6ee9efe294365e6701a2108bfac776610204.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/075-c74c751e5d9f902550710868de1c6ee9efe294365e6701a2108bfac776610204.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "5f7ee23e0ee01b9b20c98b07f358d3fe8eba904649d8ced61d85bcd5e53ee046",
+      "stored_bytes": 420,
+      "stored_sha256": "2f2a433a36798634db15843aa3645456be26e88636e474afbcd8ab575199b10b"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/c7/4c/c74c751e5d9f902550710868de1c6ee9efe294365e6701a2108bfac776610204.view.cb9d0be7fdcd96006e3e57cd0c34a792e28e3fe69d7078c2bdb312d52f4d5f47.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/076-c74c751e5d9f902550710868de1c6ee9efe294365e6701a2108bfac776610204.view.cb9d0be7fdcd96006e3e57cd0c34a792e28e3fe69d7078c2bdb312d52f4d5f47.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "5f7ee23e0ee01b9b20c98b07f358d3fe8eba904649d8ced61d85bcd5e53ee046",
+      "stored_bytes": 420,
+      "stored_sha256": "2f2a433a36798634db15843aa3645456be26e88636e474afbcd8ab575199b10b"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/d4/70/d470f49901fcfe6d9fa0018a86a810d7d36b7aa5a97a3436e3ce35e96ae5b0d0.blob",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/077-d470f49901fcfe6d9fa0018a86a810d7d36b7aa5a97a3436e3ce35e96ae5b0d0.blob.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 3366,
+      "decoded_sha256": "d470f49901fcfe6d9fa0018a86a810d7d36b7aa5a97a3436e3ce35e96ae5b0d0",
+      "stored_bytes": 1225,
+      "stored_sha256": "717e48f1c57dcc9df1beb1bf6980ca6d5b5dcfd307f3a0be4bacf5a63379ffec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/d4/70/d470f49901fcfe6d9fa0018a86a810d7d36b7aa5a97a3436e3ce35e96ae5b0d0.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/078-d470f49901fcfe6d9fa0018a86a810d7d36b7aa5a97a3436e3ce35e96ae5b0d0.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 596,
+      "decoded_sha256": "71387a764e8ab9269949c2e17879f3f0b712ebf259f117c64d0489d7448ce412",
+      "stored_bytes": 359,
+      "stored_sha256": "c470403eac5396b85d98285774214ac9428f35e7563c75f075455d9f2a408546"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-False/artifacts/sha256/d4/70/d470f49901fcfe6d9fa0018a86a810d7d36b7aa5a97a3436e3ce35e96ae5b0d0.view.551989b7dc3ff22347fc42d122337eaabbb17162b328ebf074d996b0e9e81d70.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/079-d470f49901fcfe6d9fa0018a86a810d7d36b7aa5a97a3436e3ce35e96ae5b0d0.view.551989b7dc3ff22347fc42d122337eaabbb17162b328ebf074d996b0e9e81d70.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 596,
+      "decoded_sha256": "71387a764e8ab9269949c2e17879f3f0b712ebf259f117c64d0489d7448ce412",
+      "stored_bytes": 359,
+      "stored_sha256": "c470403eac5396b85d98285774214ac9428f35e7563c75f075455d9f2a408546"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/ownership/transactions/locks/stripe-05.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/080-stripe-05.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/ownership/transactions/locks/stripe-16.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/081-stripe-16.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/ownership/transactions/locks/stripe-29.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/082-stripe-29.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/ownership/transactions/locks/stripe-37.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/083-stripe-37.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/ownership/transactions/locks/stripe-39.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/084-stripe-39.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/ownership/transactions/locks/stripe-48.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/085-stripe-48.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/ownership/transactions/locks/stripe-60.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/086-stripe-60.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/ownership/transactions/root.lock",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/087-root.lock.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/0f/c2/0fc2e51717640676a1735d787cb83924c07d90a3741e6b1d1e63b878e4c63af0.blob",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/088-0fc2e51717640676a1735d787cb83924c07d90a3741e6b1d1e63b878e4c63af0.blob.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 4192,
+      "decoded_sha256": "0fc2e51717640676a1735d787cb83924c07d90a3741e6b1d1e63b878e4c63af0",
+      "stored_bytes": 1248,
+      "stored_sha256": "50b1e2082e87fa5e6cec3faafc46743ffc152ca61959ed9e4927009463b2aeb6"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/0f/c2/0fc2e51717640676a1735d787cb83924c07d90a3741e6b1d1e63b878e4c63af0.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/089-0fc2e51717640676a1735d787cb83924c07d90a3741e6b1d1e63b878e4c63af0.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 596,
+      "decoded_sha256": "f73fadd6906bdddca715c16b43ea6423fcecb510fbec91f62cdee3de8bf0fbcd",
+      "stored_bytes": 360,
+      "stored_sha256": "63f6971d4ad82b97f903eaa4572a1a5408e4d2a2cf886d667caa08227bc90b98"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/0f/c2/0fc2e51717640676a1735d787cb83924c07d90a3741e6b1d1e63b878e4c63af0.view.551989b7dc3ff22347fc42d122337eaabbb17162b328ebf074d996b0e9e81d70.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/090-0fc2e51717640676a1735d787cb83924c07d90a3741e6b1d1e63b878e4c63af0.view.551989b7dc3ff22347fc42d122337eaabbb17162b328ebf074d996b0e9e81d70.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 596,
+      "decoded_sha256": "f73fadd6906bdddca715c16b43ea6423fcecb510fbec91f62cdee3de8bf0fbcd",
+      "stored_bytes": 360,
+      "stored_sha256": "63f6971d4ad82b97f903eaa4572a1a5408e4d2a2cf886d667caa08227bc90b98"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/34/ac/34ace239e6d622bece482df083f4f7f09ea5912147f3084032dda6a3d8446c3c.blob",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/091-34ace239e6d622bece482df083f4f7f09ea5912147f3084032dda6a3d8446c3c.blob.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 4193,
+      "decoded_sha256": "34ace239e6d622bece482df083f4f7f09ea5912147f3084032dda6a3d8446c3c",
+      "stored_bytes": 1296,
+      "stored_sha256": "41077a7df84afbe32ef6ef6598daee5ee01771379583f1f95b23298f563a7272"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/34/ac/34ace239e6d622bece482df083f4f7f09ea5912147f3084032dda6a3d8446c3c.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/092-34ace239e6d622bece482df083f4f7f09ea5912147f3084032dda6a3d8446c3c.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "8c0879c7804ab8e8b1ae0e21a45d8b4f37d3618f055e6703136873e364df3f6a",
+      "stored_bytes": 421,
+      "stored_sha256": "9a466f6ec954bf9e3de260a56f83d484f06ad3fc709d650304edb16bc7b59dc7"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/34/ac/34ace239e6d622bece482df083f4f7f09ea5912147f3084032dda6a3d8446c3c.view.12e342367ad3ad00a8dbaf0fe01b5af1a8feaac2c2b4c3b43fd9639703447f67.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/093-34ace239e6d622bece482df083f4f7f09ea5912147f3084032dda6a3d8446c3c.view.12e342367ad3ad00a8dbaf0fe01b5af1a8feaac2c2b4c3b43fd9639703447f67.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "8c0879c7804ab8e8b1ae0e21a45d8b4f37d3618f055e6703136873e364df3f6a",
+      "stored_bytes": 421,
+      "stored_sha256": "9a466f6ec954bf9e3de260a56f83d484f06ad3fc709d650304edb16bc7b59dc7"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/7f/d2/7fd2b71257185faeb137706ea6ed1b7f59903377a8dbafbf4a4b3bba1895eb05.blob",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/094-7fd2b71257185faeb137706ea6ed1b7f59903377a8dbafbf4a4b3bba1895eb05.blob.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 4154,
+      "decoded_sha256": "7fd2b71257185faeb137706ea6ed1b7f59903377a8dbafbf4a4b3bba1895eb05",
+      "stored_bytes": 1226,
+      "stored_sha256": "31aa5edcd9d030f7f6655442fddef8de2a4ee0b1a4d91e93f861b188fdae77fc"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/7f/d2/7fd2b71257185faeb137706ea6ed1b7f59903377a8dbafbf4a4b3bba1895eb05.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/095-7fd2b71257185faeb137706ea6ed1b7f59903377a8dbafbf4a4b3bba1895eb05.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "c82e555b334d00bd288b4762fb96709bd4c23a16895de79bda53541f857ae861",
+      "stored_bytes": 422,
+      "stored_sha256": "2fe30910c4594f4b96b3f91ad6e7f74eb45e0522821546e130a634aa2a1e1efc"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/7f/d2/7fd2b71257185faeb137706ea6ed1b7f59903377a8dbafbf4a4b3bba1895eb05.view.12e342367ad3ad00a8dbaf0fe01b5af1a8feaac2c2b4c3b43fd9639703447f67.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/096-7fd2b71257185faeb137706ea6ed1b7f59903377a8dbafbf4a4b3bba1895eb05.view.12e342367ad3ad00a8dbaf0fe01b5af1a8feaac2c2b4c3b43fd9639703447f67.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "c82e555b334d00bd288b4762fb96709bd4c23a16895de79bda53541f857ae861",
+      "stored_bytes": 422,
+      "stored_sha256": "2fe30910c4594f4b96b3f91ad6e7f74eb45e0522821546e130a634aa2a1e1efc"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/95/32/9532c929296456a9d9f92d7a4134d4849283d25bbc00cbe00443de12a8f9835d.blob",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/097-9532c929296456a9d9f92d7a4134d4849283d25bbc00cbe00443de12a8f9835d.blob.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 4194,
+      "decoded_sha256": "9532c929296456a9d9f92d7a4134d4849283d25bbc00cbe00443de12a8f9835d",
+      "stored_bytes": 1250,
+      "stored_sha256": "561ac2ed425f425218a67e1320ae8984633f33faf511368040c389e795285647"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/95/32/9532c929296456a9d9f92d7a4134d4849283d25bbc00cbe00443de12a8f9835d.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/098-9532c929296456a9d9f92d7a4134d4849283d25bbc00cbe00443de12a8f9835d.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "2a5d795394ff2e7568b668aa1369dbbf77f4edfd87c08864092c3dee32a73ab8",
+      "stored_bytes": 423,
+      "stored_sha256": "009bd2376b9d047d8fc9a7c98033f68102edcd9b45c6bf84edaf68e546211f0c"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/95/32/9532c929296456a9d9f92d7a4134d4849283d25bbc00cbe00443de12a8f9835d.view.12e342367ad3ad00a8dbaf0fe01b5af1a8feaac2c2b4c3b43fd9639703447f67.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/099-9532c929296456a9d9f92d7a4134d4849283d25bbc00cbe00443de12a8f9835d.view.12e342367ad3ad00a8dbaf0fe01b5af1a8feaac2c2b4c3b43fd9639703447f67.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "2a5d795394ff2e7568b668aa1369dbbf77f4edfd87c08864092c3dee32a73ab8",
+      "stored_bytes": 423,
+      "stored_sha256": "009bd2376b9d047d8fc9a7c98033f68102edcd9b45c6bf84edaf68e546211f0c"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/a4/76/a476ec9c6a3df466418fd77cad0fa96f044c54022b86a77c8a91482a3ac887dd.blob",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/100-a476ec9c6a3df466418fd77cad0fa96f044c54022b86a77c8a91482a3ac887dd.blob.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 521,
+      "decoded_sha256": "a476ec9c6a3df466418fd77cad0fa96f044c54022b86a77c8a91482a3ac887dd",
+      "stored_bytes": 276,
+      "stored_sha256": "1a66997bf10be65540ea975acc1e3b022ab0046d8811a87c903e43b485c4503f"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/a4/76/a476ec9c6a3df466418fd77cad0fa96f044c54022b86a77c8a91482a3ac887dd.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/101-a476ec9c6a3df466418fd77cad0fa96f044c54022b86a77c8a91482a3ac887dd.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 607,
+      "decoded_sha256": "5597b211b11510893053bc483432f691e4ab437f41d1e0a838cd29ac72085f5a",
+      "stored_bytes": 360,
+      "stored_sha256": "11d512eb24aaed113604727574e3f50cc7ba7eba56cbf535ae67c80cd1a871c7"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/a4/76/a476ec9c6a3df466418fd77cad0fa96f044c54022b86a77c8a91482a3ac887dd.view.2dba9e0183db6116994a119010af991353dc9b66c6c7902c2f08bfa7fe16ff5e.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/102-a476ec9c6a3df466418fd77cad0fa96f044c54022b86a77c8a91482a3ac887dd.view.2dba9e0183db6116994a119010af991353dc9b66c6c7902c2f08bfa7fe16ff5e.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 607,
+      "decoded_sha256": "5597b211b11510893053bc483432f691e4ab437f41d1e0a838cd29ac72085f5a",
+      "stored_bytes": 360,
+      "stored_sha256": "11d512eb24aaed113604727574e3f50cc7ba7eba56cbf535ae67c80cd1a871c7"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/c0/7b/c07bc4738dd9eefbe2b917d9be9967a4d9855bbd004364f3982009df4fa909a5.blob",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/103-c07bc4738dd9eefbe2b917d9be9967a4d9855bbd004364f3982009df4fa909a5.blob.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 4195,
+      "decoded_sha256": "c07bc4738dd9eefbe2b917d9be9967a4d9855bbd004364f3982009df4fa909a5",
+      "stored_bytes": 1250,
+      "stored_sha256": "0dcf27dfe3f22b3688dfea83fc4684e9bf67ffaf864f9901a4bf895b22aaf2a8"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/c0/7b/c07bc4738dd9eefbe2b917d9be9967a4d9855bbd004364f3982009df4fa909a5.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/104-c07bc4738dd9eefbe2b917d9be9967a4d9855bbd004364f3982009df4fa909a5.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "b75831ac2f968740f949997178cea54954bb6af1bcbd58350b668ee5d271b01b",
+      "stored_bytes": 421,
+      "stored_sha256": "233579d016e90b4993089a24d2858682eb3d94c6699e21ad18da4e767fb372ee"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/c0/7b/c07bc4738dd9eefbe2b917d9be9967a4d9855bbd004364f3982009df4fa909a5.view.cb9d0be7fdcd96006e3e57cd0c34a792e28e3fe69d7078c2bdb312d52f4d5f47.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/105-c07bc4738dd9eefbe2b917d9be9967a4d9855bbd004364f3982009df4fa909a5.view.cb9d0be7fdcd96006e3e57cd0c34a792e28e3fe69d7078c2bdb312d52f4d5f47.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 707,
+      "decoded_sha256": "b75831ac2f968740f949997178cea54954bb6af1bcbd58350b668ee5d271b01b",
+      "stored_bytes": 421,
+      "stored_sha256": "233579d016e90b4993089a24d2858682eb3d94c6699e21ad18da4e767fb372ee"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/da/38/da38b31307075a069c555419696497527ab8d6bc59fc5e4e5e3b4eaddac63610.blob",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/106-da38b31307075a069c555419696497527ab8d6bc59fc5e4e5e3b4eaddac63610.blob.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 4199,
+      "decoded_sha256": "da38b31307075a069c555419696497527ab8d6bc59fc5e4e5e3b4eaddac63610",
+      "stored_bytes": 1249,
+      "stored_sha256": "ee6f5d045daeda733abe25e49162e0fc8d58a04d2de859786af7415d1d9017bd"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/da/38/da38b31307075a069c555419696497527ab8d6bc59fc5e4e5e3b4eaddac63610.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/107-da38b31307075a069c555419696497527ab8d6bc59fc5e4e5e3b4eaddac63610.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 819,
+      "decoded_sha256": "0611ff87b32528e1f2539630e0a85e9dc96abd509392ba540d38b3edb96df99a",
+      "stored_bytes": 428,
+      "stored_sha256": "c6b1877f86c2abbf89759cd0ac210a7928224c1569fa771f0e0f76a3c21cbb7c"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/da/38/da38b31307075a069c555419696497527ab8d6bc59fc5e4e5e3b4eaddac63610.view.9d93f6318face7d88f931afaa49c0ee15bb109862bb0b6ccfcb9f1bddd3b6a63.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/108-da38b31307075a069c555419696497527ab8d6bc59fc5e4e5e3b4eaddac63610.view.9d93f6318face7d88f931afaa49c0ee15bb109862bb0b6ccfcb9f1bddd3b6a63.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 819,
+      "decoded_sha256": "0611ff87b32528e1f2539630e0a85e9dc96abd509392ba540d38b3edb96df99a",
+      "stored_bytes": 428,
+      "stored_sha256": "c6b1877f86c2abbf89759cd0ac210a7928224c1569fa771f0e0f76a3c21cbb7c"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/f4/93/f493003268a10cdfb2cd5bd8a23c759b160fbdb187681b801bd09959d54d8627.blob",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/109-f493003268a10cdfb2cd5bd8a23c759b160fbdb187681b801bd09959d54d8627.blob.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 526,
+      "decoded_sha256": "f493003268a10cdfb2cd5bd8a23c759b160fbdb187681b801bd09959d54d8627",
+      "stored_bytes": 276,
+      "stored_sha256": "9914040124b435ca7cd25e98e4b3dd066e941bcdc398ebd2992ceeda56b997b8"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/f4/93/f493003268a10cdfb2cd5bd8a23c759b160fbdb187681b801bd09959d54d8627.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/110-f493003268a10cdfb2cd5bd8a23c759b160fbdb187681b801bd09959d54d8627.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 607,
+      "decoded_sha256": "e1d25c99aed4052ff3be11480f5aad3d6367ccb84b133d522ba9506fb0ff2a8c",
+      "stored_bytes": 365,
+      "stored_sha256": "4fc4a076004e0bcdc242908b6569099fcbf4298894eca4c20b539b0238468672"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-independent-fresh-CAS-True/artifacts/sha256/f4/93/f493003268a10cdfb2cd5bd8a23c759b160fbdb187681b801bd09959d54d8627.view.2dba9e0183db6116994a119010af991353dc9b66c6c7902c2f08bfa7fe16ff5e.manifest.json",
+      "category": "actual synthetic proof/graph CAS input/output bytes",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/111-f493003268a10cdfb2cd5bd8a23c759b160fbdb187681b801bd09959d54d8627.view.2dba9e0183db6116994a119010af991353dc9b66c6c7902c2f08bfa7fe16ff5e.manifest.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 607,
+      "decoded_sha256": "e1d25c99aed4052ff3be11480f5aad3d6367ccb84b133d522ba9506fb0ff2a8c",
+      "stored_bytes": 365,
+      "stored_sha256": "4fc4a076004e0bcdc242908b6569099fcbf4298894eca4c20b539b0238468672"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C01-B56-published-admission-lookup.json",
+      "category": "B56 canonical-owner lookup/dependency packet",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/112-C01-B56-published-admission-lookup.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 14380,
+      "decoded_sha256": "1b6d5aec011b103bdb801b2ec61ca99390f1a0da0bc3f35934335106a39ee08e",
+      "stored_bytes": 4459,
+      "stored_sha256": "c03fea0b21c7e318a3f8b694ee753e092f6483bd385d2c983c03ed58c40c455c"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/oracle-ir/C01-B56-minimum-owner-packet.json",
+      "category": "B56 canonical-owner lookup/dependency packet",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/113-C01-B56-minimum-owner-packet.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 2749,
+      "decoded_sha256": "c4113c9325377489cfaf3b18a094275b208bf5164d810fb185a9c5fe2bc4b74b",
+      "stored_bytes": 1409,
+      "stored_sha256": "dc71bb050648e88efb1df23002bad409b760ec2dbc350fb9105aa26d9bf0f9bc"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/producer-packets/native-id/oracle-preparation-receipt.json",
+      "category": "independent exact finite Fraction preparation",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/114-oracle-preparation-receipt.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 8428,
+      "decoded_sha256": "20cb95184c1813120fff240b901d6690629671fd33013534176000dfe0ca5adc",
+      "stored_bytes": 3308,
+      "stored_sha256": "f24d707b364fbb185961e7c28b673b4b6849f9f4e4962dff7b786f683ce48af1"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/producer-packets/native-id/fraction_oracle.py",
+      "category": "independent exact finite Fraction preparation",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/115-fraction_oracle.py.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 6632,
+      "decoded_sha256": "05b94dff146ff77c654993a8cb64c2a5f29b20f83ccb1bff12a734bbc66169fb",
+      "stored_bytes": 2468,
+      "stored_sha256": "4e2ab0e9065b5e43a1cf51c95e224e2ab8242d90572d7d519f2a98459eef29bd"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/producer-packets/native-id/fraction-tables.json",
+      "category": "independent exact finite Fraction preparation",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/116-fraction-tables.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 7796,
+      "decoded_sha256": "99aa3131c8824271d52bef30ffe0d25c89dba0660e8bf8697eaaa5100f48edf3",
+      "stored_bytes": 1432,
+      "stored_sha256": "cd336c5a151fd682cf7290dd14e2c3b8df339c0bf8a3b7c53ae21bffc3c7d1af"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-B214-navigation.stdout",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/117-proof-B214-navigation.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 14565,
+      "decoded_sha256": "a9eab32fbdb77b292930a0e8f32233123cf55d31bece3feced7f3917aa304dc2",
+      "stored_bytes": 1937,
+      "stored_sha256": "939f2c660d3f37806bd50aca5123989d47effbbfeea8640b426e981e3147064b"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-B56-navigation.stdout",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/118-proof-B56-navigation.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 10217,
+      "decoded_sha256": "6520d99211ff0a6ded89f2406d27900375a05535ca4bd27261ddb0789e0f2bc2",
+      "stored_bytes": 1571,
+      "stored_sha256": "778af0047958ba65e9dd79d812b80517250bf4b8d752646aa43894e5557c6156"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-chronology-qualification.json",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/119-proof-chronology-qualification.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 686,
+      "decoded_sha256": "0c7176143b57772696d06737bdd3e0cedcdcbcd0966e528a39c528d5a5aed33a",
+      "stored_bytes": 454,
+      "stored_sha256": "63c1783e60664cd9c472db295758af5dc0ead63b14e49f17ccb81b9e8ad718e7"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-current-G-grant.json",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/120-proof-current-G-grant.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 1543,
+      "decoded_sha256": "3704b126bd4fe7a644b6fc26c4294346c7cdcd52cccbbab09942c6282ef7380f",
+      "stored_bytes": 692,
+      "stored_sha256": "fc1d3d28f913d053ada6f27e599f96357097a92f7e04d4432938542e33fa5800"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-environment.json",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/121-proof-environment.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 1363,
+      "decoded_sha256": "3617443666b8c74cdc4357dd3011948733a2f74b9cdf68ce192193bc798df55f",
+      "stored_bytes": 720,
+      "stored_sha256": "0fcb95c16f88cf099cedf7aa13ffdaaf1a88165fae516f1924def9d944d7220b"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-characterization.json",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/122-proof-final-characterization.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 1491,
+      "decoded_sha256": "33f6239685d004f7171815fab238b8bc88df6183f9b940c85f6b0158a8862b45",
+      "stored_bytes": 658,
+      "stored_sha256": "3f7731bf3e59f303106776a134ddd6f3d83f340a41fc1482758671fe3db94a4f"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-characterization.stderr",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/123-proof-final-characterization.stderr.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-characterization.stdout",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/124-proof-final-characterization.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 1971,
+      "decoded_sha256": "f85c0256cbf7f875cc5d262251268806e7bb6f4144fb13b552ecdc8c65230e53",
+      "stored_bytes": 828,
+      "stored_sha256": "8f12e936cc6b18e9b750e87723a50e41165d7c448be09f5a92ece84c3a112453"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-child.json",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/125-proof-final-child.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 1039,
+      "decoded_sha256": "870b2172503d12112facfd7f5eaae7fc4f842ee2d9d72d3a72b951e65866da56",
+      "stored_bytes": 495,
+      "stored_sha256": "5a5ffc24fa17ee7b9d365dd44bad2f01f7d04ec34625632803b9b04a9fa3cdfc"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-child.stderr",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/126-proof-final-child.stderr.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-child.stdout",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/127-proof-final-child.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-decisions.json",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/128-proof-final-decisions.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 10617,
+      "decoded_sha256": "69567c488d2923e45a567595b33c1083705926ef81b7c04cc971b95971b43aea",
+      "stored_bytes": 1861,
+      "stored_sha256": "5bf3175d05172d903f850f81c7256f10fc59b727c6edb1ae6484cf76ae98cce8"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-environment-summary.json",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/129-proof-final-environment-summary.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 20272,
+      "decoded_sha256": "f97ce96bc14cf895b1b8935bab2a61df4042cc967b0cdb7e22cd9a469d02b7d4",
+      "stored_bytes": 3140,
+      "stored_sha256": "2002f2bc25c269c7c6a44715c02e4a2aa79732af2803ae9f2b78a552bb9715ea"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-hash-removal.json",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/130-proof-final-hash-removal.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 1078,
+      "decoded_sha256": "7012f63139e3c61f248769076fcb47c868779e9194f3e4d59177f038f8dc0760",
+      "stored_bytes": 553,
+      "stored_sha256": "ede5776098c27a0359c8196b794dc28fee79a4e3b5d42dbe4e3819091b7b6176"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-hash-removal.stderr",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/131-proof-final-hash-removal.stderr.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-hash-removal.stdout",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/132-proof-final-hash-removal.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 1000,
+      "decoded_sha256": "3d04999c6ed5de5a44b3f210b54f1d48a98a56fc5a87e4a8d4b5c793247c5e78",
+      "stored_bytes": 570,
+      "stored_sha256": "3dae6ee3267370ffef10386ad43c2ace2fab7f48b5dabeb64253118e00b8ed7b"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-host-pressure.json",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/133-proof-final-host-pressure.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 7987,
+      "decoded_sha256": "3aafbc938415041e242961243697fc145d779b87e543eca6b78a03a3dde6052e",
+      "stored_bytes": 2218,
+      "stored_sha256": "11bab1d7848ce84983efbe73d17a739f03cfcc4ffee3f24f2037bc9e62920679"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-legacy.json",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/134-proof-final-legacy.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 2011,
+      "decoded_sha256": "79b8724cd6eeea23d6f5a313c4019bfb19a47343f403b35d3518dee3a41f6963",
+      "stored_bytes": 795,
+      "stored_sha256": "466655da3b0146cbe79feb7098f2d1a994d8ec777b6fb9cfb9d4bc87f1032ecf"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-legacy.stderr",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/135-proof-final-legacy.stderr.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-legacy.stdout",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/136-proof-final-legacy.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 1903,
+      "decoded_sha256": "352488f5fc3a95c8ccbb1f9acc5f72c7969da47d0063f3d5e8960ddd0b9e2a62",
+      "stored_bytes": 841,
+      "stored_sha256": "e8985cd04433f83e06b387d8ef673a3970262823c6c88cca86da7f5da0f5e537"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-legacy.xml",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/137-proof-final-legacy.xml.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 1024,
+      "decoded_sha256": "0ca937cea9f0208902e8fb7aacc7344b353ace0cd30a6a3accfc1262f22609b9",
+      "stored_bytes": 401,
+      "stored_sha256": "f5c736b54b85a5249d46d5adcc0c73f3466398ce34bc7996443655666a69b01c"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-main.json",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/138-proof-final-main.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 1603,
+      "decoded_sha256": "8a8195cc40850d8a2d1b97c199f4bc2a472273b53273c076389d662de7b58154",
+      "stored_bytes": 706,
+      "stored_sha256": "f32f06f95e94098aee69070454adee516c03d8c9e99192c7f9d44e6a8e01e142"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-main.stderr",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/139-proof-final-main.stderr.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-main.stdout",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/140-proof-final-main.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 998,
+      "decoded_sha256": "8480bdbd2a36411ec2a64dd028d4e68e7e844653795eb1d41d13de5cbbc96dde",
+      "stored_bytes": 568,
+      "stored_sha256": "bbe1cd0885dd1828d1135a47f7b202c83f6994dd15d0227d2f7259ac19e5fdc5"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-native-removal.json",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/141-proof-final-native-removal.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 1085,
+      "decoded_sha256": "d7665f695d0eb2768a5677880dd4369a2b5484d930639c41fb8b7afe7c90febd",
+      "stored_bytes": 555,
+      "stored_sha256": "4e24e13b6a01383c7c0387fc9db69cf4c50ce622c20507f20c6732bf7b32cbef"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-native-removal.stderr",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/142-proof-final-native-removal.stderr.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-final-native-removal.stdout",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/143-proof-final-native-removal.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 5604,
+      "decoded_sha256": "cef7f6d036d41ef3199feb0d734e46267106f3d437af9d2b95e3d761f6fb6198",
+      "stored_bytes": 1571,
+      "stored_sha256": "64d5004741c6a6dbacb5d99a13fa69f00bd3b6df6f17d996b5cd1db48d3aff6c"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-frozen-source-readback.json",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/144-proof-frozen-source-readback.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 1470,
+      "decoded_sha256": "11bc255f8bd01dc03968a43d76f0c96a6d1ad24021f22c11b46de869ed4d1e65",
+      "stored_bytes": 570,
+      "stored_sha256": "3a654bc457ec4bf959bcbea82ebe292e9f0e7f89954554fc18dd3fa958908805"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-full-delta.patch",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/145-proof-full-delta.patch.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 41427,
+      "decoded_sha256": "6e293f04827dbfe0397199e5e4da941d553946a14c5c3fbd5e2b0c8c4efa941c",
+      "stored_bytes": 10420,
+      "stored_sha256": "6c44eb5420e8f645f2f48c76ed3f5f82b7a44110cb2f4fb536ca4cb6e6d94800"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-minimum-recovery-recipe.json",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/146-proof-minimum-recovery-recipe.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 5588,
+      "decoded_sha256": "0802538cf9cd6b11b00434e90130a4fc04d77fca9aa7474142e74b4be837adb7",
+      "stored_bytes": 1300,
+      "stored_sha256": "54c2afa27e5bcd721f785153433b20afd6c76a9bc30fc1ef428d63c9881ee037"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-native-baseline.stderr",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/147-proof-native-baseline.stderr.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-native-baseline.stdout",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/148-proof-native-baseline.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 13230,
+      "decoded_sha256": "0aa56ce0c206f17e7e6b8ee3fc70060160860a360438b34dab86bc7ff05fd1b6",
+      "stored_bytes": 3092,
+      "stored_sha256": "48b675d52ee67506e925bd8b08d532b08854e4a357d11b9074a96969839733ff"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-native-development.stderr",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/149-proof-native-development.stderr.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-native-development.stdout",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/150-proof-native-development.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 27823,
+      "decoded_sha256": "5faee355ea7ba5415f6e1372641eceb75548cb69d52200953ffc4db4eb8d4d1d",
+      "stored_bytes": 3339,
+      "stored_sha256": "17d044e6f84373ebd9640a5fddb4517c2cb278a7eafe6d749146d02e099791ea"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-native-development2.stderr",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/151-proof-native-development2.stderr.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-native-development2.stdout",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/152-proof-native-development2.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 7275,
+      "decoded_sha256": "3b06404dbcb3f0eedccdbeb89dc1410ce9f99f5f61d462106bce1527cfe8300b",
+      "stored_bytes": 1790,
+      "stored_sha256": "290d3f25e560da7bd654c4566f26ea13c547e60f872fcf9f72aa11f834852421"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-native-development3.stderr",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/153-proof-native-development3.stderr.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-native-development3.stdout",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/154-proof-native-development3.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 2974,
+      "decoded_sha256": "208fe254fc03c83522b0a1a2863c3d4a558cbdcc40b68b729d919f4c0206066e",
+      "stored_bytes": 1149,
+      "stored_sha256": "8bd7043b66609f4845cdf09c465775edf1440843a3be330dc91afd70ae7c9c64"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-native-format.stderr",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/155-proof-native-format.stderr.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-native-format.stdout",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/156-proof-native-format.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 264,
+      "decoded_sha256": "f563e62408834cb3e97ef6518b4e375be9a823793a1d0267e7131b07ba0f5768",
+      "stored_bytes": 161,
+      "stored_sha256": "878fca20e3c1b59ab8878861932986756b662d08cfb7a78ba554ffe8db1685d7"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-native-ruff-final.stderr",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/157-proof-native-ruff-final.stderr.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-native-ruff-final.stdout",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/158-proof-native-ruff-final.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 19,
+      "decoded_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "stored_bytes": 39,
+      "stored_sha256": "47f394a1497b1873bc6e6d6f9bb92aa51b990821f1ddd7770a933ffd29c456cd"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-native-ruff.json",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/159-proof-native-ruff.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 8695,
+      "decoded_sha256": "fbc23949f99c4264b313fd77b8a3737e268555134e33a93780c4a34ee248b99a",
+      "stored_bytes": 2226,
+      "stored_sha256": "edd9127f0c88faf6178239b4a0abda447335f758120aa47bc931bba177cd8deb"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-result-import.json",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/160-proof-result-import.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 549,
+      "decoded_sha256": "d6fab52755ff745d2ff44be0730c217aa96b4786baf0b37815feb028ddc1d23d",
+      "stored_bytes": 346,
+      "stored_sha256": "bced936bcaa5bd786b3f1b25fa4fcddda90616f6962096b73dcf8814c6a926e6"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-result-navigation.stdout",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/161-proof-result-navigation.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 19253,
+      "decoded_sha256": "23a1055d9986961c3130b79f72aa924bec7788f4f5c0670eb49caa1e3b139201",
+      "stored_bytes": 1847,
+      "stored_sha256": "5b5c782ddaaaf4cef7db33965fef8ae6d7973123a20446f003db3ab15f47b042"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-source-fetch.stderr",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/162-proof-source-fetch.stderr.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 131,
+      "decoded_sha256": "7c7236c2245dcd23b3ab6645c40e15c2c41c68c89f4f1d13990a9924efbde1ae",
+      "stored_bytes": 124,
+      "stored_sha256": "37707a46d3772c628e444c4dae368754d0f585b3a344579180502e27e1c13dea"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-source-fetch.stdout",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/163-proof-source-fetch.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-source-footprint-final.json",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/164-proof-source-footprint-final.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 4884,
+      "decoded_sha256": "e0245e44409fdaf3e0562ee866238ecd08b2fc35d0d02be090b19baa1b6e0761",
+      "stored_bytes": 1803,
+      "stored_sha256": "e14376a315660edaea1efb024b94f0d41ff3d89c77242a820b41583a9f124427"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-source-publication.stderr",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/165-proof-source-publication.stderr.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 126,
+      "decoded_sha256": "8cc33ab84e4d025df33a444a368e851cb62869a029c32b710ff6ebdb0818fb1d",
+      "stored_bytes": 121,
+      "stored_sha256": "ecbcf9e360821ce92ad13f4ac1a7a29cc7449fb32aa04fd868603905a16c2895"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-source-publication.stdout",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/166-proof-source-publication.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/proof-source-remote-readback.stdout",
+      "category": "author full attempts/source/environment/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/167-proof-source-remote-readback.stdout.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 77,
+      "decoded_sha256": "121ab0cb6692ec45b1012da04bbf6035b5abac1db3d6e707d4bbb0876b7e9288",
+      "stored_bytes": 89,
+      "stored_sha256": "f6434fd60066bd1855162ac5a23eb07c93f1732f862a84bfe3168328745dc098"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/run-frozen-check.py",
+      "category": "author reproducible harness/control/assembly",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/168-run-frozen-check.py.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 1244,
+      "decoded_sha256": "ba8c0d74fd2d4ad277756575be39b1d1157e517b8d9409c984aa593fc8378819",
+      "stored_bytes": 676,
+      "stored_sha256": "7a813cf5f55c8347a6bfe7820146ba26775e9cdfedac938e4701f138af51ad08"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/run-property-removal.py",
+      "category": "author reproducible harness/control/assembly",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/169-run-property-removal.py.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 2408,
+      "decoded_sha256": "6ee2b2b9bcdde3a676ae9852d0116764b25a1d000d16a2e1046b3ea1cc02acae",
+      "stored_bytes": 1080,
+      "stored_sha256": "1ac7539617a6dddf955d06fc73749860a9125fe9421680b60e56e04c326b45b9"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/probe-bound-proof-child.py",
+      "category": "author reproducible harness/control/assembly",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/170-probe-bound-proof-child.py.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 2710,
+      "decoded_sha256": "b9109ce61aa5d936589e7e70a372501644a897393437d701c1311f08a61e0540",
+      "stored_bytes": 1126,
+      "stored_sha256": "1dd60b3520c871cbe0fdc746e4c647591b78189c3fb0e485fec597a63ecf1e09"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/graph-hash-property-input.json",
+      "category": "author reproducible harness/control/assembly",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/171-graph-hash-property-input.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 561,
+      "decoded_sha256": "836e3a278b89788cf46a52ab71422ca91d4f9770dbd161c423007e22f4a15629",
+      "stored_bytes": 391,
+      "stored_sha256": "a8c9206a0266abfb1608c0fbc6d6ae3eef7272e81b68304bc18d4c5f62e457d5"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/native-query-property-input.json",
+      "category": "author reproducible harness/control/assembly",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/172-native-query-property-input.json.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 575,
+      "decoded_sha256": "745d42fc0638801409b636179897bc71d8a64fe01cce3b9c92679ae986b82981",
+      "stored_bytes": 390,
+      "stored_sha256": "5374dd6b946918be26cfc93d4005dde4c1e050405bc38e27b96b57ea590770c6"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/graph-hash-property-removal.patch",
+      "category": "author reproducible harness/control/assembly",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/173-graph-hash-property-removal.patch.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 484,
+      "decoded_sha256": "c8f9dbe79c660f3424e94d1063f6ebbf867a2da5ddebfb3a81a81ba28155a630",
+      "stored_bytes": 320,
+      "stored_sha256": "dc3134101daa047a05c20ef4ef606b5b9d7106fef492c7e37590da0ae400c619"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/native-query-property-removal.patch",
+      "category": "author reproducible harness/control/assembly",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/174-native-query-property-removal.patch.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 1114,
+      "decoded_sha256": "e073bd8544b9601afa4697601a6a359de4d9544b02445cd90aefb648632776cb",
+      "stored_bytes": 506,
+      "stored_sha256": "91c6ee4c52e68370509abf4ccd69b8405ff972c1de128299ddbe2051a9dcc587"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/native-query-removal.xml",
+      "category": "author reproducible harness/control/assembly",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/175-native-query-removal.xml.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 4428,
+      "decoded_sha256": "5b5160725898e2eb88e8fd1bb71288dc0caa782cb8c65b4a26813e1fd8273d20",
+      "stored_bytes": 985,
+      "stored_sha256": "70f6b37db6f7cf57f57935a87413d1c88e10cdafc7792a2d31502843fa3e68d6"
+    },
+    {
+      "origin": "/dev/shm/e02-orch03-20261008/c08-scratch/assemble-proof-handoff.py",
+      "category": "author reproducible harness/control/assembly",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/176-assemble-proof-handoff.py.gz",
+      "encoding": "gzip",
+      "decoded_bytes": 22970,
+      "decoded_sha256": "de202888280edc1cb6e6c4bfca65ade45e81c90a69234071d9123190549b3f57",
+      "stored_bytes": 8879,
+      "stored_sha256": "300b41771771966b3846437bb9c7cdcc192f10d6b62e7d8ba7e2f13cf7ebdc35"
+    }
+  ],
+  "entry_count": 177,
+  "decoded_bytes": 811039,
+  "stored_bytes": 197606,
+  "exclusions": [
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-5e3-diff-policy-engine__docs__research__e02-cloud-test-plan__implementation-handoffs__F__parallel-20261008-c08__C11-proof-graph-source-requirement.json",
+      "bytes": 2228,
+      "sha256": "ec26ee96a89c4864db178c682c91766ca247345e03f66482903ed21d72d606fb",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-5e3-diff-policy-engine__release-fragments__unreleased__2026-10-08-c08-native-dag-query.toml",
+      "bytes": 1401,
+      "sha256": "1a96e2d47964df1c6d1e48a7e3616e3c32caf9c3d7f792850c08d59cf9376561",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-5e3-diff-policy-engine__release-fragments__unreleased__2026-10-08-c08-proof-source-binding.toml",
+      "bytes": 1506,
+      "sha256": "1322b019ce274f544f614b98d383d2d788ffbfdb81a50484941ea9420197cd56",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-5e3-diff-policy-engine__src__polisyos__foundry__methods__catalog__causal__README.md",
+      "bytes": 2792,
+      "sha256": "ffa44a4fd970fe57c38d3724ce08e75435c416b3d4518dd87bc48b349de1653f",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-5e3-diff-policy-engine__src__polisyos__foundry__methods__catalog__causal__causal_engine__artifacts.py",
+      "bytes": 2638,
+      "sha256": "99b30e69ae844dc3d5fe70bfd387980921863efcf4095ab8a8edfb754d39de53",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-5e3-diff-policy-engine__src__polisyos__foundry__methods__catalog__causal__id_engine__core.py",
+      "bytes": 1506,
+      "sha256": "e3473d100594d1d20f98cf041f6e8f74931ab3b0602ce62932f4107274a4702c",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-5e3-diff-policy-engine__src__polisyos__ir__analytics__causal.py",
+      "bytes": 5297,
+      "sha256": "265ccd12f8489fc523d1f3d25cdaae675c3d3b15a6be045190f4b4b458204c45",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-5e3-diff-policy-engine__tests__unit__foundry__methods__catalog__causal__test_id_engine_characterization.py",
+      "bytes": 1053,
+      "sha256": "6f7e29023b63b7881d429c420ff9d358654c3bf15b9bf6383aca1804ca6d3012",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-5e3-diff-policy-engine__tests__unit__foundry__methods__catalog__causal__test_id_engine_native_query_marginal.py",
+      "bytes": 4959,
+      "sha256": "ee77031fb81ca72622ea048bf87e438698aef088a6cb98719dfefbe723c73a29",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-5e3-diff-policy-engine__tests__unit__foundry__methods__catalog__causal__test_partial_graph_query_consumer.py",
+      "bytes": 7200,
+      "sha256": "b2c3fa0b1efebb2b623ca6794c1afc6021e260acefc6703a0ce0d472b0404389",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-5e3-diff-policy-engine__tests__unit__ir__analytics__test_causal_proof_graph_binding.py",
+      "bytes": 7875,
+      "sha256": "a59e6889b3deb4fd7faa1e662a1d9427955b6afb01b58d44f81d7fa13f12a37f",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-5e3-read-policy-engine__ops__release__release-fragment-policy.toml",
+      "bytes": 909,
+      "sha256": "d23c704803929d5f531424e61ca0c269d92b985f2cb1144d6674f3697985acbc",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-5e3-read-policy-engine__release-fragments__template.toml",
+      "bytes": 995,
+      "sha256": "799fe6c6a79a579a0a9cee2f250f12add832e59cd7a4123cdbff0acd10756e6d",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-5e3-read-policy-engine__src__polisyos__ir__api.py",
+      "bytes": 48048,
+      "sha256": "5330aa6b4da8b3f61df54006e193b879c0acb2d52a1f19e779ddf3332a788372",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-existing-partial-consumer.py",
+      "bytes": 3957,
+      "sha256": "6404051323d4cb8592135f3a22594a4d009bc84829826b9fbd5e44af896512df",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-prep-policy-engine__src__polisyos__foundry__analytics__causal_engine__artifacts.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-prep-policy-engine__src__polisyos__foundry__analytics__id_engine__core.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-prep-policy-engine__src__polisyos__foundry__methods__catalog__causal__causal_engine__artifacts.py",
+      "bytes": 192496,
+      "sha256": "f83894506f5dec4569a2708326daa28dfeeb41d4c8516ce80a504ef4860bb582",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-prep-policy-engine__src__polisyos__foundry__methods__catalog__causal__id_engine__core.py",
+      "bytes": 81117,
+      "sha256": "54a919c33f3b0ba0720116d587590da5d86fa487f09a6c4d681bbc0cf84c6cef",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-prep-policy-engine__src__polisyos__ir__analytics__causal.py",
+      "bytes": 76407,
+      "sha256": "0c94715bbf1e0b04a6076a770acce717d55ee60dee53a561a99a8e63448398b8",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-prep-policy-engine__src__polisyos__ir__analytics__causal_graph.py",
+      "bytes": 20654,
+      "sha256": "431b0c00ddbc0c33720c1b5ee61b85493a3c4bb1759e1487d2cbe5b016456dc7",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/C08-prep-policy-engine__src__polisyos__ir__analytics__estimand.py",
+      "bytes": 79520,
+      "sha256": "4410e949c073bd12f0e1402979d464b9799f3bbf786169f612aaa5f5a6d6f7d5",
+      "reason": "Tracked source/read-cache or per-path diff duplicate; exact frozen Git source and complete patch custody retained. Not a missing deciding output."
+    }
+  ],
+  "publication": "Separate receipt commit follows frozen product/test source; no future own commit SHA claimed."
+}

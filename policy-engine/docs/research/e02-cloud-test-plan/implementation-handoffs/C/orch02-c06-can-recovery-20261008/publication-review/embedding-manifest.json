@@ -1,0 +1,83 @@
+{
+  "source_acceptance": "not_admitted_by_G",
+  "formal_G_closure": "not_adjudicated",
+  "reviewed_documentation_commit": "cd884528829160c25c58acbd648c021089711477",
+  "production_source_commit": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+  "reviewed_handoff_gate_inventory_native_bytes_preserved": true,
+  "complete_new_companions": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/publication-review/audit_retained_gate_source.py",
+      "bytes": 2803,
+      "sha256": "0ab651fc8212101a2afe3a8d78e421ab4fb2fb253c1fec7ffdb862dd4f273c24"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/publication-review/entrypoint-binding/command.json",
+      "bytes": 1074,
+      "sha256": "c8b46554b9449e4a5a72e48aae9068b8f93455f7df733f25da53c8218e1a9666"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/publication-review/entrypoint-binding/observer.py",
+      "bytes": 3086,
+      "sha256": "af834ce6a3b9ed039bd6a30925babfe40c76df4fbb926a8efe26fa811eca76f7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/publication-review/entrypoint-binding/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/publication-review/entrypoint-binding/stdout.txt",
+      "bytes": 3007,
+      "sha256": "dd3ba43a493d69de85f7e0581e588231245b32ec934566a6d34fb5f8c5af5374"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/publication-review/family-correction-independent-review.json",
+      "bytes": 7370,
+      "sha256": "38830ba1a99a12bc033f9ebb1b2f19f5052470b6bfb0bf2f8c160bae36b93de0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/publication-review/family-correction-source-bindings.json",
+      "bytes": 2372,
+      "sha256": "51a99baf9889ac9a247bd54117106b4aff840e8ed0ae918bd7fc3e4b3a636e6f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/publication-review/independent-publication-review.json",
+      "bytes": 144819,
+      "sha256": "f01ffe42677ea5381656cba81f2c7d637793cf3063e1b155dbe168c34c5b1e6d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/publication-review/independent-publication-review.md",
+      "bytes": 1602,
+      "sha256": "944625d4b6b5801c2619f3a043a9a74f3ed4651e2956dc3f52030d45754c0f1d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/publication-review/original-companion-manifest.json",
+      "bytes": 1870,
+      "sha256": "418f76b8e1c64e830438c17b554ee7f8783d4bd27604cc7cdc0421f41b193fa5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/publication-review/publication-review-harness-error.json",
+      "bytes": 612,
+      "sha256": "4f7cd566bf10fdf623cb96e7f75ac60986e11f95dc44d59e7a76d519103eac84"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/publication-review/retained-source-audit-git-ref.json",
+      "bytes": 679,
+      "sha256": "9d7c2e32f8eab0d0517e5cb40c2fd64abc942d03ebb8b83c0bc3cd5e0e932508"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/publication-review/review_final_publication.py",
+      "bytes": 13669,
+      "sha256": "fdba18b4c1f2e371a430666ec89172a255d365f5a8e917637a57321ca25674ce"
+    }
+  ],
+  "additional_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/publication-review/embedding-manifest.json",
+  "combined_final_footprint": "Reviewed handoff companion-inventory plus this embedding-manifest union; canonical production source unchanged.",
+  "original_companion_mapping": "Original native companion basenames map to this publication-review directory except complete retained-source audit maps to exact known DFK Git ref in retained-source-audit-git-ref.json.",
+  "entrypoint_binding": "Cheap source/import alias witness proves completed tools wrapper dispatched exact required runtime main with unchanged explicit flags; no heavy graph replay, static diagnostics remain partial.",
+  "required_rule_ref": {
+    "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+    "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+    "line": 344
+  }
+}

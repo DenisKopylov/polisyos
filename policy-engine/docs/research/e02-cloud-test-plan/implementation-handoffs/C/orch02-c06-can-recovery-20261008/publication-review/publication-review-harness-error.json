@@ -1,0 +1,8 @@
+{
+  "created_utc": "2026-10-08T16:47:10.555532+00:00",
+  "classification": "review harness assertion convention error, not product or publication failure",
+  "first_attempt_exit": 1,
+  "cause": "Denominator receipt hashes sorted compact JSON; first review helper hashed equivalent object with default JSON whitespace. Exact reconstructed compact hash 2d4fb844... equals published hash. Original native checks and publication bytes unchanged.",
+  "correction": "Use explicit separators comma/colon for sorted denominator hash; preserved first helper and distinct scratch snapshots.",
+  "native_replayed": false
+}

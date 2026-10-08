@@ -1,0 +1,145 @@
+{
+  "wrapper": {
+    "path": "/workspace/orch02-recovery/c06-family-correction.py",
+    "bytes": 4366,
+    "sha256": "8472fde9323bf0af81fd600c2e6e4a082b6b39b0beb339ad711177f14da37060"
+  },
+  "review": "Observer delegates original helper and retains complete worktree/isolated snapshots, finite output census, declared owner uniqueness, frozen expected byte oracle, missing output refusal and return-code/unrun propagation; no filters or disabled checks. Selected family/expected-output union scope and reuse of retained verified private environment are explicit.",
+  "source_acceptance": "not_admitted_by_G",
+  "formal_closure": "not_adjudicated",
+  "roles": [
+    {
+      "role": "dfk",
+      "source_sha": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+      "selected_families": [
+        "runtime-dashboard-api-types",
+        "trust-claim-posture-register"
+      ],
+      "violations": [
+        {
+          "check": "generated_artifact",
+          "subject": "trust-claim-posture-register",
+          "message": "trust-claim-posture-register generated output apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json does not match /workspace/orch02-c06-dfk/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json.",
+          "detail": "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+          "source_module": "",
+          "target_module": ""
+        }
+      ],
+      "unrun": [],
+      "complete_output_byte_refs": [
+        {
+          "path": "/workspace/orch02-recovery/c06-required-dfk-family-correction/receipt.json",
+          "bytes": 6032,
+          "sha256": "9a35e39dee258f551b6b99ebcf3981064069b2d5fbe80af466c37266ad6d5088"
+        },
+        {
+          "path": "/workspace/orch02-recovery/c06-required-dfk-family-correction/runtime-dashboard-api-types/command.json",
+          "bytes": 2127,
+          "sha256": "823a4a0b345063975f47f9b56884fc5154e63bb4d80dcc56f8d786976581e76f"
+        },
+        {
+          "path": "/workspace/orch02-recovery/c06-required-dfk-family-correction/runtime-dashboard-api-types/stdout.txt",
+          "bytes": 939,
+          "sha256": "c320611628ba095b03462c59184c3f782d86378976080b6024fc9a363bf84407"
+        },
+        {
+          "path": "/workspace/orch02-recovery/c06-required-dfk-family-correction/runtime-dashboard-api-types/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/orch02-recovery/c06-required-dfk-family-correction/outputs/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts",
+          "bytes": 791736,
+          "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c",
+          "expected_frozen_ref": {
+            "path": "/workspace/orch02-c06-dfk/policy-engine/apps/runtime-dashboard/src/api/types.ts",
+            "bytes": 791736,
+            "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+          },
+          "observed_matches_expected": true
+        },
+        {
+          "path": "/workspace/orch02-recovery/c06-required-dfk-family-correction/trust-claim-posture-register/command.json",
+          "bytes": 2115,
+          "sha256": "1b8dcbb525a95e9661d4b27f47d50b3afe90c87ed9232f9b15d93f0e369b4425"
+        },
+        {
+          "path": "/workspace/orch02-recovery/c06-required-dfk-family-correction/trust-claim-posture-register/stdout.txt",
+          "bytes": 2554220,
+          "sha256": "a3e54ac80e49168441d9e7a0189c91c2c7cf20a2ef7b710e9b41a076d0608094"
+        },
+        {
+          "path": "/workspace/orch02-recovery/c06-required-dfk-family-correction/trust-claim-posture-register/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/orch02-recovery/c06-required-dfk-family-correction/outputs/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+          "bytes": 2376644,
+          "sha256": "a8d6c1638690961fb33745bfdbb9ed4df6a4cf4a4d3828d3288459aeb487b119",
+          "expected_frozen_ref": {
+            "path": "/workspace/orch02-c06-dfk/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+            "bytes": 2365635,
+            "sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba"
+          },
+          "observed_matches_expected": false
+        }
+      ],
+      "whole_architecture_status": "FAIL retained, no transfer of narrow result",
+      "P41_inherited_status": "not_established; no exact slice-base full-gate rerun plus full input-disjointness proof"
+    },
+    {
+      "role": "can",
+      "source_sha": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+      "selected_families": [
+        "trust-claim-posture-register"
+      ],
+      "violations": [
+        {
+          "check": "generated_artifact",
+          "subject": "trust-claim-posture-register",
+          "message": "trust-claim-posture-register generated output apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json does not match /workspace/orch02-c06-can/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json.",
+          "detail": "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+          "source_module": "",
+          "target_module": ""
+        }
+      ],
+      "unrun": [],
+      "complete_output_byte_refs": [
+        {
+          "path": "/workspace/orch02-recovery/c06-required-can-family-correction/receipt.json",
+          "bytes": 3709,
+          "sha256": "bbf6474afb482abaf95279996208921a4dbb919d585773fa63e9b38c3a64f684"
+        },
+        {
+          "path": "/workspace/orch02-recovery/c06-required-can-family-correction/trust-claim-posture-register/command.json",
+          "bytes": 2115,
+          "sha256": "ec59a4c978bc8c709d59df5fceeecad2aa32cf25a03bfc108bd888bbbc9aa69c"
+        },
+        {
+          "path": "/workspace/orch02-recovery/c06-required-can-family-correction/trust-claim-posture-register/stdout.txt",
+          "bytes": 2557984,
+          "sha256": "ac525fc64e89542b6cce30d6cae52b90aee01e9283ca349e0e49881cbda7b39b"
+        },
+        {
+          "path": "/workspace/orch02-recovery/c06-required-can-family-correction/trust-claim-posture-register/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/orch02-recovery/c06-required-can-family-correction/outputs/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+          "bytes": 2376644,
+          "sha256": "70015556b449e3f62702cb0a4280bfc04728ecc90cb41c3c3193e7be26042d2c",
+          "expected_frozen_ref": {
+            "path": "/workspace/orch02-c06-can/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+            "bytes": 2365635,
+            "sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba"
+          },
+          "observed_matches_expected": false
+        }
+      ],
+      "whole_architecture_status": "FAIL retained, no transfer of narrow result",
+      "P41_inherited_status": "not_established; no exact slice-base full-gate rerun plus full input-disjointness proof"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "commit": "e4bd1527c941ff880a5d34898c57428c7be4b1cc",
+  "topic": "codex/e02-C-orch02-c06-dfk-recovery",
+  "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/publication-review/retained-gate-source-complete-byte-audit.json.gz",
+  "compressed_bytes": 2728887,
+  "compressed_sha256": "2f89b1e06e4ccbd8620b3bd5bf8f04404806d07cb75f807398925cae1e97f01c",
+  "decoded_bytes": 12096090,
+  "decoded_sha256": "488ad25b2f826128f595098cdaaf1484d04d9c2b003cf68a06a8e7d07836e109",
+  "scope": "Complete same independent audit covers both frozen DFK and CAN; stored once at actual committed DFK ref, not a future reference."
+}

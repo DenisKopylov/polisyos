@@ -6,6 +6,12 @@ from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
 
+from polisyos.data_forge.domains.catalog.batch.material_inputs import (
+    _MaterialFileSnapshot,
+    _material_file_snapshot,
+    _material_yaml_snapshot,
+)
+
 try:
     import yaml
 except ModuleNotFoundError:  # pragma: no cover - optional dependency guard
@@ -44,16 +50,21 @@ def default_proxy_metric_alignments_path() -> Path:
     )
 
 
-@lru_cache(maxsize=4)
 def load_proxy_metric_alignments(
     path: Path | None = None,
 ) -> dict[str, tuple[ProxyMetricAlignmentSpec, ...]]:
-    """Load proxy metric alignments."""
-    resolved = (path or default_proxy_metric_alignments_path()).resolve()
-    if not resolved.exists() or yaml is None:
+    """Load current proxy policy using the shared file-content snapshot."""
+    snapshot = _material_file_snapshot(path or default_proxy_metric_alignments_path())
+    return _load_proxy_metric_alignments_snapshot(snapshot)
+
+
+@lru_cache(maxsize=4)
+def _load_proxy_metric_alignments_snapshot(
+    snapshot: _MaterialFileSnapshot,
+) -> dict[str, tuple[ProxyMetricAlignmentSpec, ...]]:
+    if snapshot.raw is None or yaml is None:
         return {}
-    with open(resolved, encoding="utf-8") as fh:
-        payload = yaml.safe_load(fh) or {}
+    payload = _material_yaml_snapshot(snapshot) or {}
     raw_mappings = payload.get("mappings", {})
     if not isinstance(raw_mappings, dict):
         return {}
@@ -108,6 +119,14 @@ def load_proxy_metric_alignments(
         if specs:
             result[str(metric_name).strip()] = tuple(specs)
     return result
+
+
+# Retain the previous cache-reset hook while caching by current content.
+setattr(
+    load_proxy_metric_alignments,
+    "cache_clear",
+    _load_proxy_metric_alignments_snapshot.cache_clear,
+)
 
 
 def metric_proxy_alignments(

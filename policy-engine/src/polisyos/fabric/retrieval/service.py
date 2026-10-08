@@ -220,9 +220,13 @@ class RetrievalService:
         return self._artifact_store
 
     def _catalog_registry(self) -> Any:
-        if self._catalog_source_registry is None:
-            self._catalog_source_registry = catalog_read_api.load_catalog_source_registry()
-        return self._catalog_source_registry
+        """Refresh cached selection from the complete canonical effective registry."""
+        with self._state_lock:
+            registry = catalog_read_api.load_catalog_source_registry()
+            if self._catalog_source_registry != registry:
+                self._catalog_source_registry = registry
+                self._catalog_source_selections.clear()
+            return self._catalog_source_registry
 
     def _source_policy(self, source_name: str) -> Any | None:
         normalized = (source_name or "").strip()
@@ -233,14 +237,15 @@ class RetrievalService:
     def _selected_catalog_source_ids(self, run_profile: str | None) -> frozenset[str]:
         if run_profile is None:
             raise catalog_read_api.CatalogSelectionError("catalog_run_profile_unresolved")
-        cached = self._catalog_source_selections.get(run_profile)
-        if cached is not None:
-            return cached
-        registry = self._catalog_registry()
-        selected = registry.enabled_sources(run_profile=run_profile)
-        selected_ids = frozenset(source.source_id for source in selected)
-        self._catalog_source_selections[run_profile] = selected_ids
-        return selected_ids
+        with self._state_lock:
+            registry = self._catalog_registry()
+            cached = self._catalog_source_selections.get(run_profile)
+            if cached is not None:
+                return cached
+            selected = registry.enabled_sources(run_profile=run_profile)
+            selected_ids = frozenset(source.source_id for source in selected)
+            self._catalog_source_selections[run_profile] = selected_ids
+            return selected_ids
 
     def _catalog_source_is_enabled(self, source_name: str, *, run_profile: str | None) -> bool:
         """Require registered, enabled sources selected by the caller's run profile."""

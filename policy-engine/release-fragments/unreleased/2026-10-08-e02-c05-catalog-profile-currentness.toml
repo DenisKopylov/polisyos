@@ -1,0 +1,30 @@
+id = "2026-10-08-e02-c05-catalog-profile-currentness"
+title = "Reconcile catalog producer policy inputs and warm reader currentness"
+type = "fixed"
+component = "data-forge"
+owner = "team-data-forge"
+summary = "One existing producer basis binds finite local catalog policy/assets, covered singleton source profiles and resolved legacy mode. Content snapshots reconcile warm proxy/WVS readers; warm retrieval refreshes canonical source selection."
+evidence = ["tests/unit/remediation/test_dfi_03.py", "tests/unit/remediation/test_dfk_02.py"]
+compatibility = "Existing receipt files remain readable; receipts without the new material-input basis recompute as cache misses. Existing proxy and harvest cache_clear hooks are retained. Optional missing policy/assets retain empty/static fallback; other file-read errors refuse currentness."
+change_class = "internal"
+surface_classification = "internal"
+migration = "Regenerate affected stage receipts through existing producers. No default CatalogRunProfile is introduced."
+api = "No public signature changes."
+limitations = "ALL header policy (including non-secret content negotiation), credentials, environment auth overlays, separately injected retrieval profile registries, raw observation corpus and remote response/version identity are excluded. No header revision or classifier is established; complete effective-policy currentness remains limited. The full singleton profile denominator is conservative. XLSX is selected only for the actual YAML-empty fallback. Native verification is pending."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/data_forge/domains/catalog/batch/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "catalog-live-profile-reuse"
+change_class = "internal"
+impact = "internal"
+surface = "internal: catalog stage receipt currentness and retrieval source selection"
+owner = "team-data-forge"
+version_owner = "team-data-forge"
+deprecation_window = "not_applicable"
+release_note = "Covered profile, finite local policy/selected metadata bytes and resolved legacy-mode changes invalidate stale reuse. Warm proxy/WVS readers reconcile current snapshots; warm retrieval refreshes canonical source selection."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/data_forge/domains/catalog/batch/README.md"]
+runbook_docs = []

@@ -25,6 +25,31 @@ analysis flows.
   selected source/config/database/report inputs to required output bytes.
   `run_content_stage_with_receipt()` dispatches the canonical producer and
   refuses to record a receipt if inputs change during execution.
+- **Material input currentness** - one producer basis binds the canonical source
+  registry, metrics map, actual core seed locator, proxy alignment policy, both
+  WVS registry readers, and the selected WVS local XLSX metadata fallback.
+  Internal `material_inputs.py` snapshots path, current bytes, presence and
+  selection. The same snapshots key proxy and WVS reader caches, including the
+  derived harvest catalog, so warm readers consume current policy.
+  The existing normalized legacy-serial selector and covered singleton
+  SourceProfileRegistry connection/execution settings share this basis.
+  Covered same-ID or file-byte edits invalidate saved stage receipts before
+  reuse; mtime-only edits preserve reuse. Registry, metrics and seed absence
+  refuse recomputation. Proxy/WVS policy and selected XLSX absence retain their
+  existing empty/static fallback and bind absence distinctly from empty files.
+  XLSX is unselected while valid nonempty WVS YAML supplies the catalog; it is
+  then neither read nor required. Other file-read errors refuse recomputation.
+  Existing malformed WVS YAML fallback remains explicit and its bytes remain
+  bound; malformed proxy policy retains its parsing failure.
+  The full singleton profile denominator is conservative: presentation-only
+  and unselected profile edits also invalidate. ALL header policy, including
+  non-secret content negotiation, credentials and environment auth overlays are
+  excluded. No header revision or classifier is established, so complete
+  effective-policy currentness remains limited pending owner invalidation or a
+  non-secret revision. Raw observation corpus and remote response/version
+  identity are outside this finite local configuration/assets basis.
+  A separately injected RetrievalService profile registry is not bound here;
+  no absent serving CatalogRunProfile is supplied.
 - **Observation mode** - `observation_mode` controls whether runs build core, backfill, or all observations.
 - **Benchmarking** - the benchmark stage now folds in core-ingest context and bulk-equivalence metrics.
 - **Readiness gating** - QC and publish use the benchmark/readiness outputs to decide whether the snapshot is consumer-ready.
@@ -44,6 +69,8 @@ analysis flows.
   observation-mode wiring.
 - [`cli.py`](cli.py) is the operator/dev entrypoint for staged catalog batch
   runs.
+- [`material_inputs.py`](material_inputs.py) provides immutable current-file snapshots
+  shared by the producer basis and the canonical proxy/WVS policy readers.
 - [`pipeline.py`](pipeline.py) coordinates harvest, normalize, merge/dedup,
   graph, ingest, embed, benchmark, QC, and publish stages.
 - The canonical reviewed source seed is

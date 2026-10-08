@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import json
 import platform
+from collections.abc import Mapping
 from dataclasses import dataclass, field, fields
 from pathlib import Path
 
 from polisyos.data_forge.domains.catalog.batch.checkpoints import hash_payload
+from polisyos.data_forge.domains.catalog.batch.material_inputs import _material_file_snapshot
 from polisyos.data_forge.domains.catalog.batch.source_registry import (
     SourceRegistry,
     load_source_registry,
@@ -18,7 +21,7 @@ from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
 from polisyos.data_forge.domains.catalog.registry import default_catalog_source_registry_path
 from polisyos.data_forge.domains.catalog.selection import validate_catalog_run_profile
 from polisyos.data_forge.kernel.io import ensure_dirs, snapshot_component_dir
-from polisyos.data_forge.kernel.io.hashing import sha256_file
+from polisyos.data_forge.kernel.io.generation_basis import build_generation_basis
 
 ALL_STAGES = frozenset(
     {
@@ -200,21 +203,7 @@ class DatasetBatchConfig:
 
     @property
     def run_signature(self) -> str:
-        registry_path = self.registry_path or self.default_registry_path
-        metrics_path = self.resolved_metrics_map_path
-        return hash_payload(
-            {
-                "producer_config": _producer_config_snapshot(self),
-                "source_registry": {
-                    "path": str(registry_path.resolve()),
-                    "sha256": sha256_file(registry_path) if registry_path.is_file() else None,
-                },
-                "metrics_map": {
-                    "path": str(metrics_path.resolve()),
-                    "sha256": sha256_file(metrics_path) if metrics_path.is_file() else None,
-                },
-            }
-        )
+        return hash_payload({"producer_config": _producer_config_snapshot(self)})
 
     @property
     def uses_custom_registry(self) -> bool:
@@ -271,7 +260,7 @@ class DatasetBatchConfig:
 
 
 def _producer_config_snapshot(config: DatasetBatchConfig) -> dict[str, object]:
-    """Return all producer-effective settings in a stable JSON-safe form.
+    """Return producer configuration and one content-bound material input basis.
 
     ``resume`` and ``stages`` select orchestration behavior; they do not change
     what an individual stage produces. All other config fields are included,
@@ -292,15 +281,121 @@ def _producer_config_snapshot(config: DatasetBatchConfig) -> dict[str, object]:
             "resolved_registry_path": config.registry_path or config.default_registry_path,
             "uses_custom_registry": config.uses_custom_registry,
             "is_sampled_run": config.is_sampled_run,
+            "producer_material_input_basis": _producer_material_input_basis(config),
         }
     )
     return {key: _signature_safe(value) for key, value in values.items()}
 
 
+def _producer_material_input_basis(config: DatasetBatchConfig) -> dict[str, object]:
+    """Bind canonical policy file bytes and covered live profile settings.
+
+    File members use the exact locators consumed by the canonical owners,
+    including both WVS readers and the conditional local metadata fallback.
+    Required absence refuses recomputation; optional absence is content-bound.
+    Profile settings have the explicit header/credential exclusions below.
+    """
+    from polisyos.data_forge.domains.catalog.batch import harvester
+    from polisyos.data_forge.domains.catalog.batch.core_sources import loaders
+    from polisyos.data_forge.domains.catalog.batch.core_sources.api import (
+        _legacy_serial_mode_enabled,
+        _seed_alignments_path,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge import proxy_penalties
+
+    harvest_wvs_snapshot = _material_file_snapshot(harvester._wvs_registry_path())
+    wvs_fallback_selected = not harvester._load_wvs_indicator_registry_snapshot(
+        harvest_wvs_snapshot
+    )
+    paths = {
+        "source_registry": (config.registry_path or config.default_registry_path, True, True),
+        "metrics_map": (config.resolved_metrics_map_path, True, True),
+        "seed_variable_alignments": (_seed_alignments_path(), True, True),
+        "proxy_metric_alignments": (
+            proxy_penalties.default_proxy_metric_alignments_path(),
+            False,
+            True,
+        ),
+        "wvs_indicator_registry_core": (loaders._wvs_registry_path(), False, True),
+        "wvs_indicator_registry_harvest": (harvester._wvs_registry_path(), False, True),
+        "wvs_variable_catalog": (
+            harvester._wvs_variable_catalog_path(),
+            False,
+            wvs_fallback_selected,
+        ),
+    }
+    snapshots = {
+        role: (
+            harvest_wvs_snapshot
+            if role == "wvs_indicator_registry_harvest"
+            else _material_file_snapshot(path, required=required, selected=selected)
+        )
+        for role, (path, required, selected) in sorted(paths.items())
+    }
+    members = [snapshot.generation_member(role) for role, snapshot in snapshots.items()]
+    members.append(("resolved_profile_registry", _runtime_source_profile_payload()))
+    members.append(
+        (
+            "resolved_producer_runtime_policy",
+            json.dumps(
+                {"legacy_serial_mode_enabled": _legacy_serial_mode_enabled()},
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8"),
+        )
+    )
+    return build_generation_basis(
+        basis_kind="catalog_producer_material_inputs",
+        generator_rule_version="policyos.catalog.producer_material_inputs.v1",
+        members=members,
+    ).to_dict()
+
+
+def _runtime_source_profile_payload() -> bytes:
+    """Bind live profile settings and resolved contracts with declared exclusions.
+
+    Core ingest may select profile IDs from persisted catalog bindings as well
+    as source YAML. The complete registry is a conservative finite denominator.
+    Presentation-only profile edits also invalidate reuse. ALL header policy
+    (including non-secret content negotiation), credentials and environment
+    auth overlays are omitted. No header revision or classifier is established;
+    complete effective-policy currentness remains limited until the owner
+    supplies a non-secret revision or enforces explicit invalidation.
+    Only member digests are persisted.
+    """
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+    from polisyos.fabric.connectors.profiles.resolver import (
+        resolve_connection_config,
+        resolve_execution_policy,
+    )
+
+    profiles = [
+        profile.model_copy(deep=True)
+        for profile in SourceProfileRegistry.get_instance().list_all()
+    ]
+    payload: list[dict[str, object]] = []
+    for profile in profiles:
+        connection = resolve_connection_config(profile)
+        payload.append(
+            {
+                "profile": profile.model_dump(mode="json", exclude={"headers"}),
+                "connection": {
+                    item.name: _signature_safe(getattr(connection, item.name))
+                    for item in fields(connection)
+                    if item.name not in {"headers", "auth_credentials"}
+                },
+                "execution_policy": resolve_execution_policy(profile).model_dump(mode="json"),
+            }
+        )
+    return json.dumps(
+        payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+
+
 def _signature_safe(value: object) -> object:
     if isinstance(value, Path):
         return str(value.resolve())
-    if isinstance(value, dict):
+    if isinstance(value, Mapping):
         return {str(key): _signature_safe(item) for key, item in value.items()}
     if isinstance(value, (list, tuple)):
         return [_signature_safe(item) for item in value]

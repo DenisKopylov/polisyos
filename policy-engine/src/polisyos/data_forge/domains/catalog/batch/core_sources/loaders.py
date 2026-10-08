@@ -17,6 +17,7 @@ import zipfile
 from collections import OrderedDict, defaultdict, deque
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
+from functools import lru_cache
 from importlib import import_module
 from itertools import islice
 from pathlib import Path
@@ -45,6 +46,11 @@ from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts im
     _SourceBudgetWindow,
 )
 from polisyos.data_forge.domains.catalog.batch.checkpoints import load_json, write_json
+from polisyos.data_forge.domains.catalog.batch.material_inputs import (
+    _MaterialFileSnapshot,
+    _material_file_snapshot,
+    _material_yaml_snapshot,
+)
 from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
     country_scope_members,
     iso2_to_iso3,
@@ -295,30 +301,25 @@ def _wvs_registry_path() -> Path:
     )
 
 
-_wvs_registry_cache: dict[str, dict] | None = None
-
-
 def _load_wvs_registry() -> dict[str, dict]:
-    """Load WVS indicator registry YAML. Returns ``{code: spec}``."""
-    global _wvs_registry_cache
-    if _wvs_registry_cache is not None:
-        return _wvs_registry_cache
-    path = _wvs_registry_path()
-    if not path.exists():
-        _wvs_registry_cache = {}
-        return _wvs_registry_cache
-    try:
-        import yaml
+    """Load current WVS policy through the shared file-content snapshot."""
+    snapshot = _material_file_snapshot(_wvs_registry_path())
+    return _load_wvs_registry_snapshot(snapshot)
 
-        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+
+@lru_cache(maxsize=1)
+def _load_wvs_registry_snapshot(snapshot: _MaterialFileSnapshot) -> dict[str, dict]:
+    if snapshot.raw is None:
+        return {}
+    try:
+        data = _material_yaml_snapshot(snapshot)
         indicators = data.get("indicators", {}) if isinstance(data, dict) else {}
-        _wvs_registry_cache = {
+        return {
             str(k).strip().upper(): v for k, v in indicators.items() if isinstance(v, dict)
         }
     except Exception:
         logger.warning("Failed to load WVS indicator registry")
-        _wvs_registry_cache = {}
-    return _wvs_registry_cache
+        return {}
 
 
 def _wvs_legacy_indicators() -> dict[str, str]:
@@ -336,18 +337,24 @@ def _wvs_legacy_indicators() -> dict[str, str]:
     return result if result else dict(_LEGACY_WVS_INDICATORS_STATIC)
 
 
-def _wvs_aggregation_method(indicator: str) -> str:
-    """Return aggregation method for a WVS indicator from registry."""
-    registry = _load_wvs_registry()
+def _wvs_aggregation_method(
+    indicator: str, *, registry: dict[str, dict] | None = None
+) -> str:
+    """Return aggregation method from a current or operation-bound registry."""
+    if registry is None:
+        registry = _load_wvs_registry()
     spec = registry.get(indicator.upper(), {})
     if spec:
         return str(spec.get("aggregation", "weighted_mean"))
     return _WVS_SPECIAL_AGGREGATIONS_STATIC.get(indicator, "weighted_mean")
 
 
-def _wvs_response_type(indicator: str) -> str:
-    """Return response_type for a WVS indicator from registry."""
-    registry = _load_wvs_registry()
+def _wvs_response_type(
+    indicator: str, *, registry: dict[str, dict] | None = None
+) -> str:
+    """Return response type from a current or operation-bound registry."""
+    if registry is None:
+        registry = _load_wvs_registry()
     spec = registry.get(indicator.upper(), {})
     return str(spec.get("response_type", "continuous"))
 
@@ -425,6 +432,12 @@ def _load_wvs_bulk_duckdb(
     # Column index mapping
     col_idx = {name: i for i, name in enumerate(select_cols)}
 
+    # Resolve policy once per operation, before the row-by-indicator hot loop.
+    registry = _load_wvs_registry()
+    response_types = {
+        indicator: _wvs_response_type(indicator, registry=registry) for indicator in indicators
+    }
+
     # Aggregate per indicator
     aggregates: dict[str, dict[tuple, _WVSObservationAccumulator]] = {ind: {} for ind in indicators}
 
@@ -477,7 +490,9 @@ def _load_wvs_bulk_duckdb(
 
         for ind in indicators:
             raw_val = row[col_idx[ind]]
-            value = _normalize_wvs_response_value_typed(ind, raw_val)
+            value = _normalize_wvs_response_value_typed(
+                ind, raw_val, response_type=response_types[ind]
+            )
             if value is None:
                 continue
             bucket = aggregates[ind].setdefault(key, _WVSObservationAccumulator())
@@ -490,7 +505,7 @@ def _load_wvs_bulk_duckdb(
     # Build result rows
     result: dict[str, list[dict[str, Any]]] = {}
     for ind in indicators:
-        agg_method = _wvs_aggregation_method(ind)
+        agg_method = _wvs_aggregation_method(ind, registry=registry)
         ind_rows: list[dict[str, Any]] = []
         for (country_code, survey_year, wave), bucket in sorted(aggregates[ind].items()):
             if bucket.sample_size <= 0 or bucket.weighted_total <= 0:
@@ -513,7 +528,9 @@ def _load_wvs_bulk_duckdb(
     return result
 
 
-def _normalize_wvs_response_value_typed(indicator: str, raw_value: Any) -> float | None:
+def _normalize_wvs_response_value_typed(
+    indicator: str, raw_value: Any, *, response_type: str | None = None
+) -> float | None:
     """Normalize a WVS response value using response_type from registry."""
     if raw_value is None:
         return None
@@ -525,7 +542,8 @@ def _normalize_wvs_response_value_typed(indicator: str, raw_value: Any) -> float
     if value < 0:
         return None
 
-    response_type = _wvs_response_type(indicator)
+    if response_type is None:
+        response_type = _wvs_response_type(indicator)
 
     if response_type == "binary_12":
         iv = int(value)

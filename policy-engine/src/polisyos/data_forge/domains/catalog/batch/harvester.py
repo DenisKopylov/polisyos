@@ -8,6 +8,7 @@ import re
 import xml.etree.ElementTree as ET
 from datetime import UTC, datetime
 from functools import lru_cache
+from io import BytesIO
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -19,6 +20,11 @@ from polisyos.data_forge.domains.catalog.batch.checkpoints import (
     write_json,
 )
 from polisyos.data_forge.domains.catalog.batch.ckan_curation import curate_ckan_package
+from polisyos.data_forge.domains.catalog.batch.material_inputs import (
+    _MaterialFileSnapshot,
+    _material_file_snapshot,
+    _material_yaml_snapshot,
+)
 from polisyos.data_forge.domains.catalog.batch.normalizer import map_to_polisyos_metrics
 from polisyos.data_forge.domains.catalog.metrics_map import load_metrics_map
 from polisyos.data_forge.kernel.io.hashing import sha256_file
@@ -867,29 +873,44 @@ def _wvs_variable_catalog_path() -> Path:
     )
 
 
-@lru_cache(maxsize=1)
 def _load_wvs_indicator_registry() -> dict[str, dict[str, Any]]:
-    """Load the WVS indicator registry YAML.  Returns ``{code: spec}``."""
-    registry_path = _wvs_registry_path()
-    if not registry_path.exists():
+    """Load current WVS policy through the shared file-content snapshot."""
+    return _load_wvs_indicator_registry_snapshot(_material_file_snapshot(_wvs_registry_path()))
+
+
+@lru_cache(maxsize=1)
+def _load_wvs_indicator_registry_snapshot(
+    snapshot: _MaterialFileSnapshot,
+) -> dict[str, dict[str, Any]]:
+    if snapshot.raw is None:
         return {}
     try:
-        import yaml
-
-        data = yaml.safe_load(registry_path.read_text(encoding="utf-8"))
+        data = _material_yaml_snapshot(snapshot)
         indicators = data.get("indicators", {}) if isinstance(data, dict) else {}
         return {str(k).strip().upper(): v for k, v in indicators.items() if isinstance(v, dict)}
     except Exception:
         logger.warning(
-            "Failed to load WVS indicator registry from {}", registry_path, exc_info=True
+            "Failed to load WVS indicator registry from {}", snapshot.path, exc_info=True
         )
         return {}
 
 
-@lru_cache(maxsize=1)
 def _load_wvs_indicator_catalog_from_local_file() -> tuple[dict[str, Any], ...]:
-    # First try loading from registry YAML (auto-generated from codebook)
-    registry = _load_wvs_indicator_registry()
+    registry_snapshot = _material_file_snapshot(_wvs_registry_path())
+    fallback_selected = not _load_wvs_indicator_registry_snapshot(registry_snapshot)
+    return _load_wvs_indicator_catalog_snapshot(
+        registry_snapshot,
+        _material_file_snapshot(_wvs_variable_catalog_path(), selected=fallback_selected),
+    )
+
+
+@lru_cache(maxsize=1)
+def _load_wvs_indicator_catalog_snapshot(
+    registry_snapshot: _MaterialFileSnapshot,
+    variable_snapshot: _MaterialFileSnapshot,
+) -> tuple[dict[str, Any], ...]:
+    # Both snapshots participate, including optional absence and fallback selection.
+    registry = _load_wvs_indicator_registry_snapshot(registry_snapshot)
     if registry:
         catalog: list[dict[str, Any]] = []
         for variable, spec in registry.items():
@@ -914,8 +935,8 @@ def _load_wvs_indicator_catalog_from_local_file() -> tuple[dict[str, Any], ...]:
             return tuple(catalog)
 
     # Fallback: try Excel codebook (read ALL indicators, not just supported)
-    path = _wvs_variable_catalog_path()
-    if not path.exists():
+    path = variable_snapshot.path
+    if variable_snapshot.raw is None:
         return _WVS_STATIC_INDICATORS
 
     try:
@@ -925,7 +946,7 @@ def _load_wvs_indicator_catalog_from_local_file() -> tuple[dict[str, Any], ...]:
         return _WVS_STATIC_INDICATORS
 
     try:
-        workbook = load_workbook(path, read_only=True, data_only=True)
+        workbook = load_workbook(BytesIO(variable_snapshot.raw), read_only=True, data_only=True)
         worksheet = workbook[workbook.sheetnames[0]]
         header_index: dict[str, int] = {}
         rows = worksheet.iter_rows(values_only=True)
@@ -963,6 +984,17 @@ def _load_wvs_indicator_catalog_from_local_file() -> tuple[dict[str, Any], ...]:
         logger.warning("Failed to load local WVS indicator catalog from {}", path, exc_info=True)
 
     return _WVS_STATIC_INDICATORS
+
+
+# Retain cache-reset hooks for callers of the existing private readers.
+setattr(
+    _load_wvs_indicator_registry, "cache_clear", _load_wvs_indicator_registry_snapshot.cache_clear
+)
+setattr(
+    _load_wvs_indicator_catalog_from_local_file,
+    "cache_clear",
+    _load_wvs_indicator_catalog_snapshot.cache_clear,
+)
 
 
 def _read_jsonl(path: Path) -> list[dict]:

@@ -1408,3 +1408,785 @@ def test_incomplete_selected_harvest_cannot_resume_and_failed_source_retries(
     payload_path.write_bytes(payload_path.read_bytes().replace(b'"id": "b"', b'"id": "c"'))
     _restore_stat(payload_path, original_stat)
     assert not _should_skip_stage(config, "harvest")
+
+
+@pytest.mark.parametrize(
+    ("field", "replacement"),
+    [
+        ("max_sync_cells", 2),
+        ("base_url", "https://example.test/changed"),
+        ("description", "same-ID profile byte change"),
+        ("dataset_discovery_hints", ["changed_dataset", "second_dataset"]),
+        ("preferred_core_transport", "changed_transport"),
+    ],
+)
+def test_same_id_live_source_profile_change_invalidates_stage_receipts(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    field: str,
+    replacement: object,
+) -> None:
+    from polisyos.data_forge.domains.catalog.batch.core_sources.api import (
+        _resolve_profile_config,
+        _resolve_source_execution_policy,
+    )
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+
+    profiles = SourceProfileRegistry()
+    profile = SourceProfile(
+        profile_id="fixture_profile",
+        display_name="Fixture",
+        description="All non-default profile fields",
+        connector_family="sdmx",
+        base_url="https://example.test/source",
+        auth_policy="api_key",
+        timeout_seconds=17,
+        max_retries=5,
+        rate_limit_rps=2.5,
+        max_concurrency=8,
+        requests_per_hour=400,
+        supports_async_large_responses=True,
+        schema_preflight=True,
+        preferred_transport="fixture",
+        preferred_core_transport="fixture_core",
+        preferred_backfill_transport="fixture_backfill",
+        bulk_download_url="https://example.test/bulk",
+        bulk_format="CSV",
+        supports_content_constraints=True,
+        supports_availability_constraints=True,
+        supports_async_fetch=True,
+        fallback_on_capability_failure="fixture_fallback",
+        core_group_limit=2,
+        backfill_group_limit=3,
+        max_sync_cells=1,
+        max_async_cells=900,
+        capability_cache_ttl_hours=7,
+        negative_cache_ttl_hours=5,
+        soft_negative_cache_ttl_hours=3,
+        dataset_discovery_hints=["fixture_dataset", "second_dataset"],
+        tags=["fixture_tag", "second_tag"],
+        source_organization="Fixture organization",
+        source_url="https://example.test/about",
+        estimated_datasets=12,
+    )
+    profiles.register(profile)
+    monkeypatch.setattr(SourceProfileRegistry, "_instance", profiles)
+    registry_path = tmp_path / "registry.yaml"
+    registry_path.write_text("version: 1\nsources: []\n", encoding="utf-8")
+    config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "snapshot",
+        registry_path=registry_path,
+        stages=frozenset({"benchmark", "publish"}),
+        resume=True,
+    )
+    for output in (
+        config.benchmark_report_path,
+        config.publish_manifest_path,
+        config.consumer_readiness_path,
+    ):
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text("{}", encoding="utf-8")
+    for stage in ("benchmark", "publish"):
+        _record_stage_completion(config, stage)
+        assert _should_skip_stage(config, stage)
+        assert current_content_stage_receipt(config, stage) is not None
+    initial_signature = config.run_signature
+    marker_bytes = config.stage_state_path.read_bytes()
+    registry_bytes = registry_path.read_bytes()
+    assert _resolve_source_execution_policy(
+        source="fixture", profile_id="fixture_profile"
+    ).max_sync_cells == 1
+    assert _resolve_profile_config("fixture_profile").url == "https://example.test/source"
+
+    # New object, identical bytes and only YAML write-time drift retain reuse.
+    profiles.register(profile.model_copy(deep=True), override=True)
+    previous_stat = registry_path.stat()
+    os.utime(
+        registry_path,
+        ns=(previous_stat.st_atime_ns, previous_stat.st_mtime_ns + 1_000_000),
+    )
+    assert config.run_signature == initial_signature
+    assert all(_should_skip_stage(config, stage) for stage in ("benchmark", "publish"))
+    profiles.register(profile.model_copy(update={field: replacement}, deep=True), override=True)
+
+    assert registry_path.read_bytes() == registry_bytes
+    assert config.stage_state_path.read_bytes() == marker_bytes
+    assert config.run_signature != initial_signature
+    if field == "max_sync_cells":
+        assert _resolve_source_execution_policy(
+            source="fixture", profile_id="fixture_profile"
+        ).max_sync_cells == 2
+    if field == "base_url":
+        assert _resolve_profile_config("fixture_profile").url == replacement
+    if field == "preferred_core_transport":
+        assert _resolve_source_execution_policy(
+            source="fixture", profile_id="fixture_profile"
+        ).preferred_core_transport == replacement
+    for stage in ("benchmark", "publish"):
+        assert not _should_skip_stage(config, stage)
+        assert current_content_stage_receipt(config, stage) is None
+
+
+def test_real_qc_receipt_rejects_same_id_live_source_profile_change(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+
+    profiles = SourceProfileRegistry()
+    profile = SourceProfile(
+        profile_id="fixture_profile",
+        display_name="Fixture",
+        connector_family="worldbank",
+        base_url="https://example.test/source",
+        max_sync_cells=1,
+    )
+    profiles.register(profile)
+    monkeypatch.setattr(SourceProfileRegistry, "_instance", profiles)
+    registry_path = tmp_path / "registry.yaml"
+    registry_path.write_text(
+        "version: 1\nsources:\n"
+        "  - name: source_a\n"
+        "    family: worldbank\n"
+        "    wave: A\n"
+        "    endpoint: https://example.test/source\n"
+        "    profile_id: fixture_profile\n"
+        "    enabled: true\n"
+        "    execution_tier: transport_ready\n"
+        "    run_lane: empirical\n"
+        "    publish_blocking: true\n",
+        encoding="utf-8",
+    )
+    config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "snapshot",
+        stages=frozenset({"qc"}),
+        registry_path=registry_path,
+        run_profile="prod_core_blocking",
+    )
+    raw_dir = config.raw_dir / "source_a" / "fixture-snapshot"
+    raw_dir.mkdir(parents=True)
+    payload = raw_dir / "payload.jsonl"
+    payload.write_text('{"id":"fixture"}\n', encoding="utf-8")
+    write_raw_manifest(
+        manifest_path=raw_dir / "manifest.json",
+        source="source_a",
+        endpoint="https://example.test/source",
+        payload_path=payload,
+        count=1,
+    )
+    config.merged_records_path.write_text(
+        '{"source":"source_a","title":"Dataset","description":"Description"}\n',
+        encoding="utf-8",
+    )
+    config.duplicates_report_path.write_text("source,kept_id,dropped_id\n", encoding="utf-8")
+    with duckdb.connect(str(config.db_path)) as connection:
+        connection.execute("CREATE TABLE ds_distributions (url VARCHAR)")
+        connection.execute("CHECKPOINT")
+
+    result = run_content_stage_with_receipt(config, "qc")
+    assert result.passed is True
+    assert current_content_stage_receipt(config, "qc") is not None
+    report_bytes = config.qc_report_path.read_bytes()
+    marker_bytes = config.stage_state_path.read_bytes()
+
+    profiles.register(profile.model_copy(update={"max_sync_cells": 2}, deep=True), override=True)
+
+    assert config.qc_report_path.read_bytes() == report_bytes
+    assert config.stage_state_path.read_bytes() == marker_bytes
+    assert current_content_stage_receipt(config, "qc") is None
+
+
+def test_all_header_policy_is_a_declared_profile_currentness_residual(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from polisyos.data_forge.domains.catalog.batch.core_sources.api import _resolve_profile_config
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+
+    profiles = SourceProfileRegistry()
+    profile = SourceProfile(
+        profile_id="fixture_profile",
+        display_name="Fixture",
+        connector_family="sdmx",
+        base_url="https://example.test/source",
+        headers={"Accept": "application/json"},
+    )
+    profiles.register(profile)
+    monkeypatch.setattr(SourceProfileRegistry, "_instance", profiles)
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snapshot")
+    initial_signature = config.run_signature
+    assert _resolve_profile_config("fixture_profile").headers["Accept"] == "application/json"
+
+    profiles.register(
+        profile.model_copy(update={"headers": {"Accept": "text/csv"}}, deep=True),
+        override=True,
+    )
+
+    assert _resolve_profile_config("fixture_profile").headers["Accept"] == "text/csv"
+    # This is an exposed limitation, never evidence of complete effective-policy currentness.
+    assert config.run_signature == initial_signature
+
+
+@pytest.mark.parametrize("material_change", ["profile_url", "seed_evidence"])
+def test_material_input_change_recomputes_real_producer_and_benchmark(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, material_change: str
+) -> None:
+    from datetime import UTC, datetime
+
+    import pandas as pd
+
+    from polisyos.data_forge.domains.catalog.batch.core_sources import api as core_api
+    from polisyos.data_forge.domains.catalog.batch.core_sources.validators import (
+        _current_core_output_receipt_state,
+    )
+    from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
+    from polisyos.data_forge.domains.catalog.knowledge.types import DatasetRecord, DistributionRecord
+    from polisyos.fabric.connectors.base import ConnectionHandle, DatasetCapabilitySnapshot
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+    from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+
+    profiles = SourceProfileRegistry()
+    profile = SourceProfile(
+        profile_id="worldbank_wdi",
+        display_name="Fixture World Bank",
+        connector_family="worldbank",
+        base_url="https://example.test/original",
+    )
+    profiles.register(profile)
+    monkeypatch.setattr(SourceProfileRegistry, "_instance", profiles)
+    seed_path = tmp_path / "seed_variable_alignments.yaml"
+    seed_path.write_text(
+        "alignments:\n"
+        "  - canonical_var: economic.gdp\n"
+        "    dataset_var: NY.GDP.MKTP.CD\n"
+        "    dataset_id: WB_WDI\n"
+        "    method: exact\n"
+        "    confidence: 1.0\n"
+        "    evidence: seed_worldbank_wdi\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(core_api, "_seed_alignments_path", lambda: seed_path)
+    registry_path = tmp_path / "registry.yaml"
+    registry_path.write_text(
+        "version: 1\nsources:\n"
+        "  - name: worldbank\n"
+        "    family: worldbank\n"
+        "    wave: A\n"
+        "    endpoint: https://example.test/worldbank\n"
+        "    connector_id: worldbank.wdi\n"
+        "    profile_id: worldbank_wdi\n"
+        "    enabled: true\n"
+        "    execution_tier: transport_ready\n"
+        "    run_lane: empirical\n"
+        "    publish_blocking: true\n",
+        encoding="utf-8",
+    )
+    config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "snapshot",
+        registry_path=registry_path,
+        stages=frozenset({"core_sources_ingest", "benchmark"}),
+        run_profile="preflight_core",
+        promoted_sources=("worldbank",),
+        preflight_sources=("worldbank",),
+        active_countries=("UA",),
+        active_year_window=(2020, 2020),
+        observation_mode="core",
+        max_datasets_per_source=1,
+        resume=True,
+        resume_mode="force",
+    )
+    build_graph(
+        records=[
+            DatasetRecord(
+                id="wb-gdp",
+                title="Fixture indicator",
+                description="Fixture indicator",
+                source="worldbank",
+                source_portal="worldbank",
+                dataset_id="NY.GDP.MKTP.CD",
+                source_dataset_id="NY.GDP.MKTP.CD",
+                execution_tier="transport_ready",
+                update_frequency="annual",
+                polisyos_metrics=[],
+                variables=["NY.GDP.MKTP.CD"],
+                preferred_distribution_id="dist-wb",
+                distributions=[
+                    DistributionRecord(
+                        id="dist-wb",
+                        connector_type="worldbank.wdi",
+                        profile_id="worldbank_wdi",
+                        source_locator="NY.GDP.MKTP.CD",
+                        parser_supported=True,
+                        machine_readable=True,
+                    )
+                ],
+            )
+        ],
+        db_path=config.db_path,
+    )
+    fetch_urls: list[str] = []
+
+    async def describe_dataset(
+        _connector: WorldBankConnector, _handle: ConnectionHandle, dataset_id: str
+    ) -> DatasetCapabilitySnapshot:
+        return DatasetCapabilitySnapshot(
+            source="worldbank",
+            dataset_id=dataset_id,
+            resolved_dataset_id=dataset_id,
+            last_checked_at=datetime.now(UTC),
+        )
+
+    async def fetch_dataset(
+        connector: WorldBankConnector, handle: ConnectionHandle, _request: object
+    ) -> object:
+        url = handle.config.url
+        assert connector._base_url(handle) == url
+        assert url in {"https://example.test/original", "https://example.test/changed"}
+        fetch_urls.append(url)
+        value = 1.1 if url == "https://example.test/original" else 2.2
+        return type(
+            "WorldBankFixtureResult",
+            (),
+            {"data": pd.DataFrame([{"country_code": "UA", "year": 2020, "value": value}])},
+        )()
+
+    monkeypatch.setattr(WorldBankConnector, "describe_dataset", describe_dataset)
+    monkeypatch.setattr(WorldBankConnector, "fetch", fetch_dataset)
+
+    initial = run_dataset_pipeline_sync(config)
+    assert initial.metrics["core_observations"] == 1
+    assert fetch_urls == ["https://example.test/original"]
+    with duckdb.connect(str(config.db_path), read_only=True) as connection:
+        initial_rows = connection.execute(
+            "SELECT dataset_id, raw_variable, country_code, year, value "
+            "FROM ds_observations WHERE dataset_id = 'wb-gdp'"
+        ).fetchall()
+    initial_report = json.loads(config.benchmark_report_path.read_text(encoding="utf-8"))
+    assert initial_rows == [("wb-gdp", "NY.GDP.MKTP.CD", "UA", 2020, 1.1)]
+    assert initial_report["evaluation_mode"] == "full-ready"
+    assert initial_report["diagnostic_context"]["core_output_receipt_current"] is True
+    assert _current_core_output_receipt_state(config).is_current
+    assert _should_skip_stage(config, "benchmark")
+    with duckdb.connect(str(config.db_path), read_only=True) as connection:
+        initial_evidence = connection.execute(
+            "SELECT evidence FROM ds_variable_alignments WHERE dataset_id = 'wb-gdp' "
+            "AND raw_variable = 'NY.GDP.MKTP.CD'"
+        ).fetchall()
+    assert initial_evidence == [("seed_worldbank_wdi;source=worldbank",)]
+    initial_signature = config.run_signature
+    profiles.register(profile.model_copy(deep=True), override=True)
+    registry_stat = registry_path.stat()
+    os.utime(
+        registry_path,
+        ns=(registry_stat.st_atime_ns, registry_stat.st_mtime_ns + 1_000_000),
+    )
+    seed_stat = seed_path.stat()
+    os.utime(
+        seed_path,
+        ns=(seed_stat.st_atime_ns, seed_stat.st_mtime_ns + 1_000_000),
+    )
+    assert config.run_signature == initial_signature
+    run_dataset_pipeline_sync(config)
+    assert fetch_urls == ["https://example.test/original"]
+
+    marker_bytes = config.stage_state_path.read_bytes()
+    checkpoint_bytes = config.observation_ingest_checkpoint_path.read_bytes()
+    report_bytes = config.benchmark_report_path.read_bytes()
+    registry_bytes = registry_path.read_bytes()
+    if material_change == "profile_url":
+        profiles.register(
+            profile.model_copy(update={"base_url": "https://example.test/changed"}, deep=True),
+            override=True,
+        )
+        expected_url = "https://example.test/changed"
+        expected_value = 2.2
+        expected_evidence = "seed_worldbank_wdi;source=worldbank"
+    else:
+        previous_seed_stat = seed_path.stat()
+        original_seed_bytes = seed_path.read_bytes()
+        seed_path.write_bytes(
+            original_seed_bytes.replace(b"seed_worldbank_wdi", b"seed_worldbank_alt")
+        )
+        assert seed_path.stat().st_size == previous_seed_stat.st_size
+        _restore_stat(seed_path, previous_seed_stat)
+        assert seed_path.stat().st_mtime_ns == previous_seed_stat.st_mtime_ns
+        expected_url = "https://example.test/original"
+        expected_value = 1.1
+        expected_evidence = "seed_worldbank_alt;source=worldbank"
+    assert registry_path.read_bytes() == registry_bytes
+    assert config.stage_state_path.read_bytes() == marker_bytes
+    assert config.observation_ingest_checkpoint_path.read_bytes() == checkpoint_bytes
+    assert config.benchmark_report_path.read_bytes() == report_bytes
+    assert config.run_signature != initial_signature
+    with duckdb.connect(str(config.db_path), read_only=True) as connection:
+        held_evidence = connection.execute(
+            "SELECT evidence FROM ds_variable_alignments WHERE dataset_id = 'wb-gdp' "
+            "AND raw_variable = 'NY.GDP.MKTP.CD'"
+        ).fetchall()
+    assert held_evidence == initial_evidence
+    assert not _current_core_output_receipt_state(config).is_current
+    assert not _should_skip_stage(config, "benchmark")
+    assert current_content_stage_receipt(config, "benchmark") is None
+
+    benchmark_only = replace(config, stages=frozenset({"benchmark"}))
+    stale = run_dataset_pipeline_sync(benchmark_only)
+    partial = json.loads(config.benchmark_report_path.read_text(encoding="utf-8"))
+    assert "benchmark" not in stale.skipped_stages
+    assert fetch_urls == ["https://example.test/original"]
+    assert partial["evaluation_mode"] == "partial-eval"
+    assert partial["metrics"]["benchmark_partial_eval"] == 1
+    assert partial["diagnostic_context"]["core_output_receipt_current"] is False
+    assert not _should_skip_stage(benchmark_only, "benchmark")
+
+    repaired = run_dataset_pipeline_sync(config)
+    checkpoint = json.loads(config.observation_ingest_checkpoint_path.read_text(encoding="utf-8"))
+    metadata = json.loads(config.stage_state_path.read_text(encoding="utf-8"))[
+        "core_sources_ingest"
+    ]["metadata"]
+    current = _current_core_output_receipt_state(config)
+    report = json.loads(config.benchmark_report_path.read_text(encoding="utf-8"))
+    with duckdb.connect(str(config.db_path), read_only=True) as connection:
+        rows = connection.execute(
+            "SELECT dataset_id, raw_variable, country_code, year, value "
+            "FROM ds_observations WHERE dataset_id = 'wb-gdp'"
+        ).fetchall()
+        evidence = connection.execute(
+            "SELECT evidence FROM ds_variable_alignments WHERE dataset_id = 'wb-gdp' "
+            "AND raw_variable = 'NY.GDP.MKTP.CD'"
+        ).fetchall()
+
+    assert repaired.metrics["core_failures"] == 0
+    assert fetch_urls == ["https://example.test/original", expected_url]
+    assert rows == [("wb-gdp", "NY.GDP.MKTP.CD", "UA", 2020, expected_value)]
+    assert evidence == [(expected_evidence,)]
+    assert checkpoint["planner_signature"] == config.run_signature
+    assert {item["status"] for item in checkpoint["completed"].values()} == {"complete_with_rows"}
+    assert current.is_current
+    assert current.current_receipt is not None
+    assert checkpoint["core_output_receipt"] == metadata["core_output_receipt"]
+    assert metadata["core_output_receipt"] == current.current_receipt
+    assert report["evaluation_mode"] == "full-ready"
+    assert report["metrics"]["benchmark_partial_eval"] == 0
+    assert report["diagnostic_context"]["core_output_receipt_current"] is True
+    assert report["diagnostic_context"]["core_output_receipt_digest"] == current.current_receipt[
+        "basis_digest"
+    ]
+    assert report["diagnostic_context"]["publishable_core_complete"] is True
+    assert report["diagnostic_context"]["publishable_core_pending"] == 0
+    assert current_content_stage_receipt(config, "benchmark") is not None
+    fresh_benchmark = replace(config, stages=frozenset({"benchmark"}))
+    fresh_stats = run_dataset_pipeline_sync(fresh_benchmark)
+    assert "benchmark" in fresh_stats.skipped_stages
+    assert fetch_urls == ["https://example.test/original", expected_url]
+    assert _current_core_output_receipt_state(fresh_benchmark).is_current
+    assert current_content_stage_receipt(fresh_benchmark, "benchmark") is not None
+
+
+def test_warm_proxy_policy_change_updates_actual_catalog_alignment(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+        CatalogTransportDataset,
+    )
+    from polisyos.data_forge.domains.catalog.batch.core_sources import registry as core_registry
+    from polisyos.data_forge.domains.catalog.knowledge import proxy_penalties
+
+    proxy_path = tmp_path / "proxy.yaml"
+    proxy_path.write_text(
+        "mappings:\n  fixture_metric:\n"
+        "    - canonical_var: economic.gdp\n"
+        "      confidence: 0.8\n      proxy_penalty: 0.2\n",
+        encoding="utf-8",
+    )
+    seed_path = tmp_path / "seed.yaml"
+    seed_path.write_text("alignments: []\n", encoding="utf-8")
+    monkeypatch.setattr(proxy_penalties, "default_proxy_metric_alignments_path", lambda: proxy_path)
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snapshot")
+    dataset = CatalogTransportDataset(
+        catalog_dataset_id="fixture",
+        source="worldbank",
+        title="Fixture indicator",
+        description="",
+        source_dataset_id="FIXTURE",
+        update_frequency="annual",
+        last_updated="",
+        coverage_json="{}",
+        access_json="{}",
+        execution_tier="transport_ready",
+        variables=("FIXTURE",),
+        keywords=(),
+        themes=(),
+        polisyos_metrics=("fixture_metric",),
+        connector_id="worldbank.wdi",
+        profile_id="worldbank_wdi",
+        request_dataset_id="FIXTURE",
+        default_filters={},
+    )
+
+    def persisted_alignment() -> tuple:
+        alignments = core_registry._build_catalog_alignments([dataset], seed_path)
+        with duckdb.connect(":memory:") as connection:
+            connection.execute(
+                "CREATE TABLE ds_variable_alignments (dataset_id VARCHAR, raw_variable VARCHAR, "
+                "canonical_var VARCHAR, method VARCHAR, confidence DOUBLE, evidence VARCHAR, "
+                "is_proxy BOOLEAN, proxy_penalty DOUBLE, "
+                "PRIMARY KEY (dataset_id, raw_variable, canonical_var))"
+            )
+            assert core_registry._upsert_catalog_alignments(connection, alignments) == 1
+            return connection.execute(
+                "SELECT canonical_var, confidence, proxy_penalty, evidence, is_proxy "
+                "FROM ds_variable_alignments"
+            ).fetchone()
+
+    assert persisted_alignment() == (
+        "economic.gdp", 0.8, 0.2, "metric_binding_proxy:fixture_metric", True
+    )
+    signature = config.run_signature
+    previous_stat = proxy_path.stat()
+    os.utime(proxy_path, ns=(previous_stat.st_atime_ns, previous_stat.st_mtime_ns + 1_000_000))
+    assert config.run_signature == signature
+    assert proxy_penalties.metric_proxy_alignments("fixture_metric")[0].proxy_penalty == 0.2
+    previous_stat = proxy_path.stat()
+    proxy_path.write_bytes(
+        proxy_path.read_bytes().replace(b"proxy_penalty: 0.2", b"proxy_penalty: 0.4")
+    )
+    _restore_stat(proxy_path, previous_stat)
+    assert proxy_path.stat().st_mtime_ns == previous_stat.st_mtime_ns
+    changed = persisted_alignment()
+    assert changed == ("economic.gdp", 0.8, 0.4, "metric_binding_proxy:fixture_metric", True)
+    assert config.run_signature != signature
+    changed_signature = config.run_signature
+    proxy_path.unlink()
+    assert proxy_penalties.metric_proxy_alignments("fixture_metric") == ()
+    absent_signature = config.run_signature
+    assert absent_signature != changed_signature
+    proxy_path.write_bytes(b"")
+    assert proxy_penalties.metric_proxy_alignments("fixture_metric") == ()
+    assert config.run_signature != absent_signature
+
+
+def test_warm_wvs_policy_change_updates_selected_bulk_rows_and_harvest_catalog(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    from polisyos.data_forge.domains.catalog.batch.core_sources import loaders, transformers
+
+    registry_path = tmp_path / "wvs.yaml"
+    registry_path.write_text(
+        "indicators:\n  A165:\n    title: Fixture first\n"
+        "    aggregation: weighted_mean\n    response_type: binary\n"
+        "    canonical_candidates: [social.trust]\n",
+        encoding="utf-8",
+    )
+    csv_path = tmp_path / "wvs.csv"
+    csv_path.write_text(
+        "COUNTRY_ALPHA,S020,S002VS,S017,S018,A165\nUKR,2020,7,1,1,1\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(loaders, "_wvs_registry_path", lambda: registry_path)
+    monkeypatch.setattr(catalog_harvester, "_wvs_registry_path", lambda: registry_path)
+    monkeypatch.setattr(loaders, "_wvs_bulk_csv_path", lambda: csv_path)
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snapshot")
+    initial_rows = loaders._load_wvs_bulk_rows("A165", year_window=(2020, 2020))
+    assert len(initial_rows) == 1
+    assert initial_rows[0]["country_code"] == "UA"
+    assert initial_rows[0]["value"] == 1.0
+    assert initial_rows[0]["aggregation_method"] == "weighted_mean"
+    normalized = transformers._normalize_observation_row(initial_rows[0])
+    assert normalized is not None
+    assert json.loads(normalized[-1])["aggregation_method"] == "weighted_mean"
+    assert (
+        catalog_harvester._load_wvs_indicator_catalog_from_local_file()[0]["name"]
+        == "Fixture first"
+    )
+    signature = config.run_signature
+    previous_stat = registry_path.stat()
+    os.utime(registry_path, ns=(previous_stat.st_atime_ns, previous_stat.st_mtime_ns + 1_000_000))
+    assert config.run_signature == signature
+    previous_stat = registry_path.stat()
+    original = registry_path.read_bytes()
+    changed = original.replace(b"Fixture first", b"Fixture later").replace(
+        b"weighted_mean", b"weighted_mode"
+    )
+    assert len(changed) == len(original)
+    registry_path.write_bytes(changed)
+    _restore_stat(registry_path, previous_stat)
+    assert registry_path.stat().st_mtime_ns == previous_stat.st_mtime_ns
+    changed_rows = loaders._load_wvs_bulk_rows("A165", year_window=(2020, 2020))
+    assert changed_rows[0]["aggregation_method"] == "weighted_mode"
+    assert changed_rows[0]["value"] == initial_rows[0]["value"]
+    normalized = transformers._normalize_observation_row(changed_rows[0])
+    assert normalized is not None
+    assert json.loads(normalized[-1])["aggregation_method"] == "weighted_mode"
+    assert (
+        catalog_harvester._load_wvs_indicator_catalog_from_local_file()[0]["name"]
+        == "Fixture later"
+    )
+    assert config.run_signature != signature
+
+
+def test_wvs_metadata_fallback_tracks_actual_branch_and_optional_asset(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    from openpyxl import Workbook
+
+    from polisyos.data_forge.domains.catalog.batch.core_sources import loaders
+
+    registry_path = tmp_path / "wvs.yaml"
+    variable_path = tmp_path / "wvs.xlsx"
+    monkeypatch.setattr(loaders, "_wvs_registry_path", lambda: registry_path)
+    monkeypatch.setattr(catalog_harvester, "_wvs_registry_path", lambda: registry_path)
+    monkeypatch.setattr(catalog_harvester, "_wvs_variable_catalog_path", lambda: variable_path)
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snapshot")
+    absent_signature = config.run_signature
+    assert catalog_harvester._load_wvs_indicator_catalog_from_local_file() == (
+        catalog_harvester._WVS_STATIC_INDICATORS
+    )
+
+    def write_codebook(title: str) -> None:
+        workbook = Workbook()
+        worksheet = workbook.active
+        worksheet.append(["Variable", "Title"])
+        worksheet.append(["FIXTURE", title])
+        workbook.save(variable_path)
+        workbook.close()
+
+    write_codebook("Fixture first")
+    assert (
+        catalog_harvester._load_wvs_indicator_catalog_from_local_file()[0]["name"]
+        == "Fixture first"
+    )
+    present_signature = config.run_signature
+    assert present_signature != absent_signature
+    previous_stat = variable_path.stat()
+    os.utime(variable_path, ns=(previous_stat.st_atime_ns, previous_stat.st_mtime_ns + 1_000_000))
+    assert config.run_signature == present_signature
+    previous_stat = variable_path.stat()
+    write_codebook("Fixture later")
+    _restore_stat(variable_path, previous_stat)
+    assert variable_path.stat().st_mtime_ns == previous_stat.st_mtime_ns
+    assert (
+        catalog_harvester._load_wvs_indicator_catalog_from_local_file()[0]["name"]
+        == "Fixture later"
+    )
+    assert config.run_signature != present_signature
+
+    registry_path.write_text(
+        "indicators:\n  A165:\n    title: Primary YAML\n", encoding="utf-8"
+    )
+    primary_signature = config.run_signature
+    assert (
+        catalog_harvester._load_wvs_indicator_catalog_from_local_file()[0]["name"]
+        == "Primary YAML"
+    )
+    variable_path.unlink()
+    variable_path.mkdir()
+    assert config.run_signature == primary_signature
+    assert (
+        catalog_harvester._load_wvs_indicator_catalog_from_local_file()[0]["name"]
+        == "Primary YAML"
+    )
+    registry_path.write_text("indicators: {}\n", encoding="utf-8")
+    with pytest.raises(IsADirectoryError):
+        _ = config.run_signature
+    with pytest.raises(IsADirectoryError):
+        catalog_harvester._load_wvs_indicator_catalog_from_local_file()
+    variable_path.rmdir()
+    assert catalog_harvester._load_wvs_indicator_catalog_from_local_file() == (
+        catalog_harvester._WVS_STATIC_INDICATORS
+    )
+    registry_path.write_text("indicators: [malformed\n", encoding="utf-8")
+    assert catalog_harvester._load_wvs_indicator_catalog_from_local_file() == (
+        catalog_harvester._WVS_STATIC_INDICATORS
+    )
+    assert config.run_signature != absent_signature
+
+
+def test_resolved_legacy_mode_binds_signature_and_actual_dispatch(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    from polisyos.data_forge.domains.catalog.batch.core_sources import api as core_api
+
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snapshot")
+    branches: list[str] = []
+    parallel = core_api._ingest_catalog_observations_parallel
+    legacy = core_api._ingest_catalog_observations_legacy
+
+    async def observed_parallel(*args, **kwargs):
+        branches.append("parallel")
+        return await parallel(*args, **kwargs)
+
+    async def observed_legacy(*args, **kwargs):
+        branches.append("legacy")
+        return await legacy(*args, **kwargs)
+
+    monkeypatch.setattr(core_api, "_ingest_catalog_observations_parallel", observed_parallel)
+    monkeypatch.setattr(core_api, "_ingest_catalog_observations_legacy", observed_legacy)
+    monkeypatch.delenv("POLISYOS_DATASET_LEGACY_SERIAL", raising=False)
+    false_signature = config.run_signature
+    asyncio.run(core_api._ingest_catalog_observations(config.db_path, [], config=config))
+    assert branches[-1] == "parallel"
+    for spelling in ("0", "false", "no", "off", ""):
+        monkeypatch.setenv("POLISYOS_DATASET_LEGACY_SERIAL", spelling)
+        assert config.run_signature == false_signature
+        assert core_api._legacy_serial_mode_enabled() is False
+    true_signature = None
+    for spelling in ("1", "true", "yes", "on"):
+        monkeypatch.setenv("POLISYOS_DATASET_LEGACY_SERIAL", spelling)
+        signature = config.run_signature
+        assert signature != false_signature
+        if true_signature is None:
+            true_signature = signature
+        assert signature == true_signature
+        assert core_api._legacy_serial_mode_enabled() is True
+    asyncio.run(core_api._ingest_catalog_observations(config.db_path, [], config=config))
+    assert branches[-1] == "legacy"
+    monkeypatch.setenv("POLISYOS_DATASET_LEGACY_SERIAL", "off")
+    assert config.run_signature == false_signature
+
+
+def test_wvs_bulk_resolves_current_policy_once_per_operation(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    from polisyos.data_forge.domains.catalog.batch.core_sources import loaders
+
+    registry_path = tmp_path / "wvs.yaml"
+    registry_path.write_text(
+        "indicators:\n  A165:\n    response_type: binary_12\n"
+        "    aggregation: weighted_mean\n", encoding="utf-8"
+    )
+    csv_path = tmp_path / "wvs.csv"
+    csv_path.write_text(
+        "COUNTRY_ALPHA,S020,S002VS,S017,S018,A165\n"
+        "UKR,2020,7,1,1,2\nUKR,2020,7,1,1,2\nUKR,2020,7,1,1,2\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(loaders, "_wvs_registry_path", lambda: registry_path)
+    monkeypatch.setattr(loaders, "_wvs_bulk_csv_path", lambda: csv_path)
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snapshot")
+    signature = config.run_signature
+    snapshot = loaders._material_file_snapshot
+    reads: list[Path] = []
+
+    def observed_snapshot(path: Path, **kwargs):
+        if path == registry_path:
+            reads.append(path)
+        return snapshot(path, **kwargs)
+
+    monkeypatch.setattr(loaders, "_material_file_snapshot", observed_snapshot)
+    initial = loaders._load_wvs_bulk_duckdb(["A165"], year_window=(2020, 2020))
+    assert reads == [registry_path]
+    assert initial["A165"][0]["sample_size"] == 3
+    assert initial["A165"][0]["value"] == 0.0
+    previous_stat = registry_path.stat()
+    registry_path.write_bytes(
+        registry_path.read_bytes().replace(b"binary_12", b"continuous")
+    )
+    _restore_stat(registry_path, previous_stat)
+    reads.clear()
+    changed = loaders._load_wvs_bulk_duckdb(["A165"], year_window=(2020, 2020))
+    assert reads == [registry_path]
+    assert changed["A165"][0]["sample_size"] == 3
+    assert changed["A165"][0]["value"] == 2.0
+    assert config.run_signature != signature

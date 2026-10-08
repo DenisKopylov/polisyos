@@ -1,0 +1,14 @@
+{
+  "schema": "policyos.e02.l02.restart_observer_profile.v1",
+  "python_executable": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+  "python_version": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "execution_scope": "stdlib metadata and byte-identity observer, no PolicyOS Runtime/import/backend or installed consumer",
+  "actual_input_root": "primary checkout /Users/deniskopylov/polisyos/policy-engine/production_data",
+  "runtime_repo_root_binding": "not_established; relative source pointer layout only",
+  "wall": "exact subprocess wall in checks/l6.command.json; inner byte observation wall in checks/l6.stdout",
+  "RSS": "not measured for this lightweight precondition observer; no numerical/performance claim",
+  "JUnit": "not produced; this was not a pytest/Runtime execution",
+  "removal": "no Runtime/backend/source-resolution removal executed; two actual declared size/hash mismatches are input-level discriminators only"
+}

@@ -1,0 +1,53 @@
+{
+  "observed_at_utc": "2026-10-08T15:48:41.122263+00:00",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "status",
+        "-sb"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+      "exit_code": 0,
+      "stdout": "## codex/e02-L02-authentic-20261008\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+      "exit_code": 0,
+      "stdout": "0cc9df727c2c921d64815e452a9b08681807ce13\ne68bb3b32ff5d7b93818569a793f9594a4afa811\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "1ddcd7b3905e52c0d19db091823a64830139fa64",
+        "origin/main"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "df",
+        "-Pk",
+        "."
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+      "exit_code": 0,
+      "stdout": "Filesystem   1024-blocks      Used Available Capacity  Mounted on\n/dev/disk3s5   239362496 162972184  44377588    79%    /System/Volumes/Data\n",
+      "stderr": ""
+    }
+  ],
+  "resource_policy": "No heavy/numerical/full-data slot acquired; metadata/source reads only. Before any heavy local check require G sharedslot release."
+}

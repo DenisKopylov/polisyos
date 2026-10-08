@@ -1,0 +1,34 @@
+{
+  "schema": "policyos.e02.l02.l6_deciding_observation.v1",
+  "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "selected_file_denominator": 5,
+  "root_to_bundle_manifest_match": true,
+  "rows": [
+    {
+      "input_id": "knob_dictionary",
+      "path_matches": true,
+      "size_matches": false,
+      "sha256_matches": false
+    },
+    {
+      "input_id": "lex_map",
+      "path_matches": true,
+      "size_matches": false,
+      "sha256_matches": false
+    },
+    {
+      "input_id": "observation_contract",
+      "path_matches": true,
+      "size_matches": true,
+      "sha256_matches": true
+    }
+  ],
+  "payload_parse_or_export": false,
+  "production_writes": false,
+  "whole_corpus_or_directory_scan": false,
+  "private_identity_ref": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-restart-20261008/raw/deciding-l6-private-identity.json",
+  "private_identity_sha256": "e54d4fde0532fd521ec3894b4abdd9ee856e148e68f3ed73fcb1e06532a6940d",
+  "wall_s": 0.0020842080120928586,
+  "outcome": "INPUT_IDENTITY_NOT_RECONCILED",
+  "runtime_authentic_outcome": "UNRUN: selected source/profile/context and joined owned-context consumer not established; no Runtime diagnosis or authority admission"
+}

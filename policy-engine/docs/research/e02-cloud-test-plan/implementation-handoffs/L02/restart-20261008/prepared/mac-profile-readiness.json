@@ -1,0 +1,235 @@
+{
+  "schema": "policyos.e02.l02.qualified_restart_preparation.v1",
+  "raw_report_ref": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-restart-20261008/prepared/mac-profile-readiness.json",
+  "raw_bytes": 13831,
+  "raw_sha256": "4034f8c8685b8d9b56b9c139f756e6ac89f205229845aa721472c26ef9b0ea10",
+  "qualifications": [],
+  "payload": {
+    "schema": "policyos.e02.l02.mac-profile-readiness.v1",
+    "status": "prepared_read_only",
+    "workspace": {
+      "root": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+      "head": "0cc9df727c2c921d64815e452a9b08681807ce13",
+      "tree": "e68bb3b32ff5d7b93818569a793f9594a4afa811",
+      "branch": "codex/e02-L02-authentic-20261008",
+      "initial_status": "clean"
+    },
+    "current_g": {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+      "dispatch_source_pin_g": {
+        "commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617"
+      },
+      "q2_contract": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+        "blob": "a27cf7e78dc7c16df279a5136399ee0a5daeee9a",
+        "bytes": 7835,
+        "q2": "frozen contracts -> canonical family -> typed client/default installed reader; declared supported profiles only",
+        "conditional_input": "Selected source contracts fixed and relevant upstream task exits; source/test/config/companion input manifest before acceptance."
+      },
+      "q2_lease_sources": [
+        {
+          "role": "L02",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/L02.md",
+          "blob": "e97385084b0101fcc6dca2c5aba5519ab55b3090",
+          "bytes": 5807,
+          "mode": "read_only_verification",
+          "task_part": "Q2:Mac-only",
+          "test_start_paths": [],
+          "rule": "Mac-native supported/refusal profiles only for named criteria."
+        },
+        {
+          "role": "C06",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C06.md",
+          "blob": "26dd1e131fb3866e6af47573d68fedf20ded0081",
+          "bytes": 5953,
+          "mode": "candidate_source_writer",
+          "task_part": "Q2:CAN reader",
+          "source_boundary": "G-admitted core ir_adapter is distinct from the e3 non-G Mapping delta; C06 owns reader delta/install companions and says missing offline Hatchling is tooling UNRUN, with portable package check in the cloud supported profile."
+        },
+        {
+          "role": "C13",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C13.md",
+          "blob": "d04683e69a7866c3c5a40292e9b895da24d797f4",
+          "bytes": 8513,
+          "mode": "read_only_verification",
+          "task_part": "Q2:independent conformance",
+          "installed_profile_scope": "Fresh wheel/rebuilt-sdist child readers and actual Linux worker, GP, Node/frontend supported profiles; Mac-specific witnesses go to L02. One broad portable replay is after G exact source freeze."
+        },
+        {
+          "role": "dispatch",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json",
+          "blob": "f2e8d2096b86148fb93d4eb61520d22002228a1d",
+          "bytes": 41684,
+          "source_pins": {
+            "C_CAN_source": {
+              "commit": "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+              "tree": "2d27c9c182cf550088c5a8c072dc2f36df84e20d",
+              "in_G_ancestry": false
+            },
+            "C_DFK_source": {
+              "commit": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+              "tree": "35d9c02156f8a27335b858bfe8053d7cbc6a54f2",
+              "in_G_ancestry": false
+            },
+            "C_Legal_source": {
+              "commit": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+              "tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+              "in_G_ancestry": false
+            }
+          },
+          "q2_finding_routes": {
+            "B11": "Q2 route assigned to G/C10/C13; no B212 Q2 route is present."
+          }
+        }
+      ]
+    },
+    "mac_environment_availability": {
+      "explicit_environment_path": "/Users/deniskopylov/polisyos/policy-engine/.venv",
+      "availability": "Python 3.14.0 CPython environment exists; this is not an immutable candidate install.",
+      "pyvenv_cfg": {
+        "path": "/Users/deniskopylov/polisyos/policy-engine/.venv/pyvenv.cfg",
+        "bytes": 160,
+        "sha256": "6369cd3ace2a906aedcb939d003b70e6d03dbfaf9ac63a69c4a2047f8911ed8e",
+        "home": "/opt/homebrew/opt/python@3.14/bin",
+        "uv": "0.10.6",
+        "version_info": "3.14.0"
+      },
+      "installed_distribution_metadata": {
+        "path": "/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/policy_engine-0.1.0.dist-info",
+        "direct_url_path": "/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/policy_engine-0.1.0.dist-info/direct_url.json",
+        "direct_url_sha256": "1f5c1d0ccf967bae9c171d6e71d57bffffc2b40958bfef5dc7e375fb02199a4b",
+        "direct_url_bytes": 88,
+        "direct_url": "file:///Users/deniskopylov/polisyos/policy-engine; editable=true",
+        "metadata_path": "/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/policy_engine-0.1.0.dist-info/METADATA",
+        "metadata_sha256": "0c49a42d883b3a0c1b2b900de7799ef9e6ccc6759fae9090dfe257adc296f160",
+        "metadata_bytes": 16141,
+        "version": "0.1.0",
+        "requires_python": ">=3.14,<3.15"
+      },
+      "editable_source_identity": {
+        "path": "/Users/deniskopylov/polisyos",
+        "head": "355f5e861be96ebf03ee97888a856da2c26f767f",
+        "tree": "a9bc640f76a419a92f7ab4fec843923c3635a0a1",
+        "status": "untracked documentation directories present",
+        "relation": "Not the frozen G worktree or a C candidate source; editable pointer cannot count as exact candidate wheel/install evidence."
+      },
+      "build_backend": {
+        "hatchling_dist_info_in_explicit_venv": "not found",
+        "C4_preflight": "UNRUN: no Hatchling >=1.27.0 backend/wheel in inspected Mac interpreter/cache; no build, install, or environment creation attempted.",
+        "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-unrun.md",
+        "receipt_commit": "60b523c2d0e1a587f2f1d4b92a0ac9a89a1f49db"
+      }
+    },
+    "explicit_artifact_receipts": [
+      {
+        "subject": "CAN Mapping delta, LA-021",
+        "source": "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+        "source_tree": "2d27c9c182cf550088c5a8c072dc2f36df84e20d",
+        "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-canonical-json-mapping-20261007.json",
+        "receipt_commit": "60b523c2d0e1a587f2f1d4b92a0ac9a89a1f49db",
+        "source_property_status": "PASS for bounded source-level property: 46 passed; independent actual-CAS positive, 19 pre-byte negatives, removal-property red; candidate handoff is candidate_only_not_integrated and outside G ancestry.",
+        "installed_artifact_status": "UNRUN for exact e3 wheel; Hatchling >=1.27.0 unavailable in recorded offline Mac preflight.",
+        "old_artifact_receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/installed-package-receipt.json",
+          "receipt_commit": "60b523c2d0e1a587f2f1d4b92a0ac9a89a1f49db",
+          "receipt_blob": "2ccc3e8d5eb95f1943b0bf4651f83841ac6a5b3b",
+          "receipt_bytes": 93727,
+          "tested_source": "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e",
+          "tested_tree": "70ed14e004063536ff3a12d30d14d9bdd79a4916",
+          "wheel": "policy_engine-0.1.0-py3-none-any.whl",
+          "wheel_sha256": "50740ad2a46b7b3aa3e692a7f75c74e9cfc7bf43eeee16c461c196174d3f373b",
+          "wheel_bytes": 15020523,
+          "use_for_e3": false,
+          "reason": "The 55b artifact predates the e3 JSON-mode Mapping normalization; its historical installed PASS cannot establish e3 behavior."
+        }
+      },
+      {
+        "subject": "DFK retirement, LA-005/006/026/027",
+        "source": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+        "source_tree": "35d9c02156f8a27335b858bfe8053d7cbc6a54f2",
+        "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfk-c5-lifecycle-source-handoff.json",
+        "receipt_commit": "4576f67b1ff1f8d09b6a4223779b53fff9b369ae",
+        "source_profile_status": "Recorded C5 source result: 24 tests passed on Mac Python 3.14; do not rerun unchanged methods.",
+        "wheel_status": "UNRUN",
+        "sdist_status": "UNRUN",
+        "installed_readback_status": "UNRUN",
+        "backend_preflight": "Hatchling/build backend unavailable in system Python, original venv, and uv-managed Python; no environment changed."
+      },
+      {
+        "subject": "DomainPlugin installed ABI profile, LA-023-related candidate",
+        "source": "a452011da3de26d90877ae95ab10a72cce8e0b45",
+        "source_tree": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a",
+        "handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/domain-plugin-training.json",
+        "handoff_commit": "976212bbefb684da4823f61d810bf7a208a6e298",
+        "installed_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/domain-plugin-final/installed-domain-plugin-receipt.json",
+        "historical_mac_artifact_receipt": true,
+        "wheel_sha256": "c733a77464421908789648b749d22333cb9a4b966e9785e3d751f30228905f84",
+        "wheel_bytes": 15020624,
+        "sdist_sha256": "9d6184af714b4f76dcccd60ebaf296b18821e317258544f8d0c3e74618481c8d",
+        "sdist_bytes": 65180357,
+        "profile": "Mac Python 3.14 CPU source checks; separate fresh offline Python 3.14 base wheel install with no extras.",
+        "installed_consumer_result": "PASS for installed CLI/discovery and isolated DomainPlugin ABI fixture; invalid entrypoint class refused; 10 checked modules byte-identical to archive/wheel; training/optimizer not run in installed probe.",
+        "availability_boundary": "This exact artifact was receipt-proven historically, not checked for present disk availability, and its source is not G-admitted. The prior source-level one-call CPU training PASS is complete and must not be rerun. LA-023 remains held on public cross-call/checkpoint semantics or scoped refusal."
+      },
+      {
+        "subject": "Legal current candidate, LA-042",
+        "source": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "source_tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+        "source_in_G": false,
+        "installed_candidate_status": "UNRUN; earlier receipt source ab441 is not c60 and cannot substitute. No Mac-specific semantic requirement established."
+      },
+      {
+        "subject": "History conversion, LA-050",
+        "source_candidate": "004ae11f1a541e2035f71cefa92f89b71bd8f562",
+        "prior_receipt": "Bounded installed CLI conversion/readback for four genuine current v1 manifests; historical 0.9 input was not present.",
+        "local_requirement": "No production read was performed or authorized here. A genuine historical 0.9 manifest with lineage remains the minimum factual input; this is not a Mac package requirement."
+      }
+    ],
+    "routing_decision": {
+      "new_exact_g_admitted_mac_artifact_found": false,
+      "ready_criterion_specific_local_check": false,
+      "reason": "The only current explicit Mac environment is an editable 0.1.0 install from the primary checkout; it is not an immutable G/candidate artifact. Exact C wheel/sdist layers are either UNRUN or bound to older/non-G source. No selected criterion establishes an OS-intrinsic Mac requirement, and no authorized production/history input is available for LA-050.",
+      "portable_route": {
+        "owner": "C13 cloud, after relevant Q1/contracts and exact source/input manifest; broad portable replay only after final G source freeze.",
+        "declared_profiles": [
+          "Python 3.14 app/native",
+          "Linux Python 3.12 / DoWhy 0.14 worker",
+          "selected search_bo GP profile",
+          "Node 22/frontend"
+        ],
+        "test_targets": [
+          "policy-engine/tests/repo_quality/tools/test_hatch_packaging.py",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_query_consumer_binds_complete_cas_projection_and_original_request"
+        ],
+        "declared_setup_recipe_not_run": "uv sync --project workers/dowhy-014 --python 3.12 --frozen; C13 fresh wheel/rebuilt-sdist and isolated installed-worker profile remain future checks, not PASS evidence."
+      },
+      "native_profile_boundary": "L02 remains the owner only for a named Mac-native supported/refusal profile or authentic local consumer required by an exact criterion. None of the eight LA criteria examined here currently makes Mac an intrinsic semantic requirement; the recorded PLG Mac CPU evidence is already complete and source-qualified to a452.",
+      "b212_caution": "The C13 Linux 3.12/DoWhy 0.14 worker selector, even with its own controlled CI/SE-removal behavior, does not establish a naturally point-only estimator or B212 closure. Current dispatch Q2 finding routes include B11, not B212. Do not transfer a C13 result to that separate property.",
+      "do_not_repeat": [
+        "Mac7/fakepoint",
+        "unchanged CAN e3 source/independent selectors",
+        "completed PLG one-call Mac CPU suite",
+        "old-wheel installed probes as evidence for newer candidates"
+      ]
+    },
+    "work_performed": {
+      "read_only_sources": [
+        "exact current-G L02/C06/C13/dispatch/tasks files",
+        "prior L02 prepared receipt",
+        "exact previously referenced CAN/DFK/PLG installed-artifact receipt metadata",
+        "explicit primary policy-engine/.venv metadata"
+      ],
+      "tests_executed": false,
+      "install_or_restore": false,
+      "native_backend_launched": false,
+      "production_data_read": false,
+      "source_or_test_files_written": false,
+      "children_spawned": false
+    }
+  },
+  "temporal_boundary": "Helper observations precede root five-file L6 reconciliation. Any host-input-not-assessed statement remains historical to that report; new specific observations are in l6.stdout, not a global host census."
+}

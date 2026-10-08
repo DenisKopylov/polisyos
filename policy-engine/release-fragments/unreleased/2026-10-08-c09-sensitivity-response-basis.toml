@@ -5,8 +5,8 @@ component = "foundry"
 owner = "team-policyos-runtime"
 summary = "Add an opt-in local Jacobian profile for registered scalar state slots, with exact source/model/input identities, axes, units, seeds, execute requests and persisted replay states. A fresh internal reader recomputes the basis and rejects changed units, source, order and lineage."
 compatibility = "The response_slots keyword is additive. Historical callback and operational-metrics diagnostic paths remain available. The new basis is internal, numerical, and non-gating; no Node adapter, authority admission, registry, scheduler or lockfile changes."
-surface_classification = "public-stable: additive identifiability_diagnostic keyword; internal: response basis and recomputing reader"
-change_class = "additive"
+surface_classification = "internal: package-specific calibration entrypoint, response basis and recomputing reader; no root-stable export promotion"
+change_class = "python-public-api"
 migration = "Existing callers need no migration. Opt-in callers use explicit inline moments/center, registered global scalar slots and a persisted Jacobian-only profile. Canonical cross-owner adapters must adopt the internal reader under their own law/target contract."
 limitations = "No callback authority, empirical calibration, stochastic law inference, vector summaries, profile/bootstrap basis, production data, or composed uncertainty/Scientist consumer admission. Shared public inventory and adapter adoption remain canonical-owner companions."
 evidence = ["tests/unit/foundry/calibration/test_identifiability_response_basis.py", "src/polisyos/foundry/calibration/README.md"]
@@ -15,13 +15,26 @@ generated_client_compatibility = "not_applicable"
 
 [[compatibility_change]]
 id = "execute-state-response-basis"
-change_class = "additive"
-impact = "compatible"
-surface = "public-stable: identifiability_diagnostic response_slots keyword"
+change_class = "python-public-api"
+impact = "additive"
+surface = "internal: package-specific identifiability_diagnostic response_slots keyword"
 owner = "team-policyos-runtime"
 version_owner = "team-policyos-runtime"
 deprecation_window = "not_applicable"
 release_note = "Registered scalar state responses may opt into a content-bound local diagnostic; historical callbacks and metrics are preserved."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/foundry/calibration/README.md"]
+runbook_docs = ["src/polisyos/foundry/calibration/README.md"]
+
+[[compatibility_change]]
+id = "local-response-basis-persistence"
+change_class = "persisted-artifact-format"
+impact = "additive"
+surface = "internal: optional execute_scalar_state_response_v1 basis on the existing local sensitivity matrix"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "The opt-in internal response basis has an explicit v1 profile and exact replay lineage; historical 1.0 matrices without that basis stay on their old reader path."
 generated_client_compatibility = "not_applicable"
 migration_docs = ["src/polisyos/foundry/calibration/README.md"]
 runbook_docs = ["src/polisyos/foundry/calibration/README.md"]

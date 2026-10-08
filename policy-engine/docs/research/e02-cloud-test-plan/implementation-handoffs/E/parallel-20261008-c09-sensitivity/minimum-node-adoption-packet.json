@@ -72,13 +72,13 @@
     },
     {
       "owner": "canonical public-surface inventory owner (G routes lease)",
-      "trigger": "adopt additive response_slots keyword",
+      "trigger": "adopt or classify the additive package-specific response_slots keyword; existing root-stable Foundry supported_entrypoints does not list calibration",
       "fields": [
         "existing identifiability_diagnostic facade/FQN and additive keyword",
         "internal response basis/reader scope",
         "source-qualified release fragment and package README"
       ],
-      "action": "update canonical inventory/compatibility record; no new facade/registry; historical callers unchanged",
+      "action": "canonical owner classifies the existing package-specific export and updates inventory/compatibility only where required; internal reader is not promoted to root-stable; no new facade or registry, historical callers unchanged",
       "status": "dependency packet, not inventory completeness PASS"
     }
   ],

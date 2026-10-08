@@ -1,0 +1,447 @@
+{
+  "topic": "codex/e02-C-orch02-c12-recovery",
+  "head": "77be2bb933d26363fb163ae5f36623a3bddaf061",
+  "tree": "9c24d5ddafcd1796377440dec82edf61ade82628",
+  "source": "192c8b935b824e2e4d38276f10d3061877207e9f",
+  "complete_docs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-architecture-followup-20261008.json",
+      "git_blob": "6d5b1d307dd7a02e9fc6def323a090da08b3a8a0",
+      "sha256": "a49e3b687ffb0081b53155f75f2f83ea5f0b16f7011a72b1667c17ee83d0397b",
+      "bytes": 10000
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008.json",
+      "git_blob": "79eb95b1e24a50efa524a6a3630d3ffe3b7f7f9c",
+      "sha256": "00fa78a70089c627ca248efbb83dacaf9a564af0c298be0718b721f2b5839fd0",
+      "bytes": 49914
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/G-preimages.json",
+      "git_blob": "46a2518bca297461258e4e06b7e4e1edb6309336",
+      "sha256": "684f431d6a6dda245dc3bf9e19ac9f52494a78560e8d9780b8b40cf4e6cec026",
+      "bytes": 1310
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/README.md",
+      "git_blob": "926077a0c4a2ca1305ffc8d443b1e3e84191e90e",
+      "sha256": "237450c59c807f45e1e658ccadf04d6c12788a99768a1863e0243c18f8abfa95",
+      "bytes": 3447
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/environment/hnswlib-install.stderr",
+      "git_blob": "2133670f3dcb9711142528236ea02cb7122fea65",
+      "sha256": "302bf6280ff7dd8ac2ef7186d50938111399d4180b892dd9faf9a9989fe3e347",
+      "bytes": 238
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/environment/hnswlib-install.stdout",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/environment/numpy-align.stderr",
+      "git_blob": "1dcc8634608aaa78024a959c19f1e67d84aaed79",
+      "sha256": "6a88aac87be1637ef7afb3a96c99f7d8dbc1971a2854c92dec7076d9e9e39800",
+      "bytes": 255
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/environment/numpy-align.stdout",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/independent-native-receipt.json",
+      "git_blob": "14883ab6f2393c19367ea70a3d51631e9f071501",
+      "sha256": "b50e8a3f1eab1ff3af9df9c22a8933611da82bebdf05211dc41b331e3d742a30",
+      "bytes": 7503
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native-origins-postrun-supplement.json",
+      "git_blob": "d05f152e45e89a5a78081ffb177eca4b2949908b",
+      "sha256": "87e361afc3f054b61188f534248ea0f74904d3e00812ae73223f72bd10be9aee",
+      "bytes": 2314
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-callable-residual/command.json",
+      "git_blob": "bb30708aa84b6aba39777e1710000587fc7f85ec",
+      "sha256": "87e6b77d8e60905a31c2c9cbb2b5c8596d997731e867854ca39f78b329ce34f8",
+      "bytes": 1558
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-callable-residual/resource.json",
+      "git_blob": "a6b2048ebafb28ca61385daa6eec887cea8c6350",
+      "sha256": "1eb120bbae7f8fecb2835e67de04634bca1d983ee8375a3d78e05953a9088ec4",
+      "bytes": 295
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-callable-residual/semantic.json",
+      "git_blob": "f61c0d49316784326b119122d3b2e98f99e37864",
+      "sha256": "0d7cafbf25a6efb68720a7a772b77382c58fcfd5a54d753b402858155b92e600",
+      "bytes": 719
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-callable-residual/stderr.txt",
+      "git_blob": "8a19b47fcd1cd0d738563b09227dc8b150602ffe",
+      "sha256": "d43401c739a0c16f6f586fdc60f1dadd54a7125981171fabc6fec194e13d7729",
+      "bytes": 335
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/command.json",
+      "git_blob": "fc36001a09ef09b2e1f87b1adee4ae28a569da14",
+      "sha256": "3e68ae96f6bfafcab8cf5ddc53d0ea812acafeebc6f5643976cd44f1f90d01b2",
+      "bytes": 1974
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/junit.xml",
+      "git_blob": "6d310e1ae9d764776c5d9e3ab51ce2f39590a6ff",
+      "sha256": "647da7e3400fbd46ccad91f4a979c9f4eedbf3290b7f6723b05853e7d3fc342e",
+      "bytes": 5790
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/resource.json",
+      "git_blob": "cd7a2a6a0877e65a420007b5ac3de4f4f33068e6",
+      "sha256": "0c3625708756cab7af61ef942ac8a77560594ac698b2eeb449a50bf723929431",
+      "bytes": 290
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/runtime-origins.json",
+      "git_blob": "46652bbdd39ed8b686ee9973ba6dfaf02bd45dc6",
+      "sha256": "ec662d79270604178b52fddb7c5d8d95d270e2ed319c4a7021e31ea0a84d890e",
+      "bytes": 9805
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/stdout.txt.gz",
+      "git_blob": "536b3519094f335f7fa90d81786cd1d1a2451bc5",
+      "sha256": "5a271fd77b04bc98bd0c9c7a214318af9d25a31d36bdcfdb49871fa9ab524863",
+      "bytes": 273
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-intent-semantic/command.json",
+      "git_blob": "b2daa042cb97603c441273ca4e7bb7b5d9a12621",
+      "sha256": "e9d21f53c2fcd2ca8c24308ec80209ce1efef2fef6b9280909338a101dff126a",
+      "bytes": 1604
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-intent-semantic/resource.json",
+      "git_blob": "dc36b09e0e973608c74d0457224c581d611128ab",
+      "sha256": "0909ab2ad8ba5e0824b63e0866a2b2248c43ab0ac19f25f025d78ae6abb44e20",
+      "bytes": 285
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-intent-semantic/semantic.json",
+      "git_blob": "0123faa42039dfb492b46d00e907f33d41e52925",
+      "sha256": "b28341fc6cdc232c43e50b5c6c0be5bf18e5dcdd70aafa670be36c11fd0e544c",
+      "bytes": 4840
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-intent-semantic/stderr.txt",
+      "git_blob": "24f7344b073c1366a2a6c22c2e1b84f0b3be1909",
+      "sha256": "7c1039e05940f1a4fe0faa07491a169ac7a9d45b7ceae1ac8fae8f78ce5af7ae",
+      "bytes": 670
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/command.json",
+      "git_blob": "35ba10630afb349d71fc9fe5902906e9d6b551df",
+      "sha256": "b93eb60d7e39ec4bcbe94dfa41657a79dcfc3e8ce1d447c564eacf2c2dfabbd0",
+      "bytes": 2018
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/junit.xml",
+      "git_blob": "217e1ad4c8510d3b6c438b0ef8acd67d99b940dd",
+      "sha256": "b8c6c55ff6f9c432435779b8413af8e10f51ffe225e4b4a7f5ae1d47ba4276a5",
+      "bytes": 399
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/resource.json",
+      "git_blob": "2cea45e512d8d3751d7d928cb51b3f1a366e86ac",
+      "sha256": "85d233b3592226c10517d7b686ec1add2517f5ff77e9998fde0c7b055c5c93d3",
+      "bytes": 286
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/runtime-origins.json",
+      "git_blob": "bfe0d4faab97ffdcc5827ef3708e096b7185b990",
+      "sha256": "3867b10cc67a83057c33e8d841144fffd3ea5138d9ad793ba75a14ea974b3292",
+      "bytes": 5847
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/stdout.txt.gz",
+      "git_blob": "625290f12de6a48e916e6463832a690e523a451b",
+      "sha256": "5fae2a639fc0ece07700a2874b27aeefd232df5cc50f75f514d110b86040543a",
+      "bytes": 271
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/architecture.command.json",
+      "git_blob": "81a18c14485b795b57693f1c794ebc160a8f6935",
+      "sha256": "1e0fdbdc1cb6e86d18ad3807c9ae40266de9b885a729db14e1deb773c43b5724",
+      "bytes": 1041
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/architecture.receipt.json",
+      "git_blob": "9669d1b595c960e047801ea5c79331b4519b6233",
+      "sha256": "71f8633c6802ce838f23a99c069bc279dd079c0869b71a9ad555689dff8811e1",
+      "bytes": 2240
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/architecture.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/architecture.stdout.txt.gz",
+      "git_blob": "d8bbb31de4f5f5aaa8721acecd60676278c94dbc",
+      "sha256": "4525d9f3bcbb2eb6f5f4ef8404a553a0d20ececfcb45c177cf5ad015bd98571c",
+      "bytes": 8842
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/artifact-manifest.json",
+      "git_blob": "c00d299fe955ab4117b215d19a59bf364746e820",
+      "sha256": "9801e55dc36e878ec13ee22593a40d0a5efe86264487bdaa473108ce30f76aad",
+      "bytes": 4852
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/bootstrap.receipt.json",
+      "git_blob": "2e1bd2d3b924b1f69ae3431baeac830e31b14f01",
+      "sha256": "b1fe692026efd261f6775db4f5f25addec447aad61935350af79703d0e65f651",
+      "bytes": 1295
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/bootstrap.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/bootstrap.stdout.txt",
+      "git_blob": "dcf48cd954ee7b3927aa56e4f65e3f5a0f082f8a",
+      "sha256": "f54c6bbe7c2c9faa4ef89f1195414b1c1fc114d7f6873c1c0e6e113fbe56ada4",
+      "bytes": 518
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/generated-output-bindings.json",
+      "git_blob": "0c76c5cbf235c9d4959482b411a7547cf0c0f24f",
+      "sha256": "9ca4b9cdde1bf0bc3bcdc5520697a68d347d2b9e38d55050513f16e8745480bb",
+      "bytes": 4588
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/input-binding.json",
+      "git_blob": "567be72e34bfead21576a0d4784865a82551c7e5",
+      "sha256": "f70d4e46cde566b92892d0818ddd093343b804864bc64f13c6f3682691187d99",
+      "bytes": 15314
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/preflight.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/preflight.stdout.txt",
+      "git_blob": "a6ed4998c2c219b0e86ab6fd57b51a434cdb36df",
+      "sha256": "4529ac790279a4f6c4b842f69367d974112e7cf2115c1a997b2cf509607de47d",
+      "bytes": 6386
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/taxonomy.json",
+      "git_blob": "b9979e185c055f21f1523be29b0f1d61b70f0fd8",
+      "sha256": "34a7fdbf392e86cb29480bcd4128c718cc95282a70954c298c84552d40c5219d",
+      "bytes": 2165
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/toolchain.json",
+      "git_blob": "76d0eddb896b5081809d4e1f9741cc921dfd250f",
+      "sha256": "e3f02a97e520441105d20b44c98e73c9d572cd6a771a36d187a0989345de4cec",
+      "bytes": 2894
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture.receipt.json",
+      "git_blob": "77e0b0e53b2789ce57caa43afce86102ab8b363e",
+      "sha256": "0b59a7d6677477771eb5fca5ceb6bf54f7ef20dfa7aca3368cc6ab0d3f4f820c",
+      "bytes": 594
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture.stdout.txt",
+      "git_blob": "84d73158d006265e67aaf8af1b7670fd2b994230",
+      "sha256": "bd6455ced6c166e7e55d9140022470c8ea090f097318181f041707e6c805f697",
+      "bytes": 119972
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/format-final.receipt.json",
+      "git_blob": "f3f6d6a3864ca4489db654f9637e918df6449cf2",
+      "sha256": "24f970758c9849dd9dbcd2130654446f17443fc8fb2085346df005b754c1cc6d",
+      "bytes": 709
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/format-final.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/format-final.stdout.txt",
+      "git_blob": "8e4d504182979b9ad211fb7b88757897fbed0606",
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+      "bytes": 26
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/format.receipt.json",
+      "git_blob": "58a1116021596777e2d67dc149c864cf5f2f1c57",
+      "sha256": "72080748b4291a6719941abc0551ed92902defed200f73788aa26d68f9edcf22",
+      "bytes": 686
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/format.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/format.stdout.txt",
+      "git_blob": "b045a09a126e7f4d86e956de0760571e5a0fc196",
+      "sha256": "61c8948b7697b90ccc183f3deefe0a604f910e3ed04cb06394f97bbc0cf2fb62",
+      "bytes": 162
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/imports-final.receipt.json",
+      "git_blob": "da8c02f5ed0cc47e6e644d81475e2105790cd1b1",
+      "sha256": "a68b9724e3e126567d85e73131d5734bc5e4ec2cf6cff2d20e8a2802d6b3c48c",
+      "bytes": 1249
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/imports-final.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/imports-final.stdout.txt",
+      "git_blob": "021096696560e9d9a3bf6e3efc9ac9ef40b04647",
+      "sha256": "670492cfdaefde93c460e43b372b30bd7c2f7eec3178e87317977a9a41e076a2",
+      "bytes": 1722
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/mypy.receipt.json",
+      "git_blob": "e288b87a712167c0ca6a335ec0a965ec50e8c4df",
+      "sha256": "70f6e6876c1ce9ef1d3c3f31407255df4fdaca98ef8425e7b83a1922181644ac",
+      "bytes": 737
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/mypy.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/mypy.stdout.txt",
+      "git_blob": "c56853c1d93b609fe7c9e4fe04252cec54a46f62",
+      "sha256": "4c515308a018abea60c54b51c9741ecc9d3f961d356561425e98db433459f0ac",
+      "bytes": 2573
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/ruff-final.receipt.json",
+      "git_blob": "721f925ea0bd62dbf376902fb07b50c175a90aa6",
+      "sha256": "84648033c9cefbd2c6d16082cf4919e3680c8803dd8b1b75694b460e84e45f0b",
+      "bytes": 689
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/ruff-final.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/ruff-final.stdout.txt",
+      "git_blob": "1f5f344d054fae10f39140fb7199c99321d9190a",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/ruff.receipt.json",
+      "git_blob": "5a99ccca97b70ba1c28f78d1c5dafe5b4a5efdb4",
+      "sha256": "73f2fd0d185de868c63c14b4003fe02fb7414b4cb042c0f1b5a35dfc62fe4159",
+      "bytes": 666
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/ruff.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/ruff.stdout.txt",
+      "git_blob": "934d31b581c2968657104070e595e24fac5b8d4a",
+      "sha256": "4773e1138bba707ac18eb708699a8fa73b48d404f03880b62ceec970de9889bb",
+      "bytes": 522
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-independent-architecture-followup-review-ab4531fd.json",
+      "git_blob": "41fc5ce26a234ab77343e8efb509d4a4d9d159b7",
+      "sha256": "5b59a3be018eca3a118fabc1714752de086a0840d1e84f57a19593c7b12aaf1a",
+      "bytes": 24515
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-independent-architecture-followup-review-ab4531fd.md",
+      "git_blob": "24d60b7928c8314c50bd9d2e884d8e59cd0d34b0",
+      "sha256": "a341b82470f6250ae0de44994dd9bdda5730b21612c5c238f3efe81fa7f593b6",
+      "bytes": 2858
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-independent-evidence-handoff-review-6e51ea2a.json",
+      "git_blob": "d82209e86c5650ec6d976f78bf33594d57dce287",
+      "sha256": "7feeb09646ee07deee12455c0351974bd88d020ec06bb3dbd64b85d9eb6ad1d3",
+      "bytes": 33654
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-independent-evidence-handoff-review-6e51ea2a.md",
+      "git_blob": "da0b28df1f76306460d3fd362bc6580e00e6563c",
+      "sha256": "a6a6ae615c5779ed1a2ed8ac175f66b2cf074c248aa8e7cc45e2ffe1eb800415",
+      "bytes": 2866
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-independent-source-review-192c8b93.md",
+      "git_blob": "70c6d186541903a19e35c7439498ecbe6bc055cd",
+      "sha256": "50bf1f2f4387829797d16fbe5e10ae755c57d6043fa0cce227107abe74dc0cc5",
+      "bytes": 8088
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-source-binding-192c8b93.json",
+      "git_blob": "f49219d20ed69f6efe9d881a3f8ce6daace52650",
+      "sha256": "b2a6a49d3f3ec8abf5b6b406eb1f54c24b4bd84ba7cb884d0f009e283c981ff2",
+      "bytes": 9880
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-source-binding-677e6098.json",
+      "git_blob": "b0842e6b82a2c972db48c284b1ca05a3f2bb2389",
+      "sha256": "c042cea99db484a4ad681fa148f383490e2386f303438637b2de4158db063e27",
+      "bytes": 9049
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/source-input-closure.json",
+      "git_blob": "513eb96f9f3ffe8c26c3b04552b38c5ce56087d4",
+      "sha256": "0eb36be36f806ff2bf0400d567229bbe36c35da60685eb93c938466a386525cc",
+      "bytes": 36470
+    }
+  ],
+  "source_unchanged": true
+}

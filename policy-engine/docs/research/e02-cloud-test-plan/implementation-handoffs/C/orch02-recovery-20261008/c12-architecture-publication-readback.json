@@ -1,0 +1,34 @@
+{
+  "topic_branch": "codex/e02-C-orch02-c12-recovery",
+  "topic_head": "77be2bb933d26363fb163ae5f36623a3bddaf061",
+  "topic_tree": "9c24d5ddafcd1796377440dec82edf61ade82628",
+  "tested_source_head": "192c8b935b824e2e4d38276f10d3061877207e9f",
+  "tested_source_tree": "46d748c61419ea4093cae25bc4111935b41f1a58",
+  "actual_architecture_execution_head": "427068292f7e0e50a12441affe72f167a899c45b",
+  "actual_architecture_execution_tree": "cc1506954441ef4e5ff2ef08109f13c6c3e7d150",
+  "remote_readback": "77be2bb933d26363fb163ae5f36623a3bddaf061\trefs/heads/codex/e02-C-orch02-c12-recovery",
+  "fetch_exit_code": 0,
+  "fetch_stdout": "",
+  "fetch_stderr": "",
+  "main_handoff": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008.json",
+    "git_blob": "79eb95b1e24a50efa524a6a3630d3ffe3b7f7f9c",
+    "sha256": "00fa78a70089c627ca248efbb83dacaf9a564af0c298be0718b721f2b5839fd0",
+    "bytes": 49914
+  },
+  "architecture_followup": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-architecture-followup-20261008.json",
+    "git_blob": "6d5b1d307dd7a02e9fc6def323a090da08b3a8a0",
+    "sha256": "a49e3b687ffb0081b53155f75f2f83ea5f0b16f7011a72b1667c17ee83d0397b",
+    "bytes": 10000
+  },
+  "receipt_paths": 73,
+  "source_postimages_and_prior_checks_unchanged": true,
+  "fresh_artifact_hashes_and_full_stdout_gzip_verified": true,
+  "independent_review_bytes_preserved": true,
+  "whole_diff_check_clean": true,
+  "attached_clean": true,
+  "architecture_outcome": "complete default gate FAIL exit1; no UNRUN/escapes;154edges+baseline1+2generateddrifts",
+  "formal_G_closure": false,
+  "closure_ids": []
+}

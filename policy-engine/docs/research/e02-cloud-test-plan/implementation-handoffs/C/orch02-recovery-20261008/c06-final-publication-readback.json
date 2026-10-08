@@ -1,0 +1,56 @@
+[
+  {
+    "role": "dfk",
+    "branch": "codex/e02-C-orch02-c06-dfk-recovery",
+    "published_remote_head": "e4bd1527c941ff880a5d34898c57428c7be4b1cc",
+    "tree": "ac28670d3de31221e3f553902d4287fb8e482c40",
+    "source_sha": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+    "slice_base_sha": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+    "source_to_head_unique_documentation_paths": 175,
+    "slice_base_to_head_unique_paths": 179,
+    "all_changed_docs_fetched_Git_bytes_match_local": true,
+    "source_postimages_unchanged_count": 4,
+    "handoff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/handoff.json",
+      "blob": "dc5a67337d4bf0425a4a1e15e14669ae3fef5890",
+      "bytes": 13613,
+      "sha256": "e3f3d00da1dc4711d46e9e75e59e3b7ccd10633193cb892f9ae73a4ab50ec849"
+    },
+    "independent_publication_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/publication-review/independent-publication-review.json",
+      "sha256": "f01ffe42677ea5381656cba81f2c7d637793cf3063e1b155dbe168c34c5b1e6d"
+    },
+    "clean": true,
+    "source_acceptance": "not_admitted_by_G",
+    "formal_closure_ids": [],
+    "native_proofs": "candidate-local bounded only; G composition not admitted",
+    "mandatory_architecture": "FAIL, inherited_attribution_not_established"
+  },
+  {
+    "role": "can",
+    "branch": "codex/e02-C-orch02-c06-can-recovery",
+    "published_remote_head": "6602fbd087ef31d3f8eff42e94fc1fc074326d45",
+    "tree": "5c281ce135abc9e7e25ae75268c09fa8316a63c6",
+    "source_sha": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+    "slice_base_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "source_to_head_unique_documentation_paths": 140,
+    "slice_base_to_head_unique_paths": 144,
+    "all_changed_docs_fetched_Git_bytes_match_local": true,
+    "source_postimages_unchanged_count": 4,
+    "handoff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/handoff.json",
+      "blob": "d9867fea12fe0a559743f99271f5e2719e0a13fb",
+      "bytes": 12747,
+      "sha256": "618f70ecdcb652c69f3eb302914c0903d35c2d915b34191269479c34b0dcb605"
+    },
+    "independent_publication_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/publication-review/independent-publication-review.json",
+      "sha256": "f01ffe42677ea5381656cba81f2c7d637793cf3063e1b155dbe168c34c5b1e6d"
+    },
+    "clean": true,
+    "source_acceptance": "not_admitted_by_G",
+    "formal_closure_ids": [],
+    "native_proofs": "candidate-local bounded only; G composition not admitted",
+    "mandatory_architecture": "FAIL, inherited_attribution_not_established"
+  }
+]

@@ -1,0 +1,415 @@
+{
+  "schema": "policyos.e02.orch02.independent_review.v1",
+  "reviewer": "/root/recovery_review",
+  "author": "/root/c12_writer",
+  "unit": "C",
+  "review_kind": "C12 docs-only required architecture followup/evidence review",
+  "source_candidate": "192c8b935b824e2e4d38276f10d3061877207e9f",
+  "source_tree": "46d748c61419ea4093cae25bc4111935b41f1a58",
+  "actually_checked_whole_execution_head": "427068292f7e0e50a12441affe72f167a899c45b",
+  "actually_checked_whole_execution_tree": "cc1506954441ef4e5ff2ef08109f13c6c3e7d150",
+  "reviewed_handoff_commit": "ab4531fd1b0db59c162dfce0e7507f953a52a694",
+  "reviewed_handoff_tree": "788a5694e1fc10d88cb035076427cc37bf4bbf5b",
+  "handoff_identity": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-architecture-followup-20261008.json",
+    "git_blob": "e91241aea6b71be97825bd3a02b0367802261b66",
+    "bytes": 8671,
+    "sha256": "c282764fca10216275704fb1603cb617b87150263b8c722167c3c77613903ef9"
+  },
+  "main_handoff_identity": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008.json",
+    "git_blob": "619d61d10282c336dea47f9e3b0c29c0f21faca9",
+    "bytes": 48338,
+    "sha256": "d1de79db2cdb9f4f7761d4a0898293fef978e5d14ef5426e3cf1b7b57a21cef4"
+  },
+  "verdict": "GO for normal own-topic evidence/handoff publication; required architecture gate remains FAIL",
+  "source_invariance": {
+    "six_tested_source_postimages_unchanged": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/parallel-20261008-c12-request-intent.md",
+        "git_blob": "3a9e4fb39e262bf34feaf58851ae94798db8e95f",
+        "bytes": 6290,
+        "sha256": "ee156e57302c5edb025252a3a36c14ab5b9131d200298ef1c239db76d80fac63"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-08-legal-request-generation-intent.toml",
+        "git_blob": "34d2476c3ab6f5faac8e62a99d3b05bae4b10c55",
+        "bytes": 2308,
+        "sha256": "163a13a4d19a319b8770a581cc47bc4008f90dc8c7c744f12d64001dc3f20dc1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/lex/knowledge/README.md",
+        "git_blob": "15ef2244c71a5162e2772127eb56fdabbf57fd18",
+        "bytes": 6429,
+        "sha256": "f7e3ab550a4634b509f3a47962f5719c521ed6f7855c54b1bd68ddde641d1c48"
+      },
+      {
+        "path": "policy-engine/src/polisyos/lex/knowledge/search.py",
+        "git_blob": "58925aa6754b4decdbc7dcc236bd76e516827002",
+        "bytes": 21240,
+        "sha256": "384d9377c3fe8f0fef6142d3f9b7161c5a3cf46a927f6136462e60aa5199b9cb"
+      },
+      {
+        "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+        "git_blob": "5831a8c63410a1b002970e7cd82e43b780f92342",
+        "bytes": 108831,
+        "sha256": "7027efe1b04286f3fc9b07f8ab42f1a410e0cfbbd7938771469487b604b2d481"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+        "git_blob": "b555dd0e9770a095400857675b64e6cffdeeace2",
+        "bytes": 49372,
+        "sha256": "b966282f9084b31a852e232aaee8f268864d486ccebd9a8fff55ce2e757ab89c"
+      }
+    ],
+    "delta_from_prior_published_handoff_paths": 16,
+    "all_delta_document_paths": true,
+    "candidate_to_final_receipt_paths": 71,
+    "source_to_actual_execution_document_paths": 56,
+    "prior_evidence_paths_byte_equal": 54,
+    "prior_checks_exactly_preserved": 9,
+    "main_changed_keys": [
+      "quality_followups",
+      "checks",
+      "quality_limitations",
+      "receipt_footprint"
+    ],
+    "source_tool_config_lock_or_native_edit": false,
+    "diff_check_exit": 0,
+    "worktree_clean": true
+  },
+  "new_measurement": {
+    "outcome": "FAIL",
+    "exit_code": 1,
+    "wall_seconds": 431.7616398690002,
+    "maxrss_kib": 1116440,
+    "resource_scope": "wait4 child usage for exact invocation, not whole host",
+    "whole_tree_label": "427 was checked, with source192 unchanged; evidence commitab was not runtime target",
+    "default_required_family_count": 4,
+    "optional_families_requested": false,
+    "standalone_Atlas_included": false,
+    "UNRUN_count": 0,
+    "isolation_escape_count": 0,
+    "baseline_drift": 1,
+    "new_deep_import_edges_vs_baseline": 154,
+    "generator_output_drift": 2,
+    "generator_outputs_total": 6,
+    "generator_outputs_matching": 4,
+    "P41": "not_established"
+  },
+  "evidence_verification": {
+    "artifact_manifest_rows": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/architecture.command.json",
+        "git_blob": "81a18c14485b795b57693f1c794ebc160a8f6935",
+        "bytes": 1041,
+        "sha256": "1e0fdbdc1cb6e86d18ad3807c9ae40266de9b885a729db14e1deb773c43b5724"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/architecture.receipt.json",
+        "git_blob": "9669d1b595c960e047801ea5c79331b4519b6233",
+        "bytes": 2240,
+        "sha256": "71f8633c6802ce838f23a99c069bc279dd079c0869b71a9ad555689dff8811e1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/architecture.stderr.txt",
+        "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/architecture.stdout.txt.gz",
+        "git_blob": "d8bbb31de4f5f5aaa8721acecd60676278c94dbc",
+        "bytes": 8842,
+        "sha256": "4525d9f3bcbb2eb6f5f4ef8404a553a0d20ececfcb45c177cf5ad015bd98571c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/bootstrap.receipt.json",
+        "git_blob": "2e1bd2d3b924b1f69ae3431baeac830e31b14f01",
+        "bytes": 1295,
+        "sha256": "b1fe692026efd261f6775db4f5f25addec447aad61935350af79703d0e65f651"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/bootstrap.stderr.txt",
+        "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/bootstrap.stdout.txt",
+        "git_blob": "dcf48cd954ee7b3927aa56e4f65e3f5a0f082f8a",
+        "bytes": 518,
+        "sha256": "f54c6bbe7c2c9faa4ef89f1195414b1c1fc114d7f6873c1c0e6e113fbe56ada4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/generated-output-bindings.json",
+        "git_blob": "0c76c5cbf235c9d4959482b411a7547cf0c0f24f",
+        "bytes": 4588,
+        "sha256": "9ca4b9cdde1bf0bc3bcdc5520697a68d347d2b9e38d55050513f16e8745480bb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/input-binding.json",
+        "git_blob": "567be72e34bfead21576a0d4784865a82551c7e5",
+        "bytes": 15314,
+        "sha256": "f70d4e46cde566b92892d0818ddd093343b804864bc64f13c6f3682691187d99"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/preflight.stderr.txt",
+        "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/preflight.stdout.txt",
+        "git_blob": "a6ed4998c2c219b0e86ab6fd57b51a434cdb36df",
+        "bytes": 6386,
+        "sha256": "4529ac790279a4f6c4b842f69367d974112e7cf2115c1a997b2cf509607de47d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/taxonomy.json",
+        "git_blob": "b9979e185c055f21f1523be29b0f1d61b70f0fd8",
+        "bytes": 2165,
+        "sha256": "34a7fdbf392e86cb29480bcd4128c718cc95282a70954c298c84552d40c5219d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/toolchain.json",
+        "git_blob": "76d0eddb896b5081809d4e1f9741cc921dfd250f",
+        "bytes": 2894,
+        "sha256": "e3f02a97e520441105d20b44c98e73c9d572cd6a771a36d187a0989345de4cec"
+      }
+    ],
+    "gzip_stdout": {
+      "bytes": 117192,
+      "sha256": "16990ad01c756cb3b259afcea1ee0d3285caf547c5189397c78bbc6a8d1a1fca",
+      "stored": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/architecture.stdout.txt.gz",
+        "git_blob": "d8bbb31de4f5f5aaa8721acecd60676278c94dbc",
+        "bytes": 8842,
+        "sha256": "4525d9f3bcbb2eb6f5f4ef8404a553a0d20ececfcb45c177cf5ad015bd98571c"
+      },
+      "scratch_equal": true
+    },
+    "full_output_classification": {
+      "new_deep_edges_vs_baseline": 154,
+      "non_deep_deciding_findings": [
+        "- Deep-import baseline drift detected. Re-run `uv run polisyos-tools architecture guardrails sync` only when intentionally accepting the new baseline.",
+        "- runtime-openapi-snapshot generated output schemas/runtime_api_v1.openapi.json does not match /workspace/orch02-c12/policy-engine/schemas/runtime_api_v1.openapi.json.",
+        "- trust-claim-posture-register generated output apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json does not match /workspace/orch02-c12/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json."
+      ],
+      "first_lines": [
+        "Generated-artifact measurement workspace retained at /workspace/orch02-recovery/c12-required-architecture-192/generated-freshness.",
+        "Generated artifact freshness clean: runtime-api-client (3 generator-observed outputs).",
+        "Generated artifact freshness clean: runtime-dashboard-api-types (1 generator-observed outputs).",
+        "Standalone Atlas gate: architecture/atlas_surfaces/check_status_retirement_inventory.py is not run by `uv run polisyos-tools architecture guardrails check`; run it explicitly or through architecture/atlas_surfaces/check_atlas_enforcement.py.",
+        "Architecture guardrail check FAILED:",
+        "- Deep-import baseline drift detected. Re-run `uv run polisyos-tools architecture guardrails sync` only when intentionally accepting the new baseline.",
+        "--- architecture/baselines/imports/deep_import.json (current)",
+        "+++ architecture/baselines/imports/deep_import.json (expected)",
+        "@@ -45,6 +45,34 @@",
+        "       \"target_root\": \"ir\"",
+        "     },",
+        "     {",
+        "+      \"source_module\": \"polisyos.calibration.forecast_bridge\",",
+        "+      \"source_root\": \"calibration\",",
+        "+      \"source_file\": \"src/polisyos/calibration/forecast_bridge.py\","
+      ],
+      "last_lines": [
+        "- New deep-import creep detected: polisyos.scientist.orchestration.engine.state_branching -> polisyos.ir.registry.refs (src/polisyos/scientist/orchestration/engine/state_branching.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+        "- New deep-import creep detected: polisyos.scientist.orchestration.engine.state_merge -> polisyos.core.artifacts.manifest (src/polisyos/scientist/orchestration/engine/state_merge.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+        "- New deep-import creep detected: polisyos.scientist.validation.verification.ic.service -> polisyos.foundry.methods.catalog.mechanism.families (src/polisyos/scientist/validation/verification/ic/service.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+        "- runtime-openapi-snapshot generated output schemas/runtime_api_v1.openapi.json does not match /workspace/orch02-c12/policy-engine/schemas/runtime_api_v1.openapi.json.",
+        "- trust-claim-posture-register generated output apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json does not match /workspace/orch02-c12/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json."
+      ],
+      "scoped_lex_findings": [
+        "- New deep-import creep detected: polisyos.lex.knowledge.store -> polisyos.data_forge.domains.legal.embedding_projection (src/polisyos/lex/knowledge/store.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+        "- New deep-import creep detected: polisyos.lex.knowledge.store -> polisyos.data_forge.kernel.embeddings (src/polisyos/lex/knowledge/store.py). Add a stable facade, update the baseline intentionally, or register a temporary exception."
+      ]
+    },
+    "explicit_controlling_roots": [
+      {
+        "path": "policy-engine/tools/devx/architecture/guardrails.py",
+        "git_blob": "6a2784631e836a35dc09e0034e02d86bf21ed14e",
+        "bytes": 103077,
+        "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a"
+      },
+      {
+        "path": "policy-engine/architecture/generated_artifacts.toml",
+        "git_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+        "bytes": 253707,
+        "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0"
+      },
+      {
+        "path": "policy-engine/uv.lock",
+        "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+        "bytes": 779204,
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+      },
+      {
+        "path": "policy-engine/pyproject.toml",
+        "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "bytes": 11007,
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+      },
+      {
+        "path": "policy-engine/pnpm-lock.yaml",
+        "git_blob": "095a555d9a1eb173732f409550d5a1436c3be861",
+        "bytes": 482583,
+        "sha256": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e"
+      },
+      {
+        "path": "policy-engine/package.json",
+        "git_blob": "05c08c9dad38ef14ff9c32b28f555a7647b6cb85",
+        "bytes": 802,
+        "sha256": "9b0fda729ff501b08fa5f4b1a2d783e3000425b187776b0fc6831a9e04ee070f"
+      },
+      {
+        "path": "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+        "git_blob": "04416db33c86bd5610fd33893ad6867db7a9f22f",
+        "bytes": 1793,
+        "sha256": "daeff9a91f19662a9f21788f73bd002659059f2ca3804ac03a258294185255da"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+        "git_blob": "10f480737d31baf3d0141bc529cb66e5ffabc2cb",
+        "bytes": 146612,
+        "sha256": "3cc47926a168f903a0dd6921eaa131b2d335ef850e8586e7cfbf2ae5837a5ac5"
+      },
+      {
+        "path": "policy-engine/architecture/public_surface/contract.toml",
+        "git_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+        "bytes": 19715,
+        "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+      },
+      {
+        "path": "policy-engine/architecture/public_surface/inventory.json",
+        "git_blob": "0f413b910f5aa27d9b27c09757891d3b2d831f82",
+        "bytes": 220738,
+        "sha256": "58ec72001a9d236b4cb247a4229c64291a14f3c47429b26666cca484cb06cf0d"
+      },
+      {
+        "path": "policy-engine/docs/reference/public-surface.md",
+        "git_blob": "3c8fb1f51e8a94420658f5e95c576e07172010be",
+        "bytes": 152713,
+        "sha256": "3621f45572f23b6e0b5d3d1af7aefa56cfa2c3734129c814a6ac1b239520b102"
+      },
+      {
+        "path": "policy-engine/docs/reference/generated-artifacts.md",
+        "git_blob": "6f6ee75721dbcec5b63e90c7c6c4f9eab78ccb31",
+        "bytes": 267092,
+        "sha256": "6f9afe13f3b7f06df95df8ab4f07b23443838f177b5ab4873603231d3ecf304f"
+      },
+      {
+        "path": "policy-engine/architecture/baselines/imports/deep_import.json",
+        "git_blob": "4ba9adfe8327ee020efd91ad1621d447ef271a95",
+        "bytes": 947189,
+        "sha256": "da9b5c9bdaccc4efcdabcd3512f451850e072f24a381d31ad18b16376e8543a7"
+      },
+      {
+        "path": "policy-engine/architecture/exceptions/guardrails.toml",
+        "git_blob": "d9b1108ade75bb80a3df52f4afb6a4bb79b9acc3",
+        "bytes": 1500,
+        "sha256": "74ae792dcdf30f565b9ff2798519a89e6da048aeaf0f9e5426d600f8a3cc0274"
+      },
+      {
+        "path": "policy-engine/architecture/guardrail_exceptions_registry.md",
+        "git_blob": "de446ee204f4ddcb61121f8ccb5c74731c4f51e3",
+        "bytes": 693,
+        "sha256": "aaeebf20154db7724f3abc3af7d4be25539461c55d296b9eb3d8f9bc9f317650"
+      },
+      {
+        "path": "policy-engine/architecture/module_size_budget.toml",
+        "git_blob": "09612cd289b45308a6285f283727f12428afed55",
+        "bytes": 34874,
+        "sha256": "07fb68f704cd4f11b7fa57683ea4ee41371319529e4248de27ab136b9caf2682"
+      }
+    ],
+    "generated_output_readbacks": [
+      {
+        "family_id": "runtime-openapi-snapshot",
+        "relative_output": "schemas/runtime_api_v1.openapi.json",
+        "generated_path": "/workspace/orch02-recovery/c12-required-architecture-192/generated-freshness/outputs/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json",
+        "generated_bytes": 2812414,
+        "generated_sha256": "04c2471947188efa542f6de73564a098caa7a00c7140c99790bf8888fda4b860",
+        "expected_path": "/workspace/orch02-c12/policy-engine/schemas/runtime_api_v1.openapi.json",
+        "expected_bytes": 2812414,
+        "expected_sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a",
+        "matches_expected": false
+      },
+      {
+        "family_id": "runtime-api-client",
+        "relative_output": "packages/runtime-api-client/types.ts",
+        "generated_path": "/workspace/orch02-recovery/c12-required-architecture-192/generated-freshness/outputs/runtime-api-client/packages/runtime-api-client/types.ts",
+        "generated_bytes": 951543,
+        "generated_sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4",
+        "expected_path": "/workspace/orch02-c12/policy-engine/packages/runtime-api-client/types.ts",
+        "expected_bytes": 951543,
+        "expected_sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4",
+        "matches_expected": true
+      },
+      {
+        "family_id": "runtime-api-client",
+        "relative_output": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "generated_path": "/workspace/orch02-recovery/c12-required-architecture-192/generated-freshness/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "generated_bytes": 108061,
+        "generated_sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd",
+        "expected_path": "/workspace/orch02-c12/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "expected_bytes": 108061,
+        "expected_sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd",
+        "matches_expected": true
+      },
+      {
+        "family_id": "runtime-api-client",
+        "relative_output": "packages/runtime-api-client/canonicalRuntimeApiClient.js",
+        "generated_path": "/workspace/orch02-recovery/c12-required-architecture-192/generated-freshness/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+        "generated_bytes": 31276,
+        "generated_sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506",
+        "expected_path": "/workspace/orch02-c12/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+        "expected_bytes": 31276,
+        "expected_sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506",
+        "matches_expected": true
+      },
+      {
+        "family_id": "runtime-dashboard-api-types",
+        "relative_output": "apps/runtime-dashboard/src/api/types.ts",
+        "generated_path": "/workspace/orch02-recovery/c12-required-architecture-192/generated-freshness/outputs/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts",
+        "generated_bytes": 791736,
+        "generated_sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c",
+        "expected_path": "/workspace/orch02-c12/policy-engine/apps/runtime-dashboard/src/api/types.ts",
+        "expected_bytes": 791736,
+        "expected_sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c",
+        "matches_expected": true
+      },
+      {
+        "family_id": "trust-claim-posture-register",
+        "relative_output": "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "generated_path": "/workspace/orch02-recovery/c12-required-architecture-192/generated-freshness/outputs/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "generated_bytes": 2376644,
+        "generated_sha256": "a8d6c1638690961fb33745bfdbb9ed4df6a4cf4a4d3828d3288459aeb487b119",
+        "expected_path": "/workspace/orch02-c12/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "expected_bytes": 2365635,
+        "expected_sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba",
+        "matches_expected": false
+      }
+    ],
+    "generator_readback_temporality": "postrun scratch readback, explicitly qualified; expected blobs agree with source192, execution427 and evidenceab",
+    "prior_architecture_677_UNRUN_retained": true,
+    "prior_native_36_and_guard_removal_and_callable_residual_bytes_unchanged": true,
+    "scratch_generated_outputs_not_copied_to_source_or_packet": true,
+    "all_four_receipt_output_stream_hashes_verified": true,
+    "toolchain_and_frozen_bootstrap": "input preflight previously independently reviewed, Node22.23.3/uv0.9.21 and corepack/pnpm10.33.2 exact origins/lock binding; no-sync sharedPython3.14.2, frozen ignore-scripts bootstrapexit0",
+    "generated_dependency_boundary": {
+      "client_dashboard_schema_input": "copied committed schemas/runtime_api_v1.openapi.json, source192 SHA25673d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a",
+      "copied_source_schema_readback_sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a",
+      "newly_generated_OpenAPI_family_output_sha256": "04c2471947188efa542f6de73564a098caa7a00c7140c99790bf8888fda4b860",
+      "scope": "Client/dashboard clean results establish their own freshness against committed copied schema; no chained freshness agreement with the separately regenerated drifted OpenAPI output."
+    }
+  },
+  "no_new_source_blocker": true,
+  "native_replay_performed_by_reviewer": false,
+  "source_acceptance": "not_admitted_by_G",
+  "formal_G_closure": false,
+  "formal_closure_ids": [],
+  "bounded_criterion_outcome": "Existing source-qualified finite request-intent native mechanics supported; architecture fails; no served pairing/current-law authority or whole LA040/LA042 closure.",
+  "publication_requirements": "Writer may separately copy this review as docs-only metadata, preserve all original evidence/source bytes, then normal own-topic push+fetch/readback. Publication is evidence custody, not G source acceptance.",
+  "full_independent_verification_external": "/workspace/orch02-recovery/reviews/c12-followup-verification-ab4531fd.json"
+}

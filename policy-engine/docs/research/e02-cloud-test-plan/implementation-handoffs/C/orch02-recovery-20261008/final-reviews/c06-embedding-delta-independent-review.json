@@ -1,0 +1,41 @@
+{
+  "verdict": "GO for embedding-only publication delta and source-bound checker wrapper equivalence; no broader runtime or external process equivalence claim",
+  "source_acceptance": "not_admitted_by_G",
+  "formal_G_closure": "not_adjudicated",
+  "previous_full_review_unchanged": true,
+  "no_native_or_graph_replay": true,
+  "shared_complete_retained_audit_pointer_resolves_to_actual_known_commit_and_exact_bytes": true,
+  "retained_limits": "Full architecture FAIL, P41 inherited not_established, CAN initial -9 ERROR, static invocation partial only, G/C02 compatibility and G source admission remain pending",
+  "roles": [
+    {
+      "role": "dfk",
+      "reviewed_prior_documentation_commit": "794471915834b56353701648a7907dade74bc108",
+      "final_documentation_commit": "e4bd1527c941ff880a5d34898c57428c7be4b1cc",
+      "tree": "ac28670d3de31221e3f553902d4287fb8e482c40",
+      "complete_new_path_denominator": 14,
+      "all_paths_are_additions_only_in_own_publication_review_namespace": true,
+      "all_existing_reviewed_handoff_gate_native_inventory_bytes_preserved": true,
+      "exact_embedding_bytes_and_source_binding_outputs_verified": true,
+      "binding_driver_sha256": "af834ce6a3b9ed039bd6a30925babfe40c76df4fbb926a8efe26fa811eca76f7",
+      "same_runtime_callable_and_unchanged_valid_explicit_flags": true,
+      "source_acceptance": "not_admitted_by_G",
+      "formal_G_closure": "not_adjudicated",
+      "runtime_invocation_established": false
+    },
+    {
+      "role": "can",
+      "reviewed_prior_documentation_commit": "cd884528829160c25c58acbd648c021089711477",
+      "final_documentation_commit": "6602fbd087ef31d3f8eff42e94fc1fc074326d45",
+      "tree": "5c281ce135abc9e7e25ae75268c09fa8316a63c6",
+      "complete_new_path_denominator": 14,
+      "all_paths_are_additions_only_in_own_publication_review_namespace": true,
+      "all_existing_reviewed_handoff_gate_native_inventory_bytes_preserved": true,
+      "exact_embedding_bytes_and_source_binding_outputs_verified": true,
+      "binding_driver_sha256": "af834ce6a3b9ed039bd6a30925babfe40c76df4fbb926a8efe26fa811eca76f7",
+      "same_runtime_callable_and_unchanged_valid_explicit_flags": true,
+      "source_acceptance": "not_admitted_by_G",
+      "formal_G_closure": "not_adjudicated",
+      "runtime_invocation_established": false
+    }
+  ]
+}

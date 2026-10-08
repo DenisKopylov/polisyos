@@ -1,0 +1,5088 @@
+{
+  "absence_result": "UNRESOLVED; statically classified references are reported, but computed, ambiguous, or wildcard imports prevent an absence conclusion",
+  "active_api_import_summary": {
+    "all_import_statement_count": 23,
+    "from_import_statement_count": 21,
+    "module_import_statement_count": 2,
+    "symbol_import_rows": 44,
+    "unique_path_count": 18
+  },
+  "counterexample": "A tracked Python source imports a retired compiler name, qualifies it through the compiler module, or reflects on it with a static name.",
+  "findings": {
+    "compiler_api_imports": {
+      "count": 44,
+      "rows": [
+        {
+          "alias": null,
+          "line": 18,
+          "module": "polisyos.data_requirement.compiler",
+          "name": "DataRequirementCompiler",
+          "path": "policy-engine/src/polisyos/data_requirement/__init__.py"
+        },
+        {
+          "alias": null,
+          "line": 30,
+          "module": "polisyos.data_requirement.compiler",
+          "name": "DataRequirementCompiler",
+          "path": "policy-engine/src/polisyos/data_requirement/__init__.py"
+        },
+        {
+          "alias": null,
+          "line": 30,
+          "module": "polisyos.data_requirement.compiler",
+          "name": "compile_data_requirements_for_scenario",
+          "path": "policy-engine/src/polisyos/data_requirement/__init__.py"
+        },
+        {
+          "alias": null,
+          "line": 30,
+          "module": "polisyos.data_requirement.compiler",
+          "name": "data_requirement_compilation_audit_surface",
+          "path": "policy-engine/src/polisyos/data_requirement/__init__.py"
+        },
+        {
+          "alias": null,
+          "line": 30,
+          "module": "polisyos.data_requirement.compiler",
+          "name": "write_data_requirement_compilation_report",
+          "path": "policy-engine/src/polisyos/data_requirement/__init__.py"
+        },
+        {
+          "alias": null,
+          "line": 8,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementSpec",
+          "path": "policy-engine/src/polisyos/fabric/catalog/data_requirement_adapter.py"
+        },
+        {
+          "alias": null,
+          "line": 21,
+          "module": "polisyos.data_requirement",
+          "name": "DataQualityMinimums",
+          "path": "policy-engine/src/polisyos/runtime/quality/data_forge_binding.py"
+        },
+        {
+          "alias": null,
+          "line": 21,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementScope",
+          "path": "policy-engine/src/polisyos/runtime/quality/data_forge_binding.py"
+        },
+        {
+          "alias": null,
+          "line": 21,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementSpec",
+          "path": "policy-engine/src/polisyos/runtime/quality/data_forge_binding.py"
+        },
+        {
+          "alias": null,
+          "line": 73,
+          "module": "polisyos.data_requirement.compiler",
+          "name": "DataRequirementCompiler",
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+        },
+        {
+          "alias": null,
+          "line": 7883,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementSpec",
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+        },
+        {
+          "alias": null,
+          "line": 12,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementSpec",
+          "path": "policy-engine/src/polisyos/runtime/quality/production_data_contract_index.py"
+        },
+        {
+          "alias": null,
+          "line": 9,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementCompiler",
+          "path": "policy-engine/src/polisyos/runtime/quality/scenario_evidence_contract.py"
+        },
+        {
+          "alias": null,
+          "line": 9,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementSpec",
+          "path": "policy-engine/src/polisyos/runtime/quality/scenario_evidence_contract.py"
+        },
+        {
+          "alias": null,
+          "line": 128,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementCompiler",
+          "path": "policy-engine/tests/repo_quality/tools/test_compiled_pdc_graph_smoke.py"
+        },
+        {
+          "alias": null,
+          "line": 14,
+          "module": "polisyos.data_requirement",
+          "name": "DATA_REQUIREMENT_SPEC_SCHEMA_VERSION",
+          "path": "policy-engine/tests/unit/data_requirement/test_compiler.py"
+        },
+        {
+          "alias": null,
+          "line": 14,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementCompiler",
+          "path": "policy-engine/tests/unit/data_requirement/test_compiler.py"
+        },
+        {
+          "alias": null,
+          "line": 14,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementScope",
+          "path": "policy-engine/tests/unit/data_requirement/test_compiler.py"
+        },
+        {
+          "alias": null,
+          "line": 14,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementSpec",
+          "path": "policy-engine/tests/unit/data_requirement/test_compiler.py"
+        },
+        {
+          "alias": null,
+          "line": 14,
+          "module": "polisyos.data_requirement",
+          "name": "data_requirement_compilation_audit_surface",
+          "path": "policy-engine/tests/unit/data_requirement/test_compiler.py"
+        },
+        {
+          "alias": null,
+          "line": 14,
+          "module": "polisyos.data_requirement",
+          "name": "write_data_requirement_compilation_report",
+          "path": "policy-engine/tests/unit/data_requirement/test_compiler.py"
+        },
+        {
+          "alias": null,
+          "line": 12,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementCompiler",
+          "path": "policy-engine/tests/unit/data_requirement/test_e02_named_profile_context.py"
+        },
+        {
+          "alias": null,
+          "line": 3,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementSpec",
+          "path": "policy-engine/tests/unit/fabric/catalog/test_data_requirement_adapter.py"
+        },
+        {
+          "alias": null,
+          "line": 17,
+          "module": "polisyos.data_requirement",
+          "name": "DataQualityMinimums",
+          "path": "policy-engine/tests/unit/remediation/test_acq_01.py"
+        },
+        {
+          "alias": null,
+          "line": 17,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementScope",
+          "path": "policy-engine/tests/unit/remediation/test_acq_01.py"
+        },
+        {
+          "alias": null,
+          "line": 17,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementSpec",
+          "path": "policy-engine/tests/unit/remediation/test_acq_01.py"
+        },
+        {
+          "alias": null,
+          "line": 14,
+          "module": "polisyos.data_requirement",
+          "name": "DataQualityMinimums",
+          "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py"
+        },
+        {
+          "alias": null,
+          "line": 14,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementScope",
+          "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py"
+        },
+        {
+          "alias": null,
+          "line": 14,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementSpec",
+          "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py"
+        },
+        {
+          "alias": null,
+          "line": 26,
+          "module": "polisyos.data_requirement",
+          "name": "DataQualityMinimums",
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py"
+        },
+        {
+          "alias": null,
+          "line": 26,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementScope",
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py"
+        },
+        {
+          "alias": null,
+          "line": 26,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementSpec",
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py"
+        },
+        {
+          "alias": null,
+          "line": 31,
+          "module": "polisyos.data_requirement.compiler",
+          "name": "compile_data_requirements_for_scenario",
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py"
+        },
+        {
+          "alias": null,
+          "line": 1167,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementCompiler",
+          "path": "policy-engine/tests/unit/runtime/quality/test_proving_ground_substrate_grounding_search.py"
+        },
+        {
+          "alias": null,
+          "line": 4,
+          "module": "polisyos.data_requirement",
+          "name": "DataQualityMinimums",
+          "path": "policy-engine/tests/unit/runtime/quality/test_wave7_requirement_pipeline_integration.py"
+        },
+        {
+          "alias": null,
+          "line": 4,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementScope",
+          "path": "policy-engine/tests/unit/runtime/quality/test_wave7_requirement_pipeline_integration.py"
+        },
+        {
+          "alias": null,
+          "line": 4,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementSpec",
+          "path": "policy-engine/tests/unit/runtime/quality/test_wave7_requirement_pipeline_integration.py"
+        },
+        {
+          "alias": null,
+          "line": 33,
+          "module": "polisyos.data_requirement",
+          "name": "DataQualityMinimums",
+          "path": "policy-engine/tools/quality/validation/check_layer3_gy_acquisition_contract.py"
+        },
+        {
+          "alias": null,
+          "line": 33,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementScope",
+          "path": "policy-engine/tools/quality/validation/check_layer3_gy_acquisition_contract.py"
+        },
+        {
+          "alias": null,
+          "line": 33,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementSpec",
+          "path": "policy-engine/tools/quality/validation/check_layer3_gy_acquisition_contract.py"
+        },
+        {
+          "alias": null,
+          "line": 55,
+          "module": "polisyos.data_requirement",
+          "name": "DataQualityMinimums",
+          "path": "policy-engine/tools/quality/validation/check_layer3_gy_second_domain_pack.py"
+        },
+        {
+          "alias": null,
+          "line": 55,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementScope",
+          "path": "policy-engine/tools/quality/validation/check_layer3_gy_second_domain_pack.py"
+        },
+        {
+          "alias": null,
+          "line": 55,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementSpec",
+          "path": "policy-engine/tools/quality/validation/check_layer3_gy_second_domain_pack.py"
+        },
+        {
+          "alias": null,
+          "line": 8263,
+          "module": "polisyos.data_requirement",
+          "name": "DataRequirementCompiler",
+          "path": "policy-engine/tools/quality/validation/run_universal_outcome_corpus.py"
+        }
+      ]
+    },
+    "compiler_path_literals": {
+      "count": 4,
+      "rows": [
+        {
+          "line": 27,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+          "value": "polisyos.data_requirement.compiler"
+        },
+        {
+          "line": 112,
+          "path": "policy-engine/src/polisyos/data_requirement/_impl/models.py",
+          "value": "polisyos.data_requirement.compiler.DataRequirementCompiler"
+        },
+        {
+          "line": 26,
+          "path": "policy-engine/tests/unit/remediation/test_req_01_compiler_caller_census.py",
+          "value": "polisyos.data_requirement.compiler"
+        },
+        {
+          "line": 1461,
+          "path": "policy-engine/tests/unit/runtime/http/test_governed_projection_service.py",
+          "value": "polisyos.data_requirement.compiler.RebasedCompiler"
+        }
+      ]
+    },
+    "computed_import_targets": {
+      "count": 305,
+      "rows": [
+        {
+          "call": "import_module",
+          "line": 42,
+          "path": "policy-engine/benchmarks/honest_comparison/runner.py"
+        },
+        {
+          "call": "import_module",
+          "line": 182,
+          "path": "policy-engine/benchmarks/honest_comparison/runner.py"
+        },
+        {
+          "call": "import_module",
+          "line": 14,
+          "path": "policy-engine/benchmarks/run_parallel.py"
+        },
+        {
+          "call": "import_module",
+          "line": 76,
+          "path": "policy-engine/benchmarks/runtime.py"
+        },
+        {
+          "call": "import_module",
+          "line": 73,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/numeric-scalar-validation/numeric-removal-6f1e/remove_original_element_guard.py"
+        },
+        {
+          "call": "import_module",
+          "line": 10,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/installed_launch.py"
+        },
+        {
+          "call": "import_module",
+          "line": 14,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/installed_launch.py"
+        },
+        {
+          "call": "import_module",
+          "line": 6,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/removal_replayer.py"
+        },
+        {
+          "call": "import_module",
+          "line": 6,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/installed_removal_current.py"
+        },
+        {
+          "call": "import_module",
+          "line": 9,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/literal_runtime_imports.py"
+        },
+        {
+          "call": "import_module",
+          "line": 9,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/literal_runtime_imports_first_observer_error.py"
+        },
+        {
+          "call": "import_module",
+          "line": 18,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/probe_installed_defaults.py"
+        },
+        {
+          "call": "import_module",
+          "line": 12,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/review-input-resolver.py"
+        },
+        {
+          "call": "import_module",
+          "line": 5,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-frozen-native-v2.py"
+        },
+        {
+          "call": "import_module",
+          "line": 7,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-frozen-native.py"
+        },
+        {
+          "call": "import_module",
+          "line": 10,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-review-environment-v2.py"
+        },
+        {
+          "call": "import_module",
+          "line": 10,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-review-environment.py"
+        },
+        {
+          "call": "import_module",
+          "line": 45,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/removal_plugin.py"
+        },
+        {
+          "call": "import_module",
+          "line": 5,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006/environment.py"
+        },
+        {
+          "call": "import_module",
+          "line": 11,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-benchmark-retirement-removal.py"
+        },
+        {
+          "call": "import_module",
+          "line": 316,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006/author/source-inputs/policy-engine/src/polisyos/foundry/_registry.py"
+        },
+        {
+          "call": "import_module",
+          "line": 26,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/replay_training_dtype.py"
+        },
+        {
+          "call": "import_module",
+          "line": 29,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/replay_economic_controls.py"
+        },
+        {
+          "call": "import_module",
+          "line": 15,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/replay_economic_dtype.py"
+        },
+        {
+          "call": "import_module",
+          "line": 8,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/capture_environment.py"
+        },
+        {
+          "call": "import_module",
+          "line": 75,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/audit_final6d.py"
+        },
+        {
+          "call": "import_module",
+          "line": 12,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/environment_probe.py"
+        },
+        {
+          "call": "import_module",
+          "line": 16,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/environment_probe.py"
+        },
+        {
+          "call": "import_module",
+          "line": 211,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/b/report_emission_census.py"
+        },
+        {
+          "call": "import_module",
+          "line": 21,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c/c2_ir_facade_probe.py"
+        },
+        {
+          "call": "import_module",
+          "line": 34,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/codec_strangle.py"
+        },
+        {
+          "call": "import_module",
+          "line": 123,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/codec_strangle.py"
+        },
+        {
+          "call": "import_module",
+          "line": 105,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/error_diagnostic.py"
+        },
+        {
+          "call": "import_module",
+          "line": 106,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/error_diagnostic.py"
+        },
+        {
+          "call": "import_module",
+          "line": 157,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/error_diagnostic.py"
+        },
+        {
+          "call": "import_module",
+          "line": 158,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/error_diagnostic.py"
+        },
+        {
+          "call": "import_module",
+          "line": 159,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/error_diagnostic.py"
+        },
+        {
+          "call": "import_module",
+          "line": 170,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/error_diagnostic.py"
+        },
+        {
+          "call": "import_module",
+          "line": 264,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/error_diagnostic.py"
+        },
+        {
+          "call": "import_module",
+          "line": 19,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/graph_profile_archive.py"
+        },
+        {
+          "call": "import_module",
+          "line": 20,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/graph_profile_archive.py"
+        },
+        {
+          "call": "import_module",
+          "line": 129,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/graph_profile_archive.py"
+        },
+        {
+          "call": "import_module",
+          "line": 32,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/pilot_aux_verification.py"
+        },
+        {
+          "call": "import_module",
+          "line": 35,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/pilot_aux_verification.py"
+        },
+        {
+          "call": "import_module",
+          "line": 38,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/pilot_aux_verification.py"
+        },
+        {
+          "call": "import_module",
+          "line": 24,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/pilot_graph_finalize.py"
+        },
+        {
+          "call": "import_module",
+          "line": 25,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/pilot_graph_finalize.py"
+        },
+        {
+          "call": "import_module",
+          "line": 26,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/pilot_graph_finalize.py"
+        },
+        {
+          "call": "import_module",
+          "line": 15,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/retention_analysis.py"
+        },
+        {
+          "call": "import_module",
+          "line": 16,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/retention_analysis.py"
+        },
+        {
+          "call": "import_module",
+          "line": 176,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/retention_analysis.py"
+        },
+        {
+          "call": "import_module",
+          "line": 31,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/retention_verification.py"
+        },
+        {
+          "call": "import_module",
+          "line": 34,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/retention_verification.py"
+        },
+        {
+          "call": "import_module",
+          "line": 37,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/retention_verification.py"
+        },
+        {
+          "call": "import_module",
+          "line": 480,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/synthetic_retention.py"
+        },
+        {
+          "call": "import_module",
+          "line": 30,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/telemetry_verification.py"
+        },
+        {
+          "call": "import_module",
+          "line": 260,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_pilot_analysis.py"
+        },
+        {
+          "call": "import_module",
+          "line": 35,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_process_telemetry.py"
+        },
+        {
+          "call": "import_module",
+          "line": 19,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_synthetic_retention.py"
+        },
+        {
+          "call": "import_module",
+          "line": 27,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_synthetic_retention.py"
+        },
+        {
+          "call": "import_module",
+          "line": 100,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_synthetic_retention.py"
+        },
+        {
+          "call": "import_module",
+          "line": 49,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py"
+        },
+        {
+          "call": "import_module",
+          "line": 68,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py"
+        },
+        {
+          "call": "import_module",
+          "line": 69,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py"
+        },
+        {
+          "call": "import_module",
+          "line": 70,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py"
+        },
+        {
+          "call": "import_module",
+          "line": 134,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py"
+        },
+        {
+          "call": "import_module",
+          "line": 135,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py"
+        },
+        {
+          "call": "import_module",
+          "line": 190,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py"
+        },
+        {
+          "call": "import_module",
+          "line": 246,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py"
+        },
+        {
+          "call": "import_module",
+          "line": 247,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py"
+        },
+        {
+          "call": "import_module",
+          "line": 18,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_admission.py"
+        },
+        {
+          "call": "import_module",
+          "line": 47,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_admission.py"
+        },
+        {
+          "call": "import_module",
+          "line": 14,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_archive.py"
+        },
+        {
+          "call": "import_module",
+          "line": 117,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_archive.py"
+        },
+        {
+          "call": "import_module",
+          "line": 133,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_archive.py"
+        },
+        {
+          "call": "import_module",
+          "line": 154,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_archive.py"
+        },
+        {
+          "call": "import_module",
+          "line": 195,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_archive.py"
+        },
+        {
+          "call": "import_module",
+          "line": 13,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_reanalysis.py"
+        },
+        {
+          "call": "import_module",
+          "line": 13,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_trace.py"
+        },
+        {
+          "call": "import_module",
+          "line": 18,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_trace.py"
+        },
+        {
+          "call": "import_module",
+          "line": 22,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_archive.py"
+        },
+        {
+          "call": "import_module",
+          "line": 23,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_archive.py"
+        },
+        {
+          "call": "import_module",
+          "line": 244,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_archive.py"
+        },
+        {
+          "call": "import_module",
+          "line": 27,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_archive_verification.py"
+        },
+        {
+          "call": "import_module",
+          "line": 33,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_archive_verification.py"
+        },
+        {
+          "call": "import_module",
+          "line": 36,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_archive_verification.py"
+        },
+        {
+          "call": "import_module",
+          "line": 180,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_declaration.py"
+        },
+        {
+          "call": "import_module",
+          "line": 181,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_declaration.py"
+        },
+        {
+          "call": "import_module",
+          "line": 20,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_reanalysis.py"
+        },
+        {
+          "call": "import_module",
+          "line": 69,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_reanalysis.py"
+        },
+        {
+          "call": "import_module",
+          "line": 145,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_reanalysis.py"
+        },
+        {
+          "call": "import_module",
+          "line": 34,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py"
+        },
+        {
+          "call": "import_module",
+          "line": 55,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py"
+        },
+        {
+          "call": "import_module",
+          "line": 197,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py"
+        },
+        {
+          "call": "import_module",
+          "line": 216,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py"
+        },
+        {
+          "call": "import_module",
+          "line": 217,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py"
+        },
+        {
+          "call": "import_module",
+          "line": 357,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py"
+        },
+        {
+          "call": "import_module",
+          "line": 383,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py"
+        },
+        {
+          "call": "import_module",
+          "line": 384,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py"
+        },
+        {
+          "call": "import_module",
+          "line": 385,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py"
+        },
+        {
+          "call": "import_module",
+          "line": 17,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_trace_analysis.py"
+        },
+        {
+          "call": "import_module",
+          "line": 213,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_trace_analysis.py"
+        },
+        {
+          "call": "import_module",
+          "line": 31,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_verification.py"
+        },
+        {
+          "call": "import_module",
+          "line": 35,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_verification.py"
+        },
+        {
+          "call": "import_module",
+          "line": 42,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_verification.py"
+        },
+        {
+          "call": "import_module",
+          "line": 37,
+          "path": "policy-engine/docs/superpowers/journals/gy-builders/c/removal_probes.py"
+        },
+        {
+          "call": "import_module",
+          "line": 44,
+          "path": "policy-engine/src/polisyos/common/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 331,
+          "path": "policy-engine/src/polisyos/core/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 336,
+          "path": "policy-engine/src/polisyos/core/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 1375,
+          "path": "policy-engine/src/polisyos/core/contracts/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 1370,
+          "path": "policy-engine/src/polisyos/core/contracts/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 524,
+          "path": "policy-engine/src/polisyos/core/security/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 136,
+          "path": "policy-engine/src/polisyos/data_forge/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 42,
+          "path": "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 219,
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py"
+        },
+        {
+          "call": "import_module",
+          "line": 113,
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py"
+        },
+        {
+          "call": "import_module",
+          "line": 214,
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py"
+        },
+        {
+          "call": "import_module",
+          "line": 214,
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py"
+        },
+        {
+          "call": "import_module",
+          "line": 120,
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py"
+        },
+        {
+          "call": "import_module",
+          "line": 115,
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py"
+        },
+        {
+          "call": "import_module",
+          "line": 43,
+          "path": "policy-engine/src/polisyos/data_forge/read_api/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 19,
+          "path": "policy-engine/src/polisyos/data_forge/read_api/_lazy.py"
+        },
+        {
+          "call": "import_module",
+          "line": 63,
+          "path": "policy-engine/src/polisyos/data_forge/read_api/surfaces.py"
+        },
+        {
+          "call": "import_module",
+          "line": 62,
+          "path": "policy-engine/src/polisyos/ddm/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 85,
+          "path": "policy-engine/src/polisyos/ddm/integration/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 298,
+          "path": "policy-engine/src/polisyos/fabric/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 97,
+          "path": "policy-engine/src/polisyos/fabric/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 301,
+          "path": "policy-engine/src/polisyos/fabric/connectors/discovery.py"
+        },
+        {
+          "call": "import_module",
+          "line": 259,
+          "path": "policy-engine/src/polisyos/fabric/data_plane/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 36,
+          "path": "policy-engine/src/polisyos/fabric/data_plane/cli.py"
+        },
+        {
+          "call": "import_module",
+          "line": 784,
+          "path": "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py"
+        },
+        {
+          "call": "import_module",
+          "line": 212,
+          "path": "policy-engine/src/polisyos/foundry/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 236,
+          "path": "policy-engine/src/polisyos/foundry/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 316,
+          "path": "policy-engine/src/polisyos/foundry/_registry.py"
+        },
+        {
+          "call": "import_module",
+          "line": 430,
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 26,
+          "path": "policy-engine/src/polisyos/foundry/compile/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 33,
+          "path": "policy-engine/src/polisyos/foundry/compile/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 54,
+          "path": "policy-engine/src/polisyos/foundry/contracts/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 78,
+          "path": "policy-engine/src/polisyos/foundry/coupling/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 28,
+          "path": "policy-engine/src/polisyos/foundry/execute/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 22,
+          "path": "policy-engine/src/polisyos/foundry/execute/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 58,
+          "path": "policy-engine/src/polisyos/foundry/extensions/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 63,
+          "path": "policy-engine/src/polisyos/foundry/extensions/_builtin_loader.py"
+        },
+        {
+          "call": "import_module",
+          "line": 11,
+          "path": "policy-engine/src/polisyos/foundry/methods/_internal/reexport.py"
+        },
+        {
+          "call": "import_module",
+          "line": 520,
+          "path": "policy-engine/src/polisyos/foundry/methods/api.py"
+        },
+        {
+          "call": "import_module",
+          "line": 192,
+          "path": "policy-engine/src/polisyos/foundry/methods/backends/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 186,
+          "path": "policy-engine/src/polisyos/foundry/methods/backends/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 37,
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 227,
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_registry_boot.py"
+        },
+        {
+          "call": "import_module",
+          "line": 164,
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sensitivity_metrics.py"
+        },
+        {
+          "call": "import_module",
+          "line": 427,
+          "path": "policy-engine/src/polisyos/foundry/methods/cli/validator.py"
+        },
+        {
+          "call": "import_module",
+          "line": 473,
+          "path": "policy-engine/src/polisyos/foundry/methods/compiler/hot_reload.py"
+        },
+        {
+          "call": "import_module",
+          "line": 399,
+          "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py"
+        },
+        {
+          "call": "import_module",
+          "line": 411,
+          "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py"
+        },
+        {
+          "call": "import_module",
+          "line": 515,
+          "path": "policy-engine/src/polisyos/foundry/methods/discovery.py"
+        },
+        {
+          "call": "import_module",
+          "line": 67,
+          "path": "policy-engine/src/polisyos/foundry/methods/selection/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 248,
+          "path": "policy-engine/src/polisyos/foundry/methods/selection/cache.py"
+        },
+        {
+          "call": "import_module",
+          "line": 52,
+          "path": "policy-engine/src/polisyos/foundry/plugins/discovery.py"
+        },
+        {
+          "call": "import_module",
+          "line": 107,
+          "path": "policy-engine/src/polisyos/foundry/plugins/discovery.py"
+        },
+        {
+          "call": "import_module",
+          "line": 267,
+          "path": "policy-engine/src/polisyos/foundry/validation/phase2_closure.py"
+        },
+        {
+          "call": "import_module",
+          "line": 1022,
+          "path": "policy-engine/src/polisyos/ir/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 23,
+          "path": "policy-engine/src/polisyos/ir/analytics/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 149,
+          "path": "policy-engine/src/polisyos/ir/api.py"
+        },
+        {
+          "call": "import_module",
+          "line": 46,
+          "path": "policy-engine/src/polisyos/ir/api.py"
+        },
+        {
+          "call": "import_module",
+          "line": 74,
+          "path": "policy-engine/src/polisyos/ir/api.py"
+        },
+        {
+          "call": "import_module",
+          "line": 418,
+          "path": "policy-engine/src/polisyos/ir/governance/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 676,
+          "path": "policy-engine/src/polisyos/ir/observation/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 257,
+          "path": "policy-engine/src/polisyos/ir/schemas/catalog.py"
+        },
+        {
+          "call": "import_module",
+          "line": 285,
+          "path": "policy-engine/src/polisyos/ir/schemas/catalog.py"
+        },
+        {
+          "call": "import_module",
+          "line": 262,
+          "path": "policy-engine/src/polisyos/ir/schemas/catalog.py"
+        },
+        {
+          "call": "import_module",
+          "line": 192,
+          "path": "policy-engine/src/polisyos/lex/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 44,
+          "path": "policy-engine/src/polisyos/lex/knowledge/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 90,
+          "path": "policy-engine/src/polisyos/runtime/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 35,
+          "path": "policy-engine/src/polisyos/runtime/http/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 33,
+          "path": "policy-engine/src/polisyos/runtime/http/services/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 21,
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 16,
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 12,
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 5060,
+          "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py"
+        },
+        {
+          "call": "import_module",
+          "line": 4566,
+          "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py"
+        },
+        {
+          "call": "import_module",
+          "line": 4735,
+          "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py"
+        },
+        {
+          "call": "import_module",
+          "line": 4755,
+          "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py"
+        },
+        {
+          "call": "import_module",
+          "line": 107,
+          "path": "policy-engine/src/polisyos/scholar/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 191,
+          "path": "policy-engine/src/polisyos/scientist/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 30,
+          "path": "policy-engine/src/polisyos/scientist/_internal/compat.py"
+        },
+        {
+          "call": "import_module",
+          "line": 53,
+          "path": "policy-engine/src/polisyos/scientist/_internal/compat.py"
+        },
+        {
+          "call": "import_module",
+          "line": 45,
+          "path": "policy-engine/src/polisyos/scientist/_internal/shims.py"
+        },
+        {
+          "call": "import_module",
+          "line": 465,
+          "path": "policy-engine/src/polisyos/scientist/agent/__init__.py"
+        },
+        {
+          "call": "__import__",
+          "line": 508,
+          "path": "policy-engine/src/polisyos/scientist/agent/code_verifier.py"
+        },
+        {
+          "call": "import_module",
+          "line": 142,
+          "path": "policy-engine/src/polisyos/scientist/evidence/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 22,
+          "path": "policy-engine/src/polisyos/scientist/evidence/_shim.py"
+        },
+        {
+          "call": "import_module",
+          "line": 33,
+          "path": "policy-engine/src/polisyos/scientist/feedback/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 270,
+          "path": "policy-engine/src/polisyos/scientist/governance/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 453,
+          "path": "policy-engine/src/polisyos/scientist/governance/continuous/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 30,
+          "path": "policy-engine/src/polisyos/scientist/methods/_compat.py"
+        },
+        {
+          "call": "import_module",
+          "line": 53,
+          "path": "policy-engine/src/polisyos/scientist/methods/_compat.py"
+        },
+        {
+          "call": "import_module",
+          "line": 381,
+          "path": "policy-engine/src/polisyos/scientist/methods/advanced.py"
+        },
+        {
+          "call": "import_module",
+          "line": 129,
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 57,
+          "path": "policy-engine/src/polisyos/scientist/methods/causal/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 379,
+          "path": "policy-engine/src/polisyos/scientist/methods/search/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 409,
+          "path": "policy-engine/src/polisyos/scientist/methods/search/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 147,
+          "path": "policy-engine/src/polisyos/scientist/methods/search/compliance_audit.py"
+        },
+        {
+          "call": "import_module",
+          "line": 198,
+          "path": "policy-engine/src/polisyos/scientist/methods/search/compliance_audit.py"
+        },
+        {
+          "call": "import_module",
+          "line": 31,
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 289,
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 99,
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 25,
+          "path": "policy-engine/src/polisyos/scientist/orchestration/orchestrator/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 128,
+          "path": "policy-engine/src/polisyos/scientist/policy_design/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 33,
+          "path": "policy-engine/src/polisyos/scientist/publishing/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 90,
+          "path": "policy-engine/src/polisyos/scientist/replay/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 444,
+          "path": "policy-engine/src/polisyos/scientist/validation/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 23,
+          "path": "policy-engine/tests/repo_quality/architecture/test_public_api_facades.py"
+        },
+        {
+          "call": "import_module",
+          "line": 163,
+          "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_5_contracts.py"
+        },
+        {
+          "call": "import_module",
+          "line": 15,
+          "path": "policy-engine/tests/repo_quality/tools/test_locale_census_independent.py"
+        },
+        {
+          "call": "import_module",
+          "line": 16,
+          "path": "policy-engine/tests/repo_quality/tools/test_multilingual_locale_census.py"
+        },
+        {
+          "call": "import_module",
+          "line": 33,
+          "path": "policy-engine/tests/repo_quality/tools/test_repository_last_mile_inventory.py"
+        },
+        {
+          "call": "import_module",
+          "line": 32,
+          "path": "policy-engine/tests/repo_quality/tools/test_trust_claim_posture.py"
+        },
+        {
+          "call": "import_module",
+          "line": 583,
+          "path": "policy-engine/tests/unit/core/security/test_chronology_anchor.py"
+        },
+        {
+          "call": "import_module",
+          "line": 24,
+          "path": "policy-engine/tests/unit/core/security/test_facade.py"
+        },
+        {
+          "call": "import_module",
+          "line": 20,
+          "path": "policy-engine/tests/unit/data_forge/domains/academic/batch/test_abstract_reextraction.py"
+        },
+        {
+          "call": "import_module",
+          "line": 26,
+          "path": "policy-engine/tests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py"
+        },
+        {
+          "call": "import_module",
+          "line": 20,
+          "path": "policy-engine/tests/unit/data_forge/domains/academic/batch/test_reextraction_cli.py"
+        },
+        {
+          "call": "import_module",
+          "line": 170,
+          "path": "policy-engine/tests/unit/data_forge/test_phase8_shim_sunset.py"
+        },
+        {
+          "call": "import_module",
+          "line": 20,
+          "path": "policy-engine/tests/unit/fabric/test_ceiling_relations.py"
+        },
+        {
+          "call": "import_module",
+          "line": 104,
+          "path": "policy-engine/tests/unit/fabric/test_non_data_acquisition.py"
+        },
+        {
+          "call": "import_module",
+          "line": 38,
+          "path": "policy-engine/tests/unit/fabric/test_semantic_group_imports.py"
+        },
+        {
+          "call": "import_module",
+          "line": 213,
+          "path": "policy-engine/tests/unit/fabric/test_semantic_group_imports.py"
+        },
+        {
+          "call": "import_module",
+          "line": 252,
+          "path": "policy-engine/tests/unit/fabric/test_semantic_group_imports.py"
+        },
+        {
+          "call": "import_module",
+          "line": 78,
+          "path": "policy-engine/tests/unit/foundry/contracts/test_layout.py"
+        },
+        {
+          "call": "import_module",
+          "line": 21,
+          "path": "policy-engine/tests/unit/foundry/hygiene/test_no_compat_facade_imports.py"
+        },
+        {
+          "call": "import_module",
+          "line": 18,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py"
+        },
+        {
+          "call": "import_module",
+          "line": 25,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py"
+        },
+        {
+          "call": "import_module",
+          "line": 110,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+        },
+        {
+          "call": "import_module",
+          "line": 123,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+        },
+        {
+          "call": "import_module",
+          "line": 204,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+        },
+        {
+          "call": "import_module",
+          "line": 412,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py"
+        },
+        {
+          "call": "import_module",
+          "line": 120,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py"
+        },
+        {
+          "call": "import_module",
+          "line": 143,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py"
+        },
+        {
+          "call": "import_module",
+          "line": 170,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py"
+        },
+        {
+          "call": "import_module",
+          "line": 196,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py"
+        },
+        {
+          "call": "import_module",
+          "line": 64,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py"
+        },
+        {
+          "call": "import_module",
+          "line": 74,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py"
+        },
+        {
+          "call": "import_module",
+          "line": 14,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_phase41_module_splits.py"
+        },
+        {
+          "call": "import_module",
+          "line": 27,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_synthetic_control_imports.py"
+        },
+        {
+          "call": "import_module",
+          "line": 230,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py"
+        },
+        {
+          "call": "import_module",
+          "line": 208,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py"
+        },
+        {
+          "call": "import_module",
+          "line": 16,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/test_catalog_isolation.py"
+        },
+        {
+          "call": "import_module",
+          "line": 23,
+          "path": "policy-engine/tests/unit/foundry/methods/test_foundry_v2_migration.py"
+        },
+        {
+          "call": "import_module",
+          "line": 453,
+          "path": "policy-engine/tests/unit/ir/observation/test_bundle_schemas.py"
+        },
+        {
+          "call": "import_module",
+          "line": 33,
+          "path": "policy-engine/tests/unit/ir/test_root_facade_closeout.py"
+        },
+        {
+          "call": "import_module",
+          "line": 83,
+          "path": "policy-engine/tests/unit/ir/test_root_facade_closeout.py"
+        },
+        {
+          "call": "import_module",
+          "line": 127,
+          "path": "policy-engine/tests/unit/ir/test_root_facade_closeout.py"
+        },
+        {
+          "call": "import_module",
+          "line": 36,
+          "path": "policy-engine/tests/unit/ir/test_semantic_group_imports.py"
+        },
+        {
+          "call": "import_module",
+          "line": 174,
+          "path": "policy-engine/tests/unit/ir/test_semantic_group_imports.py"
+        },
+        {
+          "call": "import_module",
+          "line": 215,
+          "path": "policy-engine/tests/unit/ir/test_semantic_group_imports.py"
+        },
+        {
+          "call": "import_module",
+          "line": 12,
+          "path": "policy-engine/tests/unit/lex/knowledge/test_locale_census.py"
+        },
+        {
+          "call": "import_module",
+          "line": 19,
+          "path": "policy-engine/tests/unit/lex/knowledge/test_multilingual_assurance.py"
+        },
+        {
+          "call": "import_module",
+          "line": 53,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py"
+        },
+        {
+          "call": "import_module",
+          "line": 54,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py"
+        },
+        {
+          "call": "import_module",
+          "line": 55,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py"
+        },
+        {
+          "call": "import_module",
+          "line": 68,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py"
+        },
+        {
+          "call": "import_module",
+          "line": 69,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py"
+        },
+        {
+          "call": "import_module",
+          "line": 73,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py"
+        },
+        {
+          "call": "import_module",
+          "line": 112,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py"
+        },
+        {
+          "call": "import_module",
+          "line": 125,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py"
+        },
+        {
+          "call": "import_module",
+          "line": 144,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py"
+        },
+        {
+          "call": "import_module",
+          "line": 145,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py"
+        },
+        {
+          "call": "import_module",
+          "line": 163,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py"
+        },
+        {
+          "call": "import_module",
+          "line": 164,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py"
+        },
+        {
+          "call": "import_module",
+          "line": 207,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py"
+        },
+        {
+          "call": "import_module",
+          "line": 114,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py"
+        },
+        {
+          "call": "import_module",
+          "line": 138,
+          "path": "policy-engine/tests/unit/remediation/test_dfk_01.py"
+        },
+        {
+          "call": "import_module",
+          "line": 25,
+          "path": "policy-engine/tests/unit/remediation/test_fry_03.py"
+        },
+        {
+          "call": "import_module",
+          "line": 36,
+          "path": "policy-engine/tests/unit/remediation/test_lex_01.py"
+        },
+        {
+          "call": "import_module",
+          "line": 37,
+          "path": "policy-engine/tests/unit/remediation/test_lex_01.py"
+        },
+        {
+          "call": "import_module",
+          "line": 312,
+          "path": "policy-engine/tests/unit/remediation/test_mig_04.py"
+        },
+        {
+          "call": "import_module",
+          "line": 22,
+          "path": "policy-engine/tests/unit/remediation/test_udf_02.py"
+        },
+        {
+          "call": "import_module",
+          "line": 364,
+          "path": "policy-engine/tests/unit/runtime/http/test_governed_projection_validation_worker.py"
+        },
+        {
+          "call": "import_module",
+          "line": 24,
+          "path": "policy-engine/tests/unit/runtime/quality/test_adaptation_transition.py"
+        },
+        {
+          "call": "import_module",
+          "line": 19,
+          "path": "policy-engine/tests/unit/runtime/quality/test_constrained_response.py"
+        },
+        {
+          "call": "import_module",
+          "line": 25,
+          "path": "policy-engine/tests/unit/runtime/quality/test_epoch_deployment.py"
+        },
+        {
+          "call": "import_module",
+          "line": 17,
+          "path": "policy-engine/tests/unit/runtime/quality/test_epoch_transition_inputs.py"
+        },
+        {
+          "call": "import_module",
+          "line": 19,
+          "path": "policy-engine/tests/unit/runtime/quality/test_epoch_transition_origin.py"
+        },
+        {
+          "call": "import_module",
+          "line": 20,
+          "path": "policy-engine/tests/unit/runtime/quality/test_operator_comprehension.py"
+        },
+        {
+          "call": "import_module",
+          "line": 555,
+          "path": "policy-engine/tests/unit/runtime/quality/test_proving_ground_legal_mandate_search.py"
+        },
+        {
+          "call": "import_module",
+          "line": 22,
+          "path": "policy-engine/tests/unit/scientist/evidence/claims/test_posture.py"
+        },
+        {
+          "call": "import_module",
+          "line": 16,
+          "path": "policy-engine/tests/unit/scientist/validation/test_epoch_certificate_issuance.py"
+        },
+        {
+          "call": "import_module",
+          "line": 110,
+          "path": "policy-engine/tools/ci/check_scientist_best_in_class_wave1.py"
+        },
+        {
+          "call": "import_module",
+          "line": 197,
+          "path": "policy-engine/tools/ci/check_scientist_best_in_class_wave2.py"
+        },
+        {
+          "call": "import_module",
+          "line": 17,
+          "path": "policy-engine/tools/lib/compat.py"
+        },
+        {
+          "call": "import_module",
+          "line": 35,
+          "path": "policy-engine/tools/lib/compat.py"
+        },
+        {
+          "call": "import_module",
+          "line": 143,
+          "path": "policy-engine/tools/lib/runner.py"
+        },
+        {
+          "call": "__import__",
+          "line": 98,
+          "path": "policy-engine/tools/ops_runners/cloud/gcp_preflight.py"
+        },
+        {
+          "call": "__import__",
+          "line": 1773,
+          "path": "policy-engine/tools/ops_runners/experiments/run_msme_deadline_suite.py"
+        },
+        {
+          "call": "__import__",
+          "line": 1384,
+          "path": "policy-engine/tools/ops_runners/experiments/run_msme_e2e_showcase.py"
+        },
+        {
+          "call": "__import__",
+          "line": 1683,
+          "path": "policy-engine/tools/ops_runners/experiments/run_msme_final_fresg_suite_v2.py"
+        },
+        {
+          "call": "__import__",
+          "line": 1835,
+          "path": "policy-engine/tools/ops_runners/experiments/run_msme_grand_tournament_v2.py"
+        },
+        {
+          "call": "import_module",
+          "line": 36,
+          "path": "policy-engine/tools/ops_runners/runtime_cli.py"
+        },
+        {
+          "call": "import_module",
+          "line": 164,
+          "path": "policy-engine/tools/quality/diagnostics/gen_schema.py"
+        },
+        {
+          "call": "import_module",
+          "line": 172,
+          "path": "policy-engine/tools/quality/diagnostics/gen_schema.py"
+        },
+        {
+          "call": "import_module",
+          "line": 302,
+          "path": "policy-engine/tools/quality/diagnostics/gen_schema.py"
+        },
+        {
+          "call": "import_module",
+          "line": 68,
+          "path": "policy-engine/tools/quality/lint/rules/__init__.py"
+        },
+        {
+          "call": "import_module",
+          "line": 2194,
+          "path": "policy-engine/tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py"
+        },
+        {
+          "call": "import_module",
+          "line": 213,
+          "path": "policy-engine/tools/quality/validation/run_grounding_closeout_sweep.py"
+        },
+        {
+          "call": "import_module",
+          "line": 240,
+          "path": "policy-engine/tools/quality/validation/run_grounding_closeout_sweep.py"
+        }
+      ]
+    },
+    "computed_module_getattr": {
+      "count": 0,
+      "rows": []
+    },
+    "dynamic_import_literals": {
+      "count": 0,
+      "rows": []
+    },
+    "imported_name_uses": {
+      "count": 0,
+      "rows": []
+    },
+    "imports": {
+      "count": 0,
+      "rows": []
+    },
+    "module_imports": {
+      "count": 2,
+      "rows": [
+        {
+          "line": 11,
+          "module": "polisyos.data_requirement.compiler",
+          "path": "policy-engine/tests/unit/data_requirement/test_compiler.py"
+        },
+        {
+          "line": 10,
+          "module": "polisyos.data_requirement.compiler",
+          "path": "policy-engine/tests/unit/data_requirement/test_e02_named_profile_context.py"
+        }
+      ]
+    },
+    "qualified_attributes": {
+      "count": 0,
+      "rows": []
+    },
+    "reflection_literals": {
+      "count": 0,
+      "rows": []
+    },
+    "retired_name_literals": {
+      "count": 11,
+      "rows": [
+        {
+          "line": 215,
+          "name": "_digest",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/verify_plan.py"
+        },
+        {
+          "line": 31,
+          "name": "_data_families_from_obligation_graph",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py"
+        },
+        {
+          "line": 32,
+          "name": "_data_family_token_from_frontier_item",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py"
+        },
+        {
+          "line": 33,
+          "name": "_nested",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py"
+        },
+        {
+          "line": 34,
+          "name": "_normalised_family",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py"
+        },
+        {
+          "line": 35,
+          "name": "_slug_family",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py"
+        },
+        {
+          "line": 36,
+          "name": "_ordered_data_families",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py"
+        },
+        {
+          "line": 37,
+          "name": "_DATA_FAMILY_ORDER",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py"
+        },
+        {
+          "line": 38,
+          "name": "_digest",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py"
+        },
+        {
+          "line": 218,
+          "name": "_digest",
+          "path": "policy-engine/tests/unit/remediation/test_req_01_compiler_caller_census.py"
+        },
+        {
+          "line": 1395,
+          "name": "_digest",
+          "path": "policy-engine/tests/unit/runtime/quality/test_open_world_risk.py"
+        }
+      ]
+    },
+    "unresolved_reflective_calls": {
+      "count": 305,
+      "rows": [
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 42,
+          "path": "policy-engine/benchmarks/honest_comparison/runner.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 182,
+          "path": "policy-engine/benchmarks/honest_comparison/runner.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 14,
+          "path": "policy-engine/benchmarks/run_parallel.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 76,
+          "path": "policy-engine/benchmarks/runtime.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 73,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/numeric-scalar-validation/numeric-removal-6f1e/remove_original_element_guard.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 10,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/installed_launch.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 14,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/installed_launch.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 6,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/removal_replayer.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 6,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/installed_removal_current.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 9,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/literal_runtime_imports.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 9,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/literal_runtime_imports_first_observer_error.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 18,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/author/probe_installed_defaults.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 12,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/review-input-resolver.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 5,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-frozen-native-v2.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 7,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-frozen-native.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 10,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-review-environment-v2.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 10,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-review-environment.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 45,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/removal_plugin.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 5,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006/environment.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 11,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-benchmark-retirement-removal.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 316,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006/author/source-inputs/policy-engine/src/polisyos/foundry/_registry.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 26,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006/author/replay_training_dtype.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 29,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/replay_economic_controls.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 15,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/replay_economic_dtype.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 8,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/capture_environment.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 75,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/audit_final6d.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 12,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/environment_probe.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 16,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/environment_probe.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 211,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/b/report_emission_census.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 21,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c/c2_ir_facade_probe.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 34,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/codec_strangle.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 123,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/codec_strangle.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 105,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/error_diagnostic.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 106,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/error_diagnostic.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 157,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/error_diagnostic.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 158,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/error_diagnostic.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 159,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/error_diagnostic.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 170,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/error_diagnostic.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 264,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/error_diagnostic.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 19,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/graph_profile_archive.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 20,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/graph_profile_archive.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 129,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/graph_profile_archive.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 32,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/pilot_aux_verification.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 35,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/pilot_aux_verification.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 38,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/pilot_aux_verification.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 24,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/pilot_graph_finalize.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 25,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/pilot_graph_finalize.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 26,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/pilot_graph_finalize.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 15,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/retention_analysis.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 16,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/retention_analysis.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 176,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/retention_analysis.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 31,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/retention_verification.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 34,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/retention_verification.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 37,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/retention_verification.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 480,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/synthetic_retention.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 30,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/telemetry_verification.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 260,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_pilot_analysis.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 35,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_process_telemetry.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 19,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_synthetic_retention.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 27,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_synthetic_retention.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 100,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_synthetic_retention.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 49,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 68,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 69,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 70,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 134,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 135,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 190,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 246,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 247,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 18,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_admission.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 47,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_admission.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 14,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_archive.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 117,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_archive.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 133,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_archive.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 154,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_archive.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 195,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_archive.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 13,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_reanalysis.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 13,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_trace.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 18,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_trace.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 22,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_archive.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 23,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_archive.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 244,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_archive.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 27,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_archive_verification.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 33,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_archive_verification.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 36,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_archive_verification.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 180,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_declaration.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 181,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_declaration.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 20,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_reanalysis.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 69,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_reanalysis.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 145,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_reanalysis.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 34,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 55,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 197,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 216,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 217,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 357,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 383,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 384,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 385,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 17,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_trace_analysis.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 213,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_trace_analysis.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 31,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_verification.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 35,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_verification.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 42,
+          "path": "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_verification.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 37,
+          "path": "policy-engine/docs/superpowers/journals/gy-builders/c/removal_probes.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 44,
+          "path": "policy-engine/src/polisyos/common/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 331,
+          "path": "policy-engine/src/polisyos/core/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 336,
+          "path": "policy-engine/src/polisyos/core/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 1375,
+          "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 1370,
+          "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 524,
+          "path": "policy-engine/src/polisyos/core/security/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 136,
+          "path": "policy-engine/src/polisyos/data_forge/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 42,
+          "path": "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 219,
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 113,
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 214,
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 214,
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 120,
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 115,
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 43,
+          "path": "policy-engine/src/polisyos/data_forge/read_api/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 19,
+          "path": "policy-engine/src/polisyos/data_forge/read_api/_lazy.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 63,
+          "path": "policy-engine/src/polisyos/data_forge/read_api/surfaces.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 62,
+          "path": "policy-engine/src/polisyos/ddm/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 85,
+          "path": "policy-engine/src/polisyos/ddm/integration/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 298,
+          "path": "policy-engine/src/polisyos/fabric/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 97,
+          "path": "policy-engine/src/polisyos/fabric/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 301,
+          "path": "policy-engine/src/polisyos/fabric/connectors/discovery.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 259,
+          "path": "policy-engine/src/polisyos/fabric/data_plane/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 36,
+          "path": "policy-engine/src/polisyos/fabric/data_plane/cli.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 784,
+          "path": "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 212,
+          "path": "policy-engine/src/polisyos/foundry/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 236,
+          "path": "policy-engine/src/polisyos/foundry/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 316,
+          "path": "policy-engine/src/polisyos/foundry/_registry.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 430,
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 26,
+          "path": "policy-engine/src/polisyos/foundry/compile/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 33,
+          "path": "policy-engine/src/polisyos/foundry/compile/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 54,
+          "path": "policy-engine/src/polisyos/foundry/contracts/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 78,
+          "path": "policy-engine/src/polisyos/foundry/coupling/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 28,
+          "path": "policy-engine/src/polisyos/foundry/execute/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 22,
+          "path": "policy-engine/src/polisyos/foundry/execute/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 58,
+          "path": "policy-engine/src/polisyos/foundry/extensions/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 63,
+          "path": "policy-engine/src/polisyos/foundry/extensions/_builtin_loader.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 11,
+          "path": "policy-engine/src/polisyos/foundry/methods/_internal/reexport.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 520,
+          "path": "policy-engine/src/polisyos/foundry/methods/api.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 192,
+          "path": "policy-engine/src/polisyos/foundry/methods/backends/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 186,
+          "path": "policy-engine/src/polisyos/foundry/methods/backends/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 37,
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 227,
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_registry_boot.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 164,
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sensitivity_metrics.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 427,
+          "path": "policy-engine/src/polisyos/foundry/methods/cli/validator.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 473,
+          "path": "policy-engine/src/polisyos/foundry/methods/compiler/hot_reload.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 399,
+          "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 411,
+          "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 515,
+          "path": "policy-engine/src/polisyos/foundry/methods/discovery.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 67,
+          "path": "policy-engine/src/polisyos/foundry/methods/selection/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 248,
+          "path": "policy-engine/src/polisyos/foundry/methods/selection/cache.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 52,
+          "path": "policy-engine/src/polisyos/foundry/plugins/discovery.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 107,
+          "path": "policy-engine/src/polisyos/foundry/plugins/discovery.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 267,
+          "path": "policy-engine/src/polisyos/foundry/validation/phase2_closure.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 1022,
+          "path": "policy-engine/src/polisyos/ir/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 23,
+          "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 149,
+          "path": "policy-engine/src/polisyos/ir/api.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 46,
+          "path": "policy-engine/src/polisyos/ir/api.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 74,
+          "path": "policy-engine/src/polisyos/ir/api.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 418,
+          "path": "policy-engine/src/polisyos/ir/governance/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 676,
+          "path": "policy-engine/src/polisyos/ir/observation/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 257,
+          "path": "policy-engine/src/polisyos/ir/schemas/catalog.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 285,
+          "path": "policy-engine/src/polisyos/ir/schemas/catalog.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 262,
+          "path": "policy-engine/src/polisyos/ir/schemas/catalog.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 192,
+          "path": "policy-engine/src/polisyos/lex/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 44,
+          "path": "policy-engine/src/polisyos/lex/knowledge/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 90,
+          "path": "policy-engine/src/polisyos/runtime/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 35,
+          "path": "policy-engine/src/polisyos/runtime/http/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 33,
+          "path": "policy-engine/src/polisyos/runtime/http/services/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 21,
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 16,
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 12,
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 5060,
+          "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 4566,
+          "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 4735,
+          "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 4755,
+          "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 107,
+          "path": "policy-engine/src/polisyos/scholar/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 191,
+          "path": "policy-engine/src/polisyos/scientist/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 30,
+          "path": "policy-engine/src/polisyos/scientist/_internal/compat.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 53,
+          "path": "policy-engine/src/polisyos/scientist/_internal/compat.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 45,
+          "path": "policy-engine/src/polisyos/scientist/_internal/shims.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 465,
+          "path": "policy-engine/src/polisyos/scientist/agent/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "__import__",
+          "classification": "UNRESOLVED",
+          "line": 508,
+          "path": "policy-engine/src/polisyos/scientist/agent/code_verifier.py",
+          "possible_apis": [
+            "__import__"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 142,
+          "path": "policy-engine/src/polisyos/scientist/evidence/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 22,
+          "path": "policy-engine/src/polisyos/scientist/evidence/_shim.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 33,
+          "path": "policy-engine/src/polisyos/scientist/feedback/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 270,
+          "path": "policy-engine/src/polisyos/scientist/governance/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 453,
+          "path": "policy-engine/src/polisyos/scientist/governance/continuous/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 30,
+          "path": "policy-engine/src/polisyos/scientist/methods/_compat.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 53,
+          "path": "policy-engine/src/polisyos/scientist/methods/_compat.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 381,
+          "path": "policy-engine/src/polisyos/scientist/methods/advanced.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 129,
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 57,
+          "path": "policy-engine/src/polisyos/scientist/methods/causal/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 379,
+          "path": "policy-engine/src/polisyos/scientist/methods/search/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 409,
+          "path": "policy-engine/src/polisyos/scientist/methods/search/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 147,
+          "path": "policy-engine/src/polisyos/scientist/methods/search/compliance_audit.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 198,
+          "path": "policy-engine/src/polisyos/scientist/methods/search/compliance_audit.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 31,
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 289,
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 99,
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 25,
+          "path": "policy-engine/src/polisyos/scientist/orchestration/orchestrator/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 128,
+          "path": "policy-engine/src/polisyos/scientist/policy_design/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 33,
+          "path": "policy-engine/src/polisyos/scientist/publishing/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 90,
+          "path": "policy-engine/src/polisyos/scientist/replay/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 444,
+          "path": "policy-engine/src/polisyos/scientist/validation/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 23,
+          "path": "policy-engine/tests/repo_quality/architecture/test_public_api_facades.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 163,
+          "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_5_contracts.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 15,
+          "path": "policy-engine/tests/repo_quality/tools/test_locale_census_independent.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 16,
+          "path": "policy-engine/tests/repo_quality/tools/test_multilingual_locale_census.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 33,
+          "path": "policy-engine/tests/repo_quality/tools/test_repository_last_mile_inventory.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 32,
+          "path": "policy-engine/tests/repo_quality/tools/test_trust_claim_posture.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 583,
+          "path": "policy-engine/tests/unit/core/security/test_chronology_anchor.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 24,
+          "path": "policy-engine/tests/unit/core/security/test_facade.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 20,
+          "path": "policy-engine/tests/unit/data_forge/domains/academic/batch/test_abstract_reextraction.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 26,
+          "path": "policy-engine/tests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 20,
+          "path": "policy-engine/tests/unit/data_forge/domains/academic/batch/test_reextraction_cli.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 170,
+          "path": "policy-engine/tests/unit/data_forge/test_phase8_shim_sunset.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 20,
+          "path": "policy-engine/tests/unit/fabric/test_ceiling_relations.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 104,
+          "path": "policy-engine/tests/unit/fabric/test_non_data_acquisition.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 38,
+          "path": "policy-engine/tests/unit/fabric/test_semantic_group_imports.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 213,
+          "path": "policy-engine/tests/unit/fabric/test_semantic_group_imports.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 252,
+          "path": "policy-engine/tests/unit/fabric/test_semantic_group_imports.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 78,
+          "path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 21,
+          "path": "policy-engine/tests/unit/foundry/hygiene/test_no_compat_facade_imports.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 18,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 25,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 110,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 123,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 204,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 412,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 120,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 143,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 170,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 196,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 64,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 74,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 14,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_phase41_module_splits.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 27,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_synthetic_control_imports.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 230,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 208,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 16,
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/test_catalog_isolation.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 23,
+          "path": "policy-engine/tests/unit/foundry/methods/test_foundry_v2_migration.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 453,
+          "path": "policy-engine/tests/unit/ir/observation/test_bundle_schemas.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 33,
+          "path": "policy-engine/tests/unit/ir/test_root_facade_closeout.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 83,
+          "path": "policy-engine/tests/unit/ir/test_root_facade_closeout.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 127,
+          "path": "policy-engine/tests/unit/ir/test_root_facade_closeout.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 36,
+          "path": "policy-engine/tests/unit/ir/test_semantic_group_imports.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 174,
+          "path": "policy-engine/tests/unit/ir/test_semantic_group_imports.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 215,
+          "path": "policy-engine/tests/unit/ir/test_semantic_group_imports.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 12,
+          "path": "policy-engine/tests/unit/lex/knowledge/test_locale_census.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 19,
+          "path": "policy-engine/tests/unit/lex/knowledge/test_multilingual_assurance.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 53,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 54,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 55,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 68,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 69,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 73,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 112,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 125,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 144,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 145,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 163,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 164,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 207,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 114,
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 138,
+          "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 25,
+          "path": "policy-engine/tests/unit/remediation/test_fry_03.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 36,
+          "path": "policy-engine/tests/unit/remediation/test_lex_01.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 37,
+          "path": "policy-engine/tests/unit/remediation/test_lex_01.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 312,
+          "path": "policy-engine/tests/unit/remediation/test_mig_04.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 22,
+          "path": "policy-engine/tests/unit/remediation/test_udf_02.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 364,
+          "path": "policy-engine/tests/unit/runtime/http/test_governed_projection_validation_worker.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 24,
+          "path": "policy-engine/tests/unit/runtime/quality/test_adaptation_transition.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 19,
+          "path": "policy-engine/tests/unit/runtime/quality/test_constrained_response.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 25,
+          "path": "policy-engine/tests/unit/runtime/quality/test_epoch_deployment.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 17,
+          "path": "policy-engine/tests/unit/runtime/quality/test_epoch_transition_inputs.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 19,
+          "path": "policy-engine/tests/unit/runtime/quality/test_epoch_transition_origin.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 20,
+          "path": "policy-engine/tests/unit/runtime/quality/test_operator_comprehension.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "import_module",
+          "classification": "UNRESOLVED",
+          "line": 555,
+          "path": "policy-engine/tests/unit/runtime/quality/test_proving_ground_legal_mandate_search.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 22,
+          "path": "policy-engine/tests/unit/scientist/evidence/claims/test_posture.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 16,
+          "path": "policy-engine/tests/unit/scientist/validation/test_epoch_certificate_issuance.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 110,
+          "path": "policy-engine/tools/ci/check_scientist_best_in_class_wave1.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 197,
+          "path": "policy-engine/tools/ci/check_scientist_best_in_class_wave2.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 17,
+          "path": "policy-engine/tools/lib/compat.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 35,
+          "path": "policy-engine/tools/lib/compat.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 143,
+          "path": "policy-engine/tools/lib/runner.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "__import__",
+          "classification": "UNRESOLVED",
+          "line": 98,
+          "path": "policy-engine/tools/ops_runners/cloud/gcp_preflight.py",
+          "possible_apis": [
+            "__import__"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "__import__",
+          "classification": "UNRESOLVED",
+          "line": 1773,
+          "path": "policy-engine/tools/ops_runners/experiments/run_msme_deadline_suite.py",
+          "possible_apis": [
+            "__import__"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "__import__",
+          "classification": "UNRESOLVED",
+          "line": 1384,
+          "path": "policy-engine/tools/ops_runners/experiments/run_msme_e2e_showcase.py",
+          "possible_apis": [
+            "__import__"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "__import__",
+          "classification": "UNRESOLVED",
+          "line": 1683,
+          "path": "policy-engine/tools/ops_runners/experiments/run_msme_final_fresg_suite_v2.py",
+          "possible_apis": [
+            "__import__"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "__import__",
+          "classification": "UNRESOLVED",
+          "line": 1835,
+          "path": "policy-engine/tools/ops_runners/experiments/run_msme_grand_tournament_v2.py",
+          "possible_apis": [
+            "__import__"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 36,
+          "path": "policy-engine/tools/ops_runners/runtime_cli.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 164,
+          "path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 172,
+          "path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 302,
+          "path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 68,
+          "path": "policy-engine/tools/quality/lint/rules/__init__.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 2194,
+          "path": "policy-engine/tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 213,
+          "path": "policy-engine/tools/quality/validation/run_grounding_closeout_sweep.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        },
+        {
+          "call": "importlib.import_module",
+          "classification": "UNRESOLVED",
+          "line": 240,
+          "path": "policy-engine/tools/quality/validation/run_grounding_closeout_sweep.py",
+          "possible_apis": [
+            "import_module"
+          ],
+          "reason": "dynamic import target is computed"
+        }
+      ]
+    },
+    "wildcard_imports": {
+      "count": 0,
+      "rows": []
+    }
+  },
+  "inputs": {
+    "exclusions": [],
+    "operations": [
+      "git rev-parse --verify <ref>^{commit}",
+      "git rev-parse --verify <commit>^{tree}",
+      "git ls-tree -rz --full-tree <commit>",
+      "git cat-file --batch <unique selected blob IDs>",
+      "UTF-8 decode and ast.parse(type_comments=True) for every selected path"
+    ],
+    "ref_argument": "first positional argument; defaults to HEAD",
+    "repository_root": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos",
+    "requested_ref": "HEAD",
+    "selector": "all tracked Git blob paths ending in .py or .pyi"
+  },
+  "lexical_resolution_scope": "Static imports are followed through lexical scopes. Parameters, assignments, and competing imports shadow an alias; unresolved call bindings remain UNRESOLVED. Runtime rebinding, computed names, and external consumers are not proven absent.",
+  "positive_control": "passed: direct and aliased reflection/import APIs plus parameter, assignment, and import-rebind shadows and clean/rebound global/nonlocal binding controls",
+  "predicate_class": "recomputed",
+  "scanner_candidate": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+    "selected_tree_is_recomputed_from_requested_ref": true,
+    "sha256": "955929ee07ae6efc1dcfdea820b067b37ea8ef712d614b5d3276c3f94fed339a"
+  },
+  "source": {
+    "commit": "97454091e2b93d47dddb3268466a4a8a29379b6d",
+    "file_type_denominator": {
+      ".py": 7330,
+      ".pyi": 5
+    },
+    "parse_error_count": 0,
+    "parse_errors": [],
+    "parsed_path_count": 7335,
+    "read_blob_count": 7094,
+    "selected_path_count": 7335,
+    "selected_unique_blob_count": 7094,
+    "tree": "6d483adc0126a171e4280ee832c0148ebbb85a1a"
+  },
+  "unresolved_by_construction": [
+    "computed_import_or_reflection_name: names assembled at runtime or selected from data",
+    "external_or_untracked_consumer: packages, plugins, generated code, and untracked files",
+    "non_python_consumer: configuration, notebooks, shell, and other non-.py/.pyi inputs",
+    "exec_eval_native_or_service_dispatch: behavior outside statically parsed Python AST"
+  ],
+  "unresolved_summary": {
+    "absence_claim_supported": false,
+    "ambiguous_or_computed_reflective_calls": 305,
+    "computed_import_or_getattr_sites": 305,
+    "wildcard_compiler_imports": 0
+  },
+  "verdict": "UNRESOLVED"
+}

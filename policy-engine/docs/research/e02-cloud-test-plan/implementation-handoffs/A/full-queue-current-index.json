@@ -1,0 +1,962 @@
+{
+  "schema": "policyos.e02.a.current-source-index.v1",
+  "source_snapshot": {
+    "branch": "codex/e02-A-delivery-attached",
+    "workspace_HEAD": "97454091e2b93d47dddb3268466a4a8a29379b6d",
+    "workspace_tree": "6d483adc0126a171e4280ee832c0148ebbb85a1a",
+    "meaning": "Current A delivery/evidence snapshot after the ordinary G merge. The latest source freeze is 8ec98ad; HEAD 9745409 is its documentation/evidence carrier. Individual check cases retain their own immutable candidate pins.",
+    "prior_index_assembly": {
+      "workspace_HEAD": "8947449e7b1a69a5b3b286acd6f42779c10ca6c8",
+      "workspace_tree": "bebc86312f20624fb5eba9d34a25b3666e43a1da",
+      "meaning": "Initial ignored-index assembly before the G merge; preserved as an earlier snapshot."
+    },
+    "ordinary_G_merge": {
+      "commit": "7818f314450349cecfee4bc6f070e4ba41433a7f",
+      "tree": "95eb9affc1fdf67f418967eef71a035c8899b8ee",
+      "parents": [
+        "f7e9dea1b7f5ec61b0c42f64637265e577a71d03",
+        "6f3983466f1eca14b510c4f5006fab5092d418d3"
+      ],
+      "G_parent": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+      "state": "merged"
+    },
+    "progress": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+      "sha256": "caeb74facc6e3f99ff3f35265c3e83b5e073863f164b0957644ba33b00e2fcf9",
+      "git_blob": "5beae048efe4b4ffda43583d1f9b93c3298e0d86",
+      "meaning": "Pointer-only companion append after the immutable974 snapshot; every preexisting field/value is preserved. Criterion/row JSON pointers are unchanged."
+    },
+    "progress_basis_at_source_snapshot": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+      "sha256": "c70f498ea39c1b9d2f6bb7c25da844feb5f28081dd714375bc0a951657c1b83b",
+      "git_blob": "3bbebc438e989b58be07584cf5823611847d66bd"
+    }
+  },
+  "complete_set_census": {
+    "method": "Parsed every TSV data row with csv.DictReader and all arrays in coverage.json; joined every A ID and all criterion occurrences by JSON pointer, checking criterion lines/hash/owner bundle.",
+    "inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+        "type": "TSV",
+        "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75",
+        "rows": 127,
+        "A_rows": 13
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+        "type": "TSV",
+        "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+        "rows": 282,
+        "A_rows": 34
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "type": "JSON",
+        "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2",
+        "bundles": 127,
+        "findings": 282,
+        "criterion_occurrences": 291,
+        "A_findings": 34,
+        "A_criterion_occurrences": 35
+      }
+    ],
+    "whole_queue": {
+      "bundles": 127,
+      "primary_findings": 282,
+      "criterion_occurrences": 291
+    },
+    "A": {
+      "bundles": 13,
+      "findings": 34,
+      "unique_ids": 34,
+      "criterion_occurrences": 35,
+      "LA-046_occurrences": 2
+    }
+  },
+  "decision_layers": {
+    "historical_statuses": {
+      "counts": {
+        "partial": 31,
+        "open": 1,
+        "closed": 1,
+        "held": 1
+      },
+      "closure_now": {
+        "not_adjudicated": 34
+      },
+      "preserved": true
+    },
+    "prior_progress_top_counts": {
+      "counts": {
+        "open": 4,
+        "limited": 27,
+        "closed": 2,
+        "held": 1
+      },
+      "preserved": true,
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json#/outcome_counts"
+    },
+    "author_technical_notes": {
+      "state": "recorded; remain distinct from authority",
+      "ref": "policy-engine/_build/e02-A-full-queue/current-notes.json@sha256:554ba8c4aa603553d452be7300e73a5de50aae68268784df0a28dab62bd9e905"
+    },
+    "root_row_decisions": {
+      "counts": {
+        "open": 5,
+        "limited": 23,
+        "closed": 5,
+        "held": 1
+      },
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json#/current_root_adjudication_20261008/rows",
+      "scope": "Five bounded CLOSED row decisions; not G acceptance or formal finding closure."
+    },
+    "G_code_acceptance_for_current_resume": {
+      "state": "UNRUN",
+      "note": "The ordinary merge is complete, but G review/acceptance of this current source freeze has not run."
+    },
+    "formal_finding_closure": {
+      "state": "UNRUN",
+      "closure_ids": [],
+      "note": "No finding closure is asserted; historical source closure values remain not_adjudicated. The five bounded root CLOSED outcomes are not G closures."
+    },
+    "whole_queue_closeout": "incomplete",
+    "G_source_merge": {
+      "state": "MERGED",
+      "commit": "7818f314450349cecfee4bc6f070e4ba41433a7f",
+      "G_parent": "6f3983466f1eca14b510c4f5006fab5092d418d3"
+    },
+    "G_integration_state": "HOLD_PENDING_CURRENT_SOURCE_REVIEW_AND_GENERATED_SURFACE"
+  },
+  "current_index": [
+    {
+      "id": "B01",
+      "primary_bundle": "CYC-01",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "open",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/0",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "CYC-01",
+          "ref": "#/current_root_adjudication_20261008/rows/0/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B02",
+      "primary_bundle": "CYC-01",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "open",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/1",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "CYC-01",
+          "ref": "#/current_root_adjudication_20261008/rows/1/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B03",
+      "primary_bundle": "CYC-01",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "open",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/2",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "CYC-01",
+          "ref": "#/current_root_adjudication_20261008/rows/2/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B04",
+      "primary_bundle": "CYC-02",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/3",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "CYC-02",
+          "ref": "#/current_root_adjudication_20261008/rows/3/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B05",
+      "primary_bundle": "CYC-02",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/4",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "CYC-02",
+          "ref": "#/current_root_adjudication_20261008/rows/4/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B06",
+      "primary_bundle": "SIM-01",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "closed",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/5",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "SIM-01",
+          "ref": "#/current_root_adjudication_20261008/rows/5/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B07",
+      "primary_bundle": "SIM-01",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/6",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "SIM-01",
+          "ref": "#/current_root_adjudication_20261008/rows/6/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B08",
+      "primary_bundle": "CYC-02",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/7",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "CYC-02",
+          "ref": "#/current_root_adjudication_20261008/rows/7/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B09",
+      "primary_bundle": "CYC-03",
+      "original_status": "open",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "open",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/8",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "CYC-03",
+          "ref": "#/current_root_adjudication_20261008/rows/8/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B10",
+      "primary_bundle": "CYC-04",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/9",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "CYC-04",
+          "ref": "#/current_root_adjudication_20261008/rows/9/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B11",
+      "primary_bundle": "CYC-04",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/10",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "CYC-04",
+          "ref": "#/current_root_adjudication_20261008/rows/10/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B12",
+      "primary_bundle": "ACQ-01",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/11",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "ACQ-01",
+          "ref": "#/current_root_adjudication_20261008/rows/11/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B15",
+      "primary_bundle": "CYC-05",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/12",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "CYC-05",
+          "ref": "#/current_root_adjudication_20261008/rows/12/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B16",
+      "primary_bundle": "EMP-01",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/13",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "EMP-01",
+          "ref": "#/current_root_adjudication_20261008/rows/13/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B18",
+      "primary_bundle": "SIM-02",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "closed",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/14",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "SIM-02",
+          "ref": "#/current_root_adjudication_20261008/rows/14/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B19",
+      "primary_bundle": "SIM-03",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/15",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "SIM-03",
+          "ref": "#/current_root_adjudication_20261008/rows/15/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B20",
+      "primary_bundle": "SIM-02",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/16",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "SIM-02",
+          "ref": "#/current_root_adjudication_20261008/rows/16/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B21",
+      "primary_bundle": "SIM-03",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/17",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "SIM-03",
+          "ref": "#/current_root_adjudication_20261008/rows/17/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B22",
+      "primary_bundle": "SIM-02",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/18",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "SIM-02",
+          "ref": "#/current_root_adjudication_20261008/rows/18/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B23",
+      "primary_bundle": "SIM-03",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "closed",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/19",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "SIM-03",
+          "ref": "#/current_root_adjudication_20261008/rows/19/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B25",
+      "primary_bundle": "SIM-03",
+      "original_status": "closed",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "closed",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/20",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "SIM-03",
+          "ref": "#/current_root_adjudication_20261008/rows/20/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B26",
+      "primary_bundle": "SIM-03",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "closed",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/21",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "SIM-03",
+          "ref": "#/current_root_adjudication_20261008/rows/21/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B27",
+      "primary_bundle": "CYC-03",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "open",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/22",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "CYC-03",
+          "ref": "#/current_root_adjudication_20261008/rows/22/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B28",
+      "primary_bundle": "CYC-03",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/23",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "CYC-03",
+          "ref": "#/current_root_adjudication_20261008/rows/23/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B29",
+      "primary_bundle": "CYC-05",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/24",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "CYC-05",
+          "ref": "#/current_root_adjudication_20261008/rows/24/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B30",
+      "primary_bundle": "CYC-05",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/25",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "CYC-05",
+          "ref": "#/current_root_adjudication_20261008/rows/25/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B31",
+      "primary_bundle": "EMP-01",
+      "original_status": "held",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "held",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/26",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "EMP-01",
+          "ref": "#/current_root_adjudication_20261008/rows/26/source_criterion_occurrences/0"
+        }
+      ],
+      "scope_correction_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/owner-contract-B31-20261007.md@blob:902d0aca355aeb0bf2ddd04df7e5e2c3ed16e778#L17-L23,L31-L43"
+    },
+    {
+      "id": "B33",
+      "primary_bundle": "EMP-01",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/27",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "EMP-01",
+          "ref": "#/current_root_adjudication_20261008/rows/27/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B34",
+      "primary_bundle": "SEL-01",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/28",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "SEL-01",
+          "ref": "#/current_root_adjudication_20261008/rows/28/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B35",
+      "primary_bundle": "SEL-01",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/29",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "SEL-01",
+          "ref": "#/current_root_adjudication_20261008/rows/29/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "B36",
+      "primary_bundle": "SEL-01",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/30",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "SEL-01",
+          "ref": "#/current_root_adjudication_20261008/rows/30/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "LA-033",
+      "primary_bundle": "REP-01",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/31",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "REP-01",
+          "ref": "#/current_root_adjudication_20261008/rows/31/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "LA-045",
+      "primary_bundle": "REQ-01",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/32",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "REQ-01",
+          "ref": "#/current_root_adjudication_20261008/rows/32/source_criterion_occurrences/0"
+        }
+      ]
+    },
+    {
+      "id": "LA-046",
+      "primary_bundle": "ACQ-01",
+      "original_status": "partial",
+      "source_closure": "not_adjudicated",
+      "root_outcome": "limited",
+      "root_row_ref": "#/current_root_adjudication_20261008/rows/33",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "bundle": "REQ-01",
+          "ref": "#/current_root_adjudication_20261008/rows/33/source_criterion_occurrences/0"
+        },
+        {
+          "occurrence": 2,
+          "bundle": "ACQ-01",
+          "ref": "#/current_root_adjudication_20261008/rows/33/source_criterion_occurrences/1"
+        }
+      ],
+      "occurrence_notes": [
+        {
+          "occurrence_ref": "#/current_root_adjudication_20261008/rows/33/source_criterion_occurrences/0",
+          "outcome": "limited",
+          "missing_input": "Named source-backed pilot profile/context and real resolver/consumer trace.",
+          "missing_input_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/acquisition-compiler.json@sha256:08a3e0519257c8ac9795e5fefd224bbae52dbd5db3180c3679e37a4a3f1a14d5#/original_criteria/1"
+        },
+        {
+          "occurrence_ref": "#/current_root_adjudication_20261008/rows/33/source_criterion_occurrences/1",
+          "outcome": "limited",
+          "missing_input": "Actual admitted N7 source/data-state input and changed dependent WMR/readback.",
+          "missing_input_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json#/supplier_actions/N7_ACQ01_B12_and_separate_LA046_occurrences/owner_input_required"
+        }
+      ]
+    }
+  ],
+  "latest_bounded_observations": [
+    {
+      "id": "B11",
+      "state": "PASS",
+      "result": "1 passed in 18.06s",
+      "candidate": "4f53480daf94cb9a64ad0a3940fee50bd4a88469",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/B11-recorded-exhaustion-frozen-4f534/receipt.json@sha256:b12c4c565425eb7ff232e1c40d77557b13128cfdfeb44dcfa8d6a5e7baab6340",
+      "packet_sha256": "48de6292acce533559d9526655da22490ccd5c5f508a83cf9560abe0b9c33775",
+      "effect": "B11 remains limited pending public heuristic caveat; this check does not close it."
+    },
+    {
+      "id": "B29",
+      "pre_fix": {
+        "candidate": "92e5ff3d170d37dbf1aae824175819ab30dac10b",
+        "state": "FAIL",
+        "receipt": {
+          "path": "policy-engine/_build/e02-A-continuation-20261007/nested-N6-history-pre-fix-consumer-red/receipt.json",
+          "sha256": "7ac45760463977cbf329401116eccf87dce792cb15dfde413afb7e7d0f9c4487",
+          "bytes": 2721
+        },
+        "junit": {
+          "path": "policy-engine/_build/e02-A-continuation-20261007/nested-N6-history-pre-fix-consumer-red/junit.xml",
+          "sha256": "feae5aea89a17b6badd5b8e74b23f90b1e736a703b750887b96d27dcea1f07de",
+          "bytes": 26248
+        }
+      },
+      "current": {
+        "candidate": "8947449e7b1a69a5b3b286acd6f42779c10ca6c8",
+        "state": "PASS",
+        "result": "8 passed in 13.59s",
+        "receipt": {
+          "path": "policy-engine/_build/e02-A-continuation-20261007/nested-N6-history-frozen-8947/receipt.json",
+          "sha256": "9a4cf01bd18ed759d2ecd22cdee06460312b20fa964bd90eb245ab5679ed0d71",
+          "bytes": 3293
+        },
+        "junit": {
+          "path": "policy-engine/_build/e02-A-continuation-20261007/nested-N6-history-frozen-8947/junit.xml",
+          "sha256": "04ce51fd3bbdf2836853db41f8578791bfc5c975df23bfb80eba035a061b4ef0",
+          "bytes": 1632
+        }
+      },
+      "effect": "B29 remains limited; ordinary recursive child production, complete status mapping, and generated API acceptance remain incomplete.",
+      "894_candidate_scope_note": "Preserved immutable earlier 8/8 check pin. The canonical nested handoff says its test blob was 51221, distinct from the later optional R1 test blob 21aff.",
+      "final_positive_selector_on_test_blob_21aff": "UNRUN after the ordinary G merge; see nested-N6-history-readback.json#/followup_test_candidate.",
+      "canonical_handoff_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/nested-N6-history-readback.json",
+        "sha256": "1d263a88503397888411b53517ffb13859a49dcae5a55c229f9929136ab378dd",
+        "bytes": 46104
+      }
+    }
+  ],
+  "special_scope_corrections": {
+    "B31": "The operative B31 question is one same-estimand/unit binding through producer → persisted v1.1 reference → A consumer, preserving native uncertainty. Four combined B31/B201/B202 ratifications are context, not prerequisites. Row remains held. See B31 scope_correction_ref.",
+    "LA-046": "REQ-01 and ACQ-01 are separate limited occurrences with distinct missing inputs; see LA-046 occurrence_notes."
+  },
+  "current_writer": {
+    "lane": "A",
+    "index_path": "policy-engine/_build/e02-A-full-queue/full-queue-current-index.json",
+    "delivery_HEAD": "97454091e2b93d47dddb3268466a4a8a29379b6d",
+    "delivery_tree": "6d483adc0126a171e4280ee832c0148ebbb85a1a",
+    "latest_A_source_freeze": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+    "latest_A_source_tree": "c644eb74aca98215b247df1638854490d66715b7",
+    "scope": "Current source-backed index refreshed after source freeze and ordinary merge; historical full-queue source rows and counts remain referenced, unchanged."
+  },
+  "source_freeze": {
+    "source_commit": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+    "source_tree": "c644eb74aca98215b247df1638854490d66715b7",
+    "source_parent": "dba8ec622e273c6ffbaf94732fd13eaf484245ba",
+    "source_delta_from_merged_G_candidate": {
+      "base": "7818f314450349cecfee4bc6f070e4ba41433a7f",
+      "paths": [
+        "policy-engine/src/polisyos/core/contracts/runtime.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py"
+      ],
+      "path_count": 3,
+      "composition": "two runtime source paths and one integration test path"
+    },
+    "delivery_evidence_commit": "97454091e2b93d47dddb3268466a4a8a29379b6d",
+    "delivery_tree": "6d483adc0126a171e4280ee832c0148ebbb85a1a",
+    "delivery_delta_after_source_freeze": {
+      "path_count": 55,
+      "source_or_test_paths": 0,
+      "scope": "55 handoff/evidence/documentation files; no source or test changes after the 8ec98ad freeze."
+    },
+    "field_scope": {
+      "field": "leaf_terminal_kinds",
+      "meaning": "Owner-derived terminal kind for each recursive leaf, projected through the current API branch. This is a typed status projection only; no N9/publication authority is established.",
+      "source_paths": [
+        "policy-engine/src/polisyos/core/contracts/runtime.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py"
+      ],
+      "generated_G_surface": "UNRUN; no generated G surface is included in this source freeze."
+    }
+  },
+  "source_freeze_case_checks": [
+    {
+      "case": "composed-A-G-affected-7818",
+      "target_commit": "7818f314450349cecfee4bc6f070e4ba41433a7f",
+      "state": "PASS_WITH_SKIP",
+      "cases": 225,
+      "passed": 224,
+      "skipped": 1,
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/composed-A-G-affected-7818/receipt.json",
+        "sha256": "681587f16e3b2913caeaac2d21f58ef742411e1450161b8bab8024cc227ed948",
+        "bytes": 3366
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/composed-A-G-affected-7818/stdout.txt",
+        "sha256": "16081947888e9b2d67d43a67faf4bb10a84f0a5cc6183e24bee29c87df825f5c",
+        "bytes": 352
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/composed-A-G-affected-7818/junit.xml",
+        "sha256": "19783c7d93e387991a10731d54c9066eba09217d065aae7e1ce17e566f71bb5b",
+        "bytes": 44011
+      },
+      "aggregation": "Case-local; prior composed wave. Counts overlap other waves and are not additive."
+    },
+    {
+      "case": "leaf_terminal_kinds_positive",
+      "target_commit": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+      "target_tree": "c644eb74aca98215b247df1638854490d66715b7",
+      "state": "PASS",
+      "cases": 1,
+      "passed": 1,
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/leaf-terminal-projection-frozen-8ec98/receipt.json",
+        "sha256": "471421c045738e41e3a337aed1b8ade94e1438cdf60d08185398157b1cecf6f9",
+        "bytes": 3840
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/leaf-terminal-projection-frozen-8ec98/stdout.txt",
+        "sha256": "82cb9ecb7a2cafcee3a4dfd8970c2bd21beefeb286995a6d231cfa3ee556091a",
+        "bytes": 99
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/leaf-terminal-projection-frozen-8ec98/junit.xml",
+        "sha256": "58c02555bf26c583fae04794d60dd979704faf50bdb64d573f216c2ac142e182",
+        "bytes": 446
+      },
+      "aggregation": "Independent single-property case; do not sum with the composed wave."
+    },
+    {
+      "case": "leaf_terminal_kinds_removal_R1",
+      "target_commit": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+      "target_tree": "c644eb74aca98215b247df1638854490d66715b7",
+      "state": "EXPECTED_FAIL",
+      "cases": 1,
+      "failed": 1,
+      "expected": "Removing the leaf-terminal projection should produce {} while the runtime consumer expects budget_exhausted; the unchanged assertion fails.",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/leaf-terminal-projection-R1-frozen-8ec98/receipt.json",
+        "sha256": "048df1363457bde8ce650ec8d7887cc683169fd8433c96ff9b01d747cfee8d59",
+        "bytes": 3936
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/leaf-terminal-projection-R1-frozen-8ec98/stdout.txt",
+        "sha256": "ef509dfb35689bfbf035c46e6c97ac920a8732ea0c11d076f4450c4e38ba62f2",
+        "bytes": 16369
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/leaf-terminal-projection-R1-frozen-8ec98/junit.xml",
+        "sha256": "d2e4de5b78c9eed93e1c682629b716d69ab6bdac53d6ca11f3adcdd9c700d744",
+        "bytes": 16577
+      },
+      "aggregation": "Independent expected removal falsifier; not a product regression count."
+    }
+  ],
+  "current_source_verification_state": {
+    "complete_REQ_census": {
+      "target_commit": "97454091e2b93d47dddb3268466a4a8a29379b6d",
+      "target_tree": "6d483adc0126a171e4280ee832c0148ebbb85a1a",
+      "state": "PASS",
+      "check_scope": "Complete tracked Python walk executed successfully; absence verdict UNRESOLVED, not a finding closure.",
+      "verdict": "UNRESOLVED",
+      "selected_parsed_paths": 7335,
+      "file_type_denominator": {
+        ".py": 7330,
+        ".pyi": 5
+      },
+      "unique_blobs": 7094,
+      "parse_errors": 0,
+      "ambiguous_computed_reflective_sites": 305,
+      "absence_claim_supported": false,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/final-composed-REQ-census-9745/receipt.json",
+      "complete_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/final-composed-REQ-census-9745/stdout.txt"
+    },
+    "final_structural_guard": {
+      "target_commit": "97454091e2b93d47dddb3268466a4a8a29379b6d",
+      "target_tree": "6d483adc0126a171e4280ee832c0148ebbb85a1a",
+      "state": "FAIL",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/final-composed-architecture-structural-9745/receipt.json",
+      "stdout": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/final-composed-architecture-structural-9745/stdout.txt",
+        "bytes": 743852,
+        "sha256": "2f31565ea1c00e9625185d8fee66dcc9af0a1bb2f9003158495fead93ccf6422",
+        "custody": "Retained local oversized raw; local G may read it. A remote consumer lacking bytes must rerun the exact command; no automatic acceptance."
+      },
+      "scope": "--skip-generated-checks; no generated freshness verdict. Public inventory and deep-import baseline drift.",
+      "inherited_red": "not_established"
+    },
+    "generated_G_surface": {
+      "state": "UNRUN",
+      "note": "No generated G artifacts or integration acceptance are asserted by the current index."
+    },
+    "aggregation_rule": "Keep each exact candidate/check case separate. Do not add overlapping wave counts into one aggregate."
+  },
+  "unavailable_legacy_provenance_limit": {
+    "artifact_count": 3,
+    "class": "prior physical-input provenance artifacts",
+    "availability": "UNAVAILABLE_IN_CURRENT_EVIDENCE_SET",
+    "interpretation": "No replacement, identity, or currentness claim is inferred from absence. This is an evidence limitation and cannot promote any row to full closure.",
+    "effect_on_current_row_counts": "none"
+  },
+  "root_authored_addenda_initial_894_snapshot": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B11-recorded-exhaustion.json",
+      "sha256": "48de6292acce533559d9526655da22490ccd5c5f508a83cf9560abe0b9c33775",
+      "bytes": 6661
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/budget-completion-retention.json",
+      "sha256": "c04ce5eedce9a497a56af317a6a9c8e90f0beb1ef99c5975201d8850f58a4e76",
+      "bytes": 43255
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/monetary-observer-producer-consumer-composition.json",
+      "sha256": "c8f4fdc592292bc6b5ef25d8f837bce17b1d750c627337fd395dc1e168a13dd4",
+      "bytes": 48378
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/req-caller-lexical-binding.json",
+      "sha256": "c4ccc5278f82ed80981251897ceae3101a97377ab1af296dea331dfe10375d1a",
+      "bytes": 63639
+    }
+  ],
+  "current_canonical_owner_packets": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B11-recorded-exhaustion.json",
+      "sha256": "48de6292acce533559d9526655da22490ccd5c5f508a83cf9560abe0b9c33775",
+      "git_blob": "35cfec342d6dbc50c244e683e4f31d3dcb7065ca",
+      "bytes": 6661,
+      "last_committing_commit": "f7e9dea1b7f5ec61b0c42f64637265e577a71d03",
+      "state": "tracked_at_current_delivery_HEAD",
+      "initial_894_draft_sha256": "48de6292acce533559d9526655da22490ccd5c5f508a83cf9560abe0b9c33775"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/budget-completion-retention.json",
+      "sha256": "c04ce5eedce9a497a56af317a6a9c8e90f0beb1ef99c5975201d8850f58a4e76",
+      "git_blob": "567551d8c75c4c3ee64cbae3bbd8b6e770e5e09e",
+      "bytes": 43255,
+      "last_committing_commit": "f7e9dea1b7f5ec61b0c42f64637265e577a71d03",
+      "state": "tracked_at_current_delivery_HEAD",
+      "initial_894_draft_sha256": "c04ce5eedce9a497a56af317a6a9c8e90f0beb1ef99c5975201d8850f58a4e76"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/monetary-observer-producer-consumer-composition.json",
+      "sha256": "c8f4fdc592292bc6b5ef25d8f837bce17b1d750c627337fd395dc1e168a13dd4",
+      "git_blob": "f6c95a45e9aae58d3b9d7647237fb81826b01631",
+      "bytes": 48378,
+      "last_committing_commit": "f7e9dea1b7f5ec61b0c42f64637265e577a71d03",
+      "state": "tracked_at_current_delivery_HEAD",
+      "initial_894_draft_sha256": "c8f4fdc592292bc6b5ef25d8f837bce17b1d750c627337fd395dc1e168a13dd4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/req-caller-lexical-binding.json",
+      "sha256": "c4ccc5278f82ed80981251897ceae3101a97377ab1af296dea331dfe10375d1a",
+      "git_blob": "457670ebd2e29ef2600f79543f3536aa75f9b8f7",
+      "bytes": 63639,
+      "last_committing_commit": "f7e9dea1b7f5ec61b0c42f64637265e577a71d03",
+      "state": "tracked_at_current_delivery_HEAD",
+      "initial_894_draft_sha256": "c4ccc5278f82ed80981251897ceae3101a97377ab1af296dea331dfe10375d1a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/leaf-terminal-projection.json",
+      "sha256": "3d54365187fbac8d5b10ec9bc1a02dd53b3885ecf9d426cabfe89bd1ab682b9d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/recursive-cycle-checkpoint-api-addendum.json",
+      "sha256": "d954a79a39b867f1b88a573f4425d14a07f38bf5ba6b110036ef3667fb2c8bbd"
+    }
+  ],
+  "nested_N6_current_handoff": {
+    "packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/nested-N6-history-readback.json",
+      "sha256": "1d263a88503397888411b53517ffb13859a49dcae5a55c229f9929136ab378dd",
+      "bytes": 46104
+    },
+    "finding_outcome": "limited",
+    "source_candidate": "81aa7cbb9ed01fee0eb41c3e2ca4269c04e28cbf",
+    "source_tree": "3cb89d4359ef3035541712c5f67f2ab546875401",
+    "final_test_blob": "21aff9b5d0041b0cd6a72d111a9947833b5103d3",
+    "final_positive_GET_selector": "UNRUN",
+    "followup_ref": "#/followup_test_candidate",
+    "older_894_eight_selector_PASS": "retained as a distinct older test-blob receipt; not substituted for the final positive selector.",
+    "scope": "Manual persisted Core/CAS readback and leaf-history falsifier only. Ordinary A-owned two-child producer, full B29 status mapping, and generated API acceptance remain incomplete."
+  },
+  "canonical_index_precedence": "This file is the current A technical index. Earlier progress top-level counts and appended decisions remain historical. No G acceptance or formal closure is inferred."
+}

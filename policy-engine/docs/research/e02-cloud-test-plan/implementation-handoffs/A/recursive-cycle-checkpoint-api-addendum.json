@@ -1,0 +1,413 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A runtime API generated-surface freshness",
+  "slice": "recursive-cycle-checkpoint-api-addendum",
+  "bundle_ids": [
+    "CYC-05"
+  ],
+  "slice_base_sha": "7818f314450349cecfee4bc6f070e4ba41433a7f",
+  "candidate_sha": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+  "candidate_tree_sha": "c644eb74aca98215b247df1638854490d66715b7",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "implementation_commits": [
+    "dba8ec622e273c6ffbaf94732fd13eaf484245ba",
+    "8ec98ad5208a01006e07d31c60db7f827375ca54"
+  ],
+  "changed_paths": [
+    "policy-engine/src/polisyos/core/contracts/runtime.py",
+    "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-frozen-8ec98/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-frozen-8ec98/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_recursive_partial_readback.py"
+      ],
+      "target_sha": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+      "environment": {
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "thread_caps": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_environment": {}
+      },
+      "input_closure": {
+        "tree_sha": "c644eb74aca98215b247df1638854490d66715b7",
+        "test_blob": "5b3235660b6e56afb1063f3d6842e33861e0ec45",
+        "source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+            "git_blob": "f21c3fa9b2eb9735b6503f442c0db0ac70ff21f5"
+          },
+          {
+            "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+            "git_blob": "8da759179eb523bf5d95ec20e3c6513b5f6d563a"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+            "git_blob": "e874398449b7abffa4be665e00b4bc36a1a2001f"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+            "git_blob": "288c0aea1c1267bf7c2612ef551aa278b0ddc4ac"
+          },
+          {
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+            "git_blob": "5b3235660b6e56afb1063f3d6842e33861e0ec45"
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "test_counts": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "evidence_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/leaf-terminal-projection-frozen-8ec98",
+        "receipt_sha256": "471421c045738e41e3a337aed1b8ade94e1438cdf60d08185398157b1cecf6f9"
+      }
+    },
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-R1-frozen-8ec98/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-R1-frozen-8ec98/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_recursive_partial_readback.py"
+      ],
+      "target_sha": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+      "environment": {
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "thread_caps": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_environment": {
+          "POLISYOS_E02_LEAF_TERMINAL_PROJECTION_REMOVAL": "1"
+        }
+      },
+      "input_closure": {
+        "tree_sha": "c644eb74aca98215b247df1638854490d66715b7",
+        "test_blob": "5b3235660b6e56afb1063f3d6842e33861e0ec45",
+        "removed_property": "actual resolver leaf_terminal_kinds assignment"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "raw_test_exit_code": 1,
+        "evidence_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/leaf-terminal-projection-R1-frozen-8ec98",
+        "receipt_sha256": "048df1363457bde8ce650ec8d7887cc683169fd8433c96ff9b01d747cfee8d59",
+        "observed": "The negative test rejects the empty map after the sole runtime mapping is removed."
+      },
+      "control_assessment": {
+        "outcome": "PASS",
+        "meaning": "Successful property-removal falsifier; the executed pytest check remains FAIL."
+      }
+    },
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "src/polisyos/core/contracts/runtime.py",
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+        "tests/integration/core_runtime/test_e02_informative_voi_execution.py"
+      ],
+      "target_sha": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+      "environment": {
+        "python": "3.14.3",
+        "tool": "ruff via python -m ruff"
+      },
+      "input_closure": {
+        "tree_sha": "c644eb74aca98215b247df1638854490d66715b7",
+        "paths": [
+          "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+          "src/polisyos/core/contracts/runtime.py",
+          "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+          "tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+          "tests/integration/core_runtime/test_e02_informative_voi_execution.py"
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "evidence_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/final-A-owned-ruff-8ec98",
+        "receipt_sha256": "bbab42ba1e3b0f592c401951597e53a37e0d8dc593002e14167db430ff352d58",
+        "stdout": "All checks passed!"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "docs/research/e02-cloud-test-plan/results/import_results.py",
+        "--check"
+      ],
+      "target_sha": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+      "environment": {
+        "python": "3.14.3"
+      },
+      "input_closure": {
+        "tree_sha": "c644eb74aca98215b247df1638854490d66715b7",
+        "result_files": [
+          "cells.tsv",
+          "properties.tsv",
+          "events.jsonl",
+          "gates.json",
+          "routes.tsv",
+          "verification.json"
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "evidence_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/post-merge-results-integrity-8ec98",
+        "receipt_sha256": "abefc24670ed02c2d6e54851b2c893e3ef66a1a570edb8928aebb6843e80728e",
+        "stdout": "{\"ok\":true,\"files\":[\"cells.tsv\",\"properties.tsv\",\"events.jsonl\",\"gates.json\",\"routes.tsv\",\"verification.json\"]}"
+      }
+    },
+    {
+      "command": "Existing canonical owner wave-6 argv and output comparison retained in A/generated-api.json#waves[5]; no command was rerun in this packet.",
+      "target_sha": "b3de1ec3158e5c257edb548e7ef43ac82078531f",
+      "environment": {
+        "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/generated-api.json#waves[5]"
+      },
+      "input_closure": {
+        "historical_candidate_sha": "b3de1ec3158e5c257edb548e7ef43ac82078531f",
+        "historical_five_path_output_denominator": [
+          "policy-engine/schemas/runtime_api_v1.openapi.json",
+          "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+          "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+          "policy-engine/packages/runtime-api-client/types.ts",
+          "policy-engine/apps/runtime-dashboard/src/api/types.ts"
+        ],
+        "historical_source_scope": "pre-8ec; not current candidate input"
+      },
+      "outcome": "PASS",
+      "output": {
+        "historical_status": "PASS",
+        "historical_exit_code": 0,
+        "historical_comparisons": "5/5 MATCH",
+        "historical_wave_id": "wave-6",
+        "warning": "Historical freshness result does not establish freshness on 8ec98."
+      }
+    },
+    {
+      "command": "Read-only content scan of the complete five-path manifest-derived committed output denominator at candidate 8ec98.",
+      "target_sha": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+      "environment": {
+        "mode": "read_only",
+        "generator_executed": false
+      },
+      "input_closure": {
+        "manifest_path": "policy-engine/architecture/generated_artifacts.toml",
+        "manifest_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+        "manifest_sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0",
+        "complete_output_denominator": [
+          "policy-engine/schemas/runtime_api_v1.openapi.json",
+          "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+          "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+          "policy-engine/packages/runtime-api-client/types.ts",
+          "policy-engine/apps/runtime-dashboard/src/api/types.ts"
+        ],
+        "current_output_blobs": [
+          {
+            "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+            "git_blob": "fafa53ab0557697f82f4631b1c7d5a85dca3186d",
+            "searched_terms_absent": {
+              "leaf_terminal_kinds": true,
+              "RecursiveCycleCheckpoint": true,
+              "recursive_cycle_checkpoint": true
+            }
+          },
+          {
+            "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+            "git_blob": "3ae262fcb1aa09aef80929be1c270170d787179e",
+            "searched_terms_absent": {
+              "leaf_terminal_kinds": true,
+              "RecursiveCycleCheckpoint": true,
+              "recursive_cycle_checkpoint": true
+            }
+          },
+          {
+            "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+            "git_blob": "78894498d1ab3d8a62cf31e0aec3320eff58804e",
+            "searched_terms_absent": {
+              "leaf_terminal_kinds": true,
+              "RecursiveCycleCheckpoint": true,
+              "recursive_cycle_checkpoint": true
+            }
+          },
+          {
+            "path": "policy-engine/packages/runtime-api-client/types.ts",
+            "git_blob": "ca6486bef6b71fa4bf830b07882e231697aa6a7a",
+            "searched_terms_absent": {
+              "leaf_terminal_kinds": true,
+              "RecursiveCycleCheckpoint": true,
+              "recursive_cycle_checkpoint": true
+            }
+          },
+          {
+            "path": "policy-engine/apps/runtime-dashboard/src/api/types.ts",
+            "git_blob": "d85743d91f5b9aab425268ba24b42c127e949ffe",
+            "searched_terms_absent": {
+              "leaf_terminal_kinds": true,
+              "RecursiveCycleCheckpoint": true,
+              "recursive_cycle_checkpoint": true
+            }
+          }
+        ],
+        "source_field_blob": "8da759179eb523bf5d95ec20e3c6513b5f6d563a"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "observed": "All five current committed outputs omit all three searched checkpoint field/type identifiers while the 8ec98 typed DTO source contains leaf_terminal_kinds.",
+        "basis_limit": "Content absence establishes the missing generated member; this is not a canonical owner re-generation or byte-comparison receipt."
+      }
+    },
+    {
+      "command": "Canonical generated-output owner wave after the 8ec98 source freeze.",
+      "target_sha": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+      "environment": {
+        "status": "not_run"
+      },
+      "input_closure": {
+        "source_commit": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+        "source_tree": "c644eb74aca98215b247df1638854490d66715b7",
+        "owner_generation_protocol_reference": "A/generated-api.json#waves[5].commands",
+        "current_manifest_sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0",
+        "full_output_denominator": [
+          "policy-engine/schemas/runtime_api_v1.openapi.json",
+          "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+          "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+          "policy-engine/packages/runtime-api-client/types.ts",
+          "policy-engine/apps/runtime-dashboard/src/api/types.ts"
+        ]
+      },
+      "outcome": "UNRUN",
+      "output": {
+        "required_next_step": "G owner executes the retained canonical full generation/check wave against 8ec98, then compares all five outputs. The prior b3de wave is historical only."
+      }
+    }
+  ],
+  "property": {
+    "statement": "At candidate 8ec98, the manifest-registered runtime OpenAPI snapshot, generated runtime client files, and dashboard API types must represent the RecursiveCycleCheckpoint DTO including leaf_terminal_kinds and match outputs from the canonical owner generator byte-for-byte.",
+    "runtime_path": [
+      "The typed DTO and RunDetails GET projection are pinned in the current source tree.",
+      "The generated-artifact manifest defines the runtime OpenAPI snapshot, three runtime-client outputs, and one dashboard types output as the complete five-path denominator.",
+      "The canonical owner generation/check wave must derive those five outputs from the frozen source and compare each output against the committed files."
+    ],
+    "proxy_divergence": "A prior generated-contract PASS, a DTO field marker, or one generated file can all be green while current output families are stale. The latest retained owner wave-6 PASS targets b3de, not 8ec; current files at 8ec omit the new identifiers. Only the full current canonical generation and five-path byte comparison adjudicates freshness.",
+    "negative_controls": [
+      "The complete current manifest-derived five-file census at 8ec shows leaf_terminal_kinds, RecursiveCycleCheckpoint, and recursive_cycle_checkpoint absent from every output file.",
+      "The prior wave-6 record is explicitly historical at b3de and cannot be inherited as a current-source PASS.",
+      "No canonical generation, checker comparison, or generated-client/dashboard output probe was run on 8ec in this handoff."
+    ]
+  },
+  "predicate_basis": "not_established",
+  "capability_state_or_finding_state": "surface_missing",
+  "limitations_and_next_owner": {
+    "scope": "Current generated API surface only. The GET consumer test is a separate bounded runtime receipt and does not establish current OpenAPI/client/dashboard freshness.",
+    "current_surface": {
+      "manifest_sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0",
+      "manifest_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+      "complete_output_denominator": [
+        {
+          "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+          "git_blob": "fafa53ab0557697f82f4631b1c7d5a85dca3186d",
+          "searched_terms_absent": {
+            "leaf_terminal_kinds": true,
+            "RecursiveCycleCheckpoint": true,
+            "recursive_cycle_checkpoint": true
+          }
+        },
+        {
+          "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+          "git_blob": "3ae262fcb1aa09aef80929be1c270170d787179e",
+          "searched_terms_absent": {
+            "leaf_terminal_kinds": true,
+            "RecursiveCycleCheckpoint": true,
+            "recursive_cycle_checkpoint": true
+          }
+        },
+        {
+          "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+          "git_blob": "78894498d1ab3d8a62cf31e0aec3320eff58804e",
+          "searched_terms_absent": {
+            "leaf_terminal_kinds": true,
+            "RecursiveCycleCheckpoint": true,
+            "recursive_cycle_checkpoint": true
+          }
+        },
+        {
+          "path": "policy-engine/packages/runtime-api-client/types.ts",
+          "git_blob": "ca6486bef6b71fa4bf830b07882e231697aa6a7a",
+          "searched_terms_absent": {
+            "leaf_terminal_kinds": true,
+            "RecursiveCycleCheckpoint": true,
+            "recursive_cycle_checkpoint": true
+          }
+        },
+        {
+          "path": "policy-engine/apps/runtime-dashboard/src/api/types.ts",
+          "git_blob": "d85743d91f5b9aab425268ba24b42c127e949ffe",
+          "searched_terms_absent": {
+            "leaf_terminal_kinds": true,
+            "RecursiveCycleCheckpoint": true,
+            "recursive_cycle_checkpoint": true
+          }
+        }
+      ],
+      "all_five_outputs_have_new_field": false
+    },
+    "not_established": [
+      "No canonical owner generation/check wave has been executed on candidate 8ec98.",
+      "The historical wave-6 5/5 match at b3de does not establish current freshness after the runtime DTO change.",
+      "No task-family, finding closure, ordinary production recursive POST, endpoint authorization beyond the bounded GET test, or hosted/production API claim is made."
+    ],
+    "next_owner": "G/runtime generated-artifact owner: after source freeze, rerun the already-retained canonical owner generation/check protocol in A/generated-api.json#waves[5] against 8ec98, preserving ignored scratch, and capture the complete five-path comparison. Promote generated files only through the owner workflow; do not hand-edit."
+  },
+  "closure_ids": [],
+  "literal_protocol_validation": {
+    "mandatory_keys": "All 17 exact HANDOFF names present; closure_ids empty. Field count alone is not schema validation.",
+    "raw_check_semantics": "Executed check outcome reflects actual test/gate; negative-control success is separate."
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "uv",
+    "run",
+    "--no-sync",
+    "polisyos-tools",
+    "architecture",
+    "guardrails",
+    "check",
+    "--skip-generated-checks"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "97454091e2b93d47dddb3268466a4a8a29379b6d",
+  "candidate_tree": "6d483adc0126a171e4280ee832c0148ebbb85a1a",
+  "workspace_dirty_before": [],
+  "workspace_dirty_after": [],
+  "exit_code": 1,
+  "wall_s": 17.201441166049335,
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_command.py",
+    "sha256": "ef58301dceda92cf4a17214fd281cfcb3f6f50ba98480533bc0b191878a43798"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 743852,
+      "sha256": "2f31565ea1c00e9625185d8fee66dcc9af0a1bb2f9003158495fead93ccf6422"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

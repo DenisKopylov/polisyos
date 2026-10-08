@@ -4580,5 +4580,10 @@
       ],
       "storage": "No eligible new cleanup candidates: inactive N5/B29 fixtures contain unique CAS/runtime JSON and are preserved. Prior native Trash action stays recorded; Trash not emptied."
     }
+  },
+  "current_source_backed_index": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-current-index.json",
+    "authority": "Current A technical row index; bounded author proposals only. G acceptance and formal closure remain separate UNRUN/HOLD.",
+    "precedence": "Current index and its explicit B31/LA046 scope corrections supersede stale currentness/count interpretations; all historical keys/rows/outcomes are retained unchanged."
   }
 }

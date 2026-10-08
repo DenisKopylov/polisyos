@@ -1,0 +1,582 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A runtime HTTP recursive partial checkpoint",
+  "slice": "leaf-terminal-projection",
+  "bundle_ids": [
+    "CYC-05"
+  ],
+  "slice_base_sha": "7818f314450349cecfee4bc6f070e4ba41433a7f",
+  "candidate_sha": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+  "candidate_tree_sha": "c644eb74aca98215b247df1638854490d66715b7",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "implementation_commits": [
+    "dba8ec622e273c6ffbaf94732fd13eaf484245ba",
+    "8ec98ad5208a01006e07d31c60db7f827375ca54"
+  ],
+  "changed_paths": [
+    "policy-engine/src/polisyos/core/contracts/runtime.py",
+    "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-pre-producer-red/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-pre-producer-red/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_recursive_partial_readback.py"
+      ],
+      "target_sha": "dba8ec622e273c6ffbaf94732fd13eaf484245ba",
+      "environment": {
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "thread_caps": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_environment": {}
+      },
+      "input_closure": {
+        "base_sha": "7818f314450349cecfee4bc6f070e4ba41433a7f",
+        "base_tree_sha": "95eb9affc1fdf67f418967eef71a035c8899b8ee",
+        "test_commit": "dba8ec622e273c6ffbaf94732fd13eaf484245ba",
+        "test_tree": "9c39187ca7582ba40071b5de8927462be2b5228c",
+        "test_path": "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+        "runtime_blob": "429f7b4767f623bf3fc42c42f16ac556d13143ad",
+        "lifecycle_blob": "b6da993dd1d922e19135f4f78f12775ed5505754"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "interpretation": "Expected pre-producer red: at the test-only candidate, the partial GET omitted leaf_terminal_kinds and raised KeyError. Runtime and resolver blobs are identical to the source base.",
+        "test_counts": {
+          "tests": 1,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "evidence_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/leaf-terminal-projection-pre-producer-red",
+        "files": {
+          "e02_origin.py": {
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-pre-producer-red/e02_origin.py",
+            "raw_sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+            "byte_equal_to_raw": true
+          },
+          "junit.xml": {
+            "bytes": 16259,
+            "sha256": "7cc4b132b114eed77c61062c19af61e85e2a3d0fcdad6f514f935a67fdb36aa8",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-pre-producer-red/junit.xml",
+            "raw_sha256": "7cc4b132b114eed77c61062c19af61e85e2a3d0fcdad6f514f935a67fdb36aa8",
+            "byte_equal_to_raw": true
+          },
+          "origins.json": {
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-pre-producer-red/origins.json",
+            "raw_sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+            "byte_equal_to_raw": true
+          },
+          "receipt.json": {
+            "bytes": 3856,
+            "sha256": "ddadfca1748536a492a38a140eadda8e80827076303b118a2fa0bb507efb5fd1",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-pre-producer-red/receipt.json",
+            "raw_sha256": "ddadfca1748536a492a38a140eadda8e80827076303b118a2fa0bb507efb5fd1",
+            "byte_equal_to_raw": true
+          },
+          "stderr.txt": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-pre-producer-red/stderr.txt",
+            "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "byte_equal_to_raw": true
+          },
+          "stdout.txt": {
+            "bytes": 16218,
+            "sha256": "fe648cfac3804cd7c0e5ba1c0873b105c8ba51058f2b24b6b87487687ddf67ab",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-pre-producer-red/stdout.txt",
+            "raw_sha256": "fe648cfac3804cd7c0e5ba1c0873b105c8ba51058f2b24b6b87487687ddf67ab",
+            "byte_equal_to_raw": true
+          }
+        }
+      }
+    },
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-frozen-8ec98/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-frozen-8ec98/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_recursive_partial_readback.py"
+      ],
+      "target_sha": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+      "environment": {
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "thread_caps": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_environment": {}
+      },
+      "input_closure": {
+        "tree_sha": "c644eb74aca98215b247df1638854490d66715b7",
+        "source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+            "git_blob": "f21c3fa9b2eb9735b6503f442c0db0ac70ff21f5"
+          },
+          {
+            "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+            "git_blob": "8da759179eb523bf5d95ec20e3c6513b5f6d563a"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+            "git_blob": "e874398449b7abffa4be665e00b4bc36a1a2001f"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+            "git_blob": "288c0aea1c1267bf7c2612ef551aa278b0ddc4ac"
+          },
+          {
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+            "git_blob": "5b3235660b6e56afb1063f3d6842e33861e0ec45"
+          }
+        ],
+        "test_path": "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+        "test_blob": "5b3235660b6e56afb1063f3d6842e33861e0ec45"
+      },
+      "outcome": "PASS",
+      "output": {
+        "test_counts": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "wall_seconds": 20.449764958000742,
+        "observed": {
+          "fresh_GET_checkpoint_status": "partial",
+          "root_n9_status": "not_run",
+          "leaf_terminal_kinds": {
+            "design://e02/recursive-budget/child-a": "budget_exhausted"
+          }
+        },
+        "evidence_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/leaf-terminal-projection-frozen-8ec98",
+        "files": {
+          "e02_origin.py": {
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-frozen-8ec98/e02_origin.py",
+            "raw_sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+            "byte_equal_to_raw": true
+          },
+          "junit.xml": {
+            "bytes": 446,
+            "sha256": "58c02555bf26c583fae04794d60dd979704faf50bdb64d573f216c2ac142e182",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-frozen-8ec98/junit.xml",
+            "raw_sha256": "58c02555bf26c583fae04794d60dd979704faf50bdb64d573f216c2ac142e182",
+            "byte_equal_to_raw": true
+          },
+          "origins.json": {
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-frozen-8ec98/origins.json",
+            "raw_sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+            "byte_equal_to_raw": true
+          },
+          "receipt.json": {
+            "bytes": 3840,
+            "sha256": "471421c045738e41e3a337aed1b8ade94e1438cdf60d08185398157b1cecf6f9",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-frozen-8ec98/receipt.json",
+            "raw_sha256": "471421c045738e41e3a337aed1b8ade94e1438cdf60d08185398157b1cecf6f9",
+            "byte_equal_to_raw": true
+          },
+          "stderr.txt": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-frozen-8ec98/stderr.txt",
+            "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "byte_equal_to_raw": true
+          },
+          "stdout.txt": {
+            "bytes": 99,
+            "sha256": "82cb9ecb7a2cafcee3a4dfd8970c2bd21beefeb286995a6d231cfa3ee556091a",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-frozen-8ec98/stdout.txt",
+            "raw_sha256": "82cb9ecb7a2cafcee3a4dfd8970c2bd21beefeb286995a6d231cfa3ee556091a",
+            "byte_equal_to_raw": true
+          }
+        }
+      }
+    },
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-R1-frozen-8ec98/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-R1-frozen-8ec98/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_recursive_partial_readback.py"
+      ],
+      "target_sha": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+      "environment": {
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "thread_caps": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_environment": {
+          "POLISYOS_E02_LEAF_TERMINAL_PROJECTION_REMOVAL": "1"
+        }
+      },
+      "input_closure": {
+        "tree_sha": "c644eb74aca98215b247df1638854490d66715b7",
+        "source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+            "git_blob": "f21c3fa9b2eb9735b6503f442c0db0ac70ff21f5"
+          },
+          {
+            "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+            "git_blob": "8da759179eb523bf5d95ec20e3c6513b5f6d563a"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+            "git_blob": "e874398449b7abffa4be665e00b4bc36a1a2001f"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+            "git_blob": "288c0aea1c1267bf7c2612ef551aa278b0ddc4ac"
+          },
+          {
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+            "git_blob": "5b3235660b6e56afb1063f3d6842e33861e0ec45"
+          }
+        ],
+        "test_path": "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+        "test_blob": "5b3235660b6e56afb1063f3d6842e33861e0ec45",
+        "mutation": "AST removal of exactly one RecursiveCycleCheckpoint.leaf_terminal_kinds constructor keyword from the actual resolver under POLISYOS_E02_LEAF_TERMINAL_PROJECTION_REMOVAL=1"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "raw_test_exit_code": 1,
+        "test_counts": {
+          "tests": 1,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "wall_seconds": 18.347682291991077,
+        "observed_failure": "assertion rejects {} against {'design://e02/recursive-budget/child-a': 'budget_exhausted'}",
+        "interpretation": "The negative probe passes because deleting the runtime mapping makes the fresh GET assertion fail.",
+        "evidence_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/leaf-terminal-projection-R1-frozen-8ec98",
+        "files": {
+          "e02_origin.py": {
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-R1-frozen-8ec98/e02_origin.py",
+            "raw_sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+            "byte_equal_to_raw": true
+          },
+          "junit.xml": {
+            "bytes": 16577,
+            "sha256": "d2e4de5b78c9eed93e1c682629b716d69ab6bdac53d6ca11f3adcdd9c700d744",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-R1-frozen-8ec98/junit.xml",
+            "raw_sha256": "d2e4de5b78c9eed93e1c682629b716d69ab6bdac53d6ca11f3adcdd9c700d744",
+            "byte_equal_to_raw": true
+          },
+          "origins.json": {
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-R1-frozen-8ec98/origins.json",
+            "raw_sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+            "byte_equal_to_raw": true
+          },
+          "receipt.json": {
+            "bytes": 3936,
+            "sha256": "048df1363457bde8ce650ec8d7887cc683169fd8433c96ff9b01d747cfee8d59",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-R1-frozen-8ec98/receipt.json",
+            "raw_sha256": "048df1363457bde8ce650ec8d7887cc683169fd8433c96ff9b01d747cfee8d59",
+            "byte_equal_to_raw": true
+          },
+          "stderr.txt": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-R1-frozen-8ec98/stderr.txt",
+            "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "byte_equal_to_raw": true
+          },
+          "stdout.txt": {
+            "bytes": 16369,
+            "sha256": "ef509dfb35689bfbf035c46e6c97ac920a8732ea0c11d076f4450c4e38ba62f2",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-R1-frozen-8ec98/stdout.txt",
+            "raw_sha256": "ef509dfb35689bfbf035c46e6c97ac920a8732ea0c11d076f4450c4e38ba62f2",
+            "byte_equal_to_raw": true
+          }
+        }
+      },
+      "control_assessment": {
+        "outcome": "PASS",
+        "meaning": "Successful property-removal falsifier; the executed pytest check remains FAIL."
+      }
+    },
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "src/polisyos/core/contracts/runtime.py",
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+        "tests/integration/core_runtime/test_e02_informative_voi_execution.py"
+      ],
+      "target_sha": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+      "environment": {
+        "python": "3.14.3",
+        "tool": "ruff via python -m ruff"
+      },
+      "input_closure": {
+        "tree_sha": "c644eb74aca98215b247df1638854490d66715b7",
+        "paths": [
+          "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+          "src/polisyos/core/contracts/runtime.py",
+          "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+          "tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+          "tests/integration/core_runtime/test_e02_informative_voi_execution.py"
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "raw_exit_code": 0,
+        "wall_seconds": 0.308151374978479,
+        "stdout": "All checks passed!",
+        "evidence_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/final-A-owned-ruff-8ec98",
+        "files": {
+          "receipt.json": {
+            "bytes": 2668,
+            "sha256": "bbab42ba1e3b0f592c401951597e53a37e0d8dc593002e14167db430ff352d58",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/final-A-owned-ruff-8ec98/receipt.json",
+            "raw_sha256": "bbab42ba1e3b0f592c401951597e53a37e0d8dc593002e14167db430ff352d58",
+            "byte_equal_to_raw": true
+          },
+          "stderr.txt": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/final-A-owned-ruff-8ec98/stderr.txt",
+            "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "byte_equal_to_raw": true
+          },
+          "stdout.txt": {
+            "bytes": 19,
+            "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/final-A-owned-ruff-8ec98/stdout.txt",
+            "raw_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+            "byte_equal_to_raw": true
+          }
+        }
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "docs/research/e02-cloud-test-plan/results/import_results.py",
+        "--check"
+      ],
+      "target_sha": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+      "environment": {
+        "python": "3.14.3"
+      },
+      "input_closure": {
+        "tree_sha": "c644eb74aca98215b247df1638854490d66715b7",
+        "result_files": [
+          "cells.tsv",
+          "properties.tsv",
+          "events.jsonl",
+          "gates.json",
+          "routes.tsv",
+          "verification.json"
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "raw_exit_code": 0,
+        "wall_seconds": 0.3223572080023587,
+        "stdout_sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+        "stdout": "{\"ok\":true,\"files\":[\"cells.tsv\",\"properties.tsv\",\"events.jsonl\",\"gates.json\",\"routes.tsv\",\"verification.json\"]}",
+        "evidence_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/post-merge-results-integrity-8ec98",
+        "files": {
+          "receipt.json": {
+            "bytes": 2292,
+            "sha256": "abefc24670ed02c2d6e54851b2c893e3ef66a1a570edb8928aebb6843e80728e",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/post-merge-results-integrity-8ec98/receipt.json",
+            "raw_sha256": "abefc24670ed02c2d6e54851b2c893e3ef66a1a570edb8928aebb6843e80728e",
+            "byte_equal_to_raw": true
+          },
+          "stderr.txt": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/post-merge-results-integrity-8ec98/stderr.txt",
+            "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "byte_equal_to_raw": true
+          },
+          "stdout.txt": {
+            "bytes": 112,
+            "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+            "raw_ignored_path": "policy-engine/_build/e02-A-continuation-20261007/post-merge-results-integrity-8ec98/stdout.txt",
+            "raw_sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+            "byte_equal_to_raw": true
+          }
+        }
+      }
+    },
+    {
+      "command": "No canonical OpenAPI/client/dashboard generator wave was run on frozen source 8ec98.",
+      "target_sha": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+      "environment": {
+        "status": "not_run"
+      },
+      "input_closure": {
+        "manifest_path": "policy-engine/architecture/generated_artifacts.toml",
+        "manifest_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+        "manifest_sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0",
+        "complete_output_denominator": [
+          "policy-engine/schemas/runtime_api_v1.openapi.json",
+          "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+          "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+          "policy-engine/packages/runtime-api-client/types.ts",
+          "policy-engine/apps/runtime-dashboard/src/api/types.ts"
+        ],
+        "current_output_blobs": [
+          {
+            "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+            "git_blob": "fafa53ab0557697f82f4631b1c7d5a85dca3186d",
+            "searched_terms_absent": {
+              "leaf_terminal_kinds": true,
+              "RecursiveCycleCheckpoint": true,
+              "recursive_cycle_checkpoint": true
+            }
+          },
+          {
+            "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+            "git_blob": "3ae262fcb1aa09aef80929be1c270170d787179e",
+            "searched_terms_absent": {
+              "leaf_terminal_kinds": true,
+              "RecursiveCycleCheckpoint": true,
+              "recursive_cycle_checkpoint": true
+            }
+          },
+          {
+            "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+            "git_blob": "78894498d1ab3d8a62cf31e0aec3320eff58804e",
+            "searched_terms_absent": {
+              "leaf_terminal_kinds": true,
+              "RecursiveCycleCheckpoint": true,
+              "recursive_cycle_checkpoint": true
+            }
+          },
+          {
+            "path": "policy-engine/packages/runtime-api-client/types.ts",
+            "git_blob": "ca6486bef6b71fa4bf830b07882e231697aa6a7a",
+            "searched_terms_absent": {
+              "leaf_terminal_kinds": true,
+              "RecursiveCycleCheckpoint": true,
+              "recursive_cycle_checkpoint": true
+            }
+          },
+          {
+            "path": "policy-engine/apps/runtime-dashboard/src/api/types.ts",
+            "git_blob": "d85743d91f5b9aab425268ba24b42c127e949ffe",
+            "searched_terms_absent": {
+              "leaf_terminal_kinds": true,
+              "RecursiveCycleCheckpoint": true,
+              "recursive_cycle_checkpoint": true
+            }
+          }
+        ]
+      },
+      "outcome": "UNRUN",
+      "output": {
+        "current_field_content_scan": "All five exact manifest-derived committed output files at 8ec98 lack leaf_terminal_kinds, RecursiveCycleCheckpoint, and recursive_cycle_checkpoint.",
+        "historical_wave": "A/generated-api.json wave-6 ran at b3de1ec3158e5c257edb548e7ef43ac82078531f; it is not a check on 8ec98."
+      }
+    }
+  ],
+  "property": {
+    "statement": "For the bounded contract-testing partial recursive artifact, the owned resolver projects each leaf node’s terminal kind under that node_ref, and a fresh tenant-scoped RunDetails GET preserves the exact map while the root remains partial and not_run.",
+    "runtime_path": [
+      "The test obtains a typed RecursiveGenerationCyclePartialRunV2 from the existing recursive controller budget-stop fixture with authority_scope=contract_testing.",
+      "A real accepted control job, tenant/cell execution lease, existing Core/CAS artifact writer, and persisted run path are exercised; the fixture supplies the partial compiled artifact manually.",
+      "ControlService.resolve_recursive_cycle_checkpoint reads the owned CAS payload and derives leaf_terminal_kinds from partial.leaf_nodes using node.terminal.kind.value.",
+      "The test creates a fresh runtime app and reads GET /api/v1/runs/{run_id}; the returned map is compared to the controller-owned leaf nodes."
+    ],
+    "proxy_divergence": "A DTO field declaration or a GET response containing the field name would not prove value binding. The behavioral assertion compares the exact node_ref-to-terminal-kind mapping from the partial owner result after CAS persistence and fresh GET; the AST removal probe removes the resolver assignment while leaving the DTO and test markers, and the assertion then fails.",
+    "negative_controls": [
+      "The test-only dba8 candidate leaves runtime.py and run_lifecycle.py at the 7818 source blobs; the GET test fails with KeyError for the missing field.",
+      "On 8ec98, the opt-in R1 probe removes exactly the leaf_terminal_kinds keyword from the actual resolver AST and produces an empty map; the same GET assertion rejects it.",
+      "The positive is limited to a manually supplied contract_testing partial fixture with one observed leaf terminal budget_exhausted; it does not demonstrate ordinary POST production of a multi-node recursive checkpoint, a causal relationship, general terminal-kind coverage, or N9 authority."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "surface_missing",
+  "limitations_and_next_owner": {
+    "scope": "Bounded producer-to-CAS-to-fresh-GET proof of the leaf terminal map only; no finding-wide CYC-05 closure is claimed.",
+    "not_established": [
+      "Ordinary production POST does not yet demonstrate production of a multi-node partial checkpoint; the test uses a manually supplied contract_testing partial artifact.",
+      "Only one leaf value (budget_exhausted) is observed; terminal-kind matrix, causal claims, Atlas rendering, task-family semantics, and N9 authority are out of scope.",
+      "Generated OpenAPI, generated client, and dashboard surfaces at 8ec98 have not been regenerated and do not contain the new field."
+    ],
+    "next_owner": "G/runtime generated-artifact owner: regenerate the runtime OpenAPI snapshot, API client JS/TS/types, and dashboard types from the frozen 8ec98 source using the existing canonical owner wave, then compare the complete manifest-derived five-path output set. Do not manually edit generated files."
+  },
+  "closure_ids": [],
+  "literal_protocol_validation": {
+    "mandatory_keys": "All 17 exact HANDOFF names present; closure_ids empty. Field count alone is not schema validation.",
+    "raw_check_semantics": "Executed check outcome reflects actual test/gate; negative-control success is separate."
+  }
+}

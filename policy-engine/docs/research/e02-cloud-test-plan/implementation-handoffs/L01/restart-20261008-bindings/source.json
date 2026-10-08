@@ -1,0 +1,412 @@
+{
+  "schema": "policyos.e02.l01.factual-source.v1",
+  "own_slice_base": {
+    "commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+    "tree": "31198f8d6e8268db5eab7e89169c351741161d21"
+  },
+  "inspected_G": {
+    "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+    "tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e"
+  },
+  "mode": "read_only_inputs",
+  "source_composition": "Inspected fetched G; no merge, accepted-composition or runtime execution inferred.",
+  "source_refs": [
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/production_data.py",
+      "git_blob": "2a07d333f6272328e171a5c9f641420c2c419abf"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/runtime/quality/intervention_substrate.py",
+      "git_blob": "4fbc772508cc7183a95301556608a6c7101b2f15"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "git_blob": "4956678ca4ec4253cdf96e103ff83e7226e192da"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py",
+      "git_blob": "60eb9a98c0891bcb33dd9d0bd0e9ede1fae5b1af"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/lex/api.py",
+      "git_blob": "c5224e094b60c4c75a7f189edc02850248be3709"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/lex/legal_evaluation/transport_constraints.py",
+      "git_blob": "8e3168c0443a155a3644b38707e0aed19b179956"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py",
+      "git_blob": "5c1f8bba235764741a64aca54f953846bccddc25"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/core/contracts/control.py",
+      "git_blob": "f50c1bf321abfb05ed5c7aaa56a845a8ecf9ab65"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+      "git_blob": "02f47ec1dc17eab658849a764cc43a90cf419857"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+      "git_blob": "7f90187b92f632e540326d8efe997f510b4f0c15"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+      "git_blob": "9a01a6c2cd2baa0ae29736b526153046ae2e822a"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/lex/knowledge/search.py",
+      "git_blob": "ed7710c10a76913b0f0e209481baf65129943270"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/core/contracts/cursor.py",
+      "git_blob": "0e5e772008545beab99ef5ea9c489d0febed406e"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/fabric/data_plane/cursor_store.py",
+      "git_blob": "31525859297cf05d5c190db00e5389ab0c61b0ff"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/fabric/quality/processing_guarantees.py",
+      "git_blob": "3074055a1cdac38d7031f36158a2a0b33b54620b"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py",
+      "git_blob": "1d3e5c36215cb4f4ccda86a9ac7f05908a81fc1c"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C04.md",
+      "git_blob": "327044c443b528fd77d40f7f0afd4b98a89bb97f"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C12.md",
+      "git_blob": "a3d1ba715c09019156eb3b6d55be2e8b884756a1"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C09.md",
+      "git_blob": "98054eef9a660c36bfd2788ae812e8054b93d527"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C01.md",
+      "git_blob": "b5b9c22af663aa2e2c22990859443823bfbeb474"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B56.json",
+      "git_blob": "54ae503a1a4d18b704c0f5a7bf37fa73f65a7af4"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+      "git_blob": "9584c2a30ef59cd0dbdfdad1186bc0d2c9032c6f"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/workspace_loop_transition.py",
+      "git_blob": "7aa3be95b44f8c5d8c17feaa804be563a30869bf"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/scientist/api.py",
+      "git_blob": "00a723f27c161fd8304d494e24525ffd9529c378"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/workflows/builder.py",
+      "git_blob": "52de4ccb6a4d9989265c8c2b4213dd02bf8b048f"
+    }
+  ],
+  "original_criteria": [
+    {
+      "id": "B01",
+      "logical_owner": "A",
+      "bundle": "CYC-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B01",
+          "document": "B_r19",
+          "lines": [
+            205,
+            216
+          ],
+          "sha256": "515ee67aec37de92c27b20c9ddd90cc61c95c41608b1daf4eddc88d640c78759",
+          "card": "CYC-01",
+          "source_ref": {
+            "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "B02",
+      "logical_owner": "A",
+      "bundle": "CYC-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B02",
+          "document": "B_r19",
+          "lines": [
+            217,
+            228
+          ],
+          "sha256": "6b6265c0da20f55356b1a97a791c6d2e909fd1a38c32b8ccd8375bce507c1f38",
+          "card": "CYC-01",
+          "source_ref": {
+            "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "B03",
+      "logical_owner": "A",
+      "bundle": "CYC-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B03",
+          "document": "B_r19",
+          "lines": [
+            229,
+            240
+          ],
+          "sha256": "9dcbf9befc0921cfe71e8cb743417b59cc9faec769ae21342ff874c21260314d",
+          "card": "CYC-01",
+          "source_ref": {
+            "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "B79",
+      "logical_owner": "C",
+      "bundle": "ING-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B79",
+          "document": "B_r19",
+          "lines": [
+            2153,
+            2166
+          ],
+          "sha256": "27bcd616e4c3651c5234684c5f00bfc90929f35b417c71f57e4740fa2afb567d",
+          "card": "ING-01",
+          "source_ref": {
+            "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "B80",
+      "logical_owner": "C",
+      "bundle": "ING-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B80",
+          "document": "B_r19",
+          "lines": [
+            2167,
+            2180
+          ],
+          "sha256": "4c1a2181de7a1faab9b419139aacb69af646339f4920a172f21dbe2c4d0cbdad",
+          "card": "ING-01",
+          "source_ref": {
+            "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "B83",
+      "logical_owner": "C",
+      "bundle": "ING-03",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B83",
+          "document": "B_r19",
+          "lines": [
+            2209,
+            2222
+          ],
+          "sha256": "33f33619aeda80550a33302bfc571497c218ec5f0f6ea09fa22d447e74d58441",
+          "card": "ING-03",
+          "source_ref": {
+            "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "LA-040",
+      "logical_owner": "C",
+      "bundle": "EMB-03",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "LA-040",
+          "document": "LA_r09",
+          "lines": [
+            2556,
+            2594
+          ],
+          "sha256": "04d9279a2c0e0e0f10649e69a1a06e4e8a4128b384d5b44f2c9cd45fff8ba67a",
+          "card": "EMB-03",
+          "source_ref": {
+            "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+            "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+          }
+        }
+      ]
+    },
+    {
+      "id": "B194",
+      "logical_owner": "E",
+      "bundle": "UQP-03",
+      "historical_ledger_status": "held",
+      "source_occurrences": [
+        {
+          "criterion_id": "B194",
+          "document": "B_r19",
+          "lines": [
+            4792,
+            4801
+          ],
+          "sha256": "47058d366d7ff7e11ed2348e96b2f56659a999f1f0839a02edc92804b295711e",
+          "card": "UQP-03",
+          "source_ref": {
+            "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "B56",
+      "logical_owner": "F",
+      "bundle": "FIT-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B56",
+          "document": "B_r19",
+          "lines": [
+            1409,
+            1424
+          ],
+          "sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b",
+          "card": "FIT-01",
+          "source_ref": {
+            "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "LA-032",
+      "logical_owner": "C",
+      "bundle": "UDF-05",
+      "historical_ledger_status": "held",
+      "source_occurrences": [
+        {
+          "criterion_id": "LA-032",
+          "document": "LA_r09",
+          "lines": [
+            1668,
+            1715
+          ],
+          "sha256": "5f5c7a56a652a0328e25fd8b6091a2f780750d9eaee8f10c0129b2f9f0609cf2",
+          "card": "UDF-05",
+          "source_ref": {
+            "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+            "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+          }
+        }
+      ]
+    },
+    {
+      "id": "LA-036",
+      "logical_owner": "C",
+      "bundle": "BER-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "LA-036",
+          "document": "LA_r09",
+          "lines": [
+            2103,
+            2145
+          ],
+          "sha256": "ebc61d92552c6dfbf538aed17c8a7ed476ee4322fc9df09f7ed3b89e8c530a2a",
+          "card": "BER-01",
+          "source_ref": {
+            "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+            "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+          }
+        }
+      ]
+    }
+  ],
+  "baseline_cells": [],
+  "historical_receipts": "../parallel-20261008-l01/delivery.json; navigation only, no old PASS rerun or transferred into this slice",
+  "predicate_vocabulary": {
+    "owner_supplied": "Manifest/owner assertion, not independently verified custody; authority gates cannot promote this alone.",
+    "recomputed": "Locally measured bytes/stat or exact Git content reconciliation within the named scope.",
+    "not_established": "Inspected scope does not bind the predicate; no global absence conclusion."
+  }
+}

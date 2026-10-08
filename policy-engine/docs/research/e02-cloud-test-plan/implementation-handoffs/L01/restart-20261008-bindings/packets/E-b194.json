@@ -1,0 +1,63 @@
+{
+  "schema": "policyos.e02.l01.minimum-binding.v1",
+  "execution_role": "L01",
+  "product_source_ref": "../source.json#/inspected_G",
+  "finding_adjudication": "unchanged; formal G closure not_adjudicated",
+  "authentic_consumer_check": "UNRUN; execution belongs to L02",
+  "private_digests": "withheld; no custodian disclosure admission",
+  "publication_scope": "Nonsecret aliases only; exact private locators/metadata/byte digests stay in ignored local receipt.",
+  "task": "S2 facts / B194 selected metadata",
+  "original_unit": "E",
+  "criterion_ids": [
+    "B194"
+  ],
+  "criterion_scope": "Preserve draw identity, requested domain, failures and missing mass; conditional diagnostic vs unconditional push-forward. External production model/authority is not required for an independent bounded missing-mass mechanism.",
+  "tuple": {
+    "root_manifest_alias": "L01_ROOT_MANIFEST_20261008",
+    "root_runtime_profile_alias": "B194_ROOT_PROFILE_01",
+    "simulation_calibration_bundle_alias": "B194_SIMCAL_BUNDLE_01",
+    "bundle_role_alias": "B194_SIM_ROLE_01",
+    "bundle_version_alias": "B194_SIM_VERSION_01",
+    "bundle_time_alias": "B194_SIM_TIME_01",
+    "model_contract_artifact_alias": "B194_NETWORK_CONTRACT_01",
+    "contract_id_field_present": true,
+    "contract_layer_count": 5,
+    "calibration_metadata_alias": "B194_CAL_OUTPUT_INDEX_01",
+    "calibration_artifact_aliases": [
+      "B194_CAL_DICTIONARY_01",
+      "B194_CAL_SPLITS_01",
+      "B194_JAX_CALIBRATION_01"
+    ],
+    "manifest_member_stat_aliases": [
+      "B194_MEMBER_01",
+      "B194_MEMBER_02"
+    ],
+    "profile": "research (root default only)",
+    "purpose": "Nominated simulation model/calibration metadata; not a run-specific evaluator law",
+    "observed_at": "2026-10-08T15:41:45.962265+00:00"
+  },
+  "observations": "Selected model contract and calibration-output metadata read. Two exact manifest-listed members stat-checked: regular files with sizes equal declared sizes. No member payload bytes, rows or hashes read; no draws executed.",
+  "missing_fields": [
+    "actual evaluator/model and output-domain binding",
+    "joint input law and source-model axes/units/subject/epoch",
+    "requested draw population and per-attempt terminal outcomes",
+    "run-specific covariance/calibration binding only where this selected evaluator requires it"
+  ],
+  "suppliers": {
+    "C09": "scientific evaluator/law producer and attempted-draw receipt",
+    "C08": "actual source-model axes/unit/subject/epoch binding",
+    "C10/C11": "configured served consumer/engine mapping for that producer",
+    "L02": "authentic consumer after one exact tuple is resolved"
+  },
+  "predicates": {
+    "owner-declared ready role/version/model/calibration metadata": "owner_supplied",
+    "exact named metadata reads and two member stats": "recomputed",
+    "root profile→served evaluator/law and actual draws/outcomes": "not_established"
+  },
+  "held_transition": "Authentic B194 evaluator/draw consumer for this metadata tuple; no all-of gate on B190/B197/B200 or all S2.",
+  "independent_continuation": "Failure-on-subdomain, transient retry-same-draw and preserved conditional-output oracles on bounded evaluators remain independent.",
+  "local_receipts": [
+    "policy-engine/_build/e02-L01-restart-20261008/private/science-agent-private.json"
+  ],
+  "falsifier": "Manifest readiness and matching file sizes remain true when an evaluator drops the negative-input half; those facts do not prove unconditional output mass."
+}

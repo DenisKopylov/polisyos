@@ -1,0 +1,25 @@
+{
+  "outcome": "PASS",
+  "scope": "factual receipt integrity; no runtime or input admission",
+  "candidate": "621e9e7aec1af78da72b0c4b47a8cb8b79daa5fd",
+  "source_ref_denominator": {
+    "pointer": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/source.json#/source_refs",
+    "records": 27
+  },
+  "original_occurrence_denominator": {
+    "pointer": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/source.json#/original_criteria",
+    "occurrences": 11
+  },
+  "document_denominator": {
+    "git_diff_base": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+    "git_diff_candidate": "621e9e7aec1af78da72b0c4b47a8cb8b79daa5fd",
+    "files": 9,
+    "file_types": [
+      "md",
+      "json"
+    ]
+  },
+  "byte_readback": true,
+  "product_test_config_lock_generated_delta": [],
+  "runtime_tests": "UNRUN"
+}

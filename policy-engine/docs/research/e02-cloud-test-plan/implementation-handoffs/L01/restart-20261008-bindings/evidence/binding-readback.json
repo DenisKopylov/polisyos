@@ -1,0 +1,47 @@
+{
+  "schema": "policyos.e02.l01.binding-observation.v1",
+  "input_scope": "Exact named metadata and three L6 control JSON inputs nominated by root manifest; no production census. Full private outputs retained locally.",
+  "root_bundle_manifest": {
+    "outcome": "PASS",
+    "checksum_matches": true,
+    "denominator": "one exact checksum descriptor nominated by the root"
+  },
+  "l6_member_integrity": [
+    {
+      "alias": "L01_L6_KNOBS_01",
+      "regular_named_input_present": true,
+      "exact_logical_descriptor_count": 1,
+      "size_matches": false,
+      "checksum_matches": false,
+      "check_outcome": "FAIL"
+    },
+    {
+      "alias": "L01_L6_LEXMAP_01",
+      "regular_named_input_present": true,
+      "exact_logical_descriptor_count": 1,
+      "size_matches": false,
+      "checksum_matches": false,
+      "check_outcome": "FAIL"
+    },
+    {
+      "alias": "L01_L6_OBSERVATION_ROUTES_01",
+      "regular_named_input_present": true,
+      "exact_logical_descriptor_count": 1,
+      "size_matches": true,
+      "checksum_matches": true,
+      "check_outcome": "PASS"
+    }
+  ],
+  "other_observations": {
+    "catalog": "named DB stat only; nominated nested readiness/config ref unavailable",
+    "legal": "named bundle/DB and source-derived selector/flat-path stats only",
+    "B194": "named model/calibration metadata and exactly two manifest-member stats, no payload reads"
+  },
+  "checks_not_run": {
+    "ordinary_HTTP_and_fresh_readback": "UNRUN (L02)",
+    "portable_runtime_tests": "UNRUN (cloud/C13)",
+    "broad_replay": "UNRUN (G/C13 frozen composition)"
+  },
+  "finding_outcomes": "not updated by any check outcome",
+  "raw_production_locators_and_digests": "private ignored only; disclosure not admitted"
+}

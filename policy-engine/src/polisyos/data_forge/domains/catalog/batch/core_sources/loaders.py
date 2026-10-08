@@ -1312,7 +1312,13 @@ def _bulk_country_values(source: str, country_codes: tuple[str, ...]) -> list[st
     if source == "eurostat":
         return normalized
     if source == "ilo":
-        return [_to_iso3(code) for code in normalized]
+        return [
+            cast(
+                "Callable[[str], str]",
+                __resolve_implementation_dependency("_to_iso3", "transformers"),
+            )(code)
+            for code in normalized
+        ]
     return normalized
 
 
@@ -1865,7 +1871,9 @@ async def _fetch_who_observations(
     start_year: int,
     end_year: int,
 ) -> list[dict[str, Any]]:
-    iso3 = _to_iso3(country_code)
+    iso3 = cast(
+        "Callable[[str], str]", __resolve_implementation_dependency("_to_iso3", "transformers")
+    )(country_code)
     url = f"https://ghoapi.azureedge.net/api/{indicator_id}"
     params = {
         "$filter": f"SpatialDim eq '{iso3}' and TimeDim ge {int(start_year)} "
@@ -1904,7 +1912,9 @@ async def _fetch_uis_observations(
     url = "https://api.uis.unesco.org/api/public/data/indicators"
     params = {
         "indicator": indicator_id,
-        "geoUnit": _to_iso3(country_code),
+        "geoUnit": cast(
+            "Callable[[str], str]", __resolve_implementation_dependency("_to_iso3", "transformers")
+        )(country_code),
         "start": int(start_year),
         "end": int(end_year),
     }

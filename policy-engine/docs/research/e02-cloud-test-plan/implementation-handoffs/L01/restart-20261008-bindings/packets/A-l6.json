@@ -1,0 +1,78 @@
+{
+  "schema": "policyos.e02.l01.minimum-binding.v1",
+  "execution_role": "L01",
+  "product_source_ref": "../source.json#/inspected_G",
+  "finding_adjudication": "unchanged; formal G closure not_adjudicated",
+  "authentic_consumer_check": "UNRUN; execution belongs to L02",
+  "private_digests": "withheld; no custodian disclosure admission",
+  "publication_scope": "Nonsecret aliases only; exact private locators/metadata/byte digests stay in ignored local receipt.",
+  "task": "T1 / L6 factual input binding",
+  "original_unit": "A",
+  "criterion_ids": [
+    "B01",
+    "B02",
+    "B03"
+  ],
+  "criterion_scope": "The L6 source prerequisite for an ordinary admitted N4→N5 lifecycle; each original criterion remains in source.json. Generic N5/N8 mechanics have independent bounded inputs.",
+  "tuple": {
+    "source_alias": "LOCAL_DATA_ROOT_01",
+    "manifest_alias": "L01_ROOT_MANIFEST_20261008",
+    "bundle_manifest_alias": "L01_UKRAINE_BUNDLE_MANIFEST_01",
+    "profile": "research (owner default, not an admitted served profile)",
+    "purpose": "L6 intervention substrate / observation-method routing",
+    "time": {
+      "root_generated_at": "2026-05-10T00:00:00Z",
+      "observed_at": "2026-10-08T15:41:45.962265+00:00"
+    },
+    "root_to_bundle_manifest_checksum_matches": true,
+    "selected_members": [
+      {
+        "alias": "L01_L6_KNOBS_01",
+        "regular_named_input_present": true,
+        "exact_logical_descriptor_count": 1,
+        "size_matches": false,
+        "checksum_matches": false,
+        "check_outcome": "FAIL"
+      },
+      {
+        "alias": "L01_L6_LEXMAP_01",
+        "regular_named_input_present": true,
+        "exact_logical_descriptor_count": 1,
+        "size_matches": false,
+        "checksum_matches": false,
+        "check_outcome": "FAIL"
+      },
+      {
+        "alias": "L01_L6_OBSERVATION_ROUTES_01",
+        "regular_named_input_present": true,
+        "exact_logical_descriptor_count": 1,
+        "size_matches": true,
+        "checksum_matches": true,
+        "check_outcome": "PASS"
+      }
+    ]
+  },
+  "reconciliation": "Exact descriptor path relative to the bundle manifest declared root, then under the root-manifest-nominated current bundle root. No basename search or directory census. Relocation legitimacy is not established.",
+  "consumer": "default_l6_bundle_paths→load_l6_intervention_substrate; generation_cycle._value_method_route_constraint consumes loaded substrate and supplied observation manifest. production_data.apply_production_data_defaults separately promotes named Ukraine paths. These source facts do not establish that an ordinary served request resolves this relocated root; L02 must bind its exact recipe.",
+  "predicates": {
+    "manifest profile/version/time and expected descriptors": "owner_supplied",
+    "named root→bundle checksum and selected member comparisons": "recomputed",
+    "active custodian, legitimate replacement manifest, relocation/currentness, admitted purpose and actual served path": "not_established"
+  },
+  "held_transition": "Authentic L6 positive on this nominated pair: knob and Lex-map bytes do not match their descriptors. No HTTP POST attempted and no runtime defect inferred.",
+  "minimum_next_input": {
+    "supplier": "Custodian of the nominated Ukraine/L6 bundle; human supplies exact existing custody reference if it is not in configured records",
+    "fields": [
+      "one existing matching bytes/manifest pair OR existing versioned replacement manifest for the changed bytes",
+      "issuer/owner and validity/currentness for the protected admitted profile"
+    ],
+    "question_state": "One specific locator/custodian question pending; no new manifest or permission invented."
+  },
+  "independent_continuation": "Bounded numeric/N5/N8/selector mechanisms; no blanket production prerequisite.",
+  "local_receipts": [
+    "policy-engine/_build/e02-L01-restart-20261008/private/root-manifest.json",
+    "policy-engine/_build/e02-L01-restart-20261008/private/ukraine-bundle-manifest.json",
+    "policy-engine/_build/e02-L01-restart-20261008/private/l6-selected-bindings.json"
+  ],
+  "falsifier": "Preserve manifest/profile names but change nominated member bytes: declared provenance still exists while byte binding fails (observed on knobs and Lex map)."
+}

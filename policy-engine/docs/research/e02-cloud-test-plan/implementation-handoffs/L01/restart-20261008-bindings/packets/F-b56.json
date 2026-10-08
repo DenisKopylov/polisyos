@@ -1,0 +1,41 @@
+{
+  "schema": "policyos.e02.l01.minimum-binding.v1",
+  "execution_role": "L01",
+  "product_source_ref": "../source.json#/inspected_G",
+  "finding_adjudication": "unchanged; formal G closure not_adjudicated",
+  "authentic_consumer_check": "UNRUN; execution belongs to L02",
+  "private_digests": "withheld; no custodian disclosure admission",
+  "publication_scope": "Nonsecret aliases only; exact private locators/metadata/byte digests stay in ignored local receipt.",
+  "task": "R4 workload facts",
+  "original_unit": "F",
+  "criterion_ids": [
+    "B56"
+  ],
+  "criterion_scope": "Across the actual shared admitted Runtime workload, bound aggregate work and preserve jobs/folds/repeats/seeds, waits, numeric results and provenance; measure time/RSS/active workers/waits. Historical 15/60 is configuration arithmetic.",
+  "tuple": {
+    "source": "Current G F/B56 receipt and C01 Runtime admission task",
+    "consumer": "DurableControlWorker→RunLifecycle→run_experiment→sync_run_causal_full",
+    "named_workload": "not_established",
+    "profile": "not_established",
+    "shared_permit_and_budget_unit": "not_established",
+    "job_model_fold_repeat_seed_roster": "not_established",
+    "runtime_recipe": "not_established for an authentic named workload"
+  },
+  "minimum_next_input": {
+    "supplier": "C01 commissioned MethodJob bridge owner identifies the existing Runtime/study admission instance and recipe; its actual deployed issuer/owner remains not_established. F supplies fit configuration; C08 supplies actual workload inputs; C10 supplies lifecycle caller; the workload custodian supplies one admitted job set.",
+    "fields": [
+      "one named workload and active profile",
+      "one shared admission/permit identity and configured cap/unit",
+      "full actual competing job/model/fold/repeat/seed roster",
+      "recipe and result/provenance readback through that same Runtime owner"
+    ]
+  },
+  "predicates": {
+    "existing tracked task/owner assignment": "owner_supplied",
+    "exact G source and B56 receipt identities": "recomputed",
+    "deployment workload/permit/cap/roster/effective profile": "not_established"
+  },
+  "held_transition": "Authentic aggregate competing Runtime workload witness; no workload measured in L01.",
+  "independent_continuation": "Existing portable pool/fold mechanisms; no repeated capacity-default diagnostic or universal CPU quota.",
+  "falsifier": "Two per-instance caps can each pass while combined admitted work exceeds one supposed shared cap. Source defaults and a single pool fixture cannot establish the actual shared owner."
+}

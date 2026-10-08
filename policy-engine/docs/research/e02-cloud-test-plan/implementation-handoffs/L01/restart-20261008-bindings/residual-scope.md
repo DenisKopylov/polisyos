@@ -1,0 +1,7 @@
+# Residual scope retained
+
+LA-032 remains the original whole demographic snapshot/layout criterion (source.json supplies the exact original occurrence). The old mixed-layout counterexample is immutable and is not rerun. The root-manifest bundle/version is not a versioned state-ID→targets/prior/optional-donor inventory for its four readers. No new mapping was established in this narrowly inspected metadata. C05 proposes the existing producer/reader paths; G confirms its lease/composition; L01 will bind one nominated inventory when supplied. No second local producer.
+
+LA-036 remains BER-01 requested/effective implementation, compatible alias, fallback and unsupported behavior. Observed-feature conditional law is a separate prerequisite for a claimed conditional implementation; posterior parameter rows do not supply that law. The old alias checks are not a new law or complete acceptance witness. C09 supplies conditional law, C08 model/support/epoch, C10/C11 consumers and C07 IR companions only when that requested mode requires them. Independent alias/fallback mechanisms need no production law.
+
+D revalidation/tenant/native/fiscal and E B190/B197/B200/B201/B202 packets were not re-adjudicated in this delta. Previous private directory observations do not establish a read-only mount or global data absence. E B201/B202 has an existing tracked semantic owner/decision; no new ratification is requested.

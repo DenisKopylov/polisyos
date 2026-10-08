@@ -1,0 +1,191 @@
+{
+  "schema": "e02.orch03.independent_source_review.v1",
+  "reviewer": "/root/oracle_empirical (nonauthor)",
+  "role": "C09",
+  "original_unit": "E",
+  "slice": "paired-backtest-interval-admission",
+  "decision": "GO for frozen-source affected defining/consumer wave",
+  "source_acceptance_G": "not_issued",
+  "formal_finding_closure": "not_issued",
+  "slice_base": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "initial_frozen_review": {
+    "sha": "d095dbd5527ae8462f85c382a40877f16574c58a",
+    "tree": "ecb05fa5a0ee5985144db5597f546c5cf3c4d6b0"
+  },
+  "final_frozen_review": {
+    "sha": "ee0b2c85289d8c5537ba4e01713d9be71e2f557e",
+    "tree": "072e8906ac69f5b3589550a8bd9d57b4cb41b4a3",
+    "parent": "d095dbd5527ae8462f85c382a40877f16574c58a"
+  },
+  "full_reviewed_footprint": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-c09-backtest-interval-admission.toml",
+      "base_blob": null,
+      "runtime_review_blob": "23291a90ee93d0d12a1aec194e3031a2c8a71660",
+      "final_blob": "68acb8d97ec90984e5fe9a47384bae6878ff0b96"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+      "base_blob": "0fd2d250fcba96eb1141dde7a53664035b28e25b",
+      "runtime_review_blob": "2dfea9bd3d450ecdb4f87cc48bc60468d8412ba0",
+      "final_blob": "2dfea9bd3d450ecdb4f87cc48bc60468d8412ba0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py",
+      "base_blob": "179b8d3730c21e4f32af100cd8f67ee6a73107b2",
+      "runtime_review_blob": "5f9f5e3ebf316b38faa81735a5f3942de0fa5d01",
+      "final_blob": "5f9f5e3ebf316b38faa81735a5f3942de0fa5d01"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "base_blob": "e949618799124abbbd80f1dc486fd6a7d5188802",
+      "runtime_review_blob": "6dadf837033e0234f0e5c8070b331e29daed765a",
+      "final_blob": "6dadf837033e0234f0e5c8070b331e29daed765a"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py",
+      "base_blob": null,
+      "runtime_review_blob": "5960e956db8ecce938b9d9a775ad72744bc49598",
+      "final_blob": "5960e956db8ecce938b9d9a775ad72744bc49598"
+    }
+  ],
+  "companion_forward_delta": {
+    "paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-08-c09-backtest-interval-admission.toml"
+    ],
+    "diff": "diff --git a/policy-engine/release-fragments/unreleased/2026-10-08-c09-backtest-interval-admission.toml b/policy-engine/release-fragments/unreleased/2026-10-08-c09-backtest-interval-admission.toml\nindex 23291a90e..68acb8d97 100644\n--- a/policy-engine/release-fragments/unreleased/2026-10-08-c09-backtest-interval-admission.toml\n+++ b/policy-engine/release-fragments/unreleased/2026-10-08-c09-backtest-interval-admission.toml\n@@ -8,7 +8,7 @@ change_class = \"internal\"\n surface_classification = \"internal: backtesting numerical evaluation and persistence\"\n compatibility = \"Finite ordered pairs, equal endpoints and point-only evaluation remain supported. Malformed or incomplete requested interval evidence remains unavailable and carries existing report metadata/degraded reasons; report/plan schemas and historical trust weights are unchanged.\"\n migration = \"Handle interval_admission limitations and distinguish conditional evaluated-pair coverage from a complete requested roster. This does not add causal, population or institutional authority.\"\n-generated_client_compatibility = \"not_required\"\n+generated_client_compatibility = \"not_applicable\"\n migration_docs = [\"src/polisyos/scientist/methods/backtesting/README.md\"]\n runbook_docs = [\"src/polisyos/scientist/methods/backtesting/README.md\"]\n evidence = [\"tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py\"]",
+    "qualification": "Only canonical release enum not_required→not_applicable; code/test/README blobs and all850 importedpolisyos Python source blobs identical. Runtime observations stay on d095 and transfer only on this proven unchanged runtime input closure."
+  },
+  "property": {
+    "statement": "Direct evaluator consumes finite ordered numeric pairs without swap/truncation/coercion. Every requested valid point remains measurable; malformed/missing/extra interval axes carry recomputed scoped limitations. Actual orchestrator consumes a limited interval as degraded/nontrusteligible, persisted fresh readers preserve this.",
+    "runtime_path": [
+      "HistoricalValidationPlan PROVIDED source (preserved Pydantic coercion contract)",
+      "PredictionEvaluator",
+      "BacktestOrchestrator._run_single_scenario interval limit consumption",
+      "persist_backtest_report configured CAS",
+      "load_backtest_report fresh build_ir_artifact_store",
+      "existing report/scenario numerical metadata surface"
+    ],
+    "basis": "recomputed runtime interval roster and point/interval arithmetic; independently_reconciled native scratch oracle",
+    "proxy_divergence": "Legacy reversed pair (1,-1) is repaired to (-1,1), reports coverage1.0 and no limitation; exact shape/markers/nominal level alone conceal the malformed input. Unavailable inference/trust-purpose is separate.",
+    "coverage_scope": "Existing coverage_probability is conditional over actually evaluated pairs; full requested/evaluated counts+interval availability and evaluated_pairs_only prevent silently calling partial corpus full support.",
+    "negative": "Reverse/extra shape/scalar/mapping/non-real/boolean/nonfinite + missing/foreign/time axis and fake interval_admission metadata; matched retained-marker removal corroborated real CAS failure."
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=/dev/shm/e02-orch03-20261008/c09/policy-engine/src /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /dev/shm/e02-orch03-20261008/oracle-empirical/review-d095/probe.py",
+      "source": "d095dbd5527ae8462f85c382a40877f16574c58a",
+      "returncode": 0,
+      "outcome": "PASS",
+      "observations": 23,
+      "scope": "9direct cases +7real persisted reports with7fresh store readers, no native backend substitute. This is modest independent reviewer discriminator, not author final suite.",
+      "outputs": [
+        "probe.stdout.json",
+        "probe.stderr.txt"
+      ],
+      "wall": "not measured for whole invocation; no invented duration",
+      "source_guard": "Loaded evaluator path/hash matched exact frozen source; Git tracked status remained clean. Python imported from readonly candidate and may create ignored bytecode caches; no tracked code/test/companion edits."
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/dev/shm/e02-orch03-20261008/c09/policy-engine/src /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /dev/shm/e02-orch03-20261008/oracle-empirical/review-d095/removal.py",
+      "source": "d095dbd5527ae8462f85c382a40877f16574c58a",
+      "returncode": 0,
+      "outcome": "PASS verification with2EXPECTED_FAIL property controls",
+      "outputs": [
+        "removal.stdout.json",
+        "removal.stderr.txt"
+      ],
+      "method": "In-process runtime helper replacement to actual legacyparse+swap, then drop only consumer interval-limit effect; public source markers preserved; no source file mutation. Author sourcepatch removal remains a separate final-wave check.",
+      "property_body_wall_seconds": 0.016904044983675703,
+      "max_rss_kib": 1057324,
+      "includes_import_time": false
+    },
+    {
+      "command": "Six actual input imports +complete current loaded polisyos Python module walk and source Gitblob reconciliation",
+      "source": "d095dbd5527ae8462f85c382a40877f16574c58a",
+      "outcome": "PASS",
+      "count": 850,
+      "mismatches": 0,
+      "output": "input-origins.json",
+      "scope": "all Python polisyos modules loaded by these six imports, not complete possible dynamic input denominator"
+    },
+    {
+      "command": "git diff --check f00dd7661a8d3329fb1fa1b049decb0d1d2f277b d095dbd5527ae8462f85c382a40877f16574c58a",
+      "outcome": "PASS",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "Full5path immutable diff read; one-line final companion diff and TOML parse; compare all850 imported Python blobs d095→ee",
+      "source": "ee0b2c85289d8c5537ba4e01713d9be71e2f557e",
+      "outcome": "PASS",
+      "returncode": 0,
+      "stdout": "5paths reviewed; release-only enum correction; runtime source closure unchanged",
+      "stderr": ""
+    }
+  ],
+  "environment": {
+    "python": "3.14.7",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "cas": "isolated synthetic reviewer scratch under review-d095; distinct stores reopened in same process; childprocess not claimed"
+  },
+  "remaining_boundaries": [
+    "HistoricalValidationPlan raw Pydantic bool/string float coercion unchanged; strict pair guard claim is post-validation evaluator API only.",
+    "None/empty interval map is point-only profile; required external interval contract is not invented by this repair.",
+    "G historical heuristic TrustScorer still yields numeric grades for some complete/point-only synthetic requests. No accountability/empirical/causal/public authority from this GO; E_source withholding cannot be carried without G source reconciliation.",
+    "Configured ForecastOwner/native_replay supplier and actual C10 S10 consumer/authority/lineage admission are separate missing/partner paths.",
+    "IID/RQMC law/support/attempt denominator and B172/B173 scientific profiles unchanged; no universal law/authority extension or new finding IDs.",
+    "Source/tests/README/release examined; no installed/broad/nativeoptional backend/full E wave executed by reviewer; author final affected checks pending.",
+    "No G code acceptance or formal closure issued; L01 authentic packets remain minimal facts only."
+  ],
+  "P40_bucket": "same numerical interval admission class: one generic pair intake+single actual report limitation consumption; bounded postvalidation/direct numerical profile stated; no named malformed-type repair ladder",
+  "P41": "not_established for inherited/global red; no claim from new bounded pass",
+  "artifacts": [
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/review-d095/input-origins.json",
+      "bytes": 205781,
+      "sha256": "df4029c03ecbeee7231386132613b850ad1b339d3acd134ee70d480cecfeb743"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/review-d095/probe.py",
+      "bytes": 5073,
+      "sha256": "3bcdbfe5a9c28dd65b2eccca2729887692f2ca5eab6008470232da5f5f472704"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/review-d095/probe.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/review-d095/probe.stdout.json",
+      "bytes": 16888,
+      "sha256": "9dead4cec797aa90e3bfd92225bb77380c89614ae39e1bde33c879425a3d3d37"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/review-d095/removal.py",
+      "bytes": 3951,
+      "sha256": "fb8794ae8334f0d978829a805d64711d07ed1a66b1e7ca9edc4e33804bc26ef7"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/review-d095/removal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/review-d095/removal.stdout.json",
+      "bytes": 1713,
+      "sha256": "52a830672717764cff097fa69f3ca2bbed28f014f7d89cf31485bd4ffb1d44f2"
+    }
+  ],
+  "harness_attempts": [
+    "probe invocation exit0/fullstdoutempty stderr; no failure",
+    "removal invocation exit0 with2expectedfailed semantic assertions/fullstdoutempty stderr",
+    "input origin measurement exit0/850matched",
+    "release-validator navigation initially wrong guessed path rg error; subsequently located canonical tools/ops_runners/release and release-fragments README enum; this was read-only navigation, not a product gate failure"
+  ],
+  "issues": []
+}

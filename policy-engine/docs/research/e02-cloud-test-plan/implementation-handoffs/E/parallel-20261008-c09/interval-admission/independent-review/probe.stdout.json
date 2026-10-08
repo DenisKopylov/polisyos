@@ -1,0 +1,712 @@
+{
+  "module_origin": "/dev/shm/e02-orch03-20261008/c09/policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py",
+  "module_sha256": "6fbfc9720872cd579d7bb742e7a6dbbb2048e06143c4c27124811ef54a554794",
+  "pid": 1026032,
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "records": [
+    {
+      "admission": {
+        "basis": "recomputed",
+        "coverage_scope": "evaluated_pairs_only",
+        "evaluated_count": 0,
+        "limitations": [
+          {
+            "metric_name": "m",
+            "reason": "reversed_interval",
+            "time_index": 0
+          },
+          {
+            "metric_name": "m",
+            "reason": "reversed_interval",
+            "time_index": 1
+          },
+          {
+            "metric_name": "m",
+            "reason": "reversed_interval",
+            "time_index": 2
+          }
+        ],
+        "requested_count": 3,
+        "status": "limited"
+      },
+      "bounds": [
+        [
+          null,
+          null
+        ],
+        [
+          null,
+          null
+        ],
+        [
+          null,
+          null
+        ]
+      ],
+      "coverage": null,
+      "evaluated": 0,
+      "name": "reverse",
+      "point_compared": 3,
+      "requested": 3
+    },
+    {
+      "admission": {
+        "basis": "recomputed",
+        "coverage_scope": "evaluated_pairs_only",
+        "evaluated_count": 0,
+        "limitations": [
+          {
+            "metric_name": "m",
+            "reason": "invalid_interval_shape",
+            "time_index": 0
+          },
+          {
+            "metric_name": "m",
+            "reason": "invalid_interval_shape",
+            "time_index": 1
+          },
+          {
+            "metric_name": "m",
+            "reason": "invalid_interval_shape",
+            "time_index": 2
+          }
+        ],
+        "requested_count": 3,
+        "status": "limited"
+      },
+      "bounds": [
+        [
+          null,
+          null
+        ],
+        [
+          null,
+          null
+        ],
+        [
+          null,
+          null
+        ]
+      ],
+      "coverage": null,
+      "evaluated": 0,
+      "name": "extra",
+      "point_compared": 3,
+      "requested": 3
+    },
+    {
+      "admission": {
+        "basis": "recomputed",
+        "coverage_scope": "evaluated_pairs_only",
+        "evaluated_count": 0,
+        "limitations": [
+          {
+            "metric_name": "m",
+            "reason": "invalid_interval_shape",
+            "time_index": 0
+          },
+          {
+            "metric_name": "m",
+            "reason": "invalid_interval_shape",
+            "time_index": 1
+          },
+          {
+            "metric_name": "m",
+            "reason": "invalid_interval_shape",
+            "time_index": 2
+          }
+        ],
+        "requested_count": 3,
+        "status": "limited"
+      },
+      "bounds": [
+        [
+          null,
+          null
+        ],
+        [
+          null,
+          null
+        ],
+        [
+          null,
+          null
+        ]
+      ],
+      "coverage": null,
+      "evaluated": 0,
+      "name": "mapping",
+      "point_compared": 3,
+      "requested": 3
+    },
+    {
+      "admission": {
+        "basis": "recomputed",
+        "coverage_scope": "evaluated_pairs_only",
+        "evaluated_count": 0,
+        "limitations": [
+          {
+            "metric_name": "m",
+            "reason": "non_numeric_interval",
+            "time_index": 0
+          },
+          {
+            "metric_name": "m",
+            "reason": "non_numeric_interval",
+            "time_index": 1
+          },
+          {
+            "metric_name": "m",
+            "reason": "non_numeric_interval",
+            "time_index": 2
+          }
+        ],
+        "requested_count": 3,
+        "status": "limited"
+      },
+      "bounds": [
+        [
+          null,
+          null
+        ],
+        [
+          null,
+          null
+        ],
+        [
+          null,
+          null
+        ]
+      ],
+      "coverage": null,
+      "evaluated": 0,
+      "name": "numeric_string",
+      "point_compared": 3,
+      "requested": 3
+    },
+    {
+      "admission": {
+        "basis": "recomputed",
+        "coverage_scope": "evaluated_pairs_only",
+        "evaluated_count": 0,
+        "limitations": [
+          {
+            "metric_name": "m",
+            "reason": "non_numeric_interval",
+            "time_index": 0
+          },
+          {
+            "metric_name": "m",
+            "reason": "non_numeric_interval",
+            "time_index": 1
+          },
+          {
+            "metric_name": "m",
+            "reason": "non_numeric_interval",
+            "time_index": 2
+          }
+        ],
+        "requested_count": 3,
+        "status": "limited"
+      },
+      "bounds": [
+        [
+          null,
+          null
+        ],
+        [
+          null,
+          null
+        ],
+        [
+          null,
+          null
+        ]
+      ],
+      "coverage": null,
+      "evaluated": 0,
+      "name": "bool",
+      "point_compared": 3,
+      "requested": 3
+    },
+    {
+      "admission": {
+        "basis": "recomputed",
+        "coverage_scope": "evaluated_pairs_only",
+        "evaluated_count": 1,
+        "limitations": [
+          {
+            "metric_name": "m",
+            "reason": "missing_interval",
+            "time_index": 1
+          },
+          {
+            "metric_name": "m",
+            "reason": "missing_interval",
+            "time_index": 2
+          }
+        ],
+        "requested_count": 3,
+        "status": "limited"
+      },
+      "bounds": [
+        [
+          -1.0,
+          1.0
+        ],
+        [
+          null,
+          null
+        ],
+        [
+          null,
+          null
+        ]
+      ],
+      "coverage": 1.0,
+      "evaluated": 1,
+      "name": "partial",
+      "point_compared": 3,
+      "requested": 3
+    },
+    {
+      "admission": {
+        "basis": "recomputed",
+        "coverage_scope": "evaluated_pairs_only",
+        "evaluated_count": 3,
+        "limitations": [
+          {
+            "metric_name": "wrong",
+            "reason": "unknown_metric",
+            "time_index": null
+          },
+          {
+            "metric_name": "m",
+            "reason": "unexpected_interval_time_index",
+            "time_index": 3
+          }
+        ],
+        "requested_count": 3,
+        "status": "limited"
+      },
+      "bounds": [
+        [
+          -1.0,
+          1.0
+        ],
+        [
+          -1.0,
+          1.0
+        ],
+        [
+          -1.0,
+          1.0
+        ]
+      ],
+      "coverage": 1.0,
+      "evaluated": 3,
+      "name": "unknown_and_extra",
+      "point_compared": 3,
+      "requested": 3
+    },
+    {
+      "admission": {
+        "basis": "recomputed",
+        "coverage_scope": "declared_pairs",
+        "evaluated_count": 3,
+        "limitations": [],
+        "requested_count": 3,
+        "status": "evaluated"
+      },
+      "bounds": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "coverage": 1.0,
+      "evaluated": 3,
+      "name": "equal",
+      "point_compared": 3,
+      "requested": 3
+    },
+    {
+      "admission": null,
+      "bounds": [
+        [
+          null,
+          null
+        ],
+        [
+          null,
+          null
+        ],
+        [
+          null,
+          null
+        ]
+      ],
+      "coverage": null,
+      "evaluated": 0,
+      "name": "point_only",
+      "point_compared": 3,
+      "requested": 0
+    },
+    {
+      "cas_id": "sha256:6d42bb4f695cac66e145037e9264a62c727c4a145422c603f9edfb9a0058cdc3",
+      "coverage": null,
+      "degraded": true,
+      "interval_admission": {
+        "basis": "recomputed",
+        "coverage_scope": "evaluated_pairs_only",
+        "evaluated_count": 0,
+        "limitations": [
+          {
+            "metric_name": "m",
+            "reason": "reversed_interval",
+            "time_index": 0
+          },
+          {
+            "metric_name": "m",
+            "reason": "reversed_interval",
+            "time_index": 1
+          },
+          {
+            "metric_name": "m",
+            "reason": "reversed_interval",
+            "time_index": 2
+          }
+        ],
+        "requested_count": 3,
+        "status": "limited"
+      },
+      "name": "cas_reverse",
+      "point_compared": 3,
+      "reasons": [
+        "cas_reverse: interval_admission_limited"
+      ],
+      "surface": "producer",
+      "trust_eligible": false,
+      "trust_score": null
+    },
+    {
+      "cas_id": null,
+      "coverage": null,
+      "degraded": true,
+      "interval_admission": {
+        "basis": "recomputed",
+        "coverage_scope": "evaluated_pairs_only",
+        "evaluated_count": 0,
+        "limitations": [
+          {
+            "metric_name": "m",
+            "reason": "reversed_interval",
+            "time_index": 0
+          },
+          {
+            "metric_name": "m",
+            "reason": "reversed_interval",
+            "time_index": 1
+          },
+          {
+            "metric_name": "m",
+            "reason": "reversed_interval",
+            "time_index": 2
+          }
+        ],
+        "requested_count": 3,
+        "status": "limited"
+      },
+      "name": "cas_reverse",
+      "point_compared": 3,
+      "reasons": [
+        "cas_reverse: interval_admission_limited"
+      ],
+      "surface": "freshCASreader",
+      "trust_eligible": false,
+      "trust_score": null
+    },
+    {
+      "cas_id": "sha256:4f02de013cb5b60beb5f12720e3c80d60ede3851b22587109fe61b3eb0889e59",
+      "coverage": 1.0,
+      "degraded": true,
+      "interval_admission": {
+        "basis": "recomputed",
+        "coverage_scope": "evaluated_pairs_only",
+        "evaluated_count": 1,
+        "limitations": [
+          {
+            "metric_name": "m",
+            "reason": "missing_interval",
+            "time_index": 1
+          },
+          {
+            "metric_name": "m",
+            "reason": "missing_interval",
+            "time_index": 2
+          }
+        ],
+        "requested_count": 3,
+        "status": "limited"
+      },
+      "name": "cas_partial",
+      "point_compared": 3,
+      "reasons": [
+        "cas_partial: interval_admission_limited"
+      ],
+      "surface": "producer",
+      "trust_eligible": false,
+      "trust_score": null
+    },
+    {
+      "cas_id": null,
+      "coverage": 1.0,
+      "degraded": true,
+      "interval_admission": {
+        "basis": "recomputed",
+        "coverage_scope": "evaluated_pairs_only",
+        "evaluated_count": 1,
+        "limitations": [
+          {
+            "metric_name": "m",
+            "reason": "missing_interval",
+            "time_index": 1
+          },
+          {
+            "metric_name": "m",
+            "reason": "missing_interval",
+            "time_index": 2
+          }
+        ],
+        "requested_count": 3,
+        "status": "limited"
+      },
+      "name": "cas_partial",
+      "point_compared": 3,
+      "reasons": [
+        "cas_partial: interval_admission_limited"
+      ],
+      "surface": "freshCASreader",
+      "trust_eligible": false,
+      "trust_score": null
+    },
+    {
+      "cas_id": "sha256:99559531fa2b68cec67b7c32f8c0e48c7dfe75a2b4b080a84aa7ebc8467a10d6",
+      "coverage": 1.0,
+      "degraded": true,
+      "interval_admission": {
+        "basis": "recomputed",
+        "coverage_scope": "evaluated_pairs_only",
+        "evaluated_count": 3,
+        "limitations": [
+          {
+            "metric_name": "m",
+            "reason": "unexpected_interval_time_index",
+            "time_index": 3
+          }
+        ],
+        "requested_count": 3,
+        "status": "limited"
+      },
+      "name": "cas_extra",
+      "point_compared": 3,
+      "reasons": [
+        "cas_extra: interval_admission_limited"
+      ],
+      "surface": "producer",
+      "trust_eligible": false,
+      "trust_score": null
+    },
+    {
+      "cas_id": null,
+      "coverage": 1.0,
+      "degraded": true,
+      "interval_admission": {
+        "basis": "recomputed",
+        "coverage_scope": "evaluated_pairs_only",
+        "evaluated_count": 3,
+        "limitations": [
+          {
+            "metric_name": "m",
+            "reason": "unexpected_interval_time_index",
+            "time_index": 3
+          }
+        ],
+        "requested_count": 3,
+        "status": "limited"
+      },
+      "name": "cas_extra",
+      "point_compared": 3,
+      "reasons": [
+        "cas_extra: interval_admission_limited"
+      ],
+      "surface": "freshCASreader",
+      "trust_eligible": false,
+      "trust_score": null
+    },
+    {
+      "cas_id": "sha256:103d7bae76029aab886c11f5e15aecbb59bdc25e399c1c687a16e931344c8cba",
+      "coverage": 1.0,
+      "degraded": true,
+      "interval_admission": {
+        "basis": "recomputed",
+        "coverage_scope": "evaluated_pairs_only",
+        "evaluated_count": 3,
+        "limitations": [
+          {
+            "metric_name": "foreign",
+            "reason": "unknown_metric",
+            "time_index": null
+          }
+        ],
+        "requested_count": 3,
+        "status": "limited"
+      },
+      "name": "cas_foreign",
+      "point_compared": 3,
+      "reasons": [
+        "cas_foreign: interval_admission_limited"
+      ],
+      "surface": "producer",
+      "trust_eligible": false,
+      "trust_score": null
+    },
+    {
+      "cas_id": null,
+      "coverage": 1.0,
+      "degraded": true,
+      "interval_admission": {
+        "basis": "recomputed",
+        "coverage_scope": "evaluated_pairs_only",
+        "evaluated_count": 3,
+        "limitations": [
+          {
+            "metric_name": "foreign",
+            "reason": "unknown_metric",
+            "time_index": null
+          }
+        ],
+        "requested_count": 3,
+        "status": "limited"
+      },
+      "name": "cas_foreign",
+      "point_compared": 3,
+      "reasons": [
+        "cas_foreign: interval_admission_limited"
+      ],
+      "surface": "freshCASreader",
+      "trust_eligible": false,
+      "trust_score": null
+    },
+    {
+      "cas_id": "sha256:3af58d40a05d0158ffe24014a6ff2e87acdc086662e34c9b96114972ae43d8db",
+      "coverage": 1.0,
+      "degraded": false,
+      "interval_admission": {
+        "basis": "recomputed",
+        "coverage_scope": "declared_pairs",
+        "evaluated_count": 3,
+        "limitations": [],
+        "requested_count": 3,
+        "status": "evaluated"
+      },
+      "name": "cas_inside",
+      "point_compared": 3,
+      "reasons": [],
+      "surface": "producer",
+      "trust_eligible": true,
+      "trust_score": 0.7
+    },
+    {
+      "cas_id": null,
+      "coverage": 1.0,
+      "degraded": false,
+      "interval_admission": {
+        "basis": "recomputed",
+        "coverage_scope": "declared_pairs",
+        "evaluated_count": 3,
+        "limitations": [],
+        "requested_count": 3,
+        "status": "evaluated"
+      },
+      "name": "cas_inside",
+      "point_compared": 3,
+      "reasons": [],
+      "surface": "freshCASreader",
+      "trust_eligible": true,
+      "trust_score": 0.7
+    },
+    {
+      "cas_id": "sha256:b3f3019091f9dd2c805d7516a3db53016210b61397432166318fe1ec45e9cf57",
+      "coverage": 0.3333333333333333,
+      "degraded": false,
+      "interval_admission": {
+        "basis": "recomputed",
+        "coverage_scope": "declared_pairs",
+        "evaluated_count": 3,
+        "limitations": [],
+        "requested_count": 3,
+        "status": "evaluated"
+      },
+      "name": "cas_outside",
+      "point_compared": 3,
+      "reasons": [],
+      "surface": "producer",
+      "trust_eligible": true,
+      "trust_score": 0.3754
+    },
+    {
+      "cas_id": null,
+      "coverage": 0.3333333333333333,
+      "degraded": false,
+      "interval_admission": {
+        "basis": "recomputed",
+        "coverage_scope": "declared_pairs",
+        "evaluated_count": 3,
+        "limitations": [],
+        "requested_count": 3,
+        "status": "evaluated"
+      },
+      "name": "cas_outside",
+      "point_compared": 3,
+      "reasons": [],
+      "surface": "freshCASreader",
+      "trust_eligible": true,
+      "trust_score": 0.3754
+    },
+    {
+      "cas_id": "sha256:afb10a7048a089d1f4a3e8b074dc5d9cb69b172ac6dac6ed9c8d7b33fa5bba55",
+      "coverage": null,
+      "degraded": false,
+      "interval_admission": null,
+      "name": "cas_point_only",
+      "point_compared": 3,
+      "reasons": [],
+      "surface": "producer",
+      "trust_eligible": true,
+      "trust_score": 1.0
+    },
+    {
+      "cas_id": null,
+      "coverage": null,
+      "degraded": false,
+      "interval_admission": null,
+      "name": "cas_point_only",
+      "point_compared": 3,
+      "reasons": [],
+      "surface": "freshCASreader",
+      "trust_eligible": true,
+      "trust_score": 1.0
+    }
+  ],
+  "source_sha": "d095dbd5527ae8462f85c382a40877f16574c58a",
+  "status": "PASS bounded synthetic defining consumer probe; heuristic trust policy not admitted"
+}

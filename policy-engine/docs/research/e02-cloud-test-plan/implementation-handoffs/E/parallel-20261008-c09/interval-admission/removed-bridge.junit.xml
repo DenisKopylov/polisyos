@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.120" timestamp="2026-10-08T09:38:27.925430+00:00" hostname="6d6fd139922b"><testcase classname="tests.unit.scientist.methods.backtesting.test_evaluator_interval_admission" name="test_actual_backtest_keeps_unavailable_intervals_non_gating_after_cas_readback[interval0]" time="0.015"><failure message="AssertionError: assert False is True&#10; +  where False = BacktestReport(schema_version='1.0', report_id='BT_e801a15ad0b0', model_spec_ref=None, policy_spec_ref=None, historica...interval_requested_count': 3, 'interval_available_count': 0, 'interval_evaluated_count': 0, 'interval_hit_count': 0}]}).degraded">tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c09-scratch/removed-bridge/test_actual_backtest_keeps_una0')
+interval = (2.0, -2.0)
+
+    @pytest.mark.parametrize("interval", [(2.0, -2.0), (float("nan"), 2.0), (-2.0, float("inf"))])
+    def test_actual_backtest_keeps_unavailable_intervals_non_gating_after_cas_readback(
+        tmp_path: Path, interval: tuple[float, float]
+    ) -&gt; None:
+        report, fresh = _run_report(tmp_path, interval=interval)
+        for result in (report, fresh):
+            assert result.n_metrics_evaluated == 3
+            assert result.overall_rmse == 0.0
+            assert result.overall_coverage_probability is None
+            assert result.scenarios[0].interval_requested_count == 3
+            assert result.scenarios[0].interval_evaluated_count == 0
+            assert result.scenarios[0].metadata["interval_admission"]["status"] == "limited"
+&gt;           assert result.degraded is True
+E           AssertionError: assert False is True
+E            +  where False = BacktestReport(schema_version='1.0', report_id='BT_e801a15ad0b0', model_spec_ref=None, policy_spec_ref=None, historica...interval_requested_count': 3, 'interval_available_count': 0, 'interval_evaluated_count': 0, 'interval_hit_count': 0}]}).degraded
+
+tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py:115: AssertionError</failure></testcase></testsuite></testsuites>

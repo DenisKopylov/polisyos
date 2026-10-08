@@ -1,0 +1,38 @@
+{
+  "source_sha": "ee0b2c85289d8c5537ba4e01713d9be71e2f557e",
+  "source_tree": "072e8906ac69f5b3589550a8bd9d57b4cb41b4a3",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/remediation/test_frc_02_owner.py::test_real_ets_owner_persists_content_bound_predictive_evidence",
+    "tests/unit/remediation/test_frc_02_owner.py::test_same_ets_shape_uses_held_out_observations_for_suitability",
+    "--basetemp=/dev/shm/e02-orch03-20261008/c09-scratch/ets",
+    "--junitxml=/dev/shm/e02-orch03-20261008/c09-scratch/ets.junit.xml",
+    "-o",
+    "cache_dir=/dev/shm/e02-orch03-20261008/c09-scratch/ets-cache"
+  ],
+  "cwd": "/dev/shm/e02-orch03-20261008/c09/policy-engine",
+  "returncode": 0,
+  "interrupted": null,
+  "wall_seconds": 12.068013744981727,
+  "max_rss_kib": 1175400,
+  "outputs": {
+    "stdout.txt": {
+      "path": "/dev/shm/e02-orch03-20261008/c09-scratch/ets.stdout.txt",
+      "bytes": 80,
+      "sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87"
+    },
+    "stderr.txt": {
+      "path": "/dev/shm/e02-orch03-20261008/c09-scratch/ets.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "junit.xml": {
+      "path": "/dev/shm/e02-orch03-20261008/c09-scratch/ets.junit.xml",
+      "bytes": 544,
+      "sha256": "48382c99160c540e65cc406946b03bf60a252f35cc8489564c5fbb92af45df41"
+    }
+  }
+}

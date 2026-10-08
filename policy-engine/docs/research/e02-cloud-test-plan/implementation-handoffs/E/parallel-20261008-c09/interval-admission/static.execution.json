@@ -1,0 +1,71 @@
+{
+  "source_sha": "ee0b2c85289d8c5537ba4e01713d9be71e2f557e",
+  "source_tree": "072e8906ac69f5b3589550a8bd9d57b4cb41b4a3",
+  "checks": [
+    {
+      "name": "ruff",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/scientist/methods/backtesting/evaluator.py",
+        "src/polisyos/scientist/methods/backtesting/orchestrator.py",
+        "tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.04338207800174132,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    {
+      "name": "format",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/scientist/methods/backtesting/evaluator.py",
+        "src/polisyos/scientist/methods/backtesting/orchestrator.py",
+        "tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.04083061599521898,
+      "stdout": "3 files already formatted\n",
+      "stderr": ""
+    },
+    {
+      "name": "diff",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "HEAD"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.004464847996132448,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "new_release_fragment_canonical_policy",
+      "fragments": [
+        "release-fragments/unreleased/2026-10-08-c09-backtest-interval-admission.toml"
+      ],
+      "errors": [],
+      "findings": [
+        {
+          "check": "fragment-compatibility",
+          "severity": "warning",
+          "subject": "release-fragments",
+          "message": "no structured compatibility changes found in selected fragments",
+          "detail": ""
+        }
+      ],
+      "status": "PASS",
+      "scope": "one new fragment; no claim about global release gate"
+    }
+  ]
+}

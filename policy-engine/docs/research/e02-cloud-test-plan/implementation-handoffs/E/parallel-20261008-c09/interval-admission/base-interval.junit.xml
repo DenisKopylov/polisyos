@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="13" skipped="0" tests="13" time="9.509" timestamp="2026-10-08T09:24:03.169224+00:00" hostname="6d6fd139922b"><testcase classname="tests.unit.scientist.methods.backtesting.test_evaluator_interval_admission" name="test_invalid_interval_preserves_point_comparisons_and_requested_denominator[interval0-reversed_interval]" time="0.006"><failure message="AssertionError: assert 3 == 0&#10; +  where 3 = BacktestScenario(scenario_id='interval-admission', scenario_label='synthetic paired interval', jurisdiction='', interv...e=None, squared_error_sum=0.0, absolute_error_sum=0.0, percentage_error_sum=0.0, percentage_error_count=0, metadata={}).interval_evaluated_count">interval = (2.0, -2.0), reason = 'reversed_interval'
+
+    @pytest.mark.parametrize(
+        ("interval", "reason"),
+        [
+            ((2.0, -2.0), "reversed_interval"),
+            ((-2.0, 2.0, 999.0), "invalid_interval_shape"),
+            ((-2.0,), "invalid_interval_shape"),
+            (3.0, "invalid_interval_shape"),
+            ("12", "invalid_interval_shape"),
+            ({0: -2.0, 1: 2.0}, "invalid_interval_shape"),
+            ((False, 2.0), "non_numeric_interval"),
+            (("-2", "2"), "non_numeric_interval"),
+            ((float("nan"), 2.0), "non_finite_interval"),
+            ((-2.0, float("inf")), "non_finite_interval"),
+        ],
+    )
+    def test_invalid_interval_preserves_point_comparisons_and_requested_denominator(
+        interval: Any, reason: str
+    ) -&gt; None:
+        scenario = _evaluate(interval)
+        assert scenario.requested_count == scenario.compared_count == 3
+        assert scenario.missing_count == scenario.invalid_count == 0
+        assert scenario.rmse == scenario.mae == 0.0
+        assert scenario.interval_requested_count == 3
+&gt;       assert scenario.interval_available_count == scenario.interval_evaluated_count == 0
+E       AssertionError: assert 3 == 0
+E        +  where 3 = BacktestScenario(scenario_id='interval-admission', scenario_label='synthetic paired interval', jurisdiction='', interv...e=None, squared_error_sum=0.0, absolute_error_sum=0.0, percentage_error_sum=0.0, percentage_error_count=0, metadata={}).interval_evaluated_count
+
+tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py:51: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.backtesting.test_evaluator_interval_admission" name="test_invalid_interval_preserves_point_comparisons_and_requested_denominator[interval1-invalid_interval_shape]" time="0.001"><failure message="AssertionError: assert 3 == 0&#10; +  where 3 = BacktestScenario(scenario_id='interval-admission', scenario_label='synthetic paired interval', jurisdiction='', interv...e=None, squared_error_sum=0.0, absolute_error_sum=0.0, percentage_error_sum=0.0, percentage_error_count=0, metadata={}).interval_evaluated_count">interval = (-2.0, 2.0, 999.0), reason = 'invalid_interval_shape'
+
+    @pytest.mark.parametrize(
+        ("interval", "reason"),
+        [
+            ((2.0, -2.0), "reversed_interval"),
+            ((-2.0, 2.0, 999.0), "invalid_interval_shape"),
+            ((-2.0,), "invalid_interval_shape"),
+            (3.0, "invalid_interval_shape"),
+            ("12", "invalid_interval_shape"),
+            ({0: -2.0, 1: 2.0}, "invalid_interval_shape"),
+            ((False, 2.0), "non_numeric_interval"),
+            (("-2", "2"), "non_numeric_interval"),
+            ((float("nan"), 2.0), "non_finite_interval"),
+            ((-2.0, float("inf")), "non_finite_interval"),
+        ],
+    )
+    def test_invalid_interval_preserves_point_comparisons_and_requested_denominator(
+        interval: Any, reason: str
+    ) -&gt; None:
+        scenario = _evaluate(interval)
+        assert scenario.requested_count == scenario.compared_count == 3
+        assert scenario.missing_count == scenario.invalid_count == 0
+        assert scenario.rmse == scenario.mae == 0.0
+        assert scenario.interval_requested_count == 3
+&gt;       assert scenario.interval_available_count == scenario.interval_evaluated_count == 0
+E       AssertionError: assert 3 == 0
+E        +  where 3 = BacktestScenario(scenario_id='interval-admission', scenario_label='synthetic paired interval', jurisdiction='', interv...e=None, squared_error_sum=0.0, absolute_error_sum=0.0, percentage_error_sum=0.0, percentage_error_count=0, metadata={}).interval_evaluated_count
+
+tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py:51: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.backtesting.test_evaluator_interval_admission" name="test_invalid_interval_preserves_point_comparisons_and_requested_denominator[interval2-invalid_interval_shape]" time="0.001"><failure message="KeyError: 'interval_admission'">interval = (-2.0,), reason = 'invalid_interval_shape'
+
+    @pytest.mark.parametrize(
+        ("interval", "reason"),
+        [
+            ((2.0, -2.0), "reversed_interval"),
+            ((-2.0, 2.0, 999.0), "invalid_interval_shape"),
+            ((-2.0,), "invalid_interval_shape"),
+            (3.0, "invalid_interval_shape"),
+            ("12", "invalid_interval_shape"),
+            ({0: -2.0, 1: 2.0}, "invalid_interval_shape"),
+            ((False, 2.0), "non_numeric_interval"),
+            (("-2", "2"), "non_numeric_interval"),
+            ((float("nan"), 2.0), "non_finite_interval"),
+            ((-2.0, float("inf")), "non_finite_interval"),
+        ],
+    )
+    def test_invalid_interval_preserves_point_comparisons_and_requested_denominator(
+        interval: Any, reason: str
+    ) -&gt; None:
+        scenario = _evaluate(interval)
+        assert scenario.requested_count == scenario.compared_count == 3
+        assert scenario.missing_count == scenario.invalid_count == 0
+        assert scenario.rmse == scenario.mae == 0.0
+        assert scenario.interval_requested_count == 3
+        assert scenario.interval_available_count == scenario.interval_evaluated_count == 0
+        assert scenario.coverage_probability is None
+        assert scenario.interval_availability == 0.0
+        assert all(item.within_ci is None for item in scenario.outcome_comparisons)
+        assert all(item.ci_lower is item.ci_upper is None for item in scenario.outcome_comparisons)
+&gt;       admission = scenario.metadata["interval_admission"]
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'interval_admission'
+
+tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py:56: KeyError</failure></testcase><testcase classname="tests.unit.scientist.methods.backtesting.test_evaluator_interval_admission" name="test_invalid_interval_preserves_point_comparisons_and_requested_denominator[3.0-invalid_interval_shape]" time="0.001"><failure message="KeyError: 'interval_admission'">interval = 3.0, reason = 'invalid_interval_shape'
+
+    @pytest.mark.parametrize(
+        ("interval", "reason"),
+        [
+            ((2.0, -2.0), "reversed_interval"),
+            ((-2.0, 2.0, 999.0), "invalid_interval_shape"),
+            ((-2.0,), "invalid_interval_shape"),
+            (3.0, "invalid_interval_shape"),
+            ("12", "invalid_interval_shape"),
+            ({0: -2.0, 1: 2.0}, "invalid_interval_shape"),
+            ((False, 2.0), "non_numeric_interval"),
+            (("-2", "2"), "non_numeric_interval"),
+            ((float("nan"), 2.0), "non_finite_interval"),
+            ((-2.0, float("inf")), "non_finite_interval"),
+        ],
+    )
+    def test_invalid_interval_preserves_point_comparisons_and_requested_denominator(
+        interval: Any, reason: str
+    ) -&gt; None:
+        scenario = _evaluate(interval)
+        assert scenario.requested_count == scenario.compared_count == 3
+        assert scenario.missing_count == scenario.invalid_count == 0
+        assert scenario.rmse == scenario.mae == 0.0
+        assert scenario.interval_requested_count == 3
+        assert scenario.interval_available_count == scenario.interval_evaluated_count == 0
+        assert scenario.coverage_probability is None
+        assert scenario.interval_availability == 0.0
+        assert all(item.within_ci is None for item in scenario.outcome_comparisons)
+        assert all(item.ci_lower is item.ci_upper is None for item in scenario.outcome_comparisons)
+&gt;       admission = scenario.metadata["interval_admission"]
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'interval_admission'
+
+tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py:56: KeyError</failure></testcase><testcase classname="tests.unit.scientist.methods.backtesting.test_evaluator_interval_admission" name="test_invalid_interval_preserves_point_comparisons_and_requested_denominator[12-invalid_interval_shape]" time="0.001"><failure message="AssertionError: assert 3 == 0&#10; +  where 3 = BacktestScenario(scenario_id='interval-admission', scenario_label='synthetic paired interval', jurisdiction='', interv...e=None, squared_error_sum=0.0, absolute_error_sum=0.0, percentage_error_sum=0.0, percentage_error_count=0, metadata={}).interval_evaluated_count">interval = '12', reason = 'invalid_interval_shape'
+
+    @pytest.mark.parametrize(
+        ("interval", "reason"),
+        [
+            ((2.0, -2.0), "reversed_interval"),
+            ((-2.0, 2.0, 999.0), "invalid_interval_shape"),
+            ((-2.0,), "invalid_interval_shape"),
+            (3.0, "invalid_interval_shape"),
+            ("12", "invalid_interval_shape"),
+            ({0: -2.0, 1: 2.0}, "invalid_interval_shape"),
+            ((False, 2.0), "non_numeric_interval"),
+            (("-2", "2"), "non_numeric_interval"),
+            ((float("nan"), 2.0), "non_finite_interval"),
+            ((-2.0, float("inf")), "non_finite_interval"),
+        ],
+    )
+    def test_invalid_interval_preserves_point_comparisons_and_requested_denominator(
+        interval: Any, reason: str
+    ) -&gt; None:
+        scenario = _evaluate(interval)
+        assert scenario.requested_count == scenario.compared_count == 3
+        assert scenario.missing_count == scenario.invalid_count == 0
+        assert scenario.rmse == scenario.mae == 0.0
+        assert scenario.interval_requested_count == 3
+&gt;       assert scenario.interval_available_count == scenario.interval_evaluated_count == 0
+E       AssertionError: assert 3 == 0
+E        +  where 3 = BacktestScenario(scenario_id='interval-admission', scenario_label='synthetic paired interval', jurisdiction='', interv...e=None, squared_error_sum=0.0, absolute_error_sum=0.0, percentage_error_sum=0.0, percentage_error_count=0, metadata={}).interval_evaluated_count
+
+tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py:51: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.backtesting.test_evaluator_interval_admission" name="test_invalid_interval_preserves_point_comparisons_and_requested_denominator[interval5-invalid_interval_shape]" time="0.001"><failure message="AssertionError: assert 3 == 0&#10; +  where 3 = BacktestScenario(scenario_id='interval-admission', scenario_label='synthetic paired interval', jurisdiction='', interv...e=None, squared_error_sum=0.0, absolute_error_sum=0.0, percentage_error_sum=0.0, percentage_error_count=0, metadata={}).interval_evaluated_count">interval = {0: -2.0, 1: 2.0}, reason = 'invalid_interval_shape'
+
+    @pytest.mark.parametrize(
+        ("interval", "reason"),
+        [
+            ((2.0, -2.0), "reversed_interval"),
+            ((-2.0, 2.0, 999.0), "invalid_interval_shape"),
+            ((-2.0,), "invalid_interval_shape"),
+            (3.0, "invalid_interval_shape"),
+            ("12", "invalid_interval_shape"),
+            ({0: -2.0, 1: 2.0}, "invalid_interval_shape"),
+            ((False, 2.0), "non_numeric_interval"),
+            (("-2", "2"), "non_numeric_interval"),
+            ((float("nan"), 2.0), "non_finite_interval"),
+            ((-2.0, float("inf")), "non_finite_interval"),
+        ],
+    )
+    def test_invalid_interval_preserves_point_comparisons_and_requested_denominator(
+        interval: Any, reason: str
+    ) -&gt; None:
+        scenario = _evaluate(interval)
+        assert scenario.requested_count == scenario.compared_count == 3
+        assert scenario.missing_count == scenario.invalid_count == 0
+        assert scenario.rmse == scenario.mae == 0.0
+        assert scenario.interval_requested_count == 3
+&gt;       assert scenario.interval_available_count == scenario.interval_evaluated_count == 0
+E       AssertionError: assert 3 == 0
+E        +  where 3 = BacktestScenario(scenario_id='interval-admission', scenario_label='synthetic paired interval', jurisdiction='', interv...e=None, squared_error_sum=0.0, absolute_error_sum=0.0, percentage_error_sum=0.0, percentage_error_count=0, metadata={}).interval_evaluated_count
+
+tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py:51: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.backtesting.test_evaluator_interval_admission" name="test_invalid_interval_preserves_point_comparisons_and_requested_denominator[interval6-non_numeric_interval]" time="0.001"><failure message="AssertionError: assert 3 == 0&#10; +  where 3 = BacktestScenario(scenario_id='interval-admission', scenario_label='synthetic paired interval', jurisdiction='', interv...e=None, squared_error_sum=0.0, absolute_error_sum=0.0, percentage_error_sum=0.0, percentage_error_count=0, metadata={}).interval_evaluated_count">interval = (False, 2.0), reason = 'non_numeric_interval'
+
+    @pytest.mark.parametrize(
+        ("interval", "reason"),
+        [
+            ((2.0, -2.0), "reversed_interval"),
+            ((-2.0, 2.0, 999.0), "invalid_interval_shape"),
+            ((-2.0,), "invalid_interval_shape"),
+            (3.0, "invalid_interval_shape"),
+            ("12", "invalid_interval_shape"),
+            ({0: -2.0, 1: 2.0}, "invalid_interval_shape"),
+            ((False, 2.0), "non_numeric_interval"),
+            (("-2", "2"), "non_numeric_interval"),
+            ((float("nan"), 2.0), "non_finite_interval"),
+            ((-2.0, float("inf")), "non_finite_interval"),
+        ],
+    )
+    def test_invalid_interval_preserves_point_comparisons_and_requested_denominator(
+        interval: Any, reason: str
+    ) -&gt; None:
+        scenario = _evaluate(interval)
+        assert scenario.requested_count == scenario.compared_count == 3
+        assert scenario.missing_count == scenario.invalid_count == 0
+        assert scenario.rmse == scenario.mae == 0.0
+        assert scenario.interval_requested_count == 3
+&gt;       assert scenario.interval_available_count == scenario.interval_evaluated_count == 0
+E       AssertionError: assert 3 == 0
+E        +  where 3 = BacktestScenario(scenario_id='interval-admission', scenario_label='synthetic paired interval', jurisdiction='', interv...e=None, squared_error_sum=0.0, absolute_error_sum=0.0, percentage_error_sum=0.0, percentage_error_count=0, metadata={}).interval_evaluated_count
+
+tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py:51: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.backtesting.test_evaluator_interval_admission" name="test_invalid_interval_preserves_point_comparisons_and_requested_denominator[interval7-non_numeric_interval]" time="0.001"><failure message="AssertionError: assert 3 == 0&#10; +  where 3 = BacktestScenario(scenario_id='interval-admission', scenario_label='synthetic paired interval', jurisdiction='', interv...e=None, squared_error_sum=0.0, absolute_error_sum=0.0, percentage_error_sum=0.0, percentage_error_count=0, metadata={}).interval_evaluated_count">interval = ('-2', '2'), reason = 'non_numeric_interval'
+
+    @pytest.mark.parametrize(
+        ("interval", "reason"),
+        [
+            ((2.0, -2.0), "reversed_interval"),
+            ((-2.0, 2.0, 999.0), "invalid_interval_shape"),
+            ((-2.0,), "invalid_interval_shape"),
+            (3.0, "invalid_interval_shape"),
+            ("12", "invalid_interval_shape"),
+            ({0: -2.0, 1: 2.0}, "invalid_interval_shape"),
+            ((False, 2.0), "non_numeric_interval"),
+            (("-2", "2"), "non_numeric_interval"),
+            ((float("nan"), 2.0), "non_finite_interval"),
+            ((-2.0, float("inf")), "non_finite_interval"),
+        ],
+    )
+    def test_invalid_interval_preserves_point_comparisons_and_requested_denominator(
+        interval: Any, reason: str
+    ) -&gt; None:
+        scenario = _evaluate(interval)
+        assert scenario.requested_count == scenario.compared_count == 3
+        assert scenario.missing_count == scenario.invalid_count == 0
+        assert scenario.rmse == scenario.mae == 0.0
+        assert scenario.interval_requested_count == 3
+&gt;       assert scenario.interval_available_count == scenario.interval_evaluated_count == 0
+E       AssertionError: assert 3 == 0
+E        +  where 3 = BacktestScenario(scenario_id='interval-admission', scenario_label='synthetic paired interval', jurisdiction='', interv...e=None, squared_error_sum=0.0, absolute_error_sum=0.0, percentage_error_sum=0.0, percentage_error_count=0, metadata={}).interval_evaluated_count
+
+tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py:51: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.backtesting.test_evaluator_interval_admission" name="test_invalid_interval_preserves_point_comparisons_and_requested_denominator[interval8-non_finite_interval]" time="0.001"><failure message="KeyError: 'interval_admission'">interval = (nan, 2.0), reason = 'non_finite_interval'
+
+    @pytest.mark.parametrize(
+        ("interval", "reason"),
+        [
+            ((2.0, -2.0), "reversed_interval"),
+            ((-2.0, 2.0, 999.0), "invalid_interval_shape"),
+            ((-2.0,), "invalid_interval_shape"),
+            (3.0, "invalid_interval_shape"),
+            ("12", "invalid_interval_shape"),
+            ({0: -2.0, 1: 2.0}, "invalid_interval_shape"),
+            ((False, 2.0), "non_numeric_interval"),
+            (("-2", "2"), "non_numeric_interval"),
+            ((float("nan"), 2.0), "non_finite_interval"),
+            ((-2.0, float("inf")), "non_finite_interval"),
+        ],
+    )
+    def test_invalid_interval_preserves_point_comparisons_and_requested_denominator(
+        interval: Any, reason: str
+    ) -&gt; None:
+        scenario = _evaluate(interval)
+        assert scenario.requested_count == scenario.compared_count == 3
+        assert scenario.missing_count == scenario.invalid_count == 0
+        assert scenario.rmse == scenario.mae == 0.0
+        assert scenario.interval_requested_count == 3
+        assert scenario.interval_available_count == scenario.interval_evaluated_count == 0
+        assert scenario.coverage_probability is None
+        assert scenario.interval_availability == 0.0
+        assert all(item.within_ci is None for item in scenario.outcome_comparisons)
+        assert all(item.ci_lower is item.ci_upper is None for item in scenario.outcome_comparisons)
+&gt;       admission = scenario.metadata["interval_admission"]
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'interval_admission'
+
+tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py:56: KeyError</failure></testcase><testcase classname="tests.unit.scientist.methods.backtesting.test_evaluator_interval_admission" name="test_invalid_interval_preserves_point_comparisons_and_requested_denominator[interval9-non_finite_interval]" time="0.001"><failure message="KeyError: 'interval_admission'">interval = (-2.0, inf), reason = 'non_finite_interval'
+
+    @pytest.mark.parametrize(
+        ("interval", "reason"),
+        [
+            ((2.0, -2.0), "reversed_interval"),
+            ((-2.0, 2.0, 999.0), "invalid_interval_shape"),
+            ((-2.0,), "invalid_interval_shape"),
+            (3.0, "invalid_interval_shape"),
+            ("12", "invalid_interval_shape"),
+            ({0: -2.0, 1: 2.0}, "invalid_interval_shape"),
+            ((False, 2.0), "non_numeric_interval"),
+            (("-2", "2"), "non_numeric_interval"),
+            ((float("nan"), 2.0), "non_finite_interval"),
+            ((-2.0, float("inf")), "non_finite_interval"),
+        ],
+    )
+    def test_invalid_interval_preserves_point_comparisons_and_requested_denominator(
+        interval: Any, reason: str
+    ) -&gt; None:
+        scenario = _evaluate(interval)
+        assert scenario.requested_count == scenario.compared_count == 3
+        assert scenario.missing_count == scenario.invalid_count == 0
+        assert scenario.rmse == scenario.mae == 0.0
+        assert scenario.interval_requested_count == 3
+        assert scenario.interval_available_count == scenario.interval_evaluated_count == 0
+        assert scenario.coverage_probability is None
+        assert scenario.interval_availability == 0.0
+        assert all(item.within_ci is None for item in scenario.outcome_comparisons)
+        assert all(item.ci_lower is item.ci_upper is None for item in scenario.outcome_comparisons)
+&gt;       admission = scenario.metadata["interval_admission"]
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'interval_admission'
+
+tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py:56: KeyError</failure></testcase><testcase classname="tests.unit.scientist.methods.backtesting.test_evaluator_interval_admission" name="test_actual_backtest_keeps_unavailable_intervals_non_gating_after_cas_readback[interval0]" time="0.010"><failure message="AssertionError: assert 1.0 is None&#10; +  where 1.0 = BacktestReport(schema_version='1.0', report_id='BT_1b97bef8bad6', model_spec_ref=None, policy_spec_ref=None, historica...interval_requested_count': 3, 'interval_available_count': 3, 'interval_evaluated_count': 3, 'interval_hit_count': 3}]}).overall_coverage_probability">tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c09-scratch/base-pytest/test_actual_backtest_keeps_una0')
+interval = (2.0, -2.0)
+
+    @pytest.mark.parametrize("interval", [(2.0, -2.0), (float("nan"), 2.0), (-2.0, float("inf"))])
+    def test_actual_backtest_keeps_unavailable_intervals_non_gating_after_cas_readback(
+        tmp_path: Path, interval: tuple[float, float]
+    ) -&gt; None:
+        report, fresh = _run_report(tmp_path, interval=interval)
+        for result in (report, fresh):
+            assert result.n_metrics_evaluated == 3
+            assert result.overall_rmse == 0.0
+&gt;           assert result.overall_coverage_probability is None
+E           AssertionError: assert 1.0 is None
+E            +  where 1.0 = BacktestReport(schema_version='1.0', report_id='BT_1b97bef8bad6', model_spec_ref=None, policy_spec_ref=None, historica...interval_requested_count': 3, 'interval_available_count': 3, 'interval_evaluated_count': 3, 'interval_hit_count': 3}]}).overall_coverage_probability
+
+tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py:111: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.backtesting.test_evaluator_interval_admission" name="test_actual_backtest_keeps_unavailable_intervals_non_gating_after_cas_readback[interval1]" time="0.007"><failure message="KeyError: 'interval_admission'">tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c09-scratch/base-pytest/test_actual_backtest_keeps_una1')
+interval = (nan, 2.0)
+
+    @pytest.mark.parametrize("interval", [(2.0, -2.0), (float("nan"), 2.0), (-2.0, float("inf"))])
+    def test_actual_backtest_keeps_unavailable_intervals_non_gating_after_cas_readback(
+        tmp_path: Path, interval: tuple[float, float]
+    ) -&gt; None:
+        report, fresh = _run_report(tmp_path, interval=interval)
+        for result in (report, fresh):
+            assert result.n_metrics_evaluated == 3
+            assert result.overall_rmse == 0.0
+            assert result.overall_coverage_probability is None
+            assert result.scenarios[0].interval_requested_count == 3
+            assert result.scenarios[0].interval_evaluated_count == 0
+&gt;           assert result.scenarios[0].metadata["interval_admission"]["status"] == "limited"
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'interval_admission'
+
+tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py:114: KeyError</failure></testcase><testcase classname="tests.unit.scientist.methods.backtesting.test_evaluator_interval_admission" name="test_actual_backtest_keeps_unavailable_intervals_non_gating_after_cas_readback[interval2]" time="0.007"><failure message="KeyError: 'interval_admission'">tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c09-scratch/base-pytest/test_actual_backtest_keeps_una2')
+interval = (-2.0, inf)
+
+    @pytest.mark.parametrize("interval", [(2.0, -2.0), (float("nan"), 2.0), (-2.0, float("inf"))])
+    def test_actual_backtest_keeps_unavailable_intervals_non_gating_after_cas_readback(
+        tmp_path: Path, interval: tuple[float, float]
+    ) -&gt; None:
+        report, fresh = _run_report(tmp_path, interval=interval)
+        for result in (report, fresh):
+            assert result.n_metrics_evaluated == 3
+            assert result.overall_rmse == 0.0
+            assert result.overall_coverage_probability is None
+            assert result.scenarios[0].interval_requested_count == 3
+            assert result.scenarios[0].interval_evaluated_count == 0
+&gt;           assert result.scenarios[0].metadata["interval_admission"]["status"] == "limited"
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'interval_admission'
+
+tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py:114: KeyError</failure></testcase></testsuite></testsuites>

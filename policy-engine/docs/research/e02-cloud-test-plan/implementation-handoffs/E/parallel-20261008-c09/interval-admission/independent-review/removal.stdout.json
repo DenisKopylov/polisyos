@@ -1,0 +1,57 @@
+{
+  "max_rss_kib": 1057324,
+  "method": "in-process removal of runtime helper/consumer effect; unchanged file markers remain; no source mutation",
+  "pid": 1026372,
+  "records": [
+    {
+      "cas_ref": "sha256:c07ac82897dfee552a45f6b3158b3723db7380d094d7a6069e56f4088b8bbbca",
+      "case": "guard_removed",
+      "fresh_coverage": 1.0,
+      "fresh_degraded": false,
+      "fresh_trust_eligible": true,
+      "negative_test_state": "EXPECTED_FAIL",
+      "retained_interval_admission": {
+        "basis": "recomputed",
+        "coverage_scope": "declared_pairs",
+        "evaluated_count": 3,
+        "limitations": [],
+        "requested_count": 3,
+        "status": "evaluated"
+      }
+    },
+    {
+      "cas_ref": "sha256:b3c537e74c5795fbed5de7bae0d7250c75fb3d5a260c3a215c253a0f96bfdeed",
+      "case": "bridge_removed",
+      "fresh_coverage": null,
+      "fresh_degraded": false,
+      "fresh_trust_eligible": true,
+      "negative_test_state": "EXPECTED_FAIL",
+      "retained_interval_admission": {
+        "basis": "recomputed",
+        "coverage_scope": "evaluated_pairs_only",
+        "evaluated_count": 0,
+        "limitations": [
+          {
+            "metric_name": "m",
+            "reason": "reversed_interval",
+            "time_index": 0
+          },
+          {
+            "metric_name": "m",
+            "reason": "reversed_interval",
+            "time_index": 1
+          },
+          {
+            "metric_name": "m",
+            "reason": "reversed_interval",
+            "time_index": 2
+          }
+        ],
+        "requested_count": 3,
+        "status": "limited"
+      }
+    }
+  ],
+  "source": "d095dbd5527ae8462f85c382a40877f16574c58a",
+  "wall_seconds": 0.016904044983675703
+}

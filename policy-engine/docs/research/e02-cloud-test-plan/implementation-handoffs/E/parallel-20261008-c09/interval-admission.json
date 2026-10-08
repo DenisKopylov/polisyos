@@ -1,0 +1,215 @@
+{
+  "schema": "policyos.e02.orch03.source_handoff.v1",
+  "role": "C09",
+  "original_unit_owner": "E",
+  "canonical_writer": "/root/c09",
+  "topic": "codex/e02-E-c09-20261008",
+  "slice": "paired-backtest-interval-admission",
+  "slice_base_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "slice_base_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "candidate_sha": "ee0b2c85289d8c5537ba4e01713d9be71e2f557e",
+  "candidate_tree": "072e8906ac69f5b3589550a8bd9d57b4cb41b4a3",
+  "implementation_commits": [
+    "d095dbd5527ae8462f85c382a40877f16574c58a",
+    "ee0b2c85289d8c5537ba4e01713d9be71e2f557e"
+  ],
+  "source_acceptance_G": "not_issued",
+  "formal_finding_closure": "not_issued",
+  "closed_ids": [],
+  "admission": {
+    "carrier": "de7b08ebbac72232c98d96ea74c3c0410864a7ba",
+    "manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-admission/manifest.json",
+    "branch": "codex/e02-E-c09-20261008",
+    "path": "/dev/shm/e02-orch03-20261008/c09",
+    "create_decoded_sha256": "c9c345bbb9de07585d23017f4d5be86f459911e68ddaa67c101034274ef89e5f",
+    "resume_decoded_sha256": "6a2a61fb546416e8d65bdadadb9550c052279f6422ea025285c0ec4a01f551ef",
+    "status": "admitted"
+  },
+  "original_bindings": [
+    {
+      "id": "B172",
+      "document": "B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5",
+      "lines": [
+        4388,
+        4399
+      ],
+      "sha256": "272c388626bc25adcaf03e6f1114819ebcd5ca8a904dfb8556f64a161734b306",
+      "original_unit": "E",
+      "bundle": "BKT-03",
+      "card_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "original_text": "## B172. Постоянная ненулевая ошибка исчезает из диагностики систематического смещения\n\nОснование и область: `_detect_systematic_biases` пропускает метрику при std<=1e-12. Пустой список biases затем проецируется в NEUTRAL. Это защищает формулу t-test от деления на ноль, но одновременно стирает наблюдаемый постоянный сдвиг. [C16.R01]\n\n**Проверка.** Остатки `[10,10,10]` дают MAE=10, ноль detected_biases и NEUTRAL. Почти те же `[9.9,10,10.1]` дают одну карточку смещения с magnitude=10. Контроль `[0,0,0]` действительно имеет нулевую ошибку и не требует карточки ненулевого сдвига.\n\n**Рекомендуемое решение.** Разделить описательный остаток, наличие достаточных данных для статистического теста и вывод конкретного теста. Ненулевой постоянный остаток фиксировать с масштабом и областью; вырожденность дисперсии — отдельный статус теста. Не присваивать p=0 или статистическую достоверность автоматически: повторения могут быть зависимыми либо копиями одного результата.\n\nОтсутствие установленного p-value не означает нейтральность модели и не должно давать положительный компонент «смещений нет». Владелец trust-profile решает, как учитывать нерешённую диагностику; технический helper сохраняет исходные величины и ограничения. Знак ошибки и оценочное слово «оптимистично» также требуют направления предметной метрики, особенно для затрат.\n\n**Приёмка и приоритет.** При одинаковом ненулевом остатке описательная карточка сохраняется без выдуманной значимости; нулевая ошибка остаётся отдельным случаем; слишком малая/зависимая выборка не становится доказательством отсутствия проблемы. Локальный, сравнительно дешёвый ремонт диагностического перехода. Причинная либо популяционная интерпретация смещения локальными опытами не устанавливается.\n\n",
+      "status": "existing implementation carried unchanged; affected actual SciPy/constant-bias consumer tests PASS; no new finding closure"
+    },
+    {
+      "id": "B173",
+      "document": "B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5",
+      "lines": [
+        4400,
+        4411
+      ],
+      "sha256": "9cc7587ea32e5a5dd582054acdd30aa10f82468d8cb9a41188c3d3a2468926f8",
+      "original_unit": "E",
+      "bundle": "BKT-03",
+      "card_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "original_text": "## B173. Недоступность SciPy меняет статистический тест, но отчёт продолжает называть его t-test\n\nОснование и область: `_two_sided_ttest_pvalue` при исключении импорта или вычисления использует нормальное приближение; caller по-прежнему записывает `one-sample t-test H0(mean_error=0)` и не добавляет degraded-причину. При малом числе наблюдений это не эквивалентная замена распределения. [C16.R01, E01]\n\n**Проверка.** Для остатков `[0.5,1.5,2.5]` настоящий SciPy даёт p≈0,121690. Контролируемая недоступность импорта переводит тот же расчёт в p≈0,009375. В первом случае нет значимой карточки, во втором она есть, помечена t-test; report остаётся degraded=False, trust_eligible=True. Независимый вызов настоящего `scipy.stats.ttest_1samp` совпал с штатной SciPy-ветвью до численной погрешности.\n\n**Рекомендуемое решение.** При недоступности компонента сохранить описательные ошибки и вернуть тест как невычисленный либо использовать действительно эквивалентную проверенную реализацию. Приближение допустимо только как явно выбранный другой метод с собственной областью, предпосылками и маркировкой; нельзя silently применять его к любому малому n.\n\nИзбежать вычитания почти единицы в хвостах можно через соответствующую survival-function, но это отдельная численная аккуратность, не оправдание замены t на normal. Если зависимости/версии влияют на алгоритм, их эффективная идентичность должна проходить в результат и кэш. Обязательные диагностические поля не должны блокировать сохранение уже правильной таблицы ошибок. Предположение независимости остаточных наблюдений и множественные проверки требуют предметной методологии; этот аудит не подтверждает их автоматически. [C16.E01]\n\n**Приёмка и приоритет.** На контрольном малом n окружение не меняет обозначенный метод; отсутствие SciPy не превращается в незаметное усиление значимости; действительные научные результаты не выбрасываются вместе с одной недоступной диагностикой. Высокий приоритет перед трактовкой p-value/trust, исправление умеренное.\n\n",
+      "status": "existing implementation carried unchanged; affected actual SciPy/constant-bias consumer tests PASS; no new finding closure"
+    }
+  ],
+  "full_footprint": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-c09-backtest-interval-admission.toml",
+      "base_blob": null,
+      "candidate_blob": "68acb8d97ec90984e5fe9a47384bae6878ff0b96"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+      "base_blob": "0fd2d250fcba96eb1141dde7a53664035b28e25b",
+      "candidate_blob": "2dfea9bd3d450ecdb4f87cc48bc60468d8412ba0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py",
+      "base_blob": "179b8d3730c21e4f32af100cd8f67ee6a73107b2",
+      "candidate_blob": "5f9f5e3ebf316b38faa81735a5f3942de0fa5d01"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "base_blob": "e949618799124abbbd80f1dc486fd6a7d5188802",
+      "candidate_blob": "6dadf837033e0234f0e5c8070b331e29daed765a"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py",
+      "base_blob": null,
+      "candidate_blob": "5960e956db8ecce938b9d9a775ad72744bc49598"
+    }
+  ],
+  "full_diff": "interval-admission/implementation.diff",
+  "property": "Finite ordered pair admitted without reversal/truncation/string or bool conversion at direct postvalidation numerical intake. Invalid, missing, extra metric/time evidence preserves point rows, full interval request counts and recomputed limitation; actual persisted report consumes limitation as degraded/nontrusteligible.",
+  "basis": "recomputed actual pair/point corpus; no label/UUID/source marker establishes the property",
+  "producer_artifact_bridge_consumer_surface": [
+    "HistoricalValidationPlan PROVIDED predictions/paired observations (normal DTO constructor)",
+    "PredictionEvaluator comparison rows and interval_admission metadata",
+    "BacktestOrchestrator._run_single_scenario existing degraded-reasons boundary",
+    "persist_backtest_report CAS",
+    "fresh build_ir_artifact_store + load_backtest_report",
+    "BacktestReport/scenario numerical coverage/counters/limited trust surface"
+  ],
+  "oracle_negative": {
+    "positive": "same fixed interval/nominal confidence, observed endpoints and equal endpoints included; change measured observations coverage 3/3→1/3 on full attempted cells",
+    "negative": "reversed, extra-component, malformed/nonfinite/non-real pair; missing/extra metric/time; fake interval_admission overwritten from data",
+    "retained_marker_controls": "3 expected failed tests with legacy parse/swap restored;1 expected failed test with consumer limitation effect removed. Files/enums/strings/metadata remain; these4 expected FAIL are not unexpected suite failures."
+  },
+  "checks": [
+    {
+      "name": "base-interval",
+      "check_state": "FAIL expected baseline counterexample",
+      "denominator": {
+        "tests": 13,
+        "failures": 13,
+        "errors": 0,
+        "skipped": 0
+      },
+      "outputs": [
+        "base-interval.execution.json",
+        "base-interval.junit.xml",
+        "base-interval.stdout.txt"
+      ],
+      "source": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b"
+    },
+    {
+      "name": "affected",
+      "check_state": "PASS",
+      "denominator": {
+        "tests": 77,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "outputs": [
+        "affected.execution.json",
+        "affected.junit.xml",
+        "affected.stdout.txt"
+      ],
+      "source": "ee0b2c85289d8c5537ba4e01713d9be71e2f557e"
+    },
+    {
+      "name": "ets",
+      "check_state": "PASS",
+      "denominator": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "outputs": [
+        "ets.execution.json",
+        "ets.junit.xml",
+        "ets.stdout.txt"
+      ],
+      "source": "ee0b2c85289d8c5537ba4e01713d9be71e2f557e"
+    },
+    {
+      "name": "removed-guard",
+      "check_state": "EXPECTED_FAIL",
+      "denominator": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "outputs": [
+        "removed-guard.execution.json",
+        "removed-guard.junit.xml",
+        "removed-guard.stdout.txt"
+      ],
+      "source": "ee0b2c85289d8c5537ba4e01713d9be71e2f557e"
+    },
+    {
+      "name": "removed-bridge",
+      "check_state": "EXPECTED_FAIL",
+      "denominator": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "outputs": [
+        "removed-bridge.execution.json",
+        "removed-bridge.junit.xml",
+        "removed-bridge.stdout.txt"
+      ],
+      "source": "ee0b2c85289d8c5537ba4e01713d9be71e2f557e"
+    }
+  ],
+  "static_check": "interval-admission/static.execution.json",
+  "independent_review": {
+    "path": "interval-admission/independent-review/independent-review.json",
+    "sha256": "73ca6f473e8d16e1bd1a2d57945ceb09da580331b12737b8e5e5e8a110d053b8",
+    "decision": "GO",
+    "source": "ee0b2c85289d8c5537ba4e01713d9be71e2f557e",
+    "qualification": "23 native scratch observations and2 removal corroborations ran d095;850 loaded Python origin blobs and complete code/test/README closure byte-identical at ee; only canonical release enum corrected"
+  },
+  "attempts": [
+    "baseline new property selectors on unchanged G:13 expected FAIL, full output retained",
+    "one final source affected wave:77PASS and2 real ETS PASS,0unexpectedFAIL/ERROR/SKIP",
+    "retained-marker semantic removal:3+1 EXPECTED_FAIL, harnessexit0 onlyafter matching pytestreturn1",
+    "static new-fragment policy/Ruff/format/diff PASS; canonical fragment emits explicit no-structured-change warning",
+    "authoring read navigation errors and one wrong-cwd attempted Python edit caused no source mutation; corrected before freeze; not product gate results"
+  ],
+  "delta_only_carry": [
+    "B172/B173 implementation unchanged from G: genuine SciPy1.16.3 point test and constant-nonzero/unavailable guards exercised in affected suite",
+    "existing report/plan schema, IR facades, native ETS backend, catalog and lock untouched; no whole E/package/C13 replay",
+    "E_source8d8e7b3 TrustScorer withheld scores, G historical heuristic remains; neither E withholding PASS nor broad old receipts transferred"
+  ],
+  "limitations": [
+    "coverage_probability retains historical evaluated-pairs conditional field; limited evidence explicitly labels evaluated_pairs_only and full request/availability, and cannot confer report trust eligibility",
+    "Pydantic Plan float tuple coercion unchanged; strict bool/string refusal bounded at direct postvalidation evaluator API",
+    "point-only is existing supported profile; no invented interval-request contract",
+    "G historical TrustScorer heuristic purpose/profile remains unadjudicated; complete synthetic report/trust_grade is not calibrated empirical/scientific/causal/institutional authority",
+    "fresh store opened in same isolated process; no independent child result claimed",
+    "native configured ETS witness predictive only; actual C10 default/served supplier/authority chain remains separate",
+    "no production data, installed full wave, current optional backends or G formal acceptance established",
+    "P41 inherited/global red not_established; root scanner/Ruff/public-surface historical red not erased"
+  ],
+  "outputs_manifest": "interval-admission/artifact-manifest.json",
+  "cleanup": "Source/docs/unique inputs/deciding outputs and active env retained; no cleanup performed."
+}

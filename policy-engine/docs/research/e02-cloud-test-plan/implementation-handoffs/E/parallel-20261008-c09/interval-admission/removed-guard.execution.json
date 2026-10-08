@@ -1,0 +1,25 @@
+{
+  "source_sha": "ee0b2c85289d8c5537ba4e01713d9be71e2f557e",
+  "source_tree": "072e8906ac69f5b3589550a8bd9d57b4cb41b4a3",
+  "mode": "guard",
+  "argv": [
+    "-ra",
+    "-q",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--benchmark-storage=file://./_cache/benchmarks",
+    "-q",
+    "tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py::test_invalid_interval_preserves_point_comparisons_and_requested_denominator[interval0-reversed_interval]",
+    "tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py::test_invalid_interval_preserves_point_comparisons_and_requested_denominator[interval1-invalid_interval_shape]",
+    "tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py::test_actual_backtest_keeps_unavailable_intervals_non_gating_after_cas_readback[interval0]",
+    "--basetemp=/dev/shm/e02-orch03-20261008/c09-scratch/removed-guard",
+    "--junitxml=/dev/shm/e02-orch03-20261008/c09-scratch/removed-guard.junit.xml",
+    "-o",
+    "cache_dir=/dev/shm/e02-orch03-20261008/c09-scratch/removed-guard-cache"
+  ],
+  "pytest_returncode": 1,
+  "expected_returncode": 1,
+  "wall_seconds_after_import": 2.140228621981805,
+  "max_rss_kib": 1083512,
+  "method": "in-process replacement of actual runtime property; source enums/strings/markers and files unchanged"
+}

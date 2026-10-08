@@ -1,0 +1,204 @@
+{
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/B172-original.txt",
+      "bytes": 3064,
+      "sha256": "272c388626bc25adcaf03e6f1114819ebcd5ca8a904dfb8556f64a161734b306"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/B173-original.txt",
+      "bytes": 3446,
+      "sha256": "9cc7587ea32e5a5dd582054acdd30aa10f82468d8cb9a41188c3d3a2468926f8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/affected.execution.json",
+      "bytes": 1528,
+      "sha256": "0e049466712fe520d0ab9271f75ed03f495c12410e748f4f27878fbdef27ff93"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/affected.junit.xml",
+      "bytes": 13365,
+      "sha256": "d1c2818a63986b867adef8fa25b0a321d4a854b7ff6c38b03c15f6d563518526"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/affected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/affected.stdout.txt",
+      "bytes": 160,
+      "sha256": "0fad0a991838d695f5b48bbf12bcd6b46118e3a0347be88208246da3c20abc37"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/base-interval.execution.json",
+      "bytes": 780,
+      "sha256": "a6748c19354cffea9f8a591e6a3e73b34f3a00861c5a1a8257babf47b74b95a5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/base-interval.junit.xml",
+      "bytes": 25926,
+      "sha256": "23c6d2ec6c602c0286f5e5fe846ef940ff3f8c74b14aedf394acef85e3240838"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/base-interval.stdout.txt",
+      "bytes": 23942,
+      "sha256": "ac6a84d47225140d88947f2ba6a41533a2fc4c7a3903c194a676694b85435e4a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/diff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/diff.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/environment.json",
+      "bytes": 854,
+      "sha256": "face52b23936260f23dd21e3bcdf3d3a7bdcd20067dff4642d7bc0f766dee5bc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/ets.execution.json",
+      "bytes": 1482,
+      "sha256": "d385d148a7d46ef9efb8a68d14c5d2f10af8e90b786638912b50c3dd1d07f4a6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/ets.junit.xml",
+      "bytes": 544,
+      "sha256": "48382c99160c540e65cc406946b03bf60a252f35cc8489564c5fbb92af45df41"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/ets.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/ets.stdout.txt",
+      "bytes": 80,
+      "sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/format.stdout.txt",
+      "bytes": 26,
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/implementation.diff",
+      "bytes": 22488,
+      "sha256": "a0ac1f1bdb65f34d6f861010552e3ffbf35e033ea780623f0d35785b599a8764"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/independent-review/independent-review.json",
+      "bytes": 12207,
+      "sha256": "73ca6f473e8d16e1bd1a2d57945ceb09da580331b12737b8e5e5e8a110d053b8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/independent-review/input-origins.json",
+      "bytes": 205781,
+      "sha256": "df4029c03ecbeee7231386132613b850ad1b339d3acd134ee70d480cecfeb743"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/independent-review/probe.py",
+      "bytes": 5073,
+      "sha256": "3bcdbfe5a9c28dd65b2eccca2729887692f2ca5eab6008470232da5f5f472704"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/independent-review/probe.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/independent-review/probe.stdout.json",
+      "bytes": 16888,
+      "sha256": "9dead4cec797aa90e3bfd92225bb77380c89614ae39e1bde33c879425a3d3d37"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/independent-review/removal.py",
+      "bytes": 3951,
+      "sha256": "fb8794ae8334f0d978829a805d64711d07ed1a66b1e7ca9edc4e33804bc26ef7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/independent-review/removal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/independent-review/removal.stdout.json",
+      "bytes": 1713,
+      "sha256": "52a830672717764cff097fa69f3ca2bbed28f014f7d89cf31485bd4ffb1d44f2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/removal_runner.py",
+      "bytes": 2420,
+      "sha256": "659e84905ab648035ec10f73feda028e30b2b1fd8c442628dbb4ac043d08f324"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/removed-bridge.execution.json",
+      "bytes": 969,
+      "sha256": "128a2a8febdaf06c39ee2fc533b26127f82ce55b0107178221f8e9b5c2662bc3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/removed-bridge.junit.xml",
+      "bytes": 2167,
+      "sha256": "382e9473ed9ec685af448b20061b670cd2087d220b752fed5e8a872fa18ddbe9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/removed-bridge.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/removed-bridge.stdout.txt",
+      "bytes": 2419,
+      "sha256": "224d28aec582fcc8c0bd87d192e97a3ccdfc1243b5270409fdd91af9993130e0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/removed-guard.execution.json",
+      "bytes": 1351,
+      "sha256": "8872a1f21a71e18eb2a7f60339d29c8f83c0f833901b26a6d82e828160345a6c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/removed-guard.junit.xml",
+      "bytes": 6315,
+      "sha256": "06ff79478698c2aa24d2f8e4972e2f6c7355315fb4d66c53dc51df3c95b77e92"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/removed-guard.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/removed-guard.stdout.txt",
+      "bytes": 5996,
+      "sha256": "3b601ada8ed92f6fb86584f31074945ae3255d527a29d2e3355414dd0e3f6f99"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/run_focused.py",
+      "bytes": 2117,
+      "sha256": "d42fbcded099331d8df4ea3901aa07611413b15050b108f561a6df890fb2df4d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/static.execution.json",
+      "bytes": 2110,
+      "sha256": "96842d2339c29edd8606b183801e4fb7941e1028210d316f21da94d8fad8ca3f"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_actual_backtest_keeps_unavailable_intervals_non_gating_after_cas_readback[interval0] _
+
+tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c09-scratch/removed-bridge/test_actual_backtest_keeps_una0')
+interval = (2.0, -2.0)
+
+    @pytest.mark.parametrize("interval", [(2.0, -2.0), (float("nan"), 2.0), (-2.0, float("inf"))])
+    def test_actual_backtest_keeps_unavailable_intervals_non_gating_after_cas_readback(
+        tmp_path: Path, interval: tuple[float, float]
+    ) -> None:
+        report, fresh = _run_report(tmp_path, interval=interval)
+        for result in (report, fresh):
+            assert result.n_metrics_evaluated == 3
+            assert result.overall_rmse == 0.0
+            assert result.overall_coverage_probability is None
+            assert result.scenarios[0].interval_requested_count == 3
+            assert result.scenarios[0].interval_evaluated_count == 0
+            assert result.scenarios[0].metadata["interval_admission"]["status"] == "limited"
+>           assert result.degraded is True
+E           AssertionError: assert False is True
+E            +  where False = BacktestReport(schema_version='1.0', report_id='BT_e801a15ad0b0', model_spec_ref=None, policy_spec_ref=None, historica...interval_requested_count': 3, 'interval_available_count': 0, 'interval_evaluated_count': 0, 'interval_hit_count': 0}]}).degraded
+
+tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py:115: AssertionError
+=============================== warnings summary ===============================
+../../../../../workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py::test_actual_backtest_keeps_unavailable_intervals_non_gating_after_cas_readback[interval0]

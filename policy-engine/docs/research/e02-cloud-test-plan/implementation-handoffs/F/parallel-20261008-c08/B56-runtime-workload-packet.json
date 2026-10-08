@@ -1,0 +1,97 @@
+{
+  "schema": "policyos.e02.dependency_packet.v1",
+  "role": "C08",
+  "original_unit": "F",
+  "finding_ids": [
+    "B56"
+  ],
+  "bundle_ids": [
+    "FIT-01"
+  ],
+  "source_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "source_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "branch": "codex/e02-F-c08-20261008",
+  "predicate_basis": "not_established",
+  "state": "actual_shared_workload_input_unavailable",
+  "canonical_partners": [
+    "C01 Runtime admission",
+    "Runtime/Scientist shared study owner",
+    "L01 local input admission",
+    "G local read-only measurements"
+  ],
+  "source_paths": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_pool.py",
+      "blob": "1c57325b0133222154b0298c814a701b568ccc50"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/worker_pool.py",
+      "blob": "4f872336aa5c2c89eed1f396e050345674c92829"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+      "blob": "cf3613c67755e170c51f06dcc3d2f831fd5de02a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "blob": "d4997734d2a0240d4cab19bf58d702cbc8c0b2a5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+      "blob": "1212dad9803b1ed65376d500c59d87b32935f6bb"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+      "blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+      "blob": "630265e9216390b58c4eb3e2c2aa5bdaa0ae17a5"
+    }
+  ],
+  "existing_route": [
+    "LocalWorkerPool.submit(NodeTask) priority queue and max_workers permit",
+    "run_node_in_worker actualNode dispatch",
+    "RunCausalEvaluationNode executes configured MethodJob",
+    "MethodBackend native TMLE fit, serial folds within admitted job",
+    "CAS method_result/method_evidence; fresh CausalEffectReport reader"
+  ],
+  "observed_source_boundary": "LocalWorkerPool counts active Node tasks. NodeTask.resource_requirements declares cpu_cores/memory_mb/gpu but this pool does not admit by those values or propagate them in its worker payload. Fold executor is serial and does not request nested permits. Source review is not actual workload measurement.",
+  "minimum_packet": {
+    "C01": [
+      "exact canonical shared Runtime/study pool identity and configuration revision",
+      "selected admission API/permit contract and effective shared cap; resource unit and scaling/cancel semantics",
+      "complete roster of admitted competing jobs and named study owners; placement/admission order",
+      "how RunCausalEvaluationNode/MethodJob shares this pool with every roster item"
+    ],
+    "L01": [
+      "per study actual admitted non-secret source/CAS refs and content/manifest identities (payload local read-only)",
+      "models/backend/effective model params, folds/repeats/seed manifests, row/split identity",
+      "competing stages resource requirements and full job/slot roster",
+      "effective shared capacity profile revision and permitted measurement window"
+    ],
+    "measurement": [
+      "exact G composed candidate SHA/tree",
+      "active/wait/queue snapshots for whole admitted roster, wall time and peak RSS",
+      "all job results, all folds/repeats and split/seed provenance reopen through CAS",
+      "parallelism metamorphism under two admitted profile settings, same scientific tasks and agreeing numeric/uncertainty output"
+    ]
+  },
+  "available_portable_witness": "Existing test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout[1|2] has4 synthetic StudyNodes/24native fold fits and actual pool/worker/CAS path. Its roster is fixture-only and carries on unchanged source; it is not the actual admitted workload denominator.",
+  "negative_discriminators": [
+    "unchanged declared cap with more active admitted jobs must fail actual capacity assertion",
+    "waiting jobs lost/replaced/fewer folds must fail complete all-results/provenance assertion",
+    "nested fit pool holding outer permits would fail fanout/deadlock discriminator",
+    "monetary BudgetLedger value alone cannot satisfy compute permit input"
+  ],
+  "not_requested": [
+    "production payload upload",
+    "new TMLE/global scheduler",
+    "reduced scientific folds/repeats",
+    "monetary ledger interpreted as CPU permit",
+    "repeat unchanged TMLE method numerical suite"
+  ],
+  "next_concrete_result": "C01 publishes exact existing shared admission/permit/source contract; L01 supplies actual local roster packet; C08/G runs only composed workload/readback/parallelism consumer checks on that candidate. Generic serial-fold property remains maintained.",
+  "G_acceptance": "not_adjudicated",
+  "formal_finding_closure": "not_adjudicated"
+}

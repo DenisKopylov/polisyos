@@ -301,7 +301,14 @@ historical receipts retain their original source scope. Generic legacy proof
 artifacts without `partial_graph_query` keep their existing behavior; DTO/schema,
 public signatures and export identities are unchanged. This source binding does
 not establish current selected-view admission, source or assumption authority,
-or protected ValuePort/Level2 composition. The C11 Level2 direct producer needs
+or protected ValuePort/Level2 composition. The present proof/graph references
+resolve the default CAS manifest only. Re-persisting identical proof bytes under
+changed lineage can yield a selected manifest view that the existing IR ref does
+not retain; reading the older valid default does not verify the new selected
+lineage, current producer context or admission. That C06 ref/selector companion
+is a separate canonical-owner dependency. This correction claims freshly
+produced default-manifest graph/proof binding, not selected-view currentness.
+The C11 Level2 direct producer needs
 the committed dependency packet before its own exact composed replay.
 
 For a top-level query on a complete observed static DAG, native `id_algorithm`

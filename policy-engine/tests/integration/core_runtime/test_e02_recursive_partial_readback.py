@@ -276,6 +276,53 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
         allow_fixture_identity=True,
     )
     with TestClient(fresh_app) as fresh_client:
+        if os.environ.get("POLISYOS_E02_LEAF_TERMINAL_PROJECTION_REMOVAL") == "1":
+            import ast
+            import inspect
+            import textwrap
+            from types import MethodType
+
+            service = fresh_app.state._control_service
+            resolver_function = type(service).resolve_recursive_cycle_checkpoint
+            resolver_tree = ast.parse(textwrap.dedent(inspect.getsource(resolver_function)))
+
+            class _RemoveLeafTerminalProjection(ast.NodeTransformer):
+                removed_count = 0
+
+                def visit_Call(self, node: ast.Call) -> ast.Call:
+                    self.generic_visit(node)
+                    if (
+                        isinstance(node.func, ast.Name)
+                        and node.func.id == "RecursiveCycleCheckpoint"
+                    ):
+                        kept_keywords = []
+                        for keyword in node.keywords:
+                            if keyword.arg == "leaf_terminal_kinds":
+                                self.removed_count += 1
+                            else:
+                                kept_keywords.append(keyword)
+                        node.keywords = kept_keywords
+                    return node
+
+            remover = _RemoveLeafTerminalProjection()
+            resolver_tree = remover.visit(resolver_tree)
+            if remover.removed_count != 1:
+                raise AssertionError(
+                    "leaf-terminal projection removal probe is blocked: expected exactly "
+                    f"one RecursiveCycleCheckpoint.leaf_terminal_kinds keyword, found "
+                    f"{remover.removed_count}"
+                )
+            ast.fix_missing_locations(resolver_tree)
+            resolver_namespace = dict(resolver_function.__globals__)
+            exec(  # noqa: S102 - opt-in AST removal probe in copied resolver globals only
+                compile(resolver_tree, resolver_function.__code__.co_filename, "exec"),
+                resolver_namespace,
+            )
+            monkeypatch.setattr(
+                service,
+                "resolve_recursive_cycle_checkpoint",
+                MethodType(resolver_namespace[resolver_function.__name__], service),
+            )
         response = fresh_client.get(f"/api/v1/runs/{core_run_id}")
         assert response.status_code == 200, response.text
         run = response.json()["run"]
@@ -286,6 +333,9 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
         assert checkpoint["completed_design_refs"] == [
             node.node_ref for node in partial_result.leaf_nodes
         ]
+        assert checkpoint["leaf_terminal_kinds"] == {
+            node.node_ref: node.terminal.kind.value for node in partial_result.leaf_nodes
+        }
         assert checkpoint["stop_node_ref"] == partial_result.budget_stop_node_ref
         assert checkpoint["root_design_problem_ref"] == problem_ref
         assert checkpoint["root_n9_status"] == "not_run"

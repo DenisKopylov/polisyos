@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/dev/shm/e02-orch03-20261008/c08-scratch/run_companion_checks.py", line 29, in <module>
+    assert result.status is expected,(profile,result.status)
+           ^^^^^^^^^^^^^
+  File "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py", line 1026, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'NegativeCertificate' object has no attribute 'status'

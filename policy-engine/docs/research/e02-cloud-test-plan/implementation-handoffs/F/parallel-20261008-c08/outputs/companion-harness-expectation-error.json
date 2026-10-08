@@ -1,0 +1,1 @@
+{"status":"ERROR/harness-expectation","product_verdict":null,"reason":"Existing public CausalEngine translates a confounded-ADMG hedge result into typed NegativeCertificate; harness assumed IdentificationResult for every control","correction":"Assert actual supported typed NegativeCertificate(hedge_structure) for confounded ADMG, keep DAG/ADMG identified controls"}

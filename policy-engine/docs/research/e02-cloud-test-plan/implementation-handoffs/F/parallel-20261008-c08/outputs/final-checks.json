@@ -1,0 +1,91 @@
+{
+  "source": "2dd8339c210caf973586f7ddec69b6b0a48f1df7",
+  "tree": "72c482aa7d731f1adfaf703dcd6708fcccff40cd",
+  "interpreter": "Python 3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "pythonpath": "/dev/shm/e02-orch03-20261008/c08/policy-engine/src:/dev/shm/e02-orch03-20261008/c08/policy-engine/tools",
+  "commands": [
+    {
+      "name": "final-pytest",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--basetemp",
+        "/dev/shm/e02-orch03-20261008/c08-scratch/pytest-temp",
+        "--junitxml",
+        "/dev/shm/e02-orch03-20261008/c08-scratch/final-pytest.xml",
+        "-v",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py"
+      ],
+      "cwd": "/dev/shm/e02-orch03-20261008/c08",
+      "returncode": 0,
+      "wall_s": 12.128964900970459,
+      "stdout": "final-pytest.stdout",
+      "stderr": "final-pytest.stderr",
+      "time": "final-pytest.time"
+    },
+    {
+      "name": "final-ruff",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/_partial_graph_queries.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py"
+      ],
+      "cwd": "/dev/shm/e02-orch03-20261008/c08",
+      "returncode": 1,
+      "wall_s": 0.08867931365966797,
+      "stdout": "final-ruff.stdout",
+      "stderr": "final-ruff.stderr",
+      "time": "final-ruff.time"
+    },
+    {
+      "name": "final-format",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/_partial_graph_queries.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py"
+      ],
+      "cwd": "/dev/shm/e02-orch03-20261008/c08",
+      "returncode": 0,
+      "wall_s": 0.08996319770812988,
+      "stdout": "final-format.stdout",
+      "stderr": "final-format.stderr",
+      "time": "final-format.time"
+    },
+    {
+      "name": "production-invocation",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--base",
+        "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "--receipt",
+        "/dev/shm/e02-orch03-20261008/c08-scratch/production-invocation.json"
+      ],
+      "cwd": "/dev/shm/e02-orch03-20261008/c08/policy-engine",
+      "returncode": 137,
+      "wall_s": 111.54739475250244,
+      "stdout": "production-invocation.stdout",
+      "stderr": "production-invocation.stderr",
+      "time": "production-invocation.time"
+    }
+  ],
+  "cloud_compute_quota": null
+}

@@ -1,0 +1,9 @@
+{
+  "wall_s": 7.6091835498809814,
+  "returncode": 1,
+  "peak_rss_kib": 557988,
+  "user_s": 7.22312,
+  "sys_s": 0.488597,
+  "voluntary_context_switches": 2556,
+  "involuntary_context_switches": 103
+}

@@ -1,0 +1,96 @@
+{
+  "schema": "e02.c08.independent_preparation.v1",
+  "reviewer": "/root/oracle_graph",
+  "author_is_reviewer": false,
+  "G_source": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "G_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "source_writes": [],
+  "children": [],
+  "criterion_bindings": {
+    "B214": {
+      "source": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5218,
+        5229
+      ],
+      "sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad"
+    },
+    "B56": {
+      "source": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        1409,
+        1424
+      ],
+      "sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b"
+    }
+  },
+  "checks": [
+    {
+      "command": "python3 /dev/shm/e02-orch03-20261008/oracle-graph/completion_oracle.py",
+      "outcome": "PASS",
+      "purpose": "independent preparation only; 4165 finite partial profiles, no product execution"
+    },
+    {
+      "command": "native id_algorithm isolatedX,Y→Z vs Z→Y preparation",
+      "outcome": "PASS",
+      "purpose": "witness observed mismatch, not product correctness verdict",
+      "observed": "IDENTIFIED P(Y) versus P(Y|Z); true queries both P(Y); original treatment erased by recursion"
+    }
+  ],
+  "patterns": [
+    "P10",
+    "P14",
+    "P27",
+    "P29",
+    "P35",
+    "P37",
+    "P38",
+    "P40"
+  ],
+  "P40_bucket": "same static-profile class; bounded <=4 causally sufficient static CPDAG query scope, not universal completion authority",
+  "B56_api_map": {
+    "canonical_owner": "C01",
+    "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_pool.py",
+    "actual_methods": [
+      "submit(NodeTask)→Future[bytes]",
+      "current_capacity",
+      "scale_to",
+      "shutdown"
+    ],
+    "gap": "resource_requirements fields not enforced/propagated; full actual competing study workload/canonical cap binding unestablished",
+    "next_packet": [
+      "canonical shared pool identity/cap/revision",
+      "actual Node admission through compute.run_job",
+      "complete named studies/jobs/models/folds/repeats/seeds/input roster",
+      "resource profile and active/wait/wall/RSS/result/provenance readback"
+    ],
+    "factual_owner": "L01",
+    "consumer_owner": "C08",
+    "no_new_scheduler": true
+  },
+  "status": "preparation_complete; immutable candidate review pending",
+  "limitations": [
+    "all law calculations synthetic exact Fraction profiles",
+    "no source authority, institutional admission, production evidence or G closure",
+    "no frozen C08 source or final consumer test claimed"
+  ],
+  "artifacts": [
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-graph/completion_oracle.py",
+      "bytes": 7337,
+      "sha256": "eb2a7e40c947d6104c24e330e0b6037a6a4ba2807d6dec1f8c7305dfe0ce7e0f"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-graph/native-id-preparation.json",
+      "bytes": 2297,
+      "sha256": "eb4cf82832d101d71ba62427828f3d23f0e19115f1e31324baf20b0638e21f0a"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-graph/preparation-output.json",
+      "bytes": 3113,
+      "sha256": "d374bb7f62f59e547af49cba491094368cd960dc9f02e86b2c2a915558cd18c4"
+    }
+  ]
+}

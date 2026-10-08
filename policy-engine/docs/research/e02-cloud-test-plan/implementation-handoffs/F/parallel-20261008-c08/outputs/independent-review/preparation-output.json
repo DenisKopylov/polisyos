@@ -1,0 +1,178 @@
+{
+  "schema": "e02.c08.independent_completion_oracle.v1",
+  "algorithm": "all topological permutations; fixed arrows; exact skeleton and collider set; dedupe",
+  "profiles": [
+    {
+      "nodes": 1,
+      "partial_profiles": 1,
+      "family_size_histogram": {
+        "1": 1
+      },
+      "distinct_no_unshielded_collider_dags": 1
+    },
+    {
+      "nodes": 2,
+      "partial_profiles": 4,
+      "family_size_histogram": {
+        "1": 3,
+        "2": 1
+      },
+      "distinct_no_unshielded_collider_dags": 3
+    },
+    {
+      "nodes": 3,
+      "partial_profiles": 64,
+      "family_size_histogram": {
+        "0": 2,
+        "1": 37,
+        "2": 15,
+        "3": 9,
+        "6": 1
+      },
+      "distinct_no_unshielded_collider_dags": 22
+    },
+    {
+      "nodes": 4,
+      "partial_profiles": 4096,
+      "family_size_histogram": {
+        "0": 779,
+        "1": 1695,
+        "2": 774,
+        "3": 504,
+        "4": 157,
+        "5": 60,
+        "6": 48,
+        "7": 24,
+        "8": 36,
+        "10": 6,
+        "12": 12,
+        "24": 1
+      },
+      "distinct_no_unshielded_collider_dags": 329
+    }
+  ],
+  "total_partial_profiles": 4165,
+  "complete_family_digest": "794e71f743098c063a927004fbe1f2516b0ffd866eab6b7380739fb44a3d9422",
+  "named_controls": {
+    "different_answer": [
+      [
+        [
+          [
+            "X",
+            "Y"
+          ]
+        ],
+        "4/5"
+      ],
+      [
+        [
+          [
+            "Y",
+            "X"
+          ]
+        ],
+        "1/2"
+      ]
+    ],
+    "same_answer": [
+      [
+        [
+          [
+            "Y",
+            "Z"
+          ]
+        ],
+        "7/10"
+      ],
+      [
+        [
+          [
+            "Z",
+            "Y"
+          ]
+        ],
+        "7/10"
+      ]
+    ],
+    "sampled_agreement_falsifier": [
+      [
+        [
+          [
+            "X",
+            "Y"
+          ],
+          [
+            "Y",
+            "Z"
+          ]
+        ],
+        "17/25"
+      ],
+      [
+        [
+          [
+            "Y",
+            "X"
+          ],
+          [
+            "Y",
+            "Z"
+          ]
+        ],
+        "1/2"
+      ],
+      [
+        [
+          [
+            "Y",
+            "X"
+          ],
+          [
+            "Z",
+            "Y"
+          ]
+        ],
+        "1/2"
+      ]
+    ],
+    "triangle_completions": 6,
+    "known_path_completions": [
+      [
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ],
+        [
+          "B",
+          "C"
+        ]
+      ]
+    ],
+    "known_collider_completions": [
+      [
+        [
+          "A",
+          "B"
+        ],
+        [
+          "C",
+          "B"
+        ]
+      ]
+    ],
+    "known_cycle_completions": []
+  },
+  "wall_s": 0.2847362570173573,
+  "peak_rss_kib": 9472,
+  "status": "PASS",
+  "scope": "static causally sufficient partial DAGs <=4 nodes, one edge per unordered pair; numerical laws synthetic only",
+  "not_established": [
+    "genuine input graph authority",
+    "PAG/MGraph/latent/temporal completeness",
+    "production estimator or consumer execution"
+  ]
+}

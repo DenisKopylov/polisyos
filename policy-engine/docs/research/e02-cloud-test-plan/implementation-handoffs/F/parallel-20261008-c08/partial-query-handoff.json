@@ -1,0 +1,406 @@
+{
+  "schema": "policyos.e02.component_handoff.v1",
+  "role": "C08",
+  "original_unit": "F",
+  "canonical_writer": "/root/c08",
+  "reviewer": "/root/oracle_graph",
+  "branch": "codex/e02-F-c08-20261008",
+  "slice_base": {
+    "sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+    "fetched_G_checkpoint": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b"
+  },
+  "candidate": {
+    "sha": "2dd8339c210caf973586f7ddec69b6b0a48f1df7",
+    "tree": "72c482aa7d731f1adfaf703dcd6708fcccff40cd",
+    "parent": "3a7355e684f2916f22bafe58afe8ec0ffbdb9e34",
+    "implementation_commit": "2dd8339c210caf973586f7ddec69b6b0a48f1df7",
+    "early_dependency_packet_commit": "3a7355e684f2916f22bafe58afe8ec0ffbdb9e34",
+    "source_remote_readback": "2dd8339c210caf973586f7ddec69b6b0a48f1df7",
+    "append_only": true
+  },
+  "host_admission": {
+    "branch": "codex/e02-F-c08-20261008",
+    "absolute_worktree_root": "/dev/shm/e02-orch03-20261008/c08",
+    "create": "admitted",
+    "resume": "admitted",
+    "custody_commit": "de7b08ebbac72232c98d96ea74c3c0410864a7ba",
+    "custody_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-admission/manifest.json",
+    "entries": [
+      "c08-create.json.gz",
+      "c08-resume.json.gz"
+    ],
+    "whole_lossless_JSON_in_root_custody": true
+  },
+  "full_source_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/B56-runtime-workload-packet.json",
+      "base_blob": null,
+      "candidate_blob": "9a75155bc01a7df015ae5df789d84ff83b6f7a6a",
+      "candidate_sha256": "e24011b2468db7312644d87e55952842229592658fbc9ee7f15193dbf5ae2c8a",
+      "candidate_bytes": 4970,
+      "owner": "/root/c08; original unit F"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/scoped-supplier-requirements.json",
+      "base_blob": null,
+      "candidate_blob": "c79d584d462337fa7443894ad7ba463fd609e8b1",
+      "candidate_sha256": "98ca483f74659d7926d45ca38711751504369286660c7ec1dbbbe2e0d076f013",
+      "candidate_bytes": 10139,
+      "owner": "/root/c08; original unit F"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-c08-partial-graph-query.toml",
+      "base_blob": null,
+      "candidate_blob": "bc5e02f5783762e28599c3828aa116bb8d354a68",
+      "candidate_sha256": "17393c8ffeaa87792105583e860bb43ee37243f09a63ee1460f67ae909754340",
+      "candidate_bytes": 1323,
+      "owner": "/root/c08; original unit F"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+      "base_blob": "21e4a6af610b8977801b40f0295a2c221a8b18ed",
+      "candidate_blob": "9fbbb8da21fcfdfe8b9e43c174ec6e9d8be5ee02",
+      "candidate_sha256": "86c5e5e039a6c8f42d595dacf0ca2f2d3b48d8a8def9123df4c32933fea93ea7",
+      "candidate_bytes": 17249,
+      "owner": "/root/c08; original unit F"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_partial_graph_queries.py",
+      "base_blob": null,
+      "candidate_blob": "490b3fd7fe027cfb9c5f82a4a38da18f6344524f",
+      "candidate_sha256": "daf44c03c5969c9fe676609d3142b2220b53aaf21e29f991e6428fdd297f122a",
+      "candidate_bytes": 9604,
+      "owner": "/root/c08; original unit F"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+      "base_blob": "5928f2fa3ad3256be268344975414bb9635d8f9d",
+      "candidate_blob": "ed5485f55460737d7ff796cd487f781b02b905f4",
+      "candidate_sha256": "665d75eaaea1b292915f99ce73e9554abcd977c3b76debe2fc9f89e525866807",
+      "candidate_bytes": 109773,
+      "owner": "/root/c08; original unit F"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py",
+      "base_blob": null,
+      "candidate_blob": "bbce6e4adbc9a5014b19fb2a22ebad2250b84b03",
+      "candidate_sha256": "b1c16ab304132524090b570e793a747fe194c92b1256bf794bacb1203c0e5d0c",
+      "candidate_bytes": 10971,
+      "owner": "/root/c08; original unit F"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py",
+      "base_blob": null,
+      "candidate_blob": "dd9d28ebb9a914d9c27ce57f3ebc07b8658874f6",
+      "candidate_sha256": "6404051323d4cb8592135f3a22594a4d009bc84829826b9fbd5e44af896512df",
+      "candidate_bytes": 3957,
+      "owner": "/root/c08; original unit F"
+    }
+  ],
+  "full_diff": {
+    "git_command": [
+      "git",
+      "diff",
+      "--binary",
+      "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "2dd8339c210caf973586f7ddec69b6b0a48f1df7"
+    ],
+    "bytes": 48032,
+    "sha256": "9d6c9f199210808b9fcc7d5bea17c8aab45d7c7d2b75521d1553be59ae5b3e82",
+    "source_or_test_conflict_writes": []
+  },
+  "original_criterion_bindings": [
+    {
+      "finding_id": "B214",
+      "original_unit": "F",
+      "bundle": "GRF-03",
+      "bindings": [
+        {
+          "criterion_id": "B214",
+          "document": "B_r19",
+          "lines": [
+            5218,
+            5229
+          ],
+          "sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+          "card": "GRF-03",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "original_text": "## B214. Проекция PAG/CPDAG разворачивает известное направление и может создать цикл\n\n**Приоритет:** высокий при передаче графа DAG-потребителю; нормализация известного направления дешева, выбор допустимого расширения — отдельная задача. **Основание:** полный _graph_projection.py, CausalGraphModel и GCM-fit caller; GP01–GP04. [C20.R08–R10]\n\n**Проблема.** Единственный признанный полностью ориентированным случай — tail на src и arrow на dst. Случай arrow на src и tail на dst означает известное обратное направление, но обрабатывается как неопределённость: метки меняются на tail/arrow без перестановки концов. Для неопределённых рёбер применяется тот же порядок хранения, после чего graph_type заменяется на DAG через model_copy без повторной валидации.\n\n**Воспроизведение.** В PAG ребро X←Y стало X→Y и получило orientation_uncertain=True. Полный неориентированный CPDAG-треугольник, записанный A—B, B—C, C—A, стал циклом A→B→C→A с меткой DAG. Численная фикстура графа — не полный native DTO; допустимость такого reversed edge и запрет циклов в настоящем DAG проверены чтением контракта.\n\n**Рекомендуемое исправление.** Сначала канонически нормализовать уже известные направления, сохраняя origin и marks. Затем либо использовать допускающий частичную ориентацию идентификатор, либо строить согласованное расширение с проверкой направлений, ацикличности и свойств класса эквивалентности. Для PAG произвольный выбор одного DAG вообще не заменяет causal-identification по допустимому семейству; исследовательскую модель нужно сохранять условной.\n\n**Положительные контроли.** Готовый корректный DAG возвращается без изменения; bidirected edge заменяется общим latent U и двумя исходящими рёбрами. Это полезные существующие части. Уточнение не должно превращать все частично определённые графы в полный отказ: можно сохранять несколько допустимых моделей или ограниченный результат. Простое удаление ребра цикла либо отключение DAG-validation неприемлемо. Исправленная нормализация одного известного reversed edge проверена отдельно; общий sound-extension алгоритм здесь не реализован.\n\n"
+        }
+      ]
+    },
+    {
+      "finding_id": "B56",
+      "original_unit": "F",
+      "bundle": "FIT-01",
+      "bindings": [
+        {
+          "criterion_id": "B56",
+          "document": "B_r19",
+          "lines": [
+            1409,
+            1424
+          ],
+          "sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b",
+          "card": "FIT-01",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "original_text": "## B56. Внутренняя параллельность folds не связана с общим ресурсом исследования\n\n**Происхождение:** C04-08. **Основание:** `ATENuisanceContract` и `_fit_crossfit_nuisance_bundle_uncached`; PW1–PW3. **Приоритет:** условная оптимизация нескольких одновременных fit; охват S/M. [C04.K05]\n\n**Проблема.** По умолчанию используются пять folds и три повторения. Если `parallel_folds=True` и `max_parallel_folds=0`, число workers берётся из числа tasks — здесь 15 на один fit. Каждый fit создаёт собственный `ThreadPoolExecutor`. Четыре внешних одновременных fit могут тем самым запросить 60 внутренних рабочих потоков ещё до учёта прочих стадий. Это расчёт конфигурационной ёмкости, не наблюдение 60 реально загруженных CPU и не измеренное замедление.\n\n**Важный существующий контроль.** У создаваемых LightGBM и RandomForest в прочитанных ветвях явно стоит `n_jobs=1`. Значит, часть вложенной параллельности уже ограничена. Неверно утверждать, что весь проект бесконтрольно размножает все native threads. Но лимит конкретного модельного backend не объединяет несколько независимых fold-пулов внешнего цикла. [C04.K05]\n\n**Рекомендуемое решение.** Сначала использовать уже имеющийся `max_parallel_folds` и передавать его из действительного ресурса текущего исследования. Для первого малого прогона практичный выбор — распараллелить один уровень: несколько моделей с внутренним cap=1 либо один fit с ограниченным числом folds. Затем измерять полезную пропускную способность и память и перераспределять разрешённый ресурс. Не нужен новый кластерный scheduler.\n\nЕсли нужен общий механизм допуска, он должен исключать циклическое ожидание: внешняя работа не должна занять все ресурсы, удерживать их и ждать внутренних задач, которым нужны те же ресурсы. Механическая замена всех пулов одним общим пулом может создать именно такой тупик. Сохранять детерминированные seeds, порядок агрегации и реальное число повторений; ограничение работников не должно сокращать число научных повторений молча.\n\n**Приёмка.** При заданном общем ресурсе сумма допущенной работы ограничена; задачи ожидают без потери результатов; тот же набор folds/repeats исполнен независимо от уровня параллелизма; численные результаты и provenance согласованы. Измерять общее время, пиковую память, число активных workers и ожидание, а не предполагать, что максимальный worker-count оптимален.\n\n**Граница.** Это возможность настройки и композиции, не доказанный дефект одиночного запуска. PW показывает точную формулу выбора 15, 2 и 1 работников при разных разрешённых настройках. Нет универсальной рекомендации «всё сделать последовательным» и нет новой постоянной границы мощности системы.\n\n"
+        }
+      ]
+    }
+  ],
+  "property": "Within the declared finite static causally sufficient CPDAG profile, preserve fixed directions and collider class, check every acyclic completion, compute each maintained DAG g-formula for the original query, and persist common or conditional results without scientific authority.",
+  "producer_artifact_bridge_consumer_surface": [
+    "CausalEngine.identify original typed CPDAG and one ordinary unconditional query",
+    "every maintained DAG g-formula completion; existing IdentificationResult",
+    "CausalEngine.audit via existing proof_bundle_from_identification_result",
+    "actual CAS ProofBundle; separately persisted original CPDAG",
+    "fresh typed proof/graph readers and a separate child process",
+    "existing evidence/proof status plus persisted partial_graph_query limitation and complete scope"
+  ],
+  "profile": {
+    "name": "static_cpdag_consistent_extensions_at_most_four_nodes_v1",
+    "maximum_observed_nodes": 4,
+    "causal_sufficiency": "declared model assumption, not verified source authority",
+    "edges": "fixed arrows including reverse-normalized and tail-tail; no new unshielded colliders",
+    "query": "one disjoint treatment/outcome, ordinary unconditional do",
+    "unsupported": "PAG/circle/bidirected/latent/lagged, typed MGraph contradiction, >4 observed nodes, parallel/invalid family, conditional/transport/oracle/proxy/dynamic queries",
+    "common_result": "exact canonical functional equality or recomputed absence of a treatment-outcome directed path in every completion; unequal syntax conservatively conditional",
+    "authority": "none; authority_eligible=False is disclosed scope, not an admission proof"
+  },
+  "independent_oracle": {
+    "record": "outputs/independent-review/candidate-review-output.json",
+    "review": "GO",
+    "profiles": 4165,
+    "empty_families": 781,
+    "actual_AST_completion_answers": 8,
+    "queries": 4,
+    "unsupported_controls": 13,
+    "structural_algorithm": "independent topological permutations versus implementation binary orientations",
+    "numeric_algorithm": "independent exact Fraction truncated factorization versus actual emitted AST evaluation",
+    "different_answers": [
+      "4/5",
+      "1/2"
+    ],
+    "sampled_agreement_falsifier": [
+      "17/25",
+      "1/2",
+      "1/2"
+    ],
+    "same_answer_unequal_marginal": [
+      "7/10",
+      "7/10"
+    ],
+    "source_review_footprint": 8,
+    "child_process": {
+      "path": "CausalEngine.identify→audit→proofCAS→fresh typedreader→distinct child",
+      "producer_pid": 1030092,
+      "child": {
+        "pid": 1030129,
+        "rows": [
+          {
+            "case": "conditional",
+            "profile": "cpdag",
+            "status": "oracle_needed",
+            "completions": 2,
+            "authority_eligible": false
+          },
+          {
+            "case": "common",
+            "profile": "cpdag",
+            "status": "identified",
+            "completions": 2,
+            "authority_eligible": false
+          }
+        ]
+      },
+      "stderr": ""
+    }
+  },
+  "defining_checks": {
+    "check": "PASS",
+    "pytest_tests": 18,
+    "unexpected_failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "junit": "outputs/final-pytest.xml",
+    "stdout": "outputs/final-pytest.stdout",
+    "command_and_environment": "outputs/final-checks.json",
+    "wall_and_RSS": "outputs/final-pytest.time",
+    "actual_environment_origins": "outputs/environment-and-origins.json",
+    "source_invariant_controls": "outputs/companion-checks.stdout",
+    "release_scope": "one new internal additive fragment, required fields/docs/evidence paths and existing structured validator; not global gate"
+  },
+  "retained_marker_controls": [
+    {
+      "name": "full-family-removed",
+      "check": "expected FAIL",
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skips": 0,
+      "record": "outputs/full-family-removed.record.json",
+      "output": "outputs/full-family-removed.stdout.gz",
+      "junit": "outputs/full-family-removed.xml.gz"
+    },
+    {
+      "name": "profile-contradiction-removed",
+      "check": "expected FAIL",
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skips": 0,
+      "record": "outputs/profile-contradiction-removed.record.json",
+      "output": "outputs/profile-contradiction-removed.stdout.gz",
+      "junit": "outputs/profile-contradiction-removed.xml.gz"
+    },
+    {
+      "name": "removed-family-fresh-child-proof-consumer",
+      "check": "expected FAIL",
+      "producer_pid": 1032271,
+      "child_pid": 1032285,
+      "actual": "persisted identified/common_functional while full-coverage/profile/orientation_count markers remain and original CPDAG stays readable",
+      "independent_expected": "conditional: the full family has17/25,1/2,1/2",
+      "output": "outputs/removal-fresh-reader.stdout",
+      "script": "outputs/removal-fresh-reader.py",
+      "returncode": 1
+    }
+  ],
+  "quality": {
+    "ruff": {
+      "check": "FAIL",
+      "diagnostics": 355,
+      "denominator_files": 4,
+      "diagnostic_paths": {
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py": 355
+      },
+      "full_output": "outputs/final-ruff.stdout.gz",
+      "earlier_development_diagnostics": 357,
+      "earlier_full_output": "outputs/ruff-initial.txt.gz",
+      "P41": "not_established; changed maintained identification.py overlaps diagnostic denominator; no inherited-red claim"
+    },
+    "format": {
+      "check": "PASS",
+      "files": 3,
+      "output": "outputs/final-format.stdout"
+    },
+    "production_invocation": {
+      "check": "ERROR/incomplete",
+      "child_returncode": -9,
+      "wrapper_returncode": 137,
+      "complete_product_verdict": false,
+      "wall_s": 111.5117347240448,
+      "peak_rss_kib": 3827020,
+      "receipt_produced": false,
+      "command": "outputs/production-invocation.record.json",
+      "full_stdout": "outputs/production-invocation.stdout",
+      "full_stderr": "outputs/production-invocation.stderr",
+      "configured_denominator": "outputs/scanner-input-summary.json",
+      "full_input_roster": "outputs/scanner-input-denominator.json.gz",
+      "retry": "not_run; affected behavioral consumers not blocked by unavailable scanner verdict"
+    },
+    "public_surface": "unchanged export/IR schemas; global inherited public-surface red not remeasured",
+    "P41": "not_established"
+  },
+  "attempt_custody": {
+    "baseline": "outputs/baseline.txt",
+    "development": [
+      "outputs/iteration-1.txt.gz",
+      "outputs/iteration-2.txt",
+      "outputs/iteration-3.txt"
+    ],
+    "development_identity": "uncommitted preparation, never promoted to exact candidate verdict; iteration1 includes14PASS/2FAIL that motivated existing g-formula reuse",
+    "final_harness_missing_time": "outputs/final-harness-setup-error.json",
+    "removal_harness_missing_registry": "outputs/removal-harness-setup-error.json",
+    "companion_harness_public_negative_type": "outputs/companion-harness-expectation-error.json",
+    "setup_errors": "not product FAIL; exact runtime selectors began only after corrected harness inputs",
+    "all_final_complete_stdout_stderr": "outputs/manifest.json"
+  },
+  "rows": [
+    {
+      "finding_id": "B214",
+      "bundle": "GRF-03",
+      "original_unit": "F",
+      "check": "PASS",
+      "technical_result": "bounded query-specific partial-result property implemented and reviewed",
+      "F_recommendation": "code_ready within declared profile; broad finding remains limited",
+      "code_ready": true,
+      "code_acceptance_G": "not_adjudicated",
+      "formal_finding_closure_G": "not_adjudicated",
+      "actual_consumer": "CausalEngine audit/proofCAS/fresh typed reader/distinct child",
+      "deciding_output": "outputs/final-pytest.stdout; outputs/independent-review/candidate-review-output.json",
+      "limitation": "bounded mathematical completion result; no universal PAG/CPDAG ID or scientific/current context authority",
+      "next_owner": "A/C/F named graph/query/authority contract and C10 protected consumer, with differing-completion query; G composition/readback after freeze"
+    },
+    {
+      "finding_id": "B56",
+      "bundle": "FIT-01",
+      "original_unit": "F",
+      "check": "UNRUN",
+      "technical_result": "unchanged serial folds and synthetic four-study route carry only unchanged F852/G source witnesses",
+      "F_recommendation": "limited; actual admitted shared-study roster/cap unavailable",
+      "code_ready": "dependency_packet_only",
+      "code_acceptance_G": "not_adjudicated",
+      "formal_finding_closure_G": "not_adjudicated",
+      "actual_consumer": "existing LocalWorkerPool→RunCausalEvaluationNode→MethodJob→native TMLE→CAS",
+      "deciding_output": "B56-runtime-workload-packet.json; no actual workload measurement",
+      "limitation": "no actual complete workload/slot roster or canonical shared admission profile",
+      "next_owner": "C01 publishes exact existing admission/cap; L01 supplies actual local roster; G local all-results/wait/active/wall/RSS measurement"
+    }
+  ],
+  "scoped_supplier_requirements": "scoped-supplier-requirements.json; exact B19/B20/B33 original A and LA-036 original C bindings with smallest existing capability choices, paths, triggers and falsifiers; composed positives UNRUN until selected contracts",
+  "unchanged_carry": {
+    "F852_source": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+    "scope": "Existing static reconciliation consistency guard/PAG requested-reconciliation limitation, reverse-arrow/unresolved-cycle regression, TMLE serial-fit numerical/cache/EIF profiles",
+    "no_rerun": "no full35, full91, old catalog/graph wave or unchanged TMLE fits",
+    "qualification": "unchanged owned inputs and receipts only; this leaf is not G assembled/installed replay",
+    "portable_broad_replay": "C13 after G freeze/all reviews"
+  },
+  "existing_native_ID_shortcut": {
+    "source": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "module_blob": "29adb99b728ab4035619f159d717df03e3077605",
+    "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+    "witness": "outputs/independent-review/native-id-preparation.json",
+    "status": "observed off-slice behavior; CPDAG adapter avoids it through existing exact g-formula",
+    "remaining_issue": "ancestral recursion for isolated X erases original treatment/query and can return P(Y|Z) instead of summing to P(Y)",
+    "owner": "canonical F/native ID owner via G exact follow-up lease",
+    "trigger": "supported ordinary native ID query with treatment outside ancestors of outcome and nontrivial observed outcome ancestor",
+    "next_result": "source-bound independent marginalization/query-identity discriminator and forward correction under its own lease; no universal native-ID claim from this leaf"
+  },
+  "patterns": [
+    "P01",
+    "P02",
+    "P05",
+    "P10",
+    "P14",
+    "P27",
+    "P29",
+    "P32",
+    "P35",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ],
+  "P40": "bounded finite endpoint/query profile and explicit falsifier; not sampled completeness or another projection ladder",
+  "scientific_authority": "not established; no point estimate, compiler marker, package or proof-status self-attestation grants protected admission",
+  "backend_limits": "native declared DAG g-formula and exact finite synthetic laws; no DoWhy/EconML optional Python3.14 execution or production load claimed",
+  "cleanup": {
+    "action": "none",
+    "preserve": "source/docs, active lane/environment, unique CAS deciding artifacts and all outputs",
+    "candidates_after_Git_publication_and_inactive_check": [
+      "/dev/shm/e02-orch03-20261008/c08-scratch/full-family-removed/policy-engine",
+      "/dev/shm/e02-orch03-20261008/c08-scratch/profile-contradiction-removed/policy-engine",
+      "/dev/shm/e02-orch03-20261008/c08-scratch/pytest-temp",
+      "/dev/shm/e02-orch03-20261008/c08-scratch/full-family-removed-pytest-temp",
+      "/dev/shm/e02-orch03-20261008/c08-scratch/profile-contradiction-removed-pytest-temp"
+    ],
+    "native_Trash": "unavailable; no deletion"
+  },
+  "G_acceptance": "not_adjudicated",
+  "global_35_ledger": "unchanged except this scoped new evidence; no new count or formal closure claim",
+  "output_manifest": "outputs/manifest.json"
+}

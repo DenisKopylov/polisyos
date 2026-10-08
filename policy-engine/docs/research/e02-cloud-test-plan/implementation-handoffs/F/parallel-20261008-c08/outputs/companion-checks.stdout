@@ -1,0 +1,86 @@
+{
+  "source": "2dd8339c210caf973586f7ddec69b6b0a48f1df7",
+  "tree": "72c482aa7d731f1adfaf703dcd6708fcccff40cd",
+  "import": "/dev/shm/e02-orch03-20261008/c08/policy-engine/src/polisyos/foundry/methods/catalog/causal/_partial_graph_queries.py",
+  "release_fragment": {
+    "id": "2026-10-08-c08-partial-graph-query",
+    "title": "Preserve finite CPDAG query completion limits",
+    "type": "added",
+    "component": "foundry",
+    "owner": "team-foundry",
+    "summary": "Evaluate every consistent extension in a declared finite static CPDAG query profile and persist common or conditional results through existing proof artifacts.",
+    "change_class": "internal",
+    "surface_classification": "internal: bounded CausalEngine partial-graph query routing",
+    "compatibility": "Existing static DAG/ADMG identification and reconciliation remain unchanged. CPDAG query routing supports at most four observed nodes with fixed arrows/tail-tail edges and one ordinary unconditional treatment/outcome. Existing pag_ambiguous means conditional or unsupported completion result; it does not add PAG identification support.",
+    "migration": "Consume persisted partial_graph_query limitation and completion scope; do not treat sampled agreement or a declared graph as scientific authority.",
+    "generated_client_compatibility": "not_required",
+    "migration_docs": [
+      "src/polisyos/foundry/methods/catalog/causal/README.md"
+    ],
+    "runbook_docs": [
+      "src/polisyos/foundry/methods/catalog/causal/README.md"
+    ],
+    "evidence": [
+      "tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py",
+      "tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py"
+    ],
+    "__path__": "release-fragments/unreleased/2026-10-08-c08-partial-graph-query.toml"
+  },
+  "release_policy_errors": [],
+  "release_policy_findings": [
+    {
+      "check": "fragment-compatibility",
+      "severity": "warning",
+      "subject": "release-fragments",
+      "message": "no structured compatibility changes found in selected fragments",
+      "detail": ""
+    }
+  ],
+  "referenced_paths": [
+    "tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py",
+    "tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py",
+    "src/polisyos/foundry/methods/catalog/causal/README.md",
+    "src/polisyos/foundry/methods/catalog/causal/README.md"
+  ],
+  "existing_static_profiles": [
+    {
+      "graph_type": "dag",
+      "edge_marks": [
+        [
+          "tail",
+          "arrow"
+        ]
+      ],
+      "status": "identified",
+      "existing_branch_preserved": true
+    },
+    {
+      "graph_type": "admg",
+      "edge_marks": [
+        [
+          "tail",
+          "arrow"
+        ]
+      ],
+      "status": "identified",
+      "existing_branch_preserved": true
+    },
+    {
+      "graph_type": "admg",
+      "edge_marks": [
+        [
+          "tail",
+          "arrow"
+        ],
+        [
+          "arrow",
+          "arrow"
+        ]
+      ],
+      "status": "typed_negative_certificate:hedge_structure",
+      "existing_branch_preserved": true
+    }
+  ],
+  "status": "PASS",
+  "scope": "one new internal additive fragment and three affected engine branch controls; not global release gate or installed composition"
+}

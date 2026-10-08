@@ -1,0 +1,18 @@
+{
+  "name": "production-invocation",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "polisyos.runtime.quality.production_invocation",
+    "--base",
+    "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "--receipt",
+    "/dev/shm/e02-orch03-20261008/c08-scratch/production-invocation.json"
+  ],
+  "cwd": "/dev/shm/e02-orch03-20261008/c08/policy-engine",
+  "returncode": 137,
+  "wall_s": 111.54739475250244,
+  "stdout": "production-invocation.stdout",
+  "stderr": "production-invocation.stderr",
+  "time": "production-invocation.time"
+}

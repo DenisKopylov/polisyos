@@ -1,0 +1,16 @@
+{
+  "configured_scope": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+  "suffix_exclusion": "non-.py paths only",
+  "deferrals": null,
+  "base": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "current": "2dd8339c210caf973586f7ddec69b6b0a48f1df7",
+  "current_files": 5962,
+  "base_files": 5959,
+  "source_files": 2701,
+  "current_sha256": "ffa1d31005ade4d6b3318f54bd8947c77197d1c70c91afeae5e4889564ca6643",
+  "base_sha256": "53eefde481d65747a446d8f05f71ce81aec168a0e7fe841665d860f90c76cc8e",
+  "measurement": "input byte census only; scanner semantic result incomplete after signal9",
+  "full_roster": "scanner-input-denominator.json.gz",
+  "uncompressed_sha256": "1dff0ffa460c10c772251d59a58a213f6974afb10fa9ef21014e956ba1e90a86",
+  "uncompressed_bytes": 2166811
+}

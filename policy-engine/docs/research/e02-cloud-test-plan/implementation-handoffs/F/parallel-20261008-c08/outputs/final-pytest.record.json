@@ -1,0 +1,24 @@
+{
+  "name": "final-pytest",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--basetemp",
+    "/dev/shm/e02-orch03-20261008/c08-scratch/pytest-temp",
+    "--junitxml",
+    "/dev/shm/e02-orch03-20261008/c08-scratch/final-pytest.xml",
+    "-v",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py"
+  ],
+  "cwd": "/dev/shm/e02-orch03-20261008/c08",
+  "returncode": 0,
+  "wall_s": 12.128964900970459,
+  "stdout": "final-pytest.stdout",
+  "stderr": "final-pytest.stderr",
+  "time": "final-pytest.time"
+}

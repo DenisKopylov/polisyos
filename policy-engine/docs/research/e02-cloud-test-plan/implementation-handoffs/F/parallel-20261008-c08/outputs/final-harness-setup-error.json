@@ -1,0 +1,1 @@
+{"status":"ERROR/setup","attempt":1,"missing_executable":"/usr/bin/time","affected_commands_started":false,"product_verdict":null,"correction":"Python child wrapper records resource.RUSAGE_CHILDREN per isolated subprocess; commands unchanged"}

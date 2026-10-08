@@ -1,0 +1,33 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/dev/shm/e02-orch03-20261008/c08/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /dev/shm/e02-orch03-20261008/c08/policy-engine
+configfile: pytest.ini
+plugins: langsmith-0.6.0, jaxtyping-0.3.4, xdist-3.8.0, anyio-4.12.0, asyncio-1.3.0, benchmark-5.2.3, hypothesis-6.151.2
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 18 items
+
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py::test_entire_declared_partial_profile_matches_independent_order_oracle[1] PASSED [  5%]
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py::test_entire_declared_partial_profile_matches_independent_order_oracle[2] PASSED [ 11%]
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py::test_entire_declared_partial_profile_matches_independent_order_oracle[3] PASSED [ 16%]
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py::test_entire_declared_partial_profile_matches_independent_order_oracle[4] PASSED [ 22%]
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py::test_different_completion_answers_remain_conditional_not_storage_order_dag PASSED [ 27%]
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py::test_full_family_same_functional_positive_keeps_query_and_authority_scope PASSED [ 33%]
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py::test_two_agreeing_chain_samples_do_not_hide_third_completion PASSED [ 38%]
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py::test_every_actual_completion_g_formula_matches_independent_binary_law PASSED [ 44%]
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py::test_no_effect_equal_answer_control_evaluates_all_conditional_factors PASSED [ 50%]
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py::test_unsupported_family_is_typed_limited_without_fake_coverage[graph0] PASSED [ 55%]
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py::test_unsupported_family_is_typed_limited_without_fake_coverage[graph1] PASSED [ 61%]
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py::test_unsupported_family_is_typed_limited_without_fake_coverage[graph2] PASSED [ 66%]
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py::test_unsupported_family_is_typed_limited_without_fake_coverage[graph3] PASSED [ 72%]
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py::test_unsupported_family_is_typed_limited_without_fake_coverage[graph4] PASSED [ 77%]
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py::test_conditional_transport_oracle_request_cannot_reuse_unconditional_completion_proof PASSED [ 83%]
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py::test_triangle_cycles_rejected_and_known_reverse_arrow_preserved PASSED [ 88%]
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py::test_actual_engine_audit_preserves_partial_query_in_fresh_cas_and_child PASSED [ 94%]
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py::test_common_functional_positive_is_persisted_with_bounded_complete_family PASSED [100%]
+
+- generated xml file: /dev/shm/e02-orch03-20261008/c08-scratch/final-pytest.xml -
+============================== 18 passed in 8.07s ==============================

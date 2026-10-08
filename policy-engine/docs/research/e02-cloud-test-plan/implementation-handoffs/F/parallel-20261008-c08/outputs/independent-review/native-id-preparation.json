@@ -1,0 +1,89 @@
+{
+  "G_source": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "module_blob": "29adb99b728ab4035619f159d717df03e3077605",
+  "scope": "existing native ID isolated-treatment preparation; not frozen C08candidate",
+  "rows": [
+    {
+      "arcs": [
+        [
+          "Y",
+          "Z"
+        ]
+      ],
+      "status": "identified",
+      "ast": {
+        "schema_version": "1.0",
+        "query_str": "P(Y|do([]))",
+        "root": {
+          "node_type": "dist",
+          "domain": "source",
+          "variables": [
+            "Y"
+          ],
+          "conditioning": [],
+          "intervention_set": [],
+          "dataset_ref": "fixture",
+          "side_conditions": [],
+          "event": null
+        },
+        "treatment": "[]",
+        "outcome": "Y",
+        "all_variables": [
+          "Y"
+        ],
+        "object_kind": "scalar",
+        "side_conditions": [],
+        "identification_method": "id_step1"
+      },
+      "latex": "P(Y)",
+      "trace": [
+        "[depth=0] id_algorithm(X=['X'], Y=['Y'], V=['X', 'Y', 'Z'])",
+        "[depth=0] Step 2: restricting to An(Y)=['Y']",
+        "[depth=1] id_algorithm(X=[], Y=['Y'], V=['Y'])",
+        "[depth=1] Step 1: X=\u2205 \u2192 P(['Y']|[])"
+      ]
+    },
+    {
+      "arcs": [
+        [
+          "Z",
+          "Y"
+        ]
+      ],
+      "status": "identified",
+      "ast": {
+        "schema_version": "1.0",
+        "query_str": "P(Y|do([]))",
+        "root": {
+          "node_type": "dist",
+          "domain": "source",
+          "variables": [
+            "Y"
+          ],
+          "conditioning": [
+            "Z"
+          ],
+          "intervention_set": [],
+          "dataset_ref": "fixture",
+          "side_conditions": [],
+          "event": null
+        },
+        "treatment": "[]",
+        "outcome": "Y",
+        "all_variables": [
+          "Y"
+        ],
+        "object_kind": "scalar",
+        "side_conditions": [],
+        "identification_method": "id_step1"
+      },
+      "latex": "P(Y \\mid Z)",
+      "trace": [
+        "[depth=0] id_algorithm(X=['X'], Y=['Y'], V=['X', 'Y', 'Z'])",
+        "[depth=0] Step 2: restricting to An(Y)=['Y', 'Z']",
+        "[depth=1] id_algorithm(X=[], Y=['Y'], V=['Y', 'Z'])",
+        "[depth=1] Step 1: X=\u2205 \u2192 P(['Y']|['Z'])"
+      ]
+    }
+  ]
+}

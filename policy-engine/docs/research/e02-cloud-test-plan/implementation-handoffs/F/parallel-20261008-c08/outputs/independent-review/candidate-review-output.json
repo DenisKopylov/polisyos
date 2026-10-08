@@ -1,0 +1,319 @@
+{
+  "schema": "e02.c08.independent_candidate_review.v1",
+  "reviewer": "/root/oracle_graph",
+  "author": "/root/c08",
+  "candidate_sha": "2dd8339c210caf973586f7ddec69b6b0a48f1df7",
+  "candidate_tree": "72c482aa7d731f1adfaf703dcd6708fcccff40cd",
+  "slice_base": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "footprint": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/B56-runtime-workload-packet.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/scoped-supplier-requirements.json",
+    "policy-engine/release-fragments/unreleased/2026-10-08-c08-partial-graph-query.toml",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/_partial_graph_queries.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py"
+  ],
+  "structural_oracle": {
+    "source": "completion_oracle.py",
+    "denominator": 4165,
+    "families": [
+      {
+        "nodes": 1,
+        "profiles": 1,
+        "family_size_histogram": {
+          "1": 1
+        },
+        "empty_family_refusals": 0
+      },
+      {
+        "nodes": 2,
+        "profiles": 4,
+        "family_size_histogram": {
+          "1": 3,
+          "2": 1
+        },
+        "empty_family_refusals": 0
+      },
+      {
+        "nodes": 3,
+        "profiles": 64,
+        "family_size_histogram": {
+          "0": 2,
+          "1": 37,
+          "2": 15,
+          "3": 9,
+          "6": 1
+        },
+        "empty_family_refusals": 2
+      },
+      {
+        "nodes": 4,
+        "profiles": 4096,
+        "family_size_histogram": {
+          "0": 779,
+          "1": 1695,
+          "2": 774,
+          "3": 504,
+          "4": 157,
+          "5": 60,
+          "6": 48,
+          "7": 24,
+          "8": 36,
+          "10": 6,
+          "12": 12,
+          "24": 1
+        },
+        "empty_family_refusals": 779
+      }
+    ]
+  },
+  "exact_law_queries": [
+    {
+      "name": "different_pair",
+      "status": "pag_ambiguous",
+      "admitted_completions": 2,
+      "all_completion_answers": [
+        {
+          "arcs": [
+            [
+              "X",
+              "Y"
+            ]
+          ],
+          "actual": "4/5",
+          "independent": "4/5"
+        },
+        {
+          "arcs": [
+            [
+              "Y",
+              "X"
+            ]
+          ],
+          "actual": "1/2",
+          "independent": "1/2"
+        }
+      ],
+      "common_answer": null,
+      "original_graph_preserved": true,
+      "authority_eligible": false
+    },
+    {
+      "name": "sampled_agreement_chain_falsifier",
+      "status": "pag_ambiguous",
+      "admitted_completions": 3,
+      "all_completion_answers": [
+        {
+          "arcs": [
+            [
+              "X",
+              "Y"
+            ],
+            [
+              "Y",
+              "Z"
+            ]
+          ],
+          "actual": "17/25",
+          "independent": "17/25"
+        },
+        {
+          "arcs": [
+            [
+              "Y",
+              "X"
+            ],
+            [
+              "Y",
+              "Z"
+            ]
+          ],
+          "actual": "1/2",
+          "independent": "1/2"
+        },
+        {
+          "arcs": [
+            [
+              "Y",
+              "X"
+            ],
+            [
+              "Z",
+              "Y"
+            ]
+          ],
+          "actual": "1/2",
+          "independent": "1/2"
+        }
+      ],
+      "common_answer": null,
+      "original_graph_preserved": true,
+      "authority_eligible": false
+    },
+    {
+      "name": "no_effect_family_unequal_marginals",
+      "status": "identified",
+      "admitted_completions": 2,
+      "all_completion_answers": [
+        {
+          "arcs": [
+            [
+              "Y",
+              "Z"
+            ]
+          ],
+          "actual": "7/10",
+          "independent": "7/10"
+        },
+        {
+          "arcs": [
+            [
+              "Z",
+              "Y"
+            ]
+          ],
+          "actual": "7/10",
+          "independent": "7/10"
+        }
+      ],
+      "common_answer": "7/10",
+      "original_graph_preserved": true,
+      "authority_eligible": false
+    },
+    {
+      "name": "fixed_reverse_nonzero_effect",
+      "status": "identified",
+      "admitted_completions": 1,
+      "all_completion_answers": [
+        {
+          "arcs": [
+            [
+              "X",
+              "Y"
+            ]
+          ],
+          "actual": "4/5",
+          "independent": "4/5"
+        }
+      ],
+      "common_answer": "4/5",
+      "original_graph_preserved": true,
+      "authority_eligible": false
+    }
+  ],
+  "unsupported_controls": [
+    {
+      "case": "oversized_nodes",
+      "status": "pag_ambiguous",
+      "limitation": "requires static CPDAG with at most four observed nodes"
+    },
+    {
+      "case": "positive_lag",
+      "status": "pag_ambiguous",
+      "limitation": "temporal edges are outside the static completion profile"
+    },
+    {
+      "case": "bidirected",
+      "status": "pag_ambiguous",
+      "limitation": "requires fixed arrows or tail-tail CPDAG endpoints"
+    },
+    {
+      "case": "MGraph_typed_contradiction",
+      "status": "pag_ambiguous",
+      "limitation": "CPDAG declaration contradicts supplied MGraph contract"
+    },
+    {
+      "case": "parallel",
+      "status": "pag_ambiguous",
+      "limitation": "parallel edges are outside the causally sufficient CPDAG profile"
+    },
+    {
+      "case": "known_directed_cycle",
+      "status": "pag_ambiguous",
+      "limitation": "no acyclic extension preserves fixed arrows and unshielded colliders"
+    },
+    {
+      "case": "circle_model_copy",
+      "status": "pag_ambiguous",
+      "limitation": "requires fixed arrows or tail-tail CPDAG endpoints"
+    },
+    {
+      "case": "foreign_outcome",
+      "status": "pag_ambiguous",
+      "limitation": "requires one disjoint treatment/outcome and ordinary unconditional do"
+    },
+    {
+      "case": "same_treatment_outcome",
+      "status": "pag_ambiguous",
+      "limitation": "requires one disjoint treatment/outcome and ordinary unconditional do"
+    },
+    {
+      "case": "empty_treatment",
+      "status": "pag_ambiguous",
+      "limitation": "requires one disjoint treatment/outcome and ordinary unconditional do"
+    },
+    {
+      "case": "conditional_query",
+      "status": "pag_ambiguous",
+      "limitation": "requires one disjoint treatment/outcome and ordinary unconditional do"
+    },
+    {
+      "case": "oracle_request",
+      "status": "pag_ambiguous",
+      "limitation": "requires one disjoint treatment/outcome and ordinary unconditional do"
+    },
+    {
+      "case": "transport_request",
+      "status": "pag_ambiguous",
+      "limitation": "requires one disjoint treatment/outcome and ordinary unconditional do"
+    }
+  ],
+  "consumer": {
+    "path": "CausalEngine.identify\u2192audit\u2192proofCAS\u2192fresh typedreader\u2192distinct child",
+    "producer_pid": 1030092,
+    "child": {
+      "pid": 1030129,
+      "rows": [
+        {
+          "case": "conditional",
+          "profile": "cpdag",
+          "status": "oracle_needed",
+          "completions": 2,
+          "authority_eligible": false
+        },
+        {
+          "case": "common",
+          "profile": "cpdag",
+          "status": "identified",
+          "completions": 2,
+          "authority_eligible": false
+        }
+      ]
+    },
+    "stderr": ""
+  },
+  "existing_ID_shortcut": "not used by CPDAG branch; old limitation unchanged",
+  "removal_proposal": {
+    "property": "complete family not sample",
+    "retain": [
+      "profile name",
+      "coverage field",
+      "orientation_assignments_checked",
+      "authority_eligible=False"
+    ],
+    "remove": "return only chain reverse/fork two completions from runtime _consistent_extensions while originalorientationcount4 remains",
+    "expected": "same no-effect answers falselyemitIDENTIFIED; independentfullfamily3/conditionalassertionsFAIL"
+  },
+  "wall_s": 3.2619892680086195,
+  "peak_rss_kib": 559996,
+  "status": "GO",
+  "scope": "declared bounded mathematical profile and candidate-grade proof persistence only",
+  "limitations": [
+    "not universal CPDAG/PAG identification completeness",
+    "no graph/source/assumption scientific authority",
+    "B56 actual canonical shared workload unavailable; C01/L01 packet required",
+    "broad Ruff357F821 and P41not_established carried separately; not run here"
+  ]
+}

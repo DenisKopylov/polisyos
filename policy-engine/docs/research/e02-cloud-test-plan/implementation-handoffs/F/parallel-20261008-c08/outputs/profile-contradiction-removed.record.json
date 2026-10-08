@@ -1,0 +1,38 @@
+{
+  "name": "profile-contradiction-removed",
+  "source": "2dd8339c210caf973586f7ddec69b6b0a48f1df7",
+  "export": "/dev/shm/e02-orch03-20261008/c08-scratch/profile-contradiction-removed",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--basetemp",
+    "/dev/shm/e02-orch03-20261008/c08-scratch/profile-contradiction-removed-pytest-temp",
+    "--junitxml",
+    "/dev/shm/e02-orch03-20261008/c08-scratch/profile-contradiction-removed.xml",
+    "-v",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py::test_unsupported_family_is_typed_limited_without_fake_coverage[graph3]"
+  ],
+  "cwd": "/dev/shm/e02-orch03-20261008/c08-scratch/profile-contradiction-removed",
+  "pythonpath": "/dev/shm/e02-orch03-20261008/c08-scratch/profile-contradiction-removed/policy-engine/src",
+  "removed_runtime_property": "if \"mgraph\" in graph.metadata:",
+  "replacement": "if False and \"mgraph\" in graph.metadata:",
+  "retained_markers": [
+    "_PROFILE",
+    "exhaustive_for_declared_profile",
+    "orientation_assignments_checked",
+    "authority_eligible"
+  ],
+  "original_sha256": "daf44c03c5969c9fe676609d3142b2220b53aaf21e29f991e6428fdd297f122a",
+  "mutated_sha256": "9c811e4cf789b74bd04f11f07d06c2ba94d3d657af66f9c71032721d7e809b65",
+  "returncode": 1,
+  "expected": "FAIL at behavioral assertions, never collection/setup error",
+  "wall_s": 8.638226985931396,
+  "stdout": "profile-contradiction-removed.stdout",
+  "stderr": "profile-contradiction-removed.stderr",
+  "junit": "profile-contradiction-removed.xml",
+  "source_guard": "profile-contradiction-removed.source-guard.json"
+}

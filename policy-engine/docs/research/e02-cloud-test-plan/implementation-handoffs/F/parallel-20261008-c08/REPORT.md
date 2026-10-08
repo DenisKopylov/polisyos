@@ -1,0 +1,20 @@
+# C08 scoped continuation — 2026-10-08
+
+Original unit F; own topic `codex/e02-F-c08-20261008`. G dependency/base `f00dd7661a8d3329fb1fa1b049decb0d1d2f277b`; frozen source `2dd8339c210caf973586f7ddec69b6b0a48f1df7`, tree `72c482aa7d731f1adfaf703dcd6708fcccff40cd`. The implementation follows the earlier B56 packet commit `3a7355e684f2916f22bafe58afe8ec0ffbdb9e34`. This receipt does not name its own future commit.
+
+The bounded static CPDAG query route enumerates every consistent DAG completion for at most four observed nodes, uses the maintained DAG g-formula, and persists either a common functional or an explicit conditional limitation through existing proof artifacts. It preserves the original graph and query. This is mathematical evidence under declared assumptions; it grants no scientific or institutional authority. PAG/latent/lagged/large/conditional/transport/oracle profiles remain typed unsupported.
+
+Independent review GO covered all eight slice paths, 4,165 structural profiles (781 empty families), eight actual completion AST answers across four exact finite-law queries, thirteen refusal boundaries, and a distinct-process proof reader. The final exact-source defining/consumer run has **18 PASS, zero unexpected FAIL/ERROR/SKIP**. Two completeness-removal cases and one contradiction-removal case fail at behavioral assertions while markers remain; an additional persisted mutant proof fails the independent conditional assertion in a separate child. These expected control failures are separate from ordinary tests.
+
+| Original ID | Check | Technical scope / F recommendation | Remaining result |
+| --- | --- | --- | --- |
+| B214 / GRF-03 | PASS | Code ready for the declared finite partial-query profile; broad finding remains limited | A/C/F authority projection and query contract; protected C10 consumer and G composition |
+| B56 / FIT-01 | UNRUN actual roster | Published exact C01/L01 dependency packet; unchanged serial-fold proofs preserved | Canonical shared cap and complete admitted studies/jobs/slots, then local G all-results/wait/active/wall/RSS readback |
+
+B19/B20/B33 (original A) and LA-036 (original C) receive concrete existing-capability/source/trigger packets in `scoped-supplier-requirements.json`; their composed positives are UNRUN until the named upstream contracts arrive. No shared Runtime/IR/BERL mechanism was duplicated.
+
+Current four-file Ruff remains **FAIL355** on the maintained dynamic identification module; new files have no Ruff diagnostics and all three are formatted. P41 is **not_established**, because that changed file overlaps the diagnostic denominator. The required full invocation scanner was externally killed by signal9 after111.51s with peakRSS3,827,020KiB, no receipt and no complete product verdict: **ERROR/incomplete**, retry not run. Its complete input roster is preserved (5,962 current / 5,959 base Python files); byte census is not semantic scanner PASS. Historical global public-surface/Ruff/scanner red is not erased.
+
+The independent preparation also found an off-slice native-ID ancestral shortcut that can erase the query and emit P(Y|Z) for an isolated treatment instead of marginal P(Y). The new CPDAG path avoids it using the existing exact g-formula. `partial-query-handoff.json` names the exact unchanged module blob, discriminator and next owner/lease; this slice does not claim general native-ID correctness.
+
+All deciding logs, JUnit, exact environment/module origins, source bindings, independent oracle/review scripts, actual CAS blobs/manifests, controlled failures and harness attempts are in `outputs/`, with a lossless custody manifest. Full source/test/doc/release footprint and Git diff identity are in `partial-query-handoff.json`. No unchanged full35/full91/catalog/TMLE wave was repeated. C13 owns broad replay after G freeze. G source acceptance and formal finding closures remain not adjudicated. Cleanup performed none; exact retired candidates are listed separately from valuable outputs and active environments.

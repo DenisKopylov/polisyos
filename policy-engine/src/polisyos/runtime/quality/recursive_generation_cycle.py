@@ -645,7 +645,7 @@ class RecursiveGenerationCycleRun(_StrictModel):
             elif node.joint_simulation is not None:
                 expected_terminal = _blocked_parent_terminal("unsupported_coupling_gated")
             else:
-                expected_terminal = node.terminal
+                expected_terminal = _fold_uncomposed_parent_terminal(node.terminal)
             if node.terminal != expected_terminal:
                 raise ValueError("recursive_run_parent_terminal_not_owner_derived")
         payload = gy_artifact_self_identity_projection(self)
@@ -800,7 +800,7 @@ class RecursiveGenerationCyclePartialRunV2(_StrictModel):
             elif node.joint_simulation is not None:
                 expected_terminal = _blocked_parent_terminal("unsupported_coupling_gated")
             else:
-                expected_terminal = _fold_uncomposed_partial_parent_terminal(node.terminal)
+                expected_terminal = _fold_uncomposed_parent_terminal(node.terminal)
             if node.terminal != expected_terminal:
                 raise ValueError("recursive_run_parent_terminal_not_owner_derived")
 
@@ -1126,7 +1126,7 @@ def _blocked_parent_terminal(reason: str) -> SearchTerminalState:
     )
 
 
-_PARTIAL_UNCOMPOSED_PARENT_DIAGNOSTIC_CODES = frozenset(
+_UNCOMPOSED_PARENT_DIAGNOSTIC_CODES = frozenset(
     {
         "observed_coupling_evidence_missing",
         "subdesign_contract_denominator_missing",
@@ -1141,13 +1141,13 @@ _PARTIAL_UNCOMPOSED_PARENT_DIAGNOSTIC_CODES = frozenset(
 )
 
 
-def _fold_uncomposed_partial_parent_terminal(
+def _fold_uncomposed_parent_terminal(
     terminal: SearchTerminalState,
 ) -> SearchTerminalState:
     """Admit only conservative blocked shape for bounded uncomposed parents.
 
     The blocker codes are router diagnostics, not recomputed facts about the
-    source coupling graph or subdesign contracts. V2 does not persist enough
+    source coupling graph or subdesign contracts. Full and partial artifacts lack enough
     owner evidence to re-establish those predicates, so this helper preserves
     only a blocked terminal with no acquisition, budget, or positive authority
     fields; all other terminal shapes are refused.
@@ -1156,12 +1156,12 @@ def _fold_uncomposed_partial_parent_terminal(
     if (
         terminal.kind is not SearchTerminalKind.RECURSIVE_BLOCKED
         or len(terminal.blocking_obligations) != 1
-        or terminal.blocking_obligations[0] not in _PARTIAL_UNCOMPOSED_PARENT_DIAGNOSTIC_CODES
+        or terminal.blocking_obligations[0] not in _UNCOMPOSED_PARENT_DIAGNOSTIC_CODES
     ):
-        raise ValueError("recursive_partial_parent_not_conservatively_blocked")
+        raise ValueError("recursive_parent_not_conservatively_blocked")
     expected = _blocked_parent_terminal(terminal.blocking_obligations[0])
     if terminal != expected:
-        raise ValueError("recursive_partial_parent_terminal_not_owner_derived")
+        raise ValueError("recursive_parent_terminal_not_owner_derived")
     return expected
 
 

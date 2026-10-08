@@ -617,14 +617,14 @@ async def test_partial_v2_rejects_self_asserted_internal_parent_terminal() -> No
     for forged_terminal, expected_error in (
         (
             routed_leaves[0].terminal.model_dump(mode="json"),
-            "recursive_partial_parent_not_conservatively_blocked",
+            "recursive_parent_not_conservatively_blocked",
         ),
         (
             {
                 **internal_parent.terminal.model_dump(mode="json"),
                 "budget_kind": "recursive",
             },
-            "recursive_partial_parent_terminal_not_owner_derived",
+            "recursive_parent_terminal_not_owner_derived",
         ),
     ):
         forged = checkpoint.model_dump(mode="json")
@@ -636,3 +636,53 @@ async def test_partial_v2_rejects_self_asserted_internal_parent_terminal() -> No
         forged["content_hash"] = gy_content_hash(forged_payload)
         with pytest.raises(ValidationError, match=expected_error):
             RecursiveGenerationCyclePartialRunV2.model_validate(forged)
+
+
+@pytest.mark.asyncio
+async def test_complete_uncomposed_parent_refuses_rehashed_positive_or_budget_terminal() -> None:
+    """Original independent b6c3201 falsifier, applied to complete history.
+
+    A content hash is integrity evidence; it cannot establish N5/composition
+    authority absent from the artifact. Both complete and partial histories
+    share the same conservative no-evidence parent invariant.
+    """
+    run, *_ = await _run_recursive_fixture(
+        budget_state=BudgetState(limits={
+            "run": BudgetLimit(key="run", max_usd=Decimal("5")),
+        }),
+    )
+    assert type(run) is RecursiveGenerationCycleRun
+    ordinary = run.model_dump(mode="json")
+    root = next(row for row in ordinary["nodes"] if row["node_ref"] == run.root_node_ref)
+    assert root["child_refs"]
+    assert root["joint_simulation"] is None
+    assert root["composition_certificate"] is None
+    assert root["terminal"]["kind"] == SearchTerminalKind.RECURSIVE_BLOCKED.value
+    assert RecursiveGenerationCycleRun.model_validate(ordinary).model_dump(mode="json") == ordinary
+    for forged, expected_error in (
+        (
+            {
+                **root["terminal"],
+                "kind": SearchTerminalKind.GROUNDED_ADMISSIBLE.value,
+                "reason": "Source-independent forged root outcome",
+                "blocking_obligations": [],
+                "budget_kind": None,
+                "costed_plan": None,
+                "data_need_spec": None,
+            },
+            "recursive_parent_not_conservatively_blocked",
+        ),
+        (
+            {**root["terminal"], "budget_kind": "recursive"},
+            "recursive_parent_terminal_not_owner_derived",
+        ),
+    ):
+        payload = run.model_dump(mode="json")
+        node = next(row for row in payload["nodes"] if row["node_ref"] == run.root_node_ref)
+        node["terminal"] = forged
+        payload["terminal"] = forged
+        payload["content_hash"] = gy_content_hash({
+            key: value for key, value in payload.items() if key != "content_hash"
+        })
+        with pytest.raises(ValidationError, match=expected_error):
+            RecursiveGenerationCycleRun.model_validate(payload)

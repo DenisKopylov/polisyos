@@ -1,0 +1,106 @@
+{
+  "schema": "policyos.e02.passive_qualification_handoff.v1",
+  "unit": "F",
+  "execution_role": "C08",
+  "canonical_writer": "/root/c08",
+  "branch": "codex/e02-F-c08-20261008",
+  "delivery_PR": "https://github.com/DenisKopylov/polisyos/pull/65",
+  "finding_ids": [
+    "B56"
+  ],
+  "bundle_ids": [
+    "FIT-01"
+  ],
+  "original_owner": "F",
+  "qualification_base_sha": "a38d6e79eb08a516ccabd298984d9cb7a660030a",
+  "qualification_base_tree": "165301edd360b6d7ffcaf66f41c471f88f3d1694",
+  "qualification_commit": "6c384b441262041dedcd508adaccfbfd96e2fef8",
+  "qualification_tree": "467fa9a602194c6ccc46e77b824a3678052f5417",
+  "product_source_sha": "2dd8339c210caf973586f7ddec69b6b0a48f1df7",
+  "product_source_tree": "72c482aa7d731f1adfaf703dcd6708fcccff40cd",
+  "G_dependency_review": {
+    "sha": "71ec2e0758cd7cd93423d3a91afe1a07cef61401",
+    "tree": "cede297dae4ab3a5a8b46dfeaaeb606ce6e8217e",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/reviews/C08-packet.md",
+    "blob": "aad99bbdff4ce65e524ae35f83f1359a8b48a826",
+    "sha256": "180c2cd67ba50f37d7ea90e1942dac9742ea940b057f7eb8de128687a8342c18",
+    "scope": "dependency/navigation static input only; code acceptance and formal closure not issued"
+  },
+  "original_criterion": {
+    "binding": "closure-decisions/coverage.json#B56",
+    "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "lines": [
+      1409,
+      1424
+    ],
+    "bound_bytes_sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b",
+    "full_original_binding_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/partial-query-handoff.json@6c384b441262041dedcd508adaccfbfd96e2fef8"
+  },
+  "footprint": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/B56-runtime-workload-packet.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/partial-query-handoff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/REPORT.md"
+  ],
+  "correction": "Explicitly configured synthetic/non-secret competing workload is permitted by original B56. Complete measured-run jobs/folds/repeats/seeds/splits and CAS/provenance denominator must stay identical across two admitted profile settings. Production roster is not mandatory; L01 is conditional on a selected protected-input profile.",
+  "producer_artifact_bridge_consumer_surface": {
+    "available_native_fixture": "Test constructs LocalWorkerPool and four custom StudyNodes, executes24 native folds, waits and reopens CAS; it does not traverse configured RunCausalEvaluationNode/MethodJob or bind their common Runtime admission owner.",
+    "separate_existing_causal_route": "RunCausalEvaluationNode executes MethodJob/native TMLE and persists method/report artifacts; serial folds remain maintained.",
+    "missing_bridge": "C01 must bind the actual selected shared owner/API/cap and causal MethodJob bridge to every configured competing roster item. The cited components are a possible source composition; actual common admission is not established.",
+    "remaining_measurement": "Once that bridge is supplied, C08/G measures one complete configured portable workload under two settings, cap/active/wait/queue/wall/RSS, all results/folds/seeds/provenance and fresh CAS readback. Protected replay only if selected workload requires it."
+  },
+  "capability_state": "bridge_missing/implemented_but_not_orchestrated; verification_missing",
+  "predicate_basis": "not_established",
+  "Runtime_workload_check": "UNRUN",
+  "F_recommendation": "limited; configured shared Runtime bridge and measurement remain missing",
+  "source_acceptance_G": "not_adjudicated",
+  "formal_finding_closure_G": "not_adjudicated",
+  "unchanged_evidence": {
+    "source": "2dd8339c210caf973586f7ddec69b6b0a48f1df7",
+    "receipt": "a38d6e79eb08a516ccabd298984d9cb7a660030a",
+    "outputs_tree": "ccf3aced8f001274f72c07d82ca974a71c5197a2",
+    "qualification": "No product source/test/release/output delta and no runtime tests repeated. Existing18PASS/4165-profile review and markers-retaining controls remain only their exact source-bound CPDAG evidence; native TMLE/cache receipts are not promoted to composed B56 acceptance.",
+    "historical_caption_supersession": "partial-query-handoff.json#B56_P36_supersession preserves frozen source footprint and old outputs byte-for-byte; corrected dependency text supersedes their unconditional L01/actual-route wording."
+  },
+  "independent_metadata_review": {
+    "state": "GO exact three-document P36 delta only",
+    "reviewer": "/root/oracle_ir",
+    "candidate_sha": "6c384b441262041dedcd508adaccfbfd96e2fef8",
+    "candidate_tree": "467fa9a602194c6ccc46e77b824a3678052f5417",
+    "path": "B56-profile-qualification/independent-review.json",
+    "bytes": 12049,
+    "sha256": "85e49333b66595cdaf795d954c964e8dd945ffb67b793f067065e5413201f2f7",
+    "qualification": "Non-author full original criterion/G review/diff/byte-binding and unchanged-carry review. No native/test run, Runtime admission, code acceptance or finding closure."
+  },
+  "checks": {
+    "importer": "PASS transfer-index check only, no product closure",
+    "fresh_resume": "PASS admitted exact existing branch/path, unresolved_inputs[], full JSON gzip retained",
+    "passive_json_binding_diff": "PASS authorship sanity only; all7source blobs confirmed and all3currentB56 references over4JSON/Markdown own-scope files corrected; source/reviews/checks/original bytes unchanged",
+    "runtime_tests_repeated": []
+  },
+  "quality_carry": {
+    "ruff": "unchanged source2dd FAIL355; P41not_established",
+    "scanner": "unchanged source2dd invocation ERROR/incomplete signal9; retry not run",
+    "new_PASS_scope": "metadata/custody only, no new scientific/backend/authority/Runtime PASS"
+  },
+  "admission": {
+    "requested": {
+      "branch": "codex/e02-F-c08-20261008",
+      "mode": "resume",
+      "path": "/dev/shm/e02-orch03-20261008/c08"
+    },
+    "returncode": 0,
+    "complete_json": "B56-profile-qualification/worktree-resume.json.gz",
+    "stored_bytes": 13887,
+    "stored_sha256": "73fe272744f0586f3e7b8b35b799d0027648ec748807fc93d9f1ac90b38179f6",
+    "decoded_bytes": 171103,
+    "decoded_sha256": "e8ce6347c3e15ffe0e18e4c416170916363c04fe86cce9697fd72ce672ed9b07",
+    "stderr_bytes": 0
+  },
+  "cleanup": "none",
+  "complete_outputs": {
+    "path": "B56-profile-qualification/manifest.json",
+    "scope": "Full unique deciding metadata/admission/review stdout/stderr, first static NameError attempt and exact independent checker. Tracked source/card/doc/patch copies and derived review-preparation views stay local; exact Git refs suffice and are not duplicated.",
+    "count": 10
+  }
+}

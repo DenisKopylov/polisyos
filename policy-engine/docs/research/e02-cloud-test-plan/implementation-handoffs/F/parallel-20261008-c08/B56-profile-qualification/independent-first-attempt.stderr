@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "<stdin>", line 25, in <module>
+changed topkeys ['rows', 'B56_P36_supersession', 'patterns']
+list rows 2 2
+B214unchanged rows
+NameError: name 'r' is not defined

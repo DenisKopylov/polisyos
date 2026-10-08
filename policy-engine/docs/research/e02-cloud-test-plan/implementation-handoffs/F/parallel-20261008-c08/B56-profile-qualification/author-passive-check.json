@@ -1,0 +1,30 @@
+{
+  "check": "PASS passive JSON/binding/diff qualification",
+  "base_sha": "a38d6e79eb08a516ccabd298984d9cb7a660030a",
+  "G_review_sha": "71ec2e0758cd7cd93423d3a91afe1a07cef61401",
+  "complete_doc_selector": {
+    "scope": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/",
+    "suffixes": [
+      ".json",
+      ".md"
+    ],
+    "excluded": "outputs/ immutable historical deciding artifacts",
+    "total": 4,
+    "B56_current_refs": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/B56-runtime-workload-packet.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/REPORT.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/partial-query-handoff.json"
+    ]
+  },
+  "exact_changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/B56-runtime-workload-packet.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/REPORT.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/partial-query-handoff.json"
+  ],
+  "source_blobs_confirmed": 7,
+  "original_binding_source_candidate_checks_reviews_other_rows_preserved": true,
+  "source_tests_release_outputs_unchanged": true,
+  "configured_shared_Runtime_check": "UNRUN",
+  "source_acceptance_and_closure": "not_adjudicated",
+  "suites_repeated": []
+}

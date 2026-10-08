@@ -1,0 +1,12 @@
+{
+  "source": "6c384b441262041dedcd508adaccfbfd96e2fef8",
+  "parent": "a38d6e79eb08a516ccabd298984d9cb7a660030a",
+  "diff_paths": 3,
+  "source_paths_verified": 7,
+  "changed_handoff_sections": [
+    "B56_P36_supersession",
+    "patterns",
+    "rows"
+  ],
+  "B214_row_and_all_other_handoff_fields": "UNCHANGED"
+}

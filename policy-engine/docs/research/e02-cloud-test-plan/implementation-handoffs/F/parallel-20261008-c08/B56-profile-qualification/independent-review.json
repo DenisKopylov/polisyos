@@ -1,0 +1,247 @@
+{
+  "schema": "policyos.e02.independent_passive_criteria_review.v1",
+  "reviewer": "/root/oracle_ir",
+  "canonical_writer": "/root/c08",
+  "unit": "F",
+  "finding": "B56",
+  "bundle": "FIT-01",
+  "decision": "GO_exact_three_document_P36_delta",
+  "candidate": {
+    "sha": "6c384b441262041dedcd508adaccfbfd96e2fef8",
+    "tree": "467fa9a602194c6ccc46e77b824a3678052f5417",
+    "parent": "a38d6e79eb08a516ccabd298984d9cb7a660030a"
+  },
+  "product_source_carry": {
+    "sha": "2dd8339c210caf973586f7ddec69b6b0a48f1df7",
+    "tree": "72c482aa7d731f1adfaf703dcd6708fcccff40cd",
+    "scope": "unchanged implementation/check/review/evidence/original bindings; no source/test/architecture delta in this passive commit"
+  },
+  "G_review": {
+    "sha": "71ec2e0758cd7cd93423d3a91afe1a07cef61401",
+    "refs": [
+      {
+        "source": "71ec2e0758cd7cd93423d3a91afe1a07cef61401",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/README.md",
+        "blob": "42b14d2121a32b5e05c5f377551ded589deca73a",
+        "bytes": 7203,
+        "sha256": "e2383f4053069ebede5f2c2bcda9082d059461e1de73f3a8d547982c04210664"
+      },
+      {
+        "source": "71ec2e0758cd7cd93423d3a91afe1a07cef61401",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/reviews/C08-packet.md",
+        "blob": "aad99bbdff4ce65e524ae35f83f1359a8b48a826",
+        "bytes": 5318,
+        "sha256": "180c2cd67ba50f37d7ea90e1942dac9742ea940b057f7eb8de128687a8342c18"
+      }
+    ],
+    "status": "dependency/navigation/static input only, no code or finding acceptance"
+  },
+  "original_criterion": {
+    "source": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "lines": [
+      1409,
+      1424
+    ],
+    "sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b",
+    "basis": "At one declared shared resource, admitted work stays within bounds; waiting loses no outputs; same folds/repeats execute across parallelism; numeric results and provenance agree; measure duration, peak memory, active/wait. Configured15/60 is arithmetic, not measured CPU utilization or slowdown.",
+    "workload": "One complete explicitly configured synthetic/nonsecret competing-job roster is allowed. No production roster/data universal prerequisite; protected local L01 only when selected profile needs protected payloads."
+  },
+  "full_diff": {
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/B56-runtime-workload-packet.json",
+        "blob": "c4be078d4cbe6059917264b147592a6d076c82f9",
+        "bytes": 7822,
+        "sha256": "028df7f1ebe5d0d739eb71d7c851a7d92cfdc0e1f5dbd0c176e37022cd2ffc87"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/REPORT.md",
+        "blob": "5989da13e4be74c5b05f2bdd542df36014ba6371",
+        "bytes": 5179,
+        "sha256": "5a164a000ae5b669664fa0f99b12a834a5512b3870c48fc6c2fdb3bd24f594a2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/partial-query-handoff.json",
+        "blob": "9eab60b36bc2074b6b743707da63e8dd64bcb410",
+        "bytes": 28923,
+        "sha256": "e54b7e6c1ccd8e7f2d9e392f6f72d10a8ff221ab21377528dda45f7345c01a84"
+      }
+    ],
+    "changed_json_sections": [
+      "B56_P36_supersession",
+      "patterns",
+      "rows"
+    ],
+    "scope": "B56 row, explicit B56_P36_supersession and P36 pattern only; REPORT B56 row/supersession paragraph and dependency packet qualifications",
+    "B214_row": "byte-equivalent JSON values unchanged",
+    "all_other_handoff_sections": "unchanged including source SHA/tree, full footprint/diff, original bindings, checks/review/evidence/profile/consumer metadata/limitations and unchanged carry"
+  },
+  "corrected_capability_boundary": {
+    "state": "actual_shared_workload_input_unavailable; bridge_missing/implemented_but_not_orchestrated",
+    "predicate_basis": "not_established",
+    "historical_portable_fixture": "Test-constructed LocalWorkerPool→four custom StudyNodes→24 native folds→CAS. Useful node-count cap/wait/results/serial-fold witness only; does not traverse actual RunCausalEvaluationNode/configured MethodJob shared Runtime owner/API/cap.",
+    "possible_existing_route": "Separately known synchronous WorkflowExecutor and RunCausalEvaluationNode→MethodJob→TMLE→CAS remain possible composition, not established common-admission bridge.",
+    "next_minimum_packet": "C01 names actual selected Runtime/study owner/API/cap/resource unit and causal MethodJob bridge; configured nonsecret source/CAS/model/backend/fold/repeat/seed/split/job-slot roster; then C08/G executes same complete denominator under two settings with active/wait/wall/RSS and all-results/provenance/fresh-CAS checks.",
+    "law_scheduler_quota": "No new TMLE/global scheduler, money→CPU permit alias, artificial cloud quota, silent fold reduction, generic authority or GUI/scientific-law claim."
+  },
+  "verified_source_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_pool.py",
+      "blob": "1c57325b0133222154b0298c814a701b568ccc50",
+      "verified_at_bound_source": true,
+      "G71ec_blob": "1c57325b0133222154b0298c814a701b568ccc50",
+      "G71ec_same": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/worker_pool.py",
+      "blob": "4f872336aa5c2c89eed1f396e050345674c92829",
+      "verified_at_bound_source": true,
+      "G71ec_blob": "4f872336aa5c2c89eed1f396e050345674c92829",
+      "G71ec_same": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+      "blob": "cf3613c67755e170c51f06dcc3d2f831fd5de02a",
+      "verified_at_bound_source": true,
+      "G71ec_blob": "cf3613c67755e170c51f06dcc3d2f831fd5de02a",
+      "G71ec_same": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "blob": "d4997734d2a0240d4cab19bf58d702cbc8c0b2a5",
+      "verified_at_bound_source": true,
+      "G71ec_blob": "d4997734d2a0240d4cab19bf58d702cbc8c0b2a5",
+      "G71ec_same": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+      "blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+      "verified_at_bound_source": true,
+      "G71ec_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+      "G71ec_same": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+      "blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a",
+      "verified_at_bound_source": true,
+      "G71ec_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a",
+      "G71ec_same": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+      "blob": "630265e9216390b58c4eb3e2c2aa5bdaa0ae17a5",
+      "verified_at_bound_source": true,
+      "G71ec_blob": "630265e9216390b58c4eb3e2c2aa5bdaa0ae17a5",
+      "G71ec_same": true
+    }
+  ],
+  "historical_outputs_preserved": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/outputs/B56-published-readback.json",
+      "blob": "9a75155bc01a7df015ae5df789d84ff83b6f7a6a",
+      "unchanged_since_parent": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/outputs/independent-review/preparation-receipt.json",
+      "blob": "28bbafb4a310a9f61e26e4ea704f3cd97a93342e",
+      "unchanged_since_parent": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/outputs/independent-review/candidate-review-output.json",
+      "blob": "58a0d10a0949acc65f14169b4b4cdfa0c5be7737",
+      "unchanged_since_parent": true
+    }
+  ],
+  "historical_caption_supersession": "Older unconditional L01/actual-route captions remain byte-frozen in historical source2dd footage/readback/reviews, explicitly superseded by the current passive qualification. Their PASS is not broadened to configured Runtime admission.",
+  "checks": {
+    "passive_integrity_script": "PASS_original_hash/seven_Gf00_and_G71ec_blobs/three_diff_paths/B214_and_all_other_fields/evidence_blobs_unchanged",
+    "new_native_workload": "UNRUN_shared_Runtime_owner_bridge_and_complete_configured_run_missing",
+    "tests_executed": "none",
+    "source_code_acceptance_G": "not_adjudicated",
+    "formal_finding_closure_G": "not_adjudicated",
+    "B56_F_recommendation": "limited"
+  },
+  "attempts": [
+    {
+      "id": "navigation",
+      "result": "ambiguous_short_G71ec_resolved_to_exact_commit_from_tracked_new_packet",
+      "product_verdict": "none"
+    },
+    {
+      "id": "first_passive_script",
+      "result": "reviewer_NameError_scratch_variable_r_before_artifact_write",
+      "returncode": 1,
+      "product_verdict": "none_no_test_or_source_mutation"
+    },
+    {
+      "id": "saved_passive_integrity_script",
+      "returncode": 0,
+      "result": "PASS"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/B56-original-binding.txt",
+      "bytes": 4524,
+      "sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/B56-6c-passive.patch",
+      "bytes": 18020,
+      "sha256": "131b4bca58c79b036a76442b884fbfc458bbe81ab5183202210a3466f776b753"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/B56-6c-passive-check.py",
+      "bytes": 4480,
+      "sha256": "99c1122b481a499491a0ce54744177c49915d9e673f367b856943320cf193da3"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/B56-6c-passive-check.stdout",
+      "bytes": 312,
+      "sha256": "c11e04c962a1febb338ece84cac2a6bc5d6debb7a4817b258a1ff9f74afcc2c6"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/B56-6c-passive-check.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/B56-6c-review-prep.json",
+      "bytes": 4368,
+      "sha256": "d9712ae19f4c74a0f55f5addc4abb598ba1e3a4c90a547587d6cfb08c0d7ca7d"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/B56-review-B56-runtime-workload-packet.json",
+      "bytes": 7822,
+      "sha256": "028df7f1ebe5d0d739eb71d7c851a7d92cfdc0e1f5dbd0c176e37022cd2ffc87"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/B56-review-partial-query-handoff.json",
+      "bytes": 28923,
+      "sha256": "e54b7e6c1ccd8e7f2d9e392f6f72d10a8ff221ab21377528dda45f7345c01a84"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/B56-review-REPORT.md",
+      "bytes": 5179,
+      "sha256": "5a164a000ae5b669664fa0f99b12a834a5512b3870c48fc6c2fdb3bd24f594a2"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/B56-G-README.md",
+      "bytes": 7203,
+      "sha256": "e2383f4053069ebede5f2c2bcda9082d059461e1de73f3a8d547982c04210664"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/B56-G-C08-packet.md",
+      "bytes": 5318,
+      "sha256": "180c2cd67ba50f37d7ea90e1942dac9742ea940b057f7eb8de128687a8342c18"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/B56-6c-first-static-attempt.stderr",
+      "bytes": 203,
+      "sha256": "f2b39b281d78784603e4d66797e586b52d8bf5c07e7d8f53acfde9acf4fdc6eb"
+    }
+  ],
+  "remaining_limits": "Existing source-owned Ruff355/scannerERROR-incomplete/P41not_established and B214 authority/profile constraints are unchanged; no global E02 closure or new backend claim.",
+  "cleanup": "none"
+}

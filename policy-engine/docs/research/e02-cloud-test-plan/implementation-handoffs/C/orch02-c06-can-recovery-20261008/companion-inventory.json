@@ -28,8 +28,8 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/lossless-byte-artifact-map.json",
-      "bytes": 7503,
-      "sha256": "8b5908c5d25214673d9018a0234fb25fe0d47168b27cf9131743cb2e347e6afa"
+      "bytes": 7435,
+      "sha256": "1299be5c3fcd6bb585be7db98e8638a84c955153f1168a0069ce80c970f1c2eb"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/native-evidence/build-env-create/command.json",
@@ -437,14 +437,9 @@
       "sha256": "042e6dd68ed9a21fbd34803152fdc75fda5b97a952ab085bdbbf9f32ee2d2e04"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/native-evidence/removals/can-no-completeness-guard.diff",
-      "bytes": 479,
-      "sha256": "1f4a2ea453a822cd8e8ea1374c7f1354e400ea118d7f94a40c269b2e2f15563d"
-    },
-    {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/native-evidence/removals/can-no-completeness-guard.patch.gz",
-      "bytes": 243,
-      "sha256": "854dc9c8716f541c4ca773a814fc6250b59318c37ca6255f0752884a7cc1b05e"
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/native-evidence/removals/can-no-completeness-guard.diff.gz",
+      "bytes": 290,
+      "sha256": "04300b2211587fe30f8c5fc705e7b70f265fe4bd0b2bbdbf83a2249857e8b0e5"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/native-evidence/removals/can-no-separators-normalization.diff",
@@ -452,19 +447,9 @@
       "sha256": "654149ec2a19d03ee9e7a96462f78ade36ecb3f8aa252c3d5db5ef6f1d66ca80"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/native-evidence/removals/can-no-separators-normalization.patch",
-      "bytes": 472,
-      "sha256": "bd67e154d04f5e801e2fa6f7b897c51656dd820c05bbb1b4c53b61b7338df44d"
-    },
-    {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/native-evidence/removals/can-original-reader.diff",
-      "bytes": 811,
-      "sha256": "a44c0d75cd89c0547339f7199181f35c6edcbd4343ef131426217a0f747c7c25"
-    },
-    {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/native-evidence/removals/can-original-reader.patch.gz",
-      "bytes": 398,
-      "sha256": "6ec82f81a76db376d95d5b29d55528d4df3d5a1e7872184aa1d80cc9828d9901"
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/native-evidence/removals/can-original-reader.diff.gz",
+      "bytes": 444,
+      "sha256": "4ff78f0592258d52166d55125b4ab4cafc4e32c5b5cee55084708bb70543d0b5"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/native-evidence/removals/manifest.json",
@@ -483,13 +468,13 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/native-publication-audit.json",
-      "bytes": 5339,
-      "sha256": "edc0337d2ff191a6e832847e8645a1b3b6b4713d516f9ab0c7fe4d4e91619e17"
+      "bytes": 6101,
+      "sha256": "9df4b7773cf6d23cc8ee0b85126a62d4c6cb297f792ec336257b4c1edc04b518"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/removal-source-reconstruction.json",
-      "bytes": 3056,
-      "sha256": "2b8762a107cb78a1c0203c94a33bddfe1eea6160f107c76f4a9f5a9229898658"
+      "bytes": 3606,
+      "sha256": "5b0baa922b47d6c34893e956ae3123d9bf2b892d575344f8513761d9e333f63a"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/required-gates/architecture/command.json",

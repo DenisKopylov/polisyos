@@ -110,23 +110,23 @@
     "reason": "Preserve authentic deciding bytes including original EOF/trailing whitespace while passing repository text whitespace hooks."
   },
   {
-    "raw_published_relative_path": "native-evidence/removals/can-no-completeness-guard.patch",
-    "raw_bytes": 436,
-    "raw_sha256": "c78c5b5ef5f18568767979a59c2b8dfbde6e0fc473c0bb4b075a18a2605110ab",
-    "lossless_published_path": "native-evidence/removals/can-no-completeness-guard.patch.gz",
-    "gzip_bytes": 243,
-    "gzip_sha256": "854dc9c8716f541c4ca773a814fc6250b59318c37ca6255f0752884a7cc1b05e",
+    "raw_published_relative_path": "native-evidence/removals/can-no-completeness-guard.diff",
+    "raw_bytes": 479,
+    "raw_sha256": "1f4a2ea453a822cd8e8ea1374c7f1354e400ea118d7f94a40c269b2e2f15563d",
+    "lossless_published_path": "native-evidence/removals/can-no-completeness-guard.diff.gz",
+    "gzip_bytes": 290,
+    "gzip_sha256": "04300b2211587fe30f8c5fc705e7b70f265fe4bd0b2bbdbf83a2249857e8b0e5",
     "roundtrip_verified": true,
-    "reason": "Preserve authentic deciding bytes including original EOF/trailing whitespace while passing repository text whitespace hooks."
+    "reason": "Complete native mutation delta context preserves authentic blank-line whitespace losslessly."
   },
   {
-    "raw_published_relative_path": "native-evidence/removals/can-original-reader.patch",
-    "raw_bytes": 774,
-    "raw_sha256": "21ddeecfdf47299b2141caa59023a510ca08a5989240784e98f64c34ae572e31",
-    "lossless_published_path": "native-evidence/removals/can-original-reader.patch.gz",
-    "gzip_bytes": 398,
-    "gzip_sha256": "6ec82f81a76db376d95d5b29d55528d4df3d5a1e7872184aa1d80cc9828d9901",
+    "raw_published_relative_path": "native-evidence/removals/can-original-reader.diff",
+    "raw_bytes": 811,
+    "raw_sha256": "a44c0d75cd89c0547339f7199181f35c6edcbd4343ef131426217a0f747c7c25",
+    "lossless_published_path": "native-evidence/removals/can-original-reader.diff.gz",
+    "gzip_bytes": 444,
+    "gzip_sha256": "4ff78f0592258d52166d55125b4ab4cafc4e32c5b5cee55084708bb70543d0b5",
     "roundtrip_verified": true,
-    "reason": "Preserve authentic deciding bytes including original EOF/trailing whitespace while passing repository text whitespace hooks."
+    "reason": "Complete native mutation delta context preserves authentic blank-line whitespace losslessly."
   }
 ]

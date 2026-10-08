@@ -1,0 +1,101 @@
+{
+  "schema": "policyos.e02.G.delta_intake.v1",
+  "utc": "2026-10-08T11:39:25.626962+00:00",
+  "entry_G": "d4085be5b58968a5b53d5d95323f6dd70cbf95a5",
+  "new_heads": {
+    "origin/codex/e02-E-c09-20261008": "66134569f999951e8eefef737424f12aeba24616",
+    "origin/codex/e02-F-closeout-20261006": "27ad60afe4cfedea9a9c0ff71d9abd22c30836d9",
+    "origin/codex/e02-L02-authentic-20261008": "0cc9df727c2c921d64815e452a9b08681807ce13"
+  },
+  "census": {
+    "utc": "2026-10-08T11:21:08.169716+00:00",
+    "own_head": "d4085be5b58968a5b53d5d95323f6dd70cbf95a5",
+    "own_tree": "b4dd0c9b27afb4bfcec055df85541cc028fabf70",
+    "ref_count": 138,
+    "open_pr_count": 47,
+    "e02_pr_count": 46,
+    "new_heads": {
+      "origin/codex/e02-E-c09-20261008": "66134569f999951e8eefef737424f12aeba24616",
+      "origin/codex/e02-F-closeout-20261006": "27ad60afe4cfedea9a9c0ff71d9abd22c30836d9",
+      "origin/codex/e02-L02-authentic-20261008": "0cc9df727c2c921d64815e452a9b08681807ce13"
+    },
+    "new_pr_heads": [
+      {
+        "headRefName": "codex/e02-F-closeout-20261006",
+        "headRefOid": "27ad60afe4cfedea9a9c0ff71d9abd22c30836d9",
+        "isDraft": true,
+        "number": 65,
+        "title": "fix(scientist): complete F causal consumers and source-bound 35-ID handoff",
+        "updatedAt": "2026-10-08T11:05:24Z",
+        "url": "https://github.com/DenisKopylov/polisyos/pull/65"
+      }
+    ],
+    "free_GiB": 45.897518157958984,
+    "transport": "fetch PASS"
+  },
+  "code_acceptance": [],
+  "formal_closure_ids": [],
+  "prior_code_acceptance": "B190 supplier f2c102fa2ee588b91b2baaa8c9d1c393699838c0 remains accepted; G B190 finding decision remains limited. No earlier acceptance is revoked by this metadata intake.",
+  "metadata_acceptance": [
+    {
+      "input": "0cc9df727c2c921d64815e452a9b08681807ce13",
+      "tree": "e68bb3b32ff5d7b93818569a793f9594a4afa811",
+      "merge": "4b3b22f3025ddbdcf9ae2c9f1219886a8c4c1406",
+      "scope": "L02 role closeout and qualified minimal-input/evidence delivery only, not global E02 closeout",
+      "delta_base": "ca78ef245e592f8adfbeb273f7a404c8e84a6ae8",
+      "complete_delta_paths": 47,
+      "file_types": {
+        "json": 34,
+        "gzip": 12,
+        "Markdown": 1
+      },
+      "unique_payload_refs_checked": 45,
+      "identity_mismatches": 0,
+      "selected_findings": 58,
+      "selected_criterion_occurrences": 61,
+      "all_authentic_installed_positive_states": "UNRUN",
+      "root_publication_readback": "G exact fetch of 0cc9 plus advertised L02 branch readback PASS; packet remote evidence itself covers through 90fa only"
+    }
+  ],
+  "C08": {
+    "proposal": "27ad60afe4cfedea9a9c0ff71d9abd22c30836d9",
+    "delta_paths": 2,
+    "delta_kind": "metadata only",
+    "stored_and_decoded_resume_identity": "PASS",
+    "new_exact_paths_granted": [
+      "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "policy-engine/tests/unit/ir/analytics/test_causal_proof_graph_binding.py"
+    ],
+    "carrier_merged": false,
+    "source_accepted": false,
+    "readiness": "existing lane may proceed under exact supplemental lease after actual-host fresh resume; no source implementation accompanies this packet"
+  },
+  "C09": {
+    "interval_source": "aa2d87945c2fc385418188086165927a2fa66cb7",
+    "mean_label_source": "66134569f999951e8eefef737424f12aeba24616",
+    "head_tree": "a1d408e8c9ead9573a9ad846b6672d9c6dc7506e",
+    "complete_delta_paths": 23,
+    "source_test_companion_paths": 19,
+    "state": "prepared source; completed matching handoff/review/affected receipts still pending",
+    "lease_fit": "within standing C09 MC scope and exact d408 interval supplement",
+    "historical_receipts": "ee0b79 and 1b8c37 remain pinned to their historical sources; not new-source results",
+    "ordered_source_roster_and_C10_S10": "UNRUN separate owned composition; no fixture-to-authentic authority promotion",
+    "source_accepted": false,
+    "carrier_merged": false
+  },
+  "baseline_results": "import_results --check PASS; verification remains navigation/transfer only, raw archives 0 and product closure not_established",
+  "fresh_runtime_checks": "none; no completed new implementation handoff to price a runtime wave",
+  "global_replay": "UNRUN until selected source freeze and independent reviews; then one portable broad run and scoped authentic local checks",
+  "quality_P41": "not_established for unmeasured global red; no inherited-red assertion",
+  "continuation_leases": "continuation-leases.json",
+  "resources": {
+    "free_GiB": 45.87281036376953,
+    "attention_threshold_GiB": 18,
+    "local_compute_slot": "idle",
+    "installs": "none",
+    "cleanup": "none",
+    "production_reads_exports": "none"
+  },
+  "main_publication_authorized": false,
+  "one_level_independent_reviewers": 3
+}

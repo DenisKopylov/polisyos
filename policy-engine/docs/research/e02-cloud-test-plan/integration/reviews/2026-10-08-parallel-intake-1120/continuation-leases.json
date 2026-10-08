@@ -1,0 +1,82 @@
+{
+  "schema": "policyos.e02.G.continuation_lease_supplement.v1",
+  "source_entry_G": "d4085be5b58968a5b53d5d95323f6dd70cbf95a5",
+  "review_context_G": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+  "proposal_carrier": "27ad60afe4cfedea9a9c0ff71d9abd22c30836d9",
+  "proposal_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-owned-followups-lease.json",
+  "grant_scope": "One-time exact-path supplement to the existing C08 writer for this proof-source-binding slice; no general expansion of dispatch scopes or adjacent/sibling write permission.",
+  "no_new_product_authority": true,
+  "dispatch_conflict_check": {
+    "dispatch_blob": "f2e8d2096b86148fb93d4eb61520d22002228a1d",
+    "exact_paths": [
+      "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "policy-engine/tests/unit/ir/analytics/test_causal_proof_graph_binding.py"
+    ],
+    "all_roles": [
+      "C01",
+      "C02",
+      "C03",
+      "C04",
+      "C05",
+      "C06",
+      "C07",
+      "C08",
+      "C09",
+      "C10",
+      "C11",
+      "C12",
+      "C13",
+      "L01",
+      "L02"
+    ],
+    "matches": []
+  },
+  "C08": {
+    "canonical_writer": "ORCH03 existing /root/c08",
+    "independent_reviewer": "ORCH03 existing /root/oracle_ir; nonauthor review required",
+    "topic": "codex/e02-F-c08-20261008",
+    "existing_path": "/dev/shm/e02-orch03-20261008/c08",
+    "observed_source": "ab48c152514b025618cd6e3fc9acc70a1ed773ee",
+    "observed_tree": "c8de2a22c30ecfdafaee4da753d1958d4f947af4",
+    "new_write_paths": [
+      "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "policy-engine/tests/unit/ir/analytics/test_causal_proof_graph_binding.py"
+    ],
+    "existing_slice_paths": [
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+      "policy-engine/release-fragments/unreleased/2026-10-08-c08-proof-source-binding.toml",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_native_query_marginal.py",
+      "policy-engine/release-fragments/unreleased/2026-10-08-c08-native-dag-query.toml"
+    ],
+    "receipt_namespace": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/",
+    "required_property": [
+      "Persist the actual original graph/ref and its input roster with existing typed artifact/CAS machinery.",
+      "Both common and conditional functional proof fresh readers resolve the original graph, recompute typed payload identity and compare against the proof input basis; absent, fake, substituted or mismatched graphs refuse.",
+      "Verify actual producer to persisted proof to fresh reader, including positive common/conditional cases, wrong/missing graph/ref/roster and retained-marker removal controls.",
+      "Separately address the disclosed native original-query marginalization within the existing complete-observed-static-DAG g-formula profile before the ancestral shortcut; no latent/PAG/universal identification rewrite.",
+      "Preserve valid mathematical IDENTIFIED and candidate ranking; a score of 1.0 alone is not an established protected-authority escape."
+    ],
+    "exclusions": [
+      "New DTO/schema/registry-ref/facade or root export changes; supply any necessary companion patch to C07/G for a separate decision.",
+      "C07 uncertainty/ref adapters and shared IR companions.",
+      "C11 search funnel/level2_causal.py actual consumer; give that owner an immutable dependency packet.",
+      "C10 served/S10 and protected admission composition.",
+      "G generated/global inventories, schemas and lockfiles.",
+      "Default scientific authority, new authority gates or expanded graph/model promises."
+    ],
+    "current_acceptance": "CPDAG source acceptance remains HOLD pending forward implementation and affected proof/source-consumer evidence; this lease is not source acceptance or finding closure."
+  },
+  "resume_contract": [
+    "Reuse the existing exact matching lane; no new checkout per wake.",
+    "On the actual cloud host, run a fresh exact read-only workspace doctor resume for the actual branch/path immediately before mutation and read back attachment/HEAD/status.",
+    "The supplied admission is a point-in-time snapshot, not a branch/path reservation; G cannot admit a cloud path by inspecting /dev/shm on the Mac.",
+    "Unexpected HEAD/branch/tree stops without reset/rebase/force/switch.",
+    "Freeze forward source, obtain nonauthor review, run one affected wave with exact source/tree/environment/input pins and matched negative/removal controls; commit a separate handoff and publish the topic normally.",
+    "No direct messaging of foreign human chats is authorized; use tracked Git packets."
+  ],
+  "prior_leases": "The d408 C09 interval and B190 Node grants remain valid and unchanged; this C08 supplement neither transfers nor broadens them.",
+  "formal_closure_ids": []
+}

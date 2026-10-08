@@ -1,0 +1,71 @@
+{
+  "outcome": "PASS",
+  "checks": [
+    {
+      "check": "complete_index",
+      "outcome": "PASS",
+      "detail": "282 unique IDs; 291 original occurrences; 127 bundles; proposals198/54/23/7; no closure issued"
+    },
+    {
+      "check": "negative_missing_id",
+      "outcome": "PASS",
+      "detail": "rejected; tracked files unchanged"
+    },
+    {
+      "check": "negative_duplicate_id",
+      "outcome": "PASS",
+      "detail": "rejected; tracked files unchanged"
+    },
+    {
+      "check": "negative_wrong_criterion_pointer",
+      "outcome": "PASS",
+      "detail": "rejected; tracked files unchanged"
+    },
+    {
+      "check": "negative_proposal_inflation",
+      "outcome": "PASS",
+      "detail": "rejected; tracked files unchanged"
+    },
+    {
+      "check": "original_hashes",
+      "outcome": "PASS",
+      "detail": {
+        "matched": 291
+      }
+    },
+    {
+      "check": "all_source_pins",
+      "outcome": "PASS",
+      "detail": {
+        "commit_tree_pairs": 12
+      }
+    },
+    {
+      "check": "task_DAG",
+      "outcome": "PASS",
+      "detail": {
+        "tasks": 23,
+        "conditional_inputs": "explicit separately"
+      }
+    },
+    {
+      "check": "canonical_source_blobs",
+      "outcome": "PASS",
+      "detail": "coverage, complete owner TSVs and six author row source blobs"
+    },
+    {
+      "check": "local_doc_links",
+      "outcome": "PASS",
+      "detail": {
+        "resolved": 15
+      }
+    },
+    {
+      "check": "branch_and_base",
+      "outcome": "PASS",
+      "detail": "codex/e02-integration"
+    }
+  ],
+  "runtime_tests": 0,
+  "scope": "documentation/source-input identity only"
+}

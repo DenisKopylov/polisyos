@@ -1,0 +1,214 @@
+{
+  "schema": "e02_connected_tasks_v1",
+  "planning_only": true,
+  "tasks": {
+    "S3": {
+      "flow": "S",
+      "title": "B31 producer-owned persisted subject join",
+      "depends": [
+        "S1"
+      ],
+      "exit": "exact identification/nativeuncertainty refs bound to recomputed resolvedsubject/unit; freshAconsumer retains4point and1to10interval; fake/mismatch/unresolvedremoval refuses; no contract-only authority"
+    },
+    "V6": {
+      "flow": "V",
+      "title": "CYC02->RES03 persisted independent simulation survives sibling failure",
+      "depends": [
+        "Q1",
+        "R1"
+      ],
+      "conditional_inputs": [
+        "authentic local catalog/acquisition profile from V1"
+      ],
+      "exit": "actual producer then laterindependentfailure; successfulCAS/history/debugservedreader retains typedpartial/exacterror; corruptrefrefuses"
+    },
+    "V7": {
+      "flow": "V",
+      "title": "EMP01->FRC02 compatible method-specific empirical producer",
+      "depends": [
+        "S1"
+      ],
+      "conditional_inputs": [
+        "scoped sameestimand/design/time/purpose paired predictions/observations"
+      ],
+      "exit": "measured counts->persistedevidence->freshS10/defaultHTTP; sameCI differentactualoutcomes changesgrade; predictiveonly notcausal"
+    },
+    "Q0": {
+      "flow": "Q",
+      "title": "Original criterion adjudication and bounded source admission",
+      "depends": [],
+      "exit": "exact original occurrence vs candidate-bound property/consumer/negative; no stronger invented scope; G decision separate from source merge"
+    },
+    "Q1": {
+      "flow": "Q",
+      "title": "Select exact compatible source DAG/owner blobs",
+      "depends": [],
+      "exit": "explicit base/candidate/tree and parents plus per-path source/test/config/companion blob owner/input manifest; canonical choices; preserve history"
+    },
+    "R1": {
+      "flow": "R",
+      "title": "Prepared B exact verification and source publication",
+      "depends": [
+        "Q1"
+      ],
+      "exit": "prepared defining baseline/13 named affected contours/matched removals; no carry from old0bf"
+    },
+    "I1": {
+      "flow": "I",
+      "title": "Effective profile/policy currentness basis",
+      "depends": [],
+      "exit": "same-ID mutation invalidates before reuse; unchanged positive and fresh checkpoint/benchmark"
+    },
+    "I2": {
+      "flow": "I",
+      "title": "DFK two-path census companion",
+      "depends": [],
+      "exit": "two staged/two unstaged/rename/clean real records"
+    },
+    "S1": {
+      "flow": "S",
+      "title": "Subject/refinement/query-specific partial graph decisions",
+      "depends": [],
+      "exit": "three separate minimal decisions B31/B161/B214 with actual discriminators; reuse existing carriers/ID"
+    },
+    "T1": {
+      "flow": "T",
+      "title": "Latest owner input/API and authority-plane inventory",
+      "depends": [],
+      "exit": "internal configured owner vs external facts; actual source/ref/issuer/verifier/consumer; no stale null-owner demand"
+    },
+    "R2": {
+      "flow": "R",
+      "title": "B pool/C stream physical cleanup and restart",
+      "depends": [
+        "Q1",
+        "R1"
+      ],
+      "exit": "actual handle/process closure + no premature reuse, cursor/window/CAS fresh consumer"
+    },
+    "R3": {
+      "flow": "R",
+      "title": "Configured monetary producer/ledger/A/D composition",
+      "depends": [
+        "Q1"
+      ],
+      "exit": "reported/estimated/reuse/unknown events and durable outcomes remain distinct; provider/cache/retry/reopen/cancel"
+    },
+    "R4": {
+      "flow": "R",
+      "title": "Existing Runtime competing-study/fold admission witness",
+      "depends": [],
+      "conditional_inputs": [
+        "named admitted workload/profile/resource budget"
+      ],
+      "exit": "full workload within shared cap, no lost folds/deadlock; extend existing owner only if witness disproves coverage"
+    },
+    "I3": {
+      "flow": "I",
+      "title": "Source-confirmed progress and event identity",
+      "depends": [
+        "R2"
+      ],
+      "conditional_inputs": [
+        "actual source dataset/run/cursor/content/event-version evidence"
+      ],
+      "exit": "verified progress and durable24h replay; absent/ambiguous key typedunsupported"
+    },
+    "I4": {
+      "flow": "I",
+      "title": "Catalog/Legal serving profile bridge",
+      "depends": [
+        "I1"
+      ],
+      "conditional_inputs": [
+        "I1 acceptance required for Catalog; isolated Legal fixture preparation may proceed earlier",
+        "paired Legal generation/assets/encoder only for production claim"
+      ],
+      "exit": "actual request->typedprofile/encodedquery->fresh reader; wrong/missing profile refuses"
+    },
+    "V1": {
+      "flow": "V",
+      "title": "Ordinary authentic source-backed served generation",
+      "depends": [
+        "Q1"
+      ],
+      "conditional_inputs": [
+        "matching criterion-specific L6/local catalog/acquisition inputs"
+      ],
+      "exit": "POST->ownedcontext->N5->CAS->freshGET; synthetic configured witness remains bounded"
+    },
+    "V2": {
+      "flow": "V",
+      "title": "N4 meaningful-child producer and actual recursive reader",
+      "depends": [
+        "S1"
+      ],
+      "exit": "actual N4 two meaningful children->N6 frontier/history->freshGET/client; manual supplied graph not producer"
+    },
+    "V3": {
+      "flow": "V",
+      "title": "Source-driven same-candidate reissue and acquisition",
+      "depends": [
+        "S1"
+      ],
+      "conditional_inputs": [
+        "only relevant I1/I3/I4 source supplier"
+      ],
+      "exit": "admitted content change->samecandidateWMR/N5/history; ID/write-time-only control no reissue; REQ/ACQ separate"
+    },
+    "V4": {
+      "flow": "V",
+      "title": "Compatible forecast/empirical evidence adoption",
+      "depends": [
+        "S1"
+      ],
+      "conditional_inputs": [
+        "E producer refs compatible with actual method/estimand/purpose/time"
+      ],
+      "exit": "CAS resolver recomputes->freshgrade/defaultHTTP; predictive coverage not causal calibration",
+      "scope": "positive within declared predictive purpose; causal S10 stays limited/blocked until compatible V7 producer; fixture negatives may run independently"
+    },
+    "V5": {
+      "flow": "V",
+      "title": "Named configured Search/funnel consumer",
+      "depends": [
+        "Q1"
+      ],
+      "scope": "only criterion-required configured/default scope; adjacent product wishes do not block bounded original criteria",
+      "exit": "exactcontext/history/quantity/CAS path; selected GP/native/injected evidence separately graded"
+    },
+    "S2": {
+      "flow": "S",
+      "title": "Actual law/draw/calibration/relationship intake",
+      "depends": [
+        "S1"
+      ],
+      "conditional_inputs": [
+        "configured evaluator/law/Jacobian/calibration/lineage packets"
+      ],
+      "exit": "attempted denominator/covariance/axis/subject identity consumed fresh; counterfeit metadata refuses"
+    },
+    "T2": {
+      "flow": "T",
+      "title": "Protected positive and revalidation consumer",
+      "depends": [
+        "T1"
+      ],
+      "conditional_inputs": [
+        "specific admitted owner fact/API required by criterion"
+      ],
+      "exit": "valid positive + fake/foreign/stale/revoked zero effects including commit-time check"
+    },
+    "Q2": {
+      "flow": "Q",
+      "title": "Canonical generated and declared installed consumers",
+      "depends": [
+        "Q1"
+      ],
+      "exit": "frozen contracts->canonicalfamily->typedclient/defaultinstalled reader; declared supported profiles only",
+      "conditional_inputs": [
+        "selected source contracts fixed and relevant upstream task exits; source/test/config/companion input manifest before acceptance"
+      ]
+    }
+  }
+}

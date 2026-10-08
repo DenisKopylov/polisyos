@@ -1,0 +1,284 @@
+{
+  "schema": "e02_connected_plan_inputs_v1",
+  "analysis_date": "2026-10-08",
+  "scope": "planning; no new source acceptance or finding closure",
+  "integration_base": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+  "published_main_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "pins": {
+    "G": {
+      "sha": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+      "tree": "32a32cc77039554a3777a11fd7fc8f96f3a88625",
+      "kind": "commit",
+      "in_G_ancestry": true
+    },
+    "A": {
+      "sha": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+      "tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "B_published": {
+      "sha": "53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "tree": "568e2e42e18abcea9fd39759546f1e48525c590a",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "B_prepared_source": {
+      "sha": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+      "tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "B_prepared_receipt": {
+      "sha": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+      "tree": "677257974c442ba878a6bf4dba6686ae854b2e67",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "C": {
+      "sha": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+      "tree": "7edd87e6730739fbe2d7c7ed0c35d4a4e1e11ba8",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "D": {
+      "sha": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+      "tree": "10efc41e7a2d792f42bce59af5b87816843df07e",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "E": {
+      "sha": "7bf53fd0cf69a568b37d8a881e26bfb16c315653",
+      "tree": "946ec147aa09db5b76c66e7ac3e3a2e491f9868b",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "F_source": {
+      "sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+      "kind": "commit",
+      "in_G_ancestry": true
+    },
+    "F_receipt": {
+      "sha": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "tree": "682b043138464c912dd728c12e80049dd44b47f1",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "D_source": {
+      "sha": "8e864f4ed0eeedf509d836381b20976c413f2443",
+      "tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "E_source": {
+      "sha": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+      "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+      "kind": "commit",
+      "in_G_ancestry": false
+    }
+  },
+  "source_manifest": {
+    "coverage": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "git_ref": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+      "git_blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+      "bytes": 550854,
+      "file_type": "JSON"
+    },
+    "finding_owners": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "git_ref": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+      "git_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+      "bytes": 9504,
+      "file_type": "TSV"
+    },
+    "bundle_owners": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "git_ref": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+      "git_blob": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b",
+      "bytes": 12413,
+      "file_type": "TSV"
+    },
+    "original_criteria": [
+      {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "file_type": "Markdown",
+        "line_count": 5545
+      },
+      {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "bytes": 648034,
+        "file_type": "Markdown",
+        "line_count": 4425
+      }
+    ],
+    "current_author_rows": {
+      "A": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-current-index.json",
+        "git_ref": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "git_blob": "2a14fa091eb1b1d1f8ab0b9aa0d4757baddddcb0",
+        "bytes": 39043,
+        "file_type": "JSON"
+      },
+      "B": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-exact53-repair-all60-delta.json",
+        "git_ref": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+        "git_blob": "04a43399a0dd189f83426ee125600c75f63be404",
+        "bytes": 47341,
+        "file_type": "JSON"
+      },
+      "C": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c5-v1.json",
+        "git_ref": "980d91b36452307d683283ddcf1e89a653af3ce2",
+        "git_blob": "98c39eb77e4397bc9a6e95d8e0a210100fa96e5f",
+        "bytes": 655130,
+        "file_type": "JSON"
+      },
+      "D": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/criterion-overlay.json",
+        "git_ref": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+        "git_blob": "7cdc3fedd6629fca59a3cb199836eda74f763f70",
+        "bytes": 327579,
+        "file_type": "JSON"
+      },
+      "E": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries/full54/all54-delta-associations-v2-source11082.json",
+        "git_ref": "7bf53fd0cf69a568b37d8a881e26bfb16c315653",
+        "git_blob": "502f44eb34c277b11764f89f153df17231864bf6",
+        "bytes": 243560,
+        "file_type": "JSON"
+      },
+      "F": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/index.json",
+        "git_ref": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+        "git_blob": "e98f9674c1d38d64b8a4f78b8b45ae47bdaad79f",
+        "bytes": 314839,
+        "file_type": "JSON"
+      }
+    },
+    "A_progress": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+      "git_ref": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+      "git_blob": "5beae048efe4b4ffda43583d1f9b93c3298e0d86",
+      "bytes": 266100,
+      "file_type": "JSON"
+    },
+    "B_prior_decisions": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+      "git_ref": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+      "git_blob": "644f4811b7a67e767755a41a8afba131fd11ab36",
+      "bytes": 78194,
+      "file_type": "JSON"
+    },
+    "C5_root": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261007-C5.json",
+      "git_ref": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+      "git_blob": "7310778b273b89341330154ab215b183c79e2e53",
+      "bytes": 15729,
+      "file_type": "JSON"
+    },
+    "G_receipts": {
+      "F_acceptance": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/F-acceptance.json",
+        "git_ref": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "git_blob": "e0fa02b56ae11735eb9cbea025a82e21e708dbc5",
+        "bytes": 835,
+        "file_type": "JSON"
+      },
+      "F_carry_admission": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/F-carry-admission.md",
+        "git_ref": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "git_blob": "0bb00cb0394528ef8fa938dbb21036ee9b4c61b0",
+        "bytes": 6356,
+        "file_type": "Markdown",
+        "line_count": 38
+      },
+      "C_carry_admission": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/C-carry-admission.md",
+        "git_ref": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "git_blob": "49fb0429555517dac25428f4eebb0c11269f328c",
+        "bytes": 8945,
+        "file_type": "Markdown",
+        "line_count": 34
+      },
+      "D_carry_admission": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/D-carry-admission.md",
+        "git_ref": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "git_blob": "b4e2372ba289b54d056a0139ef11ffa585c2e45e",
+        "bytes": 7290,
+        "file_type": "Markdown",
+        "line_count": 32
+      },
+      "E_carry_admission": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/E-carry-admission.md",
+        "git_ref": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "git_blob": "f01a7e469e7d50b8a308418fae71cea0a2197314",
+        "bytes": 6089,
+        "file_type": "Markdown",
+        "line_count": 33
+      },
+      "final_semantic_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/final-admission-semantic.md",
+        "git_ref": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "git_blob": "b5942c71d596489ff76deb82a7db6a776c8ee813",
+        "bytes": 3831,
+        "file_type": "Markdown",
+        "line_count": 17
+      },
+      "A_compiler_acceptance": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/A-delta-owner-actions-2026-10-06.md",
+        "git_ref": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "git_blob": "30d3c87cc779be9801ea2262cbdeef007c5e7675",
+        "bytes": 6998,
+        "file_type": "Markdown",
+        "line_count": 40
+      },
+      "A_compiler_identity": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/2100-A-delivery-identity-surface.md",
+        "git_ref": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "git_blob": "54ba6429478e8e5b70cf195567a8889f9962fbe8",
+        "bytes": 8507,
+        "file_type": "Markdown",
+        "line_count": 36
+      }
+    },
+    "pattern_docs": {
+      "AGENTS": {
+        "path": "AGENTS.md",
+        "git_ref": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+        "bytes": 22656,
+        "file_type": "Markdown",
+        "line_count": 139
+      },
+      "HANDOFF": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+        "git_ref": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "git_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e",
+        "bytes": 20260,
+        "file_type": "Markdown",
+        "line_count": 72
+      },
+      "failure_repair_register": {
+        "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+        "git_ref": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "git_blob": "652fb2d0b3fbcaa48681adf2e79b66486b4a65a1",
+        "bytes": 62396,
+        "file_type": "Markdown",
+        "line_count": 415
+      }
+    }
+  },
+  "transport": {
+    "B_exact_SHA_fetch": "PASS to private G analysis ref",
+    "B_topic": "53b14a6e5af66f2a784d7f4981c4613e534acd40",
+    "B_new_runtime": "UNRUN"
+  },
+  "selected_source_rule": "receipt/root carrier is not the source freeze; C includes separate writer DAGs"
+}

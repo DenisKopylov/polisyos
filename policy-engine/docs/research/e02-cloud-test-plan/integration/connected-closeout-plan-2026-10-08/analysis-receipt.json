@@ -1,0 +1,241 @@
+{
+  "schema": "e02_connected_analysis_receipt_v1",
+  "timestamp_utc": "2026-10-08T06:48:15.000731+00:00",
+  "analysis_base": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+  "mode": "connected source/research/architecture/documentation; no production implementation or runtime test waves",
+  "direct_helpers": 20,
+  "delegation_depth": 1,
+  "inputs": "inputs.json",
+  "full_original_set": {
+    "bundles": 127,
+    "finding_ids": 282,
+    "criterion_occurrences": 291,
+    "original_block_hashes_matched_by_independent_audit": 291
+  },
+  "results_transfer": {
+    "import_results_check": "PASS",
+    "verification_read": "full",
+    "texts": 15,
+    "cells": 2074,
+    "raw_archives": 0,
+    "grade": "transfer_and_navigation_only",
+    "query_failures30": "executed; navigation only",
+    "targeted_queries": [
+      "B31",
+      "B56",
+      "B59",
+      "B87",
+      "B108",
+      "B161",
+      "B194",
+      "B201",
+      "LA-041"
+    ]
+  },
+  "source_transport": {
+    "B_a0_exact_SHA_fetch": "PASS",
+    "B_source_1e_type": "commit",
+    "B_receipt_a0_type": "commit",
+    "B_published_topic": "53b14a6e5af66f2a784d7f4981c4613e534acd40",
+    "B_new_runtime": "UNRUN",
+    "E8d_ancestor_E7bf": true,
+    "F852_ancestor_G6f": true,
+    "G6f_ancestor_A8b": true
+  },
+  "independent_source_range_check": {
+    "ranges": 16,
+    "changed_path_count_mismatches": 0
+  },
+  "new_source_acceptance": [],
+  "new_formal_closures": [],
+  "main_publication": "not_performed_not_authorized",
+  "runtime_tests_this_analysis": 0,
+  "research_outputs": [
+    {
+      "analysis": "unit-A",
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/connected-analysis-20261008/unit-A.md",
+      "sha256": "5a702a3a68adf401a1842c12e202bfcdae867f1f74fe1f6403cc660e981a4245",
+      "bytes": 12736
+    },
+    {
+      "analysis": "unit-B",
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/connected-analysis-20261008/unit-B.md",
+      "sha256": "da1887bf814c29168e0387c3240beb1a0be403e31ba31e5b9bdfd3ed285af740",
+      "bytes": 13484
+    },
+    {
+      "analysis": "unit-C",
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/connected-analysis-20261008/unit-C.md",
+      "sha256": "d2c4d82969333ff62a60c91d10dbfea441815a15a3c833abc1b85186b87fa8ec",
+      "bytes": 14703
+    },
+    {
+      "analysis": "unit-D",
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/connected-analysis-20261008/unit-D.md",
+      "sha256": "4c80eb82e3f59759f07bc3d4563cc25ca6488bfd5a02f0ec565b3a8abff55a20",
+      "bytes": 13540
+    },
+    {
+      "analysis": "unit-E",
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/connected-analysis-20261008/unit-E.md",
+      "sha256": "95bfcfe12f3db4a24b3e8de34c7e30a5d210bcca5662c08c2f0ed30ff27c21b4",
+      "bytes": 14932
+    },
+    {
+      "analysis": "unit-F",
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/connected-analysis-20261008/unit-F.md",
+      "sha256": "a7cf2b3c49cbaa2a71ed3f6c5110ea9ffeaafc83328e462f41d1136a912b2d55",
+      "bytes": 14767
+    },
+    {
+      "analysis": "denominator-audit",
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/connected-analysis-20261008/denominator-audit.md",
+      "sha256": "e144e41506f78ffa304da88226ecd30e6ef7db7843116fe4741f5560293db684",
+      "bytes": 9985
+    },
+    {
+      "analysis": "authority-decisions",
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/connected-analysis-20261008/authority-decisions.md",
+      "sha256": "46162941d985841867293a93d4754fa06445a41285d21eddef2dedbc68b2c2eb",
+      "bytes": 13141
+    },
+    {
+      "analysis": "budget-economics",
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/connected-analysis-20261008/budget-economics.md",
+      "sha256": "966af5934d622624bdbb8cd6cf31d7391c1a5ad81781e6a28a99dc656ec081b4",
+      "bytes": 21293
+    },
+    {
+      "analysis": "scientific-contracts",
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/connected-analysis-20261008/scientific-contracts.md",
+      "sha256": "c5142e69aefd4dfb160b3961372b669cb625c34c341f8091aa83c24b99432a1b",
+      "bytes": 15842
+    },
+    {
+      "analysis": "served-orchestration",
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/connected-analysis-20261008/served-orchestration.md",
+      "sha256": "45e1223302a0924d999c7575dfa1f8a9ff310656ece8838f0631aa84576453cb",
+      "bytes": 23736
+    },
+    {
+      "analysis": "source-identity",
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/connected-analysis-20261008/source-identity.md",
+      "sha256": "e7b6f53e4d454870a9c1be2758fb4bd89de74343489f11daa971b2655cbfaf59",
+      "bytes": 18675
+    },
+    {
+      "analysis": "surface-migrations",
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/connected-analysis-20261008/surface-migrations.md",
+      "sha256": "c340bb5e590d55c7000fc94183b2918ea53721aa719b9449ce50443f96acbe25",
+      "bytes": 19716
+    },
+    {
+      "analysis": "execution-recovery",
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/connected-analysis-20261008/execution-recovery.md",
+      "sha256": "5ce1fb49edce9f416196f041c0a857c315e5dcf00577e515f260fd6511aaa11b",
+      "bytes": 26241
+    },
+    {
+      "analysis": "footprint-dependencies",
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/connected-analysis-20261008/footprint-dependencies.md",
+      "sha256": "49e2ef85e1c6f741b0eb011ea1b362564551d118dbaa077240d97902d89b68bb",
+      "bytes": 13229
+    },
+    {
+      "analysis": "verification-strategy",
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/connected-analysis-20261008/verification-strategy.md",
+      "sha256": "7f95e4b68e33479c5d93dbbf33f08f4b6b179058fa8780739e77e418865568f1",
+      "bytes": 18304
+    },
+    {
+      "analysis": "new-organization",
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/connected-analysis-20261008/new-organization.md",
+      "sha256": "f66271931602f954106a1509bf1560bbe48129fa2dc4dbc0d29dd880f4164944",
+      "bytes": 21993
+    },
+    {
+      "analysis": "skeptical-residuals",
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/connected-analysis-20261008/skeptical-residuals.md",
+      "sha256": "0a3d4d83519f7c6fb448412738fd151a1a69518210efd9c7b7a25ee1019cd24f",
+      "bytes": 7036
+    },
+    {
+      "analysis": "minimal-inputs",
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/connected-analysis-20261008/minimal-inputs.md",
+      "sha256": "4371c536dd8d50e2f593386281762033088011f3ce8d4fa8d2ef04dfff76f032",
+      "bytes": 35683
+    },
+    {
+      "analysis": "platform-transport",
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/connected-analysis-20261008/platform-transport.md",
+      "sha256": "1e3b89c2b7989477659f30585b09ea63330f5a805d24b7c58d3766bde8231201",
+      "bytes": 11528
+    }
+  ],
+  "review_protocol": "root synthesis separately reviewed for original scope, science, authority, dependencies, coverage and staffing; delta-only correction readback",
+  "disk": {
+    "free_GiB_measured": 49.514,
+    "production_census": false,
+    "new_environments": 0,
+    "trash_emptied": false,
+    "cleanup_this_analysis": "no bulk cleanup; one helper accidentally removed its own duplicate ignored analysis copies then restored exact bytes; no source/data loss",
+    "preservation": "all deciding analyses and receipts retained ignored; final synthesis and review decisions tracked"
+  },
+  "independent_plan_delta_reviews": [
+    {
+      "path": "reviews/authority.md",
+      "sha256": "8c882866afe9ba0d73a085600ff819f7ffd54dc1e04fb8af11639b173ef390fe",
+      "bytes": 2246
+    },
+    {
+      "path": "reviews/coverage.md",
+      "sha256": "f4fa6bc0391dc21e198e3b4fe7232490afa4b5864c34ad650cf8e14486f98190",
+      "bytes": 2598
+    },
+    {
+      "path": "reviews/dependencies.md",
+      "sha256": "d009f6e6996993749cc12e0ed99e5e215783d4132aa94a8104909e4d17e4eeab",
+      "bytes": 2147
+    },
+    {
+      "path": "reviews/organization.md",
+      "sha256": "d233207776c0c3b020b710841318fb31218fcc86eb9cf0a864e44a1bb3b8f8f2",
+      "bytes": 4402
+    },
+    {
+      "path": "reviews/root-pack-verification.json",
+      "sha256": "f762ed4332027289404e7be15a527dee522e2c041719f906c60fcaffae6a429b",
+      "bytes": 1645
+    },
+    {
+      "path": "reviews/science.md",
+      "sha256": "f749e9c0506bbeb4efc045d4ad1385f31e6c0166251c55f582065a64dcc57f72",
+      "bytes": 2259
+    },
+    {
+      "path": "reviews/scope.md",
+      "sha256": "e0e23fad13199855c8b18e30db39a4f0e3662ebcb67ffb276b22d8825b92ede5",
+      "bytes": 1541
+    }
+  ],
+  "review_outputs_are_plan_checks_not_runtime_receipts": true,
+  "superseded_scratch_note": "Ignored helper proposals are research inputs; canonical ownership/scope is final root plan and tracked delta reviews. Prior E S10 lease inference was corrected against allocation.json: A sole writer, E supplier.",
+  "root_verification": "reviews/root-pack-verification.json",
+  "root_reconciliations": [
+    "Canonical A S10 writer from complete allocation; E producer/supplier",
+    "B prepared objects are commits and CLI fetchable; topic/runtime separate",
+    "E8d ancestorE7bf; F99c7 ancestorG6f",
+    "D actual bounded GP oracle/source pins preserved",
+    "D10 actual10PASS; affectedFqueryLinuxUNRUN",
+    "D38currentmissing is verification/admission queue, not38defects",
+    "B31 concreteproducer-ownedsubjectjoin; B11heuristicsurface",
+    "D156mockedcallback allowed in originalscope; FLA035relocation no newoptimizer"
+  ],
+  "full_independent_coverage_output": {
+    "path": "policy-engine/_build/e02-g-continuation-20261006/R/connected-analysis-20261008/synthesis-review-coverage.json",
+    "sha256": "d93ed33bfca505deeffda41ccd87b2ee243b1b6d6c0e220eaac686e788772d6f",
+    "bytes": 366149,
+    "scope": "retained ignored full deciding audit, no duplicate criterion/raw-source dump in Git"
+  },
+  "independent_plan_review_summary": "six independent axes complete; material plan blockers corrected and delta-readback accepted; no runtime/code acceptance inferred"
+}

@@ -1,0 +1,11 @@
+# Final delta review: B31 subject join
+
+**Decision:** The earlier B31 plan blocker is resolved by the new plan delta. This confirms that the plan now specifies a decision and implementation route; it does not claim S3 has run or that B31/G is closed.
+
+`02-decisions.md` §D04 now selects a producer-owned persisted relation that joins the exact `ValueOuterSet` and `UncertaintyEnvelope` refs to a resolved canonical subject and typed unit/scale. A fresh consumer resolves both artifacts and the subject, recomputes content/subject/unit equality, and checks verifier provenance. It rejects metadata-string or eligibility-flag substitutes. If needed, the schema change is limited and backward-readable; the existing envelope and uncertainty channels stay intact. The acceptance cases are concrete: point identification `[4,4]` coexists with native interval `[1,10]`, equivalent typed unit conversion succeeds, and preserved-marker mutations to estimand, contrast, population, unit, applicable time/source, or fake/unresolved relation fail the combined claim (`02-decisions.md`, lines 45–49).
+
+`03-delivery-plan.md` now assigns that bridge to S3, names the canonical relation writer and A output/receipt plus fresh ValuePort consumer, gives the point/interval and refusal outcomes, and places S3 after S1 in the dependency graph (lines 34 and 47). `tasks.json` defines S3 with `depends: [S1]` and an exact-relation/fresh-consumer exit. `findings.json` routes B31 to S1 and S3 with `next_decision: implement_selected_minimal_producer_subject_join_then_G_adjudication`; its status remains `held` and `G_closure` remains `not_adjudicated`. That preserves the distinction between planned repair and executed evidence.
+
+No B31 blocker remains in the reviewed plan. The original semantic requirement is addressed without reopening E201/B202 or introducing a general uncertainty engine. Runtime execution, removal proof, and G adjudication remain future S3/closeout work, as the plan states.
+
+**Scope:** Delta-only review of D04, S3, and B31 routing in `02-decisions.md`, `03-delivery-plan.md`, `tasks.json`, and `findings.json`, against G pin `6f3983466f1eca14b510c4f5006fab5092d418d3`. No tests or runtime checks were run. This report is ignored `_build/` scratch.

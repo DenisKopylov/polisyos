@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 
+from polisyos.core.artifacts import PutOptions
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.ir.analytics.distributional import TailRiskDeltaEntry, TailRiskDeltaSummary
 from polisyos.ir.analytics.fairness import CausalFairnessReport, FairnessDecomposition
@@ -183,7 +184,10 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
     result = runner.run(
         CalibrationValidationRunnerInput(
             run_id="R_c5b_full",
-            candidate_ref=_artifact_ref("a"),
+            candidate_ref=cas_store.put_json(
+                {"synthetic_candidate": "R_c5b_full"},
+                PutOptions(kind="scientist.test", media_type="application/json"),
+            ),
             governance_report=_governance_report(),
             calibration_fit_score=0.91,
             backtest_plan_bundles={kind: _plan_bundle(tmp_path, kind) for kind in BacktestKind},
@@ -240,7 +244,10 @@ def test_calibration_validation_runner_blocks_eligibility_on_missing_transport_a
     result = runner.run(
         CalibrationValidationRunnerInput(
             run_id="R_c5b_gaps",
-            candidate_ref=_artifact_ref("b"),
+            candidate_ref=cas_store.put_json(
+                {"synthetic_candidate": "R_c5b_gaps"},
+                PutOptions(kind="scientist.test", media_type="application/json"),
+            ),
             governance_report=_governance_report(),
             calibration_fit_score=0.9,
             backtest_plan_bundles={kind: _plan_bundle(tmp_path, kind) for kind in BacktestKind},

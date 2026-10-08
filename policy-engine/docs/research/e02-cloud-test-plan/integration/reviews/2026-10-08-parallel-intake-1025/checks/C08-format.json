@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "src/polisyos/foundry/methods/catalog/causal/_partial_graph_queries.py",
+    "src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+    "tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py",
+    "tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py"
+  ],
+  "returncode": 1,
+  "source": "2dd8339c210caf973586f7ddec69b6b0a48f1df7",
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1025/C08-exact/input/policy-engine",
+  "file_denominator": [
+    "src/polisyos/foundry/methods/catalog/causal/_partial_graph_queries.py",
+    "src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+    "tests/unit/foundry/methods/catalog/causal/test_partial_graph_queries.py",
+    "tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py"
+  ],
+  "config": "automatic discovery of exact nearest ruff.toml and exact generated extension; same command mode as author"
+}

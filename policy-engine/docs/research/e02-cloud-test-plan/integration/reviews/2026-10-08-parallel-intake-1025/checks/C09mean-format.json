@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "src/polisyos/foundry/uncertainty/monte_carlo.py",
+    "tests/unit/foundry/uncertainty/test_mean_estimator_error.py"
+  ],
+  "returncode": 0,
+  "source": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1025/C09mean-exact/input/policy-engine",
+  "file_denominator": [
+    "src/polisyos/foundry/uncertainty/monte_carlo.py",
+    "tests/unit/foundry/uncertainty/test_mean_estimator_error.py"
+  ],
+  "config": "automatic discovery of exact nearest ruff.toml and exact generated extension; same command mode as author"
+}

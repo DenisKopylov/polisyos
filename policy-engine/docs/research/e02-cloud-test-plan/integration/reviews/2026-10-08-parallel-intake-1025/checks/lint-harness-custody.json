@@ -1,0 +1,7 @@
+{
+  "attempt1": "nearest ruff.toml omitted; fallback ancestor config; not deciding project lint",
+  "attempt2": "exact ruff.toml added but explicit --config changed inherited per-file path resolution; not matching author automatic command",
+  "final": "automatic nearest immutable config discovery; byte-identical source and tests; scoped product results above",
+  "outputs": "all initial attempts and show-settings retained in ignored R/watch-20261008-1025",
+  "pytest_warning": "cache provider deliberately disabled in G isolated harness; preserved unknown cache_dir warning, no product failure"
+}

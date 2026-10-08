@@ -1,0 +1,40 @@
+{
+  "source": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+  "real_input_distribution_family": "bootstrap",
+  "real_input_carrier": "PosteriorSamplesCarrier",
+  "real_input_weights": [
+    0.9,
+    0.1
+  ],
+  "persisted_envelope_ref": {
+    "artifact_id": "sha256:27e5fff11766f898cbbccda49e80583ae2cd06ef4a576d0417bc6f7273b3934a",
+    "kind": "ir.uncertainty_envelope",
+    "media_type": "application/json"
+  },
+  "fresh_diagnostic": {
+    "assumptions": [
+      "fixed_deterministic_response_to_independent_input_draws",
+      "finite_response_variance"
+    ],
+    "assumptions_verified": false,
+    "attempted_draw_count": 100,
+    "estimator": "sample_mean",
+    "finite_output_count": 100,
+    "gate_eligible": false,
+    "input_envelope_sha256": {
+      "x": "9f4d28c181f771118b466c3ce92b43f30ecb3d3fb231bb05323784a803ed673e"
+    },
+    "reason": "unsupported_input_sampling_law",
+    "requested_draw_count": 100,
+    "sampling_law": "implemented_product_of_typed_normal_fits",
+    "sampling_method": "random",
+    "seed": 42,
+    "source_law_authority": "not_established",
+    "standard_error": null,
+    "status": "unavailable",
+    "target": "implemented_push_forward_mean"
+  },
+  "gate_eligible": false,
+  "loaded_polisyos_module_denominator": 99,
+  "mismatches": 0
+}

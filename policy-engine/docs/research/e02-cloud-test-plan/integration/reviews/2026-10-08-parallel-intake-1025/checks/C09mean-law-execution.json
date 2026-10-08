@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1025/mean_law_probe.py",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1025/C09mean-exact/input",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1025/C09mean-law-probe"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1025/C09mean-exact/input/policy-engine",
+  "source": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+  "returncode": 1,
+  "wall_s": 2.5883756250259466,
+  "timeout_s": 120,
+  "outcome": "expected property assertion FAIL if observation.json reached; no product source mutation"
+}

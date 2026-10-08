@@ -1,0 +1,39 @@
+{
+  "source_sha": "741af2a08a8dc5fa36340bf700c092c7fb51f651",
+  "source_tree": "bfae04d141187c30e4f6bc14dbbbae00f6ee116c",
+  "start_utc": "2026-10-08T10:34:26.385863+00:00",
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1025/exact_pytest.py",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1025/C07-exact/input",
+    "741af2a08a8dc5fa36340bf700c092c7fb51f651",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1025/C07-exact",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1025/C07-exact/selectors.json"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1025/C07-exact/input/policy-engine",
+  "selectors": [
+    "tests/unit/ir/test_value_subject_relation.py",
+    "tests/unit/ir/test_uncertainty.py",
+    "tests/unit/core/contracts/test_value_outer_set.py",
+    "tests/unit/foundry/methods/test_value_evidence.py"
+  ],
+  "timeout_s": 120,
+  "wall_s": 8.980758124962449,
+  "returncode": 0,
+  "timed_out": false,
+  "free_GiB": 45.24546813964844,
+  "source_isolation": "git archive exact candidate, existing G venv; no production data or installation",
+  "origin_check": {
+    "source_sha": "741af2a08a8dc5fa36340bf700c092c7fb51f651",
+    "pytest_returncode": 0,
+    "loaded_file_backed_polisyos_module_denominator": 832,
+    "source_mismatch_count": 0
+  },
+  "ignored_origin_inventory": {
+    "path": "policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1025/C07-exact/origins.json",
+    "sha256": "5a1357d93a9d1b300d2153600589707093eda000d6165acfe9f55d370bf5da75",
+    "bytes": 233208
+  },
+  "source_archive_isolation": "not a new Git checkout/worktree/branch; no source edits, install or production input"
+}

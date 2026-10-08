@@ -1,0 +1,41 @@
+{
+  "source_sha": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+  "source_tree": "7a4ee9e71c793827abef998540dcd12ab129c4ba",
+  "start_utc": "2026-10-08T10:34:36.436444+00:00",
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1025/exact_pytest.py",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1025/C09mean-exact/input",
+    "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1025/C09mean-exact",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1025/C09mean-exact/selectors.json"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1025/C09mean-exact/input/policy-engine",
+  "selectors": [
+    "tests/unit/foundry/uncertainty/test_mean_estimator_error.py",
+    "tests/unit/foundry/uncertainty/test_monte_carlo.py",
+    "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+    "tests/unit/foundry/uncertainty/test_adaptive_stopping.py",
+    "tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py::test_actual_backtest_keeps_unavailable_intervals_non_gating_after_cas_readback[interval0]",
+    "tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py::test_same_intervals_changed_observations_change_actual_persisted_coverage"
+  ],
+  "timeout_s": 120,
+  "wall_s": 12.554085457988549,
+  "returncode": 0,
+  "timed_out": false,
+  "free_GiB": 45.1239013671875,
+  "source_isolation": "git archive exact candidate, existing G venv; no production data or installation",
+  "origin_check": {
+    "source_sha": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+    "pytest_returncode": 0,
+    "loaded_file_backed_polisyos_module_denominator": 862,
+    "source_mismatch_count": 0
+  },
+  "ignored_origin_inventory": {
+    "path": "policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1025/C09mean-exact/origins.json",
+    "sha256": "c88403bd008f27016d2da8719c999bd0d4113a747daa844206c5ddc05a676393",
+    "bytes": 241468
+  },
+  "source_archive_isolation": "not a new Git checkout/worktree/branch; no source edits, install or production input"
+}

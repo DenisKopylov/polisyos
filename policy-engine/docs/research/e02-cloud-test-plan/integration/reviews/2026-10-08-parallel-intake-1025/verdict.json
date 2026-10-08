@@ -1,0 +1,178 @@
+{
+  "schema": "policyos.e02.G.delta_intake.v1",
+  "utc": "2026-10-08T10:47:05.539745+00:00",
+  "input_G": "71ec2e0758cd7cd93423d3a91afe1a07cef61401",
+  "main_authorized": false,
+  "source_implementation_accepted": [],
+  "formal_closure_ids": [],
+  "metadata_history_accepted": [
+    {
+      "unit": "L01",
+      "input": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+      "merge": "43f38e51a81bb8c27dc187332aab0664c0211a46"
+    },
+    {
+      "unit": "L02",
+      "input": "45c82745292baeeb5414b7367dde931872ee0417",
+      "merge": "65c6afc8b345369966d7c2ab33bf7727f8d7ae69"
+    }
+  ],
+  "fetched_new_heads": {
+    "origin/codex/e02-E-c07-20261008": "dce5b253bd3f2d8f05c008a5128b1532e44b3837",
+    "origin/codex/e02-E-c09-20261008": "6d470eb884c31a8b19ee06058881cf0deaa492f5",
+    "origin/codex/e02-E-c09-sensitivity-20261008": "665ea762c107a76cf06024934fb3e176b41ba043",
+    "origin/codex/e02-F-c08-20261008": "a38d6e79eb08a516ccabd298984d9cb7a660030a",
+    "origin/codex/e02-F-closeout-20261006": "9a2cc9dbe0fc2c50ed2371f56cbdde79c05656ff",
+    "origin/codex/e02-L01-custody-20261008": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+    "origin/codex/e02-L02-authentic-20261008": "45c82745292baeeb5414b7367dde931872ee0417"
+  },
+  "census": {
+    "ref_count": 138,
+    "open_pr_count": 47,
+    "e02_pr_count": 46,
+    "new_pr_heads": [
+      {
+        "headRefName": "codex/e02-F-closeout-20261006",
+        "headRefOid": "9a2cc9dbe0fc2c50ed2371f56cbdde79c05656ff",
+        "isDraft": true,
+        "number": 65,
+        "title": "fix(scientist): complete F causal consumers and source-bound 35-ID handoff",
+        "updatedAt": "2026-10-08T10:02:49Z",
+        "url": "https://github.com/DenisKopylov/polisyos/pull/65"
+      }
+    ]
+  },
+  "baseline": {
+    "import_results_check": "PASS",
+    "verification": "results/verification.json@b4d46edbd185add382dbc3a86f762274a3c5e781",
+    "grade": "transfer_and_navigation_only",
+    "raw_archives_received": 0
+  },
+  "fresh_checks": {
+    "C07": {
+      "candidate": "741af2a08a8dc5fa36340bf700c092c7fb51f651",
+      "tree": "bfae04d141187c30e4f6bc14dbbbae00f6ee116c",
+      "returncode": 0,
+      "loaded_module_denominator": 832,
+      "byte_mismatches": 0,
+      "wall_s": 8.980758124962449,
+      "Ruff_exit": 0,
+      "format_exit": 1
+    },
+    "C08": {
+      "candidate": "2dd8339c210caf973586f7ddec69b6b0a48f1df7",
+      "tree": "72c482aa7d731f1adfaf703dcd6708fcccff40cd",
+      "returncode": 0,
+      "loaded_module_denominator": 782,
+      "byte_mismatches": 0,
+      "wall_s": 12.562423833005596,
+      "Ruff_exit": 1,
+      "format_exit": 1
+    },
+    "C09mean": {
+      "candidate": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+      "tree": "7a4ee9e71c793827abef998540dcd12ab129c4ba",
+      "returncode": 0,
+      "loaded_module_denominator": 862,
+      "byte_mismatches": 0,
+      "wall_s": 12.554085457988549,
+      "Ruff_exit": 0,
+      "format_exit": 0
+    }
+  },
+  "C07": {
+    "state": "bounded_library_GO_source_acceptance_pending_G_composition",
+    "source": "741af2a08a8dc5fa36340bf700c092c7fb51f651",
+    "property": "default-view CAS bytes and declared-subject/lineage agreement; false eligibility",
+    "remaining": [
+      "G canonical schema/public family composition",
+      "C06 preserve automatically returned/selected views",
+      "C10 typed identification/native outputs, actual complete/current basis and fresh ValuePort"
+    ],
+    "finding_B31": "historical held; no new adjudication"
+  },
+  "C08": {
+    "state": "bounded_algorithm_GO_source_acceptance_pending_graph_bound_readback",
+    "source": "2dd8339c210caf973586f7ddec69b6b0a48f1df7",
+    "property": "exhaustive finite static CPDAG common/conditional functional",
+    "concrete_verification_gap": "proof source graph not resolved/content-compared in both common/conditional fresh readers",
+    "protected_authority_escape": "not_established; ranking score and valid mathematical IDENTIFIED are not themselves admission",
+    "owners": [
+      "C08 causal producer/proof/source binding",
+      "C10/C11 protected consumer composition"
+    ],
+    "B214": "technical limited; formal not_adjudicated",
+    "B56": "UNRUN actual shared admission/workload; configured synthetic/non-secret workload permitted; no blanket production roster requirement",
+    "native_ID_query_marginalization": "disclosed off-slice issue; separate current C08 owner discriminator"
+  },
+  "C09mean": {
+    "state": "HOLD",
+    "source": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+    "counterexample": "constructed typed weighted-bootstrap fixture on actual MC/fresh CAS incorrectly names typed-Normal sampling law",
+    "counterexample_check": "FAIL property assertion; SEM remains unavailable/null/non-gating",
+    "probe_loaded_module_denominator": 99,
+    "probe_byte_mismatches": 0,
+    "history_dependency": "interval ee0b remains HOLD under 71ec status-propagation grant; no cherry-pick/reset/rebase",
+    "LA036": "original BERL binding retained; observed-feature law is a separate dependency, not closure"
+  },
+  "C09sensitivity": {
+    "state": "prepared_source_not_finished_handoff",
+    "source": "665ea762c107a76cf06024934fb3e176b41ba043",
+    "tree": "cb5d23374838763fc9e9a90fd25059905163dbed",
+    "remaining": [
+      "source-qualified independent review and complete deciding receipt",
+      "separate canonical Node consumer adoption",
+      "G public-inventory companion"
+    ],
+    "local_checks": "UNRUN intentionally pending final receipt"
+  },
+  "ORCH03": {
+    "head": "9a2cc9dbe0fc2c50ed2371f56cbdde79c05656ff",
+    "delta": "two admitted sensitivity branch/path receipts + manifest; stored/decoded hashes match",
+    "carrier_merged": false
+  },
+  "L01": {
+    "acceptance": "qualified fact/input metadata only",
+    "full_diff_paths": 43,
+    "records": 41,
+    "occurrences": 42,
+    "production_payload_reads": false,
+    "external_authority": "not_established where packet lists unavailable inputs"
+  },
+  "L02": {
+    "acceptance": "qualified Mac missing-context refusal evidence only",
+    "full_diff_paths": 49,
+    "payloads_verified": 48,
+    "seven_case_Mac_result": "PASS",
+    "native_DoWhy_installed_or_authentic_positive": "UNRUN",
+    "fake_point_control": "returned-report property discriminator, not source/backend-resolution removal"
+  },
+  "patterns": [
+    "P01",
+    "P02",
+    "P04",
+    "P05",
+    "P10",
+    "P12",
+    "P14",
+    "P29",
+    "P32",
+    "P35",
+    "P36",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ],
+  "global_replay": "UNRUN; once after selected source freeze and independent reviews",
+  "quality_attribution": "not_established; no inherited-red claim",
+  "one_level_reviewers": 8,
+  "resources": {
+    "free_GiB": 45.0798454284668,
+    "attention_threshold_GiB": 18,
+    "local_compute_slot": "idle",
+    "cleanup": "none",
+    "new_env_install": "none",
+    "production_data_cloud": "none"
+  }
+}

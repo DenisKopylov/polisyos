@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/ir/__init__.py",
+    "src/polisyos/ir/analytics/uncertainty.py",
+    "src/polisyos/ir/api.py",
+    "src/polisyos/ir/migrations/schema_registry.py",
+    "src/polisyos/ir/registry/refs.py",
+    "tests/unit/ir/test_value_subject_relation.py"
+  ],
+  "returncode": 0,
+  "source": "741af2a08a8dc5fa36340bf700c092c7fb51f651",
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1025/C07-exact/input/policy-engine",
+  "file_denominator": [
+    "src/polisyos/ir/__init__.py",
+    "src/polisyos/ir/analytics/uncertainty.py",
+    "src/polisyos/ir/api.py",
+    "src/polisyos/ir/migrations/schema_registry.py",
+    "src/polisyos/ir/registry/refs.py",
+    "tests/unit/ir/test_value_subject_relation.py"
+  ],
+  "config": "automatic discovery of exact nearest ruff.toml and exact generated extension; same command mode as author"
+}

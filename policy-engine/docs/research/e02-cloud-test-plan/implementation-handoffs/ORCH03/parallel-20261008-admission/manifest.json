@@ -1,0 +1,112 @@
+{
+  "schema": "policyos.e02.workspace_admission_output_custody.v1",
+  "intake_commit": "386c50cdf9306a76816ea30110c8595f9e46c312",
+  "output_kind": "root-produced full doctor JSON, gzip lossless custody; not source/evidence duplicated from leaves",
+  "outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-admission/root-resume.json.gz",
+      "encoding": "gzip",
+      "stored_bytes": 11984,
+      "stored_sha256": "57009193b8819e7419171a1b881b88c60f94ab76c85efa2ba20093492b4828a3",
+      "decoded_bytes": 147971,
+      "decoded_sha256": "4d6f8573d44eb90b6fdc151b988fb1c04ca2c8f05f135febc999d10a60123536",
+      "requested": {
+        "branch": "codex/e02-F-closeout-20261006",
+        "mode": "resume",
+        "path": "/workspace/e02-F-closeout-20261006"
+      },
+      "status": "admitted",
+      "unresolved_inputs": []
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-admission/c07-create.json.gz",
+      "encoding": "gzip",
+      "stored_bytes": 12028,
+      "stored_sha256": "96af4f3060b5e2b326de5ff79fef3b192c02a8e33ba0738ca9e959266318bd29",
+      "decoded_bytes": 147849,
+      "decoded_sha256": "99435c62e397b68cea1df499fd33bd315356e924184f5573bf28ca2c77118f59",
+      "requested": {
+        "branch": "codex/e02-E-c07-20261008",
+        "mode": "create",
+        "path": "/dev/shm/e02-orch03-20261008/c07"
+      },
+      "status": "admitted",
+      "unresolved_inputs": []
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-admission/c07-resume.json.gz",
+      "encoding": "gzip",
+      "stored_bytes": 12530,
+      "stored_sha256": "3b3671d3e99a042f0bb274bb04263b9b72928398b515b029d68d2bce510085cb",
+      "decoded_bytes": 153610,
+      "decoded_sha256": "bb0e40fb0a887ce920ae42595839d104ffef7877ee43cfdf30873b26588cee7b",
+      "requested": {
+        "branch": "codex/e02-E-c07-20261008",
+        "mode": "resume",
+        "path": "/dev/shm/e02-orch03-20261008/c07"
+      },
+      "status": "admitted",
+      "unresolved_inputs": []
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-admission/c08-create.json.gz",
+      "encoding": "gzip",
+      "stored_bytes": 12549,
+      "stored_sha256": "140617aa82eca369d2a9ce40b3e0627b20df5c17428e1675c512476801fc1ca5",
+      "decoded_bytes": 153523,
+      "decoded_sha256": "085dc629bd52f5949a5d51409ae9ba66bc6eab897bcfbe40c74a2ab4a9a79d54",
+      "requested": {
+        "branch": "codex/e02-F-c08-20261008",
+        "mode": "create",
+        "path": "/dev/shm/e02-orch03-20261008/c08"
+      },
+      "status": "admitted",
+      "unresolved_inputs": []
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-admission/c08-resume.json.gz",
+      "encoding": "gzip",
+      "stored_bytes": 12867,
+      "stored_sha256": "9a1df036722e9a7354fc3015b84e20e1b947459f6035a7bfc837e2e606fe5e9d",
+      "decoded_bytes": 159284,
+      "decoded_sha256": "9eef5cdece5fb027a9af391f58d59a2640f14f23cfb7ff04320f20bc5e37a85e",
+      "requested": {
+        "branch": "codex/e02-F-c08-20261008",
+        "mode": "resume",
+        "path": "/dev/shm/e02-orch03-20261008/c08"
+      },
+      "status": "admitted",
+      "unresolved_inputs": []
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-admission/c09-create.json.gz",
+      "encoding": "gzip",
+      "stored_bytes": 12880,
+      "stored_sha256": "f8c5eaf8d83eebfa8e889415c1ed835489833002d8b31cd3b0d9c1174f14d157",
+      "decoded_bytes": 159197,
+      "decoded_sha256": "c9c345bbb9de07585d23017f4d5be86f459911e68ddaa67c101034274ef89e5f",
+      "requested": {
+        "branch": "codex/e02-E-c09-20261008",
+        "mode": "create",
+        "path": "/dev/shm/e02-orch03-20261008/c09"
+      },
+      "status": "admitted",
+      "unresolved_inputs": []
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-admission/c09-resume.json.gz",
+      "encoding": "gzip",
+      "stored_bytes": 13192,
+      "stored_sha256": "e8dd7bb9747dd0132f2f67e87882cf60840e46677d2f55aad91a53d7bede2576",
+      "decoded_bytes": 164958,
+      "decoded_sha256": "6a2a61fb546416e8d65bdadadb9550c052279f6422ea025285c0ec4a01f551ef",
+      "requested": {
+        "branch": "codex/e02-E-c09-20261008",
+        "mode": "resume",
+        "path": "/dev/shm/e02-orch03-20261008/c09"
+      },
+      "status": "admitted",
+      "unresolved_inputs": []
+    }
+  ]
+}

@@ -116,14 +116,16 @@ uv run pytest tests/unit/foundry/calibration/test_identifiability.py \
 can measure a local Jacobian from actual Foundry replays and persisted scalar
 state. Parameter keys are registered `node_id.parameter` entries. Moment and
 parameter units come from the exact bound registry; moment/parameter axis order,
-source/model/input references, bytes and selected manifests, finite-difference
+source/model/input references, initial and replay StateSnapshot 2.2 nested NPZ/schema
+bytes and selected manifests, finite-difference
 points, requested execution config, seeds, and actual replay artifacts remain in
 the matrix's `response_basis` and manifest lineage. The internal companion reader
 recomputes that basis and the Jacobian/weighting/Fisher matrices from fresh CAS
 states before returning them.
 
 This profile requires explicit inline observed moments and parameter center,
-registered global scalar response slots, a persisted sensitivity matrix, and
+registered global scalar response slots, an explicit current StateSnapshot 2.2
+initial state, a persisted sensitivity matrix, and
 zero bootstrap/profile repetitions. A callback, an unknown or vector response,
 an unbound unit, changed source/config/axis, or incomplete lineage cannot be
 substituted for this profile. The existing callback and operational-metrics

@@ -34,6 +34,7 @@ from polisyos.core.contracts.foundry import (
     ProgramGraph,
     SimulationResult,
     SimulationResultRef,
+    StateSnapshot,
 )
 from polisyos.foundry.methods.catalog.simulation.dynamics import (
     build_abm_result_from_simulation,
@@ -1380,6 +1381,36 @@ def _response_input_ref(store: FileSystemCAS, item: InputRef) -> ArtifactRef:
     return ref
 
 
+def _response_snapshot_inputs(store: FileSystemCAS, ref: ArtifactRef) -> dict[str, ArtifactRef]:
+    """Resolve the finite, maintained current StateSnapshot leaf contract."""
+    snapshot = StateSnapshot.model_validate(from_canonical_bytes(store.get_bytes(ref)))
+    manifest = store.get_manifest(ref)
+    if snapshot.schema_version != "2.2" or manifest.artifact_schema != SchemaInfo(
+        name="polisyos.core.StateSnapshot", version="2.2.0"
+    ):
+        raise ValueError("state response requires current exact-view StateSnapshot 2.2")
+    if (
+        snapshot.state_ref.kind != "foundry.state_blob"
+        or snapshot.state_ref.media_type != "application/x-npz"
+    ):
+        raise ValueError("state response has an unsupported state blob type")
+    expected_leaf = input_ref_from_artifact_ref(snapshot.state_ref, role="state_blob")
+    leaves = [item for item in manifest.inputs if item.role == "state_blob"]
+    if leaves != [expected_leaf] or snapshot.lineage_inputs != manifest.inputs:
+        raise ValueError("state response snapshot has missing/duplicate/contradictory leaf lineage")
+    identity = _response_identity(store, snapshot.state_ref)
+    if (
+        snapshot.checksum_sha256 is None
+        or identity.content_sha256 != "sha256:" + snapshot.checksum_sha256
+    ):
+        raise ValueError("state response snapshot checksum differs from declared bytes")
+    refs = {"state_blob": snapshot.state_ref}
+    if snapshot.schema_ref is not None:
+        _response_identity(store, snapshot.schema_ref)
+        refs["schema"] = snapshot.schema_ref
+    return refs
+
+
 def _response_context(
     store: FileSystemCAS,
     source_ref: SimulationResultRef,
@@ -1449,6 +1480,10 @@ def _response_context(
             refs[f"registry.{name}"] = value
     for item in manifest.inputs:
         refs[f"source.{item.role}"] = _response_input_ref(store, item)
+    if bindings.bound_state_snapshot_ref is None:
+        raise ValueError("state response requires an explicit bound initial state")
+    for role, ref in _response_snapshot_inputs(store, bindings.bound_state_snapshot_ref).items():
+        refs[f"source_state.{role}"] = ref
     for node in program.nodes:
         if node.params_ref is not None:
             refs[f"params.{node.node_id}"] = node.params_ref
@@ -1519,7 +1554,9 @@ def _response_replay(store: FileSystemCAS, ref: ArtifactRef) -> SimulationResult
             raise ValueError(f"response replay lineage mismatch: {role} selected view")
         resolved = _response_input_ref(store, matches[0])
         updates[field] = type(payload_ref).model_validate(resolved.model_dump(mode="python"))
-    return replay.model_copy(update=updates)
+    normalized = replay.model_copy(update=updates)
+    _response_snapshot_inputs(store, normalized.state_snapshot_ref)
+    return normalized
 
 
 def _response_state_values(
@@ -1738,6 +1775,11 @@ def _load_execute_response_matrix(
         if len([item for item in manifest.inputs if item.role == "state_delta"]) != 1:
             raise ValueError("response replay lineage mismatch: state_delta")
         replay_sources.append(replay)
+    # Validate the admitted initial state through the maintained reader only
+    # after every source/replay leaf, basis and roster has passed.
+    from polisyos.foundry.execute.executor import load_state_snapshot
+
+    load_state_snapshot(store, snapshot_ref=expected.source_inputs["bound_state"].ref)
     values = []
     for replay in replay_sources:
         replay_values = _response_state_values(store, replay, expected.state_paths)

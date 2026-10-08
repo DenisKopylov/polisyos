@@ -588,3 +588,53 @@ def test_actual_replay_manifest_lineage_is_verified(response_case, monkeypatch, 
     monkeypatch.setattr("polisyos.foundry.execute.executor.load_state_snapshot", no_state)
     with pytest.raises(ValueError, match="lineage mismatch"):
         _read(response_case, matrix=corrupt_matrix)
+
+
+@pytest.mark.parametrize("target", ["initial", "replay"])
+def test_nested_state_npz_bytes_are_verified_before_state_interpretation(
+    response_case, tmp_path, monkeypatch, target
+):
+    import shutil
+
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.artifacts.store import ArtifactIntegrityError
+    from polisyos.core.contracts.foundry import StateSnapshot
+
+    path, _, source, parameter, matrix = response_case
+    copied = tmp_path / "cas"
+    shutil.copytree(path / "cas", copied)
+    store = FileSystemCAS(copied)
+    payload = from_canonical_bytes(store.get_bytes(matrix))
+    if target == "initial":
+        wrapper_ref = ArtifactRef.model_validate(
+            payload["response_basis"]["source_inputs"]["bound_state"]["ref"]
+        )
+    else:
+        result_ref = ArtifactRef.model_validate(
+            payload["response_basis"]["replays"][-1]["result"]["ref"]
+        )
+        result = SimulationResult.model_validate(from_canonical_bytes(store.get_bytes(result_ref)))
+        wrapper_ref = result.state_snapshot_ref
+    wrapper = StateSnapshot.model_validate(from_canonical_bytes(store.get_bytes(wrapper_ref)))
+    blob, _ = store._paths(wrapper.state_ref.artifact_id)
+    blob.write_bytes(blob.read_bytes() + b" ")
+
+    def no_state(*args, **kwargs):
+        pytest.fail("unverified nested state blob reached state interpretation")
+
+    monkeypatch.setattr("polisyos.foundry.execute.executor.load_state_snapshot", no_state)
+    with pytest.raises(ArtifactIntegrityError):
+        _load_execute_response_matrix(
+            store,
+            matrix,
+            source_ref=source,
+            response_slots={"balance": "government.balance"},
+            parameter_center={parameter: 0.5},
+            config=IdentifiabilityDiagnosticConfig(
+                simulation_reps=2,
+                bootstrap_reps=0,
+                profile_grid_size=0,
+                seed=29,
+                finite_diff_rel_step=0.01,
+            ),
+        )

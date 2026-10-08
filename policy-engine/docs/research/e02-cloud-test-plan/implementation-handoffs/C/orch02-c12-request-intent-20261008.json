@@ -321,6 +321,47 @@
       "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture.stdout.txt",
       "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture.stderr.txt",
       "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/source-input-closure.json"
+    },
+    {
+      "name": "architecture-final-required-192",
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "python",
+        "-m",
+        "tools.cli",
+        "architecture",
+        "guardrails",
+        "check",
+        "--generated-freshness-workspace-root",
+        "/workspace/orch02-recovery/c12-required-architecture-192/generated-freshness",
+        "--generated-freshness-uv-cache-dir",
+        "/workspace/.polisyos-environment/cache/uv"
+      ],
+      "cwd": "/workspace/orch02-c12/policy-engine",
+      "target_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+      "target_tree": "46d748c61419ea4093cae25bc4111935b41f1a58",
+      "actual_whole_execution_head": "427068292f7e0e50a12441affe72f167a899c45b",
+      "actual_whole_execution_tree": "cc1506954441ef4e5ff2ef08109f13c6c3e7d150",
+      "source_to_execution_delta": "56 docs/evidence paths only; no source/test/tool/config/lock delta",
+      "environment": "Managed Node22.23.3 uv0.9.21 corepack/pnpm frozen-ignore-scripts; read-only shared Python3.14.2/no-sync and private frozen offline copied-source generator environment",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 431.7616398690002,
+      "maxrss_kib": 1116440,
+      "resource_scope": "wait4 child usage for exact uv invocation; not a summed host memory measurement",
+      "timeout_seconds": null,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/architecture.stdout.txt.gz",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/architecture.stderr.txt",
+      "output_encoding": "gzip",
+      "decompressed_output_sha256": "16990ad01c756cb3b259afcea1ee0d3285caf547c5189397c78bbc6a8d1a1fca",
+      "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/architecture.receipt.json",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/input-binding.json",
+      "taxonomy": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/taxonomy.json",
+      "complete_default_required_freshness": true,
+      "optional_generated_checks": false,
+      "standalone_Atlas_status_retirement": false
     }
   ],
   "native_denominator": {
@@ -404,6 +445,11 @@
       "gate": "pytest warning",
       "outcome": "PASS with warning",
       "details": "Unknown cache_dir option because cacheprovider disabled for source-clean external scratch; no missing backend, failures or skips."
+    },
+    {
+      "gate": "architecture guardrails final-required",
+      "outcome": "FAIL",
+      "details": "Fresh full default required gate on actual427 docs/evidence tree with exact192 source completes with no UNRUN/escapes: baseline drift1,154newedges vscheckedbaseline,2generateddrifts; client3/dashboard1 outputs freshnessclean. Prior677UNRUN preserved. No P41 inherited-green, optional/Atlas/native/production claim; see separate original-C followup."
     }
   ],
   "source_acceptance": "not_admitted_by_G",
@@ -481,8 +527,9 @@
   },
   "cleanup": "No permanent cleanup; unique source/outputs preserved; no venv/nativefixtureDB/index/assets copied to Git.",
   "receipt_footprint": {
-    "complete_new_path_count": 56,
+    "complete_new_path_count": 71,
     "paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-architecture-followup-20261008.json",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008.json",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/G-preimages.json",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/README.md",
@@ -512,6 +559,20 @@
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/runtime-origins.json",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/stderr.txt",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/stdout.txt.gz",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/architecture.command.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/architecture.receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/architecture.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/architecture.stdout.txt.gz",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/artifact-manifest.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/bootstrap.receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/bootstrap.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/bootstrap.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/generated-output-bindings.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/input-binding.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/preflight.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/preflight.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/taxonomy.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/toolchain.json",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture.receipt.json",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture.stderr.txt",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture.stdout.txt",
@@ -583,5 +644,14 @@
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-independent-evidence-handoff-review-6e51ea2a.json"
     ],
     "source_evidence_scope": "Exact6proposal/source192 unchanged; complete native JUnit31+5 no failures/errors/skips, G0/G1 removal/restoration/fresh results, callable residual, full outputs/origins and lossless gzip reconciled on immutable6e51. This forward commit adds only verbatim review copies and metadata."
-  }
+  },
+  "quality_followups": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-architecture-followup-20261008.json",
+      "source_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+      "actual_checked_whole_head": "427068292f7e0e50a12441affe72f167a899c45b",
+      "outcome": "FAIL",
+      "prior_attempt": "677 UNRUN remains preserved; new toolchain removes availability gap only"
+    }
+  ]
 }

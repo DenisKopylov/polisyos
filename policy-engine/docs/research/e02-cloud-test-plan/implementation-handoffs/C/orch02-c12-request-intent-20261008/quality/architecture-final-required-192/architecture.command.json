@@ -1,0 +1,32 @@
+{
+  "command": [
+    "/workspace/.polisyos-environment/uv/bin/uv",
+    "run",
+    "--no-sync",
+    "python",
+    "-m",
+    "tools.cli",
+    "architecture",
+    "guardrails",
+    "check",
+    "--generated-freshness-workspace-root",
+    "/workspace/orch02-recovery/c12-required-architecture-192/generated-freshness",
+    "--generated-freshness-uv-cache-dir",
+    "/workspace/.polisyos-environment/cache/uv"
+  ],
+  "cwd": "/workspace/orch02-c12/policy-engine",
+  "source_candidate": "192c8b935b824e2e4d38276f10d3061877207e9f",
+  "source_tree": "46d748c61419ea4093cae25bc4111935b41f1a58",
+  "execution_head": "427068292f7e0e50a12441affe72f167a899c45b",
+  "execution_tree": "cc1506954441ef4e5ff2ef08109f13c6c3e7d150",
+  "environment_manifest": "toolchain.json",
+  "generated_expected_root": "/workspace/orch02-c12/policy-engine",
+  "timeout_seconds": null,
+  "state": "RUNNING",
+  "required_default_families": [
+    "runtime-openapi-snapshot",
+    "runtime-api-client",
+    "runtime-dashboard-api-types",
+    "trust-claim-posture-register"
+  ]
+}

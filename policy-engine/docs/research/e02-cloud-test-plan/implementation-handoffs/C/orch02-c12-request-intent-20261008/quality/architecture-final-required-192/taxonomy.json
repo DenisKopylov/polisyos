@@ -1,0 +1,29 @@
+{
+  "whole_gate_outcome": "FAIL",
+  "exit_code": 1,
+  "full_default_required_measurements_completed": true,
+  "UNRUN_measurement_count": 0,
+  "isolation_escape_findings": 0,
+  "completed_findings": {
+    "deep_import_baseline_drift": 1,
+    "new_deep_import_edges_vs_checked_baseline": 154,
+    "generated_output_drift": 2
+  },
+  "non_deep_import_findings": [
+    "- Deep-import baseline drift detected. Re-run `uv run polisyos-tools architecture guardrails sync` only when intentionally accepting the new baseline.",
+    "- runtime-openapi-snapshot generated output schemas/runtime_api_v1.openapi.json does not match /workspace/orch02-c12/policy-engine/schemas/runtime_api_v1.openapi.json.",
+    "- trust-claim-posture-register generated output apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json does not match /workspace/orch02-c12/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json."
+  ],
+  "default_generated_family_results": {
+    "runtime-openapi-snapshot": "completed generator-observed output; schema drift FAIL",
+    "runtime-api-client": "freshness clean, 3 generator-observed outputs",
+    "runtime-dashboard-api-types": "freshness clean, 1 generator-observed output",
+    "trust-claim-posture-register": "completed generator-observed output; posture drift FAIL"
+  },
+  "scoped_lex_knowledge_deep_import_findings": [
+    "- New deep-import creep detected: polisyos.lex.knowledge.store -> polisyos.data_forge.domains.legal.embedding_projection (src/polisyos/lex/knowledge/store.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+    "- New deep-import creep detected: polisyos.lex.knowledge.store -> polisyos.data_forge.kernel.embeddings (src/polisyos/lex/knowledge/store.py). Add a stable facade, update the baseline intentionally, or register a temporary exception."
+  ],
+  "attribution": "No exact slice-base/zero-intersection replay; P41 not_established, no inherited-green or unrelated repairs.",
+  "excluded": "All optional generated families and standalone Atlas status-retirement enforcement were not requested; no native/served/production property replay."
+}

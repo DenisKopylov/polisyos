@@ -1,0 +1,74 @@
+{
+  "kind": "postrun readback of registered default-family generated public artifacts only",
+  "registered_output_count": 6,
+  "drift_count": 2,
+  "outputs": [
+    {
+      "family_id": "runtime-openapi-snapshot",
+      "relative_output": "schemas/runtime_api_v1.openapi.json",
+      "generated_path": "/workspace/orch02-recovery/c12-required-architecture-192/generated-freshness/outputs/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json",
+      "generated_bytes": 2812414,
+      "generated_sha256": "04c2471947188efa542f6de73564a098caa7a00c7140c99790bf8888fda4b860",
+      "expected_path": "/workspace/orch02-c12/policy-engine/schemas/runtime_api_v1.openapi.json",
+      "expected_bytes": 2812414,
+      "expected_sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a",
+      "matches_expected": false
+    },
+    {
+      "family_id": "runtime-api-client",
+      "relative_output": "packages/runtime-api-client/types.ts",
+      "generated_path": "/workspace/orch02-recovery/c12-required-architecture-192/generated-freshness/outputs/runtime-api-client/packages/runtime-api-client/types.ts",
+      "generated_bytes": 951543,
+      "generated_sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4",
+      "expected_path": "/workspace/orch02-c12/policy-engine/packages/runtime-api-client/types.ts",
+      "expected_bytes": 951543,
+      "expected_sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4",
+      "matches_expected": true
+    },
+    {
+      "family_id": "runtime-api-client",
+      "relative_output": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "generated_path": "/workspace/orch02-recovery/c12-required-architecture-192/generated-freshness/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "generated_bytes": 108061,
+      "generated_sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd",
+      "expected_path": "/workspace/orch02-c12/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "expected_bytes": 108061,
+      "expected_sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd",
+      "matches_expected": true
+    },
+    {
+      "family_id": "runtime-api-client",
+      "relative_output": "packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "generated_path": "/workspace/orch02-recovery/c12-required-architecture-192/generated-freshness/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "generated_bytes": 31276,
+      "generated_sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506",
+      "expected_path": "/workspace/orch02-c12/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "expected_bytes": 31276,
+      "expected_sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506",
+      "matches_expected": true
+    },
+    {
+      "family_id": "runtime-dashboard-api-types",
+      "relative_output": "apps/runtime-dashboard/src/api/types.ts",
+      "generated_path": "/workspace/orch02-recovery/c12-required-architecture-192/generated-freshness/outputs/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts",
+      "generated_bytes": 791736,
+      "generated_sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c",
+      "expected_path": "/workspace/orch02-c12/policy-engine/apps/runtime-dashboard/src/api/types.ts",
+      "expected_bytes": 791736,
+      "expected_sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c",
+      "matches_expected": true
+    },
+    {
+      "family_id": "trust-claim-posture-register",
+      "relative_output": "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "generated_path": "/workspace/orch02-recovery/c12-required-architecture-192/generated-freshness/outputs/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "generated_bytes": 2376644,
+      "generated_sha256": "a8d6c1638690961fb33745bfdbb9ed4df6a4cf4a4d3828d3288459aeb487b119",
+      "expected_path": "/workspace/orch02-c12/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "expected_bytes": 2365635,
+      "expected_sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba",
+      "matches_expected": false
+    }
+  ],
+  "scope": "No generated output is copied to source or uploaded; exact scratch paths remain local, hashes and full deciding gate stdout retained."
+}

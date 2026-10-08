@@ -1,0 +1,61 @@
+{
+  "command": [
+    "/workspace/.polisyos-environment/uv/bin/uv",
+    "run",
+    "--no-sync",
+    "python",
+    "-m",
+    "tools.cli",
+    "architecture",
+    "guardrails",
+    "check",
+    "--generated-freshness-workspace-root",
+    "/workspace/orch02-recovery/c12-required-architecture-192/generated-freshness",
+    "--generated-freshness-uv-cache-dir",
+    "/workspace/.polisyos-environment/cache/uv"
+  ],
+  "cwd": "/workspace/orch02-c12/policy-engine",
+  "source_candidate": "192c8b935b824e2e4d38276f10d3061877207e9f",
+  "source_tree": "46d748c61419ea4093cae25bc4111935b41f1a58",
+  "execution_head": "427068292f7e0e50a12441affe72f167a899c45b",
+  "execution_tree": "cc1506954441ef4e5ff2ef08109f13c6c3e7d150",
+  "environment_manifest": "toolchain.json",
+  "generated_expected_root": "/workspace/orch02-c12/policy-engine",
+  "timeout_seconds": null,
+  "state": "COMPLETED",
+  "required_default_families": [
+    "runtime-openapi-snapshot",
+    "runtime-api-client",
+    "runtime-dashboard-api-types",
+    "trust-claim-posture-register"
+  ],
+  "exit_code": 1,
+  "wall_seconds": 431.7616398690002,
+  "maxrss_kib": 1116440,
+  "execution_head_after": "427068292f7e0e50a12441affe72f167a899c45b",
+  "git_status_after": "",
+  "lock_hashes_after": {
+    "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+    "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+    "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+    "policy-engine/package.json": "9b0fda729ff501b08fa5f4b1a2d783e3000425b187776b0fc6831a9e04ee070f"
+  },
+  "outputs": {
+    "architecture.stdout.txt": {
+      "bytes": 117192,
+      "sha256": "16990ad01c756cb3b259afcea1ee0d3285caf547c5189397c78bbc6a8d1a1fca"
+    },
+    "architecture.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "preflight.stdout.txt": {
+      "bytes": 6386,
+      "sha256": "4529ac790279a4f6c4b842f69367d974112e7cf2115c1a997b2cf509607de47d"
+    },
+    "preflight.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

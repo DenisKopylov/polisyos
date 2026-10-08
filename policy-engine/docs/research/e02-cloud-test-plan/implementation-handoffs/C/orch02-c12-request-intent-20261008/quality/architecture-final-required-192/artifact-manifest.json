@@ -1,0 +1,79 @@
+{
+  "scope": "New architecture evidence only; full raw stdout is losslessly gzip encoded; all other deciding/setup bytes copied verbatim. Original raw remains external scratch. No source/lock/generated artifact/native output changed.",
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/architecture.command.json",
+      "bytes": 1041,
+      "sha256": "1e0fdbdc1cb6e86d18ad3807c9ae40266de9b885a729db14e1deb773c43b5724"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/architecture.receipt.json",
+      "bytes": 2240,
+      "sha256": "71f8633c6802ce838f23a99c069bc279dd079c0869b71a9ad555689dff8811e1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/architecture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/architecture.stdout.txt.gz",
+      "bytes": 8842,
+      "sha256": "4525d9f3bcbb2eb6f5f4ef8404a553a0d20ececfcb45c177cf5ad015bd98571c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/bootstrap.receipt.json",
+      "bytes": 1295,
+      "sha256": "b1fe692026efd261f6775db4f5f25addec447aad61935350af79703d0e65f651"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/bootstrap.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/bootstrap.stdout.txt",
+      "bytes": 518,
+      "sha256": "f54c6bbe7c2c9faa4ef89f1195414b1c1fc114d7f6873c1c0e6e113fbe56ada4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/generated-output-bindings.json",
+      "bytes": 4588,
+      "sha256": "9ca4b9cdde1bf0bc3bcdc5520697a68d347d2b9e38d55050513f16e8745480bb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/input-binding.json",
+      "bytes": 15314,
+      "sha256": "f70d4e46cde566b92892d0818ddd093343b804864bc64f13c6f3682691187d99"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/preflight.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/preflight.stdout.txt",
+      "bytes": 6386,
+      "sha256": "4529ac790279a4f6c4b842f69367d974112e7cf2115c1a997b2cf509607de47d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/taxonomy.json",
+      "bytes": 2165,
+      "sha256": "34a7fdbf392e86cb29480bcd4128c718cc95282a70954c298c84552d40c5219d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/toolchain.json",
+      "bytes": 2894,
+      "sha256": "e3f02a97e520441105d20b44c98e73c9d572cd6a771a36d187a0989345de4cec"
+    }
+  ],
+  "stdout_representation": {
+    "captured_original_path": "/workspace/orch02-recovery/c12-required-architecture-192/architecture.stdout.txt",
+    "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/architecture.stdout.txt.gz",
+    "compressed_bytes": 8842,
+    "compressed_sha256": "4525d9f3bcbb2eb6f5f4ef8404a553a0d20ececfcb45c177cf5ad015bd98571c",
+    "decompressed_bytes": 117192,
+    "decompressed_sha256": "16990ad01c756cb3b259afcea1ee0d3285caf547c5189397c78bbc6a8d1a1fca",
+    "equals_original_capture": true
+  }
+}

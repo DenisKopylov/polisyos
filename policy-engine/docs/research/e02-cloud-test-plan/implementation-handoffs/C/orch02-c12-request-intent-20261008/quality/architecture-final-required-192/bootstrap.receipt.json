@@ -1,0 +1,34 @@
+{
+  "command": [
+    "/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin/corepack",
+    "pnpm",
+    "install",
+    "--frozen-lockfile",
+    "--ignore-scripts"
+  ],
+  "cwd": "/workspace/orch02-c12/policy-engine",
+  "exit_code": 0,
+  "wall_seconds": 5.313021418999597,
+  "maxrss_kib": 305024,
+  "timeout_seconds": null,
+  "source_candidate": "192c8b935b824e2e4d38276f10d3061877207e9f",
+  "execution_head_before": "427068292f7e0e50a12441affe72f167a899c45b",
+  "execution_head_after": "427068292f7e0e50a12441affe72f167a899c45b",
+  "git_status_after": "",
+  "lock_hashes_after": {
+    "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+    "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+    "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+    "policy-engine/package.json": "9b0fda729ff501b08fa5f4b1a2d783e3000425b187776b0fc6831a9e04ee070f"
+  },
+  "outputs": {
+    "bootstrap.stdout.txt": {
+      "bytes": 518,
+      "sha256": "f54c6bbe7c2c9faa4ef89f1195414b1c1fc114d7f6873c1c0e6e113fbe56ada4"
+    },
+    "bootstrap.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

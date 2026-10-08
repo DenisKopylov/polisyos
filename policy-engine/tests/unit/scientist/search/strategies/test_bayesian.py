@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import json
 import math
+from dataclasses import asdict
 
 import pytest
 
@@ -12,6 +14,7 @@ from polisyos.scientist.methods.search.strategies.types import (
     ParameterBounds,
     ParameterType,
     PolicyCandidate,
+    StrategyState,
 )
 
 from .conftest import make_evaluation
@@ -59,6 +62,83 @@ def test_bayesian_state_roundtrip_without_deps(simple_space: SearchSpace) -> Non
     restored = BayesianOptimizer(simple_space, BayesianConfig(n_initial=1, seed=999))
     restored.set_state(state)
     assert restored.get_state().iteration == state.iteration
+
+
+def test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus(
+    simple_space: SearchSpace,
+) -> None:
+    strategy = BayesianOptimizer(simple_space, BayesianConfig(seed=19))
+    compatibility = {
+        "search_space_fingerprint": simple_space.sobol_space_fingerprint(),
+        "input_transform_fingerprint": "Normalize[0,1]",
+        "outcome_transform_fingerprint": "Standardize[m=1]",
+        "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+        "objective_fingerprint": "scalar_score[minimize]",
+        "context_fingerprint": "context/rejection-audit",
+    }
+    records = [
+        make_evaluation(
+            candidate_id=f"full-record-identity/{index}",
+            params={"x": float(index - 2)},
+            score=float(index),
+            space=simple_space,
+        )
+        for index in range(6)
+    ]
+    for index, evaluation in enumerate(records):
+        evaluation.provenance_ref = f"origin/rejection-audit/{index}"
+        evaluation.metadata = {
+            "replicate_id": f"replica-{index}",
+            "seed": index,
+            "warm_start_compatibility": dict(compatibility),
+            "payload": {"retained": [index]},
+        }
+    accepted, *rejected = records
+    rejected[0].stage_a_passed = False
+    rejected[1].provenance_ref = None
+    rejected[2].params_normalized = (0.25, 0.75)
+    rejected[3].metadata.pop("warm_start_compatibility")
+    rejected[4].metadata["warm_start_compatibility"]["context_fingerprint"] = "foreign"
+    reasons = [
+        "invalid outcome",
+        "missing provenance_ref",
+        "incompatible normalized parameters",
+        "missing or incompatible warm-start fingerprint",
+        "incompatible context fingerprint",
+    ]
+    expected = json.loads(
+        json.dumps(
+            [
+                {"reason": reason, "evaluation": asdict(evaluation)}
+                for reason, evaluation in zip(reasons, rejected, strict=True)
+            ],
+            default=str,
+        )
+    )
+    assert strategy.warm_start(records) is None
+    assert strategy._select_training_subset([]) == [accepted]
+    # Retain each rejected occurrence, including repeated complete record identities.
+    strategy.warm_start([rejected[1]])
+    expected.append(expected[1])
+    rejected[0].metadata["payload"]["retained"].append("changed by caller")
+    state = StrategyState.from_artifact(strategy.get_state().to_artifact())
+    history = state.metadata["warm_start_rejections"]
+    assert history["version"] == 1
+    assert history["complete"] is True
+    assert history["records"] == expected
+    assert strategy._select_training_subset([]) == [accepted]
+    restored = BayesianOptimizer(simple_space, BayesianConfig(seed=19))
+    restored.set_state(state)
+    restored_state = StrategyState.from_artifact(restored.get_state().to_artifact())
+    assert restored_state.metadata["warm_start_rejections"] == history
+    # A checkpoint from before this ledger cannot fabricate its discarded rejections.
+    state.metadata.pop("warm_start_rejections")
+    restored.set_state(state)
+    legacy_history = restored.get_state().metadata["warm_start_rejections"]
+    assert legacy_history == {"version": 1, "complete": False, "records": []}
+    restored.warm_start([rejected[1]])
+    assert restored.get_state().metadata["warm_start_rejections"]["complete"] is False
+    assert len(restored.get_state().metadata["warm_start_rejections"]["records"]) == 1
 
 
 def test_duplicate_detection_uses_canonical_integer_and_category_execution() -> None:
@@ -262,6 +342,20 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
     }
 
     strategy.warm_start(warm)
+    history = StrategyState.from_artifact(strategy.get_state().to_artifact()).metadata[
+        "warm_start_rejections"
+    ]
+    assert history["complete"] is True
+    assert [record["evaluation"]["candidate_id"] for record in history["records"]] == [
+        "warm-foreign-basis",
+        "warm-incompatible-context",
+        "warm-unbound",
+    ]
+    assert [record["reason"] for record in history["records"]] == [
+        "incompatible normalized parameters",
+        "incompatible context fingerprint",
+        "missing provenance_ref",
+    ]
     observed_corpus: list[tuple[tuple[tuple[float, ...], ...], tuple[float, ...]]] = []
     observed_ids: list[tuple[str, ...]] = []
     original_prepare = strategy._prepare_training_data

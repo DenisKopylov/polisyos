@@ -44,3 +44,14 @@ Bayesian и multi-objective контуров.
 - Python modules: 24
 - Exports: 18 base exports plus optional heavy-dependency strategy exports
 - README синхронизирован с текущим lazy/optional import поведением пакета
+
+`BayesianOptimizer.warm_start` сохраняет каждую отклонённую `Evaluation` вместе
+с исходной причиной отказа в `StrategyState.metadata.warm_start_rejections`
+(version 1). `StrategyState.to_artifact/from_artifact` и `set_state/get_state`
+переносят эту историю независимо от optional GP backend. Snapshot сохраняет
+полный candidate ID, provenance, параметры, исходы и metadata; повторные
+отклонённые обращения остаются отдельными записями. Эти записи не входят в
+training corpus и не меняют существующие compatibility/admission predicates.
+Для старого checkpoint без ledger `complete=false` явно сохраняет ограничение:
+прежние исчезнувшие записи и причины не восстановлены. Поле не доказывает
+scientific provenance, refinement permission или production admission law.

@@ -5,6 +5,7 @@ from __future__ import annotations
 import io
 import math
 from collections.abc import Mapping
+from copy import deepcopy
 from dataclasses import asdict, dataclass
 from typing import Any
 
@@ -53,6 +54,13 @@ _EXPECTED_WARM_COMPATIBILITY = {
     "noise_model_fingerprint": "GaussianLikelihood[inferred]",
     "objective_fingerprint": "scalar_score[minimize]",
 }
+_WARM_REJECTION_REASONS = {
+    "invalid outcome",
+    "missing provenance_ref",
+    "incompatible normalized parameters",
+    "missing or incompatible warm-start fingerprint",
+    "incompatible context fingerprint",
+}
 
 
 @dataclass(slots=True)
@@ -98,6 +106,8 @@ class BayesianOptimizer(BaseSearchStrategy):
         self._warm_evals: list[Evaluation] = []
         self._warm_evaluation_ids: set[int] = set()
         self._warm_context_fingerprint: str | None = None
+        self._warm_start_rejections: list[dict[str, Any]] = []
+        self._warm_start_rejection_history_complete = True
         self._fitted_train_X: Any = None
         self._fitted_train_y_bo: Any = None
         self._last_refit_iteration: int = -1
@@ -121,16 +131,20 @@ class BayesianOptimizer(BaseSearchStrategy):
         for evaluation in evaluations:
             if not evaluation.is_valid:
                 rejected.append("invalid outcome")
+                self._record_warm_start_rejection(evaluation, rejected[-1])
                 continue
             if self._origin_ref(evaluation) is None:
                 rejected.append("missing provenance_ref")
+                self._record_warm_start_rejection(evaluation, rejected[-1])
                 continue
             if not self._has_compatible_params(evaluation):
                 rejected.append("incompatible normalized parameters")
+                self._record_warm_start_rejection(evaluation, rejected[-1])
                 continue
             compatibility = self._warm_compatibility(evaluation)
             if compatibility is None:
                 rejected.append("missing or incompatible warm-start fingerprint")
+                self._record_warm_start_rejection(evaluation, rejected[-1])
                 continue
             context_fingerprint = compatibility[-1]
             if (
@@ -138,6 +152,7 @@ class BayesianOptimizer(BaseSearchStrategy):
                 and context_fingerprint != self._warm_context_fingerprint
             ):
                 rejected.append("incompatible context fingerprint")
+                self._record_warm_start_rejection(evaluation, rejected[-1])
                 continue
             if self._warm_context_fingerprint is None:
                 self._warm_context_fingerprint = context_fingerprint
@@ -150,6 +165,12 @@ class BayesianOptimizer(BaseSearchStrategy):
             len(accepted),
             len(rejected),
         )
+
+    def _record_warm_start_rejection(self, evaluation: Evaluation, reason: str) -> None:
+        self._warm_start_rejections.append(
+            {"reason": reason, "evaluation": asdict(evaluation)}
+        )
+        logger.info("Bayesian warm-start rejected {}: {}", evaluation.candidate_id, reason)
 
     def suggest(
         self,
@@ -268,7 +289,14 @@ class BayesianOptimizer(BaseSearchStrategy):
             self._torch.save(self._model.state_dict(), buffer)
             model_state = buffer.getvalue()
 
-        metadata: dict[str, Any] = {"config": asdict(self._config)}
+        metadata: dict[str, Any] = {
+            "config": asdict(self._config),
+            "warm_start_rejections": {
+                "version": 1,
+                "complete": self._warm_start_rejection_history_complete,
+                "records": deepcopy(self._warm_start_rejections),
+            },
+        }
         if self._train_X is not None and self._train_y_bo is not None:
             metadata["train_X"] = self._train_X.tolist()
             metadata["train_y_bo"] = self._train_y_bo.tolist()
@@ -306,6 +334,30 @@ class BayesianOptimizer(BaseSearchStrategy):
         Legacy model snapshots lack enough information for append continuation;
         reject them explicitly rather than invent the missing fitting history.
         """
+        rejection_history = state.metadata.get("warm_start_rejections")
+        if rejection_history is None:
+            rejection_records: list[dict[str, Any]] = []
+            rejection_history_complete = False
+        else:
+            if (
+                not isinstance(rejection_history, Mapping)
+                or type(rejection_history.get("version")) is not int
+                or rejection_history.get("version") != 1
+                or type(rejection_history.get("complete")) is not bool
+                or not isinstance(rejection_history.get("records"), list)
+            ):
+                raise ValueError("Warm-start rejection history is malformed or unsupported")
+            for record in rejection_history["records"]:
+                if (
+                    not isinstance(record, Mapping)
+                    or not isinstance(record.get("reason"), str)
+                    or record.get("reason") not in _WARM_REJECTION_REASONS
+                    or not isinstance(record.get("evaluation"), Mapping)
+                    or not isinstance(record["evaluation"].get("candidate_id"), str)
+                ):
+                    raise ValueError("Warm-start rejection record or reason is malformed")
+            rejection_records = deepcopy(rejection_history["records"])
+            rejection_history_complete = rejection_history["complete"]
         continuation = state.metadata.get("gp_continuation")
         if state.model_state is not None:
             if not isinstance(continuation, Mapping) or continuation.get("version") != "1.0":
@@ -323,6 +375,8 @@ class BayesianOptimizer(BaseSearchStrategy):
             ):
                 raise ValueError("GP continuation has invalid full-refit counters")
         super().set_state(state)
+        self._warm_start_rejections = rejection_records
+        self._warm_start_rejection_history_complete = rejection_history_complete
         self._model = None
         self._train_X = self._train_y_bo = None
         self._fitted_train_X = self._fitted_train_y_bo = None

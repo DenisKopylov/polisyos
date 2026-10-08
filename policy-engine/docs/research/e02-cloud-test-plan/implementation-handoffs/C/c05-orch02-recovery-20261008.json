@@ -533,7 +533,7 @@
       "target_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
       "environment": "shared read-only Python3.14.2 with own PYTHONPATH",
       "input_closure": "complete tracked Python/project scripts at exact CAT and661 according to existing static tool; deferred/property/dynamic receiver/callback dispatch remains unresolved",
-      "outcome": "UNRUN",
+      "outcome": "FAIL",
       "measured_status": "UNRESOLVED",
       "exit_code": 3,
       "wall_seconds": 305.37824464499977,

@@ -1,0 +1,491 @@
+{"backend": "1.32.4", "context_paths": 15723, "excluded_basenames": ["debt-register.md", "ledger.md"], "source_packages": ["src/polisyos", "tools"]}
+Fmissing: backend rejected: Unable to determine which files to ship inside the wheel using the following heuristics: https://hatch.pypa.io/latest/plugins/builder/wheel/#default-file-selection
+
+The most likely cause of this is that there is no directory that matches the name of your project (policy_engine).
+
+At least one file selection option must be defined in the `tool.hatch.build.targets.wheel` table, see: https://hatch.pypa.io/latest/config/build/
+
+As an example, if you intend to ship a directory named `foo` that resides within a `src` directory located at the root of your project, you can define the following:
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/foo"]
+.wrong_prefix: backend rejected: Unable to determine which files to ship inside the wheel using the following heuristics: https://hatch.pypa.io/latest/plugins/builder/wheel/#default-file-selection
+
+The most likely cause of this is that there is no directory that matches the name of your project (policy_engine).
+
+At least one file selection option must be defined in the `tool.hatch.build.targets.wheel` table, see: https://hatch.pypa.io/latest/config/build/
+
+As an example, if you intend to ship a directory named `foo` that resides within a `src` directory located at the root of your project, you can define the following:
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/foo"]
+.FFFFF..
+=================================== FAILURES ===================================
+_______ test_native_backend_preserves_complete_wheel_and_sdist_contract ________
+
+contexts = (PosixPath('/workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0/native'), PosixPath('/workspace...temp/hatch-contexts0/legacy'), PosixPath('/workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0'))
+
+    def test_native_backend_preserves_complete_wheel_and_sdist_contract(contexts):
+        native, legacy, scratch = contexts
+        old_wheel, old_members = _wheel(legacy)
+        old_sdist, old_sdist_members = _sdist(legacy)
+        assert (native / "hatch.toml").is_file(), "native Hatch configuration is required"
+        assert "hatch" not in tomllib.loads((native / "pyproject.toml").read_text()).get("tool", {})
+>       new_wheel, new_members = _wheel(native)
+                                 ^^^^^^^^^^^^^^
+
+tests/repo_quality/tools/test_hatch_packaging.py:145: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/repo_quality/tools/test_hatch_packaging.py:65: in _wheel
+    wheel = Path(next(WheelBuilder(str(root)).build(versions=["standard"])))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../ORCH04-environments/packaging-tools/hatchling/builders/plugin/interface.py:166: in build
+    artifact = version_api[version](directory, **build_data)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../ORCH04-environments/packaging-tools/hatchling/builders/wheel.py:528: in build_standard
+    for included_file in self.recurse_included_files():
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../ORCH04-environments/packaging-tools/hatchling/builders/plugin/interface.py:188: in recurse_included_files
+    yield from self.recurse_forced_files(self.config.get_force_include())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <hatchling.builders.wheel.WheelBuilder object at 0x7f8aa7d6a990>
+inclusion_map = {'/workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0/native/architecture/production_quality/me...og/seed_variable_alignments.yaml': 'polisyos/data_forge/domains/catalog/_resources/seed_variable_alignments.yaml', ...}
+
+    def recurse_forced_files(self, inclusion_map: dict[str, str]) -> Iterable[IncludedFile]:
+        for source, target_path in inclusion_map.items():
+            external = not source.startswith(self.root)
+            if os.path.isfile(source):
+                yield IncludedFile(
+                    source,
+                    "" if external else os.path.relpath(source, self.root),
+                    self.config.get_distribution_path(target_path),
+                )
+            elif os.path.isdir(source):
+                for root, dirs, files in safe_walk(source):
+                    relative_directory = get_relative_path(root, source)
+    
+                    dirs[:] = sorted(d for d in dirs if d not in EXCLUDED_DIRECTORIES)
+    
+                    files.sort()
+                    for f in files:
+                        if f in EXCLUDED_FILES:
+                            continue
+    
+                        relative_file_path = os.path.join(target_path, relative_directory, f)
+                        distribution_path = self.config.get_distribution_path(relative_file_path)
+                        if not self.config.path_is_reserved(distribution_path):
+                            yield IncludedFile(
+                                os.path.join(root, f),
+                                "" if external else relative_file_path,
+                                distribution_path,
+                            )
+            else:
+                msg = f"Forced include not found: {source}"
+>               raise FileNotFoundError(msg)
+E               FileNotFoundError: Forced include not found: /workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0/native/data/dataset_catalog/metrics_map.yaml
+
+../../ORCH04-environments/packaging-tools/hatchling/builders/plugin/interface.py:248: FileNotFoundError
+___ test_missing_or_wrong_native_config_is_detected_by_real_build[packages] ____
+
+contexts = (PosixPath('/workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0/native'), PosixPath('/workspace...temp/hatch-contexts0/legacy'), PosixPath('/workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0'))
+mutation = 'packages'
+
+    @pytest.mark.parametrize("mutation", ["missing", "wrong_prefix", "packages", "entrypoint"])
+    def test_missing_or_wrong_native_config_is_detected_by_real_build(contexts, mutation):
+        native, legacy, scratch = contexts
+        assert (native / "hatch.toml").is_file(), "native Hatch configuration is required"
+        broken = _clone(native, scratch / mutation)
+        config = broken / "hatch.toml"
+        if mutation == "missing":
+            config.unlink()
+        elif mutation == "wrong_prefix":
+            _replace(config, config.read_text().replace("[build", "[tool.hatch.build"))
+        elif mutation == "packages":
+            _replace(
+                config, config.read_text().replace('["src/polisyos", "tools"]', '["src/polisyos"]')
+            )
+        else:
+            manifest = broken / "pyproject.toml"
+            _replace(manifest, manifest.read_text().replace('polisyos-tools = "tools.cli:main"\n', ""))
+        _, expected = _wheel(legacy)
+        try:
+>           wheel, observed = _wheel(broken)
+                              ^^^^^^^^^^^^^^
+
+tests/repo_quality/tools/test_hatch_packaging.py:204: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/repo_quality/tools/test_hatch_packaging.py:65: in _wheel
+    wheel = Path(next(WheelBuilder(str(root)).build(versions=["standard"])))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../ORCH04-environments/packaging-tools/hatchling/builders/plugin/interface.py:166: in build
+    artifact = version_api[version](directory, **build_data)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../ORCH04-environments/packaging-tools/hatchling/builders/wheel.py:528: in build_standard
+    for included_file in self.recurse_included_files():
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../ORCH04-environments/packaging-tools/hatchling/builders/plugin/interface.py:188: in recurse_included_files
+    yield from self.recurse_forced_files(self.config.get_force_include())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <hatchling.builders.wheel.WheelBuilder object at 0x7f8aa7842250>
+inclusion_map = {'/workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0/packages/architecture/production_quality/...og/seed_variable_alignments.yaml': 'polisyos/data_forge/domains/catalog/_resources/seed_variable_alignments.yaml', ...}
+
+    def recurse_forced_files(self, inclusion_map: dict[str, str]) -> Iterable[IncludedFile]:
+        for source, target_path in inclusion_map.items():
+            external = not source.startswith(self.root)
+            if os.path.isfile(source):
+                yield IncludedFile(
+                    source,
+                    "" if external else os.path.relpath(source, self.root),
+                    self.config.get_distribution_path(target_path),
+                )
+            elif os.path.isdir(source):
+                for root, dirs, files in safe_walk(source):
+                    relative_directory = get_relative_path(root, source)
+    
+                    dirs[:] = sorted(d for d in dirs if d not in EXCLUDED_DIRECTORIES)
+    
+                    files.sort()
+                    for f in files:
+                        if f in EXCLUDED_FILES:
+                            continue
+    
+                        relative_file_path = os.path.join(target_path, relative_directory, f)
+                        distribution_path = self.config.get_distribution_path(relative_file_path)
+                        if not self.config.path_is_reserved(distribution_path):
+                            yield IncludedFile(
+                                os.path.join(root, f),
+                                "" if external else relative_file_path,
+                                distribution_path,
+                            )
+            else:
+                msg = f"Forced include not found: {source}"
+>               raise FileNotFoundError(msg)
+E               FileNotFoundError: Forced include not found: /workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0/packages/data/dataset_catalog/metrics_map.yaml
+
+../../ORCH04-environments/packaging-tools/hatchling/builders/plugin/interface.py:248: FileNotFoundError
+__ test_missing_or_wrong_native_config_is_detected_by_real_build[entrypoint] ___
+
+contexts = (PosixPath('/workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0/native'), PosixPath('/workspace...temp/hatch-contexts0/legacy'), PosixPath('/workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0'))
+mutation = 'entrypoint'
+
+    @pytest.mark.parametrize("mutation", ["missing", "wrong_prefix", "packages", "entrypoint"])
+    def test_missing_or_wrong_native_config_is_detected_by_real_build(contexts, mutation):
+        native, legacy, scratch = contexts
+        assert (native / "hatch.toml").is_file(), "native Hatch configuration is required"
+        broken = _clone(native, scratch / mutation)
+        config = broken / "hatch.toml"
+        if mutation == "missing":
+            config.unlink()
+        elif mutation == "wrong_prefix":
+            _replace(config, config.read_text().replace("[build", "[tool.hatch.build"))
+        elif mutation == "packages":
+            _replace(
+                config, config.read_text().replace('["src/polisyos", "tools"]', '["src/polisyos"]')
+            )
+        else:
+            manifest = broken / "pyproject.toml"
+            _replace(manifest, manifest.read_text().replace('polisyos-tools = "tools.cli:main"\n', ""))
+        _, expected = _wheel(legacy)
+        try:
+>           wheel, observed = _wheel(broken)
+                              ^^^^^^^^^^^^^^
+
+tests/repo_quality/tools/test_hatch_packaging.py:204: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/repo_quality/tools/test_hatch_packaging.py:65: in _wheel
+    wheel = Path(next(WheelBuilder(str(root)).build(versions=["standard"])))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../ORCH04-environments/packaging-tools/hatchling/builders/plugin/interface.py:166: in build
+    artifact = version_api[version](directory, **build_data)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../ORCH04-environments/packaging-tools/hatchling/builders/wheel.py:528: in build_standard
+    for included_file in self.recurse_included_files():
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../ORCH04-environments/packaging-tools/hatchling/builders/plugin/interface.py:188: in recurse_included_files
+    yield from self.recurse_forced_files(self.config.get_force_include())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <hatchling.builders.wheel.WheelBuilder object at 0x7f8aa7005450>
+inclusion_map = {'/workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0/entrypoint/architecture/production_qualit...og/seed_variable_alignments.yaml': 'polisyos/data_forge/domains/catalog/_resources/seed_variable_alignments.yaml', ...}
+
+    def recurse_forced_files(self, inclusion_map: dict[str, str]) -> Iterable[IncludedFile]:
+        for source, target_path in inclusion_map.items():
+            external = not source.startswith(self.root)
+            if os.path.isfile(source):
+                yield IncludedFile(
+                    source,
+                    "" if external else os.path.relpath(source, self.root),
+                    self.config.get_distribution_path(target_path),
+                )
+            elif os.path.isdir(source):
+                for root, dirs, files in safe_walk(source):
+                    relative_directory = get_relative_path(root, source)
+    
+                    dirs[:] = sorted(d for d in dirs if d not in EXCLUDED_DIRECTORIES)
+    
+                    files.sort()
+                    for f in files:
+                        if f in EXCLUDED_FILES:
+                            continue
+    
+                        relative_file_path = os.path.join(target_path, relative_directory, f)
+                        distribution_path = self.config.get_distribution_path(relative_file_path)
+                        if not self.config.path_is_reserved(distribution_path):
+                            yield IncludedFile(
+                                os.path.join(root, f),
+                                "" if external else relative_file_path,
+                                distribution_path,
+                            )
+            else:
+                msg = f"Forced include not found: {source}"
+>               raise FileNotFoundError(msg)
+E               FileNotFoundError: Forced include not found: /workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0/entrypoint/data/dataset_catalog/metrics_map.yaml
+
+../../ORCH04-environments/packaging-tools/hatchling/builders/plugin/interface.py:248: FileNotFoundError
+___________ test_docker_manifest_copy_keeps_native_build_behavior[0] ___________
+
+contexts = (PosixPath('/workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0/native'), PosixPath('/workspace...temp/hatch-contexts0/legacy'), PosixPath('/workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0'))
+stage = 0
+
+    @pytest.mark.parametrize("stage", [0, 1])
+    def test_docker_manifest_copy_keeps_native_build_behavior(contexts, stage):
+        native, legacy, scratch = contexts
+        assert (native / "hatch.toml").is_file(), "native Hatch configuration is required"
+        copies = [
+            shlex.split(line)[1:-1]
+            for line in (ROOT / "Dockerfile.reproducible").read_text().splitlines()
+            if line.casefold().startswith("copy ") and "pyproject.toml" in line.casefold()
+        ]
+        assert len(copies) == 2
+        context = _clone(native, scratch / f"docker-{stage}")
+        # Replay the explicit manifest COPY selection; existing later source COPYs
+        # are supplied by the real source basis. This does not claim image health.
+        if "hatch.toml" not in copies[stage]:
+            (context / "hatch.toml").unlink()
+        for name in copies[stage]:
+            assert (ROOT / name).is_file()
+        _, expected = _wheel(legacy)
+>       wheel, observed = _wheel(context)
+                          ^^^^^^^^^^^^^^^
+
+tests/repo_quality/tools/test_hatch_packaging.py:231: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/repo_quality/tools/test_hatch_packaging.py:65: in _wheel
+    wheel = Path(next(WheelBuilder(str(root)).build(versions=["standard"])))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../ORCH04-environments/packaging-tools/hatchling/builders/plugin/interface.py:166: in build
+    artifact = version_api[version](directory, **build_data)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../ORCH04-environments/packaging-tools/hatchling/builders/wheel.py:528: in build_standard
+    for included_file in self.recurse_included_files():
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../ORCH04-environments/packaging-tools/hatchling/builders/plugin/interface.py:188: in recurse_included_files
+    yield from self.recurse_forced_files(self.config.get_force_include())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <hatchling.builders.wheel.WheelBuilder object at 0x7f8aa6ae0c80>
+inclusion_map = {'/workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0/docker-0/architecture/production_quality/...og/seed_variable_alignments.yaml': 'polisyos/data_forge/domains/catalog/_resources/seed_variable_alignments.yaml', ...}
+
+    def recurse_forced_files(self, inclusion_map: dict[str, str]) -> Iterable[IncludedFile]:
+        for source, target_path in inclusion_map.items():
+            external = not source.startswith(self.root)
+            if os.path.isfile(source):
+                yield IncludedFile(
+                    source,
+                    "" if external else os.path.relpath(source, self.root),
+                    self.config.get_distribution_path(target_path),
+                )
+            elif os.path.isdir(source):
+                for root, dirs, files in safe_walk(source):
+                    relative_directory = get_relative_path(root, source)
+    
+                    dirs[:] = sorted(d for d in dirs if d not in EXCLUDED_DIRECTORIES)
+    
+                    files.sort()
+                    for f in files:
+                        if f in EXCLUDED_FILES:
+                            continue
+    
+                        relative_file_path = os.path.join(target_path, relative_directory, f)
+                        distribution_path = self.config.get_distribution_path(relative_file_path)
+                        if not self.config.path_is_reserved(distribution_path):
+                            yield IncludedFile(
+                                os.path.join(root, f),
+                                "" if external else relative_file_path,
+                                distribution_path,
+                            )
+            else:
+                msg = f"Forced include not found: {source}"
+>               raise FileNotFoundError(msg)
+E               FileNotFoundError: Forced include not found: /workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0/docker-0/data/dataset_catalog/metrics_map.yaml
+
+../../ORCH04-environments/packaging-tools/hatchling/builders/plugin/interface.py:248: FileNotFoundError
+___________ test_docker_manifest_copy_keeps_native_build_behavior[1] ___________
+
+contexts = (PosixPath('/workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0/native'), PosixPath('/workspace...temp/hatch-contexts0/legacy'), PosixPath('/workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0'))
+stage = 1
+
+    @pytest.mark.parametrize("stage", [0, 1])
+    def test_docker_manifest_copy_keeps_native_build_behavior(contexts, stage):
+        native, legacy, scratch = contexts
+        assert (native / "hatch.toml").is_file(), "native Hatch configuration is required"
+        copies = [
+            shlex.split(line)[1:-1]
+            for line in (ROOT / "Dockerfile.reproducible").read_text().splitlines()
+            if line.casefold().startswith("copy ") and "pyproject.toml" in line.casefold()
+        ]
+        assert len(copies) == 2
+        context = _clone(native, scratch / f"docker-{stage}")
+        # Replay the explicit manifest COPY selection; existing later source COPYs
+        # are supplied by the real source basis. This does not claim image health.
+        if "hatch.toml" not in copies[stage]:
+            (context / "hatch.toml").unlink()
+        for name in copies[stage]:
+            assert (ROOT / name).is_file()
+        _, expected = _wheel(legacy)
+>       wheel, observed = _wheel(context)
+                          ^^^^^^^^^^^^^^^
+
+tests/repo_quality/tools/test_hatch_packaging.py:231: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/repo_quality/tools/test_hatch_packaging.py:65: in _wheel
+    wheel = Path(next(WheelBuilder(str(root)).build(versions=["standard"])))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../ORCH04-environments/packaging-tools/hatchling/builders/plugin/interface.py:166: in build
+    artifact = version_api[version](directory, **build_data)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../ORCH04-environments/packaging-tools/hatchling/builders/wheel.py:528: in build_standard
+    for included_file in self.recurse_included_files():
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../ORCH04-environments/packaging-tools/hatchling/builders/plugin/interface.py:188: in recurse_included_files
+    yield from self.recurse_forced_files(self.config.get_force_include())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <hatchling.builders.wheel.WheelBuilder object at 0x7f8aa725a350>
+inclusion_map = {'/workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0/docker-1/architecture/production_quality/...og/seed_variable_alignments.yaml': 'polisyos/data_forge/domains/catalog/_resources/seed_variable_alignments.yaml', ...}
+
+    def recurse_forced_files(self, inclusion_map: dict[str, str]) -> Iterable[IncludedFile]:
+        for source, target_path in inclusion_map.items():
+            external = not source.startswith(self.root)
+            if os.path.isfile(source):
+                yield IncludedFile(
+                    source,
+                    "" if external else os.path.relpath(source, self.root),
+                    self.config.get_distribution_path(target_path),
+                )
+            elif os.path.isdir(source):
+                for root, dirs, files in safe_walk(source):
+                    relative_directory = get_relative_path(root, source)
+    
+                    dirs[:] = sorted(d for d in dirs if d not in EXCLUDED_DIRECTORIES)
+    
+                    files.sort()
+                    for f in files:
+                        if f in EXCLUDED_FILES:
+                            continue
+    
+                        relative_file_path = os.path.join(target_path, relative_directory, f)
+                        distribution_path = self.config.get_distribution_path(relative_file_path)
+                        if not self.config.path_is_reserved(distribution_path):
+                            yield IncludedFile(
+                                os.path.join(root, f),
+                                "" if external else relative_file_path,
+                                distribution_path,
+                            )
+            else:
+                msg = f"Forced include not found: {source}"
+>               raise FileNotFoundError(msg)
+E               FileNotFoundError: Forced include not found: /workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0/docker-1/data/dataset_catalog/metrics_map.yaml
+
+../../ORCH04-environments/packaging-tools/hatchling/builders/plugin/interface.py:248: FileNotFoundError
+_______________ test_gcp_archive_carries_buildable_native_config _______________
+
+contexts = (PosixPath('/workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0/native'), PosixPath('/workspace...temp/hatch-contexts0/legacy'), PosixPath('/workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0'))
+
+    def test_gcp_archive_carries_buildable_native_config(contexts):
+        native, legacy, scratch = contexts
+        assert (native / "hatch.toml").is_file(), "native Hatch configuration is required"
+        workspace = scratch / "cloud"
+        workspace.mkdir()
+        product = _clone(native, workspace / "policy-engine")
+        shutil.copyfile(ROOT / "uv.lock", product / "uv.lock")
+        output = workspace / "archives"
+        result = subprocess.run(
+            ["bash", str(product / "ops/cloud/gcp/package_repo.sh")],
+            cwd=product,
+            env={**os.environ, "OUT_DIR": str(output), "UPLOAD": "0"},
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=120,
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+        (archive_path,) = output.glob("*.tar.gz")
+        extracted = workspace / "extracted"
+        with tarfile.open(archive_path) as archive:
+            archive.extractall(extracted, filter="data")
+>       wheel, observed = _wheel(extracted / "policy-engine")
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/repo_quality/tools/test_hatch_packaging.py:258: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/repo_quality/tools/test_hatch_packaging.py:65: in _wheel
+    wheel = Path(next(WheelBuilder(str(root)).build(versions=["standard"])))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../ORCH04-environments/packaging-tools/hatchling/builders/plugin/interface.py:166: in build
+    artifact = version_api[version](directory, **build_data)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../ORCH04-environments/packaging-tools/hatchling/builders/wheel.py:528: in build_standard
+    for included_file in self.recurse_included_files():
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../ORCH04-environments/packaging-tools/hatchling/builders/plugin/interface.py:188: in recurse_included_files
+    yield from self.recurse_forced_files(self.config.get_force_include())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <hatchling.builders.wheel.WheelBuilder object at 0x7f8aa6db60d0>
+inclusion_map = {'/workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0/cloud/extracted/policy-engine/architectur...og/seed_variable_alignments.yaml': 'polisyos/data_forge/domains/catalog/_resources/seed_variable_alignments.yaml', ...}
+
+    def recurse_forced_files(self, inclusion_map: dict[str, str]) -> Iterable[IncludedFile]:
+        for source, target_path in inclusion_map.items():
+            external = not source.startswith(self.root)
+            if os.path.isfile(source):
+                yield IncludedFile(
+                    source,
+                    "" if external else os.path.relpath(source, self.root),
+                    self.config.get_distribution_path(target_path),
+                )
+            elif os.path.isdir(source):
+                for root, dirs, files in safe_walk(source):
+                    relative_directory = get_relative_path(root, source)
+    
+                    dirs[:] = sorted(d for d in dirs if d not in EXCLUDED_DIRECTORIES)
+    
+                    files.sort()
+                    for f in files:
+                        if f in EXCLUDED_FILES:
+                            continue
+    
+                        relative_file_path = os.path.join(target_path, relative_directory, f)
+                        distribution_path = self.config.get_distribution_path(relative_file_path)
+                        if not self.config.path_is_reserved(distribution_path):
+                            yield IncludedFile(
+                                os.path.join(root, f),
+                                "" if external else relative_file_path,
+                                distribution_path,
+                            )
+            else:
+                msg = f"Forced include not found: {source}"
+>               raise FileNotFoundError(msg)
+E               FileNotFoundError: Forced include not found: /workspace/ORCH04-evidence/c13/packaging-contract-basetemp/hatch-contexts0/cloud/extracted/policy-engine/data/dataset_catalog/metrics_map.yaml
+
+../../ORCH04-environments/packaging-tools/hatchling/builders/plugin/interface.py:248: FileNotFoundError
+=========================== short test summary info ============================
+FAILED tests/repo_quality/tools/test_hatch_packaging.py::test_native_backend_preserves_complete_wheel_and_sdist_contract
+FAILED tests/repo_quality/tools/test_hatch_packaging.py::test_missing_or_wrong_native_config_is_detected_by_real_build[packages]
+FAILED tests/repo_quality/tools/test_hatch_packaging.py::test_missing_or_wrong_native_config_is_detected_by_real_build[entrypoint]
+FAILED tests/repo_quality/tools/test_hatch_packaging.py::test_docker_manifest_copy_keeps_native_build_behavior[0]
+FAILED tests/repo_quality/tools/test_hatch_packaging.py::test_docker_manifest_copy_keeps_native_build_behavior[1]
+FAILED tests/repo_quality/tools/test_hatch_packaging.py::test_gcp_archive_carries_buildable_native_config
+6 failed, 4 passed in 130.31s (0:02:10)

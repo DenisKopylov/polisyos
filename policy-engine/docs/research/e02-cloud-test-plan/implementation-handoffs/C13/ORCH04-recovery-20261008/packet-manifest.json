@@ -207,9 +207,10 @@
       "local_origin": "/workspace/ORCH04-evidence/c13/packaging-contract-junit.xml"
     },
     "evidence/c13/installed/artifacts.json": {
-      "sha256": "deddfe1a60a1409faac9b2dfd32e7dc4f1b1e88dad96e67ece5548df443dc5f4",
-      "bytes": 895643,
-      "local_origin": "/workspace/ORCH04-evidence/c13/installed/artifacts.json"
+      "sha256": "ff51bb4dfd996bb7d4ff221b315c6f0b07ced2ca23851fc5574884a96e4ffc49",
+      "bytes": 15617,
+      "local_origin": "/workspace/ORCH04-evidence/c13/installed/artifacts.json",
+      "qualification": "Slim tracked derivative; preserved full local member inventory referenced by its hash."
     },
     "evidence/c13/installed/carrier-manifest.json": {
       "sha256": "3836540796875691185e3a95841129e458d3124da99494756d7153f3a809a105",

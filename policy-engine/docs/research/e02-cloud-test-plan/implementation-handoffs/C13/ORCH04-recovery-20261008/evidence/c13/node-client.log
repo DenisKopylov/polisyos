@@ -1,0 +1,78 @@
+(node:4344) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+> @polisyos/runtime-api-client@0.1.0 test /workspace/ORCH04-C13/policy-engine/packages/runtime-api-client
+> node --test runtimeApiClient.test.mjs scripts/canonicalize-runtime-client.test.mjs scripts/normalize-recursive-openapi-types.test.mjs
+
+(node:4470) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+TAP version 13
+# (node:4540) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: normative evidence submission forwards the source head and signed refs
+ok 1 - normative evidence submission forwards the source head and signed refs
+  ---
+  duration_ms: 14.801063
+  type: 'test'
+  ...
+# Subtest: batch POST methods forward request bodies to fetch
+ok 2 - batch POST methods forward request bodies to fetch
+  ---
+  duration_ms: 1.58991
+  type: 'test'
+  ...
+# Subtest: cycle board static operation forwards both complete replay identities
+ok 3 - cycle board static operation forwards both complete replay identities
+  ---
+  duration_ms: 6.58
+  type: 'test'
+  ...
+# Subtest: mobility POST methods forward request bodies to fetch
+ok 4 - mobility POST methods forward request bodies to fetch
+  ---
+  duration_ms: 1.744643
+  type: 'test'
+  ...
+# Subtest: human decision methods bind the exact exposure header and POST body
+ok 5 - human decision methods bind the exact exposure header and POST body
+  ---
+  duration_ms: 32.176587
+  type: 'test'
+  ...
+# (node:4541) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: canonicalization aliases every generated OpenAPI component to types.ts
+ok 6 - canonicalization aliases every generated OpenAPI component to types.ts
+  ---
+  duration_ms: 2.298346
+  type: 'test'
+  ...
+# Subtest: canonicalization is byte-stable when replayed
+ok 7 - canonicalization is byte-stable when replayed
+  ---
+  duration_ms: 0.518291
+  type: 'test'
+  ...
+# (node:4543) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: recursive graph compiles mutual, self and cross-component edges without widening consumers
+ok 8 - recursive graph compiles mutual, self and cross-component edges without widening consumers
+  ---
+  duration_ms: 4877.663703
+  type: 'test'
+  ...
+# Subtest: unguarded recursive schemas are rejected without inventing a permissive type
+ok 9 - unguarded recursive schemas are rejected without inventing a permissive type
+  ---
+  duration_ms: 1.886507
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8405.147299

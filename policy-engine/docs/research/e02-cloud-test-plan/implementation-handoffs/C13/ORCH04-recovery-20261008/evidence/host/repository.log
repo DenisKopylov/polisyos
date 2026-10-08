@@ -1,0 +1,13 @@
+origin	https://github.com/DenisKopylov/polisyos.git (fetch)
+origin	https://github.com/DenisKopylov/polisyos.git (push)
+/workspace/polisyos
+198076863e143dea9f89f02734b13d50dae3eed5
+2b754a92c27959e2e747738d47ed0b419f3b6dd8
+work
+commit 0321633c0e6d9a87bccfbbe889a4998934c52dd3
+Author:     Denis Kopylov <skvidvard167m@gmail.com>
+AuthorDate: Thu Oct 8 18:28:12 2026 +0300
+Commit:     Denis Kopylov <skvidvard167m@gmail.com>
+CommitDate: Thu Oct 8 18:28:12 2026 +0300
+
+    docs(e02): prepare recovery prompts for five stopped roots

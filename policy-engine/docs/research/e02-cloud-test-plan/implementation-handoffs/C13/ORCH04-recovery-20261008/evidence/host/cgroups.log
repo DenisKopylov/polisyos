@@ -1,0 +1,159 @@
+0::/
+memory.max
+17179869184
+memory.current
+3636183040
+memory.peak
+3774783488
+memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+memory.stat
+anon 42680320
+file 2919919616
+kernel 672481280
+kernel_stack 540672
+pagetables 2015232
+sec_pagetables 0
+percpu 14112
+sock 0
+vmalloc 0
+shmem 4096
+file_mapped 262144
+file_dirty 326176768
+file_writeback 0
+swapcached 0
+anon_thp 0
+file_thp 0
+shmem_thp 0
+inactive_anon 42516480
+active_anon 36864
+inactive_file 2657464320
+active_file 262459392
+unevictable 0
+slab_reclaimable 669355992
+slab_unreclaimable 539128
+slab 669895120
+workingset_refault_anon 0
+workingset_refault_file 0
+workingset_activate_anon 0
+workingset_activate_file 0
+workingset_restore_anon 0
+workingset_restore_file 0
+workingset_nodereclaim 0
+pgdemote_kswapd 0
+pgdemote_direct 0
+pgdemote_khugepaged 0
+pgdemote_proactive 0
+pgscan 0
+pgsteal 0
+pswpin 0
+pswpout 0
+pgscan_kswapd 0
+pgscan_direct 0
+pgscan_khugepaged 0
+pgscan_proactive 0
+pgsteal_kswapd 0
+pgsteal_direct 0
+pgsteal_khugepaged 0
+pgsteal_proactive 0
+pgfault 1713680
+pgmajfault 0
+pgrefill 0
+pgactivate 23694
+pgdeactivate 0
+pglazyfree 2
+pglazyfreed 0
+swpin_zero 0
+swpout_zero 0
+thp_fault_alloc 0
+thp_collapse_alloc 0
+thp_swpout 0
+thp_swpout_fallback 0
+memory.swap.max
+max
+memory.swap.current
+0
+pids.max
+max
+pids.current
+36
+cpu.max
+400000 100000
+cpu.stat
+usage_usec 53647729
+user_usec 39893937
+system_usec 13753791
+nice_usec 0
+nr_periods 853
+nr_throttled 0
+throttled_usec 0
+nr_bursts 0
+burst_usec 0
+memory.pressure
+cat: /sys/fs/cgroup/memory.pressure: No such file or directory
+MemTotal:       18440136 kB
+MemFree:        14349976 kB
+MemAvailable:   17511812 kB
+Buffers:           82700 kB
+Cached:          2801844 kB
+SwapCached:            0 kB
+Active:           257492 kB
+Inactive:        2640604 kB
+Active(anon):         32 kB
+Inactive(anon):    43440 kB
+Active(file):     257460 kB
+Inactive(file):  2597164 kB
+Unevictable:       29920 kB
+Mlocked:               0 kB
+SwapTotal:             0 kB
+SwapFree:              0 kB
+Dirty:            318632 kB
+Writeback:             0 kB
+AnonPages:         43672 kB
+Mapped:            77556 kB
+Shmem:                16 kB
+KReclaimable:     659224 kB
+Slab:             746612 kB
+SReclaimable:     659224 kB
+SUnreclaim:        87388 kB
+KernelStack:        2268 kB
+PageTables:         2820 kB
+SecPageTables:         0 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:     9220068 kB
+Committed_AS:     333060 kB
+VmallocTotal:   34359738367 kB
+VmallocUsed:        4636 kB
+VmallocChunk:          0 kB
+Percpu:             1296 kB
+AnonHugePages:         0 kB
+ShmemHugePages:        0 kB
+ShmemPmdMapped:        0 kB
+FileHugePages:         0 kB
+FilePmdMapped:         0 kB
+Balloon:               0 kB
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       2048 kB
+Hugetlb:               0 kB
+DirectMap4k:       18432 kB
+DirectMap2M:     3840000 kB
+DirectMap1G:    35651584 kB
+overlay / overlay rw,relatime,lowerdir=/run/kata-containers/erofs-multi-layer/9065c09363504c169872e645e87b2f2d/lower-0,upperdir=/run/kata-containers/erofs-multi-layer/9065c09363504c169872e645e87b2f2d/upper/upper,workdir=/run/kata-containers/erofs-multi-layer/9065c09363504c169872e645e87b2f2d/upper/work,index=off,metacopy=off 0 0
+proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0
+tmpfs /dev tmpfs rw,nosuid,size=65536k,mode=755 0 0
+devpts /dev/pts devpts rw,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=666 0 0
+shm /dev/shm tmpfs rw,relatime 0 0
+mqueue /dev/mqueue mqueue rw,nosuid,nodev,noexec,relatime 0 0
+sysfs /sys sysfs rw,nosuid,nodev,noexec,relatime 0 0
+cgroup2 /sys/fs/cgroup cgroup2 rw,nosuid,nodev,noexec,relatime,nsdelegate 0 0
+none /tmp tmpfs rw,relatime 0 0

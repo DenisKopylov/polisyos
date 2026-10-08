@@ -1,0 +1,12 @@
+{
+  "source_commit": "be3e513ed60dd13538c196c42761b95767f7d888",
+  "remote_fetched_commit": "be3e513ed60dd13538c196c42761b95767f7d888",
+  "tree": "a0b3e8a60482cb74d68bca5c71389ec2fd36419d",
+  "parents": [
+    "0321633c0e6d9a87bccfbbe889a4998934c52dd3"
+  ],
+  "branch": "codex/e02-ORCH04-recovery-20261008",
+  "all_commit_bytes_identity": "exact Git commit/object/tree equality verified after ordinary fetch",
+  "source_acceptance_G": "not_issued",
+  "formal_closure_ids": []
+}

@@ -1,0 +1,35 @@
+{
+  "argv": [
+    "git",
+    "push",
+    "--set-upstream",
+    "origin",
+    "codex/e02-C11-recovery-20261008"
+  ],
+  "cwd": "/workspace/ORCH04-C11",
+  "start_utc": "2026-10-08T16:27:35.089643+00:00",
+  "parent_pid": 16425,
+  "cgroup_before": {
+    "memory.current": "16710176768\n",
+    "memory.peak": "17179877376\n",
+    "memory.max": "17179869184\n",
+    "memory.events": "low 0\nhigh 0\nmax 46308\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "memory.stat": "anon 885395456\nfile 13707407360\nkernel 2116870144\nkernel_stack 753664\npagetables 5509120\nsec_pagetables 0\npercpu 14000\nsock 0\nvmalloc 0\nshmem 38481920\nfile_mapped 551448576\nfile_dirty 331919360\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 343932928\nshmem_thp 0\ninactive_anon 899579904\nactive_anon 24170496\ninactive_file 7385432064\nactive_file 6283456512\nunevictable 0\nslab_reclaimable 2105769000\nslab_unreclaimable 4805144\nslab 2110574144\nworkingset_refault_anon 0\nworkingset_refault_file 195346\nworkingset_activate_anon 0\nworkingset_activate_file 182262\nworkingset_restore_anon 0\nworkingset_restore_file 0\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 2213960\npgsteal 2210613\npswpin 0\npswpout 0\npgscan_kswapd 0\npgscan_direct 2213960\npgscan_khugepaged 0\npgscan_proactive 0\npgsteal_kswapd 0\npgsteal_direct 2210613\npgsteal_khugepaged 0\npgsteal_proactive 0\npgfault 37095633\npgmajfault 211\npgrefill 1135\npgactivate 1229232\npgdeactivate 1135\npglazyfree 1178\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 65\nthp_collapse_alloc 10\nthp_swpout 0\nthp_swpout_fallback 0\n",
+    "pids.current": "81\n",
+    "pids.max": "max\n"
+  },
+  "pid": 16451,
+  "exit_code": 0,
+  "max_rss_kib": 1764560,
+  "wall_seconds": 39.512832480999805,
+  "finish_utc": "2026-10-08T16:28:14.602846+00:00",
+  "cgroup_after": {
+    "memory.current": "15265062912\n",
+    "memory.peak": "17179877376\n",
+    "memory.max": "17179869184\n",
+    "memory.events": "low 0\nhigh 0\nmax 50552\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "memory.stat": "anon 43683840\nfile 13104881664\nkernel 2115895296\nkernel_stack 507904\npagetables 1654784\nsec_pagetables 0\npercpu 14000\nsock 0\nvmalloc 0\nshmem 39817216\nfile_mapped 24576\nfile_dirty 864337920\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 343932928\nshmem_thp 0\ninactive_anon 58015744\nactive_anon 25481216\ninactive_file 6617042944\nactive_file 6448025600\nunevictable 0\nslab_reclaimable 2109593680\nslab_unreclaimable 4120008\nslab 2113713688\nworkingset_refault_anon 0\nworkingset_refault_file 198934\nworkingset_activate_anon 0\nworkingset_activate_file 182262\nworkingset_restore_anon 0\nworkingset_restore_file 0\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 2497634\npgsteal 2494287\npswpin 0\npswpout 0\npgscan_kswapd 0\npgscan_direct 2497634\npgscan_khugepaged 0\npgscan_proactive 0\npgsteal_kswapd 0\npgsteal_direct 2494287\npgsteal_khugepaged 0\npgsteal_proactive 0\npgfault 37966912\npgmajfault 213\npgrefill 1231\npgactivate 1263677\npgdeactivate 1231\npglazyfree 1182\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 65\nthp_collapse_alloc 10\nthp_swpout 0\nthp_swpout_fallback 0\n",
+    "pids.current": "66\n",
+    "pids.max": "max\n"
+  }
+}

@@ -1,0 +1,17 @@
+╭─────────────────────────────────╮
+│ lefthook v2.1.6  hook: pre-push │
+╰─────────────────────────────────╯
+┃  typecheck ❯ 
+
+(node:4215) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+> @polisyos/runtime-dashboard@0.1.0 typecheck /workspace/ORCH04-recovery/policy-engine/apps/runtime-dashboard
+> tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit && tsc -p tsconfig.tools.json --noEmit
+
+
+                                      
+  ────────────────────────────────────
+summary: (done in 82.95 seconds)      
+✓ typecheck (76.53 seconds)
+branch 'codex/e02-ORCH04-recovery-20261008' set up to track 'origin/codex/e02-ORCH04-recovery-20261008'.

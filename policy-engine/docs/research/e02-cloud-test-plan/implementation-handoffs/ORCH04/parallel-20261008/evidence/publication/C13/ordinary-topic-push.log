@@ -1,0 +1,24 @@
+(node:11325) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+╭─────────────────────────────────╮
+│ lefthook v2.1.6  hook: pre-push │
+╰─────────────────────────────────╯
+┃  typecheck ❯ 
+
+(node:11427) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+> @polisyos/runtime-dashboard@0.1.0 typecheck /workspace/ORCH04-C13/policy-engine/apps/runtime-dashboard
+> tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit && tsc -p tsconfig.tools.json --noEmit
+
+
+                                      
+  ────────────────────────────────────
+summary: (done in 43.48 seconds)      
+✓ typecheck (37.33 seconds)
+remote: 
+remote: Create a pull request for 'codex/e02-C13-recovery-20261008' on GitHub by visiting:        
+remote:      https://github.com/DenisKopylov/polisyos/pull/new/codex/e02-C13-recovery-20261008        
+remote: 
+To https://github.com/DenisKopylov/polisyos.git
+ * [new branch]          HEAD -> codex/e02-C13-recovery-20261008

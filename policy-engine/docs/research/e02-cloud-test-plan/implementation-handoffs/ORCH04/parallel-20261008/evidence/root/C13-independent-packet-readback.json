@@ -1,0 +1,11 @@
+{
+  "schema": "policyos.e02.packet_readback.v1",
+  "time_utc": "2026-10-08T16:22:13.344983+00:00",
+  "readback_ref": "refs/recovery/ORCH04-C13-readback-20261008",
+  "identity": "1c8c3f3e068a2bd86dc88d4918621149aaf3179c 010cec28d2884d626ba7e7ed5ef101fcbacc2ccf c30cb5c9c36915c16511ba6a3b908e977fe78d9c",
+  "packet": "/workspace/ORCH04-C13/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C13/ORCH04-recovery-20261008",
+  "complete_manifest_denominator": 68,
+  "errors": [],
+  "outcome": "PASS",
+  "qualification": "C13 scoped G evidence; no G acceptance or C10/C11 source claim"
+}

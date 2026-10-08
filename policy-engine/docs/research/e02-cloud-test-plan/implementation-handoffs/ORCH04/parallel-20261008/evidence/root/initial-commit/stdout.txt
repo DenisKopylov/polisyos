@@ -1,0 +1,19 @@
+[codex/e02-ORCH04-recovery-20261008 be3e513ed] docs(e02): preserve ORCH04 new-host admission and custody diagnostics
+ 17 files changed, 5773 insertions(+)
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/admission/C10-create.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/admission/C10-resume.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/admission/C11-create.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/admission/C11-resume.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/admission/C13-create.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/admission/C13-resume.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/admission/root-create.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/admission/root-resume.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/custody/C10-exact-origin-fetch.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/custody/C11-exact-origin-fetch.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/custody/C13-exact-origin-fetch.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/custody/manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/custody/root-branch-origin-fetch.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/custody/root-exact-origin-fetch.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/custody/supplier-objects.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/leases.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/progress.json

@@ -1,0 +1,136 @@
+
+> @polisyos/runtime-dashboard@0.1.0 build /workspace/ORCH04-recovery/policy-engine/apps/runtime-dashboard
+> corepack pnpm run typecheck && vite build && node ./scripts/postbuild-security.mjs && node ./scripts/check-atlas-ui-tailwind-source.mjs
+
+
+> @polisyos/runtime-dashboard@0.1.0 typecheck /workspace/ORCH04-recovery/policy-engine/apps/runtime-dashboard
+> tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit && tsc -p tsconfig.tools.json --noEmit
+
+vite v7.3.2 building client environment for production...
+transforming...
+✓ 3934 modules transformed.
+rendering chunks...
+computing gzip size...
+../../_build/apps/runtime-dashboard/dist/manifest.webmanifest                                           0.20 kB
+../../_build/apps/runtime-dashboard/dist/index.html                                                     2.73 kB │ gzip:   0.98 kB
+../../_build/apps/runtime-dashboard/dist/assets/ibm-plex-mono-cyrillic-ext-500-normal-BIfNGwUT.woff     5.77 kB
+../../_build/apps/runtime-dashboard/dist/assets/ibm-plex-mono-cyrillic-ext-400-normal-DMdlQ8Kv.woff     5.82 kB
+../../_build/apps/runtime-dashboard/dist/assets/ibm-plex-mono-cyrillic-ext-400-normal-xuaO2J-f.woff2    6.91 kB
+../../_build/apps/runtime-dashboard/dist/assets/ibm-plex-mono-cyrillic-ext-500-normal-BqneJy0T.woff2    6.97 kB
+../../_build/apps/runtime-dashboard/dist/assets/ibm-plex-mono-latin-400-normal-CvHOgSBP.woff           13.14 kB
+../../_build/apps/runtime-dashboard/dist/assets/ibm-plex-mono-latin-500-normal-CB9ihrfo.woff           13.16 kB
+../../_build/apps/runtime-dashboard/dist/assets/manrope-latin-800-normal-BfWYOv1c.woff2                13.65 kB
+../../_build/apps/runtime-dashboard/dist/assets/manrope-latin-500-normal-BYYD-dBL.woff2                14.04 kB
+../../_build/apps/runtime-dashboard/dist/assets/manrope-latin-400-normal-PaqtzbVb.woff2                14.11 kB
+../../_build/apps/runtime-dashboard/dist/assets/manrope-latin-600-normal-4f0koTD-.woff2                14.17 kB
+../../_build/apps/runtime-dashboard/dist/assets/manrope-latin-700-normal-BZp_XxE4.woff2                14.21 kB
+../../_build/apps/runtime-dashboard/dist/assets/ibm-plex-mono-latin-400-normal-DMJ8VG8y.woff2          14.71 kB
+../../_build/apps/runtime-dashboard/dist/assets/ibm-plex-mono-latin-500-normal-DSY6xOcd.woff2          14.89 kB
+../../_build/apps/runtime-dashboard/dist/assets/manrope-latin-800-normal-uHUdIJgA.woff                 17.91 kB
+../../_build/apps/runtime-dashboard/dist/assets/manrope-latin-500-normal-DMZssgOp.woff                 18.24 kB
+../../_build/apps/runtime-dashboard/dist/assets/manrope-latin-400-normal-8tf8FM3T.woff                 18.29 kB
+../../_build/apps/runtime-dashboard/dist/assets/manrope-latin-600-normal-BqgrALkZ.woff                 18.38 kB
+../../_build/apps/runtime-dashboard/dist/assets/manrope-latin-700-normal-DGRFkw-m.woff                 18.41 kB
+../../_build/apps/runtime-dashboard/dist/.vite/manifest.json                                           40.39 kB │ gzip:   4.05 kB
+../../_build/apps/runtime-dashboard/dist/assets/DecisionCardView-CkaZkv4d.css                           5.00 kB │ gzip:   1.86 kB
+../../_build/apps/runtime-dashboard/dist/assets/vendor-C_2rc5z4.css                                    28.25 kB │ gzip:  17.52 kB
+../../_build/apps/runtime-dashboard/dist/assets/index-QPyEXSn6.css                                    156.55 kB │ gzip:  26.22 kB
+../../_build/apps/runtime-dashboard/dist/assets/nonAuthorityNumeric-BOSHflt_.js                         0.10 kB │ gzip:   0.08 kB │ map:     1.47 kB
+../../_build/apps/runtime-dashboard/dist/assets/currency-Q2oVwMPm.js                                    0.27 kB │ gzip:   0.22 kB │ map:     1.09 kB
+../../_build/apps/runtime-dashboard/dist/assets/chartTheme-xo6swSY9.js                                  0.30 kB │ gzip:   0.15 kB │ map:     0.68 kB
+../../_build/apps/runtime-dashboard/dist/assets/AsyncSection-DX34A-fX.js                                0.35 kB │ gzip:   0.22 kB │ map:     1.51 kB
+../../_build/apps/runtime-dashboard/dist/assets/FeatureAsyncBoundary-CynV_zVU.js                        0.38 kB │ gzip:   0.25 kB │ map:     1.61 kB
+../../_build/apps/runtime-dashboard/dist/assets/useLexGraphStats-BmfwQqXn.js                            0.47 kB │ gzip:   0.34 kB │ map:     2.26 kB
+../../_build/apps/runtime-dashboard/dist/assets/theme-DZrtGB3z.js                                       0.48 kB │ gzip:   0.28 kB │ map:     1.47 kB
+../../_build/apps/runtime-dashboard/dist/assets/useControlJobStatus-Csq1egNJ.js                         0.50 kB │ gzip:   0.36 kB │ map:     2.06 kB
+../../_build/apps/runtime-dashboard/dist/assets/MetricCard-CByYGi74.js                                  0.52 kB │ gzip:   0.32 kB │ map:     1.32 kB
+../../_build/apps/runtime-dashboard/dist/assets/status-NZlv6hrI.js                                      0.54 kB │ gzip:   0.35 kB │ map:     2.34 kB
+../../_build/apps/runtime-dashboard/dist/assets/PublicSectorReadinessPanel-BJE7Dng_.js                  0.55 kB │ gzip:   0.33 kB │ map:     1.62 kB
+../../_build/apps/runtime-dashboard/dist/assets/evidenceTypes-DptI01q6.js                               0.56 kB │ gzip:   0.29 kB │ map:     5.84 kB
+../../_build/apps/runtime-dashboard/dist/assets/DataFreshnessBadge-XcSr7NPH.js                          0.74 kB │ gzip:   0.43 kB │ map:     2.36 kB
+../../_build/apps/runtime-dashboard/dist/assets/EvidenceLink-BZEwYnBr.js                                0.79 kB │ gzip:   0.44 kB │ map:     3.18 kB
+../../_build/apps/runtime-dashboard/dist/assets/useLaunchNlRun-Cr2HpNoX.js                              0.80 kB │ gzip:   0.49 kB │ map:     2.62 kB
+../../_build/apps/runtime-dashboard/dist/assets/RunBreadcrumbs-BDkQy5Dn.js                              0.84 kB │ gzip:   0.41 kB │ map:     2.12 kB
+../../_build/apps/runtime-dashboard/dist/assets/VirtualList-D10vFNff.js                                 0.86 kB │ gzip:   0.53 kB │ map:     3.40 kB
+../../_build/apps/runtime-dashboard/dist/assets/ApiErrorAlert-C9_kL2q2.js                               1.09 kB │ gzip:   0.45 kB │ map:     3.28 kB
+../../_build/apps/runtime-dashboard/dist/assets/AgentsTab-C3YVatsQ.js                                   1.30 kB │ gzip:   0.63 kB │ map:     2.06 kB
+../../_build/apps/runtime-dashboard/dist/assets/useControlPlaneMutation-BDAfUmYt.js                     1.33 kB │ gzip:   0.69 kB │ map:     7.11 kB
+../../_build/apps/runtime-dashboard/dist/assets/LoginPage--VGopZiR.js                                   1.34 kB │ gzip:   0.65 kB │ map:     3.27 kB
+../../_build/apps/runtime-dashboard/dist/assets/ProvenanceStrip-BxJ-SGhv.js                             1.46 kB │ gzip:   0.69 kB │ map:     5.69 kB
+../../_build/apps/runtime-dashboard/dist/assets/ConfidenceGauge-XKxVizwR.js                             1.57 kB │ gzip:   0.89 kB │ map:     6.90 kB
+../../_build/apps/runtime-dashboard/dist/assets/VirtualTable-CRKqJ7O5.js                                1.78 kB │ gzip:   0.90 kB │ map:     6.92 kB
+../../_build/apps/runtime-dashboard/dist/assets/dataExport-CqZWW9lq.js                                  1.87 kB │ gzip:   0.85 kB │ map:     7.92 kB
+../../_build/apps/runtime-dashboard/dist/assets/AuthoredText-DFIr53bZ.js                                1.90 kB │ gzip:   0.98 kB │ map:     7.17 kB
+../../_build/apps/runtime-dashboard/dist/assets/printExport-21rlRjBf.js                                 2.16 kB │ gzip:   1.09 kB │ map:     7.92 kB
+../../_build/apps/runtime-dashboard/dist/assets/ErrorsPanel-DtkM7FVy.js                                 2.16 kB │ gzip:   0.83 kB │ map:     5.66 kB
+../../_build/apps/runtime-dashboard/dist/assets/uncertainty-tokens-DNspP0k4.js                          2.19 kB │ gzip:   0.78 kB │ map:     7.10 kB
+../../_build/apps/runtime-dashboard/dist/assets/GradedErrorBar-PxfVfC4K.js                              2.23 kB │ gzip:   1.15 kB │ map:     9.72 kB
+../../_build/apps/runtime-dashboard/dist/assets/MethodologyBadge-Ct2Mx82c.js                            2.38 kB │ gzip:   1.20 kB │ map:     5.04 kB
+../../_build/apps/runtime-dashboard/dist/assets/ArtifactsTab-DtKMrNt1.js                                2.54 kB │ gzip:   1.11 kB │ map:     7.46 kB
+../../_build/apps/runtime-dashboard/dist/assets/vendor-query-CaesBbZU.js                                3.02 kB │ gzip:   1.35 kB │ map:    17.96 kB
+../../_build/apps/runtime-dashboard/dist/assets/LineageGraph-DevSRnG5.js                                3.04 kB │ gzip:   1.35 kB │ map:     9.23 kB
+../../_build/apps/runtime-dashboard/dist/assets/vendor-scheduler-7OC5HNn7.js                            3.61 kB │ gzip:   1.58 kB │ map:    17.34 kB
+../../_build/apps/runtime-dashboard/dist/assets/MetricValidationComparisonTable-T-oKdqxU.js             4.14 kB │ gzip:   1.12 kB │ map:    10.83 kB
+../../_build/apps/runtime-dashboard/dist/assets/compare-B0d5_V2n.js                                     5.00 kB │ gzip:   1.98 kB │ map:    19.47 kB
+../../_build/apps/runtime-dashboard/dist/assets/OperatorDiagnosticPanel-BDOZuyq_.js                     5.20 kB │ gzip:   1.78 kB │ map:    18.60 kB
+../../_build/apps/runtime-dashboard/dist/assets/NodeDebugPanel-DKKIbG9e.js                              5.22 kB │ gzip:   1.28 kB │ map:    13.45 kB
+../../_build/apps/runtime-dashboard/dist/assets/EvidenceTab-CauTS1Lk.js                                 5.54 kB │ gzip:   1.65 kB │ map:    16.07 kB
+../../_build/apps/runtime-dashboard/dist/assets/UncertaintyBand-1k4cO1Sh.js                             5.97 kB │ gzip:   2.44 kB │ map:    23.39 kB
+../../_build/apps/runtime-dashboard/dist/assets/LandingPage-C2btVL3g.js                                 6.08 kB │ gzip:   1.74 kB │ map:    13.47 kB
+../../_build/apps/runtime-dashboard/dist/assets/GovernanceReport-YSWRL5Zb.js                            6.51 kB │ gzip:   1.53 kB │ map:    16.06 kB
+../../_build/apps/runtime-dashboard/dist/assets/useReviewCollaborationSurface-DnI3JE-k.js               6.81 kB │ gzip:   2.43 kB │ map:    25.81 kB
+../../_build/apps/runtime-dashboard/dist/assets/WorkflowDagPanel-CCbe0E-U.js                            7.48 kB │ gzip:   2.31 kB │ map:    23.17 kB
+../../_build/apps/runtime-dashboard/dist/assets/AcquisitionRouteDetail-DoNdroxd.js                      7.69 kB │ gzip:   2.30 kB │ map:    30.14 kB
+../../_build/apps/runtime-dashboard/dist/assets/WorkflowTab-CposCTg4.js                                 7.86 kB │ gzip:   2.46 kB │ map:    21.90 kB
+../../_build/apps/runtime-dashboard/dist/assets/DebugTab-DicjyJKw.js                                    8.06 kB │ gzip:   2.85 kB │ map:    25.05 kB
+../../_build/apps/runtime-dashboard/dist/assets/GovernanceTab-DhK2hyDJ.js                               8.61 kB │ gzip:   3.23 kB │ map:    30.45 kB
+../../_build/apps/runtime-dashboard/dist/assets/runPaperPresentation-CV44ue5U.js                        9.18 kB │ gzip:   2.93 kB │ map:    28.80 kB
+../../_build/apps/runtime-dashboard/dist/assets/useEpochStaleness-h8CeAfUE.js                          10.29 kB │ gzip:   2.85 kB │ map:    27.85 kB
+../../_build/apps/runtime-dashboard/dist/assets/RunDeckPage-DDZPnwoJ.js                                10.81 kB │ gzip:   2.98 kB │ map:    29.95 kB
+../../_build/apps/runtime-dashboard/dist/assets/PlatformHealthPage-C8JDZqM9.js                         12.03 kB │ gzip:   2.74 kB │ map:    32.27 kB
+../../_build/apps/runtime-dashboard/dist/assets/routes.public-Ct3CZDsK.js                              12.62 kB │ gzip:   2.94 kB │ map:    33.95 kB
+../../_build/apps/runtime-dashboard/dist/assets/PublicDecisionViewerPage-92VFr6wJ.js                   13.72 kB │ gzip:   3.55 kB │ map:    35.30 kB
+../../_build/apps/runtime-dashboard/dist/assets/RunsListPage-DfN17vxD.js                               14.03 kB │ gzip:   4.24 kB │ map:    42.89 kB
+../../_build/apps/runtime-dashboard/dist/assets/RunReportPage-B_93fCOF.js                              14.60 kB │ gzip:   3.27 kB │ map:    36.56 kB
+../../_build/apps/runtime-dashboard/dist/assets/LexKnowledgeGraphPage-O1wEQ04d.js                      15.53 kB │ gzip:   3.90 kB │ map:    46.28 kB
+../../_build/apps/runtime-dashboard/dist/assets/TrinityCard-B0lL4_L-.js                                15.82 kB │ gzip:   3.51 kB │ map:    46.95 kB
+../../_build/apps/runtime-dashboard/dist/assets/RunComparePage-kIpg5L3J.js                             24.76 kB │ gzip:   5.71 kB │ map:    74.27 kB
+../../_build/apps/runtime-dashboard/dist/assets/AgentPipelinePanel-C4IL09oN.js                         25.52 kB │ gzip:   4.98 kB │ map:    73.35 kB
+../../_build/apps/runtime-dashboard/dist/assets/SimulationResultsViewer-D6wkzyNr.js                    26.59 kB │ gzip:   6.65 kB │ map:    88.19 kB
+../../_build/apps/runtime-dashboard/dist/assets/ArtifactInspectorPage-DyzwGJSt.js                      27.59 kB │ gzip:   7.42 kB │ map:    93.43 kB
+../../_build/apps/runtime-dashboard/dist/assets/vendor-forms-BNbo70JS.js                               33.73 kB │ gzip:  12.11 kB │ map:   187.99 kB
+../../_build/apps/runtime-dashboard/dist/assets/DecisionCardView-7cICi47g.js                           36.43 kB │ gzip:  11.35 kB │ map:   113.35 kB
+../../_build/apps/runtime-dashboard/dist/assets/index-CEQOUiUX.js                                      41.30 kB │ gzip:   9.47 kB │ map:   120.79 kB
+../../_build/apps/runtime-dashboard/dist/assets/LaunchRunPage-DdX7QQLu.js                              43.78 kB │ gzip:   9.87 kB │ map:   126.22 kB
+../../_build/apps/runtime-dashboard/dist/assets/OverviewTab-DyMRWJPu.js                                50.14 kB │ gzip:  12.76 kB │ map:   162.64 kB
+../../_build/apps/runtime-dashboard/dist/assets/routes.public-Dy4TfamU.js                              56.95 kB │ gzip:  15.75 kB │ map:   194.33 kB
+../../_build/apps/runtime-dashboard/dist/assets/TrustPosturePage-CNstMBIP.js                           60.19 kB │ gzip:  16.54 kB │ map:   198.38 kB
+../../_build/apps/runtime-dashboard/dist/assets/RunDetailLayout-C_IRCj5P.js                            61.97 kB │ gzip:  15.15 kB │ map:   178.35 kB
+../../_build/apps/runtime-dashboard/dist/assets/CausalTab-BDUR67R-.js                                  66.01 kB │ gzip:  17.84 kB │ map:   262.22 kB
+../../_build/apps/runtime-dashboard/dist/assets/EvidenceFabricPage-D7kzkWEv.js                         69.62 kB │ gzip:  14.58 kB │ map:   226.93 kB
+../../_build/apps/runtime-dashboard/dist/assets/vendor-schema-Bvm3GnCE.js                              76.68 kB │ gzip:  20.49 kB │ map:   407.78 kB
+../../_build/apps/runtime-dashboard/dist/assets/vendor-router-CyinGN2v.js                              89.32 kB │ gzip:  30.17 kB │ map:   552.24 kB
+../../_build/apps/runtime-dashboard/dist/assets/CycleBoardPage-CEhDEgYT.js                            100.59 kB │ gzip:  22.17 kB │ map:   284.66 kB
+../../_build/apps/runtime-dashboard/dist/assets/vendor-react-Cveqew3f.js                              189.34 kB │ gzip:  59.23 kB │ map:   892.51 kB
+../../_build/apps/runtime-dashboard/dist/assets/vendor-recharts-DPxx0Feq.js                           258.86 kB │ gzip:  59.76 kB │ map: 1,028.43 kB
+../../_build/apps/runtime-dashboard/dist/assets/vendor-Gr7uGtHv.js                                    596.68 kB │ gzip: 196.27 kB │ map: 2,886.06 kB
+../../_build/apps/runtime-dashboard/dist/assets/index-Tbi7aiK3.js                                     675.37 kB │ gzip: 194.91 kB │ map: 1,537.93 kB
+✓ built in 11.67s
+
+PWA v1.2.0
+Building src/sw.js service worker ("es" format)...
+vite v7.3.2 building client environment for production...
+transforming...
+✓ 70 modules transformed.
+rendering chunks...
+computing gzip size...
+../../_build/apps/runtime-dashboard/dist/sw.mjs  16.72 kB │ gzip: 5.63 kB │ map: 149.60 kB
+✓ built in 181ms
+
+PWA v1.2.0
+mode      injectManifest
+format:   es
+precache  112 entries (3116.36 KiB)
+files generated
+  ../../_build/apps/runtime-dashboard/dist/sw.js
+atlas-ui Tailwind source: PASS (2 package-exclusive candidates)

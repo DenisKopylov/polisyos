@@ -1,0 +1,22 @@
+{
+  "schema": "policyos.e02.coordinator.evidence_identity_verification.v1",
+  "time_utc": "2026-10-08T16:37:14.878160+00:00",
+  "unit": "C11",
+  "exact_source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+  "exact_tree": "605764d3afec7ba005bd891530ee074df5811497",
+  "indexed_artifact_denominator": 237,
+  "complete_source_footprint_paths": 27,
+  "separate_remote_object_database": "/workspace/ORCH04-evidence/c11/remote-readback-4810a9c4.git",
+  "lineage_commit_tree_parents": [
+    "76f262402cbb4da18888482529d86582c409a7f8 e74696ce654bcd52464ee000b21107bb4e9753d1 0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+    "26eaf5c7f9518e1d1bb0c82c0118c448ea0f22a6 2bb98994c1b04dd5fc7ee42d70ae533fbfadc456 76f262402cbb4da18888482529d86582c409a7f8",
+    "a16381458ac148ede05cae2eb84de88e5780c279 9e6b756921bb5b803792e2e15f7c5347e82b8ed7 26eaf5c7f9518e1d1bb0c82c0118c448ea0f22a6",
+    "bdc94a82d2bc911f61e729635ebe2eb03774848f b99374f46dd6971daf47fd200549e98d32f23f23 a16381458ac148ede05cae2eb84de88e5780c279",
+    "c1bffbd531b9b2c4339f073416c95d42d90ee317 605764d3afec7ba005bd891530ee074df5811497 bdc94a82d2bc911f61e729635ebe2eb03774848f"
+  ],
+  "final_affected_junit_cases": 53,
+  "final_affected_junit_failures": [],
+  "errors": [],
+  "outcome": "PASS",
+  "qualification": "Fresh receipt/remote/input identity verification of completed independent native evidence; no redundant test rerun, no product acceptance or G closure"
+}

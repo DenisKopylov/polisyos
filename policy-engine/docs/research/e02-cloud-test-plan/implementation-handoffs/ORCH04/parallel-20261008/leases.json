@@ -48,5 +48,21 @@
     "uv.lock",
     "main/integration publication"
   ],
-  "lease_detail": "Exact selected file lease is reported by each source writer before mutation; test-start paths alone are not ownership"
+  "lease_detail": "Exact selected file lease is reported by each source writer before mutation; test-start paths alone are not ownership",
+  "companion_allocations": [
+    {
+      "id": "C10-manual-UI-active-locale-companions",
+      "allocator": "ORCH04 coordinator",
+      "basis": "Original dispatch C10 manual OverviewTab UI scope; mandatory enabled hook i18n correction; existing active locale architecture",
+      "paths": [
+        "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+        "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json"
+      ],
+      "constraint": "Only new pages.runs.candidateSimulation namespace keys/placeholders; exact unrelated preimages preserved; no Core/validator/generator/lock permission",
+      "earlier_allocation": "Three locale paths en/ru/uk narrowed to en/uk after actual ru legacy frozen continuity diagnostic",
+      "ru": "Exact canonical G blob retained; existing provider fallback used",
+      "remaining_diagnostic": "Active census frozen metadata mismatch retained separately; no metadata waiver/change",
+      "time_utc": "2026-10-08T16:24:20.023849+00:00"
+    }
+  ]
 }

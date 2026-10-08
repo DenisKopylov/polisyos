@@ -1,0 +1,2880 @@
+{
+  "schema": "policyos.e02.c05.G-proposal-source-controls.v1",
+  "state": "UNAPPLIED_HELD_NOT_G_RUNTIME_OR_SOURCE_ACCEPTANCE",
+  "refs": {
+    "G": "dee58973f7673299070b7c7374f419b0adb8175c",
+    "CAT": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+    "DFI": "ab44166335130463178e65dfc29a252c96afe479",
+    "r2_source": "2734ee49f6985ff2bd7ad6e3c4d6089a7d7848ca",
+    "forward_tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+    "final_source": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857"
+  },
+  "dependency_path_count": 65,
+  "rows": [
+    {
+      "path": "policy-engine/.python-version",
+      "identities": {
+        "G": {
+          "blob": "6324d401a069f4020efcf0ff07442724b52f47c2",
+          "sha256": "a876e0b10411037a012498b9fe18d9bc1df32ed8b722a13564dc944ddcfd9135",
+          "bytes": 5
+        },
+        "CAT": {
+          "blob": "6324d401a069f4020efcf0ff07442724b52f47c2",
+          "sha256": "a876e0b10411037a012498b9fe18d9bc1df32ed8b722a13564dc944ddcfd9135",
+          "bytes": 5
+        },
+        "DFI": {
+          "blob": "6324d401a069f4020efcf0ff07442724b52f47c2",
+          "sha256": "a876e0b10411037a012498b9fe18d9bc1df32ed8b722a13564dc944ddcfd9135",
+          "bytes": 5
+        },
+        "r2_source": {
+          "blob": "6324d401a069f4020efcf0ff07442724b52f47c2",
+          "sha256": "a876e0b10411037a012498b9fe18d9bc1df32ed8b722a13564dc944ddcfd9135",
+          "bytes": 5
+        },
+        "forward_tree": {
+          "blob": "6324d401a069f4020efcf0ff07442724b52f47c2",
+          "sha256": "a876e0b10411037a012498b9fe18d9bc1df32ed8b722a13564dc944ddcfd9135",
+          "bytes": 5
+        },
+        "final_source": {
+          "blob": "6324d401a069f4020efcf0ff07442724b52f47c2",
+          "sha256": "a876e0b10411037a012498b9fe18d9bc1df32ed8b722a13564dc944ddcfd9135",
+          "bytes": 5
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/architecture/imports/policy.toml",
+      "identities": {
+        "G": {
+          "blob": "3ba18adb3a7d69dafe7c87ee5686968de0994ad4",
+          "sha256": "f1fd15ac0b8c66126570b51b04da6201f11bd3372ecd0826924bad06ca31637d",
+          "bytes": 3465
+        },
+        "CAT": {
+          "blob": "3ba18adb3a7d69dafe7c87ee5686968de0994ad4",
+          "sha256": "f1fd15ac0b8c66126570b51b04da6201f11bd3372ecd0826924bad06ca31637d",
+          "bytes": 3465
+        },
+        "DFI": {
+          "blob": "3ba18adb3a7d69dafe7c87ee5686968de0994ad4",
+          "sha256": "f1fd15ac0b8c66126570b51b04da6201f11bd3372ecd0826924bad06ca31637d",
+          "bytes": 3465
+        },
+        "r2_source": {
+          "blob": "3ba18adb3a7d69dafe7c87ee5686968de0994ad4",
+          "sha256": "f1fd15ac0b8c66126570b51b04da6201f11bd3372ecd0826924bad06ca31637d",
+          "bytes": 3465
+        },
+        "forward_tree": {
+          "blob": "3ba18adb3a7d69dafe7c87ee5686968de0994ad4",
+          "sha256": "f1fd15ac0b8c66126570b51b04da6201f11bd3372ecd0826924bad06ca31637d",
+          "bytes": 3465
+        },
+        "final_source": {
+          "blob": "3ba18adb3a7d69dafe7c87ee5686968de0994ad4",
+          "sha256": "f1fd15ac0b8c66126570b51b04da6201f11bd3372ecd0826924bad06ca31637d",
+          "bytes": 3465
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/architecture/packages/boundaries.toml",
+      "identities": {
+        "G": {
+          "blob": "964fbd1d6af68d98aa5c09468065185ec1990ba9",
+          "sha256": "e822643497f797aeec90979b6658234e704c5c2f05e8c341352acede3c9a3bbf",
+          "bytes": 9655
+        },
+        "CAT": {
+          "blob": "964fbd1d6af68d98aa5c09468065185ec1990ba9",
+          "sha256": "e822643497f797aeec90979b6658234e704c5c2f05e8c341352acede3c9a3bbf",
+          "bytes": 9655
+        },
+        "DFI": {
+          "blob": "964fbd1d6af68d98aa5c09468065185ec1990ba9",
+          "sha256": "e822643497f797aeec90979b6658234e704c5c2f05e8c341352acede3c9a3bbf",
+          "bytes": 9655
+        },
+        "r2_source": {
+          "blob": "964fbd1d6af68d98aa5c09468065185ec1990ba9",
+          "sha256": "e822643497f797aeec90979b6658234e704c5c2f05e8c341352acede3c9a3bbf",
+          "bytes": 9655
+        },
+        "forward_tree": {
+          "blob": "964fbd1d6af68d98aa5c09468065185ec1990ba9",
+          "sha256": "e822643497f797aeec90979b6658234e704c5c2f05e8c341352acede3c9a3bbf",
+          "bytes": 9655
+        },
+        "final_source": {
+          "blob": "964fbd1d6af68d98aa5c09468065185ec1990ba9",
+          "sha256": "e822643497f797aeec90979b6658234e704c5c2f05e8c341352acede3c9a3bbf",
+          "bytes": 9655
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/architecture/tooling/mypy/generated.ini",
+      "identities": {
+        "G": {
+          "blob": "39cb2d4abe20bb27403e1c2b6de32a52c3866373",
+          "sha256": "7861f98c2ab1c264740af40fcaa3c52ee632e26e01015ff9dfb9a585a800982a",
+          "bytes": 36891
+        },
+        "CAT": {
+          "blob": "39cb2d4abe20bb27403e1c2b6de32a52c3866373",
+          "sha256": "7861f98c2ab1c264740af40fcaa3c52ee632e26e01015ff9dfb9a585a800982a",
+          "bytes": 36891
+        },
+        "DFI": {
+          "blob": "39cb2d4abe20bb27403e1c2b6de32a52c3866373",
+          "sha256": "7861f98c2ab1c264740af40fcaa3c52ee632e26e01015ff9dfb9a585a800982a",
+          "bytes": 36891
+        },
+        "r2_source": {
+          "blob": "39cb2d4abe20bb27403e1c2b6de32a52c3866373",
+          "sha256": "7861f98c2ab1c264740af40fcaa3c52ee632e26e01015ff9dfb9a585a800982a",
+          "bytes": 36891
+        },
+        "forward_tree": {
+          "blob": "39cb2d4abe20bb27403e1c2b6de32a52c3866373",
+          "sha256": "7861f98c2ab1c264740af40fcaa3c52ee632e26e01015ff9dfb9a585a800982a",
+          "bytes": 36891
+        },
+        "final_source": {
+          "blob": "39cb2d4abe20bb27403e1c2b6de32a52c3866373",
+          "sha256": "7861f98c2ab1c264740af40fcaa3c52ee632e26e01015ff9dfb9a585a800982a",
+          "bytes": 36891
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/metrics_map.yaml",
+      "identities": {
+        "G": {
+          "blob": "7f6cf78a02e4e58219353548af604de49e796442",
+          "sha256": "0877e6521e4dd66dbc2c08010367c79f672c37a8b6b30e68f47b10135f680266",
+          "bytes": 2163
+        },
+        "CAT": {
+          "blob": "7f6cf78a02e4e58219353548af604de49e796442",
+          "sha256": "0877e6521e4dd66dbc2c08010367c79f672c37a8b6b30e68f47b10135f680266",
+          "bytes": 2163
+        },
+        "DFI": {
+          "blob": "7f6cf78a02e4e58219353548af604de49e796442",
+          "sha256": "0877e6521e4dd66dbc2c08010367c79f672c37a8b6b30e68f47b10135f680266",
+          "bytes": 2163
+        },
+        "r2_source": {
+          "blob": "7f6cf78a02e4e58219353548af604de49e796442",
+          "sha256": "0877e6521e4dd66dbc2c08010367c79f672c37a8b6b30e68f47b10135f680266",
+          "bytes": 2163
+        },
+        "forward_tree": {
+          "blob": "7f6cf78a02e4e58219353548af604de49e796442",
+          "sha256": "0877e6521e4dd66dbc2c08010367c79f672c37a8b6b30e68f47b10135f680266",
+          "bytes": 2163
+        },
+        "final_source": {
+          "blob": "7f6cf78a02e4e58219353548af604de49e796442",
+          "sha256": "0877e6521e4dd66dbc2c08010367c79f672c37a8b6b30e68f47b10135f680266",
+          "bytes": 2163
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/proxy_metric_alignments.yaml",
+      "identities": {
+        "G": {
+          "blob": "649cd9a249ca12745b4ed9c9871d2aca57eb0a61",
+          "sha256": "4c6c04bb99ea566b061c7b2d23540d22f8eb7c043067585a7e9b93ccaf87388b",
+          "bytes": 293
+        },
+        "CAT": {
+          "blob": "649cd9a249ca12745b4ed9c9871d2aca57eb0a61",
+          "sha256": "4c6c04bb99ea566b061c7b2d23540d22f8eb7c043067585a7e9b93ccaf87388b",
+          "bytes": 293
+        },
+        "DFI": {
+          "blob": "649cd9a249ca12745b4ed9c9871d2aca57eb0a61",
+          "sha256": "4c6c04bb99ea566b061c7b2d23540d22f8eb7c043067585a7e9b93ccaf87388b",
+          "bytes": 293
+        },
+        "r2_source": {
+          "blob": "649cd9a249ca12745b4ed9c9871d2aca57eb0a61",
+          "sha256": "4c6c04bb99ea566b061c7b2d23540d22f8eb7c043067585a7e9b93ccaf87388b",
+          "bytes": 293
+        },
+        "forward_tree": {
+          "blob": "649cd9a249ca12745b4ed9c9871d2aca57eb0a61",
+          "sha256": "4c6c04bb99ea566b061c7b2d23540d22f8eb7c043067585a7e9b93ccaf87388b",
+          "bytes": 293
+        },
+        "final_source": {
+          "blob": "649cd9a249ca12745b4ed9c9871d2aca57eb0a61",
+          "sha256": "4c6c04bb99ea566b061c7b2d23540d22f8eb7c043067585a7e9b93ccaf87388b",
+          "bytes": 293
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/seed_variable_alignments.yaml",
+      "identities": {
+        "G": {
+          "blob": "49d63f6e693ab9488fad50b25d75b042f3dff9dd",
+          "sha256": "cb1daa3237ff58d8c875571ff2459a55c5182c3a4f13a076497a517f9a8740d8",
+          "bytes": 1309
+        },
+        "CAT": {
+          "blob": "49d63f6e693ab9488fad50b25d75b042f3dff9dd",
+          "sha256": "cb1daa3237ff58d8c875571ff2459a55c5182c3a4f13a076497a517f9a8740d8",
+          "bytes": 1309
+        },
+        "DFI": {
+          "blob": "49d63f6e693ab9488fad50b25d75b042f3dff9dd",
+          "sha256": "cb1daa3237ff58d8c875571ff2459a55c5182c3a4f13a076497a517f9a8740d8",
+          "bytes": 1309
+        },
+        "r2_source": {
+          "blob": "49d63f6e693ab9488fad50b25d75b042f3dff9dd",
+          "sha256": "cb1daa3237ff58d8c875571ff2459a55c5182c3a4f13a076497a517f9a8740d8",
+          "bytes": 1309
+        },
+        "forward_tree": {
+          "blob": "49d63f6e693ab9488fad50b25d75b042f3dff9dd",
+          "sha256": "cb1daa3237ff58d8c875571ff2459a55c5182c3a4f13a076497a517f9a8740d8",
+          "bytes": 1309
+        },
+        "final_source": {
+          "blob": "49d63f6e693ab9488fad50b25d75b042f3dff9dd",
+          "sha256": "cb1daa3237ff58d8c875571ff2459a55c5182c3a4f13a076497a517f9a8740d8",
+          "bytes": 1309
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/wvs_indicator_registry.yaml",
+      "identities": {
+        "G": {
+          "blob": "e28c9dfc7e83f3c7d2fbf020312dcfdd66bee3a0",
+          "sha256": "dabbadf04fdbf6c4658a720a6af5b63a60c69727b2350c0424368691399e413d",
+          "bytes": 160329
+        },
+        "CAT": {
+          "blob": "e28c9dfc7e83f3c7d2fbf020312dcfdd66bee3a0",
+          "sha256": "dabbadf04fdbf6c4658a720a6af5b63a60c69727b2350c0424368691399e413d",
+          "bytes": 160329
+        },
+        "DFI": {
+          "blob": "e28c9dfc7e83f3c7d2fbf020312dcfdd66bee3a0",
+          "sha256": "dabbadf04fdbf6c4658a720a6af5b63a60c69727b2350c0424368691399e413d",
+          "bytes": 160329
+        },
+        "r2_source": {
+          "blob": "e28c9dfc7e83f3c7d2fbf020312dcfdd66bee3a0",
+          "sha256": "dabbadf04fdbf6c4658a720a6af5b63a60c69727b2350c0424368691399e413d",
+          "bytes": 160329
+        },
+        "forward_tree": {
+          "blob": "e28c9dfc7e83f3c7d2fbf020312dcfdd66bee3a0",
+          "sha256": "dabbadf04fdbf6c4658a720a6af5b63a60c69727b2350c0424368691399e413d",
+          "bytes": 160329
+        },
+        "final_source": {
+          "blob": "e28c9dfc7e83f3c7d2fbf020312dcfdd66bee3a0",
+          "sha256": "dabbadf04fdbf6c4658a720a6af5b63a60c69727b2350c0424368691399e413d",
+          "bytes": 160329
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "identities": {
+        "G": {
+          "blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "bytes": 11007
+        },
+        "CAT": {
+          "blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "bytes": 11007
+        },
+        "DFI": {
+          "blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "bytes": 11007
+        },
+        "r2_source": {
+          "blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "bytes": 11007
+        },
+        "forward_tree": {
+          "blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "bytes": 11007
+        },
+        "final_source": {
+          "blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "bytes": 11007
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-c05-catalog-profile-currentness.toml",
+      "identities": {
+        "G": null,
+        "CAT": null,
+        "DFI": null,
+        "r2_source": {
+          "blob": "ed976b6fe22e57bf37ae63f3ec89854a5cabee1e",
+          "sha256": "3e10fb94ab32847bcf4a899556ae839261bb797a16744427e7b809cfd5366da1",
+          "bytes": 2409
+        },
+        "forward_tree": {
+          "blob": "ed976b6fe22e57bf37ae63f3ec89854a5cabee1e",
+          "sha256": "3e10fb94ab32847bcf4a899556ae839261bb797a16744427e7b809cfd5366da1",
+          "bytes": 2409
+        },
+        "final_source": {
+          "blob": "ed976b6fe22e57bf37ae63f3ec89854a5cabee1e",
+          "sha256": "3e10fb94ab32847bcf4a899556ae839261bb797a16744427e7b809cfd5366da1",
+          "bytes": 2409
+        }
+      },
+      "supplied_in_owned_unapplied_patch": true,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "UNAPPLIED_PATCH"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-c05-loader-contracts-r2.toml",
+      "identities": {
+        "G": null,
+        "CAT": null,
+        "DFI": null,
+        "r2_source": {
+          "blob": "bb6a754bdb2dcdf2afcc2be9e3ed5cc169c309bf",
+          "sha256": "9bd5469d0ab50121ebef02f4d3357c54eaacc8d1d3b0b722eaaa29758fb32171",
+          "bytes": 1485
+        },
+        "forward_tree": {
+          "blob": "bb6a754bdb2dcdf2afcc2be9e3ed5cc169c309bf",
+          "sha256": "9bd5469d0ab50121ebef02f4d3357c54eaacc8d1d3b0b722eaaa29758fb32171",
+          "bytes": 1485
+        },
+        "final_source": {
+          "blob": "bb6a754bdb2dcdf2afcc2be9e3ed5cc169c309bf",
+          "sha256": "9bd5469d0ab50121ebef02f4d3357c54eaacc8d1d3b0b722eaaa29758fb32171",
+          "bytes": 1485
+        }
+      },
+      "supplied_in_owned_unapplied_patch": true,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "UNAPPLIED_PATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/__init__.py",
+      "identities": {
+        "G": {
+          "blob": "5964150861173fd27143d44363fda0ddd1b6f7e4",
+          "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40",
+          "bytes": 11696
+        },
+        "CAT": {
+          "blob": "5964150861173fd27143d44363fda0ddd1b6f7e4",
+          "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40",
+          "bytes": 11696
+        },
+        "DFI": {
+          "blob": "5964150861173fd27143d44363fda0ddd1b6f7e4",
+          "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40",
+          "bytes": 11696
+        },
+        "r2_source": {
+          "blob": "5964150861173fd27143d44363fda0ddd1b6f7e4",
+          "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40",
+          "bytes": 11696
+        },
+        "forward_tree": {
+          "blob": "5964150861173fd27143d44363fda0ddd1b6f7e4",
+          "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40",
+          "bytes": 11696
+        },
+        "final_source": {
+          "blob": "5964150861173fd27143d44363fda0ddd1b6f7e4",
+          "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40",
+          "bytes": 11696
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": true,
+      "same_G_CAT_bytes": true,
+      "status": "UNAPPLIED_PATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "identities": {
+        "G": {
+          "blob": "70c7131a170f4860334e59965bc951347bc12365",
+          "sha256": "bf4757743e4618d1576f62a1a34a4469f0988b6f42a8708554f9b2696ba10a7f",
+          "bytes": 3273
+        },
+        "CAT": {
+          "blob": "70c7131a170f4860334e59965bc951347bc12365",
+          "sha256": "bf4757743e4618d1576f62a1a34a4469f0988b6f42a8708554f9b2696ba10a7f",
+          "bytes": 3273
+        },
+        "DFI": {
+          "blob": "70c7131a170f4860334e59965bc951347bc12365",
+          "sha256": "bf4757743e4618d1576f62a1a34a4469f0988b6f42a8708554f9b2696ba10a7f",
+          "bytes": 3273
+        },
+        "r2_source": {
+          "blob": "70c7131a170f4860334e59965bc951347bc12365",
+          "sha256": "bf4757743e4618d1576f62a1a34a4469f0988b6f42a8708554f9b2696ba10a7f",
+          "bytes": 3273
+        },
+        "forward_tree": {
+          "blob": "70c7131a170f4860334e59965bc951347bc12365",
+          "sha256": "bf4757743e4618d1576f62a1a34a4469f0988b6f42a8708554f9b2696ba10a7f",
+          "bytes": 3273
+        },
+        "final_source": {
+          "blob": "70c7131a170f4860334e59965bc951347bc12365",
+          "sha256": "bf4757743e4618d1576f62a1a34a4469f0988b6f42a8708554f9b2696ba10a7f",
+          "bytes": 3273
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/config.py",
+      "identities": {
+        "G": {
+          "blob": "93c144f77b44c9e9300d7479b7f5b8c86e766345",
+          "sha256": "0c942402af1a304c32bccd285fd78a3aeeebc13a1f02c23b3242c1f6ead2f99d",
+          "bytes": 8035
+        },
+        "CAT": {
+          "blob": "93c144f77b44c9e9300d7479b7f5b8c86e766345",
+          "sha256": "0c942402af1a304c32bccd285fd78a3aeeebc13a1f02c23b3242c1f6ead2f99d",
+          "bytes": 8035
+        },
+        "DFI": {
+          "blob": "93c144f77b44c9e9300d7479b7f5b8c86e766345",
+          "sha256": "0c942402af1a304c32bccd285fd78a3aeeebc13a1f02c23b3242c1f6ead2f99d",
+          "bytes": 8035
+        },
+        "r2_source": {
+          "blob": "93c144f77b44c9e9300d7479b7f5b8c86e766345",
+          "sha256": "0c942402af1a304c32bccd285fd78a3aeeebc13a1f02c23b3242c1f6ead2f99d",
+          "bytes": 8035
+        },
+        "forward_tree": {
+          "blob": "93c144f77b44c9e9300d7479b7f5b8c86e766345",
+          "sha256": "0c942402af1a304c32bccd285fd78a3aeeebc13a1f02c23b3242c1f6ead2f99d",
+          "bytes": 8035
+        },
+        "final_source": {
+          "blob": "93c144f77b44c9e9300d7479b7f5b8c86e766345",
+          "sha256": "0c942402af1a304c32bccd285fd78a3aeeebc13a1f02c23b3242c1f6ead2f99d",
+          "bytes": 8035
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "identities": {
+        "G": {
+          "blob": "418c9db4c37ea56510fe179585fc708acb8a3795",
+          "sha256": "2a45894dd5f69a377248fdb80b5157ed99bffdcf2362908c5a2c6e93d68d72d2",
+          "bytes": 5379
+        },
+        "CAT": {
+          "blob": "418c9db4c37ea56510fe179585fc708acb8a3795",
+          "sha256": "2a45894dd5f69a377248fdb80b5157ed99bffdcf2362908c5a2c6e93d68d72d2",
+          "bytes": 5379
+        },
+        "DFI": {
+          "blob": "418c9db4c37ea56510fe179585fc708acb8a3795",
+          "sha256": "2a45894dd5f69a377248fdb80b5157ed99bffdcf2362908c5a2c6e93d68d72d2",
+          "bytes": 5379
+        },
+        "r2_source": {
+          "blob": "418c9db4c37ea56510fe179585fc708acb8a3795",
+          "sha256": "2a45894dd5f69a377248fdb80b5157ed99bffdcf2362908c5a2c6e93d68d72d2",
+          "bytes": 5379
+        },
+        "forward_tree": {
+          "blob": "418c9db4c37ea56510fe179585fc708acb8a3795",
+          "sha256": "2a45894dd5f69a377248fdb80b5157ed99bffdcf2362908c5a2c6e93d68d72d2",
+          "bytes": 5379
+        },
+        "final_source": {
+          "blob": "418c9db4c37ea56510fe179585fc708acb8a3795",
+          "sha256": "2a45894dd5f69a377248fdb80b5157ed99bffdcf2362908c5a2c6e93d68d72d2",
+          "bytes": 5379
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/__init__.py",
+      "identities": {
+        "G": {
+          "blob": "16130b4b1e94aca825a89e82f8a5c60a5b562e52",
+          "sha256": "8f1b6f490f93b10fa4ffeb55d197e4070779666694c1866fa3bef43a932b87ae",
+          "bytes": 3153
+        },
+        "CAT": {
+          "blob": "16130b4b1e94aca825a89e82f8a5c60a5b562e52",
+          "sha256": "8f1b6f490f93b10fa4ffeb55d197e4070779666694c1866fa3bef43a932b87ae",
+          "bytes": 3153
+        },
+        "DFI": {
+          "blob": "16130b4b1e94aca825a89e82f8a5c60a5b562e52",
+          "sha256": "8f1b6f490f93b10fa4ffeb55d197e4070779666694c1866fa3bef43a932b87ae",
+          "bytes": 3153
+        },
+        "r2_source": {
+          "blob": "16130b4b1e94aca825a89e82f8a5c60a5b562e52",
+          "sha256": "8f1b6f490f93b10fa4ffeb55d197e4070779666694c1866fa3bef43a932b87ae",
+          "bytes": 3153
+        },
+        "forward_tree": {
+          "blob": "16130b4b1e94aca825a89e82f8a5c60a5b562e52",
+          "sha256": "8f1b6f490f93b10fa4ffeb55d197e4070779666694c1866fa3bef43a932b87ae",
+          "bytes": 3153
+        },
+        "final_source": {
+          "blob": "16130b4b1e94aca825a89e82f8a5c60a5b562e52",
+          "sha256": "8f1b6f490f93b10fa4ffeb55d197e4070779666694c1866fa3bef43a932b87ae",
+          "bytes": 3153
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+      "identities": {
+        "G": {
+          "blob": "0867804c64b5468bff7025a5208574b2390b90ad",
+          "sha256": "6c36ffce957ade642ba1cc1dab2367c2620dd7c75d0219520c64b3eec94bf0a6",
+          "bytes": 1914
+        },
+        "CAT": null,
+        "DFI": null,
+        "r2_source": null,
+        "forward_tree": null,
+        "final_source": null
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "selected_contract_definition_changes": [],
+      "G_only_definition_names": [
+        "catalog_default_resource_path"
+      ],
+      "status": "HELD_EXACT_PREDECESSOR_CONTRACT_OWNER_SELECTION_REQUIRED"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md",
+      "identities": {
+        "G": {
+          "blob": "4f40f366c18ab5e17f4c5ff22fb5337923304208",
+          "sha256": "488cc5139b5e208a3b9341d391c48c876f5e02e8dcecd7b9117eb19d94431d72",
+          "bytes": 4847
+        },
+        "CAT": {
+          "blob": "6aee56a6b6a1aac7563613355c8011f3909c70d6",
+          "sha256": "0eaaf0432d18d2cba4f9aa762a0fb17e379ecb3f65f86e4f469c106aa1187d83",
+          "bytes": 5309
+        },
+        "DFI": {
+          "blob": "8b18ee8ee4c57e815a03969afad617eeb11a9296",
+          "sha256": "8242f58d832a477b77f93740007c226aa43150d91680c5242d860706999d0a7a",
+          "bytes": 5137
+        },
+        "r2_source": {
+          "blob": "6a87c5947828d0254720e99f57aba91dc5df57af",
+          "sha256": "b0e91417c5e07dab4b4d9066a9be2afa99e4316e2095223714f872efdc428c03",
+          "bytes": 7807
+        },
+        "forward_tree": {
+          "blob": "6a87c5947828d0254720e99f57aba91dc5df57af",
+          "sha256": "b0e91417c5e07dab4b4d9066a9be2afa99e4316e2095223714f872efdc428c03",
+          "bytes": 7807
+        },
+        "final_source": {
+          "blob": "6a87c5947828d0254720e99f57aba91dc5df57af",
+          "sha256": "b0e91417c5e07dab4b4d9066a9be2afa99e4316e2095223714f872efdc428c03",
+          "bytes": 7807
+        }
+      },
+      "supplied_in_owned_unapplied_patch": true,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "status": "UNAPPLIED_PATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/__init__.py",
+      "identities": {
+        "G": {
+          "blob": "d0980a93abf3f7da319d76928aa007c6be68c074",
+          "sha256": "00c80ee456e8a76f43c7dbe9a9dd6a8e601922d6052098dc037c4fd5e82cf812",
+          "bytes": 102
+        },
+        "CAT": {
+          "blob": "d0980a93abf3f7da319d76928aa007c6be68c074",
+          "sha256": "00c80ee456e8a76f43c7dbe9a9dd6a8e601922d6052098dc037c4fd5e82cf812",
+          "bytes": 102
+        },
+        "DFI": {
+          "blob": "d0980a93abf3f7da319d76928aa007c6be68c074",
+          "sha256": "00c80ee456e8a76f43c7dbe9a9dd6a8e601922d6052098dc037c4fd5e82cf812",
+          "bytes": 102
+        },
+        "r2_source": {
+          "blob": "d0980a93abf3f7da319d76928aa007c6be68c074",
+          "sha256": "00c80ee456e8a76f43c7dbe9a9dd6a8e601922d6052098dc037c4fd5e82cf812",
+          "bytes": 102
+        },
+        "forward_tree": {
+          "blob": "d0980a93abf3f7da319d76928aa007c6be68c074",
+          "sha256": "00c80ee456e8a76f43c7dbe9a9dd6a8e601922d6052098dc037c4fd5e82cf812",
+          "bytes": 102
+        },
+        "final_source": {
+          "blob": "d0980a93abf3f7da319d76928aa007c6be68c074",
+          "sha256": "00c80ee456e8a76f43c7dbe9a9dd6a8e601922d6052098dc037c4fd5e82cf812",
+          "bytes": 102
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+      "identities": {
+        "G": {
+          "blob": "384a30f2c4bf679127cd6008b28cfc20c6b99449",
+          "sha256": "c2db06cbad0f2b078bb0b544cd0aef8170c3035d242cd55c39b15227e1db615b",
+          "bytes": 7529
+        },
+        "CAT": {
+          "blob": "2aa866c8a5523b9a345baad5a8a4ec631453bb1a",
+          "sha256": "823d8e9f11a3a225d27f643d0b2a7fb04ad7f687f1a1ca476625396b266d4071",
+          "bytes": 9881
+        },
+        "DFI": {
+          "blob": "2aa866c8a5523b9a345baad5a8a4ec631453bb1a",
+          "sha256": "823d8e9f11a3a225d27f643d0b2a7fb04ad7f687f1a1ca476625396b266d4071",
+          "bytes": 9881
+        },
+        "r2_source": {
+          "blob": "2aa866c8a5523b9a345baad5a8a4ec631453bb1a",
+          "sha256": "823d8e9f11a3a225d27f643d0b2a7fb04ad7f687f1a1ca476625396b266d4071",
+          "bytes": 9881
+        },
+        "forward_tree": {
+          "blob": "2aa866c8a5523b9a345baad5a8a4ec631453bb1a",
+          "sha256": "823d8e9f11a3a225d27f643d0b2a7fb04ad7f687f1a1ca476625396b266d4071",
+          "bytes": 9881
+        },
+        "final_source": {
+          "blob": "2aa866c8a5523b9a345baad5a8a4ec631453bb1a",
+          "sha256": "823d8e9f11a3a225d27f643d0b2a7fb04ad7f687f1a1ca476625396b266d4071",
+          "bytes": 9881
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "selected_contract_definition_changes": [
+        "CoreSourcesCompatibilityContext",
+        "CoreSourcesCompatibilityContext.__post_init__",
+        "CoreSourcesCompatibilityContext.resolve",
+        "bind_core_sources_compatibility_context",
+        "resolve_core_sources_compatibility_binding",
+        "CoreSourcesIngestStats"
+      ],
+      "G_only_definition_names": [],
+      "status": "HELD_EXACT_PREDECESSOR_CONTRACT_OWNER_SELECTION_REQUIRED"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py",
+      "identities": {
+        "G": {
+          "blob": "aab8fa8d7c0ae21129ee7bc7615d92f70125fd02",
+          "sha256": "41d30bdf9863724fcaaefcd639930fd817b66809a56eed2b30943bef451e5ee6",
+          "bytes": 56006
+        },
+        "CAT": {
+          "blob": "f6f24dd85418848664a93d2ed6cf63593561d237",
+          "sha256": "8a336d1823335776f97dc13b7a55bd79b61d002cddc5a6563615f82c5175f90f",
+          "bytes": 56645
+        },
+        "DFI": {
+          "blob": "f6f24dd85418848664a93d2ed6cf63593561d237",
+          "sha256": "8a336d1823335776f97dc13b7a55bd79b61d002cddc5a6563615f82c5175f90f",
+          "bytes": 56645
+        },
+        "r2_source": {
+          "blob": "f6f24dd85418848664a93d2ed6cf63593561d237",
+          "sha256": "8a336d1823335776f97dc13b7a55bd79b61d002cddc5a6563615f82c5175f90f",
+          "bytes": 56645
+        },
+        "forward_tree": {
+          "blob": "f6f24dd85418848664a93d2ed6cf63593561d237",
+          "sha256": "8a336d1823335776f97dc13b7a55bd79b61d002cddc5a6563615f82c5175f90f",
+          "bytes": 56645
+        },
+        "final_source": {
+          "blob": "f6f24dd85418848664a93d2ed6cf63593561d237",
+          "sha256": "8a336d1823335776f97dc13b7a55bd79b61d002cddc5a6563615f82c5175f90f",
+          "bytes": 56645
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "selected_contract_definition_changes": [
+        "_load_core_ingest_context"
+      ],
+      "G_only_definition_names": [],
+      "status": "HELD_EXACT_PREDECESSOR_CONTRACT_OWNER_SELECTION_REQUIRED"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "identities": {
+        "G": {
+          "blob": "f688aee6a609a5d7e7c7f656cef89659928783c0",
+          "sha256": "a36c29470453ce0a5465a8f7ed9cb5c2c9f890c8d4bae098c05dd37fd2aa941b",
+          "bytes": 9406
+        },
+        "CAT": {
+          "blob": "ca2ecfd6227edcce605bbc3091cddc6b38a86d55",
+          "sha256": "2e701953fb196a961b863d5512ff77b63f51d799a7cd2354892d2d22fc180aad",
+          "bytes": 10912
+        },
+        "DFI": {
+          "blob": "25a937d764b82ae68ceb558449754b92d36975f9",
+          "sha256": "20975ae852f00753143074d5743a753849bcef400e3fe0a143a6fd1e1a45a71b",
+          "bytes": 10881
+        },
+        "r2_source": {
+          "blob": "2214b0f1bb5d76649f818e3739f3d0f02d97549e",
+          "sha256": "8c7de1ad05e53e192beddbe0c307951d12deb54ad3fa16af078de2d9af8d5583",
+          "bytes": 15612
+        },
+        "forward_tree": {
+          "blob": "2214b0f1bb5d76649f818e3739f3d0f02d97549e",
+          "sha256": "8c7de1ad05e53e192beddbe0c307951d12deb54ad3fa16af078de2d9af8d5583",
+          "bytes": 15612
+        },
+        "final_source": {
+          "blob": "2214b0f1bb5d76649f818e3739f3d0f02d97549e",
+          "sha256": "8c7de1ad05e53e192beddbe0c307951d12deb54ad3fa16af078de2d9af8d5583",
+          "bytes": 15612
+        }
+      },
+      "supplied_in_owned_unapplied_patch": true,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "status": "UNAPPLIED_PATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+      "identities": {
+        "G": {
+          "blob": "4c0b0e74cd199ceaeabc6eff5a2b6a4a24688b21",
+          "sha256": "940537333d94be6f9831dc41fe0576996fab94b2c9140dec92f5f5cf86214a20",
+          "bytes": 105436
+        },
+        "CAT": {
+          "blob": "6d9ffc41ddcb95cdab7e249eac634f3a2114de1e",
+          "sha256": "7a25cf5f669d066a706d5082cbf0e867250da2cf2cf0c87e8c8da34bb44b9202",
+          "bytes": 112326
+        },
+        "DFI": {
+          "blob": "6d9ffc41ddcb95cdab7e249eac634f3a2114de1e",
+          "sha256": "7a25cf5f669d066a706d5082cbf0e867250da2cf2cf0c87e8c8da34bb44b9202",
+          "bytes": 112326
+        },
+        "r2_source": {
+          "blob": "6d9ffc41ddcb95cdab7e249eac634f3a2114de1e",
+          "sha256": "7a25cf5f669d066a706d5082cbf0e867250da2cf2cf0c87e8c8da34bb44b9202",
+          "bytes": 112326
+        },
+        "forward_tree": {
+          "blob": "6d9ffc41ddcb95cdab7e249eac634f3a2114de1e",
+          "sha256": "7a25cf5f669d066a706d5082cbf0e867250da2cf2cf0c87e8c8da34bb44b9202",
+          "bytes": 112326
+        },
+        "final_source": {
+          "blob": "6d9ffc41ddcb95cdab7e249eac634f3a2114de1e",
+          "sha256": "7a25cf5f669d066a706d5082cbf0e867250da2cf2cf0c87e8c8da34bb44b9202",
+          "bytes": 112326
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "selected_contract_definition_changes": [
+        "__resolve_implementation_dependency",
+        "run_core_sources_ingest_async",
+        "_run_core_sources_ingest_async",
+        "_publishable_core_ledger_completion",
+        "_ingest_catalog_observations_parallel",
+        "_ingest_catalog_observations_legacy",
+        "_invoke_fetch_observation_rows"
+      ],
+      "G_only_definition_names": [],
+      "status": "HELD_EXACT_PREDECESSOR_CONTRACT_OWNER_SELECTION_REQUIRED"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "identities": {
+        "G": {
+          "blob": "fb6d0f4d9bbc52b20cbdf0ceec88e411348948ba",
+          "sha256": "fd7b207553fc7ec7e0747a5981ab93c3c9469639fbd214e9eda7edd423fb7574",
+          "bytes": 65343
+        },
+        "CAT": {
+          "blob": "5761244862016d7c14835fa1aa9610e4c46e689d",
+          "sha256": "21df92502db9ad60ab40da24a0ab93ab027ad2c5b8841b908f03582dbedcb640",
+          "bytes": 65809
+        },
+        "DFI": {
+          "blob": "5761244862016d7c14835fa1aa9610e4c46e689d",
+          "sha256": "21df92502db9ad60ab40da24a0ab93ab027ad2c5b8841b908f03582dbedcb640",
+          "bytes": 65809
+        },
+        "r2_source": {
+          "blob": "a05d8b4a3261c26a5fbfe038e54cc3662de623a2",
+          "sha256": "f0d97a59d19f267072676327d75031bf4f45ba527af3c191a7519825a9a58663",
+          "bytes": 67673
+        },
+        "forward_tree": {
+          "blob": "86a6ad3994823f27c7bf2fdec617b5c9982cd0c8",
+          "sha256": "77b96c01d3f05ee36132d801a87b2cfd6df9d4b3e786a25a219036995e74a6ab",
+          "bytes": 68045
+        },
+        "final_source": {
+          "blob": "86a6ad3994823f27c7bf2fdec617b5c9982cd0c8",
+          "sha256": "77b96c01d3f05ee36132d801a87b2cfd6df9d4b3e786a25a219036995e74a6ab",
+          "bytes": 68045
+        }
+      },
+      "supplied_in_owned_unapplied_patch": true,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "status": "UNAPPLIED_PATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+      "identities": {
+        "G": {
+          "blob": "21d43040f1418712dcf568a096f371e646ae4e25",
+          "sha256": "8b43378cefd42017d1bde268792d1bc759db4df77e11dd35040e2f4737467357",
+          "bytes": 50722
+        },
+        "CAT": {
+          "blob": "c7f39ed894869d54a46d75ccf3a0ee85844a2c35",
+          "sha256": "6880b48c3e8b244e9b875b04f687881c985c3a0c65a562953f7045d1c7631cca",
+          "bytes": 51851
+        },
+        "DFI": {
+          "blob": "c7f39ed894869d54a46d75ccf3a0ee85844a2c35",
+          "sha256": "6880b48c3e8b244e9b875b04f687881c985c3a0c65a562953f7045d1c7631cca",
+          "bytes": 51851
+        },
+        "r2_source": {
+          "blob": "c7f39ed894869d54a46d75ccf3a0ee85844a2c35",
+          "sha256": "6880b48c3e8b244e9b875b04f687881c985c3a0c65a562953f7045d1c7631cca",
+          "bytes": 51851
+        },
+        "forward_tree": {
+          "blob": "c7f39ed894869d54a46d75ccf3a0ee85844a2c35",
+          "sha256": "6880b48c3e8b244e9b875b04f687881c985c3a0c65a562953f7045d1c7631cca",
+          "bytes": 51851
+        },
+        "final_source": {
+          "blob": "c7f39ed894869d54a46d75ccf3a0ee85844a2c35",
+          "sha256": "6880b48c3e8b244e9b875b04f687881c985c3a0c65a562953f7045d1c7631cca",
+          "bytes": 51851
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "selected_contract_definition_changes": [
+        "_core_source_receipt_tables",
+        "__resolve_implementation_dependency"
+      ],
+      "G_only_definition_names": [],
+      "status": "HELD_EXACT_PREDECESSOR_CONTRACT_OWNER_SELECTION_REQUIRED"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+      "identities": {
+        "G": {
+          "blob": "9a4c6ff1d96cfc8b546e8c82c4723a8ec6651d1a",
+          "sha256": "303ffe1af3c52258dbe448bb115a08475ecc646bd7da78a7dea6f2f39bc6af60",
+          "bytes": 23614
+        },
+        "CAT": {
+          "blob": "19eb50522b801341e40f30a113e33f5317be8842",
+          "sha256": "ffa2a88eb3e5ae7817ef5fe06a26b4c87423363e03a7d327d33910dcb25db04d",
+          "bytes": 23947
+        },
+        "DFI": {
+          "blob": "19eb50522b801341e40f30a113e33f5317be8842",
+          "sha256": "ffa2a88eb3e5ae7817ef5fe06a26b4c87423363e03a7d327d33910dcb25db04d",
+          "bytes": 23947
+        },
+        "r2_source": {
+          "blob": "19eb50522b801341e40f30a113e33f5317be8842",
+          "sha256": "ffa2a88eb3e5ae7817ef5fe06a26b4c87423363e03a7d327d33910dcb25db04d",
+          "bytes": 23947
+        },
+        "forward_tree": {
+          "blob": "19eb50522b801341e40f30a113e33f5317be8842",
+          "sha256": "ffa2a88eb3e5ae7817ef5fe06a26b4c87423363e03a7d327d33910dcb25db04d",
+          "bytes": 23947
+        },
+        "final_source": {
+          "blob": "19eb50522b801341e40f30a113e33f5317be8842",
+          "sha256": "ffa2a88eb3e5ae7817ef5fe06a26b4c87423363e03a7d327d33910dcb25db04d",
+          "bytes": 23947
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "selected_contract_definition_changes": [
+        "__resolve_implementation_dependency"
+      ],
+      "G_only_definition_names": [],
+      "status": "HELD_EXACT_PREDECESSOR_CONTRACT_OWNER_SELECTION_REQUIRED"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+      "identities": {
+        "G": {
+          "blob": "f9808edde2972c8be45a56121f605dd6e21e4d18",
+          "sha256": "1a6aa8206b4769dc17ef9093a85987e7e5b51caf547b0edfc6301a22e0d88e92",
+          "bytes": 57765
+        },
+        "CAT": {
+          "blob": "87d3a8250d375861a44de7d1697c9c05d11d9c10",
+          "sha256": "6502672e9c26661e2ae25c5ecc701da9584aa248b06af1b1cd5eb07267627466",
+          "bytes": 75269
+        },
+        "DFI": {
+          "blob": "87d3a8250d375861a44de7d1697c9c05d11d9c10",
+          "sha256": "6502672e9c26661e2ae25c5ecc701da9584aa248b06af1b1cd5eb07267627466",
+          "bytes": 75269
+        },
+        "r2_source": {
+          "blob": "87d3a8250d375861a44de7d1697c9c05d11d9c10",
+          "sha256": "6502672e9c26661e2ae25c5ecc701da9584aa248b06af1b1cd5eb07267627466",
+          "bytes": 75269
+        },
+        "forward_tree": {
+          "blob": "87d3a8250d375861a44de7d1697c9c05d11d9c10",
+          "sha256": "6502672e9c26661e2ae25c5ecc701da9584aa248b06af1b1cd5eb07267627466",
+          "bytes": 75269
+        },
+        "final_source": {
+          "blob": "87d3a8250d375861a44de7d1697c9c05d11d9c10",
+          "sha256": "6502672e9c26661e2ae25c5ecc701da9584aa248b06af1b1cd5eb07267627466",
+          "bytes": 75269
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "selected_contract_definition_changes": [
+        "__resolve_implementation_dependency",
+        "_load_observation_checkpoint_state",
+        "_build_core_output_receipt",
+        "_CurrentCoreOutputReceiptState",
+        "_CurrentCoreOutputReceiptState.is_current",
+        "_CurrentCoreOutputReceiptState.reconciled_receipt",
+        "_CurrentCoreOutputReceiptState.basis_member",
+        "_current_core_output_receipt_state",
+        "_encode_core_receipt_value",
+        "_prepare_core_output_resume",
+        "_write_observation_checkpoint_state",
+        "_write_core_ingest_stage_progress"
+      ],
+      "G_only_definition_names": [],
+      "status": "HELD_EXACT_PREDECESSOR_CONTRACT_OWNER_SELECTION_REQUIRED"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+      "identities": {
+        "G": {
+          "blob": "68d88e2bb22c6d7df56c2286ce0e6e1468f4661e",
+          "sha256": "1776006e01e7c15548748a9e10024f5f3c635770d3890f9cc657216255af0fa6",
+          "bytes": 46135
+        },
+        "CAT": {
+          "blob": "243930ca1ee404572c82adffaf53497722c67935",
+          "sha256": "72cd351f03257d8b71938e01aff4e3041fce5b23c7d02af9aeef08f1fa081e74",
+          "bytes": 46468
+        },
+        "DFI": {
+          "blob": "243930ca1ee404572c82adffaf53497722c67935",
+          "sha256": "72cd351f03257d8b71938e01aff4e3041fce5b23c7d02af9aeef08f1fa081e74",
+          "bytes": 46468
+        },
+        "r2_source": {
+          "blob": "243930ca1ee404572c82adffaf53497722c67935",
+          "sha256": "72cd351f03257d8b71938e01aff4e3041fce5b23c7d02af9aeef08f1fa081e74",
+          "bytes": 46468
+        },
+        "forward_tree": {
+          "blob": "243930ca1ee404572c82adffaf53497722c67935",
+          "sha256": "72cd351f03257d8b71938e01aff4e3041fce5b23c7d02af9aeef08f1fa081e74",
+          "bytes": 46468
+        },
+        "final_source": {
+          "blob": "243930ca1ee404572c82adffaf53497722c67935",
+          "sha256": "72cd351f03257d8b71938e01aff4e3041fce5b23c7d02af9aeef08f1fa081e74",
+          "bytes": 46468
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "selected_contract_definition_changes": [
+        "__resolve_implementation_dependency"
+      ],
+      "G_only_definition_names": [],
+      "status": "HELD_EXACT_PREDECESSOR_CONTRACT_OWNER_SELECTION_REQUIRED"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/graph_builder.py",
+      "identities": {
+        "G": {
+          "blob": "ebf2c748de9ef961c5d48f304dfbdab87b892bce",
+          "sha256": "4831403a2d505773e75bf6572e0323464ea2f9e9b3312d1111ac1572dc328f9f",
+          "bytes": 29776
+        },
+        "CAT": {
+          "blob": "ebf2c748de9ef961c5d48f304dfbdab87b892bce",
+          "sha256": "4831403a2d505773e75bf6572e0323464ea2f9e9b3312d1111ac1572dc328f9f",
+          "bytes": 29776
+        },
+        "DFI": {
+          "blob": "ebf2c748de9ef961c5d48f304dfbdab87b892bce",
+          "sha256": "4831403a2d505773e75bf6572e0323464ea2f9e9b3312d1111ac1572dc328f9f",
+          "bytes": 29776
+        },
+        "r2_source": {
+          "blob": "ebf2c748de9ef961c5d48f304dfbdab87b892bce",
+          "sha256": "4831403a2d505773e75bf6572e0323464ea2f9e9b3312d1111ac1572dc328f9f",
+          "bytes": 29776
+        },
+        "forward_tree": {
+          "blob": "ebf2c748de9ef961c5d48f304dfbdab87b892bce",
+          "sha256": "4831403a2d505773e75bf6572e0323464ea2f9e9b3312d1111ac1572dc328f9f",
+          "bytes": 29776
+        },
+        "final_source": {
+          "blob": "ebf2c748de9ef961c5d48f304dfbdab87b892bce",
+          "sha256": "4831403a2d505773e75bf6572e0323464ea2f9e9b3312d1111ac1572dc328f9f",
+          "bytes": 29776
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "identities": {
+        "G": {
+          "blob": "7f2da42fadbeb5a0ccd1ae8b1d3b2f0e9844a25d",
+          "sha256": "78d7666e95c310c6ef0e2651135377eb0ecdb71523d95506f4987f799d9b23c4",
+          "bytes": 80809
+        },
+        "CAT": {
+          "blob": "b380babb25e7479ad4cc751e4009df8684332ecb",
+          "sha256": "6c0b577c76a57a89ba7a54ce48dca9ddd8a3ae58c53fb4736a868e02b8450fcb",
+          "bytes": 84024
+        },
+        "DFI": {
+          "blob": "b380babb25e7479ad4cc751e4009df8684332ecb",
+          "sha256": "6c0b577c76a57a89ba7a54ce48dca9ddd8a3ae58c53fb4736a868e02b8450fcb",
+          "bytes": 84024
+        },
+        "r2_source": {
+          "blob": "1155f3befa77d13e85e241cc3ab51353bb13fd18",
+          "sha256": "0f3dc393ca07fb702db41a7e815d8b04218e275cfbc656c29641ad48edba7c66",
+          "bytes": 85189
+        },
+        "forward_tree": {
+          "blob": "1155f3befa77d13e85e241cc3ab51353bb13fd18",
+          "sha256": "0f3dc393ca07fb702db41a7e815d8b04218e275cfbc656c29641ad48edba7c66",
+          "bytes": 85189
+        },
+        "final_source": {
+          "blob": "1155f3befa77d13e85e241cc3ab51353bb13fd18",
+          "sha256": "0f3dc393ca07fb702db41a7e815d8b04218e275cfbc656c29641ad48edba7c66",
+          "bytes": 85189
+        }
+      },
+      "supplied_in_owned_unapplied_patch": true,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "status": "UNAPPLIED_PATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+      "identities": {
+        "G": null,
+        "CAT": null,
+        "DFI": null,
+        "r2_source": {
+          "blob": "6805747595f68ae20491a59459bebc3ce685ead3",
+          "sha256": "27fda210162bfcd1934b17251a54dc1219ed8c4a2407bee3572c64e029521ed5",
+          "bytes": 1584
+        },
+        "forward_tree": {
+          "blob": "6805747595f68ae20491a59459bebc3ce685ead3",
+          "sha256": "27fda210162bfcd1934b17251a54dc1219ed8c4a2407bee3572c64e029521ed5",
+          "bytes": 1584
+        },
+        "final_source": {
+          "blob": "6805747595f68ae20491a59459bebc3ce685ead3",
+          "sha256": "27fda210162bfcd1934b17251a54dc1219ed8c4a2407bee3572c64e029521ed5",
+          "bytes": 1584
+        }
+      },
+      "supplied_in_owned_unapplied_patch": true,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "UNAPPLIED_PATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+      "identities": {
+        "G": {
+          "blob": "ba41f373de71d42a7b7f5c1b84cc6a4f511460a8",
+          "sha256": "b23dfd1e909a0201bb7a03e6f647b36a3a6148ae9b6a2f4300c55968d61ead88",
+          "bytes": 19099
+        },
+        "CAT": {
+          "blob": "eeaa31f6d2d9cdd8bedeac6e5c61996f2f5777c1",
+          "sha256": "3f0a9448ea1f643da224bc326ab3b4ef9e59510d087a974eeb77b74df53a979d",
+          "bytes": 40235
+        },
+        "DFI": {
+          "blob": "eeaa31f6d2d9cdd8bedeac6e5c61996f2f5777c1",
+          "sha256": "3f0a9448ea1f643da224bc326ab3b4ef9e59510d087a974eeb77b74df53a979d",
+          "bytes": 40235
+        },
+        "r2_source": {
+          "blob": "eeaa31f6d2d9cdd8bedeac6e5c61996f2f5777c1",
+          "sha256": "3f0a9448ea1f643da224bc326ab3b4ef9e59510d087a974eeb77b74df53a979d",
+          "bytes": 40235
+        },
+        "forward_tree": {
+          "blob": "eeaa31f6d2d9cdd8bedeac6e5c61996f2f5777c1",
+          "sha256": "3f0a9448ea1f643da224bc326ab3b4ef9e59510d087a974eeb77b74df53a979d",
+          "bytes": 40235
+        },
+        "final_source": {
+          "blob": "eeaa31f6d2d9cdd8bedeac6e5c61996f2f5777c1",
+          "sha256": "3f0a9448ea1f643da224bc326ab3b4ef9e59510d087a974eeb77b74df53a979d",
+          "bytes": 40235
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "selected_contract_definition_changes": [
+        "_files_under",
+        "_qc_previous_snapshot_context",
+        "_previous_snapshot_payloads",
+        "_embedding_basis_is_established",
+        "_stage_input_basis",
+        "_stage_output_inventory",
+        "_harvest_stage_receipt",
+        "_should_skip_stage",
+        "current_content_stage_receipt",
+        "run_content_stage_with_receipt",
+        "_record_stage_completion",
+        "run_dataset_pipeline"
+      ],
+      "G_only_definition_names": [],
+      "status": "HELD_EXACT_PREDECESSOR_CONTRACT_OWNER_SELECTION_REQUIRED"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py",
+      "identities": {
+        "G": {
+          "blob": "e03e3650e4be407d5a43eb2ce3acae0dd39a5744",
+          "sha256": "6fbd3503d9787e57c1795f0d8ab72ed82a785efafa358896863c1ed7e9bb5713",
+          "bytes": 9822
+        },
+        "CAT": {
+          "blob": "537172785837469853b2e0d33ac6ec8750614865",
+          "sha256": "45b495ce015e0ee7efdf2ab10d69cd0d165c406b331f56e77d8ce93e0c2d28ed",
+          "bytes": 3146
+        },
+        "DFI": {
+          "blob": "e03e3650e4be407d5a43eb2ce3acae0dd39a5744",
+          "sha256": "6fbd3503d9787e57c1795f0d8ab72ed82a785efafa358896863c1ed7e9bb5713",
+          "bytes": 9822
+        },
+        "r2_source": {
+          "blob": "537172785837469853b2e0d33ac6ec8750614865",
+          "sha256": "45b495ce015e0ee7efdf2ab10d69cd0d165c406b331f56e77d8ce93e0c2d28ed",
+          "bytes": 3146
+        },
+        "forward_tree": {
+          "blob": "537172785837469853b2e0d33ac6ec8750614865",
+          "sha256": "45b495ce015e0ee7efdf2ab10d69cd0d165c406b331f56e77d8ce93e0c2d28ed",
+          "bytes": 3146
+        },
+        "final_source": {
+          "blob": "537172785837469853b2e0d33ac6ec8750614865",
+          "sha256": "45b495ce015e0ee7efdf2ab10d69cd0d165c406b331f56e77d8ce93e0c2d28ed",
+          "bytes": 3146
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "selected_contract_definition_changes": [
+        "SourceSpec",
+        "SourceSpec.source_id",
+        "SourceSpec.included_in_run_profile",
+        "SourceRegistry",
+        "SourceRegistry.enabled_sources",
+        "load_source_registry",
+        "_batch_source_spec"
+      ],
+      "G_only_definition_names": [
+        "SourceRegistry._expand_seed_dependencies",
+        "_int_or_none"
+      ],
+      "status": "HELD_EXACT_PREDECESSOR_CONTRACT_OWNER_SELECTION_REQUIRED"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/country_codes.py",
+      "identities": {
+        "G": {
+          "blob": "f8c37446f5cd595e88e2630352e4326d67a4d21b",
+          "sha256": "9f0ca18d3c50fa569bdaede8c319c25afaffb933efcbd6a733d0cab74661ba89",
+          "bytes": 5715
+        },
+        "CAT": {
+          "blob": "f8c37446f5cd595e88e2630352e4326d67a4d21b",
+          "sha256": "9f0ca18d3c50fa569bdaede8c319c25afaffb933efcbd6a733d0cab74661ba89",
+          "bytes": 5715
+        },
+        "DFI": {
+          "blob": "f8c37446f5cd595e88e2630352e4326d67a4d21b",
+          "sha256": "9f0ca18d3c50fa569bdaede8c319c25afaffb933efcbd6a733d0cab74661ba89",
+          "bytes": 5715
+        },
+        "r2_source": {
+          "blob": "f8c37446f5cd595e88e2630352e4326d67a4d21b",
+          "sha256": "9f0ca18d3c50fa569bdaede8c319c25afaffb933efcbd6a733d0cab74661ba89",
+          "bytes": 5715
+        },
+        "forward_tree": {
+          "blob": "f8c37446f5cd595e88e2630352e4326d67a4d21b",
+          "sha256": "9f0ca18d3c50fa569bdaede8c319c25afaffb933efcbd6a733d0cab74661ba89",
+          "bytes": 5715
+        },
+        "final_source": {
+          "blob": "f8c37446f5cd595e88e2630352e4326d67a4d21b",
+          "sha256": "9f0ca18d3c50fa569bdaede8c319c25afaffb933efcbd6a733d0cab74661ba89",
+          "bytes": 5715
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "identities": {
+        "G": {
+          "blob": "e6dda2023438f9c65f3ee59c5959c154092b11fa",
+          "sha256": "589026e8fb6751b04039baed5794e4df152caa15d218805bbb7bffc8ada137fe",
+          "bytes": 5973
+        },
+        "CAT": {
+          "blob": "6051df0d52dfa67ccfedf6eb39f85fdc5e7ae930",
+          "sha256": "8ccfc12e02dfc6d702afdc42de2e8608627b67250cd42084bd82e1ef2ea094bc",
+          "bytes": 5953
+        },
+        "DFI": {
+          "blob": "6051df0d52dfa67ccfedf6eb39f85fdc5e7ae930",
+          "sha256": "8ccfc12e02dfc6d702afdc42de2e8608627b67250cd42084bd82e1ef2ea094bc",
+          "bytes": 5953
+        },
+        "r2_source": {
+          "blob": "f2ec1bfbd185df599ed23e668da9facad1560bbf",
+          "sha256": "bb582119da0cae49ca12fd85795a528edb8ec4b7d196c63aa480572ee6bd6088",
+          "bytes": 6489
+        },
+        "forward_tree": {
+          "blob": "f2ec1bfbd185df599ed23e668da9facad1560bbf",
+          "sha256": "bb582119da0cae49ca12fd85795a528edb8ec4b7d196c63aa480572ee6bd6088",
+          "bytes": 6489
+        },
+        "final_source": {
+          "blob": "f2ec1bfbd185df599ed23e668da9facad1560bbf",
+          "sha256": "bb582119da0cae49ca12fd85795a528edb8ec4b7d196c63aa480572ee6bd6088",
+          "bytes": 6489
+        }
+      },
+      "supplied_in_owned_unapplied_patch": true,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "status": "UNAPPLIED_PATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+      "identities": {
+        "G": {
+          "blob": "abe7878b7ccd24414349e660dd1664c1b7137ab5",
+          "sha256": "bb547db9fee687f463b633b4f0d6ee24ab527c1b0ea207160aaffddf6c7d1422",
+          "bytes": 18695
+        },
+        "CAT": {
+          "blob": "306849ff45191eac4d8fa7dadab86e4c21ee3057",
+          "sha256": "6dbfbb04cddff8d1af11ed226e68092a2763a8d007b73f911f4ed9eaa5e54cd9",
+          "bytes": 18675
+        },
+        "DFI": {
+          "blob": "306849ff45191eac4d8fa7dadab86e4c21ee3057",
+          "sha256": "6dbfbb04cddff8d1af11ed226e68092a2763a8d007b73f911f4ed9eaa5e54cd9",
+          "bytes": 18675
+        },
+        "r2_source": {
+          "blob": "306849ff45191eac4d8fa7dadab86e4c21ee3057",
+          "sha256": "6dbfbb04cddff8d1af11ed226e68092a2763a8d007b73f911f4ed9eaa5e54cd9",
+          "bytes": 18675
+        },
+        "forward_tree": {
+          "blob": "306849ff45191eac4d8fa7dadab86e4c21ee3057",
+          "sha256": "6dbfbb04cddff8d1af11ed226e68092a2763a8d007b73f911f4ed9eaa5e54cd9",
+          "bytes": 18675
+        },
+        "final_source": {
+          "blob": "306849ff45191eac4d8fa7dadab86e4c21ee3057",
+          "sha256": "6dbfbb04cddff8d1af11ed226e68092a2763a8d007b73f911f4ed9eaa5e54cd9",
+          "bytes": 18675
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "selected_contract_definition_changes": [
+        "default_seed_alignments_path"
+      ],
+      "G_only_definition_names": [],
+      "status": "HELD_EXACT_PREDECESSOR_CONTRACT_OWNER_SELECTION_REQUIRED"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/registry.py",
+      "identities": {
+        "G": {
+          "blob": "142040537e37167e9f97955d4f19cbcaf76002c6",
+          "sha256": "d96c9803664e636ff48a26de3e439cc5cca63621d6b95f1ad42183d018fcf756",
+          "bytes": 9995
+        },
+        "CAT": {
+          "blob": "aebd4168dd9140db918e43db9220f338b60ffd60",
+          "sha256": "9c873a02b832b6d01dd3bff85193e73a89e78cf03926bba9c6d47081c93f206a",
+          "bytes": 14726
+        },
+        "DFI": {
+          "blob": "142040537e37167e9f97955d4f19cbcaf76002c6",
+          "sha256": "d96c9803664e636ff48a26de3e439cc5cca63621d6b95f1ad42183d018fcf756",
+          "bytes": 9995
+        },
+        "r2_source": {
+          "blob": "aebd4168dd9140db918e43db9220f338b60ffd60",
+          "sha256": "9c873a02b832b6d01dd3bff85193e73a89e78cf03926bba9c6d47081c93f206a",
+          "bytes": 14726
+        },
+        "forward_tree": {
+          "blob": "aebd4168dd9140db918e43db9220f338b60ffd60",
+          "sha256": "9c873a02b832b6d01dd3bff85193e73a89e78cf03926bba9c6d47081c93f206a",
+          "bytes": 14726
+        },
+        "final_source": {
+          "blob": "aebd4168dd9140db918e43db9220f338b60ffd60",
+          "sha256": "9c873a02b832b6d01dd3bff85193e73a89e78cf03926bba9c6d47081c93f206a",
+          "bytes": 14726
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "selected_contract_definition_changes": [
+        "CatalogSourceRegistryEntry",
+        "CatalogSourceRegistryEntry._normalize_format_codes",
+        "CatalogSourceRegistryEntry._apply_execution_tier_defaults",
+        "CatalogSourceRegistryEntry._policy_fields_are_consistent",
+        "CatalogSourceRegistryEntry.to_module_spec",
+        "CatalogSourceRegistrySpec",
+        "CatalogSourceRegistrySpec._source_ids_are_unique",
+        "CatalogSourceRegistrySpec.enabled_sources",
+        "load_catalog_source_registry",
+        "_default_catalog_source_registry_view",
+        "_load_catalog_source_registry",
+        "_load_registry_yaml",
+        "_catalog_source_module",
+        "_normalize_yaml_sequences"
+      ],
+      "G_only_definition_names": [
+        "_entry_from_mapping",
+        "_execution_tier",
+        "_run_lane",
+        "_history_policy",
+        "_optional_str",
+        "_int_or_none",
+        "_string_tuple",
+        "_upper_string_tuple",
+        "_lower_string_tuple"
+      ],
+      "status": "HELD_EXACT_PREDECESSOR_CONTRACT_OWNER_SELECTION_REQUIRED"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/selection.py",
+      "identities": {
+        "G": null,
+        "CAT": {
+          "blob": "5b98667f1929a9390b175167884bc2b1fa6d759b",
+          "sha256": "b1759577b117ab5400db47913b1eef05d0d54684adf0b8b91831616297471de8",
+          "bytes": 5458
+        },
+        "DFI": null,
+        "r2_source": {
+          "blob": "5b98667f1929a9390b175167884bc2b1fa6d759b",
+          "sha256": "b1759577b117ab5400db47913b1eef05d0d54684adf0b8b91831616297471de8",
+          "bytes": 5458
+        },
+        "forward_tree": {
+          "blob": "5b98667f1929a9390b175167884bc2b1fa6d759b",
+          "sha256": "b1759577b117ab5400db47913b1eef05d0d54684adf0b8b91831616297471de8",
+          "bytes": 5458
+        },
+        "final_source": {
+          "blob": "5b98667f1929a9390b175167884bc2b1fa6d759b",
+          "sha256": "b1759577b117ab5400db47913b1eef05d0d54684adf0b8b91831616297471de8",
+          "bytes": 5458
+        }
+      },
+      "supplied_in_owned_unapplied_patch": true,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "status": "UNAPPLIED_PATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/source_modules.py",
+      "identities": {
+        "G": {
+          "blob": "89e954146abb82d33c4ef5df6fe7e64f36a77c7c",
+          "sha256": "9d48794196769f05560d8afe078106309a4dd24e6298f2c72c4997f1171db00c",
+          "bytes": 12805
+        },
+        "CAT": {
+          "blob": "496f12ea05400d68015a1819cf99548d9b3be8f6",
+          "sha256": "582275c5a5bb4f4f395a8402b6f10d8f97e813ae1246da6cc7598f1bb4d46b0a",
+          "bytes": 10972
+        },
+        "DFI": {
+          "blob": "89e954146abb82d33c4ef5df6fe7e64f36a77c7c",
+          "sha256": "9d48794196769f05560d8afe078106309a4dd24e6298f2c72c4997f1171db00c",
+          "bytes": 12805
+        },
+        "r2_source": {
+          "blob": "496f12ea05400d68015a1819cf99548d9b3be8f6",
+          "sha256": "582275c5a5bb4f4f395a8402b6f10d8f97e813ae1246da6cc7598f1bb4d46b0a",
+          "bytes": 10972
+        },
+        "forward_tree": {
+          "blob": "496f12ea05400d68015a1819cf99548d9b3be8f6",
+          "sha256": "582275c5a5bb4f4f395a8402b6f10d8f97e813ae1246da6cc7598f1bb4d46b0a",
+          "bytes": 10972
+        },
+        "final_source": {
+          "blob": "496f12ea05400d68015a1819cf99548d9b3be8f6",
+          "sha256": "582275c5a5bb4f4f395a8402b6f10d8f97e813ae1246da6cc7598f1bb4d46b0a",
+          "bytes": 10972
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "selected_contract_definition_changes": [
+        "CatalogSourceModuleSpec",
+        "CatalogSourceModuleSpec.included_in_run_profile",
+        "select_catalog_source_modules",
+        "_default_catalog_source_modules",
+        "__getattr__",
+        "__dir__"
+      ],
+      "G_only_definition_names": [
+        "_CatalogSeedSource",
+        "_resolve_catalog_source_dependencies"
+      ],
+      "status": "HELD_EXACT_PREDECESSOR_CONTRACT_OWNER_SELECTION_REQUIRED"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/source_registry.yaml",
+      "identities": {
+        "G": {
+          "blob": "0cd1ad66cc19ae6d8ea28395c5a258eb165d1e51",
+          "sha256": "2389b15dbbc0ec66c20cf2b247569100a341387eb5e0611220766b8c6cbb4789",
+          "bytes": 15427
+        },
+        "CAT": {
+          "blob": "0cd1ad66cc19ae6d8ea28395c5a258eb165d1e51",
+          "sha256": "2389b15dbbc0ec66c20cf2b247569100a341387eb5e0611220766b8c6cbb4789",
+          "bytes": 15427
+        },
+        "DFI": {
+          "blob": "0cd1ad66cc19ae6d8ea28395c5a258eb165d1e51",
+          "sha256": "2389b15dbbc0ec66c20cf2b247569100a341387eb5e0611220766b8c6cbb4789",
+          "bytes": 15427
+        },
+        "r2_source": {
+          "blob": "0cd1ad66cc19ae6d8ea28395c5a258eb165d1e51",
+          "sha256": "2389b15dbbc0ec66c20cf2b247569100a341387eb5e0611220766b8c6cbb4789",
+          "bytes": 15427
+        },
+        "forward_tree": {
+          "blob": "0cd1ad66cc19ae6d8ea28395c5a258eb165d1e51",
+          "sha256": "2389b15dbbc0ec66c20cf2b247569100a341387eb5e0611220766b8c6cbb4789",
+          "bytes": 15427
+        },
+        "final_source": {
+          "blob": "0cd1ad66cc19ae6d8ea28395c5a258eb165d1e51",
+          "sha256": "2389b15dbbc0ec66c20cf2b247569100a341387eb5e0611220766b8c6cbb4789",
+          "bytes": 15427
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+      "identities": {
+        "G": {
+          "blob": "19ca41eead188afac99ed21cca386c460763e15d",
+          "sha256": "47900cf9a05067a27e17d149ffd11228ce6259794264f43ce58cccdb059466b0",
+          "bytes": 8832
+        },
+        "CAT": {
+          "blob": "b1b60eefd5513ebdf717bdd4eb39b1bbd9538eac",
+          "sha256": "86ba6f9022c385ae8f031a7d7d2e67eabe348a074c7d8ddaf712e3d381270412",
+          "bytes": 9655
+        },
+        "DFI": {
+          "blob": "b1b60eefd5513ebdf717bdd4eb39b1bbd9538eac",
+          "sha256": "86ba6f9022c385ae8f031a7d7d2e67eabe348a074c7d8ddaf712e3d381270412",
+          "bytes": 9655
+        },
+        "r2_source": {
+          "blob": "b1b60eefd5513ebdf717bdd4eb39b1bbd9538eac",
+          "sha256": "86ba6f9022c385ae8f031a7d7d2e67eabe348a074c7d8ddaf712e3d381270412",
+          "bytes": 9655
+        },
+        "forward_tree": {
+          "blob": "b1b60eefd5513ebdf717bdd4eb39b1bbd9538eac",
+          "sha256": "86ba6f9022c385ae8f031a7d7d2e67eabe348a074c7d8ddaf712e3d381270412",
+          "bytes": 9655
+        },
+        "final_source": {
+          "blob": "b1b60eefd5513ebdf717bdd4eb39b1bbd9538eac",
+          "sha256": "86ba6f9022c385ae8f031a7d7d2e67eabe348a074c7d8ddaf712e3d381270412",
+          "bytes": 9655
+        }
+      },
+      "supplied_in_owned_unapplied_patch": true,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "status": "UNAPPLIED_PATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py",
+      "identities": {
+        "G": {
+          "blob": "0a2dcac138f0c0bfa82425542b8c4a8212e63f84",
+          "sha256": "a7393c3234f6fdb5b39aa19542497e26d7855bfba5284685fcf376391b7af4e5",
+          "bytes": 7129
+        },
+        "CAT": {
+          "blob": "98769e8dca53ff2e49a4244ab28a79aa0b91d4c6",
+          "sha256": "081a4790578f1f023c0990af074bcffdc52c6ed144bfae2607427311731a3898",
+          "bytes": 7878
+        },
+        "DFI": {
+          "blob": "0a2dcac138f0c0bfa82425542b8c4a8212e63f84",
+          "sha256": "a7393c3234f6fdb5b39aa19542497e26d7855bfba5284685fcf376391b7af4e5",
+          "bytes": 7129
+        },
+        "r2_source": {
+          "blob": "98769e8dca53ff2e49a4244ab28a79aa0b91d4c6",
+          "sha256": "081a4790578f1f023c0990af074bcffdc52c6ed144bfae2607427311731a3898",
+          "bytes": 7878
+        },
+        "forward_tree": {
+          "blob": "98769e8dca53ff2e49a4244ab28a79aa0b91d4c6",
+          "sha256": "081a4790578f1f023c0990af074bcffdc52c6ed144bfae2607427311731a3898",
+          "bytes": 7878
+        },
+        "final_source": {
+          "blob": "98769e8dca53ff2e49a4244ab28a79aa0b91d4c6",
+          "sha256": "081a4790578f1f023c0990af074bcffdc52c6ed144bfae2607427311731a3898",
+          "bytes": 7878
+        }
+      },
+      "supplied_in_owned_unapplied_patch": true,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "status": "UNAPPLIED_PATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/_lazy.py",
+      "identities": {
+        "G": {
+          "blob": "3731c19a9f4982cef3b0a28efcf2d88084b0fc29",
+          "sha256": "144f2536c6b6f4902c34439d11d6bdba3a71b4523ddb5c9574b09e8c2f5ec1b6",
+          "bytes": 836
+        },
+        "CAT": {
+          "blob": "3731c19a9f4982cef3b0a28efcf2d88084b0fc29",
+          "sha256": "144f2536c6b6f4902c34439d11d6bdba3a71b4523ddb5c9574b09e8c2f5ec1b6",
+          "bytes": 836
+        },
+        "DFI": {
+          "blob": "3731c19a9f4982cef3b0a28efcf2d88084b0fc29",
+          "sha256": "144f2536c6b6f4902c34439d11d6bdba3a71b4523ddb5c9574b09e8c2f5ec1b6",
+          "bytes": 836
+        },
+        "r2_source": {
+          "blob": "3731c19a9f4982cef3b0a28efcf2d88084b0fc29",
+          "sha256": "144f2536c6b6f4902c34439d11d6bdba3a71b4523ddb5c9574b09e8c2f5ec1b6",
+          "bytes": 836
+        },
+        "forward_tree": {
+          "blob": "3731c19a9f4982cef3b0a28efcf2d88084b0fc29",
+          "sha256": "144f2536c6b6f4902c34439d11d6bdba3a71b4523ddb5c9574b09e8c2f5ec1b6",
+          "bytes": 836
+        },
+        "final_source": {
+          "blob": "3731c19a9f4982cef3b0a28efcf2d88084b0fc29",
+          "sha256": "144f2536c6b6f4902c34439d11d6bdba3a71b4523ddb5c9574b09e8c2f5ec1b6",
+          "bytes": 836
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "identities": {
+        "G": {
+          "blob": "2c72928690b4981542475bc0f7861bb808c921b1",
+          "sha256": "a77be622a7e8193b0c245d4a731fcf4128d84faa48b48e63460246db5673af47",
+          "bytes": 37750
+        },
+        "CAT": {
+          "blob": "99400c33e76b13c81e8cb0352d59e58a98eb72c0",
+          "sha256": "c175225c5e4f8eda08d784e0319b4a5c023fe97fd89fbe24e758f5530a9beb72",
+          "bytes": 37677
+        },
+        "DFI": {
+          "blob": "99400c33e76b13c81e8cb0352d59e58a98eb72c0",
+          "sha256": "c175225c5e4f8eda08d784e0319b4a5c023fe97fd89fbe24e758f5530a9beb72",
+          "bytes": 37677
+        },
+        "r2_source": {
+          "blob": "99400c33e76b13c81e8cb0352d59e58a98eb72c0",
+          "sha256": "c175225c5e4f8eda08d784e0319b4a5c023fe97fd89fbe24e758f5530a9beb72",
+          "bytes": 37677
+        },
+        "forward_tree": {
+          "blob": "99400c33e76b13c81e8cb0352d59e58a98eb72c0",
+          "sha256": "c175225c5e4f8eda08d784e0319b4a5c023fe97fd89fbe24e758f5530a9beb72",
+          "bytes": 37677
+        },
+        "final_source": {
+          "blob": "99400c33e76b13c81e8cb0352d59e58a98eb72c0",
+          "sha256": "c175225c5e4f8eda08d784e0319b4a5c023fe97fd89fbe24e758f5530a9beb72",
+          "bytes": 37677
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": true,
+      "same_G_CAT_bytes": false,
+      "status": "UNAPPLIED_PATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/__init__.py",
+      "identities": {
+        "G": {
+          "blob": "d481f246cdec134fdb5e9b1447404d56b341c304",
+          "sha256": "2bd8701c7440b97d241a087ec3300c22fbef86b31bf36149ce6cd85e35812ae3",
+          "bytes": 12109
+        },
+        "CAT": {
+          "blob": "d481f246cdec134fdb5e9b1447404d56b341c304",
+          "sha256": "2bd8701c7440b97d241a087ec3300c22fbef86b31bf36149ce6cd85e35812ae3",
+          "bytes": 12109
+        },
+        "DFI": {
+          "blob": "d481f246cdec134fdb5e9b1447404d56b341c304",
+          "sha256": "2bd8701c7440b97d241a087ec3300c22fbef86b31bf36149ce6cd85e35812ae3",
+          "bytes": 12109
+        },
+        "r2_source": {
+          "blob": "d481f246cdec134fdb5e9b1447404d56b341c304",
+          "sha256": "2bd8701c7440b97d241a087ec3300c22fbef86b31bf36149ce6cd85e35812ae3",
+          "bytes": 12109
+        },
+        "forward_tree": {
+          "blob": "d481f246cdec134fdb5e9b1447404d56b341c304",
+          "sha256": "2bd8701c7440b97d241a087ec3300c22fbef86b31bf36149ce6cd85e35812ae3",
+          "bytes": 12109
+        },
+        "final_source": {
+          "blob": "d481f246cdec134fdb5e9b1447404d56b341c304",
+          "sha256": "2bd8701c7440b97d241a087ec3300c22fbef86b31bf36149ce6cd85e35812ae3",
+          "bytes": 12109
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": true,
+      "same_G_CAT_bytes": true,
+      "status": "UNAPPLIED_PATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/__init__.py",
+      "identities": {
+        "G": {
+          "blob": "0417defffac8e47e27d1218bd3aa9c7bbab19776",
+          "sha256": "b94d11e4f49ab084f28cd1e262ccec2e3d5bbdc356890d4756daabff80b3b593",
+          "bytes": 8593
+        },
+        "CAT": {
+          "blob": "0417defffac8e47e27d1218bd3aa9c7bbab19776",
+          "sha256": "b94d11e4f49ab084f28cd1e262ccec2e3d5bbdc356890d4756daabff80b3b593",
+          "bytes": 8593
+        },
+        "DFI": {
+          "blob": "0417defffac8e47e27d1218bd3aa9c7bbab19776",
+          "sha256": "b94d11e4f49ab084f28cd1e262ccec2e3d5bbdc356890d4756daabff80b3b593",
+          "bytes": 8593
+        },
+        "r2_source": {
+          "blob": "0417defffac8e47e27d1218bd3aa9c7bbab19776",
+          "sha256": "b94d11e4f49ab084f28cd1e262ccec2e3d5bbdc356890d4756daabff80b3b593",
+          "bytes": 8593
+        },
+        "forward_tree": {
+          "blob": "0417defffac8e47e27d1218bd3aa9c7bbab19776",
+          "sha256": "b94d11e4f49ab084f28cd1e262ccec2e3d5bbdc356890d4756daabff80b3b593",
+          "bytes": 8593
+        },
+        "final_source": {
+          "blob": "0417defffac8e47e27d1218bd3aa9c7bbab19776",
+          "sha256": "b94d11e4f49ab084f28cd1e262ccec2e3d5bbdc356890d4756daabff80b3b593",
+          "bytes": 8593
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/base.py",
+      "identities": {
+        "G": {
+          "blob": "791d3927acc040a7932e69a4886339f08b190bb1",
+          "sha256": "b5ac7224955922b7712604f7be929a734cd1a4fc2381d2fc62db9152595493c5",
+          "bytes": 19819
+        },
+        "CAT": {
+          "blob": "791d3927acc040a7932e69a4886339f08b190bb1",
+          "sha256": "b5ac7224955922b7712604f7be929a734cd1a4fc2381d2fc62db9152595493c5",
+          "bytes": 19819
+        },
+        "DFI": {
+          "blob": "791d3927acc040a7932e69a4886339f08b190bb1",
+          "sha256": "b5ac7224955922b7712604f7be929a734cd1a4fc2381d2fc62db9152595493c5",
+          "bytes": 19819
+        },
+        "r2_source": {
+          "blob": "791d3927acc040a7932e69a4886339f08b190bb1",
+          "sha256": "b5ac7224955922b7712604f7be929a734cd1a4fc2381d2fc62db9152595493c5",
+          "bytes": 19819
+        },
+        "forward_tree": {
+          "blob": "791d3927acc040a7932e69a4886339f08b190bb1",
+          "sha256": "b5ac7224955922b7712604f7be929a734cd1a4fc2381d2fc62db9152595493c5",
+          "bytes": 19819
+        },
+        "final_source": {
+          "blob": "791d3927acc040a7932e69a4886339f08b190bb1",
+          "sha256": "b5ac7224955922b7712604f7be929a734cd1a4fc2381d2fc62db9152595493c5",
+          "bytes": 19819
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/profiles/__init__.py",
+      "identities": {
+        "G": {
+          "blob": "f12073c219b5ea1d7d167f553fc9b2e777e1dd09",
+          "sha256": "411aa99f3012b58d43b24b01d283998bd1f2c2db987df157701dda0aa18d831e",
+          "bytes": 236
+        },
+        "CAT": {
+          "blob": "f12073c219b5ea1d7d167f553fc9b2e777e1dd09",
+          "sha256": "411aa99f3012b58d43b24b01d283998bd1f2c2db987df157701dda0aa18d831e",
+          "bytes": 236
+        },
+        "DFI": {
+          "blob": "f12073c219b5ea1d7d167f553fc9b2e777e1dd09",
+          "sha256": "411aa99f3012b58d43b24b01d283998bd1f2c2db987df157701dda0aa18d831e",
+          "bytes": 236
+        },
+        "r2_source": {
+          "blob": "f12073c219b5ea1d7d167f553fc9b2e777e1dd09",
+          "sha256": "411aa99f3012b58d43b24b01d283998bd1f2c2db987df157701dda0aa18d831e",
+          "bytes": 236
+        },
+        "forward_tree": {
+          "blob": "f12073c219b5ea1d7d167f553fc9b2e777e1dd09",
+          "sha256": "411aa99f3012b58d43b24b01d283998bd1f2c2db987df157701dda0aa18d831e",
+          "bytes": 236
+        },
+        "final_source": {
+          "blob": "f12073c219b5ea1d7d167f553fc9b2e777e1dd09",
+          "sha256": "411aa99f3012b58d43b24b01d283998bd1f2c2db987df157701dda0aa18d831e",
+          "bytes": 236
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/profiles/models.py",
+      "identities": {
+        "G": {
+          "blob": "0bf6568675eaf10ca7cdd37f9c6f4527a9d7753d",
+          "sha256": "cd1278772bb443d2a8b4b2e37e0d8c1e8fd3a32c4e6007cc92d0b5c0209b809a",
+          "bytes": 4495
+        },
+        "CAT": {
+          "blob": "0bf6568675eaf10ca7cdd37f9c6f4527a9d7753d",
+          "sha256": "cd1278772bb443d2a8b4b2e37e0d8c1e8fd3a32c4e6007cc92d0b5c0209b809a",
+          "bytes": 4495
+        },
+        "DFI": {
+          "blob": "0bf6568675eaf10ca7cdd37f9c6f4527a9d7753d",
+          "sha256": "cd1278772bb443d2a8b4b2e37e0d8c1e8fd3a32c4e6007cc92d0b5c0209b809a",
+          "bytes": 4495
+        },
+        "r2_source": {
+          "blob": "0bf6568675eaf10ca7cdd37f9c6f4527a9d7753d",
+          "sha256": "cd1278772bb443d2a8b4b2e37e0d8c1e8fd3a32c4e6007cc92d0b5c0209b809a",
+          "bytes": 4495
+        },
+        "forward_tree": {
+          "blob": "0bf6568675eaf10ca7cdd37f9c6f4527a9d7753d",
+          "sha256": "cd1278772bb443d2a8b4b2e37e0d8c1e8fd3a32c4e6007cc92d0b5c0209b809a",
+          "bytes": 4495
+        },
+        "final_source": {
+          "blob": "0bf6568675eaf10ca7cdd37f9c6f4527a9d7753d",
+          "sha256": "cd1278772bb443d2a8b4b2e37e0d8c1e8fd3a32c4e6007cc92d0b5c0209b809a",
+          "bytes": 4495
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/profiles/registry.py",
+      "identities": {
+        "G": {
+          "blob": "3a5d0614b4e3cdd330ca4ea92c61d734149999a0",
+          "sha256": "f1d560f500db8c4cb39ab23552bd266ffbc736d3dffbe11c1a3a47579b19f250",
+          "bytes": 2805
+        },
+        "CAT": {
+          "blob": "3a5d0614b4e3cdd330ca4ea92c61d734149999a0",
+          "sha256": "f1d560f500db8c4cb39ab23552bd266ffbc736d3dffbe11c1a3a47579b19f250",
+          "bytes": 2805
+        },
+        "DFI": {
+          "blob": "3a5d0614b4e3cdd330ca4ea92c61d734149999a0",
+          "sha256": "f1d560f500db8c4cb39ab23552bd266ffbc736d3dffbe11c1a3a47579b19f250",
+          "bytes": 2805
+        },
+        "r2_source": {
+          "blob": "3a5d0614b4e3cdd330ca4ea92c61d734149999a0",
+          "sha256": "f1d560f500db8c4cb39ab23552bd266ffbc736d3dffbe11c1a3a47579b19f250",
+          "bytes": 2805
+        },
+        "forward_tree": {
+          "blob": "3a5d0614b4e3cdd330ca4ea92c61d734149999a0",
+          "sha256": "f1d560f500db8c4cb39ab23552bd266ffbc736d3dffbe11c1a3a47579b19f250",
+          "bytes": 2805
+        },
+        "final_source": {
+          "blob": "3a5d0614b4e3cdd330ca4ea92c61d734149999a0",
+          "sha256": "f1d560f500db8c4cb39ab23552bd266ffbc736d3dffbe11c1a3a47579b19f250",
+          "bytes": 2805
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/profiles/resolver.py",
+      "identities": {
+        "G": {
+          "blob": "8600211a2a66c8258cb58e20fbfd70d8a031408a",
+          "sha256": "7df7feb14129eb11fea7d9467e36c9f2e27b821726a5453e9f947eca7b6c2bfc",
+          "bytes": 4007
+        },
+        "CAT": {
+          "blob": "8600211a2a66c8258cb58e20fbfd70d8a031408a",
+          "sha256": "7df7feb14129eb11fea7d9467e36c9f2e27b821726a5453e9f947eca7b6c2bfc",
+          "bytes": 4007
+        },
+        "DFI": {
+          "blob": "8600211a2a66c8258cb58e20fbfd70d8a031408a",
+          "sha256": "7df7feb14129eb11fea7d9467e36c9f2e27b821726a5453e9f947eca7b6c2bfc",
+          "bytes": 4007
+        },
+        "r2_source": {
+          "blob": "8600211a2a66c8258cb58e20fbfd70d8a031408a",
+          "sha256": "7df7feb14129eb11fea7d9467e36c9f2e27b821726a5453e9f947eca7b6c2bfc",
+          "bytes": 4007
+        },
+        "forward_tree": {
+          "blob": "8600211a2a66c8258cb58e20fbfd70d8a031408a",
+          "sha256": "7df7feb14129eb11fea7d9467e36c9f2e27b821726a5453e9f947eca7b6c2bfc",
+          "bytes": 4007
+        },
+        "final_source": {
+          "blob": "8600211a2a66c8258cb58e20fbfd70d8a031408a",
+          "sha256": "7df7feb14129eb11fea7d9467e36c9f2e27b821726a5453e9f947eca7b6c2bfc",
+          "bytes": 4007
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/sources/eurostat.py",
+      "identities": {
+        "G": {
+          "blob": "4c03214e18cdb8223fd0909bb5ba0e3be11af96d",
+          "sha256": "c4308fcfb8137a2d1a04f4ac5c3f5e878f2d5f0a24a83e1d81b6b748dab65ea5",
+          "bytes": 29541
+        },
+        "CAT": {
+          "blob": "4c03214e18cdb8223fd0909bb5ba0e3be11af96d",
+          "sha256": "c4308fcfb8137a2d1a04f4ac5c3f5e878f2d5f0a24a83e1d81b6b748dab65ea5",
+          "bytes": 29541
+        },
+        "DFI": {
+          "blob": "4c03214e18cdb8223fd0909bb5ba0e3be11af96d",
+          "sha256": "c4308fcfb8137a2d1a04f4ac5c3f5e878f2d5f0a24a83e1d81b6b748dab65ea5",
+          "bytes": 29541
+        },
+        "r2_source": {
+          "blob": "4c03214e18cdb8223fd0909bb5ba0e3be11af96d",
+          "sha256": "c4308fcfb8137a2d1a04f4ac5c3f5e878f2d5f0a24a83e1d81b6b748dab65ea5",
+          "bytes": 29541
+        },
+        "forward_tree": {
+          "blob": "4c03214e18cdb8223fd0909bb5ba0e3be11af96d",
+          "sha256": "c4308fcfb8137a2d1a04f4ac5c3f5e878f2d5f0a24a83e1d81b6b748dab65ea5",
+          "bytes": 29541
+        },
+        "final_source": {
+          "blob": "4c03214e18cdb8223fd0909bb5ba0e3be11af96d",
+          "sha256": "c4308fcfb8137a2d1a04f4ac5c3f5e878f2d5f0a24a83e1d81b6b748dab65ea5",
+          "bytes": 29541
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/sources/http_base.py",
+      "identities": {
+        "G": {
+          "blob": "2ee304b7480835f61c2a2465cfb4ba3c765fe155",
+          "sha256": "d36be5ce12da72589092dda9e79a53f139b6cedba3a9b638eb9b7a1658961db1",
+          "bytes": 23706
+        },
+        "CAT": {
+          "blob": "2ee304b7480835f61c2a2465cfb4ba3c765fe155",
+          "sha256": "d36be5ce12da72589092dda9e79a53f139b6cedba3a9b638eb9b7a1658961db1",
+          "bytes": 23706
+        },
+        "DFI": {
+          "blob": "2ee304b7480835f61c2a2465cfb4ba3c765fe155",
+          "sha256": "d36be5ce12da72589092dda9e79a53f139b6cedba3a9b638eb9b7a1658961db1",
+          "bytes": 23706
+        },
+        "r2_source": {
+          "blob": "2ee304b7480835f61c2a2465cfb4ba3c765fe155",
+          "sha256": "d36be5ce12da72589092dda9e79a53f139b6cedba3a9b638eb9b7a1658961db1",
+          "bytes": 23706
+        },
+        "forward_tree": {
+          "blob": "2ee304b7480835f61c2a2465cfb4ba3c765fe155",
+          "sha256": "d36be5ce12da72589092dda9e79a53f139b6cedba3a9b638eb9b7a1658961db1",
+          "bytes": 23706
+        },
+        "final_source": {
+          "blob": "2ee304b7480835f61c2a2465cfb4ba3c765fe155",
+          "sha256": "d36be5ce12da72589092dda9e79a53f139b6cedba3a9b638eb9b7a1658961db1",
+          "bytes": 23706
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/sources/sdmx_source.py",
+      "identities": {
+        "G": {
+          "blob": "ea8afe891d41eb520987cc1cbbd71efa34445704",
+          "sha256": "db1104706c925739cfe65af6031f212e2c5b81523b57f990fdb677263ca2bb72",
+          "bytes": 32568
+        },
+        "CAT": {
+          "blob": "ea8afe891d41eb520987cc1cbbd71efa34445704",
+          "sha256": "db1104706c925739cfe65af6031f212e2c5b81523b57f990fdb677263ca2bb72",
+          "bytes": 32568
+        },
+        "DFI": {
+          "blob": "ea8afe891d41eb520987cc1cbbd71efa34445704",
+          "sha256": "db1104706c925739cfe65af6031f212e2c5b81523b57f990fdb677263ca2bb72",
+          "bytes": 32568
+        },
+        "r2_source": {
+          "blob": "ea8afe891d41eb520987cc1cbbd71efa34445704",
+          "sha256": "db1104706c925739cfe65af6031f212e2c5b81523b57f990fdb677263ca2bb72",
+          "bytes": 32568
+        },
+        "forward_tree": {
+          "blob": "ea8afe891d41eb520987cc1cbbd71efa34445704",
+          "sha256": "db1104706c925739cfe65af6031f212e2c5b81523b57f990fdb677263ca2bb72",
+          "bytes": 32568
+        },
+        "final_source": {
+          "blob": "ea8afe891d41eb520987cc1cbbd71efa34445704",
+          "sha256": "db1104706c925739cfe65af6031f212e2c5b81523b57f990fdb677263ca2bb72",
+          "bytes": 32568
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/sources/unesco_uis.py",
+      "identities": {
+        "G": {
+          "blob": "afebcda9dea2cf63d21374fe4ab240f0ebed65ed",
+          "sha256": "951400f8f12d4d5f32294e11ef5f560abdef605236944ee59f182bb1d39e6460",
+          "bytes": 10572
+        },
+        "CAT": {
+          "blob": "afebcda9dea2cf63d21374fe4ab240f0ebed65ed",
+          "sha256": "951400f8f12d4d5f32294e11ef5f560abdef605236944ee59f182bb1d39e6460",
+          "bytes": 10572
+        },
+        "DFI": {
+          "blob": "afebcda9dea2cf63d21374fe4ab240f0ebed65ed",
+          "sha256": "951400f8f12d4d5f32294e11ef5f560abdef605236944ee59f182bb1d39e6460",
+          "bytes": 10572
+        },
+        "r2_source": {
+          "blob": "afebcda9dea2cf63d21374fe4ab240f0ebed65ed",
+          "sha256": "951400f8f12d4d5f32294e11ef5f560abdef605236944ee59f182bb1d39e6460",
+          "bytes": 10572
+        },
+        "forward_tree": {
+          "blob": "afebcda9dea2cf63d21374fe4ab240f0ebed65ed",
+          "sha256": "951400f8f12d4d5f32294e11ef5f560abdef605236944ee59f182bb1d39e6460",
+          "bytes": 10572
+        },
+        "final_source": {
+          "blob": "afebcda9dea2cf63d21374fe4ab240f0ebed65ed",
+          "sha256": "951400f8f12d4d5f32294e11ef5f560abdef605236944ee59f182bb1d39e6460",
+          "bytes": 10572
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/sources/world_bank.py",
+      "identities": {
+        "G": {
+          "blob": "ff19ae201c1145c34589645eecdedea54f459ba6",
+          "sha256": "02d44b5ce1a112aee1cc28f305cd76184abb5472964f011a4eddca205873f285",
+          "bytes": 14994
+        },
+        "CAT": {
+          "blob": "ff19ae201c1145c34589645eecdedea54f459ba6",
+          "sha256": "02d44b5ce1a112aee1cc28f305cd76184abb5472964f011a4eddca205873f285",
+          "bytes": 14994
+        },
+        "DFI": {
+          "blob": "ff19ae201c1145c34589645eecdedea54f459ba6",
+          "sha256": "02d44b5ce1a112aee1cc28f305cd76184abb5472964f011a4eddca205873f285",
+          "bytes": 14994
+        },
+        "r2_source": {
+          "blob": "ff19ae201c1145c34589645eecdedea54f459ba6",
+          "sha256": "02d44b5ce1a112aee1cc28f305cd76184abb5472964f011a4eddca205873f285",
+          "bytes": 14994
+        },
+        "forward_tree": {
+          "blob": "ff19ae201c1145c34589645eecdedea54f459ba6",
+          "sha256": "02d44b5ce1a112aee1cc28f305cd76184abb5472964f011a4eddca205873f285",
+          "bytes": 14994
+        },
+        "final_source": {
+          "blob": "ff19ae201c1145c34589645eecdedea54f459ba6",
+          "sha256": "02d44b5ce1a112aee1cc28f305cd76184abb5472964f011a4eddca205873f285",
+          "bytes": 14994
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/retrieval/providers.py",
+      "identities": {
+        "G": {
+          "blob": "258e0bf73c28dab3bfc7161efefbb35db55a5a77",
+          "sha256": "3820fba15649e8d3311f30d3e2996af8121359c5ae48888ce7ddab3ff22cc170",
+          "bytes": 2516
+        },
+        "CAT": {
+          "blob": "258e0bf73c28dab3bfc7161efefbb35db55a5a77",
+          "sha256": "3820fba15649e8d3311f30d3e2996af8121359c5ae48888ce7ddab3ff22cc170",
+          "bytes": 2516
+        },
+        "DFI": {
+          "blob": "258e0bf73c28dab3bfc7161efefbb35db55a5a77",
+          "sha256": "3820fba15649e8d3311f30d3e2996af8121359c5ae48888ce7ddab3ff22cc170",
+          "bytes": 2516
+        },
+        "r2_source": {
+          "blob": "258e0bf73c28dab3bfc7161efefbb35db55a5a77",
+          "sha256": "3820fba15649e8d3311f30d3e2996af8121359c5ae48888ce7ddab3ff22cc170",
+          "bytes": 2516
+        },
+        "forward_tree": {
+          "blob": "258e0bf73c28dab3bfc7161efefbb35db55a5a77",
+          "sha256": "3820fba15649e8d3311f30d3e2996af8121359c5ae48888ce7ddab3ff22cc170",
+          "bytes": 2516
+        },
+        "final_source": {
+          "blob": "258e0bf73c28dab3bfc7161efefbb35db55a5a77",
+          "sha256": "3820fba15649e8d3311f30d3e2996af8121359c5ae48888ce7ddab3ff22cc170",
+          "bytes": 2516
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "identities": {
+        "G": {
+          "blob": "115db3f1239630ef609e2bc69f9f0922a0c198cd",
+          "sha256": "95f64bdbd3294850356035827c5289356ad5e8d4990c35e548a4744fb98eaebb",
+          "bytes": 40634
+        },
+        "CAT": {
+          "blob": "db82bce59407cebe887060fde8831d5cdec5c770",
+          "sha256": "557a19e085145c2e2ebb31bcd189fb284a17b5221638abffd4f79b354ec13abe",
+          "bytes": 42301
+        },
+        "DFI": {
+          "blob": "115db3f1239630ef609e2bc69f9f0922a0c198cd",
+          "sha256": "95f64bdbd3294850356035827c5289356ad5e8d4990c35e548a4744fb98eaebb",
+          "bytes": 40634
+        },
+        "r2_source": {
+          "blob": "c9bef0811c74b4467c3e987f77b02c46d1681fce",
+          "sha256": "50a95bb57ccc7141bd2003b8939f2ec9ec6d8cdf0fd8b8312a76bba938255c6c",
+          "bytes": 43280
+        },
+        "forward_tree": {
+          "blob": "c9bef0811c74b4467c3e987f77b02c46d1681fce",
+          "sha256": "50a95bb57ccc7141bd2003b8939f2ec9ec6d8cdf0fd8b8312a76bba938255c6c",
+          "bytes": 43280
+        },
+        "final_source": {
+          "blob": "c9bef0811c74b4467c3e987f77b02c46d1681fce",
+          "sha256": "50a95bb57ccc7141bd2003b8939f2ec9ec6d8cdf0fd8b8312a76bba938255c6c",
+          "bytes": 43280
+        }
+      },
+      "supplied_in_owned_unapplied_patch": true,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "status": "UNAPPLIED_PATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "identities": {
+        "G": {
+          "blob": "2b0699140cb734b833204332398d05ff3bc8faa2",
+          "sha256": "48610c596a941bb1c0b53d761d93d2a60e0f8ecda035681500e53e1f5bce8954",
+          "bytes": 39303
+        },
+        "CAT": {
+          "blob": "66068a49645b226700ae797f41c8b9d8b3049a44",
+          "sha256": "7758c7b1b07ceb5906fa322a83bd156dadb4b33dfce8e2653198d3f961606e3c",
+          "bytes": 38827
+        },
+        "DFI": {
+          "blob": "66068a49645b226700ae797f41c8b9d8b3049a44",
+          "sha256": "7758c7b1b07ceb5906fa322a83bd156dadb4b33dfce8e2653198d3f961606e3c",
+          "bytes": 38827
+        },
+        "r2_source": {
+          "blob": "66068a49645b226700ae797f41c8b9d8b3049a44",
+          "sha256": "7758c7b1b07ceb5906fa322a83bd156dadb4b33dfce8e2653198d3f961606e3c",
+          "bytes": 38827
+        },
+        "forward_tree": {
+          "blob": "66068a49645b226700ae797f41c8b9d8b3049a44",
+          "sha256": "7758c7b1b07ceb5906fa322a83bd156dadb4b33dfce8e2653198d3f961606e3c",
+          "bytes": 38827
+        },
+        "final_source": {
+          "blob": "66068a49645b226700ae797f41c8b9d8b3049a44",
+          "sha256": "7758c7b1b07ceb5906fa322a83bd156dadb4b33dfce8e2653198d3f961606e3c",
+          "bytes": 38827
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": true,
+      "same_G_CAT_bytes": false,
+      "status": "UNAPPLIED_PATCH"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/connectors/__init__.py",
+      "identities": {
+        "G": {
+          "blob": "c08e6a8dae0e207f4d1d1014a45c3a06fa29f3dc",
+          "sha256": "73ac4426d8bc2cf07de492c45533e14c4bb5d5ab430a7aefb6dde446fa886ac3",
+          "bytes": 33518
+        },
+        "CAT": {
+          "blob": "c08e6a8dae0e207f4d1d1014a45c3a06fa29f3dc",
+          "sha256": "73ac4426d8bc2cf07de492c45533e14c4bb5d5ab430a7aefb6dde446fa886ac3",
+          "bytes": 33518
+        },
+        "DFI": {
+          "blob": "c08e6a8dae0e207f4d1d1014a45c3a06fa29f3dc",
+          "sha256": "73ac4426d8bc2cf07de492c45533e14c4bb5d5ab430a7aefb6dde446fa886ac3",
+          "bytes": 33518
+        },
+        "r2_source": {
+          "blob": "c08e6a8dae0e207f4d1d1014a45c3a06fa29f3dc",
+          "sha256": "73ac4426d8bc2cf07de492c45533e14c4bb5d5ab430a7aefb6dde446fa886ac3",
+          "bytes": 33518
+        },
+        "forward_tree": {
+          "blob": "c08e6a8dae0e207f4d1d1014a45c3a06fa29f3dc",
+          "sha256": "73ac4426d8bc2cf07de492c45533e14c4bb5d5ab430a7aefb6dde446fa886ac3",
+          "bytes": 33518
+        },
+        "final_source": {
+          "blob": "c08e6a8dae0e207f4d1d1014a45c3a06fa29f3dc",
+          "sha256": "73ac4426d8bc2cf07de492c45533e14c4bb5d5ab430a7aefb6dde446fa886ac3",
+          "bytes": 33518
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "identities": {
+        "G": {
+          "blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+          "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+          "bytes": 9664
+        },
+        "CAT": {
+          "blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+          "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+          "bytes": 9664
+        },
+        "DFI": {
+          "blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+          "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+          "bytes": 9664
+        },
+        "r2_source": {
+          "blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+          "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+          "bytes": 9664
+        },
+        "forward_tree": {
+          "blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+          "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+          "bytes": 9664
+        },
+        "final_source": {
+          "blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+          "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+          "bytes": 9664
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py",
+      "identities": {
+        "G": {
+          "blob": "4d752c653fbd43fd30c3120ead94e0ff643ac7ec",
+          "sha256": "e4898c29dfc83306c9cbf0920933ab0e2f50fd69ca85fea369a9381e8b9c6348",
+          "bytes": 24913
+        },
+        "CAT": {
+          "blob": "e2cd05ff2e8a47f2bc45fcc15f61f1f90c127e35",
+          "sha256": "df5832161ac72f62ea64916863dd59d495555ff3c8a11837299688514cace7ae",
+          "bytes": 39312
+        },
+        "DFI": {
+          "blob": "4d752c653fbd43fd30c3120ead94e0ff643ac7ec",
+          "sha256": "e4898c29dfc83306c9cbf0920933ab0e2f50fd69ca85fea369a9381e8b9c6348",
+          "bytes": 24913
+        },
+        "r2_source": {
+          "blob": "e2cd05ff2e8a47f2bc45fcc15f61f1f90c127e35",
+          "sha256": "df5832161ac72f62ea64916863dd59d495555ff3c8a11837299688514cace7ae",
+          "bytes": 39312
+        },
+        "forward_tree": {
+          "blob": "e2cd05ff2e8a47f2bc45fcc15f61f1f90c127e35",
+          "sha256": "df5832161ac72f62ea64916863dd59d495555ff3c8a11837299688514cace7ae",
+          "bytes": 39312
+        },
+        "final_source": {
+          "blob": "e2cd05ff2e8a47f2bc45fcc15f61f1f90c127e35",
+          "sha256": "df5832161ac72f62ea64916863dd59d495555ff3c8a11837299688514cace7ae",
+          "bytes": 39312
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "selected_contract_definition_changes": [
+        "_BindingCatalog",
+        "_BindingCatalog.resolve_metric_bindings",
+        "_NoneProfileBindingCatalog",
+        "_NoneProfileBindingCatalog.resolve_metric_bindings",
+        "_DisabledSourceBindingCatalog",
+        "_DisabledSourceBindingCatalog.resolve_metric_bindings",
+        "_DisabledSourceFallbackCatalog",
+        "_DisabledSourceFallbackCatalog.find_by_polisyos_metric",
+        "_DisabledSourceFallbackCatalog.resolve_fetch_target",
+        "_UnregisteredSourceBindingCatalog",
+        "_UnregisteredSourceBindingCatalog.resolve_metric_bindings",
+        "_MissingSourceBindingCatalog",
+        "_MissingSourceBindingCatalog.resolve_metric_bindings",
+        "_UnregisteredSourceFallbackCatalog",
+        "_UnregisteredSourceFallbackCatalog.find_by_polisyos_metric",
+        "_UnregisteredSourceFallbackCatalog.resolve_fetch_target",
+        "test_catalog_resolution_uses_request_dataset_id",
+        "test_catalog_resolution_skips_unfetchable_targets",
+        "test_catalog_resolution_rejects_catalog_only_metric_bindings",
+        "test_public_catalog_resolution_rejects_disabled_source_bindings",
+        "test_public_catalog_resolution_rejects_disabled_source_fallbacks",
+        "test_public_catalog_resolution_holds_unregistered_source_ids",
+        "test_catalog_resolution_applies_rolling_window_defaults_for_rest_sources",
+        "test_catalog_resolution_preserves_none_profile_id",
+        "test_public_retrieval_uses_profile_selection_for_real_catalog_artifact",
+        "test_public_retrieval_holds_catalog_resolution_without_profile",
+        "test_public_retrieval_holds_unknown_profile",
+        "test_public_retrieval_holds_binding_without_source_identity",
+        "test_public_retrieval_rejects_missing_disabled_or_cyclic_seed",
+        "test_retrieval_service_discover_uses_injected_executor_explore_and_observability"
+      ],
+      "G_only_definition_names": [],
+      "status": "HELD_EXACT_PREDECESSOR_CONTRACT_OWNER_SELECTION_REQUIRED"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dfi_03.py",
+      "identities": {
+        "G": {
+          "blob": "e61580cd72b37ab1e430f335174e694eba58c4ad",
+          "sha256": "4a3dba132870dffe82ae94b331698b276e940139c4454a03194d86359804422f",
+          "bytes": 9182
+        },
+        "CAT": {
+          "blob": "b5bce675d93a1c3d30d6c92b7491e76bca016e86",
+          "sha256": "1c42de909fb1669d09e58cd6d69a7514fe2bff5a8b94a303ac2ff9108f4c0040",
+          "bytes": 53521
+        },
+        "DFI": {
+          "blob": "b5bce675d93a1c3d30d6c92b7491e76bca016e86",
+          "sha256": "1c42de909fb1669d09e58cd6d69a7514fe2bff5a8b94a303ac2ff9108f4c0040",
+          "bytes": 53521
+        },
+        "r2_source": {
+          "blob": "b1cffbdc0181869e785acb7809371e0b590eac1f",
+          "sha256": "b31d482cf884714da9d2616dfede54287c0cbe4c576fbf7ea791305bf4e70a5f",
+          "bytes": 95092
+        },
+        "forward_tree": {
+          "blob": "b1cffbdc0181869e785acb7809371e0b590eac1f",
+          "sha256": "b31d482cf884714da9d2616dfede54287c0cbe4c576fbf7ea791305bf4e70a5f",
+          "bytes": 95092
+        },
+        "final_source": {
+          "blob": "b1cffbdc0181869e785acb7809371e0b590eac1f",
+          "sha256": "b31d482cf884714da9d2616dfede54287c0cbe4c576fbf7ea791305bf4e70a5f",
+          "bytes": 95092
+        }
+      },
+      "supplied_in_owned_unapplied_patch": true,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "status": "UNAPPLIED_PATCH"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dfk_02.py",
+      "identities": {
+        "G": {
+          "blob": "1e8263b473c448fc39a85e6169d305079b51050c",
+          "sha256": "d46249ac5481d4e46250c3db0d817be57e01b96a7aa04e1ba81d04f33d123ddd",
+          "bytes": 6978
+        },
+        "CAT": {
+          "blob": "d94ca9df44a8e424e2deee6529993f31b360fc21",
+          "sha256": "b7c855565f136f23414e56385b47f97b5044e255d0d262ff1de71d7d42709c00",
+          "bytes": 19625
+        },
+        "DFI": {
+          "blob": "1e8263b473c448fc39a85e6169d305079b51050c",
+          "sha256": "d46249ac5481d4e46250c3db0d817be57e01b96a7aa04e1ba81d04f33d123ddd",
+          "bytes": 6978
+        },
+        "r2_source": {
+          "blob": "6955626335354c08af77bf86a312c80f18ae0525",
+          "sha256": "4c82ba30b9f3fefd746a4aea29f1d6a736351f9748193333db2e79dd480c2439",
+          "bytes": 23880
+        },
+        "forward_tree": {
+          "blob": "6955626335354c08af77bf86a312c80f18ae0525",
+          "sha256": "4c82ba30b9f3fefd746a4aea29f1d6a736351f9748193333db2e79dd480c2439",
+          "bytes": 23880
+        },
+        "final_source": {
+          "blob": "6955626335354c08af77bf86a312c80f18ae0525",
+          "sha256": "4c82ba30b9f3fefd746a4aea29f1d6a736351f9748193333db2e79dd480c2439",
+          "bytes": 23880
+        }
+      },
+      "supplied_in_owned_unapplied_patch": true,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": false,
+      "status": "UNAPPLIED_PATCH"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "identities": {
+        "G": {
+          "blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "bytes": 779204
+        },
+        "CAT": {
+          "blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "bytes": 779204
+        },
+        "DFI": {
+          "blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "bytes": 779204
+        },
+        "r2_source": {
+          "blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "bytes": 779204
+        },
+        "forward_tree": {
+          "blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "bytes": 779204
+        },
+        "final_source": {
+          "blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "bytes": 779204
+        }
+      },
+      "supplied_in_owned_unapplied_patch": false,
+      "supplied_in_foreign_public_unapplied_patch": false,
+      "same_G_CAT_bytes": true,
+      "status": "G_BYTES_MATCH_SELECTED_SUPPLIER"
+    }
+  ],
+  "foreign_definition_preservation": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "foreign_definition_count": 7,
+      "preserved_foreign_definitions": [
+        "DatasetBatchConfig.default_metrics_map_path",
+        "DatasetBatchConfig.__post_init__"
+      ],
+      "owned_overlap_or_selected_contract_changes": [
+        "DatasetBatchConfig",
+        "DatasetBatchConfig.load_registry",
+        "DatasetBatchConfig.default_registry_path",
+        "DatasetBatchConfig.run_signature",
+        "DatasetBatchConfig.uses_custom_registry"
+      ],
+      "unexpected_changes": [],
+      "resource_locator_AST_hashes": {
+        "DatasetBatchConfig.default_metrics_map_path": "1dca094218c2af41ba0223dc8c087b9b07468a6f451698bda62b4df1e6664af4"
+      },
+      "selected_predecessor_contract": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "foreign_definition_count": 4,
+      "preserved_foreign_definitions": [
+        "_seed_alignments_path",
+        "_wvs_registry_path"
+      ],
+      "owned_overlap_or_selected_contract_changes": [
+        "__resolve_implementation_dependency",
+        "_load_wvs_bulk_rows"
+      ],
+      "unexpected_changes": [],
+      "resource_locator_AST_hashes": {
+        "_seed_alignments_path": "d76c4e183df2b7a715215e76503593cfe42ccedd535fe9222d84e19ef210469d",
+        "_wvs_registry_path": "efa51cf669ac94a41483fc0303c7d6ec2888a267faa76110a3bd1ea972ef48ba"
+      },
+      "selected_predecessor_contract": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "foreign_definition_count": 4,
+      "preserved_foreign_definitions": [
+        "_wvs_registry_path",
+        "harvest_sources",
+        "harvest_one_source",
+        "_payload_hash"
+      ],
+      "owned_overlap_or_selected_contract_changes": [],
+      "unexpected_changes": [],
+      "resource_locator_AST_hashes": {
+        "_wvs_registry_path": "efa51cf669ac94a41483fc0303c7d6ec2888a267faa76110a3bd1ea972ef48ba"
+      },
+      "selected_predecessor_contract": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+      "foreign_definition_count": 0,
+      "preserved_foreign_definitions": [],
+      "owned_overlap_or_selected_contract_changes": [],
+      "unexpected_changes": [],
+      "resource_locator_AST_hashes": {},
+      "selected_predecessor_contract": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "foreign_definition_count": 1,
+      "preserved_foreign_definitions": [
+        "default_proxy_metric_alignments_path"
+      ],
+      "owned_overlap_or_selected_contract_changes": [],
+      "unexpected_changes": [],
+      "resource_locator_AST_hashes": {
+        "default_proxy_metric_alignments_path": "f4cfe32d8b9629caf506a10a734709545cece70a2389ec5cca46b87469c8d8ba"
+      },
+      "selected_predecessor_contract": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "foreign_definition_count": 5,
+      "preserved_foreign_definitions": [],
+      "owned_overlap_or_selected_contract_changes": [
+        "RetrievalService",
+        "RetrievalService.__init__",
+        "RetrievalService._source_policy",
+        "RetrievalService.resolve",
+        "RetrievalService._resolve_via_catalog"
+      ],
+      "unexpected_changes": [],
+      "resource_locator_AST_hashes": {},
+      "selected_predecessor_contract": false
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dfi_03.py",
+      "foreign_definition_count": 6,
+      "preserved_foreign_definitions": [
+        "test_same_stat_changed_manifest_bytes_do_not_reuse_normalize_stage",
+        "test_mtime_only_manifest_change_keeps_normalize_stage_reusable",
+        "test_empty_normalize_output_directory_is_not_reusable",
+        "test_content_stage_recompute_disables_inner_resume_checkpoint",
+        "test_selected_empty_generation_is_reused_without_reencoding",
+        "test_embed_resume_rejects_config_rule_and_selected_output_changes"
+      ],
+      "owned_overlap_or_selected_contract_changes": [],
+      "unexpected_changes": [],
+      "resource_locator_AST_hashes": {},
+      "selected_predecessor_contract": false
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dfk_02.py",
+      "foreign_definition_count": 1,
+      "preserved_foreign_definitions": [
+        "test_registry_projection_keeps_the_35_entry_order_and_equality_contract"
+      ],
+      "owned_overlap_or_selected_contract_changes": [],
+      "unexpected_changes": [],
+      "resource_locator_AST_hashes": {},
+      "selected_predecessor_contract": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+      "foreign_definition_count": 0,
+      "preserved_foreign_definitions": [],
+      "owned_overlap_or_selected_contract_changes": [],
+      "unexpected_changes": [],
+      "resource_locator_AST_hashes": {},
+      "selected_predecessor_contract": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py",
+      "foreign_definition_count": 2,
+      "preserved_foreign_definitions": [],
+      "owned_overlap_or_selected_contract_changes": [
+        "write_publish_manifest",
+        "_artifact_ref"
+      ],
+      "unexpected_changes": [],
+      "resource_locator_AST_hashes": {},
+      "selected_predecessor_contract": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/selection.py",
+      "foreign_definition_count": 0,
+      "preserved_foreign_definitions": [],
+      "owned_overlap_or_selected_contract_changes": [],
+      "unexpected_changes": [],
+      "resource_locator_AST_hashes": {},
+      "selected_predecessor_contract": true
+    }
+  ],
+  "public_facade_preservation": [
+    {
+      "path": "policy-engine/src/polisyos/fabric/__init__.py",
+      "checks": [
+        {
+          "symbol": "_LAZY_IMPORTS",
+          "old_entries": 55,
+          "new_entries": 59,
+          "every_old_entry_unchanged": true
+        },
+        {
+          "symbol": "__all__",
+          "every_old_entry_retained": true
+        }
+      ],
+      "additive_alias_dispatch_only": [],
+      "old_serving_function_count": 17,
+      "old_CatalogSelectionError_preserved": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/__init__.py",
+      "checks": [
+        {
+          "symbol": "_LAZY_EXPORTS",
+          "old_entries": 7,
+          "new_entries": 9,
+          "every_old_entry_unchanged": true
+        },
+        {
+          "symbol": "__all__",
+          "every_old_entry_retained": true
+        }
+      ],
+      "additive_alias_dispatch_only": [],
+      "old_serving_function_count": 2,
+      "old_CatalogSelectionError_preserved": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "checks": [
+        {
+          "symbol": "_LAZY_IMPORTS",
+          "old_entries": 291,
+          "new_entries": 293,
+          "every_old_entry_unchanged": true
+        },
+        {
+          "symbol": "__all__",
+          "every_old_entry_retained": true
+        }
+      ],
+      "additive_alias_dispatch_only": [],
+      "old_serving_function_count": 2,
+      "old_CatalogSelectionError_preserved": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "checks": [
+        {
+          "symbol": "_EXPORTS",
+          "old_entries": 129,
+          "new_entries": 130,
+          "every_old_entry_unchanged": true
+        },
+        {
+          "symbol": "__all__",
+          "every_old_entry_retained": true
+        }
+      ],
+      "additive_alias_dispatch_only": [
+        "__getattr__"
+      ],
+      "old_serving_function_count": 12,
+      "old_CatalogSelectionError_preserved": true
+    }
+  ],
+  "selected_predecessor_reference": {
+    "path": "selected-predecessor-contract-reference.patch",
+    "sha256": "bd4160028bea43699e8c7070b3c80badccaff2b334a550328c7d36409aa71ec4",
+    "bytes": 139106,
+    "classification": "Historical G-to-selected-CAT contract bytes for owner selection, NOT a composition/apply proposal. Preserve G-only functions/locators before any supplier admission."
+  },
+  "DFI_CAT_DAG": "c05-independent-source-DAG-66151f3b.json",
+  "formal_closure_ids": [],
+  "native_G_claim": false
+}

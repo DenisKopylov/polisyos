@@ -1,0 +1,51 @@
+{
+  "schema": "policyos.e02.c05.G-public-companion-proposal.v1",
+  "state": "UNAPPLIED_FOREIGN_OWNER_SELECTION_REQUIRED",
+  "G": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "patch_sha256": "5dd76c6c3349acde4c2366aa1dcf8cd83684a3bdbf99c5e8bc9557508f80f3ce",
+  "patch_bytes": 6173,
+  "git_apply_check_exit": 0,
+  "rows": [
+    {
+      "path": "policy-engine/src/polisyos/fabric/__init__.py",
+      "owner": "G/Fabric canonical facade owner",
+      "preimage_blob": "d481f246cdec134fdb5e9b1447404d56b341c304",
+      "preimage_sha256": "2bd8701c7440b97d241a087ec3300c22fbef86b31bf36149ce6cd85e35812ae3",
+      "postimage_blob": "d36bfda8149c583a25a7a1a69ac3e444a022037e",
+      "postimage_sha256": "eeb1c453c51954869bb76f302b84b2fccadde0796cb0d462bc2928ee090e47fb",
+      "contract": "Add lazy public aliases and truthful TYPE_CHECKING reexports for the existing registry, effective connection resolver, execution-policy resolver and execution-policy class. Same canonical objects; no new resolver/cache."
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/__init__.py",
+      "owner": "C02/G Core canonical facade owner",
+      "preimage_blob": "5964150861173fd27143d44363fda0ddd1b6f7e4",
+      "preimage_sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40",
+      "postimage_blob": "42a09cd25b2098611420966cb232848ead760ad7",
+      "postimage_sha256": "54620e5df543909b9fa95d5ecc7d8f721d600b3602a7a6ec0aa31dde4c6ccffd",
+      "contract": "Expose existing artifact protocol/config classes lazily with static reexports. Preserve all Core exports and optional-dependency cold-import behavior; no Core implementation edits."
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "owner": "G/IR canonical facade owner",
+      "preimage_blob": "2b0699140cb734b833204332398d05ff3bc8faa2",
+      "preimage_sha256": "48610c596a941bb1c0b53d761d93d2a60e0f8ecda035681500e53e1f5bce8954",
+      "postimage_blob": "6a1559bf640157ca3cb5bb602b35ab17d087a830",
+      "postimage_sha256": "cd0a18c5f9a308836b629cc577764f593cadbffeea16fedf918a3d6eb1f50dec",
+      "contract": "Expose the existing FetchRequest and generic FetchResult through the existing root lazy facade with typed reexports; no DTO copy or implicit Fabric-base reexport."
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "owner": "G/Data Forge shared read-API owner",
+      "preimage_blob": "2c72928690b4981542475bc0f7861bb808c921b1",
+      "preimage_sha256": "a77be622a7e8193b0c245d4a731fcf4128d84faa48b48e63460246db5673af47",
+      "postimage_blob": "661000fc73efc1ecad66eae535d243f84015e4b9",
+      "postimage_sha256": "0a9781a08cd2f050d2b473847d6395e92d2c754489809d4ed78aa2c77ea92876",
+      "contract": "Add typed reexports for existing registry/selection contracts and an additive CatalogRunProfileSelectionError alias. Preserve current G CatalogSelectionError bound to derivation_catalog_selection and every existing export/serving function."
+    }
+  ],
+  "generated_companions": {
+    "owner": "G/canonical DevX",
+    "requirement": "Regenerate public-surface inventory and affected typed/export projections from selected canonical source. Reconcile actual import guardrails on that composition; no blanket policy, baseline, ignore, expiry or lock change is proposed."
+  },
+  "formal_closure_ids": []
+}

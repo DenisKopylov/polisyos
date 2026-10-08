@@ -1,0 +1,112 @@
+{
+  "schema": "policyos.e02.original-C.c05.r2.owner-requirements.v1",
+  "source": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+  "G": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "C10": "C10-catalog-caller-requirement.json",
+  "C10_quantity": "Existing ControlRuntime.data_resolve at e685/8997 line7407 calls self._retrieval.resolve(request), then forwards mode/fetch_plans/candidates/warnings. Complete lifecycle/nl files have no named CatalogRunProfile/run_profile tokens. Exact required boundary is admitted request-context typed CatalogRunProfile into existing C05 resolve keyword, then actual selected output/refusal. No secondregistry/default/profile producer or caller. Actual served runtime witness remains UNRUN.",
+  "C10_source_acceptance": "not_issued",
+  "LA032": {
+    "original_owner": "C-W19/UDF-05",
+    "historical_packet": {
+      "ref": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/scoped-requirements.json",
+      "blob": "625e56fbebe85564bd81a0f1cf67dca2d9c1030b",
+      "sha256": "8266e1ef68a1707744c78864c492b2094b6344cfebe41da6ffe789bb03e1c250"
+    },
+    "existing_quantity": {
+      "source_identity": {
+        "carrier_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "inspected_G_source_sha": "fe5ccf9ce90c336fff749da48bd0138d321baf23"
+      },
+      "packet_pointer": "l01-s1-source-facts.json#/findings/0",
+      "producer_fixture": "Existing L01 probe creates synthetic temporary mixed members: new targets plus legacy priors and donor. This fixture producer demonstrates reader divergence and carries no demographic source authority.",
+      "probe_path": "policy-engine/_build/e02-L01-20261008/agents/s1/probe_la032_four_readers.py",
+      "reported_command": "cd policy-engine && PYTHONPATH=src uv run --no-sync python _build/e02-L01-20261008/agents/s1/probe_la032_four_readers.py",
+      "reported_deciding_output": "evidence/la032-stdout.txt: sibling origins new_targets, legacy_priors, legacy_donor; composite refuses incomplete/mixed layout.",
+      "existing_test_selector": "tests/unit/remediation/test_udf_05.py::test_mixed_targets_and_priors_fail_before_component_composition",
+      "evidence_boundary": "Carried L01 source-reported observational discriminator; original deciding stdout not transferred in this recovery. No new probe or local producer created, no production prevalence or inventory authority inferred.",
+      "current_G_reconciliation": "Exact current G reader blob equals inspected historical reader blob: composite uses one complete layout, while three siblings resolve first-existing members independently."
+    },
+    "current_paths": [
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+        "current_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+        "blob": "32d925f0d443ea61c08b16986b87ed053dd8c9a8",
+        "same_historical_product_bytes": true,
+        "source_mutation_lease": "not_granted"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/read_api/ukraine.py",
+        "current_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+        "blob": "061441cccf7f52e8fdea33a4c63b47dd95372dad",
+        "same_historical_product_bytes": true,
+        "source_mutation_lease": "not_granted"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/assets.py",
+        "current_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+        "blob": "e4777998cda09a03d07de261c73835b4433df83d",
+        "same_historical_product_bytes": true,
+        "source_mutation_lease": "not_granted"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/static_aging.py",
+        "current_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+        "blob": "c3e39f2ff71557ef1169dd70640ae2cde85452cd",
+        "same_historical_product_bytes": true,
+        "source_mutation_lease": "not_granted"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography.py",
+        "current_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+        "blob": "e22295965423ce472babfe2171b6bd883c1dd537",
+        "same_historical_product_bytes": true,
+        "source_mutation_lease": "not_granted"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/common.py",
+        "current_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+        "blob": "97c1f1dca8db13dc6409919ca2cf81feea43d997",
+        "same_historical_product_bytes": true,
+        "source_mutation_lease": "not_granted"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_udf_05.py",
+        "current_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+        "blob": "e7d2a6ee74913664d363242d53ea1d0c387c5a2e",
+        "same_historical_product_bytes": true,
+        "source_mutation_lease": "not_granted"
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py",
+        "current_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+        "blob": "6105b5626a3845dc846e2063e4548178a42d958f",
+        "same_historical_product_bytes": true,
+        "source_mutation_lease": "not_granted"
+      }
+    ],
+    "named_readers": [
+      "load_reconciled_targets",
+      "load_transition_priors",
+      "load_donor_pool",
+      "load_demography_artifacts"
+    ],
+    "required_existing_producer": "Existing AssetSpecs identify targets, priors and donor-pool assets owned by team-data-forge. Exact configured producer of these demographic members is not established in the examined builder/reader/read-API/assets scope. build_d3_stage in builders/demography.py emits household/labor observations and calibrated cells, not targets/prior/donor inventory; do not relabel D3 or create another local producer. C-W19/L01 must map the existing configured target/prior/donor producer on its latest authoritative freeze before G extends its lease.",
+    "smallest_existing_capability_option": "extend-existing: feed all four current public reader functions through the existing complete-layout selector and a versioned immutable member inventory from the actual configured member producer. Reuse VerifiedUkraineStageArtifacts or existing CAS/GenerationBasis for path/content binding only; add demographic completeness/semantic verification under C-W19. Generic binding is not source authority.",
+    "minimal_factual_fields": [
+      "state identifiers with explicit order and their source mapping",
+      "target and entrant definitions and source/member refs",
+      "prior origin/destination axes, derivation and time semantics",
+      "donor present versus intentionally absent, with member/source mapping when present",
+      "producer identity, source profile, schema/rule version, relevant epoch/time and content-bound member refs"
+    ],
+    "proposed_lease": "G confirms latest C-W19 producer/member writer path before source mutation; minimal reader lease demography/__init__.py plus mirrored test_demography_artifacts.py or existing test_udf_05.py under exact sole writer. Extend read_api/ukraine.py and assets.py only if the admitted producer bridge requires them. builders/demography.py is an examined nonmatching producer, not an automatic write lease.",
+    "state": "not_established; no codelease, local producer or productionauthority invented"
+  },
+  "B19_B36": {
+    "exact_requirements_ref": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/scoped-requirements.json",
+    "status": "Named C10 partner/typed-transform/input requirements remain open; initial finite material basis and119fixtures do not close them."
+  },
+  "production_positive": "C10 selected actual request/output plus authentic L01/L02 supported source/profile tuple required; paired ownfixtures stay own-base bounded.",
+  "formal_closure_ids": []
+}

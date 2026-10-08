@@ -1,0 +1,337 @@
+{
+  "G": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "CAT": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+  "R2_tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+  "state": "UNAPPLIED_SUPPLIER_QUALIFIED_HELD",
+  "paths": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-c05-catalog-profile-currentness.toml",
+      "folder": "/workspace/orch02-r2/c05/g-patch/00",
+      "merge_exit": 0,
+      "G_sha256": null,
+      "CAT_sha256": null,
+      "R2_sha256": "3e10fb94ab32847bcf4a899556ae839261bb797a16744427e7b809cfd5366da1",
+      "postimage_sha256": "3e10fb94ab32847bcf4a899556ae839261bb797a16744427e7b809cfd5366da1",
+      "postimage_bytes": 2409,
+      "preimage_blob": null,
+      "postimage_blob": "ed976b6fe22e57bf37ae63f3ec89854a5cabee1e",
+      "conflict_resolutions": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md",
+      "folder": "/workspace/orch02-r2/c05/g-patch/01",
+      "merge_exit": 1,
+      "G_sha256": "488cc5139b5e208a3b9341d391c48c876f5e02e8dcecd7b9117eb19d94431d72",
+      "CAT_sha256": "0eaaf0432d18d2cba4f9aa762a0fb17e379ecb3f65f86e4f469c106aa1187d83",
+      "R2_sha256": "b0e91417c5e07dab4b4d9066a9be2afa99e4316e2095223714f872efdc428c03",
+      "postimage_sha256": "f0d8abf8b463b74a6e05569f5b5f3bb51f7ffba9f768206b9be6cfdc233b33ea",
+      "postimage_bytes": 7635,
+      "preimage_blob": "4f40f366c18ab5e17f4c5ff22fb5337923304208",
+      "postimage_blob": "ec145d1cc7bc1bacd954131db5952348f3bf68b9",
+      "conflict_resolutions": [
+        {
+          "G_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "CAT_sha256": "8d89ccb90816de2d942aed3cd6134d0dbd9355d434ac39a5ac7c61ed4a0dbed1",
+          "own_sha256": "ad8d1c3bbf86e6d4a946743715a12f3320677e135148a68d27a3944027558896",
+          "resolution": "owned changed contract"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "folder": "/workspace/orch02-r2/c05/g-patch/02",
+      "merge_exit": 4,
+      "G_sha256": "a36c29470453ce0a5465a8f7ed9cb5c2c9f890c8d4bae098c05dd37fd2aa941b",
+      "CAT_sha256": "2e701953fb196a961b863d5512ff77b63f51d799a7cd2354892d2d22fc180aad",
+      "R2_sha256": "8c7de1ad05e53e192beddbe0c307951d12deb54ad3fa16af078de2d9af8d5583",
+      "postimage_sha256": "b2dd44851993386b426b4fa8941fe76e512e8274609fcf9e2731df391b980bd9",
+      "postimage_bytes": 15766,
+      "preimage_blob": "f688aee6a609a5d7e7c7f656cef89659928783c0",
+      "postimage_blob": "55f6ee8c171b775004d9ff92fcbea5c1f1691163",
+      "conflict_resolutions": [
+        {
+          "G_sha256": "10c0ced64ad2be8b72de55102169bfe7aace78d2e7f655f7c645f0c10f8865ad",
+          "CAT_sha256": "e2f45e5b450a040957f86b0d284e08d328727a17ef709e340f5424f02d266145",
+          "own_sha256": "413e382fd85ccd93b90fc46b8b4ece8bb30287d9e18dec25db76aa8291d6310a",
+          "resolution": "owned changed contract"
+        },
+        {
+          "G_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "CAT_sha256": "8b45de04bcf34820a3b3e6a7a7862e6c61ab3a6800d8378956f248d037154bab",
+          "own_sha256": "bd456a566995d958a853de36a3bbdff966c4b88d0e49739417656a442fcd36ea",
+          "resolution": "owned changed contract"
+        },
+        {
+          "G_sha256": "2a9e643d2cb86b42b29fec44e10feb63e31ed6617ea8e3eae1fa886497cd8519",
+          "CAT_sha256": "aaba09abcf97af49aea30b272367d24a3c1acefa06ca5d06d289238cfb9c7edd",
+          "own_sha256": "e53dfd6f273f0a348840570ffb44262c738e9a859b8d23a1671ef5853a0743a3",
+          "resolution": "owned changed contract"
+        },
+        {
+          "G_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "CAT_sha256": "4e4a4a92cf551ad7e3b7d9888a45095700229d6e5180809ec71108d6e54a712b",
+          "own_sha256": "3adcb6718554eb3e878b077d232a752ded64b2d4d675352dbeee325b43628341",
+          "resolution": "owned changed contract"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "folder": "/workspace/orch02-r2/c05/g-patch/03",
+      "merge_exit": 3,
+      "G_sha256": "fd7b207553fc7ec7e0747a5981ab93c3c9469639fbd214e9eda7edd423fb7574",
+      "CAT_sha256": "21df92502db9ad60ab40da24a0ab93ab027ad2c5b8841b908f03582dbedcb640",
+      "R2_sha256": "77b96c01d3f05ee36132d801a87b2cfd6df9d4b3e786a25a219036995e74a6ab",
+      "postimage_sha256": "2a337ff66a133a0b44b4e2491857339fd61af1c864a750f4221b2251011df141",
+      "postimage_bytes": 67933,
+      "preimage_blob": "fb6d0f4d9bbc52b20cbdf0ceec88e411348948ba",
+      "postimage_blob": "a1ddcc3e56f9265090ac6b9c68a3b4c5e631d927",
+      "conflict_resolutions": [
+        {
+          "G_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "CAT_sha256": "ef36f1338931112920a9ade04c7cb04a464e93d613af7600795040a982686f66",
+          "own_sha256": "630683ec031e804b1e35f46cca9141ab46ff405d5625e50a9f26a38499585aa0",
+          "resolution": "owned changed contract"
+        },
+        {
+          "G_sha256": "eb949607de2cb071736bdb1361143ef1df75cda26cce34bf7e5c2dfbca9c9c95",
+          "CAT_sha256": "8e1a6d975d088ee490a55c475fd9223626f662f0c18cd83ed0a607e00d1090cc",
+          "own_sha256": "aa5257d2cdeeb856743917742a21be1e24bcf0d17ee5c6b74bae9f20d5cf2019",
+          "resolution": "owned changed contract"
+        },
+        {
+          "G_sha256": "b1943e0f7fc34e8f027875c0d0002e08141f9623e713d967c692a0ec37e0ff7a",
+          "CAT_sha256": "d5849e6e8af3509a90901f34dbec05bcbd15acadc7faa32fde280849b7242a99",
+          "own_sha256": "5be4403f07f9dcae42e3ae16dbf84625744832ca7f9b3f144f7fe531fa2008d1",
+          "resolution": "owned changed contract"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "folder": "/workspace/orch02-r2/c05/g-patch/04",
+      "merge_exit": 1,
+      "G_sha256": "78d7666e95c310c6ef0e2651135377eb0ecdb71523d95506f4987f799d9b23c4",
+      "CAT_sha256": "6c0b577c76a57a89ba7a54ce48dca9ddd8a3ae58c53fb4736a868e02b8450fcb",
+      "R2_sha256": "0f3dc393ca07fb702db41a7e815d8b04218e275cfbc656c29641ad48edba7c66",
+      "postimage_sha256": "18a16440d6632e1ecf885d11419376c0c9dc7c674514aaead019212a60e9774f",
+      "postimage_bytes": 81958,
+      "preimage_blob": "7f2da42fadbeb5a0ccd1ae8b1d3b2f0e9844a25d",
+      "postimage_blob": "b612813db99cd3490438ce00ac3fa16c512663d2",
+      "conflict_resolutions": [
+        {
+          "G_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "CAT_sha256": "e0f1e700caf07eaba6129c0be823e279dbc77ca8f61a70b3afe4e446774a21e2",
+          "own_sha256": "2077bf45342a2f29c9a9e8843c182ab181fd19110dca287e9cc4a65eb21afce3",
+          "resolution": "G unchanged semantic tokens"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+      "folder": "/workspace/orch02-r2/c05/g-patch/05",
+      "merge_exit": 0,
+      "G_sha256": null,
+      "CAT_sha256": null,
+      "R2_sha256": "27fda210162bfcd1934b17251a54dc1219ed8c4a2407bee3572c64e029521ed5",
+      "postimage_sha256": "27fda210162bfcd1934b17251a54dc1219ed8c4a2407bee3572c64e029521ed5",
+      "postimage_bytes": 1584,
+      "preimage_blob": null,
+      "postimage_blob": "6805747595f68ae20491a59459bebc3ce685ead3",
+      "conflict_resolutions": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "folder": "/workspace/orch02-r2/c05/g-patch/06",
+      "merge_exit": 1,
+      "G_sha256": "589026e8fb6751b04039baed5794e4df152caa15d218805bbb7bffc8ada137fe",
+      "CAT_sha256": "8ccfc12e02dfc6d702afdc42de2e8608627b67250cd42084bd82e1ef2ea094bc",
+      "R2_sha256": "bb582119da0cae49ca12fd85795a528edb8ec4b7d196c63aa480572ee6bd6088",
+      "postimage_sha256": "6d7c492ef6d41acfee180cb197efa68fd5e6a8d2f03d0596c5612b3a36dba58f",
+      "postimage_bytes": 6508,
+      "preimage_blob": "e6dda2023438f9c65f3ee59c5959c154092b11fa",
+      "postimage_blob": "8d8200c4d34e004b99e83711a042f357d4814c04",
+      "conflict_resolutions": [
+        {
+          "G_sha256": "77945db642f48d1a4d87c72fb8ee7869fa8b0e7571f49cb9da8c592d140205b2",
+          "CAT_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "own_sha256": "82759c206a2bac080cdef395e47ed18a432e34f4586e6a6d2fc73013acea4b52",
+          "resolution": "retain G resource import and owned material imports"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "folder": "/workspace/orch02-r2/c05/g-patch/07",
+      "merge_exit": 4,
+      "G_sha256": "95f64bdbd3294850356035827c5289356ad5e8d4990c35e548a4744fb98eaebb",
+      "CAT_sha256": "557a19e085145c2e2ebb31bcd189fb284a17b5221638abffd4f79b354ec13abe",
+      "R2_sha256": "50a95bb57ccc7141bd2003b8939f2ec9ec6d8cdf0fd8b8312a76bba938255c6c",
+      "postimage_sha256": "cd20236baa71abee9770e71708eb723657df1f077a4fa2b00933106e3b20017d",
+      "postimage_bytes": 43305,
+      "preimage_blob": "115db3f1239630ef609e2bc69f9f0922a0c198cd",
+      "postimage_blob": "cadcf79acb5082c69749ae31752f1876cb1af1a9",
+      "conflict_resolutions": [
+        {
+          "G_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "CAT_sha256": "b07a025d81fee231583d07880ec8c005182f72cb1626d592c42a6bb72879382e",
+          "own_sha256": "5f4746463608a4d33f88ab83cf379cfe212920cb642964721cb91b9dc00ec981",
+          "resolution": "owned changed contract"
+        },
+        {
+          "G_sha256": "28304ee8e5c9853f2d0c9ea6914f013d5bdeeeabc30972705571d76b370d0eb2",
+          "CAT_sha256": "0e361d91b9854b4b33f889b5466d53118d98a0e57e491071d0291b586ace40bb",
+          "own_sha256": "c327a213ca60c83ee386a799295fc67a8994dfebd4851e28654ea27e9ffc7fa2",
+          "resolution": "owned changed contract"
+        },
+        {
+          "G_sha256": "7f32edac927bf7ffe8357cedaaea88560ef5f3caa0091c653a96eefa68dda3df",
+          "CAT_sha256": "3b6f207b57eb3e7c2cd629f93a3db01f3ab62ed7c480dc489ac55642c6919b94",
+          "own_sha256": "241aa5acc3096a61e353685d92d521988af4daf8dc8df8ca9e9c68365b491791",
+          "resolution": "owned changed contract"
+        },
+        {
+          "G_sha256": "f073ff51241e0c991491b7f2e111c8d6c52466aa90a8aabc5922aec722a13dfa",
+          "CAT_sha256": "6ff01b5242d415224e5745e68e1021cf5f099102a73ed809b56026dc4970fae8",
+          "own_sha256": "b4c68a81c6eb38258e2e1a95b18637a08cd3c7fc4fe4de72f82d08fe0d6cb8ee",
+          "resolution": "G unchanged semantic tokens"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dfi_03.py",
+      "folder": "/workspace/orch02-r2/c05/g-patch/08",
+      "merge_exit": 4,
+      "G_sha256": "4a3dba132870dffe82ae94b331698b276e940139c4454a03194d86359804422f",
+      "CAT_sha256": "1c42de909fb1669d09e58cd6d69a7514fe2bff5a8b94a303ac2ff9108f4c0040",
+      "R2_sha256": "b31d482cf884714da9d2616dfede54287c0cbe4c576fbf7ea791305bf4e70a5f",
+      "postimage_sha256": "7cc838c00d0549ee0747e4d585554d44fd8fdbf4f2f55ee02aab653952132828",
+      "postimage_bytes": 83427,
+      "preimage_blob": "e61580cd72b37ab1e430f335174e694eba58c4ad",
+      "postimage_blob": "fa569469fc043c5bbdcb3bb64cd80f0870761d94",
+      "conflict_resolutions": [
+        {
+          "G_sha256": "276f12832e284f449f63fecb8305dd9f4f56075ce15d461a86f4fd207843b50d",
+          "CAT_sha256": "ec239d78ff269f21c8f4c91fee9dc319d355c9e3057ab6838c684e4f29c6e729",
+          "own_sha256": "b2b872d8e1e042ab1a8455d92cecd31c31b5b769fb4fcb8b7e7c9f735c8031c9",
+          "resolution": "G unchanged semantic tokens"
+        },
+        {
+          "G_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "CAT_sha256": "f686322b1302da4c0cd3dc537882b6d729924efd79a39b4df12569ebdb463fb8",
+          "own_sha256": "ab59bd91406ee58ecddb113e653b515213c9b9e8caa29e95f83f4a1d62635bb8",
+          "resolution": "owned changed contract"
+        },
+        {
+          "G_sha256": "fd85020ebc53e4ac3a46f5271056a98bc5127a3aef9118e8a7fa59edca7b8eb8",
+          "CAT_sha256": "329fe2980417733f5c11ddad797aa70bc17a694e5bf7ff890f6ec1f25f5b0822",
+          "own_sha256": "061ecc2827ab6a378dbe47dbd8c9da6c184abedfccac22d412d095f87796c11b",
+          "resolution": "G unchanged semantic tokens"
+        },
+        {
+          "G_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "CAT_sha256": "546b90d0341b95936c74af404ac74cc21f538b0924bc5907c6aa11ed56fe0ed5",
+          "own_sha256": "f29898a6603684f0ecc2d19bd8174e157d9f04420b7e9ddeb00063afa20e97af",
+          "resolution": "owned changed contract"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dfk_02.py",
+      "folder": "/workspace/orch02-r2/c05/g-patch/09",
+      "merge_exit": 0,
+      "G_sha256": "d46249ac5481d4e46250c3db0d817be57e01b96a7aa04e1ba81d04f33d123ddd",
+      "CAT_sha256": "b7c855565f136f23414e56385b47f97b5044e255d0d262ff1de71d7d42709c00",
+      "R2_sha256": "4c82ba30b9f3fefd746a4aea29f1d6a736351f9748193333db2e79dd480c2439",
+      "postimage_sha256": "662ae5dcf3282923bcac3d73131f971b5fd517c7f084b39281a597acc2ed7e2b",
+      "postimage_bytes": 11233,
+      "preimage_blob": "1e8263b473c448fc39a85e6169d305079b51050c",
+      "postimage_blob": "a2ebcd1f62a399be31529b158eb895e8360ef6b9",
+      "conflict_resolutions": []
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-c05-loader-contracts-r2.toml",
+      "folder": "/workspace/orch02-r2/c05/g-patch/10",
+      "merge_exit": 0,
+      "G_sha256": null,
+      "CAT_sha256": null,
+      "R2_sha256": "9bd5469d0ab50121ebef02f4d3357c54eaacc8d1d3b0b722eaaa29758fb32171",
+      "postimage_sha256": "9bd5469d0ab50121ebef02f4d3357c54eaacc8d1d3b0b722eaaa29758fb32171",
+      "postimage_bytes": 1485,
+      "preimage_blob": null,
+      "postimage_blob": "bb6a754bdb2dcdf2afcc2be9e3ed5cc169c309bf",
+      "conflict_resolutions": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+      "folder": "/workspace/orch02-r2/c05/g-patch/11",
+      "merge_exit": 0,
+      "G_sha256": "47900cf9a05067a27e17d149ffd11228ce6259794264f43ce58cccdb059466b0",
+      "CAT_sha256": "86ba6f9022c385ae8f031a7d7d2e67eabe348a074c7d8ddaf712e3d381270412",
+      "R2_sha256": "86ba6f9022c385ae8f031a7d7d2e67eabe348a074c7d8ddaf712e3d381270412",
+      "postimage_sha256": "86ba6f9022c385ae8f031a7d7d2e67eabe348a074c7d8ddaf712e3d381270412",
+      "postimage_bytes": 9655,
+      "preimage_blob": "19ca41eead188afac99ed21cca386c460763e15d",
+      "postimage_blob": "b1b60eefd5513ebdf717bdd4eb39b1bbd9538eac",
+      "conflict_resolutions": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py",
+      "folder": "/workspace/orch02-r2/c05/g-patch/12",
+      "merge_exit": 0,
+      "G_sha256": "a7393c3234f6fdb5b39aa19542497e26d7855bfba5284685fcf376391b7af4e5",
+      "CAT_sha256": "081a4790578f1f023c0990af074bcffdc52c6ed144bfae2607427311731a3898",
+      "R2_sha256": "081a4790578f1f023c0990af074bcffdc52c6ed144bfae2607427311731a3898",
+      "postimage_sha256": "081a4790578f1f023c0990af074bcffdc52c6ed144bfae2607427311731a3898",
+      "postimage_bytes": 7878,
+      "preimage_blob": "0a2dcac138f0c0bfa82425542b8c4a8212e63f84",
+      "postimage_blob": "98769e8dca53ff2e49a4244ab28a79aa0b91d4c6",
+      "conflict_resolutions": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/selection.py",
+      "folder": "/workspace/orch02-r2/c05/g-patch/13",
+      "merge_exit": 0,
+      "G_sha256": null,
+      "CAT_sha256": "b1759577b117ab5400db47913b1eef05d0d54684adf0b8b91831616297471de8",
+      "R2_sha256": "b1759577b117ab5400db47913b1eef05d0d54684adf0b8b91831616297471de8",
+      "postimage_sha256": "b1759577b117ab5400db47913b1eef05d0d54684adf0b8b91831616297471de8",
+      "postimage_bytes": 5458,
+      "preimage_blob": null,
+      "postimage_blob": "5b98667f1929a9390b175167884bc2b1fa6d759b",
+      "conflict_resolutions": []
+    }
+  ],
+  "git_apply_check_exit": 0,
+  "patch_sha256": "0e17f271cda9f8f4db077281e376a3dbf81c9f9be42b93862b521ca7684eca77",
+  "patch_bytes": 166912,
+  "G_native_claim": false,
+  "r2_source": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+  "public_seam_requirement": "foreign-public-companions.patch: canonical aliases must be selected before the proposed root imports can resolve",
+  "formal_closure_ids": [],
+  "apply_checks": [
+    {
+      "name": "owned",
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "/workspace/orch02-r2/c05/g-patch/owned-g-proposal.patch"
+      ],
+      "cwd": "/workspace/orch02-c05-r2-gproposal",
+      "exit_code": 0
+    },
+    {
+      "name": "combined",
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "/workspace/orch02-r2/c05/g-patch/owned-g-proposal.patch",
+        "/workspace/orch02-r2/c05/g-patch/foreign-public-companions.patch"
+      ],
+      "cwd": "/workspace/orch02-c05-r2-gproposal",
+      "exit_code": 0
+    }
+  ]
+}

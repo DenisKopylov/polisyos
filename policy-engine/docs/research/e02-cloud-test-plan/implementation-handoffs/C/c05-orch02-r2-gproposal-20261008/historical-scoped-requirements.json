@@ -1,0 +1,209 @@
+{
+  "schema": "policyos.e02.c05.scoped_requirements.v1",
+  "date": "2026-10-08",
+  "original_unit": "C",
+  "execution_role": "C05",
+  "fetched_G": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "technical_source_candidate": {
+    "sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+    "tree": "47950716278e09cd1c4ddf6fa0acefbcdd013e50"
+  },
+  "scope": "Read-only partner architecture and exact unresolved-input/lease requirements. No source change for LA-032, B19 or B36. None is closed by the finite C05 material-input implementation.",
+  "formal_G_closure": "not_adjudicated",
+  "source_packet_refs": [
+    {
+      "recovery_name": "c05-leaf.json",
+      "git_blob": "4df4a942553603746d349dd82c5f22eaaad7e062",
+      "sha256": "b1a8adf075fb0d2868b1809fd981041fab67c66c6a1a062b6089b15733867c0a",
+      "bytes": 33508,
+      "status": "identity verified; historical source-reported packet, no new execution or authority admission"
+    },
+    {
+      "recovery_name": "l01-s1-source-facts.json",
+      "git_blob": "ade3547eaff26ac6b4acaca861e4e92becaeae74",
+      "sha256": "9dd92d6a8e23f3bf20acec3631f74d7cf8825767702b87cee419a272a9642782",
+      "bytes": 19963,
+      "status": "identity verified; historical source-reported packet, no new execution or authority admission"
+    },
+    {
+      "recovery_name": "l01-c-factual.json",
+      "git_blob": "ef0a4f87fac08b9b0d58044176a9e79274a1a9de",
+      "sha256": "17f80b522b01e0c25385c250bb0411af98d033fed1972e07d238015d483a5f77",
+      "bytes": 29831,
+      "status": "identity verified; historical source-reported packet, no new execution or authority admission"
+    },
+    {
+      "recovery_name": "l02-i4-preparation.json",
+      "git_blob": "f7dd69e939ded4c3aa840c3a15af4a0ae11b2384",
+      "sha256": "899d03373a461ae1763162b5b626b0b5d95f76e874fc01427a97603705b9528b",
+      "bytes": 33068,
+      "status": "identity verified; historical source-reported packet, no new execution or authority admission"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "LA-032",
+      "original_owner": "C-W19/UDF-05",
+      "decision_owner": "G",
+      "partners": [
+        "C05 research",
+        "L01 factual supplier",
+        "L02 exact admitted consumer"
+      ],
+      "original_criterion": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "lines": [
+          1668,
+          1715
+        ],
+        "span_sha256": "5f5c7a56a652a0328e25fd8b6091a2f780750d9eaee8f10c0129b2f9f0609cf2"
+      },
+      "required_property": "One versioned source-to-state-ID/target/prior/donor inventory admitted through producer/artifact/bridge and consumed by all four public readers; identity conflicts, incomplete or stale membership, inaccessible blobs and mixed versions refuse while historical numerical results remain reproducible.",
+      "existing_L01_demonstrated_quantity": {
+        "source_identity": {
+          "carrier_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "inspected_G_source_sha": "fe5ccf9ce90c336fff749da48bd0138d321baf23"
+        },
+        "packet_pointer": "l01-s1-source-facts.json#/findings/0",
+        "producer_fixture": "Existing L01 probe creates synthetic temporary mixed members: new targets plus legacy priors and donor. This fixture producer demonstrates reader divergence and carries no demographic source authority.",
+        "probe_path": "policy-engine/_build/e02-L01-20261008/agents/s1/probe_la032_four_readers.py",
+        "reported_command": "cd policy-engine && PYTHONPATH=src uv run --no-sync python _build/e02-L01-20261008/agents/s1/probe_la032_four_readers.py",
+        "reported_deciding_output": "evidence/la032-stdout.txt: sibling origins new_targets, legacy_priors, legacy_donor; composite refuses incomplete/mixed layout.",
+        "existing_test_selector": "tests/unit/remediation/test_udf_05.py::test_mixed_targets_and_priors_fail_before_component_composition",
+        "evidence_boundary": "Carried L01 source-reported observational discriminator; original deciding stdout not transferred in this recovery. No new probe or local producer created, no production prevalence or inventory authority inferred.",
+        "current_G_reconciliation": "Exact current G reader blob equals inspected historical reader blob: composite uses one complete layout, while three siblings resolve first-existing members independently."
+      },
+      "current_source_paths": [
+        {
+          "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+          "git_blob": "32d925f0d443ea61c08b16986b87ed053dd8c9a8",
+          "mutation_lease": "not_granted"
+        },
+        {
+          "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+          "path": "policy-engine/src/polisyos/data_forge/read_api/ukraine.py",
+          "git_blob": "061441cccf7f52e8fdea33a4c63b47dd95372dad",
+          "mutation_lease": "not_granted"
+        },
+        {
+          "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/assets.py",
+          "git_blob": "e4777998cda09a03d07de261c73835b4433df83d",
+          "mutation_lease": "not_granted"
+        },
+        {
+          "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/static_aging.py",
+          "git_blob": "c3e39f2ff71557ef1169dd70640ae2cde85452cd",
+          "mutation_lease": "not_granted"
+        },
+        {
+          "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography.py",
+          "git_blob": "e22295965423ce472babfe2171b6bd883c1dd537",
+          "mutation_lease": "not_granted"
+        },
+        {
+          "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/common.py",
+          "git_blob": "97c1f1dca8db13dc6409919ca2cf81feea43d997",
+          "mutation_lease": "not_granted"
+        },
+        {
+          "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+          "path": "policy-engine/tests/unit/remediation/test_udf_05.py",
+          "git_blob": "e7d2a6ee74913664d363242d53ea1d0c387c5a2e",
+          "mutation_lease": "not_granted"
+        },
+        {
+          "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+          "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py",
+          "git_blob": "6105b5626a3845dc846e2063e4548178a42d958f",
+          "mutation_lease": "not_granted"
+        }
+      ],
+      "producer_mapping_boundary": "Existing AssetSpecs identify targets, priors and donor-pool assets owned by team-data-forge. Exact configured producer of these demographic members is not established in the examined builder/reader/read-API/assets scope. build_d3_stage in builders/demography.py emits household/labor observations and calibrated cells, not targets/prior/donor inventory; do not relabel D3 or create another local producer. C-W19/L01 must map the existing configured target/prior/donor producer on its latest authoritative freeze before G extends its lease.",
+      "smallest_existing_capability_option": "extend-existing: feed all four current public reader functions through the existing complete-layout selector and a versioned immutable member inventory from the actual configured member producer. Reuse VerifiedUkraineStageArtifacts or existing CAS/GenerationBasis for path/content binding only; add demographic completeness/semantic verification under C-W19. Generic binding is not source authority.",
+      "named_reader_functions": [
+        "load_reconciled_targets",
+        "load_transition_priors",
+        "load_donor_pool",
+        "load_demography_artifacts"
+      ],
+      "minimal_factual_fields": [
+        "state identifiers with explicit order and their source mapping",
+        "target and entrant definitions and source/member refs",
+        "prior origin/destination axes, derivation and time semantics",
+        "donor present versus intentionally absent, with member/source mapping when present",
+        "producer identity, source profile, schema/rule version, relevant epoch/time and content-bound member refs"
+      ],
+      "proposed_lease": "G confirms latest C-W19 producer/member writer path before source mutation; minimal reader lease demography/__init__.py plus mirrored test_demography_artifacts.py or existing test_udf_05.py under exact sole writer. Extend read_api/ukraine.py and assets.py only if the admitted producer bridge requires them. builders/demography.py is an examined nonmatching producer, not an automatic write lease.",
+      "adversarial_oracle": "Reuse the exact L01 mixed new-target/legacy-prior/donor scenario for all four public consumers. Add missing, forged, swapped, wrong-order, stale-rule, inaccessible and same-stat member replacement variants against one admitted inventory; optional donor omission must be explicit/versioned. Existing numerical fixtures remain a preservation control.",
+      "capability_state": [
+        "producer_missing",
+        "artifact_missing",
+        "bridge_missing",
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "predicate_basis": {
+        "member-byte binding primitives": "recomputed",
+        "actual demographic source mapping and inventory completeness": "not_established",
+        "historical L01 execution": "source-reported navigation only"
+      },
+      "state": "held; source inventory authority not_established; no code lease"
+    },
+    {
+      "id": "B19",
+      "original_owner": "A/SIM-03",
+      "lead": "C08",
+      "consumer_writer": "C10",
+      "C05_scope": "research/supplier contract only",
+      "original_criterion": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines": [
+          425,
+          438
+        ]
+      },
+      "requirement": "Persist the actual source-selected factual state/value and EvidenceStateRef comparator for the same model, outcome, unit, population/geography, time/horizon and intervention scope. Reuse existing DataSnapshot/world-model seams after G confirms exact supplier path; no fabricated zero baseline.",
+      "discriminator": "Observed factual100 and no-op must produce individual effect0 and joint effect0 through the actual C10 consumer. Changed factual100→120, absent comparator, foreign model/horizon/scope, source-mutated state and wrong joint baseline must discriminate; missing comparator is refusal/unavailable, never zero.",
+      "next_exact_input_and_lease": "C08/C10 provide admitted source/model/horizon comparator identity and exact existing supplier/consumer pins; G confirms supplier path lease if outside C05 ownership. Generic no-op/missing/foreign controls do not require production data.",
+      "state": "required; not executed or source-admitted by this C05 slice"
+    },
+    {
+      "id": "B36",
+      "original_owner": "A/SEL-01",
+      "lead": "C10",
+      "consumer_writer": "C10",
+      "C05_scope": "research/transform supplier contract only",
+      "original_criterion": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines": [
+          682,
+          699
+        ]
+      },
+      "requirement": "Preserve the required panel modality when only a tabular Catalog candidate is available. Use an existing admitted typed transform producer/compiler with input/output modality, units, schema, content/rule and lineage; verify its persisted panel output through an independent fresh reader before selection, or explicitly refuse unsupported conversion.",
+      "discriminator": "Tabular-only availability must retain the panel requirement and report unsupported/unavailable until an actual typed transform produces a valid panel. A copied required-modality label or compiled marker without the panel output must fail the same consumer.",
+      "next_exact_input_and_lease": "G names and grants the canonical existing transform-producer path; currently unallocated. C10 owns consumer and actual output/refusal surface. Generic typed refusal proceeds without full production input.",
+      "state": "required; transform supplier path/lease not_established; no code"
+    }
+  ],
+  "I4_served_positive_requirement": {
+    "owners": [
+      "C10 actual incoming request/HTTP or NL/acquisition consumer",
+      "G contract/public companions and source acceptance",
+      "L01 actual configured source/profile nonsecret input facts",
+      "L02 exact admitted authentic read-only consumer"
+    ],
+    "property": "Actual incoming request supplies supported typed CatalogRunProfile to retrieval.resolve on the selected source and returns its actual output; missing/foreign/disabled mandatory source profile refuses. Native Catalog fixtures verify the owned internal reader only.",
+    "smallest_existing_capability_option": "Wire the existing CatalogSourceRegistry/shared selection/retrieval into the canonical request context; no new registry, default profile or parallel caller.",
+    "missing_minimum": "Exact C10 consumer/source pins and accepted I1 source composition; L01 lawful source purpose/profile and opaque local member/source aliases; L02 exact ordinary request positive/refusal/removal on that composition. Full production payload is unnecessary for generic fixture verification.",
+    "current_state": "Production served positive UNRUN/not_established; C05 own-base finite material implementation and internal retrieval tests do not supply this bridge or close I4."
+  }
+}

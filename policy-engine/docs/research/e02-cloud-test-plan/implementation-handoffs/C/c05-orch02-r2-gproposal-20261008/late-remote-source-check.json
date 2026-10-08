@@ -1,0 +1,33 @@
+{
+  "schema": "policyos.ORCH02.r2.late_remote_source_check.v1",
+  "utc": "2026-10-08T20:06:00.134010+00:00",
+  "command": [
+    "git",
+    "fetch",
+    "origin",
+    "refs/heads/codex/e02-integration:refs/readback/orch02-r2-final/G",
+    "refs/heads/codex/e02-C10-recovery-20261008:refs/readback/orch02-r2-final/C10"
+  ],
+  "returncode": 0,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "5fdc465dad5290982e28a9fb4a04d4f4dc8e74e746d079869321e7cda0217377",
+  "sources": {
+    "G": {
+      "fresh_remote_head": "dee58973f7673299070b7c7374f419b0adb8175c",
+      "pinned_head": "dee58973f7673299070b7c7374f419b0adb8175c",
+      "same_head": true,
+      "fresh_tree": "4caee698bd9a6c61277a1608bb38376b669f0372",
+      "complete_delta_paths": [],
+      "product_delta": []
+    },
+    "C10": {
+      "fresh_remote_head": "8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+      "pinned_head": "8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+      "same_head": true,
+      "fresh_tree": "124dc6e5746716ade61e5d9d6d8633009db48315",
+      "complete_delta_paths": [],
+      "product_delta": []
+    }
+  },
+  "source_acceptance": "not_issued"
+}

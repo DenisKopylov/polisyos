@@ -17,7 +17,7 @@
   "tuple": {
     "source_alias": "LOCAL_DATA_ROOT_01",
     "manifest_alias": "L01_ROOT_MANIFEST_20261008",
-    "bundle_manifest_alias": "L01_UKRAINE_BUNDLE_MANIFEST_01",
+    "bundle_manifest_alias": "L01_L6_BUNDLE_MANIFEST_01",
     "profile": "research (owner default, not an admitted served profile)",
     "purpose": "L6 intervention substrate / observation-method routing",
     "time": {
@@ -53,7 +53,7 @@
     ]
   },
   "reconciliation": "Exact descriptor path relative to the bundle manifest declared root, then under the root-manifest-nominated current bundle root. No basename search or directory census. Relocation legitimacy is not established.",
-  "consumer": "default_l6_bundle_paths→load_l6_intervention_substrate; generation_cycle._value_method_route_constraint consumes loaded substrate and supplied observation manifest. production_data.apply_production_data_defaults separately promotes named Ukraine paths. These source facts do not establish that an ordinary served request resolves this relocated root; L02 must bind its exact recipe.",
+  "consumer": "default_l6_bundle_paths→load_l6_intervention_substrate; generation_cycle._value_method_route_constraint consumes loaded substrate and supplied observation manifest. production_data.apply_production_data_defaults separately promotes named substrate paths. These source facts do not establish that an ordinary served request resolves this relocated root; L02 must bind its exact recipe.",
   "predicates": {
     "manifest profile/version/time and expected descriptors": "owner_supplied",
     "named root→bundle checksum and selected member comparisons": "recomputed",
@@ -61,7 +61,7 @@
   },
   "held_transition": "Authentic L6 positive on this nominated pair: knob and Lex-map bytes do not match their descriptors. No HTTP POST attempted and no runtime defect inferred.",
   "minimum_next_input": {
-    "supplier": "Custodian of the nominated Ukraine/L6 bundle; human supplies exact existing custody reference if it is not in configured records",
+    "supplier": "Custodian of the nominated L6 bundle; human supplies exact existing custody reference if it is not in configured records",
     "fields": [
       "one existing matching bytes/manifest pair OR existing versioned replacement manifest for the changed bytes",
       "issuer/owner and validity/currentness for the protected admitted profile"
@@ -71,8 +71,8 @@
   "independent_continuation": "Bounded numeric/N5/N8/selector mechanisms; no blanket production prerequisite.",
   "local_receipts": [
     "policy-engine/_build/e02-L01-restart-20261008/private/root-manifest.json",
-    "policy-engine/_build/e02-L01-restart-20261008/private/ukraine-bundle-manifest.json",
-    "policy-engine/_build/e02-L01-restart-20261008/private/l6-selected-bindings.json"
+    "policy-engine/_build/e02-L01-restart-20261008/private/l6-selected-bindings.json",
+    "policy-engine/_build/e02-L01-restart-20261008/private/public-alias-index.json#/L01_L6_BUNDLE_MANIFEST_01"
   ],
   "falsifier": "Preserve manifest/profile names but change nominated member bytes: declared provenance still exists while byte binding fails (observed on knobs and Lex map)."
 }

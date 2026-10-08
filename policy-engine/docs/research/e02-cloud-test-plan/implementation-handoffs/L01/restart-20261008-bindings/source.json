@@ -120,6 +120,31 @@
       "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B56.json",
       "git_blob": "54ae503a1a4d18b704c0f5a7bf37fa73f65a7af4"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+      "git_blob": "9584c2a30ef59cd0dbdfdad1186bc0d2c9032c6f"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/workspace_loop_transition.py",
+      "git_blob": "7aa3be95b44f8c5d8c17feaa804be563a30869bf"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/scientist/api.py",
+      "git_blob": "00a723f27c161fd8304d494e24525ffd9529c378"
+    },
+    {
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/workflows/builder.py",
+      "git_blob": "52de4ccb6a4d9989265c8c2b4213dd02bf8b048f"
     }
   ],
   "original_criteria": [

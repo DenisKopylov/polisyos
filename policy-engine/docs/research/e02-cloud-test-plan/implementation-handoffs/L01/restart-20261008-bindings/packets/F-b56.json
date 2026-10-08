@@ -14,7 +14,7 @@
   "criterion_scope": "Across the actual shared admitted Runtime workload, bound aggregate work and preserve jobs/folds/repeats/seeds, waits, numeric results and provenance; measure time/RSS/active workers/waits. Historical 15/60 is configuration arithmetic.",
   "tuple": {
     "source": "Current G F/B56 receipt and C01 Runtime admission task",
-    "consumer": "DurableControlWorker→RunLifecycle→run_experiment→sync_run_causal_full",
+    "consumer": "Source-only generic control route: ControlWorker.dispatch_once→_run_with_lease_heartbeat→ControlPlaneService._process_control_job→persisted admission→_process_control_job_admitted. Source workspace-loop transition callers reach _run_legacy_scientist_workflow→run_experiment→run_selected_workflow; actual B56 admitted study workload/selection remains not_established.",
     "named_workload": "not_established",
     "profile": "not_established",
     "shared_permit_and_budget_unit": "not_established",
@@ -33,9 +33,11 @@
   "predicates": {
     "existing tracked task/owner assignment": "owner_supplied",
     "exact G source and B56 receipt identities": "recomputed",
-    "deployment workload/permit/cap/roster/effective profile": "not_established"
+    "deployment workload/permit/cap/roster/effective profile": "not_established",
+    "generic control dispatch and separate scientist/legacy source callers": "recomputed"
   },
   "held_transition": "Authentic aggregate competing Runtime workload witness; no workload measured in L01.",
   "independent_continuation": "Existing portable pool/fold mechanisms; no repeated capacity-default diagnostic or universal CPU quota.",
-  "falsifier": "Two per-instance caps can each pass while combined admitted work exceeds one supposed shared cap. Source defaults and a single pool fixture cannot establish the actual shared owner."
+  "falsifier": "Generic control dispatch and a source-level workflow caller can exist without any named competing B56 job set or shared cap; two per-instance caps can also pass while aggregate admitted work exceeds a common cap. Neither fact supplies the actual Runtime workload.",
+  "source_qualification_correction": "The inherited F carrier strings DurableControlWorker/RunLifecycle/sync_run_causal_full are a historical lead, not current source symbols or a verified B56 runtime recipe. Current code uses ControlWorker and ControlPlaneService. No protected workload witness follows from generic dispatch."
 }

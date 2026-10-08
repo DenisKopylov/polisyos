@@ -1,0 +1,56 @@
+{
+  "schema": "policyos.e02.dependency_packet.v1",
+  "execution_role": "C07",
+  "source_unit": "E",
+  "original_finding_owner": "A",
+  "finding_id": "B31",
+  "bundle_id": "EMP-01",
+  "packet_owner": "C07 IR uncertainty supplier",
+  "consumer_owner": "C10 generation/ValuePort",
+  "source_basis": {
+    "G_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "G_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+    "A_readonly_sha": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+    "E_readonly_sha": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c"
+  },
+  "original_criterion": {
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "lines": [
+      593,
+      606
+    ],
+    "byte_binding_sha256": "9311ba1b0fb2e6a3f180546c6118406c5781dbbfb57e27b28075b95a92fe371f"
+  },
+  "existing_capabilities": [
+    "EstimandASTRef and normalized EstimandAST",
+    "ArtifactStore.get_bytes/get_manifest",
+    "InputRef(artifact_id,role)",
+    "UnitSpecType including rate ratio/percent",
+    "ValueOuterSet.from_persisted_payload",
+    "UncertaintyEnvelope 1.1"
+  ],
+  "proposed_specific_contract": {
+    "subject": "Versioned ValueArtifactSubject in existing uncertainty owner; exact EstimandASTRef, outcome, contrast values, population, typed unit, identity scale, relevant time/epoch and source/model refs",
+    "producer_lineage": "Each actual identification/native-uncertainty output records exactly one InputRef(role=value_subject) plus its complete declared estimand/source/model input roster. Persisted subject contains exact typed refs, never an authoritative boolean.",
+    "relation": "Persisted ValueSubjectRelation seals both output refs, resolved subjects and manifest/content identities. Fresh reader recomputes current inputs/subject/unit equality. Pure content consistency retains production_value_eligible=false.",
+    "unit_profile": "Equivalent typed units; exact ratio/percent scaling only. No FX, calendar, welfare or nonlinear transformations invented."
+  },
+  "minimum_C10_packet": [
+    "Exact producer source SHA/tree and supported identification/native artifact kinds/payload paths",
+    "Actual producer-persisted identification/native refs and complete InputRef roster; canonical estimand/source/model/population/contrast/unit/time/epoch",
+    "Specific current existing Runtime/verifier admission provenance/context and fresh consumer challenge required by that admitted supplier; a caller-constructible NativeValueEstimandBinding or fake ProofBundle is insufficient",
+    "Fresh ValuePort receipt/output preserving identification point 4 and native asymmetric interval [1,10]; retained-marker missing/fake/foreign/corrupt ref negatives"
+  ],
+  "actual_current_boundary": {
+    "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+    "observed": "ValueGateReceipt contains ValueOuterSet but no native-uncertainty/subject-relation channel; ValuePortObservation requires actual owner receipts for value_ready. C07 does not edit A consumer or issue its authority."
+  },
+  "factual_input_route": "L01 only if the chosen actual admitted supplier requires unavailable local facts; portable content-join mechanics continue without production data.",
+  "status": {
+    "mechanical_IR_slice": "preparing",
+    "composed_B31_ValuePort_positive": "UNRUN pending exact C10 packet",
+    "G_source_acceptance": "not_issued",
+    "G_finding_closure": "not_issued"
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "schema": "policyos.e02.ORCH04-custody-report.v1",
+  "recorded_utc": "2026-10-08T15:47:04.647836+00:00",
+  "host": "9065c0936350",
+  "canonical_G": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "old_objects": [
+    {
+      "role": "root",
+      "reported_sha": "e2122918ad4aed97bdf1dccd2fd6e96e3ff26248",
+      "local_before_exit": 128,
+      "exact_origin_fetch_exit": 128,
+      "exact_origin_fetch_stderr": "fatal: remote error: upload-pack: not our ref e2122918ad4aed97bdf1dccd2fd6e96e3ff26248\n",
+      "local_after_exit": 128,
+      "fetch_start_utc": "2026-10-08T15:41:51.600007+00:00",
+      "fetch_end_utc": "2026-10-08T15:41:52.035147+00:00",
+      "fetch_pid": 1421,
+      "availability": "unavailable_on_current_host_by_tested_git_and_github_api_channels",
+      "global_absence_claim": false
+    },
+    {
+      "role": "C10",
+      "reported_sha": "a92f57932385d5b3e34063c3d38a6db68c4a6084",
+      "local_before_exit": 128,
+      "exact_origin_fetch_exit": 128,
+      "exact_origin_fetch_stderr": "fatal: remote error: upload-pack: not our ref a92f57932385d5b3e34063c3d38a6db68c4a6084\n",
+      "local_after_exit": 128,
+      "fetch_start_utc": "2026-10-08T15:41:52.046104+00:00",
+      "fetch_end_utc": "2026-10-08T15:41:52.439355+00:00",
+      "fetch_pid": 1429,
+      "availability": "unavailable_on_current_host_by_tested_git_and_github_api_channels",
+      "global_absence_claim": false
+    },
+    {
+      "role": "C11",
+      "reported_sha": "f9903d8e803c17743554a58d3f45c6c66d686191",
+      "local_before_exit": 128,
+      "exact_origin_fetch_exit": 128,
+      "exact_origin_fetch_stderr": "fatal: remote error: upload-pack: not our ref f9903d8e803c17743554a58d3f45c6c66d686191\n",
+      "local_after_exit": 128,
+      "fetch_start_utc": "2026-10-08T15:41:52.450507+00:00",
+      "fetch_end_utc": "2026-10-08T15:41:52.852483+00:00",
+      "fetch_pid": 1437,
+      "availability": "unavailable_on_current_host_by_tested_git_and_github_api_channels",
+      "global_absence_claim": false
+    },
+    {
+      "role": "C13",
+      "reported_sha": "996dea4e17ff1acbdb2d0ef0d90e81956f6d4eda",
+      "local_before_exit": 128,
+      "exact_origin_fetch_exit": 128,
+      "exact_origin_fetch_stderr": "fatal: remote error: upload-pack: not our ref 996dea4e17ff1acbdb2d0ef0d90e81956f6d4eda\n",
+      "local_after_exit": 128,
+      "fetch_start_utc": "2026-10-08T15:41:52.863717+00:00",
+      "fetch_end_utc": "2026-10-08T15:41:53.267784+00:00",
+      "fetch_pid": 1445,
+      "availability": "unavailable_on_current_host_by_tested_git_and_github_api_channels",
+      "global_absence_claim": false
+    }
+  ],
+  "root_named_branch_fetch": {
+    "label": "root-branch-origin-fetch",
+    "argv": [
+      "git",
+      "fetch",
+      "--no-write-fetch-head",
+      "origin",
+      "refs/heads/codex/e02-ORCH04-parallel-20261008:refs/recovery/ORCH04-custody-20261008/root-branch"
+    ],
+    "cwd": "/workspace/polisyos",
+    "pid": 1452,
+    "start_utc": "2026-10-08T15:41:53.276808+00:00",
+    "end_utc": "2026-10-08T15:41:53.634131+00:00",
+    "exit_code": 128,
+    "stdout": "",
+    "stderr": "fatal: couldn't find remote ref refs/heads/codex/e02-ORCH04-parallel-20261008\n"
+  },
+  "old_byte_packets_unavailable": [
+    "root/leaf commit objects, trees, parents and original branch names beyond reported root name",
+    "implementation-handoffs/ORCH04/parallel-20261008/HANDOFF.json",
+    "old progress/source/lease packets and leaf handoffs",
+    "unique unapplied UI patch with exact pre/postimages/source manifest",
+    "exact original canonical DTO validator/intake file from recovered UI patch",
+    "old deciding outputs/reviews and needed ignored receipts"
+  ],
+  "UI_exact_pre_postimage_identities": null,
+  "former_executor_access": "not_established; no ordinary old-export channel succeeded in this session",
+  "independent_tasks": "New own mechanisms can proceed from canonical G and fetched explicit suppliers with fresh lineage/review/evidence; inaccessible old packet only blocks transfer of that packet.",
+  "available_supplier_objects_path": "/workspace/ORCH04-evidence/custody/supplier-objects.json",
+  "git_operation_boundary": "Only read commands and ordinary exact origin fetches targeting new refs/recovery/ORCH04-custody-20261008/*; no source edits, carrier merges, existing-ref overwrites, publication, hooks bypass, history rewrite or production export.",
+  "ordinary_old_executor_recovery_if_later_available": {
+    "condition": "Actual read/export access to the former executor and retained bytes",
+    "source_export": "Create a Git bundle naming the actual root AND each actual C10/C11/C13 leaf branch/ref; separately retain list-heads, each commit/tree/parent identity and full source/test/companion footprint. Root docs receipt alone need not include leaf ancestry.",
+    "additional_bytes": "Ordinary separate file export of unique unapplied UI patch, exact pre/postimages/source manifest, deciding outputs/reviews and required ignored receipts; do not reconstruct these from conversation text.",
+    "identity_admission": "Run git bundle verify and git bundle list-heads; verify exact commits/trees/parents and byte digests. Fetch/import each named bundle ref into fresh recovery refs after checking those targets absent, never overwrite existing refs.",
+    "publication": "Use normal source-qualified topic checks/hooks/push and exact remote readback. New host provisioning is authorized; hooks bypass, force push, history rewrite, production payload export or self-running CI/base64 workarounds are not."
+  }
+}

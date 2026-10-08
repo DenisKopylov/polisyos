@@ -1,0 +1,104 @@
+{
+  "schema": "policyos.e02.custody-api-observation.v1",
+  "tool": "mcp__codex_apps__github_fetch_commit",
+  "repository": "DenisKopylov/polisyos",
+  "observations": [
+    {
+      "role": "root",
+      "sha": "e2122918ad4aed97bdf1dccd2fd6e96e3ff26248",
+      "start_utc": "2026-10-08T15:45:55.645Z",
+      "end_utc": "2026-10-08T15:45:56.089Z",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "GitHub API error 422: {\"message\":\"No commit found for SHA: e2122918ad4aed97bdf1dccd2fd6e96e3ff26248\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#get-a-commit\",\"status\":\"422\"}"
+          }
+        ],
+        "structuredContent": {
+          "error": "GitHub API error 422: {\"message\":\"No commit found for SHA: e2122918ad4aed97bdf1dccd2fd6e96e3ff26248\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#get-a-commit\",\"status\":\"422\"}",
+          "error_code": "INVALID_ARGUMENT",
+          "error_data": {
+            "message": "No commit found for SHA: e2122918ad4aed97bdf1dccd2fd6e96e3ff26248",
+            "documentation_url": "https://docs.github.com/rest/commits/commits#get-a-commit",
+            "status": "422"
+          }
+        },
+        "isError": true
+      }
+    },
+    {
+      "role": "C10",
+      "sha": "a92f57932385d5b3e34063c3d38a6db68c4a6084",
+      "start_utc": "2026-10-08T15:45:55.645Z",
+      "end_utc": "2026-10-08T15:45:56.143Z",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "GitHub API error 422: {\"message\":\"No commit found for SHA: a92f57932385d5b3e34063c3d38a6db68c4a6084\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#get-a-commit\",\"status\":\"422\"}"
+          }
+        ],
+        "structuredContent": {
+          "error": "GitHub API error 422: {\"message\":\"No commit found for SHA: a92f57932385d5b3e34063c3d38a6db68c4a6084\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#get-a-commit\",\"status\":\"422\"}",
+          "error_code": "INVALID_ARGUMENT",
+          "error_data": {
+            "message": "No commit found for SHA: a92f57932385d5b3e34063c3d38a6db68c4a6084",
+            "documentation_url": "https://docs.github.com/rest/commits/commits#get-a-commit",
+            "status": "422"
+          }
+        },
+        "isError": true
+      }
+    },
+    {
+      "role": "C11",
+      "sha": "f9903d8e803c17743554a58d3f45c6c66d686191",
+      "start_utc": "2026-10-08T15:45:55.646Z",
+      "end_utc": "2026-10-08T15:45:56.164Z",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "GitHub API error 422: {\"message\":\"No commit found for SHA: f9903d8e803c17743554a58d3f45c6c66d686191\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#get-a-commit\",\"status\":\"422\"}"
+          }
+        ],
+        "structuredContent": {
+          "error": "GitHub API error 422: {\"message\":\"No commit found for SHA: f9903d8e803c17743554a58d3f45c6c66d686191\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#get-a-commit\",\"status\":\"422\"}",
+          "error_code": "INVALID_ARGUMENT",
+          "error_data": {
+            "message": "No commit found for SHA: f9903d8e803c17743554a58d3f45c6c66d686191",
+            "documentation_url": "https://docs.github.com/rest/commits/commits#get-a-commit",
+            "status": "422"
+          }
+        },
+        "isError": true
+      }
+    },
+    {
+      "role": "C13",
+      "sha": "996dea4e17ff1acbdb2d0ef0d90e81956f6d4eda",
+      "start_utc": "2026-10-08T15:45:55.646Z",
+      "end_utc": "2026-10-08T15:45:56.071Z",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "GitHub API error 422: {\"message\":\"No commit found for SHA: 996dea4e17ff1acbdb2d0ef0d90e81956f6d4eda\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#get-a-commit\",\"status\":\"422\"}"
+          }
+        ],
+        "structuredContent": {
+          "error": "GitHub API error 422: {\"message\":\"No commit found for SHA: 996dea4e17ff1acbdb2d0ef0d90e81956f6d4eda\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#get-a-commit\",\"status\":\"422\"}",
+          "error_code": "INVALID_ARGUMENT",
+          "error_data": {
+            "message": "No commit found for SHA: 996dea4e17ff1acbdb2d0ef0d90e81956f6d4eda",
+            "documentation_url": "https://docs.github.com/rest/commits/commits#get-a-commit",
+            "status": "422"
+          }
+        },
+        "isError": true
+      }
+    }
+  ],
+  "limitation": "These 422 responses record exact API availability at these times; they do not prove global absence or remove the possibility of bytes on the former executor."
+}

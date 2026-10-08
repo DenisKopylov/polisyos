@@ -107,6 +107,40 @@
       },
       "status": "admitted",
       "unresolved_inputs": []
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-admission/c09-sensitivity-create.json.gz",
+      "encoding": "gzip",
+      "stored_bytes": 13415,
+      "stored_sha256": "6a18c00f960ab80adbe5bd15beb71dbf486b85b9471892c2312d42d6d00f0b5c",
+      "decoded_bytes": 164979,
+      "decoded_sha256": "1c33cd3a7fb00c331b112372cc6f693b575016fe089851f5bbf686c9edb1cfcc",
+      "requested": {
+        "branch": "codex/e02-E-c09-sensitivity-20261008",
+        "mode": "create",
+        "path": "/dev/shm/e02-orch03-20261008/c09-sensitivity"
+      },
+      "status": "admitted",
+      "unresolved_inputs": []
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-admission/c09-sensitivity-resume.json.gz",
+      "encoding": "gzip",
+      "stored_bytes": 13899,
+      "stored_sha256": "acda0ee9acf269812a041b590baacb83a94ad8be5f1fb329fa212fb40141af31",
+      "decoded_bytes": 171213,
+      "decoded_sha256": "57f910ea7015104dd1e1fb3637e6a01f8255d0f94e60c44d3fc0b2621fc6ea2b",
+      "requested": {
+        "branch": "codex/e02-E-c09-sensitivity-20261008",
+        "mode": "resume",
+        "path": "/dev/shm/e02-orch03-20261008/c09-sensitivity"
+      },
+      "status": "admitted",
+      "unresolved_inputs": []
     }
-  ]
+  ],
+  "supplement": {
+    "parent_custody_commit": "de7b08ebbac72232c98d96ea74c3c0410864a7ba",
+    "purpose": "Additional disjoint original-unit E B190 response-basis producer lane; root remains coordinator and sole author lease is producer_packets."
+  }
 }

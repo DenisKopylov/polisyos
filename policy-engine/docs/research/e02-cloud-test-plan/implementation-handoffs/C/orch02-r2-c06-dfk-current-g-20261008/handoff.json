@@ -1,0 +1,170 @@
+{
+  "G_owner_next_actions": [
+    "Adjudicate bounded CLI lifecycle/public inventory and version owner; ACTIVE autodiscovery is implementation behavior.",
+    "Review exact additive tool-reference row and shared registry Git dependency override proposals; full canonical render also names unchanged G doc drift/host-specific footer.",
+    "Resolve shared baseline/pure-declaration export grammar/OpenAPI/trust findings through canonical owners without importing P41 inheritance.",
+    "Select/review actual supplier composition before C05 newer-source combined claims or C13 broad replay.",
+    "Keep compatibility-pending schema/codegen/pipeline contracts until separate authoritative retirement decision."
+  ],
+  "UNRUN_boundaries": [
+    {
+      "gate": "Full new-G repository schema-FQN census",
+      "reason": "Long old cbb census not replayed; new evidence is bounded portable real-Git/CLI input, no new whole-G reference/absence claim."
+    },
+    {
+      "gate": "New-G installed wheel/sdist consumer/archive membership",
+      "reason": "Local canonical CLI adoption proof only; old installed9x2 remains cbb-qualified and archive membership stays named UNRUN."
+    },
+    {
+      "gate": "Standalone Atlas and optional all-generated families",
+      "reason": "Outside default architecture invocation; no implied Atlas/optional coverage."
+    },
+    {
+      "gate": "LA023 continuation/training",
+      "reason": "No new source lease; previous readonly bounded-one-call decision remains separate; no third PPO loop or whole-continuation claim."
+    }
+  ],
+  "branch": "codex/e02-C-orch02-r2-c06-dfk-g",
+  "canonical_capability_finding": {
+    "G_tool_path_history": "No ancestry entry for old schema_fqn_census.py. This is unadmitted capability, not proof of retirement.",
+    "canonical_records_search": "author-evidence/canonical-census-records-search.txt",
+    "current_generic_helpers": "tools.lib.fs measurement collector is reused; review_freeze uses independent diff/ls-files source-fingerprint property, doctor parses different worktree-list porcelain grammar. None of the reviewed canonical candidate sites declares this schema-FQN/resource census.",
+    "existing_G_compatibility_preserved": [
+      "polisyos.foundry.domain.schema",
+      "polisyos.data_forge.kernel.schemas.codegen",
+      "polisyos.data_forge.kernel.pipeline.schemas"
+    ],
+    "production_schema_modules_changed": false,
+    "retirement_permission": false
+  },
+  "formal_closure_ids": [],
+  "implementation": {
+    "caller_chain": [
+      "tools.cli._run_registered_tool",
+      "tools.lib.runner.invoke_tool_main",
+      "tools.quality.validation.schema_fqn_census.main",
+      "tools.quality.validation.schema_fqn_census.collect_census"
+    ],
+    "interpretation": "Local static census only; not family retirement, archive membership, computed runtime dispatch or external/historical/ignored/binary absence.",
+    "public_lifecycle_status": "ACTIVE by existing registry autodiscovery; public lifecycle/inventory ratification pending G",
+    "public_owner_packet": "author-evidence/public-adoption-obligations.json",
+    "registered_command": "polisyos-tools validation schema-fqn-census --repo-root PATH",
+    "selection": "Git-visible tracked plus nonignored untracked supported text; full enumerated path sets, exclusions, attempts and content identities in JSON receipt.",
+    "shared_generated_or_registry_changes_applied": false,
+    "staged_vs_unstaged": "Staged rename old source leaves selected index set; Y=R intent-to-add leaves missing old source tracked/selected, fails read and returns2 with partial_unreadable_input.",
+    "status_protocol": "Porcelain v1 -z: R/C in either status column consume exactly the second NUL path. Ordinary M/AM consume one path and retain the next record."
+  },
+  "independent_reviews": {
+    "native_review": "native-evidence/dfk-independent-native-review.json",
+    "native_verdict": "GO_BOUNDED_TOOL_ADOPTION_NATIVE",
+    "source_review": "reviews/c06-dfk-independent-source-review-1e2e7c6c.json",
+    "source_review_verdict": "GO source-only before ordinary implementation commit"
+  },
+  "lineage": {
+    "admission_root_receipts": [
+      "/workspace/orch02-r2/admission/c06-dfk-g-create.json",
+      "/workspace/orch02-r2/admission/c06-dfk-g-resume.json"
+    ],
+    "composition": "New ordinary G-child source commit; re-prepared only owned delta. No wholesale old retirement postimages, resets, switches, cherry-picks or force operations.",
+    "history_rewrite": false,
+    "new_G_isolation_admitted_by_coordinator": true,
+    "old_worktree_retained": "/workspace/orch02-c06-dfk",
+    "previous_own_source": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+    "previous_published_topic_head": "e4bd1527c941ff880a5d34898c57428c7be4b1cc"
+  },
+  "main_or_integration_publication": false,
+  "new_native_evidence": {
+    "C05_newer_ownbase_composition_tested": false,
+    "DFK01": 35,
+    "DFK02": 10,
+    "DFK02_git_blob": "1e8263b473c448fc39a85e6169d305079b51050c",
+    "DFK02_selected_source": "current G dee",
+    "DFK02_writer": "C05 only; no C06 edit",
+    "JSON_missing_additional_PASS": 1,
+    "SARIF_JUnit_additional_PASS": 4,
+    "all_four_unified_boundary_modes_missing_read_refuse_code2": true,
+    "artifact_mapping": "artifact-map.json",
+    "case_substance": "Independent diff/ls-files actual Git oracle, root/subdirectory and outside bounds, real native states, tracked missing refusal, content-bound reads, target-bearing ignored counterexample.",
+    "full_physical_native_PASS": 45,
+    "historical_classifier_matched_property_FAIL": 6,
+    "historical_classifier_runner_errors": 0,
+    "independent_real_Git_public_CLI_PASS": 6,
+    "manifest": "native-evidence/dfk-final-manifest.json",
+    "native_actual_product_origins_candidate_exact": 398,
+    "original_native_artifact_count": 121
+  },
+  "original_unit": "C",
+  "previous_evidence_not_transferred": {
+    "native31_protocol20_fullcensus13650_installed9x2": "Prior source-qualified only; no unchanged full census, package or native replay.",
+    "previous_topic": "codex/e02-C-orch02-c06-dfk-recovery@e4bd1527c941ff880a5d34898c57428c7be4b1cc",
+    "source": "cbbfffd367fe283813a8177575d26c0ede8d20c4"
+  },
+  "raw_source_snapshots_committed": false,
+  "reconciliation": {
+    "G_tools_AST_denominator": 445,
+    "G_tools_AST_parse_errors": 0,
+    "all_other_G_entries_preserved": true,
+    "complete_G_entries": 21558,
+    "complete_ancestor_commits": 5136,
+    "complete_input_DAG": "author-evidence/complete-input-dag.json.gz",
+    "full_git_entry_denominator": "author-evidence/full-git-input-denominator.json.gz",
+    "original_G_test_functions_preserved": 5,
+    "packet": "author-evidence/source-reconciliation.json"
+  },
+  "required_gates": {
+    "P41_inherited_attribution": "not_established",
+    "Ruff": "PASS",
+    "architecture_complete_stdout": "author-evidence/required-architecture/architecture/stdout.txt",
+    "architecture_generated_UNRUN_or_isolation_errors": 0,
+    "architecture_wall_seconds": 563.0020416750012,
+    "format": "PASS",
+    "full_default_architecture": "FAIL196diagnostics;155deep-importcreep+38publicexporttotalsunresolved+1baselinedrift+2OpenAPI/trustgeneratedmismatch",
+    "generated_clean": [
+      "runtime-api-client(3observedoutputs)",
+      "runtime-dashboard-api-types(1observedoutput)"
+    ],
+    "invocation": "Canonical runtime.quality.production_invocation --base dee newly changed full inputs exit0; partial static only.",
+    "invocation_base_python_files": 5960,
+    "invocation_changed_or_lost_path_mechanisms": 0,
+    "invocation_current_python_files": 5961,
+    "invocation_existing_unresolved": 9215,
+    "invocation_mechanisms": 13112,
+    "invocation_peak_RSS_KiB": 8433448,
+    "invocation_raw_custody": "raw-custody-boundary.json",
+    "invocation_wall_seconds": 412.0680338410002,
+    "native_hook_gate": "UNRUN_no_active_hooks_installed; ordinary commit, no bypass",
+    "native_hook_installation": "author-evidence/actual-hook-installation.json",
+    "runtime_invocation_established_by_static_diagnostic": false,
+    "source_import_gate": "SKIP_no_changed_src_gate_inputs; changed_file_count0",
+    "strict_targeted_mypy": "PASS",
+    "summary": "author-evidence/required-gates-summary.json"
+  },
+  "schema": "policyos.e02.original_C.orch02_r2_c06_dfk_handoff.v1",
+  "scope": "C06 DFK-01 only; bounded existing-tool adoption on prospective current G",
+  "source_acceptance": "not_admitted_by_G",
+  "source_commit": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+  "source_inputs": [
+    {
+      "bytes": 1679,
+      "git_blob": "7997df813928d3d9415ba130507d1e193b45a577",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-orch02-r2-c06-dfk-census.toml",
+      "sha256": "81256a8fd3a049d7ab217717164c30e4dddf207ef8606f1151c768980e97f57e"
+    },
+    {
+      "bytes": 43587,
+      "git_blob": "4a4fafd6f210fed444b6ff4cd4bc662b3719a870",
+      "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+      "sha256": "27dacceb4bde9ceaa1b594175b8fb3f439a76dc118214fb9d9ed3787894b1be8"
+    },
+    {
+      "bytes": 31623,
+      "git_blob": "40d91dc181c38a71ff0b672e1991516ea86ed44d",
+      "path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "sha256": "a2ee2b6d21a1b5d5cf5e2484539ca5ca365f82a8d1b941344730e58f13625d42"
+    }
+  ],
+  "source_parent_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "source_tree": "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a",
+  "worktree": "/workspace/orch02-r2-c06-dfk-g",
+  "writer": "/root/c06_writer"
+}

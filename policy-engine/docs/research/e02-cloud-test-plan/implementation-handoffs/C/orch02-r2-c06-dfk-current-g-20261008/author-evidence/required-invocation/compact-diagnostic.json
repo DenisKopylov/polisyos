@@ -1,0 +1,59 @@
+{
+  "base": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "changed_or_lost_path_mechanism_count": 0,
+  "changed_or_lost_path_mechanisms": {},
+  "complete_mechanism_count": 13112,
+  "complete_mechanism_status_counts": {
+    "static_path": 1731,
+    "uninvoked": 2166,
+    "unresolved_by_construction": 9215
+  },
+  "complete_stdout_diagnostic": {
+    "coverage": "partial",
+    "measured": "Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.",
+    "new_unresolved_by_construction": [],
+    "receipt": "/workspace/orch02-r2/c06-dfk/required-invocation/receipt.json",
+    "regressions": [],
+    "runtime_invocation_established": false,
+    "status": "passed",
+    "summary": "Partial coverage: Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies. Unmeasured: HTTP router dispatch; dependency injection/container dispatch; event-bus dispatch; registered callback invocation; deferred lambda/coroutine execution and generator resumption; reflection and dynamic receiver/factory resolution; runtime execution, persisted business receipts, and gate substance.",
+    "uninvoked_meaning": "No resolved direct path or recognized indirect witness in the static model; not proof of runtime non-invocation.",
+    "unmeasured": [
+      "HTTP router dispatch",
+      "dependency injection/container dispatch",
+      "event-bus dispatch",
+      "registered callback invocation",
+      "deferred lambda/coroutine execution and generator resumption",
+      "reflection and dynamic receiver/factory resolution",
+      "runtime execution, persisted business receipts, and gate substance"
+    ],
+    "unresolved_by_construction_count": 9215,
+    "unresolved_receiver_call_count": 140174
+  },
+  "formal_closure_ids": [],
+  "full_graph_denominator": {
+    "base_files": 5960,
+    "base_sha256": "ab5ed12ed6d91a5d7c5e07e5a2b34d8fe8786b3a843318ac82f35f6874047486",
+    "current_files": 5961,
+    "current_sha256": "9c5bb528a9fd242e08eadc674c7a9c05973ee5632e6bcc27f74a01eb35590b04",
+    "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+    "source_files": 2700
+  },
+  "raw_and_gzip_custody": "local scratch only, ignored; not committed or remotely byte-custodied",
+  "raw_custody": {
+    "compressed_bytes": 6022930,
+    "compressed_path": "receipt.json.gz",
+    "compressed_sha256": "b22189ef84409eebe0353f2985acccb26d53c294b910bc8eaef96afea877fe01",
+    "decoded_bytes": 171707606,
+    "decoded_sha256": "50fc2612a50bb9cee5ec9a5a9af955fb627bd579b74d190da0deac99ff975fda",
+    "exact_roundtrip": true,
+    "original_raw_source": "/workspace/orch02-r2/c06-dfk/required-invocation/receipt.json"
+  },
+  "root_count": 402,
+  "schema": "policyos.orch02.r2.c06.dfk.compact-full-invocation-diagnostic.v1",
+  "source_acceptance": "not_admitted_by_G",
+  "source_commit": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+  "source_tree": "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a",
+  "unread_boundary": "This compact extraction fully counts mechanism records and reads denominator, but does not publish the full per-mechanism/receiver graph. Static direct-call proof is partial and does not establish runtime invocation.",
+  "whole_command_returncode": 0
+}

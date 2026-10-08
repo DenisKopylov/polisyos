@@ -1,0 +1,86 @@
+{
+  "case": "unstaged-YC",
+  "fixture": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/fixture",
+  "product": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/fixture/policy-engine",
+  "fixture_head": "8bcf10207280e6b12ff6025126875aca8df3951e",
+  "raw_porcelain_z_b64": "IE0gb3V0c2lkZS5qc29uACBNIHBvbGljeS1lbmdpbmUvY29uZmlncy9hIG9yaWdpbmFsCtC/0YPRgtGMLmpzb24AIEMgcG9saWN5LWVuZ2luZS9jb25maWdzL2IgY29weSBzcGFjZS5qc29uAHBvbGljeS1lbmdpbmUvY29uZmlncy9hIG9yaWdpbmFsCtC/0YPRgtGMLmpzb24AIE0gcG9saWN5LWVuZ2luZS9jb25maWdzL3kgb3JkaW5hcnkuanNvbgBBTSBwb2xpY3ktZW5naW5lL2NvbmZpZ3MveiBhZGRlZArRgdC70LXQtC5qc29uAD8/IHBvbGljeS1lbmdpbmUvdW50cmFja2VkLmpzb24A",
+  "oracle_diff_and_ls_files": [
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--relative",
+        "--name-only",
+        "--no-renames",
+        "-z",
+        "--",
+        "."
+      ],
+      "stdout_b64": "Y29uZmlncy9hIG9yaWdpbmFsCtC/0YPRgtGMLmpzb24AY29uZmlncy9iIGNvcHkgc3BhY2UuanNvbgBjb25maWdzL3kgb3JkaW5hcnkuanNvbgBjb25maWdzL3ogYWRkZWQK0YHQu9C10LQuanNvbgA="
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--relative",
+        "--name-only",
+        "--no-renames",
+        "-z",
+        "--",
+        "."
+      ],
+      "stdout_b64": "Y29uZmlncy96IGFkZGVkCtGB0LvQtdC0Lmpzb24A"
+    },
+    {
+      "argv": [
+        "git",
+        "ls-files",
+        "--others",
+        "--exclude-standard",
+        "-z",
+        "--",
+        "."
+      ],
+      "stdout_b64": "dW50cmFja2VkLmpzb24A"
+    }
+  ],
+  "expected_changed_paths": [
+    "configs/a original\nпуть.json",
+    "configs/b copy space.json",
+    "configs/y ordinary.json",
+    "configs/z added\nслед.json",
+    "untracked.json"
+  ],
+  "actual_changed_paths": [
+    "configs/a original\nпуть.json",
+    "configs/b copy space.json",
+    "configs/y ordinary.json",
+    "untracked.json"
+  ],
+  "independent_selected_paths": [
+    ".gitignore",
+    "configs/a original\nпуть.json",
+    "configs/b copy space.json",
+    "configs/y ordinary.json",
+    "configs/z added\nслед.json",
+    "untracked.json"
+  ],
+  "actual_selected_paths": [
+    ".gitignore",
+    "configs/a original\nпуть.json",
+    "configs/b copy space.json",
+    "configs/y ordinary.json",
+    "configs/z added\nслед.json",
+    "untracked.json"
+  ],
+  "expected_unreadable_paths": [],
+  "actual_unreadable_paths": [],
+  "CLI_returncode": 0,
+  "CLI_full_stdout": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/stdout.txt",
+  "CLI_full_stderr": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/stderr.txt",
+  "CLI_command_and_resources": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/command.json",
+  "CLI_all_actual_origins": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/origins.json",
+  "driver_wrapper_stdout": "{\"returncode\": 0, \"wall_seconds\": 5.75599365600101, \"max_rss_kib\": 56124, \"signal\": null}\n",
+  "driver_wrapper_stderr": ""
+}

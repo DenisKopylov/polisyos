@@ -1,0 +1,97 @@
+{
+  "G_owned_obligations": [
+    {
+      "action": "Review and render canonical registry docs after selected source adoption",
+      "adoption_only_delta": "adoption-only-tool-reference-companion.diff",
+      "adoption_only_delta_sha256": "3385137b17a7355e1fdefaddcbf6e7ac8055c0db315f12b6ce2ffaf419cc0a29",
+      "candidate_delta": "generated-tools-reference-companion-proposal.diff",
+      "candidate_delta_sha256": "642bc288774a5beceb8111be25c294d9826bafb18fa7d7448206a76f0e9e35a7",
+      "command": "uv run polisyos-tools docs --output docs/reference/tools.md",
+      "owner": "G/team-devx",
+      "path": "policy-engine/docs/reference/tools.md"
+    },
+    {
+      "action": "Adjudicate existing registry metadata Git external dependency; candidate default spec does not preflight Git, census itself refuses enumeration failure.",
+      "applied": false,
+      "candidate_delta": "tool-registry-external-git-companion-proposal.diff",
+      "candidate_delta_sha256": "82d476b0ec29f044746c4bd506b3227ddc01ada040b6c7201ba53c4ddc875b66",
+      "owner": "G/team-devx",
+      "path": "policy-engine/tools/registry.py",
+      "proposed_external_dependencies": [
+        "git"
+      ]
+    },
+    {
+      "action": "Adjudicate public CLI lifecycle/inventory and publish concise bounded-census operator contract; do not ratify retirement from autodiscovery.",
+      "owner": "G/team-devx",
+      "paths": [
+        "policy-engine/tools/README.md",
+        "policy-engine/tools/quality/validation/README.md"
+      ]
+    },
+    {
+      "action": "Review public inventory/versioning and source-qualified additive release; public_surface_inventory_reviewed remains false until owner decision.",
+      "owner": "G/team-release",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-orch02-r2-c06-dfk-census.toml"
+    },
+    {
+      "action": "Separate public/retirement decision for compatibility-pending schema, codegen and pipeline alias; unchanged G tests preserve current contracts.",
+      "owner": "G/team-data-forge and relevant schema owners"
+    }
+  ],
+  "archive_membership": "UNRUN_new_G_candidate; previous installed9x2 are cbb-only",
+  "autodiscovery_is_source_acceptance": false,
+  "autodiscovery_status": "active",
+  "candidate_source_commit": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+  "candidate_source_tree": "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a",
+  "canonical_registry": "policy-engine/tools/registry.py AST category autodiscovery",
+  "formal_closure_ids": [],
+  "full_generated_comparison_boundary": {
+    "adoption_only_delta_is_not_full_generated_freshness_PASS": true,
+    "complete_render_diff": "generated-tools-reference-companion-proposal.diff",
+    "host_specific_footer": "Canonical generator emits actual repo_root; no foreign generated docs or producer code modified.",
+    "unchanged_G_generated_doc_drift_rows": [
+      "ukraine_data.server-bootstrap",
+      "ukraine_data.validate-part-a"
+    ],
+    "whole_render_source_snapshot_published": false
+  },
+  "generated_command_rows": [
+    "| `validation` | `schema-fqn-census` | `active` | `polisyos-tools validation schema-fqn-census` | Measure local references and unresolved loaders for the DFK-01 schema family. | - | - | - |"
+  ],
+  "limitations": [
+    "Static Git-visible tracked plus nonignored untracked selected UTF-8 text only.",
+    "Ignored/binary/external/historical/computed runtime clients remain unresolved; no total absence claim.",
+    "No current G generated/registry/policy/lock/API files mutated."
+  ],
+  "preserved_G_compatibility_surfaces": [
+    "polisyos.foundry.domain.schema",
+    "polisyos.data_forge.kernel.schemas.codegen",
+    "polisyos.data_forge.kernel.pipeline.schemas"
+  ],
+  "registered_command": "polisyos-tools validation schema-fqn-census --repo-root PATH",
+  "retirement_permission": false,
+  "runtime_chain": [
+    "tools.cli._run_registered_tool",
+    "tools.lib.runner.invoke_tool_main",
+    "tools.quality.validation.schema_fqn_census.main",
+    "tools.quality.validation.schema_fqn_census.collect_census"
+  ],
+  "schema": "policyos.orch02.r2.c06.dfk.public-adoption-obligations.v1",
+  "source_acceptance": "not_admitted_by_G",
+  "tool_output_contract": {
+    "boundary_format_semantics": "Formats only unified preflight/execution error ToolResult; does not transform this tool JSON receipt.",
+    "no_shared_metadata_mutation": true,
+    "spec_output_formats": [
+      "text",
+      "json"
+    ],
+    "stdout": "polisyos.schema_fqn_census.v2 JSON only",
+    "unified_boundary_formats": [
+      "text",
+      "json",
+      "sarif",
+      "junit"
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+--- G/docs/reference/tools.md
++++ adoption-only/docs/reference/tools.md
+@@ -283,6 +283,7 @@
+ | `validation` | `run-policy-design-case-rollout-decision` | `active` | `polisyos-tools validation run-policy-design-case-rollout-decision` | Run the W12.G rollout decision phase. | - | - | - |
+ | `validation` | `run-universal-compilation-integration-realism-check` | `active` | `polisyos-tools validation run-universal-compilation-integration-realism-check` | Run I7-bis universal compilation integration realism check. | - | - | - |
+ | `validation` | `run-universal-outcome-corpus` | `active` | `polisyos-tools validation run-universal-outcome-corpus` | Run W12.D universal outcome corpus evidence over W6/W7/W8. | - | - | - |
++| `validation` | `schema-fqn-census` | `active` | `polisyos-tools validation schema-fqn-census` | Measure local references and unresolved loaders for the DFK-01 schema family. | - | - | - |
+ | `validation` | `validate-foundry-phase0-closure` | `active` | `polisyos-tools validation validate-foundry-phase0-closure` | Emit a machine-readable closure report for Foundry Phase 0. | - | - | - |
+ | `validation` | `validate-foundry-phase2-closure` | `active` | `polisyos-tools validation validate-foundry-phase2-closure` | Emit a machine-readable closure report for Foundry Phase 2. | - | - | - |
+ | `validation` | `validate-phase-closure` | `active` | `polisyos-tools validation validate-phase-closure` | Emit a machine-readable closure report for the causal research phases. | - | - | - |

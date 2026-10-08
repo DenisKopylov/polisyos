@@ -1,0 +1,15 @@
+{
+  "boundary_format": "sarif",
+  "missing_input": false,
+  "actual_success_stdout_representation": "tool JSON receipt; unified format controls boundary errors",
+  "CLI_returncode": 0,
+  "source_commit": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+  "fixture": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m0/fixture",
+  "fixture_head": "c4a20e3049f9ad915ed8a92e204baf57b7565bd8",
+  "CLI_full_stdout": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m0/canonical-cli/stdout.txt",
+  "CLI_full_stderr": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m0/canonical-cli/stderr.txt",
+  "CLI_command_and_resources": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m0/canonical-cli/command.json",
+  "CLI_all_actual_origins": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m0/canonical-cli/origins.json",
+  "wrapper_stdout": "{\"returncode\": 0, \"wall_seconds\": 4.5140437059999385, \"max_rss_kib\": 56116, \"signal\": null}\n",
+  "wrapper_stderr": ""
+}

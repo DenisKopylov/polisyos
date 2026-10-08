@@ -1,0 +1,35 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "tools.quality.lint.lint_imports",
+    "--changed-only",
+    "--git-base-ref",
+    "dee58973f7673299070b7c7374f419b0adb8175c",
+    "--cache-dir",
+    "/workspace/orch02-r2/c06-dfk/author-gates/imports-cache",
+    "--output-format",
+    "json"
+  ],
+  "cwd": "/workspace/orch02-r2-c06-dfk-g/policy-engine",
+  "end_utc": "2026-10-08T18:09:37.388966+00:00",
+  "max_rss_kib": 95856,
+  "outputs": {
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout.txt": {
+      "bytes": 378,
+      "sha256": "7ef1a0fff91d06b3fd9e9fbaceebaaee96d86c8d1b59870a053db9e881a3d53b"
+    }
+  },
+  "returncode": 0,
+  "selected_environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/workspace/orch02-r2-c06-dfk-g/policy-engine:/workspace/orch02-r2-c06-dfk-g/policy-engine/src"
+  },
+  "start_utc": "2026-10-08T18:09:36.940887+00:00",
+  "timeout_seconds": null,
+  "wall_seconds": 0.44810232800045924
+}

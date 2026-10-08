@@ -1,0 +1,6 @@
+cbbfffd367fe283813a8177575d26c0ede8d20c4 style(data-forge): normalize census and its regression tests
+66fce37eed873311259f111cf28c6b342cb6ae23 fix(data-forge): retain every ordinary census Git status path
+bd4e96536ac6ed3e5084b3ab924d1bd2dc668fdb Retire incomplete DFK schema compatibility modules
+b8d9115cdc6a55920c1e0a3cae2e5f9092010c27 fix(e02): resolve package ImportFrom child modules
+8ac2c232445eb78b1689fe2f6fb5e1830ccd5b35 Include repository text resources in DFK census
+d432d7d76a0dd7bef6bb9ebbc812cc817ae934ef Add bounded DFK schema FQN census

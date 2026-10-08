@@ -1,0 +1,1661 @@
+{
+  "schema": "orch02.r2.c06.independent_native_manifest.v1",
+  "reviewer": "/root/native_c06",
+  "at": "2026-10-08T19:15:23.298576+00:00",
+  "source_commit": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+  "source_tree": "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a",
+  "selected_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "input_preflight": {
+    "path": "/workspace/orch02-r2/native-c06/dfk-input-preflight.json",
+    "bytes": 5362,
+    "sha256": "9520f0493e68d8e3940c76eb616808da07edc4702719af1a11d42ea59792fa78"
+  },
+  "harness": [
+    {
+      "path": "/workspace/orch02-r2/native-c06/harness/run_receipt.py",
+      "bytes": 2565,
+      "sha256": "58b497ebcc4637e953f0fa675922100712951bd800f18f715f2280e8dada5f9a"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/harness/pytest_source_bound.py",
+      "bytes": 6269,
+      "sha256": "b4ad42370086c198108b5d6664087db32f28b94f0b2639e1429ad29b9f53d789"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/harness/cli_source_bound.py",
+      "bytes": 3706,
+      "sha256": "3e3e8a7c5d6b84bb7e40b8fc3db870f95ea4a0fc74741db80474440513851ad3"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/harness/test_dfk_protocol.py",
+      "bytes": 9155,
+      "sha256": "aff5db5304d5375edfde4053b2d96dd117b037e32f7cf2173a7fa7818c6d1b9e"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/harness/test_dfk_boundary_modes.py",
+      "bytes": 3196,
+      "sha256": "34720f96af33c9513986654bab277fbf58c78e5aa1811f75137f5efb0ac10923"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/harness/test_dfk_json_missing.py",
+      "bytes": 295,
+      "sha256": "349c964d9a96dc5a588426556bb475cf3f34b39a0dd5e9e5dc71d8bc93d33dc4"
+    }
+  ],
+  "waves": [
+    {
+      "name": "dfk-native",
+      "role": "fullphysical currentG DFK01 + currentG DFK02 affected family",
+      "source_commit": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+      "command": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-native/command.json",
+        "bytes": 2018,
+        "sha256": "82f7d454d7ab259b218c757a99581b54575ef50c048bbc8a1fb7e651f4793815"
+      },
+      "full_stdout": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-native/stdout.txt",
+        "bytes": 6815,
+        "sha256": "fb26998cf0782ef893fd93610657a788b906f6d362a6d9d03899867ea3a4799c"
+      },
+      "full_stderr": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-native/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "full_JUnit": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-native/junit.xml",
+        "bytes": 6999,
+        "sha256": "eb168c37c25dde1c71ed02ef52310a1b5672a1ac410baeb1e98e45ea4f8d256c"
+      },
+      "all_actual_parent_source_origins_and_environment": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-native/origins.json",
+        "bytes": 266940,
+        "sha256": "89206ec629e70d9d1e43b5f16a42ad55aa67d05d0456595f942196077a98a0a2"
+      },
+      "returncode": 0,
+      "wall_seconds": 150.26516456799982,
+      "max_rss_kib": 318192,
+      "case_denominator": 45,
+      "cases": [
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_canonical_schema_exports_preserve_registry_identity",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_canonical_registry_evolution_and_migration_behave",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_compatibility_pending_surfaces_remain_importable[polisyos.data_forge.kernel.pipeline.schemas]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_compatibility_pending_surfaces_remain_importable[polisyos.data_forge.kernel.schemas.codegen]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_compatibility_pending_surfaces_remain_importable[polisyos.foundry.domain.schema]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_compatibility_pending_surfaces_preserve_current_identity",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_mechanisms_tombstone_is_not_importable",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_binds_imports_strings_dynamic_loaders_and_exclusions",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_resolves_importfrom_package_children_and_removal",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_observes_module_and_package_source_variants",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_selects_repository_text_resource_and_config_types",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_does_not_turn_missing_tracked_input_into_zero",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_rejects_selected_symlink_outside_admitted_root",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_digest_changes_when_a_selected_input_changes",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_normalizes_git_status_paths_from_nested_product_root",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_preserves_two_ordinary_git_status_records[-staged]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_preserves_two_ordinary_git_status_records[-unstaged]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_preserves_two_ordinary_git_status_records[-added_then_modified]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_preserves_two_ordinary_git_status_records[policy-engine-staged]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_preserves_two_ordinary_git_status_records[policy-engine-unstaged]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_preserves_two_ordinary_git_status_records[policy-engine-added_then_modified]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_preserves_both_rename_paths_and_next_record[False-]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_preserves_both_rename_paths_and_next_record[False-policy-engine]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_preserves_both_rename_paths_and_next_record[True-]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_preserves_both_rename_paths_and_next_record[True-policy-engine]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_reports_clean_real_git_input[]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_reports_clean_real_git_input[policy-engine]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_preserves_both_copy_paths_and_next_record[]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_preserves_both_copy_paths_and_next_record[policy-engine]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_preserves_unstaged_two_path_intent_to_add[rename-]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_preserves_unstaged_two_path_intent_to_add[rename-policy-engine]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_preserves_unstaged_two_path_intent_to_add[copy-]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_preserves_unstaged_two_path_intent_to_add[copy-policy-engine]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_is_discovered_and_invoked_through_public_cli[text]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_01",
+          "name": "test_dfk_01_census_is_discovered_and_invoked_through_public_cli[json]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_02",
+          "name": "test_source_selection_distinguishes_none_default_from_explicit_empty",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_02",
+          "name": "test_source_selection_fails_closed_for_disabled_mandatory_seed",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_02",
+          "name": "test_source_selection_fails_closed_for_missing_seed",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_02",
+          "name": "test_source_selection_fails_closed_for_cyclic_seeds",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_02",
+          "name": "test_registry_selection_fails_closed_for_disabled_mandatory_seed",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_02",
+          "name": "test_registry_selection_fails_closed_for_missing_seed",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_02",
+          "name": "test_registry_selection_fails_closed_for_cyclic_seeds",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_02",
+          "name": "test_registry_projection_preserves_rich_source_filters",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_02",
+          "name": "test_registry_projection_keeps_the_35_entry_order_and_equality_contract",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.remediation.test_dfk_02",
+          "name": "test_public_read_and_fabric_consumers_use_the_canonical_registry_projection",
+          "outcome": "PASS"
+        }
+      ],
+      "actual_parent_file_origins": 398,
+      "parent_G_nonidentical_modules": [
+        "tools.quality.validation.schema_fqn_census"
+      ],
+      "actual_cli_children": []
+    },
+    {
+      "name": "dfk-cli-protocol",
+      "role": "independent fresh realGit/canonicalCLI/oracle fixture matrix",
+      "source_commit": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+      "command": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/command.json",
+        "bytes": 2028,
+        "sha256": "d9fd473be492526fe1e8f603bd9cf9a06a7646e9b4a705a698c86254e89cb9be"
+      },
+      "full_stdout": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/stdout.txt",
+        "bytes": 18118,
+        "sha256": "7538fb1328fc9ad40cccc474c19cf15b6e931065bfb05b53b532dc47d47f44be"
+      },
+      "full_stderr": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "full_JUnit": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/junit.xml",
+        "bytes": 1240,
+        "sha256": "f92bcaeab379cc1e073ee41293903792aebdc61ab8a15e7edfbaef74c9cda017"
+      },
+      "all_actual_parent_source_origins_and_environment": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/origins.json",
+        "bytes": 13442,
+        "sha256": "cc9efc7deec42e5e65b9bad3aacc88d1b259eab987555d4ea9a79ccb5d1f1e9b"
+      },
+      "returncode": 0,
+      "wall_seconds": 45.109342632000335,
+      "max_rss_kib": 88188,
+      "case_denominator": 6,
+      "cases": [
+        {
+          "classname": "orch02-r2.native-c06.harness.test_dfk_protocol",
+          "name": "test_fresh_G_canonical_cli_protocol_and_complete_denominator[ordinary-root]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_dfk_protocol",
+          "name": "test_fresh_G_canonical_cli_protocol_and_complete_denominator[ordinary-nested]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_dfk_protocol",
+          "name": "test_fresh_G_canonical_cli_protocol_and_complete_denominator[staged-RM]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_dfk_protocol",
+          "name": "test_fresh_G_canonical_cli_protocol_and_complete_denominator[staged-C]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_dfk_protocol",
+          "name": "test_fresh_G_canonical_cli_protocol_and_complete_denominator[unstaged-YR]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_dfk_protocol",
+          "name": "test_fresh_G_canonical_cli_protocol_and_complete_denominator[unstaged-YC]",
+          "outcome": "PASS"
+        }
+      ],
+      "actual_parent_file_origins": 0,
+      "parent_G_nonidentical_modules": [],
+      "actual_cli_children": [
+        {
+          "case": "ordinary-root",
+          "independent_rawGit_and_oracle_or_boundary_receipt": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro0/oracle.json",
+            "bytes": 2864,
+            "sha256": "ed8f9bd41fc5dd779d1614b5096b010eff565f0cc61b581551ab56f908923a98"
+          },
+          "command_wall_RSS": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/command.json",
+            "bytes": 1939,
+            "sha256": "93ec7a4c794961b7ae4c1d8c6856b2dc3420fa3f790c61b68f2e4734d5b0330e"
+          },
+          "full_stdout": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/stdout.txt",
+            "bytes": 11517,
+            "sha256": "9fd2878decab20bf144cec3e98f7f6dd3b0b06026ca2f956381fd42fe7e17195"
+          },
+          "full_stderr": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/stderr.txt",
+            "bytes": 83,
+            "sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+          },
+          "all_actual_source_origins_and_environment": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/origins.json",
+            "bytes": 21962,
+            "sha256": "cfe7a62f4e9224bb301ad0f31e7ac8426a612ca7b4fea49482c3e1ad5d0f1200"
+          },
+          "returncode": 0,
+          "wall_seconds": 6.597103063999384,
+          "max_rss_kib": 56040,
+          "actual_product_module_file_origins": 13,
+          "canonical_module_entrypoint": {
+            "execution": "runpy.run_module(tools.cli, run_name=__main__, alter_sys=True) in an isolated Python process; original __main__ SystemExit(main()) executes with unchanged CLI argv",
+            "argv": [
+              "validation",
+              "schema-fqn-census",
+              "--output-format",
+              "json",
+              "--repo-root",
+              "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro0/fixture"
+            ],
+            "path": "policy-engine/tools/cli.py",
+            "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/cli.py",
+            "git_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+            "bytes": 25923,
+            "candidate_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "G_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e"
+          },
+          "actual_registry_spec": {
+            "category": "validation",
+            "name": "schema-fqn-census",
+            "module": "tools.quality.validation.schema_fqn_census",
+            "callable_name": "main",
+            "status": "active"
+          },
+          "actual_selected_path_denominator": 5,
+          "successful_byte_read_denominator": 5,
+          "read_complete": true,
+          "result": "complete_for_selected_local_text_inputs"
+        },
+        {
+          "case": "ordinary-nested",
+          "independent_rawGit_and_oracle_or_boundary_receipt": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro1/oracle.json",
+            "bytes": 2976,
+            "sha256": "34eb8f8d60831a27609f4e9ddd1acee3eab014f2d663512554b93a85720ba4af"
+          },
+          "command_wall_RSS": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/command.json",
+            "bytes": 1963,
+            "sha256": "156d924b420f53154bf1fb3c110578bb585c9d23c88f6846774154eee379d6a7"
+          },
+          "full_stdout": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/stdout.txt",
+            "bytes": 11531,
+            "sha256": "468026ea5a6b6b8cbff2b18c50fad125efa92a4d742bccfe1fa5f6ed3e4f9eab"
+          },
+          "full_stderr": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/stderr.txt",
+            "bytes": 83,
+            "sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+          },
+          "all_actual_source_origins_and_environment": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/origins.json",
+            "bytes": 21976,
+            "sha256": "b51f43ce5721a0bad0496cabd399a0b0655165ab45c1923d91e9f2a9d3eab69a"
+          },
+          "returncode": 0,
+          "wall_seconds": 6.020885552999971,
+          "max_rss_kib": 56044,
+          "actual_product_module_file_origins": 13,
+          "canonical_module_entrypoint": {
+            "execution": "runpy.run_module(tools.cli, run_name=__main__, alter_sys=True) in an isolated Python process; original __main__ SystemExit(main()) executes with unchanged CLI argv",
+            "argv": [
+              "validation",
+              "schema-fqn-census",
+              "--output-format",
+              "text",
+              "--repo-root",
+              "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro1/fixture/policy-engine"
+            ],
+            "path": "policy-engine/tools/cli.py",
+            "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/cli.py",
+            "git_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+            "bytes": 25923,
+            "candidate_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "G_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e"
+          },
+          "actual_registry_spec": {
+            "category": "validation",
+            "name": "schema-fqn-census",
+            "module": "tools.quality.validation.schema_fqn_census",
+            "callable_name": "main",
+            "status": "active"
+          },
+          "actual_selected_path_denominator": 5,
+          "successful_byte_read_denominator": 5,
+          "read_complete": true,
+          "result": "complete_for_selected_local_text_inputs"
+        },
+        {
+          "case": "staged-RM",
+          "independent_rawGit_and_oracle_or_boundary_receipt": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro2/oracle.json",
+            "bytes": 3066,
+            "sha256": "8acf902526b2a5576afd21480fa97d7da1deff31e4e8328e4e82684e0cb2bd87"
+          },
+          "command_wall_RSS": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/command.json",
+            "bytes": 1965,
+            "sha256": "4a471882911f12880eb9485c904fc2f1b3273a3bb14ee44b900995f38727c1b9"
+          },
+          "full_stdout": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/stdout.txt",
+            "bytes": 11475,
+            "sha256": "2693af8afdd1b58f72a65ce6b8d7825a61cf581430559d2c00c11c335e587c2e"
+          },
+          "full_stderr": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/stderr.txt",
+            "bytes": 83,
+            "sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+          },
+          "all_actual_source_origins_and_environment": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/origins.json",
+            "bytes": 21976,
+            "sha256": "ee53d25d89d8aaeaf769b4caff9f6db8f31db64434366a8fd46d48cc4458954c"
+          },
+          "returncode": 0,
+          "wall_seconds": 6.463423645000148,
+          "max_rss_kib": 56032,
+          "actual_product_module_file_origins": 13,
+          "canonical_module_entrypoint": {
+            "execution": "runpy.run_module(tools.cli, run_name=__main__, alter_sys=True) in an isolated Python process; original __main__ SystemExit(main()) executes with unchanged CLI argv",
+            "argv": [
+              "validation",
+              "schema-fqn-census",
+              "--output-format",
+              "text",
+              "--repo-root",
+              "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro2/fixture/policy-engine"
+            ],
+            "path": "policy-engine/tools/cli.py",
+            "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/cli.py",
+            "git_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+            "bytes": 25923,
+            "candidate_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "G_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e"
+          },
+          "actual_registry_spec": {
+            "category": "validation",
+            "name": "schema-fqn-census",
+            "module": "tools.quality.validation.schema_fqn_census",
+            "callable_name": "main",
+            "status": "active"
+          },
+          "actual_selected_path_denominator": 5,
+          "successful_byte_read_denominator": 5,
+          "read_complete": true,
+          "result": "complete_for_selected_local_text_inputs"
+        },
+        {
+          "case": "staged-C",
+          "independent_rawGit_and_oracle_or_boundary_receipt": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro3/oracle.json",
+            "bytes": 3257,
+            "sha256": "c6753433674085b66ec4f3ec05610c82d87e1d6cf881712e3653bc44f07110e1"
+          },
+          "command_wall_RSS": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/command.json",
+            "bytes": 1954,
+            "sha256": "b330e9b640635608de852b4ada930fb5dba386001d81840fa679a390d1465096"
+          },
+          "full_stdout": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/stdout.txt",
+            "bytes": 12212,
+            "sha256": "7ccb25c7fda54a56b355cf562d935606b2b517b77e7213c1bdfc681729cc546e"
+          },
+          "full_stderr": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/stderr.txt",
+            "bytes": 83,
+            "sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+          },
+          "all_actual_source_origins_and_environment": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/origins.json",
+            "bytes": 21976,
+            "sha256": "5ccecd9c0cb1a8ec198371a24fb357d6579b7615abe6372b66fe889590b35a17"
+          },
+          "returncode": 0,
+          "wall_seconds": 6.588721332000205,
+          "max_rss_kib": 56032,
+          "actual_product_module_file_origins": 13,
+          "canonical_module_entrypoint": {
+            "execution": "runpy.run_module(tools.cli, run_name=__main__, alter_sys=True) in an isolated Python process; original __main__ SystemExit(main()) executes with unchanged CLI argv",
+            "argv": [
+              "validation",
+              "schema-fqn-census",
+              "--output-format",
+              "text",
+              "--repo-root",
+              "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro3/fixture/policy-engine"
+            ],
+            "path": "policy-engine/tools/cli.py",
+            "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/cli.py",
+            "git_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+            "bytes": 25923,
+            "candidate_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "G_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e"
+          },
+          "actual_registry_spec": {
+            "category": "validation",
+            "name": "schema-fqn-census",
+            "module": "tools.quality.validation.schema_fqn_census",
+            "callable_name": "main",
+            "status": "active"
+          },
+          "actual_selected_path_denominator": 6,
+          "successful_byte_read_denominator": 6,
+          "read_complete": true,
+          "result": "complete_for_selected_local_text_inputs"
+        },
+        {
+          "case": "unstaged-YR",
+          "independent_rawGit_and_oracle_or_boundary_receipt": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro4/oracle.json",
+            "bytes": 3282,
+            "sha256": "00a081ede4888f69dd2cbe83e8b81fa62b478cafb39755f6934d8259b44d31f1"
+          },
+          "command_wall_RSS": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/command.json",
+            "bytes": 1956,
+            "sha256": "8c45f2022fe06be63b36516a4326e00270c23d4423a76a2b2d1b9d7fe03c2e42"
+          },
+          "full_stdout": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/stdout.txt",
+            "bytes": 11762,
+            "sha256": "ce87bd70f04032f722585caa437d87de574806e3c01707e6ba91bef2c8e404ca"
+          },
+          "full_stderr": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/stderr.txt",
+            "bytes": 83,
+            "sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+          },
+          "all_actual_source_origins_and_environment": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/origins.json",
+            "bytes": 21976,
+            "sha256": "c466fcef25699fdd50277ff51a68cadf9dff81e1649a57e25ddf0df0d6462494"
+          },
+          "returncode": 2,
+          "wall_seconds": 6.477819749999981,
+          "max_rss_kib": 56140,
+          "actual_product_module_file_origins": 13,
+          "canonical_module_entrypoint": {
+            "execution": "runpy.run_module(tools.cli, run_name=__main__, alter_sys=True) in an isolated Python process; original __main__ SystemExit(main()) executes with unchanged CLI argv",
+            "argv": [
+              "validation",
+              "schema-fqn-census",
+              "--output-format",
+              "text",
+              "--repo-root",
+              "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro4/fixture/policy-engine"
+            ],
+            "path": "policy-engine/tools/cli.py",
+            "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/cli.py",
+            "git_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+            "bytes": 25923,
+            "candidate_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "G_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e"
+          },
+          "actual_registry_spec": {
+            "category": "validation",
+            "name": "schema-fqn-census",
+            "module": "tools.quality.validation.schema_fqn_census",
+            "callable_name": "main",
+            "status": "active"
+          },
+          "actual_selected_path_denominator": 6,
+          "successful_byte_read_denominator": 5,
+          "read_complete": false,
+          "result": "partial_unreadable_input"
+        },
+        {
+          "case": "unstaged-YC",
+          "independent_rawGit_and_oracle_or_boundary_receipt": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro5/oracle.json",
+            "bytes": 3260,
+            "sha256": "d5b529702b7628baa662b7f9afb12f0e90a3165f21754bf26fa7d786c7805c32"
+          },
+          "command_wall_RSS": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/command.json",
+            "bytes": 1954,
+            "sha256": "5f54af17a57e5d8acc465867a60767b0da4748b7d764c0c826ef58ef9ac5d4cf"
+          },
+          "full_stdout": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/stdout.txt",
+            "bytes": 12212,
+            "sha256": "07aab558a0ae152642e4818e0e584c19898de712d2d32a886c2e36d45abdb6a3"
+          },
+          "full_stderr": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/stderr.txt",
+            "bytes": 83,
+            "sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+          },
+          "all_actual_source_origins_and_environment": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/origins.json",
+            "bytes": 21976,
+            "sha256": "c9e419e4accd5d688c5f165f92dbaab712ec96aeb9d162b4c39030e73cc1aa4a"
+          },
+          "returncode": 0,
+          "wall_seconds": 6.983601154001008,
+          "max_rss_kib": 56140,
+          "actual_product_module_file_origins": 13,
+          "canonical_module_entrypoint": {
+            "execution": "runpy.run_module(tools.cli, run_name=__main__, alter_sys=True) in an isolated Python process; original __main__ SystemExit(main()) executes with unchanged CLI argv",
+            "argv": [
+              "validation",
+              "schema-fqn-census",
+              "--output-format",
+              "text",
+              "--repo-root",
+              "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro5/fixture/policy-engine"
+            ],
+            "path": "policy-engine/tools/cli.py",
+            "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/cli.py",
+            "git_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+            "bytes": 25923,
+            "candidate_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "G_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e"
+          },
+          "actual_registry_spec": {
+            "category": "validation",
+            "name": "schema-fqn-census",
+            "module": "tools.quality.validation.schema_fqn_census",
+            "callable_name": "main",
+            "status": "active"
+          },
+          "actual_selected_path_denominator": 6,
+          "successful_byte_read_denominator": 6,
+          "read_complete": true,
+          "result": "complete_for_selected_local_text_inputs"
+        }
+      ]
+    },
+    {
+      "name": "dfk-remove-old-classifier",
+      "role": "matched historical classifier only removal through same realCLI and Git fixture matrix",
+      "source_commit": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+      "command": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/command.json",
+        "bytes": 2065,
+        "sha256": "55440c500a3112ca677e66afdc8c909360527f97f671d3d8b50f3800856494f9"
+      },
+      "full_stdout": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/stdout.txt",
+        "bytes": 71515,
+        "sha256": "424f2e672faef4a006bb949a2e15acad8ec29bdfc1321f61edccf47367f039ad"
+      },
+      "full_stderr": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "full_JUnit": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/junit.xml",
+        "bytes": 53753,
+        "sha256": "a3a2f1958bceb52b06f73f7efb7d71500dda4120617087687c78492c6efa867f"
+      },
+      "all_actual_parent_source_origins_and_environment": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/origins.json",
+        "bytes": 13442,
+        "sha256": "2d4770578c366d049203e437944a782f7fe3567b1f0ee1631f625d0ac7a53a2a"
+      },
+      "returncode": 1,
+      "wall_seconds": 44.70563878299981,
+      "max_rss_kib": 89352,
+      "case_denominator": 6,
+      "cases": [
+        {
+          "classname": "orch02-r2.native-c06.harness.test_dfk_protocol",
+          "name": "test_fresh_G_canonical_cli_protocol_and_complete_denominator[ordinary-root]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_dfk_protocol",
+          "name": "test_fresh_G_canonical_cli_protocol_and_complete_denominator[ordinary-nested]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_dfk_protocol",
+          "name": "test_fresh_G_canonical_cli_protocol_and_complete_denominator[staged-RM]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_dfk_protocol",
+          "name": "test_fresh_G_canonical_cli_protocol_and_complete_denominator[staged-C]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_dfk_protocol",
+          "name": "test_fresh_G_canonical_cli_protocol_and_complete_denominator[unstaged-YR]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_dfk_protocol",
+          "name": "test_fresh_G_canonical_cli_protocol_and_complete_denominator[unstaged-YC]",
+          "outcome": "FAIL"
+        }
+      ],
+      "actual_parent_file_origins": 0,
+      "parent_G_nonidentical_modules": [],
+      "actual_cli_children": [
+        {
+          "case": "ordinary-root",
+          "independent_rawGit_and_oracle_or_boundary_receipt": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro0/oracle.json",
+            "bytes": 2864,
+            "sha256": "1c0f35ba048f3ff89dc183e8beeee690a99050e7054bc7ccf0a730210cd0b622"
+          },
+          "command_wall_RSS": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/command.json",
+            "bytes": 2065,
+            "sha256": "f40bf106212a6039641cd312053797bfcfd3012379ea19075219e7e5abf333bb"
+          },
+          "full_stdout": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/stdout.txt",
+            "bytes": 11472,
+            "sha256": "9ee7b7503ee6f747b5943d794d8d7c01babfc7306d7e089e2770ad1aa107e765"
+          },
+          "full_stderr": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/stderr.txt",
+            "bytes": 83,
+            "sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+          },
+          "all_actual_source_origins_and_environment": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/origins.json",
+            "bytes": 21960,
+            "sha256": "3d41fdd85d72872af504ed2df0f8af04a31a068c49a122c1fbee3af9f3387802"
+          },
+          "returncode": 0,
+          "wall_seconds": 6.73602862700136,
+          "max_rss_kib": 56104,
+          "actual_product_module_file_origins": 13,
+          "canonical_module_entrypoint": {
+            "execution": "runpy.run_module(tools.cli, run_name=__main__, alter_sys=True) in an isolated Python process; original __main__ SystemExit(main()) executes with unchanged CLI argv",
+            "argv": [
+              "validation",
+              "schema-fqn-census",
+              "--output-format",
+              "json",
+              "--repo-root",
+              "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro0/fixture"
+            ],
+            "path": "policy-engine/tools/cli.py",
+            "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/cli.py",
+            "git_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+            "bytes": 25923,
+            "candidate_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "G_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e"
+          },
+          "actual_registry_spec": {
+            "category": "validation",
+            "name": "schema-fqn-census",
+            "module": "tools.quality.validation.schema_fqn_census",
+            "callable_name": "main",
+            "status": "active"
+          },
+          "actual_selected_path_denominator": 5,
+          "successful_byte_read_denominator": 5,
+          "read_complete": true,
+          "result": "complete_for_selected_local_text_inputs"
+        },
+        {
+          "case": "ordinary-nested",
+          "independent_rawGit_and_oracle_or_boundary_receipt": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro1/oracle.json",
+            "bytes": 2950,
+            "sha256": "be3fe97ab5d281dc553541309b2a24d7ce985a0802ea0e4c663b15a35bdf2bd0"
+          },
+          "command_wall_RSS": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/command.json",
+            "bytes": 2079,
+            "sha256": "46b23a312919f320d54156594d0d2a168dcc2b2957cc390c1707d3444a845ff4"
+          },
+          "full_stdout": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/stdout.txt",
+            "bytes": 11460,
+            "sha256": "0afe77d6c5457ee42f5bf7e4471f53ab00e0cf708b30c010ebfe33e98fce83c2"
+          },
+          "full_stderr": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/stderr.txt",
+            "bytes": 83,
+            "sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+          },
+          "all_actual_source_origins_and_environment": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/origins.json",
+            "bytes": 21974,
+            "sha256": "dfed2f0ac8c54588b633bad74d83ffe966a64f8a6e97f21b2e3bb657ef427f7c"
+          },
+          "returncode": 0,
+          "wall_seconds": 6.12626129399905,
+          "max_rss_kib": 55980,
+          "actual_product_module_file_origins": 13,
+          "canonical_module_entrypoint": {
+            "execution": "runpy.run_module(tools.cli, run_name=__main__, alter_sys=True) in an isolated Python process; original __main__ SystemExit(main()) executes with unchanged CLI argv",
+            "argv": [
+              "validation",
+              "schema-fqn-census",
+              "--output-format",
+              "text",
+              "--repo-root",
+              "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro1/fixture/policy-engine"
+            ],
+            "path": "policy-engine/tools/cli.py",
+            "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/cli.py",
+            "git_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+            "bytes": 25923,
+            "candidate_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "G_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e"
+          },
+          "actual_registry_spec": {
+            "category": "validation",
+            "name": "schema-fqn-census",
+            "module": "tools.quality.validation.schema_fqn_census",
+            "callable_name": "main",
+            "status": "active"
+          },
+          "actual_selected_path_denominator": 5,
+          "successful_byte_read_denominator": 5,
+          "read_complete": true,
+          "result": "complete_for_selected_local_text_inputs"
+        },
+        {
+          "case": "staged-RM",
+          "independent_rawGit_and_oracle_or_boundary_receipt": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro2/oracle.json",
+            "bytes": 3049,
+            "sha256": "52c1f20177bb0660d725d41c90afc3a503bc9870abe47b8050bac7083bbbc365"
+          },
+          "command_wall_RSS": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/command.json",
+            "bytes": 2091,
+            "sha256": "2c278f50bf70b1919c5f3597998f5213a46f53331b6d2018517504d4e85e61d0"
+          },
+          "full_stdout": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/stdout.txt",
+            "bytes": 11412,
+            "sha256": "f187fc2371bde366af02e4e8d258237d3695784919cac3d91279182f9a4d357e"
+          },
+          "full_stderr": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/stderr.txt",
+            "bytes": 83,
+            "sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+          },
+          "all_actual_source_origins_and_environment": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/origins.json",
+            "bytes": 21974,
+            "sha256": "cc2b43fd9f4a1d2973e1ad126b3a17a15018eac5154386ba17f822a0c71d140f"
+          },
+          "returncode": 0,
+          "wall_seconds": 6.664728270001433,
+          "max_rss_kib": 56028,
+          "actual_product_module_file_origins": 13,
+          "canonical_module_entrypoint": {
+            "execution": "runpy.run_module(tools.cli, run_name=__main__, alter_sys=True) in an isolated Python process; original __main__ SystemExit(main()) executes with unchanged CLI argv",
+            "argv": [
+              "validation",
+              "schema-fqn-census",
+              "--output-format",
+              "text",
+              "--repo-root",
+              "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro2/fixture/policy-engine"
+            ],
+            "path": "policy-engine/tools/cli.py",
+            "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/cli.py",
+            "git_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+            "bytes": 25923,
+            "candidate_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "G_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e"
+          },
+          "actual_registry_spec": {
+            "category": "validation",
+            "name": "schema-fqn-census",
+            "module": "tools.quality.validation.schema_fqn_census",
+            "callable_name": "main",
+            "status": "active"
+          },
+          "actual_selected_path_denominator": 5,
+          "successful_byte_read_denominator": 5,
+          "read_complete": true,
+          "result": "complete_for_selected_local_text_inputs"
+        },
+        {
+          "case": "staged-C",
+          "independent_rawGit_and_oracle_or_boundary_receipt": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro3/oracle.json",
+            "bytes": 3273,
+            "sha256": "72709b0d0ec3015601a544c1129d43a3dfaae22d353d368591fac83cd200fb2a"
+          },
+          "command_wall_RSS": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/command.json",
+            "bytes": 2080,
+            "sha256": "35e5bdfd9884dfe99099f206f047a1b81c23819b30d14fe556bf961b17b94d60"
+          },
+          "full_stdout": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/stdout.txt",
+            "bytes": 12178,
+            "sha256": "3e17b0b80cf4da2caa60458e8614135147f7dc1a80d6756c00b8612a7815f6c5"
+          },
+          "full_stderr": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/stderr.txt",
+            "bytes": 83,
+            "sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+          },
+          "all_actual_source_origins_and_environment": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/origins.json",
+            "bytes": 21974,
+            "sha256": "062d369d74c489ae7258e6288d84424bdefc29e4f3c744e3ed1dedbeef1bf248"
+          },
+          "returncode": 0,
+          "wall_seconds": 6.963516087000244,
+          "max_rss_kib": 56124,
+          "actual_product_module_file_origins": 13,
+          "canonical_module_entrypoint": {
+            "execution": "runpy.run_module(tools.cli, run_name=__main__, alter_sys=True) in an isolated Python process; original __main__ SystemExit(main()) executes with unchanged CLI argv",
+            "argv": [
+              "validation",
+              "schema-fqn-census",
+              "--output-format",
+              "text",
+              "--repo-root",
+              "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro3/fixture/policy-engine"
+            ],
+            "path": "policy-engine/tools/cli.py",
+            "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/cli.py",
+            "git_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+            "bytes": 25923,
+            "candidate_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "G_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e"
+          },
+          "actual_registry_spec": {
+            "category": "validation",
+            "name": "schema-fqn-census",
+            "module": "tools.quality.validation.schema_fqn_census",
+            "callable_name": "main",
+            "status": "active"
+          },
+          "actual_selected_path_denominator": 6,
+          "successful_byte_read_denominator": 6,
+          "read_complete": true,
+          "result": "complete_for_selected_local_text_inputs"
+        },
+        {
+          "case": "unstaged-YR",
+          "independent_rawGit_and_oracle_or_boundary_receipt": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro4/oracle.json",
+            "bytes": 3224,
+            "sha256": "9b9c91fd0e051115f5f3877acdb7a7356c2d9ba0127bea26b27ecc22be6b014a"
+          },
+          "command_wall_RSS": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/command.json",
+            "bytes": 2092,
+            "sha256": "68005abf7564bfa9993c57886ee8b9163a2afc3197e108b08ee9b650bb7a5ee6"
+          },
+          "full_stdout": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/stdout.txt",
+            "bytes": 11662,
+            "sha256": "0de49dfd3937592bd67cf11368877b2a37e7867cbe0ac8f950fc3400bf5e9eea"
+          },
+          "full_stderr": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/stderr.txt",
+            "bytes": 83,
+            "sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+          },
+          "all_actual_source_origins_and_environment": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/origins.json",
+            "bytes": 21974,
+            "sha256": "b4d7210c052cabbafd941ced161190f8a83f625a8dd4784db90ccd86bb183955"
+          },
+          "returncode": 2,
+          "wall_seconds": 5.664678783999989,
+          "max_rss_kib": 56056,
+          "actual_product_module_file_origins": 13,
+          "canonical_module_entrypoint": {
+            "execution": "runpy.run_module(tools.cli, run_name=__main__, alter_sys=True) in an isolated Python process; original __main__ SystemExit(main()) executes with unchanged CLI argv",
+            "argv": [
+              "validation",
+              "schema-fqn-census",
+              "--output-format",
+              "text",
+              "--repo-root",
+              "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro4/fixture/policy-engine"
+            ],
+            "path": "policy-engine/tools/cli.py",
+            "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/cli.py",
+            "git_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+            "bytes": 25923,
+            "candidate_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "G_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e"
+          },
+          "actual_registry_spec": {
+            "category": "validation",
+            "name": "schema-fqn-census",
+            "module": "tools.quality.validation.schema_fqn_census",
+            "callable_name": "main",
+            "status": "active"
+          },
+          "actual_selected_path_denominator": 6,
+          "successful_byte_read_denominator": 5,
+          "read_complete": false,
+          "result": "partial_unreadable_input"
+        },
+        {
+          "case": "unstaged-YC",
+          "independent_rawGit_and_oracle_or_boundary_receipt": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/oracle.json",
+            "bytes": 3275,
+            "sha256": "65c3b9c637584c3142c21a38116db35ea6cd18575307241230756a9727284fed"
+          },
+          "command_wall_RSS": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/command.json",
+            "bytes": 2078,
+            "sha256": "4b04600bf7af0843f8a02a46c0a7682b12f1476d27dd5b65a1fc988b7ea884dd"
+          },
+          "full_stdout": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/stdout.txt",
+            "bytes": 12178,
+            "sha256": "ccc0b207adc4fa7512b3ade1417672bb50a22406c4fe88b33f26a0ec65b97bdc"
+          },
+          "full_stderr": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/stderr.txt",
+            "bytes": 83,
+            "sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+          },
+          "all_actual_source_origins_and_environment": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/origins.json",
+            "bytes": 21974,
+            "sha256": "0ccb0e7d628561f94c308881f7eff5a5f42c6a7926ad8a7d71ca1eb1a1ba73d9"
+          },
+          "returncode": 0,
+          "wall_seconds": 5.75599365600101,
+          "max_rss_kib": 56124,
+          "actual_product_module_file_origins": 13,
+          "canonical_module_entrypoint": {
+            "execution": "runpy.run_module(tools.cli, run_name=__main__, alter_sys=True) in an isolated Python process; original __main__ SystemExit(main()) executes with unchanged CLI argv",
+            "argv": [
+              "validation",
+              "schema-fqn-census",
+              "--output-format",
+              "text",
+              "--repo-root",
+              "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/fixture/policy-engine"
+            ],
+            "path": "policy-engine/tools/cli.py",
+            "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/cli.py",
+            "git_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+            "bytes": 25923,
+            "candidate_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "G_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e"
+          },
+          "actual_registry_spec": {
+            "category": "validation",
+            "name": "schema-fqn-census",
+            "module": "tools.quality.validation.schema_fqn_census",
+            "callable_name": "main",
+            "status": "active"
+          },
+          "actual_selected_path_denominator": 6,
+          "successful_byte_read_denominator": 6,
+          "read_complete": true,
+          "result": "complete_for_selected_local_text_inputs"
+        }
+      ]
+    },
+    {
+      "name": "dfk-additional-boundary-modes",
+      "role": "new SARIF/JUnit success and missing-input combinations only",
+      "source_commit": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+      "command": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/command.json",
+        "bytes": 2093,
+        "sha256": "f1bbcbcc2141239d7085adf28edccce566cb6fe7dcf02b18b16bcef4b1c3f788"
+      },
+      "full_stdout": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/stdout.txt",
+        "bytes": 6501,
+        "sha256": "ce3fcabf8e9504be56b1627e7005e70c83ef02dc5014a035c08035f038e8ee1f"
+      },
+      "full_stderr": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "full_JUnit": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/junit.xml",
+        "bytes": 935,
+        "sha256": "80271bd61cf4323f2dc0131acc38e3edc531695e3b704365a655cbc17cc4ddda"
+      },
+      "all_actual_parent_source_origins_and_environment": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/origins.json",
+        "bytes": 13442,
+        "sha256": "cc9efc7deec42e5e65b9bad3aacc88d1b259eab987555d4ea9a79ccb5d1f1e9b"
+      },
+      "returncode": 0,
+      "wall_seconds": 25.43326088899994,
+      "max_rss_kib": 88468,
+      "case_denominator": 4,
+      "cases": [
+        {
+          "classname": "orch02-r2.native-c06.harness.test_dfk_boundary_modes",
+          "name": "test_additional_cli_boundary_mode_preserves_real_json_receipt[False-sarif]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_dfk_boundary_modes",
+          "name": "test_additional_cli_boundary_mode_preserves_real_json_receipt[False-junit]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_dfk_boundary_modes",
+          "name": "test_additional_cli_boundary_mode_preserves_real_json_receipt[True-sarif]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_dfk_boundary_modes",
+          "name": "test_additional_cli_boundary_mode_preserves_real_json_receipt[True-junit]",
+          "outcome": "PASS"
+        }
+      ],
+      "actual_parent_file_origins": 0,
+      "parent_G_nonidentical_modules": [],
+      "actual_cli_children": [
+        {
+          "case": {
+            "boundary_format": "sarif",
+            "missing_input": false
+          },
+          "independent_rawGit_and_oracle_or_boundary_receipt": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m0/boundary.json",
+            "bytes": 1226,
+            "sha256": "838338be16835068c9b46f8764a85e51e8a4a19cf6e73d71e758ce9ebee08e14"
+          },
+          "command_wall_RSS": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m0/canonical-cli/command.json",
+            "bytes": 1966,
+            "sha256": "3b49cd04d44f9c65e1072753e89d92f074cb1e89b2922b6efe40ed8d565c8035"
+          },
+          "full_stdout": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m0/canonical-cli/stdout.txt",
+            "bytes": 9016,
+            "sha256": "84ecc87eeb783e4d8ee6e2a81ac6d49dbd07555459ec12b77a76f8d4b14ccdf3"
+          },
+          "full_stderr": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m0/canonical-cli/stderr.txt",
+            "bytes": 83,
+            "sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+          },
+          "all_actual_source_origins_and_environment": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m0/canonical-cli/origins.json",
+            "bytes": 21976,
+            "sha256": "ce6aa76bc8e9dc5d35e7d071e0158154fac1cc41d33d3b586dd6edd549f7a446"
+          },
+          "returncode": 0,
+          "wall_seconds": 4.5140437059999385,
+          "max_rss_kib": 56116,
+          "actual_product_module_file_origins": 13,
+          "canonical_module_entrypoint": {
+            "execution": "runpy.run_module(tools.cli, run_name=__main__, alter_sys=True) in an isolated Python process; original __main__ SystemExit(main()) executes with unchanged CLI argv",
+            "argv": [
+              "validation",
+              "schema-fqn-census",
+              "--output-format",
+              "sarif",
+              "--repo-root",
+              "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m0/fixture"
+            ],
+            "path": "policy-engine/tools/cli.py",
+            "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/cli.py",
+            "git_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+            "bytes": 25923,
+            "candidate_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "G_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e"
+          },
+          "actual_registry_spec": {
+            "category": "validation",
+            "name": "schema-fqn-census",
+            "module": "tools.quality.validation.schema_fqn_census",
+            "callable_name": "main",
+            "status": "active"
+          },
+          "actual_selected_path_denominator": 1,
+          "successful_byte_read_denominator": 1,
+          "read_complete": true,
+          "result": "complete_for_selected_local_text_inputs"
+        },
+        {
+          "case": {
+            "boundary_format": "junit",
+            "missing_input": false
+          },
+          "independent_rawGit_and_oracle_or_boundary_receipt": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m1/boundary.json",
+            "bytes": 1225,
+            "sha256": "eaec22b318ebedf6a48ecf997552d4507083a36da12fbb027bbbf1ca3c0ead8d"
+          },
+          "command_wall_RSS": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m1/canonical-cli/command.json",
+            "bytes": 1977,
+            "sha256": "2a045adb2b5f42f4cef8bc1104b0f127b141e9d0fc3b6574bbe5f8faf87892ce"
+          },
+          "full_stdout": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m1/canonical-cli/stdout.txt",
+            "bytes": 9016,
+            "sha256": "0498a42b255e92749bdd630e5b389530d7a226aa456155fe2afaa9076831c43c"
+          },
+          "full_stderr": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m1/canonical-cli/stderr.txt",
+            "bytes": 83,
+            "sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+          },
+          "all_actual_source_origins_and_environment": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m1/canonical-cli/origins.json",
+            "bytes": 21976,
+            "sha256": "106a601b183ee6a0b8bbd467044aa188052a80b56e820b174a7319f1abf8f1c4"
+          },
+          "returncode": 0,
+          "wall_seconds": 4.434768420998807,
+          "max_rss_kib": 56120,
+          "actual_product_module_file_origins": 13,
+          "canonical_module_entrypoint": {
+            "execution": "runpy.run_module(tools.cli, run_name=__main__, alter_sys=True) in an isolated Python process; original __main__ SystemExit(main()) executes with unchanged CLI argv",
+            "argv": [
+              "validation",
+              "schema-fqn-census",
+              "--output-format",
+              "junit",
+              "--repo-root",
+              "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m1/fixture"
+            ],
+            "path": "policy-engine/tools/cli.py",
+            "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/cli.py",
+            "git_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+            "bytes": 25923,
+            "candidate_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "G_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e"
+          },
+          "actual_registry_spec": {
+            "category": "validation",
+            "name": "schema-fqn-census",
+            "module": "tools.quality.validation.schema_fqn_census",
+            "callable_name": "main",
+            "status": "active"
+          },
+          "actual_selected_path_denominator": 1,
+          "successful_byte_read_denominator": 1,
+          "read_complete": true,
+          "result": "complete_for_selected_local_text_inputs"
+        },
+        {
+          "case": {
+            "boundary_format": "sarif",
+            "missing_input": true
+          },
+          "independent_rawGit_and_oracle_or_boundary_receipt": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m2/boundary.json",
+            "bytes": 1224,
+            "sha256": "5011ade387ad827f9b2ab29ae9439f3d12c02ee306f37a5ae6bf2a34c937f480"
+          },
+          "command_wall_RSS": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m2/canonical-cli/command.json",
+            "bytes": 1978,
+            "sha256": "210d592389445a7c1ab1ba9d86e8c8e7f5b838d30d2f694cb511b5d0b45b0f11"
+          },
+          "full_stdout": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m2/canonical-cli/stdout.txt",
+            "bytes": 8681,
+            "sha256": "4e7abe3806a150b8cd672e5f9467ec7290d68cd553beba254c714cf280d10210"
+          },
+          "full_stderr": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m2/canonical-cli/stderr.txt",
+            "bytes": 83,
+            "sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+          },
+          "all_actual_source_origins_and_environment": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m2/canonical-cli/origins.json",
+            "bytes": 21976,
+            "sha256": "04d884841b9230adf2254e022b188abe24f291fe128035ee091afdde2659b3d7"
+          },
+          "returncode": 2,
+          "wall_seconds": 4.902420546999565,
+          "max_rss_kib": 56080,
+          "actual_product_module_file_origins": 13,
+          "canonical_module_entrypoint": {
+            "execution": "runpy.run_module(tools.cli, run_name=__main__, alter_sys=True) in an isolated Python process; original __main__ SystemExit(main()) executes with unchanged CLI argv",
+            "argv": [
+              "validation",
+              "schema-fqn-census",
+              "--output-format",
+              "sarif",
+              "--repo-root",
+              "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m2/fixture"
+            ],
+            "path": "policy-engine/tools/cli.py",
+            "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/cli.py",
+            "git_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+            "bytes": 25923,
+            "candidate_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "G_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e"
+          },
+          "actual_registry_spec": {
+            "category": "validation",
+            "name": "schema-fqn-census",
+            "module": "tools.quality.validation.schema_fqn_census",
+            "callable_name": "main",
+            "status": "active"
+          },
+          "actual_selected_path_denominator": 1,
+          "successful_byte_read_denominator": 0,
+          "read_complete": false,
+          "result": "partial_unreadable_input"
+        },
+        {
+          "case": {
+            "boundary_format": "junit",
+            "missing_input": true
+          },
+          "independent_rawGit_and_oracle_or_boundary_receipt": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m3/boundary.json",
+            "bytes": 1224,
+            "sha256": "1f9bd432570b680303392198e51ab548c3fae9bc993d5fdedc1e0854657fe86a"
+          },
+          "command_wall_RSS": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m3/canonical-cli/command.json",
+            "bytes": 1979,
+            "sha256": "21698cf9420ab1f66f2aca38c80331185dec309553925a5abe2bd2c9c7e67062"
+          },
+          "full_stdout": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m3/canonical-cli/stdout.txt",
+            "bytes": 8681,
+            "sha256": "03edbe2f4f6739423aab2d7847cab1b29a4d8174b6f6d00e8598bac05c3702d8"
+          },
+          "full_stderr": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m3/canonical-cli/stderr.txt",
+            "bytes": 83,
+            "sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+          },
+          "all_actual_source_origins_and_environment": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m3/canonical-cli/origins.json",
+            "bytes": 21976,
+            "sha256": "e33f530067f7d57a9da07a80b297d5fad3cf6130a5d5616abe3a6f26b9f1023b"
+          },
+          "returncode": 2,
+          "wall_seconds": 4.762251281999852,
+          "max_rss_kib": 56140,
+          "actual_product_module_file_origins": 13,
+          "canonical_module_entrypoint": {
+            "execution": "runpy.run_module(tools.cli, run_name=__main__, alter_sys=True) in an isolated Python process; original __main__ SystemExit(main()) executes with unchanged CLI argv",
+            "argv": [
+              "validation",
+              "schema-fqn-census",
+              "--output-format",
+              "junit",
+              "--repo-root",
+              "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m3/fixture"
+            ],
+            "path": "policy-engine/tools/cli.py",
+            "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/cli.py",
+            "git_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+            "bytes": 25923,
+            "candidate_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "G_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e"
+          },
+          "actual_registry_spec": {
+            "category": "validation",
+            "name": "schema-fqn-census",
+            "module": "tools.quality.validation.schema_fqn_census",
+            "callable_name": "main",
+            "status": "active"
+          },
+          "actual_selected_path_denominator": 1,
+          "successful_byte_read_denominator": 0,
+          "read_complete": false,
+          "result": "partial_unreadable_input"
+        }
+      ]
+    },
+    {
+      "name": "dfk-json-missing-boundary",
+      "role": "previously unexecuted JSON boundary missing-input combination only",
+      "source_commit": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+      "command": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-json-missing-boundary/command.json",
+        "bytes": 2075,
+        "sha256": "fb5f0752db31bd5b5b359c1f39e2f80e88f289232d0b0b351db4a1726d24499e"
+      },
+      "full_stdout": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-json-missing-boundary/stdout.txt",
+        "bytes": 2334,
+        "sha256": "7d57b424405369d97620fe1cf820f670d94391bec7ee13a3064d1c2c991f9135"
+      },
+      "full_stderr": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-json-missing-boundary/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "full_JUnit": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-json-missing-boundary/junit.xml",
+        "bytes": 385,
+        "sha256": "767831276f1c39c2689aa655b5cefa52887611a556c4be884f26519f4ebdba6f"
+      },
+      "all_actual_parent_source_origins_and_environment": {
+        "path": "/workspace/orch02-r2/native-c06/dfk-json-missing-boundary/origins.json",
+        "bytes": 13442,
+        "sha256": "cc9efc7deec42e5e65b9bad3aacc88d1b259eab987555d4ea9a79ccb5d1f1e9b"
+      },
+      "returncode": 0,
+      "wall_seconds": 7.124204530999123,
+      "max_rss_kib": 88396,
+      "case_denominator": 1,
+      "cases": [
+        {
+          "classname": "orch02-r2.native-c06.harness.test_dfk_json_missing",
+          "name": "test_json_boundary_missing_selected_input",
+          "outcome": "PASS"
+        }
+      ],
+      "actual_parent_file_origins": 0,
+      "parent_G_nonidentical_modules": [],
+      "actual_cli_children": [
+        {
+          "case": {
+            "boundary_format": "json",
+            "missing_input": true
+          },
+          "independent_rawGit_and_oracle_or_boundary_receipt": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-json-missing-boundary/pytest-tmp/test_json_boundary_missing_sel0/boundary.json",
+            "bytes": 1203,
+            "sha256": "47b96518198883d2434eb3c4bd5d0856ab13c0aa84488beec3616fc24c32ee51"
+          },
+          "command_wall_RSS": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-json-missing-boundary/pytest-tmp/test_json_boundary_missing_sel0/canonical-cli/command.json",
+            "bytes": 1959,
+            "sha256": "e95b282d6a0c9e62ab2dc0f2fb8338b91c36cfe42d8d96403555f8e58070eec7"
+          },
+          "full_stdout": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-json-missing-boundary/pytest-tmp/test_json_boundary_missing_sel0/canonical-cli/stdout.txt",
+            "bytes": 8681,
+            "sha256": "b0c5e0cd46de3049718ac3a0f177e268266f5a536edcdf3d2b760e0606fa9048"
+          },
+          "full_stderr": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-json-missing-boundary/pytest-tmp/test_json_boundary_missing_sel0/canonical-cli/stderr.txt",
+            "bytes": 83,
+            "sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+          },
+          "all_actual_source_origins_and_environment": {
+            "path": "/workspace/orch02-r2/native-c06/dfk-json-missing-boundary/pytest-tmp/test_json_boundary_missing_sel0/canonical-cli/origins.json",
+            "bytes": 21971,
+            "sha256": "b8ce5de0b6b698ae8f2cdf77ffcbd8caa6f31ead077977170a4195677d1bb4a4"
+          },
+          "returncode": 2,
+          "wall_seconds": 3.623133469000095,
+          "max_rss_kib": 56136,
+          "actual_product_module_file_origins": 13,
+          "canonical_module_entrypoint": {
+            "execution": "runpy.run_module(tools.cli, run_name=__main__, alter_sys=True) in an isolated Python process; original __main__ SystemExit(main()) executes with unchanged CLI argv",
+            "argv": [
+              "validation",
+              "schema-fqn-census",
+              "--output-format",
+              "json",
+              "--repo-root",
+              "/workspace/orch02-r2/native-c06/dfk-json-missing-boundary/pytest-tmp/test_json_boundary_missing_sel0/fixture"
+            ],
+            "path": "policy-engine/tools/cli.py",
+            "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/cli.py",
+            "git_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+            "bytes": 25923,
+            "candidate_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+            "G_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e"
+          },
+          "actual_registry_spec": {
+            "category": "validation",
+            "name": "schema-fqn-census",
+            "module": "tools.quality.validation.schema_fqn_census",
+            "callable_name": "main",
+            "status": "active"
+          },
+          "actual_selected_path_denominator": 1,
+          "successful_byte_read_denominator": 0,
+          "read_complete": false,
+          "result": "partial_unreadable_input"
+        }
+      ]
+    }
+  ],
+  "matched_property_removal": {
+    "canonical_source_commit": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+    "canonical_source_path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+    "canonical_source_sha256": "a2ee2b6d21a1b5d5cf5e2484539ca5ca365f82a8d1b941344730e58f13625d42",
+    "mutation_source_sha256": "20274fa9df883e3546c6deeef03129286b7540dbe905c3673bae4135419fcc58",
+    "delta_sha256": "d878aefa9edd23ebf91cfdb3d3f6ac89727c641d701adc642e1a8dba2d8e13ef",
+    "recipe": "Exact historical classifier conditional supplied by canonical writer; one line only, no old blob/snapshot readback.",
+    "preserved_markers": [
+      "SCHEMA",
+      "selection",
+      "working_tree_changes",
+      "read_receipt",
+      "unresolved_by_construction",
+      "complete_verdict"
+    ],
+    "minimal_delta": {
+      "path": "/workspace/orch02-r2/native-c06/mutants/dfk-old-classifier/mutation.diff",
+      "bytes": 516,
+      "sha256": "d878aefa9edd23ebf91cfdb3d3f6ac89727c641d701adc642e1a8dba2d8e13ef"
+    },
+    "reconstruction": "Read canonical schema_fqn_census.py from exact3a0 Gitref and apply the single-line unified diff; verify exact mutation_source_sha256. Scratch executable mutant is not a publishable source snapshot."
+  },
+  "verdict": "GO_BOUNDED_TOOL_ADOPTION_NATIVE; no G source acceptance or formal closure",
+  "predicate_basis": {
+    "source_identity": "independently_reconciled against exactGitrefs",
+    "Git_path_changes": "independently_reconciled rawporcelain-v1-z versus separate diff/cached-diff/ls-files path sets",
+    "selected_fixture_set": "recomputed from independently assigned finite fixture file types and Gitvisible path queries",
+    "actual_byte_reads": "independently_reconciled perpath exact SHA256 and successful-read rows",
+    "public_command_execution": "recomputed actual current registryACTIVE spec and canonical tools.cli __main__ execution",
+    "external_installed_dynamic_archive_retirement": "not_established and not admitted"
+  },
+  "source_acceptance": "not_admitted_by_G",
+  "formal_closure_ids": [],
+  "DFK02_composition": {
+    "selected_current_G_test_blob": "1e8263b473c448fc39a85e6169d305079b51050c",
+    "currentG_only": true,
+    "C05_newer_own_base_or_G_port_source_selected": false,
+    "joint_C05_new_source_composition": "not_established"
+  },
+  "scope_notes": [
+    "DFK01 physical35 and currentG DFK02 physical10 passed on immutable3a0; all398 actual parent product file origins match candidateGit, soleGdeltaownedcensus.",
+    "External protocol parent uses stdlib only (zero product modules); each actual canonicalCLI child has its own complete13product file-origin record plus explicit executed tools.cli source binding. This is not a zero-src import-gate SKIP or substitute import verdict.",
+    "Six fresh protocol cases cover ordinaryM/AM root and nested product paths, stagedRM and C, unstagedY=R and Y=C, nextordinaryrecords, space/newline/nonASCII and outside-product paths. Copy/rename records are asserted directly from actual Git bytes, not mocked protocol records.",
+    "For staged rename the old source leaves index selection; missing tracked old source for intent-to-add Y=R remains selected, fails byte-read completeness and emits code2.",
+    "Per-case read receipts retain complete selected denominator5or6, exact successful-byte-read bindings, one excludedknown-binary and one ignoredtarget-bearingfile. Outside ignored evidence remains unresolved; external/runtime/archive boundaries stay undecided.",
+    "PublicCLI boundary text/json/sarif/junit successful tool stdout is fullJSON, as governed by existing CLI help; format controls boundary errors. Actual unreadable-selected inputs retain fullJSON/readcompletefalse/code2 in allfour modes.",
+    "Single-line exact historical classifier conditional preserves schema/receipt/membership/output markers and realGit/CLI; allsix matched cases fail on changed-path oracle mismatch, despite unchanged readfields and surviving source supplier origins.",
+    "Allfive original currentG test function ASTs and decorators remain unchanged. Compatibility-pending schema/codegen/pipeline surfaces and mechanisms tombstone remain currentG contracts; no legacy family retirement.",
+    "G/team-devx public inventory, lifecycle/generated references and declared external Git dependency metadata remain separate owner decisions. Runtime Git is present in this wave; missingGit dependency preflight metadata is not certified.",
+    "No source/lock/sharedregistry/generated/package edits; no old13650census/package/170MBgraph replay by tester. Author requiredquality outputs remain a separate gate packet; nativePASS does not make architecture or overallGgreen."
+  ]
+}

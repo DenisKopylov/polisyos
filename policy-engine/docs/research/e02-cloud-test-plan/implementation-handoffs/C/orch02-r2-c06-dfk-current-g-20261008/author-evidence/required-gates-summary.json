@@ -1,0 +1,113 @@
+{
+  "P41": "not_established",
+  "checks": [
+    {
+      "gate": "ruff-check",
+      "outcome": "PASS",
+      "receipt": "/workspace/orch02-r2/c06-dfk/author-gates/ruff-check/command.json",
+      "returncode": 0
+    },
+    {
+      "gate": "ruff-format",
+      "outcome": "PASS",
+      "receipt": "/workspace/orch02-r2/c06-dfk/author-gates/ruff-format/command.json",
+      "returncode": 0
+    },
+    {
+      "gate": "mypy",
+      "outcome": "PASS",
+      "receipt": "/workspace/orch02-r2/c06-dfk/author-gates/mypy/command.json",
+      "returncode": 0
+    },
+    {
+      "gate": "imports",
+      "outcome": "SKIP_no_changed_src_gate_inputs",
+      "receipt": "/workspace/orch02-r2/c06-dfk/author-gates/imports/command.json",
+      "returncode": 0
+    },
+    {
+      "gate": "architecture-nongenerated",
+      "outcome": "FAIL_partial_nongenerated",
+      "receipt": "/workspace/orch02-r2/c06-dfk/author-gates/architecture-nongenerated/command.json",
+      "returncode": 1
+    },
+    {
+      "gate": "canonical production_invocation newly changed full G inputs",
+      "lossless_receipt": "/workspace/orch02-r2/c06-dfk/required-invocation/receipt.json.gz",
+      "outcome": "PASS_partial_static_only",
+      "receipt": "/workspace/orch02-r2/c06-dfk/required-invocation/command.json",
+      "returncode": 0,
+      "runtime_invocation_established": false
+    },
+    {
+      "complete_stdout": "/workspace/orch02-r2/c06-dfk/required-architecture/architecture/stdout.txt",
+      "deep_import_creep_count": 155,
+      "diagnostic_count": 196,
+      "diagnostic_line_selector": "^- [A-Za-z]; excludes removed baseline unified-diff lines",
+      "gate": "full default architecture generated checks newly changed G input",
+      "generated_UNRUN_or_isolation_errors": [],
+      "generated_clean": [
+        "Generated artifact freshness clean: runtime-api-client (3 generator-observed outputs).",
+        "Generated artifact freshness clean: runtime-dashboard-api-types (1 generator-observed outputs)."
+      ],
+      "inherited_attribution": "not_established; no exact base replay/full gate-denominator zero-overlap proof",
+      "other_diagnostics": [
+        "- Deep-import baseline drift detected. Re-run `uv run polisyos-tools architecture guardrails sync` only when intentionally accepting the new baseline.",
+        "- runtime-openapi-snapshot generated output schemas/runtime_api_v1.openapi.json does not match /workspace/orch02-r2-c06-dfk-g/policy-engine/schemas/runtime_api_v1.openapi.json.",
+        "- trust-claim-posture-register generated output apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json does not match /workspace/orch02-r2-c06-dfk-g/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json."
+      ],
+      "outcome": "FAIL",
+      "public_export_totals_unresolved": [
+        "- polisyos.common export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/common/__init__.py:from __future__ import annotations.",
+        "- polisyos.common.config export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/common/__init__.py:from __future__ import annotations.",
+        "- polisyos.core export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/core/__init__.py:from __future__ import annotations.",
+        "- polisyos.core.contracts export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/core/__init__.py:from __future__ import annotations.",
+        "- polisyos.core.observability export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/core/__init__.py:from __future__ import annotations.",
+        "- polisyos.core.security export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/core/__init__.py:from __future__ import annotations.",
+        "- polisyos.core.trace export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/core/__init__.py:from __future__ import annotations.",
+        "- polisyos.ir export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/ir/__init__.py:from __future__ import annotations.",
+        "- polisyos.ir.analytics export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/ir/__init__.py:from __future__ import annotations.",
+        "- polisyos.ir.api export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/ir/__init__.py:from __future__ import annotations.",
+        "- polisyos.obligation_rules export total is unresolved: Unresolved import-time ClassDef outside pure-declaration grammar: src/polisyos/obligation_rules/catalog.py:class ObligationRule(ObligationRuleModel):",
+        "- polisyos.obligation_graph export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/obligation_graph/__init__.py:from __future__ import annotations.",
+        "- polisyos.method_requirement export total is unresolved: Unresolved import-time ClassDef outside pure-declaration grammar: src/polisyos/method_requirement/_impl/compiler.py:class MethodValidityRequirementCompiler:",
+        "- polisyos.participation_requirement export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/participation_requirement/__init__.py:from __future__ import annotations.",
+        "- polisyos.fabric export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/fabric/__init__.py:from __future__ import annotations.",
+        "- polisyos.fabric.api export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/fabric/__init__.py:from __future__ import annotations.",
+        "- polisyos.fabric.world export total is unresolved: Unresolved conditional/mutated exports: src/polisyos/fabric/world/__init__.py:__all__.",
+        "- polisyos.foundry export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/foundry/__init__.py:from __future__ import annotations.",
+        "- polisyos.foundry.api export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/foundry/__init__.py:from __future__ import annotations.",
+        "- polisyos.foundry.compile export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/foundry/__init__.py:from __future__ import annotations.",
+        "- polisyos.foundry.execute export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/foundry/__init__.py:from __future__ import annotations.",
+        "- polisyos.foundry.uncertainty export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/foundry/__init__.py:from __future__ import annotations.",
+        "- polisyos.scientist export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/scientist/__init__.py:from __future__ import annotations.",
+        "- polisyos.scientist.governance.continuous export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/scientist/__init__.py:from __future__ import annotations.",
+        "- polisyos.scientist.methods.research_dag export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/scientist/__init__.py:from __future__ import annotations.",
+        "- polisyos.scientist.replay export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/scientist/__init__.py:from __future__ import annotations.",
+        "- polisyos.evidence export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/evidence/__init__.py:from __future__ import annotations.",
+        "- polisyos.runtime export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/runtime/__init__.py:from __future__ import annotations.",
+        "- polisyos.runtime.quality export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/runtime/__init__.py:from __future__ import annotations.",
+        "- polisyos.lex export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/lex/__init__.py:from __future__ import annotations.",
+        "- polisyos.lex.knowledge export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/lex/__init__.py:from __future__ import annotations.",
+        "- polisyos.scholar export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/scholar/__init__.py:from __future__ import annotations.",
+        "- polisyos.data_forge export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/data_forge/__init__.py:from __future__ import annotations.",
+        "- polisyos.data_forge.read_api export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/data_forge/__init__.py:from __future__ import annotations.",
+        "- polisyos.berl export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/berl/__init__.py:from __future__ import annotations.",
+        "- polisyos.calibration export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/calibration/__init__.py:from __future__ import annotations.",
+        "- polisyos.ddm export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/ddm/__init__.py:from __future__ import annotations.",
+        "- polisyos.foundry.agent_sim.world export total is unresolved: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/foundry/__init__.py:from __future__ import annotations."
+      ],
+      "public_export_totals_unresolved_count": 38,
+      "receipt": "/workspace/orch02-r2/c06-dfk/required-architecture/architecture/command.json",
+      "returncode": 1
+    }
+  ],
+  "formal_closure_ids": [],
+  "full_architecture": "FAIL",
+  "native_hook_gate": "UNRUN_no_active_hooks_installed",
+  "schema": "policyos.orch02.r2.c06.dfk.required-gates-summary.v1",
+  "slice_base": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "source_acceptance": "not_admitted_by_G",
+  "source_commit": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+  "source_tree": "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a"
+}

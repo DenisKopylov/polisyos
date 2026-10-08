@@ -1,0 +1,12 @@
+dee58973f7673299070b7c7374f419b0adb8175c:policy-engine/tools/devx/workspace/doctor.py:352:        initial = evidence.git(PRODUCT_ROOT, "worktree", "list", "--porcelain", "-z").stdout
+dee58973f7673299070b7c7374f419b0adb8175c:policy-engine/tools/devx/workspace/doctor.py:399:        final = evidence.git(PRODUCT_ROOT, "worktree", "list", "--porcelain", "-z").stdout
+dee58973f7673299070b7c7374f419b0adb8175c:policy-engine/tools/lib/fs.py:34:        ["git", "ls-files", "--cached", "-z", "--", "."],
+dee58973f7673299070b7c7374f419b0adb8175c:policy-engine/tools/quality/testing/review_freeze.py:872:        _git(repository, "ls-files", "--others", "--exclude-standard", "-z", "--")
+dee58973f7673299070b7c7374f419b0adb8175c:policy-engine/tools/quality/testing/review_freeze.py:901:    for entry in _git(repository, "ls-files", "-v", "-z", "--").split(b"\0"):
+dee58973f7673299070b7c7374f419b0adb8175c:policy-engine/tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py:8093:        ["git", "status", "--porcelain=v1", "--", *_UPSTREAM_PATHS],
+dee58973f7673299070b7c7374f419b0adb8175c:policy-engine/tools/quality/validation/check_layer3_gy_value_gate_contract.py:798:        "--porcelain=v1",
+dee58973f7673299070b7c7374f419b0adb8175c:policy-engine/tools/quality/validation/check_package_import_gates.py:429:        ["git", "ls-files", "-z"],  # noqa: S607
+dee58973f7673299070b7c7374f419b0adb8175c:policy-engine/tools/quality/validation/execute_gy_n12_artifact_transition.py:409:    tracked_raw = _git(repo_root, "ls-files", "-z", "--full-name")
+dee58973f7673299070b7c7374f419b0adb8175c:policy-engine/tools/quality/validation/repository_last_mile_inventory.py:323:        ["git", "ls-files", "-z"], cwd=repo_root, check=True, capture_output=True
+dee58973f7673299070b7c7374f419b0adb8175c:policy-engine/tools/quality/validation/repository_structure_phase0.py:164:        ["git", "ls-files", "-z"],
+dee58973f7673299070b7c7374f419b0adb8175c:policy-engine/tools/quality/validation/repository_verification_inventory.py:169:            ["git", "ls-files", "-z"],

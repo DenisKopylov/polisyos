@@ -109,9 +109,7 @@ def _proof_rules(result: object) -> list[str]:
     return [step.rule_name for step in getattr(result, "proof_steps", [])]
 
 
-def _required_distribution_snapshot(
-    result: object,
-) -> list[tuple[tuple[str, ...], tuple[str, ...]]]:
+def _required_distribution_snapshot(result: object) -> list[tuple[tuple[str, ...], tuple[str, ...]]]:
     return [
         (tuple(distribution.variables), tuple(distribution.conditioning))
         for distribution in getattr(result, "required_distributions", [])
@@ -216,7 +214,9 @@ def test_idc_algorithm_ratio_characterization_snapshot() -> None:
     )
 
     assert result.status is IdentificationStatus.IDENTIFIED
-    assert _formula(result) == r"\frac{P(Z) \cdot P(Y \mid X, Z)}{P(Z)}"
+    assert _formula(result) == (
+        r"\frac{P(Z) \cdot P(Y \mid X, Z)}{\sum_{Y} P(Z) \cdot P(Y \mid X, Z)}"
+    )
     assert _proof_rules(result) == [
         "IDC_DECOMPOSE",
         "IDC_POSITIVITY",

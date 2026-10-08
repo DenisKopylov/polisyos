@@ -1,0 +1,588 @@
+{
+  "schema": "policyos.e02.l02.qualified_preparation.v1",
+  "role": "L02",
+  "helper": "l02_source_rights",
+  "source_candidate_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "source_candidate_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "preparer_raw_local_ref": {
+    "path": ".tmp/parallel-20261008-l02/prepared/l02_source_rights.json",
+    "bytes": 40458,
+    "sha256": "cdf641eea257e58776d160723f26c8cbed33ba97b0a5223ce0bf1e812cab3872"
+  },
+  "delivery_compaction": {
+    "removed_derivable_text_fields": [],
+    "raw_report_preserved": true,
+    "no_semantic_qualification_promoted": true
+  },
+  "preparation": {
+    "schema": "e02_l02_source_rights_prepared_receipt_v1",
+    "state": "prepared_nonsecret_receipt_for_parent_commit",
+    "scope": {
+      "task": "Static, read-only source-rights helper for T2 on LA-018, LA-024, LA-025.",
+      "only_write": ".tmp/parallel-20261008-l02/prepared/l02_source_rights.json",
+      "prohibited_work_done": false,
+      "tests_run": false,
+      "installs_run": false,
+      "production_data_read": false,
+      "new_rights_authority_or_default": false,
+      "finding_closure_or_source_acceptance": false
+    },
+    "frozen_context": {
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+      "branch": "codex/e02-L02-authentic-20261008",
+      "base_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "base_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+      "dispatch_source_G": {
+        "commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617"
+      },
+      "code_path_identity_check": "29 selected relevant source/test path blobs were compared; all match between frozen f00 and dispatch sourceG."
+    },
+    "correction": {
+      "corrected_prior_conclusion": "The earlier shorter-path absence conclusion was incorrect; it omitted integration/connected-closeout-plan-2026-10-08/.",
+      "actual_existing_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json",
+      "at_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "git_blob": "749255cd37f93955b176c748d63b2a3a7b7ee214",
+      "sha256": "5c9068d134f391eeb26dbed01d59197b009bda01bef55646eb97dcf4a1079b28",
+      "bytes": 11686,
+      "declared_scope": "planning; no new source acceptance or finding closure",
+      "binding_correction": "Use the manifest's current_author_rows.C source at 980d91b36452307d683283ddcf1e89a653af3ce2 (rows 28/32/33) and findings.json in the same dated integration directory. Do not retain the absent-path conclusion or its downstream bindings."
+    },
+    "source_refs": {
+      "inputs": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+        "blob": "749255cd37f93955b176c748d63b2a3a7b7ee214",
+        "sha256": "5c9068d134f391eeb26dbed01d59197b009bda01bef55646eb97dcf4a1079b28",
+        "bytes": 11686
+      },
+      "connected_findings": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e",
+        "bytes": 114380
+      },
+      "coverage": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "tree": "32a32cc77039554a3777a11fd7fc8f96f3a88625",
+        "blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+        "bytes": 550854
+      },
+      "original_criteria_source": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+        "blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "bytes": 648034,
+        "lines": 4425
+      },
+      "current_C_leaf": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c5-v1.json",
+        "commit": "980d91b36452307d683283ddcf1e89a653af3ce2",
+        "tree": "a8394f6cfb7196ee0a37d610b26cb4b402d32495",
+        "blob": "98c39eb77e4397bc9a6e95d8e0a210100fa96e5f",
+        "sha256": "a955000a989ec0d2ae3b4956ab42b4f3304659279e6897c29ea42cdc6876a41c",
+        "bytes": 655130,
+        "row_pointers": {
+          "LA-018": "/rows/28",
+          "LA-024": "/rows/32",
+          "LA-025": "/rows/33"
+        }
+      },
+      "current_C5_owner_input": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/C5-owner-inputs-20261007.json",
+        "commit": "2a702c26c047ccafde68523afcd7fc356f2edfb9",
+        "tree": "950e05b6cad1e5f7381627db488b1638b10eb5d6",
+        "blob": "5549b337ecaf567c222f970977f636ed386b2aed",
+        "sha256": "95dfff35eadcd55895b643af217ddaac3a6f176038e6d1b651662c4165b4c385",
+        "bytes": 42442,
+        "row_pointers": {
+          "LA-018": "/rows/5",
+          "LA-024": "/rows/8",
+          "LA-025": "/rows/9"
+        }
+      },
+      "C5_root": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261007-C5.json",
+        "commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+        "tree": "7edd87e6730739fbe2d7c7ed0c35d4a4e1e11ba8",
+        "blob": "7310778b273b89341330154ab215b183c79e2e53",
+        "bytes": 15729,
+        "closure_ids": []
+      },
+      "C_carry_admission": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/C-carry-admission.md",
+        "commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "blob": "49fb0429555517dac25428f4eebb0c11269f328c",
+        "bytes": 8945,
+        "lines": 34
+      },
+      "final_semantic_admission": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/final-admission-semantic.md",
+        "commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "blob": "b5942c71d596489ff76deb82a7db6a776c8ee813",
+        "bytes": 3831,
+        "lines": 17,
+        "result": "GO with two narrow qualifications; no broad source-package PASS. C bounded DFK/Legal findings are not LA-018/024/025 rights acceptance or closure."
+      },
+      "dispatch": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "blob": "f2e8d2096b86148fb93d4eb61520d22002228a1d",
+        "sha256": "6d9d894368a214c820ef88265e22c07a832294fe0681cde4eedce14998f512a6"
+      }
+    },
+    "findings_rows": [
+      {
+        "id": "LA-018",
+        "original_unit": "C",
+        "original_primary_bundle": "HYG-02",
+        "author_proposal": "held",
+        "original_criteria_pointer": "/findings/242/criterion_refs",
+        "author_source": "C",
+        "author_row_pointers": [
+          {
+            "pointer": "/rows/28"
+          }
+        ],
+        "flows": [
+          "I",
+          "T"
+        ],
+        "next_tasks": [
+          "T2"
+        ],
+        "next_decision": "resolve_named_residual_then_G_adjudication",
+        "G_closure": "not_adjudicated"
+      },
+      {
+        "id": "LA-024",
+        "original_unit": "C",
+        "original_primary_bundle": "SCL-01",
+        "author_proposal": "limited",
+        "original_criteria_pointer": "/findings/248/criterion_refs",
+        "author_source": "C",
+        "author_row_pointers": [
+          {
+            "pointer": "/rows/32"
+          }
+        ],
+        "flows": [
+          "I",
+          "T"
+        ],
+        "next_tasks": [
+          "T2"
+        ],
+        "next_decision": "resolve_named_residual_then_G_adjudication",
+        "G_closure": "not_adjudicated"
+      },
+      {
+        "id": "LA-025",
+        "original_unit": "C",
+        "original_primary_bundle": "SCL-03",
+        "author_proposal": "held",
+        "original_criteria_pointer": "/findings/249/criterion_refs",
+        "author_source": "C",
+        "author_row_pointers": [
+          {
+            "pointer": "/rows/33"
+          }
+        ],
+        "flows": [
+          "I",
+          "T"
+        ],
+        "next_tasks": [
+          "T2"
+        ],
+        "next_decision": "resolve_named_residual_then_G_adjudication",
+        "G_closure": "not_adjudicated"
+      }
+    ],
+    "original_coverage_criterion_refs_and_acceptance": [
+      {
+        "finding": "LA-018",
+        "coverage_row": "/findings/242",
+        "criterion_ref": {
+          "criterion_id": "LA-018",
+          "document": "LA_r09",
+          "lines": [
+            571,
+            597
+          ],
+          "sha256": "b28c10a9c4c31b5fad21560ddaf3888df77a534d2cb9fdb992853637ccd91421",
+          "card": "HYG-02"
+        },
+        "closure_now": "not_adjudicated",
+        "capability_label": "bridge_missing",
+        "selected_plan_not_executed": {
+          "paths": [
+            "src/polisyos/lex/factlog.py",
+            "src/polisyos/fabric/world/load_world_facts.py",
+            "tests/unit/lex/mirror_contracts/test_factlog.py"
+          ],
+          "dependency": "Complete supported source/test/docs/config/notebook/serialized-FQN census; migrate identity test to the Fabric owner before shim retirement.",
+          "positive": "Load facts with authorization/provenance through actual Fabric world reader and one Lex caller.",
+          "oracle": "Assert canonical object identity and compare returned source evidence/provenance records.",
+          "negative": "Old Lex reexport must not remain a second implementation; an untrusted source or missing authorization is refused after cutover.",
+          "command": "HYG"
+        }
+      },
+      {
+        "finding": "LA-024",
+        "coverage_row": "/findings/248",
+        "criterion_ref": {
+          "criterion_id": "LA-024",
+          "document": "LA_r09",
+          "lines": [
+            1084,
+            1113
+          ],
+          "sha256": "ac5148dc11d7ccb7f825d8d672b2be62db9fee78d7c8a0f15150889bd154ef67",
+          "card": "SCL-01"
+        },
+        "closure_now": "not_adjudicated",
+        "capability_label": "bridge_missing",
+        "selected_plan_not_executed": {
+          "paths": [
+            "src/polisyos/scholar/search/fetcher.py",
+            "src/polisyos/scholar/search/providers.py",
+            "src/polisyos/scholar/api.py"
+          ],
+          "dependency": "Reuse one existing raw HTTP/CAS transport for search and seed fetch; network-address/redirect admission remains with the network policy owner.",
+          "positive": "Two real Scholar callers fetch from local HTTP server and persist exact bytes, final URL, headers and redirect history.",
+          "oracle": "Independent local server transcript plus SHA-256 over response bytes and parsed media type.",
+          "negative": "Blocked initial/redirect address, loop, timeout, oversize, wrong MIME and disallowed license retain distinct refusal reasons in both callers.",
+          "command": "SCL"
+        }
+      },
+      {
+        "finding": "LA-025",
+        "coverage_row": "/findings/249",
+        "criterion_ref": {
+          "criterion_id": "LA-025",
+          "document": "LA_r09",
+          "lines": [
+            1114,
+            1149
+          ],
+          "sha256": "2bc4e727677c0b073b03c2cd763b0dc65c25b0917ab5e423ee9f7d4442c05da4",
+          "card": "SCL-03"
+        },
+        "closure_now": "not_adjudicated",
+        "capability_label": "bridge_missing",
+        "selected_plan_not_executed": {
+          "paths": [
+            "src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py",
+            "src/polisyos/scholar/search/service.py",
+            "src/polisyos/scholar/provenance.py"
+          ],
+          "dependency": "Resolve retained CAS ArtifactRef under same source scope; do not convert it back to URL for second fetch.",
+          "positive": "Real search→enrichment retains v1 bytes; URL serves different v2; run full _enrich_topic and downstream decision packet consumer.",
+          "oracle": "Persisted evidence SHA/body equals v1 CAS bytes, not v2; downstream citation/claim packet reads same ArtifactRef.",
+          "negative": "Delete CAS blob or deny access: typed missing/refresh record with new lineage and no silent URL fallback; replace the current stubbed _enrich_topic fixture with actual consumer.",
+          "command": "SCL"
+        }
+      }
+    ],
+    "original_criterion_cards": [
+      {
+        "finding": "LA-018",
+        "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@198076863e143dea9f89f02734b13d50dae3eed5",
+        "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+        "blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "lines": [
+          571,
+          597
+        ],
+        "criterion_sha256": "b28c10a9c4c31b5fad21560ddaf3888df77a534d2cb9fdb992853637ccd91421",
+        "text": "## LA-018. Lex factlog: alias читателя фактов у другого владельца\n\n**Вывод compatibility после миграции**\n\n**Статус.** Перенос владельца уже выражен в коде.\n\n**Точная область:**\n\n`src/polisyos/lex/factlog.py`\n\n**Что установлено и почему это legacy-кандидат.** Файл лишь реэкспортирует load_world_facts из polisyos.fabric.world. Это не отдельный legal fact store и не второй reader; старый Lex-адрес скрывает фактическое владение данными.\n\n**Что сохранить.** Работающий Fabric world reader и доступные публичные semantics чтения. Исторические world/fact артефакты не мигрируют от изменения Python import.\n\n**Куда перенести / с чем объединить.** Существующий публичный polisyos.fabric.world.load_world_facts. Дополнительная реализация или перенос в общий core не нужны.\n\n**Порядок миграции.** Установить, объявлен ли Lex-путь внешним поддержанным facade. Если да — совместимый период и release note; если нет и внутренние callers переключены — удалить alias. Не назначать произвольный sunset без текущей policy.\n\n**Приёмочная проверка.** Эквивалентность объекта/read result, отсутствие changes в authorization/provenance и обновление docs, import/config strings. Проверить root Lex exports, прежде чем снимать alias.\n\n**Приоритет.** Низкая цена; не срочнее реальных semantic duplicates.\n\n**Граница вывода.** Полный caller census и внешний API-статус этого имени не установлены. Наличие compatibility alias само по себе не ошибка.\n\n**Основания:** E31.\n\n<!-- PAGEBREAK -->"
+      },
+      {
+        "finding": "LA-024",
+        "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@198076863e143dea9f89f02734b13d50dae3eed5",
+        "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+        "blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "lines": [
+          1084,
+          1113
+        ],
+        "criterion_sha256": "ac5148dc11d7ccb7f825d8d672b2be62db9fee78d7c8a0f15150889bd154ef67",
+        "text": "## LA-024. Scholar: два HTTP-транспорта с разными границами проверки\n\nСлияние / разделение ответственности\n\n**Статус.** Дублирование transport-логики и различие redirect handling подтверждены.\n\n**Точная область:**\n\n`src/polisyos/scholar/discover/http_fetch.py`\n\n`src/polisyos/scholar/search/fetcher.py`\n\n**Что установлено и почему это legacy.** Seed-fetch использует urlopen после проверки начального URL и возвращает bytes/DocSourceSpec. Search-fetch создаёт validating redirect handler, проверяет final URL, сохраняет headers/redirects и затем извлекает текст. Оба маршрута живые: enrich вызывает первый, deep-search использует второй. Это не основание удалить discover целиком, но более старый transport продолжает своё независимое поведение.\n\n**Что сохранить.** Raw bytes для полной документной обработки, идентичность источника, MIME и byte limits, правила timeout, доступ и provenance. Search-сниппеты не заменяют исходный документ. Local-file и bytes seed adapters не являются HTTP-дублями и остаются.\n\n**Куда перенести / с чем объединить.** Предлагаемый scholar/discover/transport.py как общий внутренний raw-fetch primitive с bytes/final_url/headers/redirect_chain. Перенести туда проверенный redirect-aware transport из search, оставив оба типизированных result-adapter. Это новый файл в существующем поддереве, не новая подсистема загрузки. Подключение к Fabric transport допустимо только после проверки его эквивалентного контракта.\n\n**Порядок миграции.** Зафиксировать эффективные URL/redirect/MIME/budget policies; route search и seed через общий primitive, не импортируя случайную приватную функцию соседнего большого модуля. Затем удалить лишнюю сетевую реализацию. Согласовать cache-hit validation отдельно; сам более богатый fetcher не считается безусловно безопасным во всех режимах.\n\n**Приёмка.** Разрешённый URL, заблокированный initial и redirect target, loop/timeout/oversize, MIME, лицензия и сохранённый raw hash. В локальном fake-response seed-путь проверил только исходный URL; выбранный настоящий redirect-handler отверг synthetic blocked target. Реальная сеть не использовалась.\n\n**Приоритет.** Высокая отдача; средняя цена. Один transport сокращает поверхность исправлений, не ослабляя проверки.\n\n**Граница вывода.** Не выполнен SSRF-аудит или проверка DNS pinning и реальных redirects. Fixture-валидатор демонстрирует границы вызова, не production-эксплуатацию. Не рекомендуется слепо заменить seed-fetch вызовом текстового fetch_open_page.\n\n**Основания.** E56, E57, E59. P14–P16; полный seed-file проверен по SHA, project imports и response заменены.\n\n<!-- PAGEBREAK -->"
+      },
+      {
+        "finding": "LA-025",
+        "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@198076863e143dea9f89f02734b13d50dae3eed5",
+        "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+        "blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "lines": [
+          1114,
+          1149
+        ],
+        "criterion_sha256": "2bc4e727677c0b073b03c2cd763b0dc65c25b0917ab5e423ee9f7d4442c05da4",
+        "text": "## LA-025. Найденный snapshot снова превращается в URL для новой загрузки\n\nСлияние / разделение ответственности\n\n**Статус.** Старая URL-only граница между search и enrichment подтверждена.\n\n**Точная область:**\n\n`src/polisyos/scholar/api.py#_seed_sources_from_web_bundle`\n\n`src/polisyos/scholar/api.py#enrich_topic`\n\n`src/polisyos/scholar/orchestrator/enrich.py`\n\n`src/polisyos/scholar/search/cache.py`\n\n`src/polisyos/scholar/search/models.py#SourceMetadata`\n\n**Что установлено и почему это legacy.** При поисковом bootstrap без seed_sources уже полученные источники переводятся в SourceSpec(kind=url). Сохраняются URL, некоторые metadata и web_evidence_source_id, но не привязка к bytes/digest/fetch context. Cache умеет сохранять raw bytes в CAS; SourceMetadata содержит content_sha256, но не raw artifact ref, а seed-конвертер не переносит и digest. Затем enrich снова вызывает fetch_url. Один документ может быть скачан второй раз в другой версии, а связь с прежними фрагментами остаётся только идентификатором источника.\n\n**Что сохранить.** Обе функции: широкий поиск и дальнейшую полную обработку документа/claims. Сохранить точную версию содержимого, лицензию и происхождение, effective constraints и разделение search-evidence от нового knowledge bundle. Сам source_id не является доказательством идентичности повторно полученных bytes.\n\n**Куда перенести / с чем объединить.** Использовать существующие ArtifactStore/CAS и AcquireResult как основу для version-bound acquisition handle между scholar/search и scholar/orchestrator. Добавление raw ref и его binding — предлагаемое расширение контракта, не уже готовый путь. Для live user-seed остаётся нормальный HTTP-adapter из LA-024.\n\n**Порядок миграции.** Сначала провести сохранённый raw ref/digest и условия допустимого использования; enrichment читает и проверяет именно эти bytes. Если полного snapshot нет или он не разрешён к использованию, вернуть локальный gap либо явно выполнить refresh с новой lineage. Не восстанавливать документ из обрезанных snippets и не считать public-web достаточным разрешением на любое использование.\n\n**Приёмка.** Версия v1 в поиске, изменённая v2 по тому же URL, cache-hit/miss, утраченный raw blob, отказ доступа и ограничения числа/размера документов. Проверить повторное использование v1 без нового network call либо явное создание v2. В локальной композиции конвертер сохранил source_id, потерял hash binding, а fixture downstream fetch вернул v2.\n\n**Приоритет.** Высокая отдача по воспроизводимости и повторной работе; средняя цена. Исправлять вместе с LA-024, но различать: общий HTTP helper сам по себе не убирает второй fetch.\n\n**Граница вывода.** Полные deep_search/enrich, настоящий CAS и сеть не запускались. Повторная загрузка может быть намеренным refresh, но такой режим должен быть явным. Не утверждается, что любой Scholar-вызов всегда удваивает трафик: проблема относится к указанному bootstrap-маршруту.\n\n**Основания.** E58, E59, E60, E61. P17–P18; выбранный seed-converter и downstream seed-fetch, явные fixtures.\n\n<!-- PAGEBREAK -->"
+      }
+    ],
+    "T2_protection_qualifier_separate_from_original_criteria": {
+      "rule": "This rights qualifier for T2 is separate from, and does not rewrite, the original LA card or its original acceptance criterion.",
+      "LA_018": "Original card: Lex factlog alias compatibility and Fabric-reader semantics. T2 qualifier: the marker-kept source_auth:null witness still selects doc.source.hyg18unauth; trusted source identity/authorization and a consumer permission gate are not established. Do not claim the alias itself is wrong or change its alias criterion.",
+      "LA_024": "Original card: share raw HTTP transport while preserving URL/redirect/MIME/bytes/time/access/provenance; its acceptance mentions license. T2 qualifier: URL/MIME and exact bytes are technical controls; source-specific reuse authority is not established. A descriptive license string/public-web marker is not a permission grant. Do not claim disallowed-license refusal or reuse authorization.",
+      "LA_025": "Original card: preserve exact snapshot identity/provenance across search→enrichment and avoid silent URL fallback. T2 qualifier: exact CAS digest/ArtifactRef continuity proves byte integrity only, not permission for fetch, store, normalize, infer, create claims/citations, or include in a decision packet.",
+      "C_leaf_scope": "Current C: LA-018 held; LA-024 limited to bounded technical URL/MIME/byte/CAS/deadline behavior; LA-025 held on permission for the exact selected bytes and Scholar operations. All three are G not_adjudicated and bridge_missing; current C refresh adds no new product-runtime PASS."
+    },
+    "source_consumer_paths_and_blobs": [
+      [
+        "policy-engine/src/polisyos/lex/normpack/select_sources.py",
+        "b1f8c55f9047ce7715294075fd0a866104065b98",
+        "Canonical Lex selector: explicit IDs, kind/version/corpus and active jurisdiction/version; no source-rights filter."
+      ],
+      [
+        "policy-engine/src/polisyos/lex/factlog.py",
+        "2d66860c054b275e0713441510086cda53e0f1e5",
+        "LA-018 legacy reexport path; not a second fact store."
+      ],
+      [
+        "policy-engine/src/polisyos/fabric/world/store/segments.py",
+        "4c6e0c7394e49c1723a4982922bb6c6090ea5310",
+        "Canonical Fabric fact reader; does not decide permission for source bytes."
+      ],
+      [
+        "policy-engine/src/polisyos/lex/normpack/legal_authority.py",
+        "68f299468f67f8e6f92281e44d94fdb45431e10d",
+        "Checks legal source authority for claims (instrument/actor); not raw-byte reuse rights."
+      ],
+      [
+        "policy-engine/src/polisyos/core/contracts/scholar.py",
+        "d0c984304a2d81831cd7f0753c719720cec02cc1",
+        "SourceSpec includes descriptive license/locator; no verified grant/purpose."
+      ],
+      [
+        "policy-engine/src/polisyos/fabric/docs/types.py",
+        "21b2ada0e5176ea089df57de4f704e37401f693b",
+        "DocSourceSpec license field is descriptive metadata."
+      ],
+      [
+        "policy-engine/src/polisyos/fabric/docs/ingestion.py",
+        "0e18643377c88a88fa341f6b251d6d18cac611b3",
+        "Carries supplied license into provenance; no verification."
+      ],
+      [
+        "policy-engine/src/polisyos/scholar/search/models.py",
+        "5a3ab0252947a60e73c7cfc4d1060fb9574acd69",
+        "Technical SearchConstraints; license metadata has public-web fallback."
+      ],
+      [
+        "policy-engine/src/polisyos/scholar/search/security.py",
+        "8bc965572e4af8aad06362079adbf9304c713b12",
+        "URL/redirect and MIME technical safety, not reuse permission."
+      ],
+      [
+        "policy-engine/src/polisyos/scholar/discover/transport.py",
+        "e86955f02afbb77fb6b14a9bfe2fe75d069a6d10",
+        "Raw bytes/final URL/headers/redirect chain; transport evidence only."
+      ],
+      [
+        "policy-engine/src/polisyos/scholar/discover/http_fetch.py",
+        "45241802a96459ea0c3ce4b7fe4b00b35fe049a1",
+        "Seed fetch via shared transport; carries supplied license value."
+      ],
+      [
+        "policy-engine/src/polisyos/scholar/search/fetcher.py",
+        "4a8a6e5e30ec0c0fedbebc18f699a99099e2c0b5",
+        "Search fetch; technical controls, no permission rule."
+      ],
+      [
+        "policy-engine/src/polisyos/scholar/search/providers.py",
+        "0df7fa952328cec5483b44dbda157248c0f4cdd0",
+        "Search source candidate production, not rights issuance."
+      ],
+      [
+        "policy-engine/src/polisyos/scholar/api.py",
+        "6844a8b491f3b8580dba52dc446d7dbcf7d411cc",
+        "Filters entries and validates CAS digest/raw bytes/size; passes license text or public-web fallback into SourceSpec."
+      ],
+      [
+        "policy-engine/src/polisyos/scholar/search/cache.py",
+        "ecac97c7c79b7a23143ba31d2b41fe96c1363965",
+        "Stores raw bytes in CAS; digest proves bytes only."
+      ],
+      [
+        "policy-engine/src/polisyos/scholar/orchestrator/enrich.py",
+        "53d3309c145fc2b0eb4a34389008418b02da22cb",
+        "Consumes SourceSpec, creates document provenance and downstream claims; no verified rights gate."
+      ],
+      [
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py",
+        "20c1bf019f69e3861c197115a86fe81912404c70",
+        "Downstream decision-packet consumer reads persisted web-evidence ArtifactRef."
+      ],
+      [
+        "policy-engine/tests/unit/remediation/test_scl_03.py",
+        "3266e253461e61c56c4af6f886db2e894cdaa3d6",
+        "Existing v1/v2/missing/denied/mismatch controls; bootstrap fixture stubs _enrich_topic, not full consumer."
+      ],
+      [
+        "policy-engine/tests/unit/scholar/search/test_fetcher_security_cache.py",
+        "a1e28e173a58d6a4793c69275bc5345438beee54",
+        "Technical URL/shared-transport controls, not rights admission."
+      ]
+    ],
+    "closest_existing_supported_capability": {
+      "classification": "extend-existing candidate; no direct Lex/Scholar rights capability established",
+      "exact_paths_and_blobs": [
+        [
+          "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/acquisition_authority.py",
+          "fdbbc9f0ab4aaf9c7ffd388f5512e8307aa76260"
+        ],
+        [
+          "policy-engine/src/polisyos/runtime/quality/acquisition_executor.py",
+          "399fc8d459ebb71169ded1da375e59c9dc24ecea"
+        ],
+        [
+          "policy-engine/src/polisyos/runtime/http/services/acquisition_surface_execution.py",
+          "e24b50c96dee37f9a10e9a5d982ad8ad1ba935e0"
+        ],
+        [
+          "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+          "2c72928690b4981542475bc0f7861bb808c921b1"
+        ],
+        [
+          "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_acquisition_authority.py",
+          "172385e8006301055cbb7139f8a06180448d3ea3"
+        ],
+        [
+          "policy-engine/tests/unit/runtime/quality/test_acquisition_executor.py",
+          "dbfbd15e7479c1083202e1624e7a225fdf92ff65"
+        ]
+      ],
+      "capability": "LocalSourceRightsDeclaration binds local source path and source SHA to license ID, authority ID/reference and Ed25519 signature. CanonicalAcquisitionAuthority resolves it against independently trusted registry/source/receipt; the runtime executor revalidates under the Catalog local_lift path.",
+      "limit": "Closest actual verifier pattern, but no exact Lex/Scholar source identity mapping or bridge exists in the inspected pins. It does not establish intended purpose/operation for Scholar fetch/store/normalization/inference/claims/citations/packet, nor target cached-output expiry/revocation. Do not infer a rights grant from a matching string or legal-authority fact."
+    },
+    "marker_kept_controls": {
+      "observed_target_negative": {
+        "source": "C-current leaf @980d91b36452307d683283ddcf1e89a653af3ce2, /rows/28",
+        "result": "The marker-kept-live negative witness fails refusal: source_auth:null still selects doc.source.hyg18unauth."
+      },
+      "adjacent_existing_controls": "Catalog acquisition authority/executor code and tests cover content/source binding, self-attested or wrong trust/signature, disallowed-license projection, and source/receipt/trust drift. These belong to Catalog local_lift, are not matching Lex/Scholar controls, and were not executed in this helper.",
+      "required_matched_matrix_after_owner_packet": [
+        "Positive: verified grant bound to exact source identity/version/content and declared use is accepted by the actual consumer.",
+        "Keep source markers, source_auth/license strings, URL, MIME, source version, digest and ArtifactRef present while grant is null.",
+        "Keep all markers while signature is forged, signer/trust anchor is absent or untrusted, or source identity/version/content hash is foreign.",
+        "Keep all markers while audience/tenant/jurisdiction or purpose/operation differs; exercise fetch, storage, normalization/extraction, inference, claims, citation, packet, and export scopes as applicable.",
+        "Keep all markers while grant is stale/expired or independently revoked; cover cached bytes and derived output revalidation.",
+        "With correct URL/MIME/CAS and a descriptive license string but no grant, deny or produce typed limitation; no protected consumer effect and no silent URL fallback."
+      ],
+      "actual_consumers_to_exercise": [
+        "Lex automatic source selection, explicit-ID selection and direct claim/evidence consumer; check Fabric canonical reader behavior independently from alias lifecycle.",
+        "Scholar seed-fetch and search-fetch callers on real local HTTP inputs, followed by actual _enrich_topic and persisted decision-packet ArtifactRef consumer."
+      ],
+      "oracle": "Resolve and content-bind permission with verifier provenance. Remove permission but retain all markers: protected operation must turn off. URL/MIME/CAS success alone cannot keep it admissible."
+    },
+    "minimum_owner_rule_and_factual_packet": {
+      "missing_fact": "An authoritative, source-bound, independently verifiable grant for the intended purpose/operation, with currentness/revocation behavior, checked by the real Lex/Scholar consumers.",
+      "fields": [
+        "Rights issuer identity and authority/delegation basis; independently anchored trust registry/version, verifier identity and provenance.",
+        "Exact Lex source ID/kind/version/content hash; for Scholar, canonical/final URL plus redirect evidence, raw response digest and resolved CAS ArtifactRef.",
+        "Authoritative rule/license ID and version and the exact source/edition it governs.",
+        "Allowed and denied purposes/operations (fetch, cache/store, normalize/extract, infer, claims, citations, decision packet, publication/export) and audience/jurisdiction/tenant.",
+        "Validity times, expiry/currentness, revocation source, and revalidation/lineage behavior for cached snapshots, derived claims and issued packets.",
+        "Actual consumer/owner map and a binding from each consumer to the same grant or a typed refusal/limitation.",
+        "Matched positive and marker-kept negative receipts with exact source/grant/verifier hashes, rule/schema version, and time basis."
+      ],
+      "boundary": "This is the factual evidence packet required to evaluate the appropriate owner rule. It assigns no license, creates no default authority, and does not make PolicyOS the external rights owner."
+    },
+    "p37_p38_pattern_pass": {
+      "p37": {
+        "CAS_digest_and_exact_bytes": "recomputed technical fact only",
+        "URL_redirect_MIME_size": "recomputed technical admission only",
+        "source_owner_grant": "not_established",
+        "permitted_purpose_and_operation": "not_established",
+        "grant_currentness_and_revocation": "not_established",
+        "nonempty_license_or_source_rights_marker": "consumer_asserted/provenance only"
+      },
+      "p38": [
+        {
+          "property": "Lex selects only sources permitted for the intended use.",
+          "implementation": "Selector chooses explicit IDs or kind/version/corpus and active jurisdiction/version; it does not verify permission.",
+          "divergent_case": "With markers retained and source_auth:null, doc.source.hyg18unauth is still selected."
+        },
+        {
+          "property": "Scholar only reuses exact bytes for permitted operations.",
+          "implementation": "URL/MIME/CAS/bytes are checked; API passes license string or public-web fallback into SourceSpec.",
+          "divergent_case": "Byte-valid CAS content without a source-bound grant can continue into enrichment and packet consumers."
+        },
+        {
+          "property": "Rights audit markers prove trust and content binding.",
+          "implementation": "fabric.catalog.source_selection_audit.py treats source_rights/rights/license strings as marker inputs.",
+          "divergent_case": "A nonempty string can satisfy the marker with no verified grant."
+        }
+      ],
+      "pattern_ids": [
+        "P01",
+        "P02",
+        "P05",
+        "P07",
+        "P08",
+        "P10",
+        "P29",
+        "P31",
+        "P32",
+        "P33",
+        "P37",
+        "P38"
+      ],
+      "target_pattern": "Wire one existing independently verified, source-bound authority artifact into actual Lex and Scholar consumers; retain typed denial/limitation and revalidation provenance.",
+      "capability_state": {
+        "LA_018_rights": "bridge_missing",
+        "LA_024_rights": "bridge_missing; bounded technical transport only",
+        "LA_025_rights": "bridge_missing; bounded exact-CAS continuity only",
+        "complete_rights_capability": "absent/unallocated for these consumers"
+      }
+    },
+    "final_scope_note": "For these target consumers, rights remain not_established. URL/MIME safety, exact bytes, a license/provenance string, public-web fallback, or CAS ArtifactRef is not permission. No tests, source admission, or finding closure were performed here.",
+    "current_C_leaf_row_receipts": [
+      {
+        "finding": "LA-018",
+        "current_leaf_pointer": "/rows/28",
+        "C5_owner_input_pointer": "/rows/5",
+        "C_current_recommendation": "held",
+        "G_formal_status": "not_adjudicated",
+        "capability_label": "bridge_missing",
+        "current_evaluation": "Existing source_auth:null witness selects doc.source.hyg18unauth; descriptive source/license fields are not permission.",
+        "missing_input": "Actual source/version-byte-bound permitted-purpose grant, independently anchored verifier/trust input, and common Lex intake bridge.",
+        "next_action": "A source-rights/trusted-source authority supplies source-bound identity, permitted purpose, and verifiable trust input; HYG/C-W08 and canonical Lex/F-W07 gate selection and re-evaluate the marker-kept null witness.",
+        "owner": "Source-rights/trusted-source supplier; HYG/C-W08; canonical Lex/F-W07; G integration reviewer",
+        "new_product_runtime_PASS": false
+      },
+      {
+        "finding": "LA-024",
+        "current_leaf_pointer": "/rows/32",
+        "C5_owner_input_pointer": "/rows/8",
+        "C_current_recommendation": "limited",
+        "G_formal_status": "not_adjudicated",
+        "capability_label": "bridge_missing",
+        "current_evaluation": "Bounded technical URL/MIME/actual-byte/CAS/deadline result; cached reuse verifies original raw snapshot and refuses missing, denied, or mismatched bytes. License strings/profile remain provenance, not permission.",
+        "missing_input": "Authoritative source-specific fetch/storage/normalization/inference/downstream-reuse rule; do not claim disallowed-license refusal or reuse authorization.",
+        "next_action": "Apply the source permission rule to exact source operations and preserve technical result as limited until owner evidence exists.",
+        "owner": "Source-specific license/reuse authority; C Scholar owner; G integration reviewer",
+        "new_product_runtime_PASS": false
+      },
+      {
+        "finding": "LA-025",
+        "current_leaf_pointer": "/rows/33",
+        "C5_owner_input_pointer": "/rows/9",
+        "C_current_recommendation": "held",
+        "G_formal_status": "not_adjudicated",
+        "capability_label": "bridge_missing",
+        "current_evaluation": "Exact CAS snapshot/downstream packet byte continuity is bounded technical evidence; missing/denied/mismatched refs yield typed gaps without URL fallback.",
+        "missing_input": "Permission for the exact selected source bytes and exact Scholar operations.",
+        "next_action": "Bind verified permission to selected bytes and purpose; license strings/defaults do not authorize reuse.",
+        "owner": "Source-specific license/reuse authority; C Scholar owner; G integration reviewer",
+        "new_product_runtime_PASS": false
+      }
+    ]
+  }
+}

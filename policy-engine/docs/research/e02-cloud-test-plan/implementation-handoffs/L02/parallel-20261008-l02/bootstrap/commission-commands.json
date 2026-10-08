@@ -1,0 +1,73 @@
+[
+  {
+    "name": "admission-create-immediate",
+    "argv": [
+      "zsh",
+      "-c",
+      "E02_TOPIC_BRANCH=codex/e02-L02-authentic-20261008\nE02_WORKTREE_ROOT=/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos\n(cd policy-engine && uv run --no-sync polisyos-tools workspace doctor --worktree-admission create --branch \"${E02_TOPIC_BRANCH:?set actual branch}\" --path \"${E02_WORKTREE_ROOT:?set absolute worktree root}\")"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+    "exit_code": 0,
+    "seconds": 1.8019986670115031,
+    "stdout_file": "admission-create-immediate.stdout",
+    "stderr_file": "admission-create-immediate.stderr"
+  },
+  {
+    "name": "worktree-create",
+    "argv": [
+      "git",
+      "worktree",
+      "add",
+      "-b",
+      "codex/e02-L02-authentic-20261008",
+      "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+      "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b"
+    ],
+    "cwd": "/Users/deniskopylov/polisyos",
+    "exit_code": 0,
+    "seconds": 2.8318142499774694,
+    "stdout_file": "worktree-create.stdout",
+    "stderr_file": "worktree-create.stderr"
+  },
+  {
+    "name": "admission-resume",
+    "argv": [
+      "zsh",
+      "-c",
+      "E02_TOPIC_BRANCH=codex/e02-L02-authentic-20261008\nE02_WORKTREE_ROOT=/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos\n(cd policy-engine && uv run --no-sync polisyos-tools workspace doctor --worktree-admission resume --branch \"${E02_TOPIC_BRANCH:?set actual branch}\" --path \"${E02_WORKTREE_ROOT:?set absolute worktree root}\")"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+    "exit_code": 0,
+    "seconds": 1.6811155420145951,
+    "stdout_file": "admission-resume.stdout",
+    "stderr_file": "admission-resume.stderr"
+  },
+  {
+    "name": "attachment",
+    "argv": [
+      "git",
+      "status",
+      "-sb"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "seconds": 0.8811246670084074,
+    "stdout_file": "attachment.stdout",
+    "stderr_file": "attachment.stderr"
+  },
+  {
+    "name": "identities",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD",
+      "HEAD^{tree}",
+      "--show-toplevel"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "seconds": 0.007898374984506518,
+    "stdout_file": "identities.stdout",
+    "stderr_file": "identities.stderr"
+  }
+]

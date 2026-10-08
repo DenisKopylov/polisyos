@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+    "-c",
+    "import hashlib,json,runpy,sys,platform\nfrom pathlib import Path\nfrom polisyos.foundry.methods.catalog.causal.dowhy_identify_estimate import DoWhyIdentifyEstimate\nimport polisyos.foundry.methods.catalog.causal.dowhy_identify_estimate as owner\nimport polisyos.foundry.methods.catalog.causal._dowhy_worker as bridge\norigin={m.__name__:str(Path(m.__file__).resolve()) for m in [owner,bridge]}\nprint(json.dumps({\"platform\":platform.system(),\"machine\":platform.machine(),\"python\":sys.version,\"module_origins\":origin,\"source_sha256\":{k:hashlib.sha256(Path(v).read_bytes()).hexdigest() for k,v in origin.items()}},sort_keys=True))\nfor p in origin.values(): assert p.startswith(str(Path.cwd()/\"src\")),p\nns=runpy.run_path(\"tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py\")\nwitness=ns[\"test_default_without_actual_source_context_has_no_backend_witness\"]\nwitness()\noriginal=DoWhyIdentifyEstimate.pure_step\nobserved={}\ndef counterfeit(state,params):\n    result=original(state,params)\n    report=result[\"report\"]\n    observed[\"status_before\"]=report.status.value\n    observed[\"capability_before\"]=report.metadata[\"capability\"]\n    changed=report.model_copy(update={\"point_estimate\":7.0})\n    assert changed.status==report.status and changed.metadata==report.metadata\n    observed[\"status_after\"]=changed.status.value\n    observed[\"capability_after\"]=changed.metadata[\"capability\"]\n    observed[\"point_after\"]=changed.point_estimate\n    return {**result,\"report\":changed}\nDoWhyIdentifyEstimate.pure_step=staticmethod(counterfeit)\ntry:\n    witness()\nexcept AssertionError:\n    print(json.dumps({\"fake_point_with_markers_control\":\"REJECTED\",\"observed\":observed},sort_keys=True))\nelse:\n    raise RuntimeError(\"marker-kept fake point was accepted\")\nfinally:\n    DoWhyIdentifyEstimate.pure_step=staticmethod(original)\nwitness()\nprint(\"restored genuine source-context refusal: PASS\")\n"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine",
+  "explicit_environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine:/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/src",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "JAX_PLATFORMS": "cpu",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "exit_code": 0,
+  "wall_seconds": 6.809862957976293,
+  "children_max_rss_bytes_macos": 518389760,
+  "timeout_seconds": 60,
+  "control_kind": "Marker-kept returned-report finite-point injection; test-sensitivity control, not removal of actual source-resolution/backend mechanism",
+  "source_writes": false,
+  "authentic_producer_positive": false
+}

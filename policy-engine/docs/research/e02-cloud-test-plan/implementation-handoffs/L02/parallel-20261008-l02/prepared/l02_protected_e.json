@@ -1,0 +1,1010 @@
+{
+  "schema": "policyos.e02.l02.qualified_preparation.v1",
+  "role": "L02",
+  "helper": "l02_protected_e",
+  "source_candidate_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "source_candidate_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "preparer_raw_local_ref": {
+    "path": ".tmp/parallel-20261008-l02/prepared/l02_protected_e.json",
+    "bytes": 110375,
+    "sha256": "33972cd6a82f8647aa2b6d1cf138f74c44572e089f76d7618324b6bd269109e0"
+  },
+  "delivery_compaction": {
+    "removed_derivable_text_fields": [
+      {
+        "json_pointer": "/complete_candidate_to_source_delta/complete_unified_diff_utf8",
+        "bytes": 53362,
+        "sha256": "6d19ede46069b03b39c6e8421bb5dbdc2bced0ee47dfd07b48c5070790129d83",
+        "reason": "Tracked original wording or Git diff is reconstructible from the retained immutable source/span/range; ignored preparer report is unchanged."
+      }
+    ],
+    "raw_report_preserved": true,
+    "no_semantic_qualification_promoted": true
+  },
+  "preparation": {
+    "schema": "policyos.e02.l02.prepared_receipt.v1",
+    "prepared_on": "2026-10-08",
+    "role": {
+      "execution_role": "L02",
+      "original_unit": "E",
+      "slice": "T2:authentic",
+      "findings": [
+        "LA-054",
+        "LA-055"
+      ],
+      "mode": "read_only_verification",
+      "permitted_write": ".tmp/parallel-20261008-l02/prepared/l02_protected_e.json",
+      "other_changes_forbidden_by_assignment": [
+        "source",
+        "test",
+        "config",
+        "runtime",
+        "input",
+        "production data",
+        "installation",
+        "checkout",
+        "push",
+        "chat"
+      ],
+      "publication_owner": "root; this is a prepared local receipt only"
+    },
+    "checkout": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+      "branch": "codex/e02-L02-authentic-20261008",
+      "head": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+      "head_parent": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+      "head_attached": true,
+      "initial_status": "clean",
+      "target_receipt_existed_before_write": false,
+      "current_sourceG": {
+        "commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617"
+      },
+      "scope_delta_sourceG_to_admitted_G": {
+        "command": "git diff --name-status fe5ccf9ce90c336fff749da48bd0138d321baf23 f00dd7661a8d3329fb1fa1b049decb0d1d2f277b -- policy-engine/src/polisyos/ddm policy-engine/tests/unit/ddm",
+        "stdout": "",
+        "meaning": "The admitted f00 tree is a direct child of fe5 and has no later DDM or tests/unit/ddm delta; source blobs below therefore bind the exact admitted G code."
+      }
+    },
+    "role_and_policy_sources": {
+      "read_fully_or_relevant_rows": [
+        {
+          "path": "AGENTS.md",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+          "bytes": 22656,
+          "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50"
+        },
+        {
+          "path": "policy-engine/CONTRIBUTING.md",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+          "bytes": 10553,
+          "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e",
+          "bytes": 20260,
+          "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/COMMON.md",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "116b74d20e0bb9a9e9421bc48a6d95b86a373a79",
+          "bytes": 14882,
+          "sha256": "b919e06683b70a3df5961dd0a7ef5cbde792874879265d433fcb7bcb15024685"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/L02.md",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "e97385084b0101fcc6dca2c5aba5519ab55b3090",
+          "bytes": 5807,
+          "sha256": "87d37391dc50fbd6ecc66a6db9ee1de71fceb2b339a4f432ac66c46f163145a9"
+        },
+        {
+          "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "652fb2d0b3fbcaa48681adf2e79b66486b4a65a1",
+          "bytes": 62396,
+          "sha256": "a64956e284b411276a16a612afffb1fb42daf03ffef8f7ef1c3f3f9bc25d0349"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/02-decisions.md",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "0723bc9d0292b6cf52f1656afe06afd5dcac98a0",
+          "bytes": 18958,
+          "sha256": "6c736256699df2d5283d4fca939a4d81f12a6af3a3a08c190eec08c2bc998701"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/03-delivery-plan.md",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "7d309b5e8055425cff4b0d2fbb69fc1d7f14b47a",
+          "bytes": 15326,
+          "sha256": "4f822d7320ed2bcd1cf429b0942c5fe26b2e8286b6cc882d275d5025dec4b83a"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/06-inputs-and-deferrals.md",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "2abfdab3559d6a3f7866785560b4531e8c715ee7",
+          "bytes": 11493,
+          "sha256": "afafcd97ebbc1e68abc1ed555853f269d566dc2a6e97389b414007f17394802c"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/07-source-selection.md",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "f501af90dc634286f6948bfc77b6711c5b60cb73",
+          "bytes": 7389,
+          "sha256": "12b703e693b355ebb343c82e271781e860afaf307b374d6dfee65dd30e03ed71"
+        }
+      ],
+      "pattern_pass": {
+        "register_path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+        "relevant_ids": [
+          "P01",
+          "P02",
+          "P05",
+          "P07",
+          "P08",
+          "P09",
+          "P10",
+          "P27",
+          "P29",
+          "P31",
+          "P32",
+          "P33",
+          "P37",
+          "P38",
+          "P40"
+        ],
+        "observed": [
+          "The DDM library has a checker, typed projection and gate; the exact admitted path does not demonstrate a named protected effect consumer or persisted transaction bridge (P01/P02).",
+          "The projection can be mistaken for authority; caller-supplied trigger list and boolean signoff lack source/issuer provenance at this boundary (P05/P32/P37).",
+          "A library gate result or passing source selector would be an adjacent proxy for the protected consumer effect; no real endpoint/commit boundary is admitted yet (P29/P38).",
+          "Do not create a parallel DDM or sovereign permission subsystem; wait for T1 to identify the canonical consumer and enumerate its sibling paths (P27/P31).",
+          "Adversarial inputs must include fake/foreign/stale/revoked and commit-time revalidation/removal, not only the present named tests (P10/P33); keep a same-class residual bounded (P40)."
+        ],
+        "target_pattern": "Reuse check_calibration_validity and the current source-bound rebind mechanics, then integrate them at the actual canonical consumer identified by T1; fail closed where source completeness, purpose, signoff or transaction currentness is not established.",
+        "capability_state": {
+          "DDM_library_validity_checker": "implemented in exact G source; bounded to the supplied report and trigger observation",
+          "protected_effect_consumer": "consumer_missing in this admitted L02 input; exact actual owner/API remains not_established pending T1",
+          "T2_authentic_verification": "verification_missing / UNRUN",
+          "T2_semantic_test": "semantic_test_missing in exact admitted G DDM test paths"
+        },
+        "acceptance_signal": "A valid admitted source produces exactly the permitted consumer effect, while fake/foreign/stale/revoked and commit-time-revoked evidence produce zero effects; matched removal of resolve/bind/verify/revalidation keeps markers but still fails closed."
+      }
+    },
+    "original_criterion_bindings": {
+      "coverage_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "git_ref": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "git_blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+        "findings_pointer": "#/findings/278 and #/findings/279",
+        "note": "Both exact coverage rows bind criterion_refs to the original LA_r09 source at 198076863e143dea9f89f02734b13d50dae3eed5; row status is historical partial and closure_now is not_adjudicated."
+      },
+      "criterion_refs": [
+        {
+          "finding_id": "LA-054",
+          "original_owner": {
+            "unit": "E",
+            "primary_bundle": "DDM-02",
+            "mechanism_writer": "E-W05"
+          },
+          "coverage_pointer": "#/findings/278/criterion_refs/0",
+          "coverage_ref": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines_inclusive": [
+            4053,
+            4107
+          ],
+          "span_sha256": "ffb93357b63c03313b11c4dedb3cce3153c2f14b30257aadd860ca09fda6d425",
+          "span_bytes": 12888,
+          "original_title": "DDM: rich calibration/report context сужается до бессрочного pass и несвязанной registry-записи",
+          "criterion_property": "The same report/model/detector/regime/metric/window/expiry/invalidation evidence reaches the public DDM registry consumer without a pass-only bypass; old report validity must be revalidated against the actual source and application.",
+          "card_ref": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+          "card_blob": "121df4a3b4615f72775570acfd900a54c3d07680",
+          "card_lines": [
+            63,
+            123
+          ]
+        },
+        {
+          "finding_id": "LA-055",
+          "original_owner": {
+            "unit": "E",
+            "primary_bundle": "DDM-02",
+            "mechanism_writer": "E-W05"
+          },
+          "coverage_pointer": "#/findings/279/criterion_refs/0",
+          "coverage_ref": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines_inclusive": [
+            4108,
+            4140
+          ],
+          "span_sha256": "79f9809eacc0a1dbb11ff784ecc8b073da1ca23ef0c2212437a05094423e518f",
+          "span_bytes": 9932,
+          "original_title": "DDM promotion: состояние, базовое разрешение и окончательный gate конкурируют за один смысл",
+          "criterion_property": "Baseline eligibility, an independent false veto and the documented R2 signoff precedence share one consistent gate; R1/R0 and failed certificate cannot be overridden.",
+          "card_ref": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+          "card_blob": "121df4a3b4615f72775570acfd900a54c3d07680",
+          "card_lines": [
+            125,
+            163
+          ]
+        }
+      ],
+      "owner_rows": [
+        {
+          "finding_id": "LA-054",
+          "unit": "E",
+          "analytical_owner": "P48",
+          "primary_bundle": "DDM-02",
+          "companion_bundle": "DDM-02",
+          "status_historical": "partial",
+          "writer": "E-W05"
+        },
+        {
+          "finding_id": "LA-055",
+          "unit": "E",
+          "analytical_owner": "P48",
+          "primary_bundle": "DDM-02",
+          "companion_bundle": "DDM-02",
+          "status_historical": "partial",
+          "writer": "E-W05"
+        }
+      ],
+      "coverage_verdicts": {
+        "LA-054": {
+          "ledger_status_historical": "partial",
+          "appendix_c_status_separate": "partial",
+          "closure_now": "not_adjudicated"
+        },
+        "LA-055": {
+          "ledger_status_historical": "partial",
+          "appendix_c_status_separate": "partial",
+          "closure_now": "not_adjudicated"
+        }
+      }
+    },
+    "connected_closeout_plan": {
+      "immutable_refs": {
+        "connected_inputs": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "749255cd37f93955b176c748d63b2a3a7b7ee214",
+          "bytes": 11686,
+          "sha256": "5c9068d134f391eeb26dbed01d59197b009bda01bef55646eb97dcf4a1079b28"
+        },
+        "connected_findings": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e",
+          "bytes": 114380,
+          "sha256": "590cb7631422175148022217a96fc1c234f8ba4f0d22e83bde46d9636bdd5ce0"
+        },
+        "connected_tasks": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "a27cf7e78dc7c16df279a5136399ee0a5daeee9a",
+          "bytes": 7835,
+          "sha256": "488806f7ffa455a84e311e19b2cc1d207016b587625abf846ddd11753b21cd7d"
+        },
+        "coverage": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+          "git_ref": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+          "git_blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+          "bytes": 550854,
+          "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+        },
+        "owner_rows": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+          "git_ref": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+          "git_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "bytes": 9504,
+          "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722"
+        },
+        "bundle_owner_rows": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+          "git_ref": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+          "git_blob": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b",
+          "bytes": 12413,
+          "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75"
+        },
+        "original_criterion_source": {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "bytes": 648034,
+          "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+        },
+        "criterion_card": {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DDM-02.md",
+          "git_ref": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+          "git_blob": "121df4a3b4615f72775570acfd900a54c3d07680",
+          "bytes": 35954,
+          "sha256": "02fc4f7f19d1e668b35edf2d4ef547cc85c4ae1c4411e3e4182a9f2aaa48db98"
+        },
+        "E_author_source_receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries/full54/all54-delta-associations-v2-source11082.json",
+          "git_ref": "7bf53fd0cf69a568b37d8a881e26bfb16c315653",
+          "git_blob": "502f44eb34c277b11764f89f153df17231864bf6",
+          "bytes": 243560,
+          "sha256": "f840b7082a3a6b4e5edb0563b47d197960de2ca728e83813096e7f152236c8fe"
+        },
+        "E_prior_leaf_receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final54-current-and-independent-joins/003/current-all-54-b2-final-v4-normal.json",
+          "git_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+          "git_blob": "95d2203524f51e6b849166230811b1d0b3170469",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "prior_G_E54_review": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E54-current-decisions.json",
+          "git_ref": "2abc17f46a033a7879663486ff9946a95786601f",
+          "git_blob": "4dc2adb6f38f2c1674ec1c8b616d1985914e2b9e",
+          "bytes": 119161,
+          "sha256": "3dfb3431c3e11d64d1790350f697de93929bbb06ab8b662c5bdaee628b336b5c"
+        },
+        "E_local_recipe": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json",
+          "git_ref": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+          "git_blob": "ef2376dd46a325400a8a0a2e0966acb34ced54c0",
+          "bytes": 44496,
+          "sha256": "d58566c81f2ced49271c39068974304bd4f1140c2c191072ef3a01293c9066c1"
+        }
+      },
+      "task_routes": {
+        "T1": {
+          "title": "Latest owner input/API and authority-plane inventory",
+          "depends": [],
+          "exit": "internal configured owner vs external facts; actual source/ref/issuer/verifier/consumer; no stale null-owner demand"
+        },
+        "T2": {
+          "title": "Protected positive and revalidation consumer",
+          "depends": [
+            "T1"
+          ],
+          "conditional_inputs": [
+            "specific admitted owner fact/API required by criterion"
+          ],
+          "exit": "valid positive + fake/foreign/stale/revoked zero effects including commit-time check"
+        },
+        "LA-054_route": {
+          "author_proposal": "limited",
+          "author_source": "E",
+          "author_row": "#/rows/51",
+          "flows": [
+            "S",
+            "T"
+          ],
+          "next_task": "T2",
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "LA-055_route": {
+          "author_proposal": "limited",
+          "author_source": "E",
+          "author_row": "#/rows/52",
+          "flows": [
+            "S",
+            "T"
+          ],
+          "next_task": "T2",
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        }
+      },
+      "delivery_plan_owner_boundary": "Consumer canonical owners; custody coordinator read-only oversight. External institution signs its own act; PolicyOS owns its receipt, validation, revalidation and scoped claim reaction.",
+      "minimum_source_input_for_054_055": "Previous/new evidence and grounds; subject/rule/time/purpose; actual invalidation/currentness; institutionally identity-bound R2 signer/window where the override is exercised.",
+      "explicit_not_equivalent": [
+        "A historical calibration pass is not current validity.",
+        "An empty trigger list is not evidence of source completeness.",
+        "A boolean is not institutionally verified signoff.",
+        "A DDM library gate result is not a deployment/write effect."
+      ]
+    },
+    "source_and_leaf_binding": {
+      "inputs_json_manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json",
+        "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "749255cd37f93955b176c748d63b2a3a7b7ee214",
+        "bytes": 11686,
+        "plan_manifest_original_G_pin": {
+          "commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+          "tree": "32a32cc77039554a3777a11fd7fc8f96f3a88625"
+        },
+        "E_source_pin": {
+          "commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+          "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb"
+        },
+        "E_author_pin": {
+          "commit": "7bf53fd0cf69a568b37d8a881e26bfb16c315653",
+          "tree": "946ec147aa09db5b76c66e7ac3e3a2e491f9868b"
+        },
+        "scope_note": "The connected plan is planning only, with no new source acceptance or finding closure. It pins E_source=8d8e7b3, distinct from the E author receipt candidate=11082e91. The exact df5258b7→8d8e7b3 source range has seven paths, while the author-candidate 11082e91 is an ancestor of 8d8e7b3 and the exact 11082e91→8d8e7b3 range changes two paths. Neither E lineage supplies current DDM source acceptance."
+      },
+      "E_current_source_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries/full54/all54-delta-associations-v2-source11082.json",
+        "git_ref": "7bf53fd0cf69a568b37d8a881e26bfb16c315653",
+        "git_blob": "502f44eb34c277b11764f89f153df17231864bf6",
+        "bytes": 243560,
+        "sha256": "f840b7082a3a6b4e5edb0563b47d197960de2ca728e83813096e7f152236c8fe",
+        "candidate": {
+          "commit": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+          "tree": "9263d367d41359f1f1a2758419fbc1c8f1eace0f",
+          "branch": "codex/e02-E-continuation-20261006"
+        },
+        "leaf_rows": {
+          "LA-054": {
+            "pointer": "#/rows/51",
+            "historical_ledger_status": "partial",
+            "retained_E_author_proposal": "limited",
+            "retained_E_owner_decision": "pending",
+            "formal_G_acceptance": false,
+            "formal_ledger_change": false,
+            "next_owner": "DDM applicability/live-feed/deployment-purpose owners"
+          },
+          "LA-055": {
+            "pointer": "#/rows/52",
+            "historical_ledger_status": "partial",
+            "retained_E_author_proposal": "limited",
+            "retained_E_owner_decision": "pending",
+            "formal_G_acceptance": false,
+            "formal_ledger_change": false,
+            "next_owner": "DDM deployment-purpose owner and identity-bound institutional R2 signoff issuer"
+          }
+        },
+        "candidate_delta_since_E_evidence_head": "The E source receipt says its candidate change since df5258b7 has six paths confined to the posterior-profile2/Foundry/IR release, source and tests; it does not establish current DDM acceptance.",
+        "candidate_relation_to_pinned_E_source": "E author candidate 11082 is an ancestor of pinned E_source 8d8; source range includes two additional paths, both outside DDM. The E author receipt status remains proposal limited / decision pending / formal G acceptance false."
+      },
+      "prior_E_leaf_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final54-current-and-independent-joins/003/current-all-54-b2-final-v4-normal.json",
+        "git_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+        "git_blob": "95d2203524f51e6b849166230811b1d0b3170469",
+        "bytes": 1144158,
+        "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b",
+        "source_leaf_rows": {
+          "LA-054": "#/rows/51",
+          "LA-055": "#/rows/52"
+        },
+        "candidate": {
+          "commit": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+          "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7"
+        },
+        "leaf_disposition": {
+          "owner_decision": "pending",
+          "proposed_finding_outcome": "limited",
+          "formal_G_acceptance": false,
+          "wave_check_outcome": "FAIL"
+        },
+        "LA-054_prior_selector_rule": "test_ddm_02|test_registry_schema_compatibility|test_full_acceptance.*test_registry_(public_round|rebind|legacy|projection|distinguishes)",
+        "LA-055_prior_selector_rule": "test_full_acceptance.*test_(monitor_emits|registry_gate|registry_r2|registry_distinguishes|registry_rebind_preserves)|test_readiness_mapping",
+        "qualification": "The selected old b2 cases are navigation/history only, not a current f00 or candidate-11082 test PASS; the full old wave was FAIL."
+      },
+      "prior_G_E54_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E54-current-decisions.json",
+        "git_ref": "2abc17f46a033a7879663486ff9946a95786601f",
+        "git_blob": "4dc2adb6f38f2c1674ec1c8b616d1985914e2b9e",
+        "bytes": 119161,
+        "sha256": "3dfb3431c3e11d64d1790350f697de93929bbb06ab8b662c5bdaee628b336b5c",
+        "row_pointers": {
+          "LA-054": "#/per_finding_rows/51",
+          "LA-055": "#/per_finding_rows/52"
+        },
+        "verdict": "Current E proposed outcome limited; E owner decision pending; formal G acceptance false; no formal ledger change. Historical navigation only."
+      },
+      "L02_prompt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/L02.md",
+        "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "e97385084b0101fcc6dca2c5aba5519ab55b3090",
+        "scope": "L02 is read_only_verification; production/test source writes prohibited; prepared nonsecret receipt is allowed; real authentic checks need actual L01 inputs and exact immutable candidate."
+      },
+      "E_source_lineage_reconciliation": {
+        "published_evidence_base": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+        "pinned_E_source": {
+          "commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+          "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb"
+        },
+        "E_author_candidate": {
+          "commit": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+          "tree": "9263d367d41359f1f1a2758419fbc1c8f1eace0f"
+        },
+        "ancestry_check": "11082e91 is an ancestor of 8d8e7b3 (git merge-base --is-ancestor exit 0); reverse check exit 1.",
+        "df525_to_8d8e_complete_name_status": [
+          "A policy-engine/release-fragments/unreleased/2026-10-07-posterior-profile2-raw-ingress.toml",
+          "M policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+          "M policy-engine/src/polisyos/ir/analytics/README.md",
+          "M policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+          "M policy-engine/tests/unit/ir/test_posterior_summary.py",
+          "M policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+          "A policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py"
+        ],
+        "11082_to_8d8e_complete_name_status": [
+          "M policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+          "M policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py"
+        ],
+        "scope_source": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/07-source-selection.md@f501af90dc634286f6948bfc77b6711c5b60cb73",
+        "meaning": "The six-path footprint recorded by candidate receipt 11082 is candidate-specific and must not be substituted for the pinned seven-path E source range. Exact tree ancestry and full Git path output resolve the apparent count difference."
+      }
+    },
+    "exact_G_source_and_API_boundary": {
+      "admitted_source": {
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+        "sourceG_commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "sourceG_tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617"
+      },
+      "files": [
+        {
+          "path": "policy-engine/src/polisyos/ddm/README.md",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "53d5c038f89ecdf27446812927d806884bcd5738",
+          "bytes": 694,
+          "sha256": "b743d58293dfd85204f778a584630284b4c5d393380b7b64274ee5d5997b3eed"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ddm/calibration/__init__.py",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "5a00679dcbc00a939d02ec844a7b7e32d0439946",
+          "bytes": 1727,
+          "sha256": "1accd35304221d8cbc248b22f8b99a57b74fadb69619111f072ea5460241f219"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ddm/calibration/audit.py",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "dec891c1f629559e556671b371bd6aeca5e4e79c",
+          "bytes": 8142,
+          "sha256": "02a8490bcaee5fbce7ed520e9a8cd3ce1e70653b18546fd9d1ec8eebf4dd9664"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ddm/calibration/calibrate.py",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "ae0315d505172721e4f018be7d7608676385be96",
+          "bytes": 16661,
+          "sha256": "eee9493030c961f89159d7d1f298b319377ff0656b0fe4555a443f3ac98409a8"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ddm/contracts/events.py",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "3a9341d2730e76a8430127a81c86313b5eb46e49",
+          "bytes": 12770,
+          "sha256": "bb61dc020f9c905b7a3b47a9cec4ebdd98b002be5bb5692919bddc117a7a7ab7"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ddm/integration/__init__.py",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "e30838227eed2ca33a610c5a04d1c23d81407444",
+          "bytes": 3112,
+          "sha256": "426bfbc35a951ff24434e755720fc7592ec27386ce046a7db3d05d07baff62b8"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "8372d9eee8d04c305539e1f042ca2d08de2e65a1",
+          "bytes": 19131,
+          "sha256": "59fc58109f022783c7104a01905f310a3632a741d738f29864975d3de75e4771"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry_gate.md",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "60adfdab5162a13a870fdcc91b84034baea845af",
+          "bytes": 3034,
+          "sha256": "bbfa5ddc0f6b7fa472209c4027481ab98e4723a3ea6a85b8608c03b30bb6b789"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "25fd9d2faad3585e2ba87c72c41f63270687d1cb",
+          "bytes": 4074,
+          "sha256": "92a594ac542a59e1d4dab4d867b11d9430ecd6f56ee2e6f3fea7c9b0b51089a7"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ddm/integration/monitor.py",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "efa7193afc021537cd72073810a0b2bc0edfd788",
+          "bytes": 7534,
+          "sha256": "ee6779a89d9fa418ff8814e32ce65828cbf1f4fc13602a2f1dbe28fd1f9c9e61"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ddm/readiness/readiness_mapper.py",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "6be49d5fa8a9bff11bf37ec6c3f531919c11bd76",
+          "bytes": 8137,
+          "sha256": "040c993e244c868c897456429738e5140c9607eae4157cca33b70c849f9ca7d0"
+        },
+        {
+          "path": "policy-engine/tests/unit/ddm/test_full_acceptance.py",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "13c7f5994bf0aee0210b1349fe51568c2686d81b",
+          "bytes": 28650,
+          "sha256": "d32d1847c1686c04ed7a8add6ecbad6dd50d506278a8bf00cb546922680267ba"
+        }
+      ],
+      "absent_current_tree_paths": [
+        "policy-engine/tests/unit/ddm/test_registry_schema_compatibility.py",
+        "policy-engine/tests/unit/remediation/test_ddm_02.py"
+      ],
+      "api_facts": [
+        {
+          "source": "policy-engine/src/polisyos/ddm/calibration/audit.py#check_calibration_validity",
+          "blob": "dec891c1f629559e556671b371bd6aeca5e4e79c",
+          "fact": "Publicly exported checker recomputes expiry from the supplied report and now, matches observed trigger strings against configured triggers, and returns CalibrationInvalidationStatus; None and [] are distinguishable in the projection builder, but the list source/completeness/freshness is not verified by this API.",
+          "lines": [
+            134,
+            151
+          ]
+        },
+        {
+          "source": "policy-engine/src/polisyos/ddm/calibration/audit.py#_check_bound_calibration_validity/build_calibration_validity_projection",
+          "blob": "dec891c1f629559e556671b371bd6aeca5e4e79c",
+          "fact": "The private checker evidence binds the supplied report digest and projected audit fields; it does not resolve the report from an owner source or verify who supplied observed triggers.",
+          "lines": [
+            72,
+            193
+          ]
+        },
+        {
+          "source": "policy-engine/src/polisyos/ddm/calibration/calibrate.py#CalibrationExpiration/CalibrationReport",
+          "blob": "ae0315d505172721e4f018be7d7608676385be96",
+          "fact": "Report fields include model/version (legacy-optional), detector, regime, FP target/holdout and expiration.valid_until/invalidation_triggers; there is no authority purpose, issuer/signature, or source cursor.",
+          "lines": [
+            90,
+            119
+          ]
+        },
+        {
+          "source": "policy-engine/src/polisyos/ddm/contracts/events.py#CalibrationValidityProjection",
+          "blob": "3a9341d2730e76a8430127a81c86313b5eb46e49",
+          "fact": "Durable non-authoritative projection carries report digest, verifier id/version, effective_at, valid_until, configured/observed trigger lists, observation_status, status and reasons; it does not bind a complete live feed or an effect transaction.",
+          "lines": [
+            216,
+            237
+          ]
+        },
+        {
+          "source": "policy-engine/src/polisyos/ddm/integration/model_registry.py#ModelRegistryReadinessRecord/rebind_calibration_validity/evaluate_registry_gate",
+          "blob": "8372d9eee8d04c305539e1f042ca2d08de2e65a1",
+          "fact": "Current record has no schema_version, readiness event ID/effective time/expiry, user purpose, signer or transaction revision. Rebind consumes caller-supplied report, audit, now and trigger list and attaches private checker evidence only in memory. Gate checks FP certificate, durable model identity, calibration validity and state; R4/R3 obey persisted promotion_allowed veto; R2 accepts bare owner_signoff=True after validity. It returns RegistryGateDecision and invokes no write/deployment API.",
+          "lines": [
+            43,
+            260
+          ]
+        },
+        {
+          "source": "policy-engine/src/polisyos/ddm/integration/__init__.py",
+          "blob": "e30838227eed2ca33a610c5a04d1c23d81407444",
+          "fact": "evaluate_registry_gate/build_model_registry_record are lazy facade exports; rebind_calibration_validity is not in the lazy export map or __all__ and is used through the module path in the current tests.",
+          "lines": [
+            20,
+            104
+          ]
+        },
+        {
+          "source": "policy-engine/src/polisyos/ddm/integration/monitor.py#DDMWindowResult/DriftAndDegradationMonitor.evaluate_window",
+          "blob": "efa7193afc021537cd72073810a0b2bc0edfd788",
+          "fact": "The result is an in-memory typed DDMWindowResult containing registry_record; the inspected DDM source path returns this object and does not demonstrate an actual persisted registry write or protected deployment effect. This is a scoped source statement, not repository-wide absence.",
+          "lines": [
+            47,
+            147
+          ]
+        },
+        {
+          "source": "policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json",
+          "blob": "25fd9d2faad3585e2ba87c72c41f63270687d1cb",
+          "fact": "Exact G schema is the unversioned single registry schema, with no schema_version/readiness transaction binding.",
+          "lines": [
+            1,
+            110
+          ]
+        }
+      ],
+      "owner_and_effect_boundary": {
+        "named_existing_validity_owner": "polisyos.ddm.calibration.check_calibration_validity (source-backed mechanism over the passed report)",
+        "nearest_registry_decision": "polisyos.ddm.integration.model_registry.evaluate_registry_gate(record, owner_signoff: bool = False)",
+        "actual_protected_owner_api_or_fact": "not_established in exact admitted G source and no admitted L01 owner packet is supplied to this receipt; the source code boundary returns a decision object, not an effect.",
+        "purpose_time_signer_revalidation_commit": "Purpose and signer evidence are not typed here; calibration time is recomputed at invocation; trigger source/freshness/completeness and R2 identity are caller/institution inputs; no commit-time CAS/revalidation path is present in the inspected DDM path.",
+        "scope_rule": "If the action is PolicyOS internal configured state, identify its canonical writer/consumer and integrate there; if it is an external institution’s signed deployment act, PolicyOS consumes and verifies that typed act and does not claim ownership of it."
+      }
+    },
+    "complete_candidate_to_source_delta": {
+      "candidate": {
+        "commit": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+        "tree": "9263d367d41359f1f1a2758419fbc1c8f1eace0f",
+        "branch": "codex/e02-E-continuation-20261006"
+      },
+      "sourceG": {
+        "commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617"
+      },
+      "admitted_G_target": {
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+        "sourceG_is_direct_parent": true
+      },
+      "scope": [
+        "policy-engine/src/polisyos/ddm/**",
+        "policy-engine/tests/unit/ddm/**"
+      ],
+      "complete_scope_command": "git diff --no-ext-diff --no-color --binary --unified=3 11082e91d61ace2f3bd7016d408341fdd6ec1702 fe5ccf9ce90c336fff749da48bd0138d321baf23 -- policy-engine/src/polisyos/ddm policy-engine/tests/unit/ddm",
+      "complete_changed_path_count_from_name_status": 8,
+      "name_status_and_blob_map": [
+        {
+          "status": "M",
+          "path": "policy-engine/src/polisyos/ddm/README.md",
+          "candidate_blob": "d523b4b733da5023e8add28885c10b8b7b4be2a5",
+          "source_blob": "53d5c038f89ecdf27446812927d806884bcd5738",
+          "candidate_mode": "100644",
+          "source_mode": "100644"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+          "candidate_blob": "2e6796867c4811868e291bc526a9c3c5999f7183",
+          "source_blob": "8372d9eee8d04c305539e1f042ca2d08de2e65a1",
+          "candidate_mode": "100644",
+          "source_mode": "100644"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry_gate.md",
+          "candidate_blob": "1b84e782c8f889e30d7f569e437070bc2a9d7b1c",
+          "source_blob": "60adfdab5162a13a870fdcc91b84034baea845af",
+          "candidate_mode": "100644",
+          "source_mode": "100644"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json",
+          "candidate_blob": "0277bc66c1587a1ea4918de94cb79eac419d4956",
+          "source_blob": "25fd9d2faad3585e2ba87c72c41f63270687d1cb",
+          "candidate_mode": "100644",
+          "source_mode": "100644"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry_record.v1.schema.json",
+          "candidate_blob": "25fd9d2faad3585e2ba87c72c41f63270687d1cb",
+          "source_blob": null,
+          "candidate_mode": "100644",
+          "source_mode": null
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/src/polisyos/ddm/integration/monitor.py",
+          "candidate_blob": "feb098b379486e71f9fc7e2cd4b4556830cc0ef1",
+          "source_blob": "efa7193afc021537cd72073810a0b2bc0edfd788",
+          "candidate_mode": "100644",
+          "source_mode": "100644"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/ddm/test_full_acceptance.py",
+          "candidate_blob": "544adc5be28ed6d403098ca2b555099a231265b2",
+          "source_blob": "13c7f5994bf0aee0210b1349fe51568c2686d81b",
+          "candidate_mode": "100644",
+          "source_mode": "100644"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/tests/unit/ddm/test_registry_schema_compatibility.py",
+          "candidate_blob": "570b29004553f80d63086804a8a782b9bb3d9b8b",
+          "source_blob": null,
+          "candidate_mode": "100644",
+          "source_mode": null
+        }
+      ],
+      "numstat": [
+        {
+          "added_lines": 0,
+          "deleted_lines": 30,
+          "path": "policy-engine/src/polisyos/ddm/README.md"
+        },
+        {
+          "added_lines": 22,
+          "deleted_lines": 324,
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py"
+        },
+        {
+          "added_lines": 2,
+          "deleted_lines": 73,
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry_gate.md"
+        },
+        {
+          "added_lines": 2,
+          "deleted_lines": 11,
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json"
+        },
+        {
+          "added_lines": 0,
+          "deleted_lines": 112,
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry_record.v1.schema.json"
+        },
+        {
+          "added_lines": 2,
+          "deleted_lines": 12,
+          "path": "policy-engine/src/polisyos/ddm/integration/monitor.py"
+        },
+        {
+          "added_lines": 5,
+          "deleted_lines": 42,
+          "path": "policy-engine/tests/unit/ddm/test_full_acceptance.py"
+        },
+        {
+          "added_lines": 0,
+          "deleted_lines": 204,
+          "path": "policy-engine/tests/unit/ddm/test_registry_schema_compatibility.py"
+        }
+      ],
+      "complete_unified_diff_bytes": 53362,
+      "complete_unified_diff_sha256": "6d19ede46069b03b39c6e8421bb5dbdc2bced0ee47dfd07b48c5070790129d83",
+      "delta_summary": [
+        "The E candidate carried an explicit registry v2/v1 compatibility scheme, event-time/expiry and source-binding fields, private source evidence, richer metric/readiness/source reconciliation and a dedicated schema-compatibility test.",
+        "Exact G source keeps calibration validity projection/rebind and durable identity checks but does not admit those candidate-only schema/source/readiness additions; it retains one unversioned schema and a bare R2 signoff bool.",
+        "The diff is the full DDM source+unit-test scope; the exact E candidate is not source-accepted by f00. f00 has no DDM delta after fe5."
+      ]
+    },
+    "commands_and_selectors": {
+      "read_only_commands_used": [
+        "git status -sb; git rev-parse HEAD; git rev-parse HEAD^{tree}; git symbolic-ref -q HEAD (admission/readback only)",
+        "git diff --name-status 11082e91d61ace2f3bd7016d408341fdd6ec1702 fe5ccf9ce90c336fff749da48bd0138d321baf23 -- policy-engine/src/polisyos/ddm policy-engine/tests/unit/ddm",
+        "git diff --no-ext-diff --unified=3 11082e91d61ace2f3bd7016d408341fdd6ec1702 fe5ccf9ce90c336fff749da48bd0138d321baf23 -- policy-engine/src/polisyos/ddm policy-engine/tests/unit/ddm",
+        "git diff --name-status fe5ccf9ce90c336fff749da48bd0138d321baf23 f00dd7661a8d3329fb1fa1b049decb0d1d2f277b -- policy-engine/src/polisyos/ddm policy-engine/tests/unit/ddm",
+        "rg/AST source inventory for exact DDM source and current test selectors"
+      ],
+      "current_G_existing_selectors": {
+        "file": {
+          "path": "policy-engine/tests/unit/ddm/test_full_acceptance.py",
+          "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "13c7f5994bf0aee0210b1349fe51568c2686d81b",
+          "bytes": 28650,
+          "sha256": "d32d1847c1686c04ed7a8add6ecbad6dd50d506278a8bf00cb546922680267ba"
+        },
+        "selectors": [
+          "test_monitor_emits_all_runtime_outputs_and_registry_gate_blocks_r1",
+          "test_registry_gate_blocks_legacy_calibration_without_model_identity",
+          "test_registry_gate_blocks_historical_audit_without_validity_owner",
+          "test_registry_gate_rejects_persisted_readiness_veto_for_r4_r3",
+          "test_registry_gate_preserves_r2_owner_signoff_exception_after_veto",
+          "test_registry_r2_round_trip_rejects_foreign_durable_binding",
+          "test_registry_public_round_trip_fails_closed_without_durable_validity",
+          "test_registry_public_round_trip_rebinds_with_exact_context",
+          "test_registry_rebind_refreshes_projection_for_current_context",
+          "test_registry_legacy_payload_stays_not_established_after_rebind",
+          "test_registry_rebind_rejects_tampered_validity_projection",
+          "test_registry_distinguishes_unavailable_from_observed_empty_triggers",
+          "test_registry_rebind_preserves_expiry_reason_without_trigger_observation",
+          "test_registry_projection_preserves_expiry_boundary",
+          "test_registry_projection_records_matching_invalidation_trigger"
+        ],
+        "interpretation": "These exercise synthetic/in-memory DDM library behavior. They do not prove an authentic source owner, purpose/signature, persisted protected consumer or commit-time effect.",
+        "status": "UNRUN by this L02 receipt; parent assignment prohibits tests.",
+        "bounded_library_command_not_executed": "(cd policy-engine && .venv/bin/python -m pytest -o addopts= -q tests/unit/ddm/test_full_acceptance.py -k 'registry or monitor_emits')",
+        "command_state": "UNRUN; proposed only as an exact-current-G library selector after environment/input admission; this is not an authentic T2 command."
+      },
+      "historical_E_recipe": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json",
+        "git_ref": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+        "git_blob": "ef2376dd46a325400a8a0a2e0966acb34ced54c0",
+        "bytes": 44496,
+        "sha256": "d58566c81f2ced49271c39068974304bd4f1140c2c191072ef3a01293c9066c1",
+        "pointer": "#/recipes/5",
+        "candidate_at_recipe_time": {
+          "implementation_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+          "implementation_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7"
+        },
+        "command_verbatim": "(cd policy-engine && .venv/bin/python -m pytest -o addopts= -q tests/unit/ddm tests/unit/remediation/test_ddm_02.py)",
+        "status_on_this_task": "UNRUN; source candidate differs; tests/unit/remediation/test_ddm_02.py is absent from exact f00 tree; do not reuse as current T2 receipt."
+      },
+      "source_paths_absent_at_exact_G": [
+        {
+          "path": "policy-engine/tests/unit/ddm/test_registry_schema_compatibility.py",
+          "candidate_blob": "570b29004553f80d63086804a8a782b9bb3d9b8b",
+          "G_status": "deleted/absent"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_ddm_02.py",
+          "candidate_blob": null,
+          "G_status": "absent from exact f00 tree"
+        }
+      ],
+      "authentic_T2_command": {
+        "selector": null,
+        "command": null,
+        "status": "UNRUN / no authentic selector exists in this admitted input because T1 has not supplied the exact owner API/source fact and transaction consumer.",
+        "required_before_command": "Freeze named consumer/API, actual source and purpose, transaction boundary, permitted effect and L01 owner-issued inputs; then use the exact existing owner route or a scoped consumer test."
+      },
+      "execution_limits": {
+        "tests_run": false,
+        "install_run": false,
+        "production_data_read": false,
+        "source_or_test_write": false,
+        "push_or_chat": false
+      }
+    },
+    "T2_property_and_acceptance_recipe": {
+      "property": "For the named authorized subject, action and purpose, a protected effect occurs only when its exact current source report, complete current invalidation window and any required identity-bound R2 authority resolve and bind to the decision; fake, foreign, stale, revoked, unavailable or commit-time-revoked inputs cause zero effect.",
+      "existing_library_fact": "The exact G checker can recompute expiry and the match between a supplied trigger list and report-configured triggers; `None` is unavailable, while `[]` is observed empty. Gate decisions cover library eligibility only.",
+      "positive_case_required": "Use actual admitted current report + model/detector/regime/metric/window/rule/subject/purpose source refs, owner-sourced complete current feed and actual canonical consumer; allow the verified permitted effect and read it back fresh. For R2, resolve an identity-bound issuer/purpose/window signoff and preserve all R0/R1/failed-certificate/persisted-veto exclusions.",
+      "negative_cases_required": [
+        "Present-but-fake report/audit/ref or unchanged validity markers with altered report content.",
+        "Foreign model/version/detector/calibration/regime/metric/window/tenant/subject/purpose or foreign signoff issuer.",
+        "Stale report past valid_until, stale feed cursor/watermark or feed incomplete/unavailable.",
+        "Revocation matching a configured trigger before evaluation.",
+        "Revocation after initial rebind/gate but before the protected commit; conditional transaction/CAS must reject and produce zero state change.",
+        "R4/R3 persisted false veto, R1/R0, and failed FP certificate remain denied even when a caller supplies signoff-shaped data."
+      ],
+      "P37_predicate_basis": [
+        {
+          "predicate": "Expiry and report/audit projection consistency from the exact supplied report and effective time",
+          "basis": "recomputed",
+          "limit": "Recomputed only relative to the supplied report; source authenticity is not established."
+        },
+        {
+          "predicate": "Observed invalidation trigger list contents",
+          "basis": "consumer_asserted",
+          "limit": "Caller passes list; API has no feed issuer, source ref, cursor, watermark or completeness/freshness verifier."
+        },
+        {
+          "predicate": "Completeness and freshness of the invalidation observation for the target subject/purpose",
+          "basis": "not_established",
+          "limit": "An empty list is only an observed empty caller value in this code."
+        },
+        {
+          "predicate": "R2 issuer identity, authority, purpose and time/window",
+          "basis": "not_established",
+          "limit": "The gate accepts `owner_signoff: bool`; no signed evidence or issuer verifier is consumed."
+        },
+        {
+          "predicate": "Intended user/action purpose and destination consumer identity",
+          "basis": "not_established",
+          "limit": "No purpose/consumer binding appears in the DDM record or gate arguments."
+        },
+        {
+          "predicate": "Revocation current at transaction commit",
+          "basis": "not_established",
+          "limit": "No commit-time recheck or CAS/revision boundary in this DDM path."
+        },
+        {
+          "predicate": "Whether a downstream protected effect was actually performed",
+          "basis": "not_established",
+          "limit": "This path returns a RegistryGateDecision only."
+        }
+      ],
+      "P38_property_vs_implementation": {
+        "property": "The protected operation must reflect the real current validity, authorized purpose and actual signer, and must still be current at commit.",
+        "implementation_tests": "Supplied report+audit fields, digest, caller-provided `observed_invalidation_triggers`, `readiness_state`/stored veto, plus a caller boolean `owner_signoff`; returns a gate DTO.",
+        "divergent_case": "A caller supplies stale/incomplete or foreign feed as `[]` and `owner_signoff=True`; exact G can recompute valid against that list and return R2 allowed, while the true source has a revocation or the signer is unauthorized. A revocation between rebind and write also leaves this returned DTO unchanged.",
+        "independent_discriminator": "Resolve the feed from the named owner source, verify subject/purpose and freshness/watermark independently, verify signer provenance, and compare commit-time revision/currentness with the validated revision. Test same values with different source provenance and a commit-time revocation race."
+      },
+      "matched_removal_probe": "Keep record fields, digest/verifier markers, `observation_status=\"observed\"`, `observed_invalidation_triggers=[]` and a true signoff-shaped input; remove report resolve/content-bind, live-feed freshness/completeness check, signer verifier, and commit-time revalidation while leaving markers. Actual protected consumer must still make zero writes for fake/foreign/stale/revoked cases. If it remains green, the gate measured markers rather than the property."
+    },
+    "minimum_L01_packet_and_next_canonical_option": {
+      "minimum_input": [
+        "T1 names whether the effect is an internal configured PolicyOS action or an external institution’s act; provide the exact canonical owner/API and consumer, not a generic owner role.",
+        "Exact source report/model/detector/calibration/regime/metric/window/rule/expiry refs and grounds, content digest, issuer/verifier provenance and source time roles.",
+        "Complete observed invalidation source with event/cursor/watermark, subject/purpose binding and freshness/completeness policy; retain distinction between unavailable and genuinely observed empty.",
+        "Target subject/tenant, action and purpose; current readiness/baseline/veto precedence and actual readback of the protected effect.",
+        "Transaction boundary and expected revision/CAS or equivalent commit-time revalidation mechanism; include the revoke-after-preflight race input.",
+        "Only when R2 override applies: issuer identity and role, verified signature/authority, subject/action/purpose/window binding, effective time and explicit limits. Do not send raw secrets or production rows in this receipt."
+      ],
+      "next_existing_option": "Reuse the current public `check_calibration_validity` as validity owner and exact report/audit rebind through `model_registry.rebind_calibration_validity`; place the validated result at the canonical consumer T1 identifies. Keep `evaluate_registry_gate` as a bounded library decision until it accepts verified authority/freshness and is consumed by the actual effect path.",
+      "not_established_boundary": "No admitted exact source fact, source API, feed issuer/completeness proof, actual deployment/user-purpose consumer, R2 signer evidence or commit-time effect is established by f00 DDM source. No new sovereign permission or deployment service should be inferred.",
+      "owner_boundary": "PolicyOS owns receipt/verification/admission/revalidation and scoped reaction to the claim; it does not own an external institution’s signed act. If T1 finds a PolicyOS-owned configured write, wire into that existing canonical owner; if external, consume its signed typed evidence and observe the act.",
+      "current_outcome": {
+        "library_validity_mechanism": "present, bounded",
+        "protected_consumer": "consumer_missing / not_established in this receipt",
+        "authentic_positive": "UNRUN",
+        "negative_effect_controls": "UNRUN",
+        "formal_G_acceptance": "not_adjudicated"
+      }
+    },
+    "receipt_disclaimer": "This is a source-bound preparation receipt, not implementation acceptance or finding closure. No tests, installation or production data reads were performed. All old PASS records are identified by their older candidate SHA and are not transferred to f00."
+  }
+}

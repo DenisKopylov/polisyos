@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+    "-c",
+    "import importlib.metadata as m,platform,sys,json; pkgs=[\"pytest\",\"pytest-asyncio\",\"pydantic\",\"numpy\",\"jax\",\"hatchling\",\"hnswlib\",\"dowhy\"]; out={\"executable\":sys.executable,\"version\":sys.version,\"platform\":platform.system(),\"machine\":platform.machine(),\"packages\":{}};\nfor p in pkgs:\n try: out[\"packages\"][p]=m.version(p)\n except m.PackageNotFoundError: out[\"packages\"][p]=None\nprint(json.dumps(out))"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+  "exit_code": 0,
+  "stdout": "{\"executable\": \"/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python\", \"version\": \"3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]\", \"platform\": \"Darwin\", \"machine\": \"arm64\", \"packages\": {\"pytest\": \"9.0.2\", \"pytest-asyncio\": \"1.3.0\", \"pydantic\": \"2.12.5\", \"numpy\": \"2.3.5\", \"jax\": \"0.8.2\", \"hatchling\": null, \"hnswlib\": \"0.8.0\", \"dowhy\": null}}\n",
+  "stderr": ""
+}

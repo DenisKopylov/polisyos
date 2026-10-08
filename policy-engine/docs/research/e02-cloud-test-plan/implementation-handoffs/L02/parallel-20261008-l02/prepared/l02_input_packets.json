@@ -1,0 +1,898 @@
+{
+  "schema": "policyos.e02.l02.qualified_preparation.v1",
+  "role": "L02",
+  "helper": "l02_input_packets",
+  "source_candidate_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "source_candidate_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "preparer_raw_local_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/.tmp/parallel-20261008-l02/prepared/l02_input_packets.json",
+    "bytes": 31889,
+    "sha256": "6a4b72fc95dfb07f739dfabfd99f3a783418513c7f8a933ba44f6b53bc0785b9"
+  },
+  "delivery_compaction": {
+    "removed_derivable_text_fields": [],
+    "raw_report_preserved": true,
+    "no_semantic_qualification_promoted": true
+  },
+  "preparation": {
+    "schema": "policyos.e02.l02_input_dependency_preparation.v1",
+    "status": "prepared_read_only; no authentic verification executed",
+    "observed_at_utc": "2026-10-08T09:25:45Z",
+    "scope": {
+      "role": "L02",
+      "write_mode": "read_only_verification",
+      "objective": "Map exact-source and local factual-input dependencies for V1,V3,V4,V6,V7,I3,I4,S2,T2,Q2.",
+      "limits": [
+        "No production payload reads or row enumeration",
+        "No tests, installs, source/runtime/config changes, push, or messages to other chats",
+        "No baseline result-pack use; importer was not run because no baseline results were consumed"
+      ]
+    },
+    "exact_source": {
+      "current_G": {
+        "sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+        "branch": "codex/e02-integration",
+        "local_remote_tracking_ref": "refs/remotes/origin/codex/e02-integration",
+        "ref_readback_matches": true,
+        "worktree": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+        "worktree_status": "clean"
+      },
+      "candidate_boundary": "G f00dd is the exact current integration snapshot, but its diff from 6f3983466f1eca14b510c4f5006fab5092d418d3 adds only the planning/prompt pack. It is not an accepted composition of the non-G source pins below. Q1/source selection remains required before treating any task code candidate as G-admitted.",
+      "dispatch_source_pin": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json#/source_pins/G",
+        "planning_only": true,
+        "analysis_git_sha": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "analysis_tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617",
+        "in_current_G_ancestry": true,
+        "meaning": "Older plan/source snapshot; role prompts instruct using the current published G ref when running."
+      },
+      "source_pin_register": {
+        "A": {
+          "sha": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+          "tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+          "object_present": true,
+          "in_current_G_ancestry": false
+        },
+        "B_published": {
+          "sha": "53b14a6e5af66f2a784d7f4981c4613e534acd40",
+          "tree": "568e2e42e18abcea9fd39759546f1e48525c590a",
+          "object_present": true,
+          "in_current_G_ancestry": false
+        },
+        "B_prepared_source": {
+          "sha": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+          "tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+          "object_present": true,
+          "in_current_G_ancestry": false
+        },
+        "B_prepared_receipt": {
+          "sha": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+          "tree": "677257974c442ba878a6bf4dba6686ae854b2e67",
+          "object_present": true,
+          "in_current_G_ancestry": false
+        },
+        "C": {
+          "sha": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+          "tree": "7edd87e6730739fbe2d7c7ed0c35d4a4e1e11ba8",
+          "object_present": true,
+          "in_current_G_ancestry": false
+        },
+        "C_stream_source": {
+          "sha": "81a4af184d72cd28e7ab4063140432e2af764547",
+          "tree": "c3423c94f28409ec663ec3b161ca85eecfe6207c",
+          "object_present": true,
+          "in_current_G_ancestry": false
+        },
+        "C_NET_source": {
+          "sha": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+          "tree": "267fef2e1a46aee7a7b2c1f6baaa00bf66e3cbd9",
+          "object_present": true,
+          "in_current_G_ancestry": false
+        },
+        "C_DFI_source": {
+          "sha": "ab44166335130463178e65dfc29a252c96afe479",
+          "tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+          "object_present": true,
+          "in_current_G_ancestry": false
+        },
+        "C_CAT_source": {
+          "sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+          "tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+          "object_present": true,
+          "in_current_G_ancestry": false
+        },
+        "C_Legal_source": {
+          "sha": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+          "tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+          "object_present": true,
+          "in_current_G_ancestry": false
+        },
+        "C_DFK_source": {
+          "sha": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+          "tree": "35d9c02156f8a27335b858bfe8053d7cbc6a54f2",
+          "object_present": true,
+          "in_current_G_ancestry": false
+        },
+        "C_CAN_source": {
+          "sha": "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+          "tree": "2d27c9c182cf550088c5a8c072dc2f36df84e20d",
+          "object_present": true,
+          "in_current_G_ancestry": false
+        },
+        "D": {
+          "sha": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+          "tree": "10efc41e7a2d792f42bce59af5b87816843df07e",
+          "object_present": true,
+          "in_current_G_ancestry": false
+        },
+        "D_source": {
+          "sha": "8e864f4ed0eeedf509d836381b20976c413f2443",
+          "tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+          "object_present": true,
+          "in_current_G_ancestry": false
+        },
+        "E": {
+          "sha": "7bf53fd0cf69a568b37d8a881e26bfb16c315653",
+          "tree": "946ec147aa09db5b76c66e7ac3e3a2e491f9868b",
+          "object_present": true,
+          "in_current_G_ancestry": false
+        },
+        "E_source": {
+          "sha": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+          "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+          "object_present": true,
+          "in_current_G_ancestry": false
+        },
+        "F_source": {
+          "sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+          "tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+          "object_present": true,
+          "in_current_G_ancestry": true
+        },
+        "F_receipt": {
+          "sha": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+          "tree": "682b043138464c912dd728c12e80049dd44b47f1",
+          "object_present": true,
+          "in_current_G_ancestry": false
+        }
+      }
+    },
+    "plan_refs": {
+      "dispatch": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json",
+        "blob": "f2e8d2096b86148fb93d4eb61520d22002228a1d",
+        "pointer": "#/roles/L02; #/task_routes; #/source_pins; #/actual_local_data_paths; #/concurrency"
+      },
+      "inputs": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json",
+        "blob": "749255cd37f93955b176c748d63b2a3a7b7ee214",
+        "pointer": "#/integration_base; #/pins; #/source_manifest",
+        "scope": "planning; no source acceptance or finding closure",
+        "integration_base": "6f3983466f1eca14b510c4f5006fab5092d418d3"
+      },
+      "tasks": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+        "blob": "a27cf7e78dc7c16df279a5136399ee0a5daeee9a",
+        "pointer_pattern": "#/tasks/<task>"
+      },
+      "findings": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+        "blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e",
+        "pointer": "#/rows; each row next_tasks, original_criteria_pointer, author_proposal, G_closure"
+      },
+      "L01_prompt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/L01.md",
+        "blob": "53af8c971cf754b466f85712d2dde3a624c4cda4"
+      },
+      "L02_prompt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/L02.md",
+        "blob": "e97385084b0101fcc6dca2c5aba5519ab55b3090"
+      }
+    },
+    "packet_availability": {
+      "published_L01_factual_packet": "absent_from_inspected_G_tree",
+      "actual_host_fact_availability": "not_established; a local directory with production-data naming exists in the primary checkout, but its contents, configured aliases, and owner/API binding were not inspected",
+      "L01_receipt_or_handoff_in_G": false,
+      "L02_receipt_in_G": false,
+      "required_nonsecret_packet_fields": [
+        "opaque local source alias",
+        "source/ref",
+        "custodian-approved non-secret input digest if allowed",
+        "effective source/profile/model/evaluator identity",
+        "relevant time role",
+        "authority purpose",
+        "issuer/verifier API and provenance",
+        "consumer",
+        "exact absence or unsupported reason"
+      ],
+      "secret_or_payload_rows_read": false,
+      "data_digest_computed": false,
+      "API_census": "C13 is routed for existing-code/API census; no L01 packet with actual issuer/verifier/config API paths is present in the inspected G tree",
+      "B164_API_status": "not_established in connected-closeout-plan §06"
+    },
+    "workspace_and_slot": {
+      "L02_prior_observation": {
+        "result": "no L02 worktree was listed",
+        "timestamp_utc": null,
+        "note": "Historical observation from before root's create/resume registration; superseded by fresh readback."
+      },
+      "L02_current_observation": {
+        "observed_at_utc": "2026-10-08T09:25:45Z",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+        "branch": "codex/e02-L02-authentic-20261008",
+        "head": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+        "status": "clean",
+        "tracked_remote_head": "not checked; no push performed"
+      },
+      "L01_current_observation": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-l01-custody-20261008/polisyos",
+        "branch": "codex/e02-L01-custody-20261008",
+        "head": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "status": "clean at previous readback; no L01 packet visible in tracked G"
+      },
+      "shared_local_heavy_slots": {
+        "declared_count": 1,
+        "current_lease_or_lock": "none found in scoped tracked coordination docs",
+        "availability": "not_established",
+        "assume_free": false
+      },
+      "local_data_root_observation": {
+        "locator": "opaque local production-data root alias",
+        "primary_checkout_directory_exists": true,
+        "G_and_L01_worktree_directory_exists": false,
+        "contents_enumerated_or_read": false,
+        "source_identity_or_task_binding": "not_established"
+      }
+    },
+    "finding_scope_audit": {
+      "source": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b:policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+      "source_blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e",
+      "denominator": {
+        "bundles": 127,
+        "findings": 282,
+        "criterion_occurrences": 291
+      },
+      "selected_tasks": [
+        "V1",
+        "V3",
+        "V4",
+        "V6",
+        "V7",
+        "I3",
+        "I4",
+        "S2",
+        "T2",
+        "Q2"
+      ],
+      "task_membership_counts": {
+        "V1": 10,
+        "V3": 5,
+        "V4": 3,
+        "V6": 1,
+        "V7": 3,
+        "I3": 3,
+        "I4": 5,
+        "S2": 6,
+        "T2": 11,
+        "Q2": 21
+      },
+      "membership_total": 68,
+      "unique_selected_ids": 58,
+      "multi_task_ids": [
+        "B04",
+        "B05",
+        "B08",
+        "B13",
+        "B154",
+        "B16",
+        "B32",
+        "LA-033",
+        "LA-046",
+        "LA-051"
+      ],
+      "unique_selected_ids_sorted": [
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B08",
+        "B09",
+        "B10",
+        "B11",
+        "B12",
+        "B13",
+        "B131",
+        "B137",
+        "B154",
+        "B157",
+        "B16",
+        "B164",
+        "B190",
+        "B194",
+        "B197",
+        "B200",
+        "B201",
+        "B202",
+        "B212",
+        "B27",
+        "B28",
+        "B29",
+        "B30",
+        "B32",
+        "B34",
+        "B35",
+        "B36",
+        "B74",
+        "B79",
+        "B80",
+        "B83",
+        "LA-005",
+        "LA-006",
+        "LA-018",
+        "LA-021",
+        "LA-023",
+        "LA-024",
+        "LA-025",
+        "LA-026",
+        "LA-027",
+        "LA-028",
+        "LA-032",
+        "LA-033",
+        "LA-036",
+        "LA-040",
+        "LA-042",
+        "LA-045",
+        "LA-046",
+        "LA-050",
+        "LA-051",
+        "LA-053",
+        "LA-054",
+        "LA-055"
+      ],
+      "Q2_ids_count": 21,
+      "Q2_ids": [
+        "B04",
+        "B11",
+        "B29",
+        "B30",
+        "LA-033",
+        "B34",
+        "B35",
+        "B36",
+        "LA-045",
+        "LA-005",
+        "LA-006",
+        "LA-021",
+        "LA-023",
+        "LA-026",
+        "LA-027",
+        "LA-042",
+        "LA-050",
+        "LA-053",
+        "B201",
+        "B202",
+        "B212"
+      ],
+      "author_proposal_counts_by_task": {
+        "V1": {
+          "open": 3,
+          "limited": 7
+        },
+        "V3": {
+          "open": 2,
+          "limited": 3
+        },
+        "V4": {
+          "limited": 3
+        },
+        "V6": {
+          "limited": 1
+        },
+        "V7": {
+          "limited": 3
+        },
+        "I3": {
+          "limited": 1,
+          "held": 2
+        },
+        "I4": {
+          "limited": 2,
+          "held": 3
+        },
+        "S2": {
+          "held": 4,
+          "limited": 2
+        },
+        "T2": {
+          "limited": 6,
+          "held": 5
+        },
+        "Q2": {
+          "limited": 16,
+          "held": 2,
+          "closed": 3
+        }
+      },
+      "count_method": "Python parsed every row in the pinned findings.json and selected rows by next_tasks membership; no sample/search index was used."
+    },
+    "task_matrix": [
+      {
+        "task": "V1",
+        "plan_pointer": "tasks.json#/tasks/V1",
+        "finding_ids": [
+          "B01",
+          "B02",
+          "B03",
+          "B04",
+          "B05",
+          "B08",
+          "B10",
+          "B13",
+          "B74",
+          "B154"
+        ],
+        "depends": [
+          "Q1"
+        ],
+        "minimum_input": [
+          "matching criterion-specific L6/local catalog/acquisition/history inputs",
+          "matching L6 artifact pair and manifest or legitimate versioned replacement",
+          "source/context/tenant/run refs"
+        ],
+        "defining_verifier": "authentic ordinary POST/job -> owner-bound context -> N5 -> CAS -> fresh GET; manifests must match",
+        "owner_roles": [
+          "L01 factual supplier",
+          "C05 Catalog/profile supplier",
+          "C10 A served lifecycle consumer"
+        ],
+        "source_pin_keys": [
+          "A",
+          "C_DFI_source",
+          "C_CAT_source"
+        ],
+        "candidate_source_paths": [
+          "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+          "policy-engine/src/polisyos/data_forge/domains/catalog/",
+          "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+          "policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py",
+          "policy-engine/src/polisyos/fabric/connectors/profiles/",
+          "policy-engine/src/polisyos/fabric/retrieval/service.py"
+        ],
+        "packet_status": "No L01 factual packet in G; actual-host input identity/config/profile not established. Synthetic configured HTTP witness is bounded, not authentic acceptance.",
+        "smallest_next_packet_owner": "L01 obtains the matching local profile/artifact pair and nonsecret source identity; C05 supplies accepted Catalog basis and C10 selects the exact consumer recipe after Q1."
+      },
+      {
+        "task": "V3",
+        "plan_pointer": "tasks.json#/tasks/V3",
+        "finding_ids": [
+          "B09",
+          "B12",
+          "B27",
+          "B28",
+          "LA-046"
+        ],
+        "depends": [
+          "S1"
+        ],
+        "conditional_inputs": [
+          "only the relevant I1/I3/I4 supplier"
+        ],
+        "minimum_input": [
+          "one admitted before/after source pair with substantive content change",
+          "identity/order/write-time-only control",
+          "observation-to-WMR relevance/units/time",
+          "one permitted acquisition result"
+        ],
+        "defining_verifier": "same-candidate WMR -> reissued N5 with corresponding context -> persisted old/new refs/history -> fresh GET; identity-only mutation does not reissue",
+        "owner_roles": [
+          "L01 source facts",
+          "C10 A reentry/lifecycle consumer",
+          "only the selected C05/C04/C12 source supplier",
+          "F relevance/model semantics"
+        ],
+        "source_pin_keys": [
+          "A",
+          "one of C_DFI_source/C_CAT_source, C_stream_source/C_NET_source, C_Legal_source as selected"
+        ],
+        "candidate_source_paths": [
+          "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+          "selected Catalog, connector, or Legal source/profile paths"
+        ],
+        "packet_status": "No admitted source supplier or local factual pair in G; S1 decision and exact supplier selection are unresolved in this plan snapshot.",
+        "smallest_next_packet_owner": "L01 + the selected source owner provide one scoped source pair and acquisition result; do not wait for unrelated I1/I3/I4 tasks."
+      },
+      {
+        "task": "V4",
+        "plan_pointer": "tasks.json#/tasks/V4",
+        "finding_ids": [
+          "B16",
+          "B32",
+          "LA-051"
+        ],
+        "depends": [
+          "S1"
+        ],
+        "minimum_input": [
+          "E producer evidence ref(s) matching actual method/estimand/purpose/time",
+          "compatible source/model/unit/split/horizon and observations if empirical claim"
+        ],
+        "defining_verifier": "actual E producer -> persisted CAS evidence -> resolver recomputes -> fresh grade/S6/default/HTTP; finite CI without observations cannot raise calibration",
+        "owner_roles": [
+          "C09 E producer",
+          "C10 A S10/resolver/HTTP consumer",
+          "L01 source facts"
+        ],
+        "source_pin_keys": [
+          "A",
+          "E",
+          "E_source"
+        ],
+        "candidate_source_paths": [
+          "policy-engine/src/polisyos/foundry/calibration/",
+          "policy-engine/src/polisyos/foundry/uncertainty/",
+          "policy-engine/src/polisyos/scientist/methods/doe/",
+          "policy-engine/src/polisyos/scientist/methods/backtesting/",
+          "policy-engine/src/polisyos/runtime/quality/explanation_reliability.py"
+        ],
+        "packet_status": "No compatible factual evidence refs/S1 purpose packet in G; predictive-purpose positive is bounded, causal S10 remains limited/blocked until V7.",
+        "smallest_next_packet_owner": "E source owner supplies scoped actual producer refs and method/estimand/purpose/time identity; C10 checks the exact current resolver input."
+      },
+      {
+        "task": "V6",
+        "plan_pointer": "tasks.json#/tasks/V6",
+        "finding_ids": [
+          "B13"
+        ],
+        "depends": [
+          "Q1",
+          "R1"
+        ],
+        "conditional_inputs": [
+          "authentic local catalog/acquisition profile from V1"
+        ],
+        "minimum_input": [
+          "V1 authentic profile",
+          "actual served simulation producer",
+          "later independent sibling failure",
+          "persisted success/history/CAS ref and exact sibling error"
+        ],
+        "defining_verifier": "fresh served debug reader retains typed partial and exact error; missing/corrupt result ref refuses",
+        "owner_roles": [
+          "L01 facts",
+          "C10 A served simulation/history",
+          "B async collector/R1",
+          "G local runner"
+        ],
+        "source_pin_keys": [
+          "A",
+          "B_prepared_source",
+          "B_prepared_receipt"
+        ],
+        "candidate_source_paths": [
+          "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+          "B prepared producer/collector paths selected at Q1"
+        ],
+        "packet_status": "Q1/R1 source acceptance and V1 profile absent; prepared B source/receipt are exact Git objects but outside current G ancestry.",
+        "smallest_next_packet_owner": "L01 provides the V1 profile; G/C01 and B owner publish/admit R1 source and runtime evidence before the authentic sibling-failure check."
+      },
+      {
+        "task": "V7",
+        "plan_pointer": "tasks.json#/tasks/V7",
+        "finding_ids": [
+          "B16",
+          "B32",
+          "LA-051"
+        ],
+        "depends": [
+          "S1"
+        ],
+        "conditional_inputs": [
+          "scoped same-estimand/design/time/purpose paired predictions/observations"
+        ],
+        "minimum_input": [
+          "paired source-bound predictions and observations",
+          "same estimand/design/time/purpose identity",
+          "measured numerator/denominator and holdout/source refs"
+        ],
+        "defining_verifier": "method-specific producer -> persisted evidence -> fresh S10/default/HTTP; same nominal CI with different outcomes changes evidence grade",
+        "owner_roles": [
+          "C09 E producer",
+          "C10 A S10 consumer",
+          "L01 factual supplier"
+        ],
+        "source_pin_keys": [
+          "A",
+          "E",
+          "E_source"
+        ],
+        "candidate_source_paths": [
+          "policy-engine/src/polisyos/foundry/calibration/",
+          "policy-engine/src/polisyos/foundry/uncertainty/",
+          "policy-engine/src/polisyos/scientist/methods/backtesting/",
+          "policy-engine/src/polisyos/runtime/quality/explanation_reliability.py"
+        ],
+        "packet_status": "No scoped paired observations/producer refs or S1 decision in G; predictive ETS output is not causal calibration evidence.",
+        "smallest_next_packet_owner": "E source/measurement owner supplies the paired source/holdout packet; S1 supplies the purpose/estimand decision."
+      },
+      {
+        "task": "I3",
+        "plan_pointer": "tasks.json#/tasks/I3",
+        "finding_ids": [
+          "B79",
+          "B80",
+          "B83"
+        ],
+        "depends": [
+          "R2"
+        ],
+        "conditional_inputs": [
+          "actual source dataset/run/cursor/content/event-version evidence"
+        ],
+        "minimum_input": [
+          "source-confirmed dataset/run/cursor/content binder",
+          "source-owned event/version identity",
+          "durable 24-hour replay semantics"
+        ],
+        "defining_verifier": "R2 actual pool/stream cleanup and restart -> verified progress -> durable replay/fresh cursor consumer; missing or ambiguous event key is typed unsupported",
+        "owner_roles": [
+          "L01 connector/source fact owner",
+          "C04 pool/stream producer and cursor consumer",
+          "B pool witness/R2"
+        ],
+        "source_pin_keys": [
+          "B_prepared_source",
+          "C",
+          "C_stream_source",
+          "C_NET_source"
+        ],
+        "candidate_source_paths": [
+          "policy-engine/src/polisyos/fabric/connectors/pool.py",
+          "policy-engine/src/polisyos/fabric/connectors/registry.py",
+          "policy-engine/src/polisyos/fabric/connectors/resilience/",
+          "policy-engine/src/polisyos/fabric/data_plane/"
+        ],
+        "packet_status": "No actual source identity/event key packet in G; R2 source composition and runtime verification are not recorded as accepted.",
+        "smallest_next_packet_owner": "Connector/source owner provides one dataset/run/cursor/content/event-version and retention packet; C04/R2 binds it to the exact stream candidate."
+      },
+      {
+        "task": "I4",
+        "plan_pointer": "tasks.json#/tasks/I4",
+        "finding_ids": [
+          "LA-033",
+          "LA-046",
+          "LA-028",
+          "LA-032",
+          "LA-040"
+        ],
+        "depends": [
+          "I1"
+        ],
+        "conditional_inputs": [
+          "I1 acceptance for Catalog",
+          "paired Legal generation/assets/encoder only for production claim; isolated Legal fixtures may proceed earlier"
+        ],
+        "minimum_input": [
+          "effective Catalog generation/profile basis accepted by I1",
+          "Legal paired generation/assets/membership/model and exact query encoder for production claim"
+        ],
+        "defining_verifier": "request -> typed profile/encoded query -> fresh native reader; missing/unknown/wrong model, normalization, or membership refuses",
+        "owner_roles": [
+          "L01 profile facts",
+          "C05 Catalog/DFI",
+          "C12 Legal",
+          "C10 A bridge"
+        ],
+        "source_pin_keys": [
+          "C",
+          "C_DFI_source",
+          "C_CAT_source",
+          "C_Legal_source",
+          "A"
+        ],
+        "candidate_source_paths": [
+          "policy-engine/src/polisyos/data_forge/domains/catalog/",
+          "policy-engine/src/polisyos/fabric/retrieval/service.py",
+          "policy-engine/src/polisyos/data_forge/domains/legal/",
+          "policy-engine/src/polisyos/lex/knowledge/search.py",
+          "policy-engine/src/polisyos/lex/knowledge/store.py",
+          "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py"
+        ],
+        "packet_status": "No actual Catalog/Legal profile packet or I1 accepted receipt in G; Legal fixture work can start without the production packet.",
+        "smallest_next_packet_owner": "C05/L01 supply accepted Catalog effective basis; C12/data owner supplies the Legal generation/assets/model/membership/encoder tuple for the production occurrence."
+      },
+      {
+        "task": "S2",
+        "plan_pointer": "tasks.json#/tasks/S2",
+        "finding_ids": [
+          "LA-036",
+          "B157",
+          "B190",
+          "B194",
+          "B197",
+          "B200"
+        ],
+        "depends": [
+          "S1"
+        ],
+        "conditional_inputs": [
+          "configured evaluator/law/Jacobian/calibration/lineage packets"
+        ],
+        "minimum_input": [
+          "B190 Jacobian axes/units/model/source",
+          "B194 configured evaluator + joint law + every attempted draw",
+          "B197 actual CalibratorInputs/fit/noise/split/trainable coordinates",
+          "B200 source measurement/replicate/covariance lineage",
+          "LA-036 verified observed-feature conditional law/model/support/epoch/bound",
+          "B157 actual same-run sample/work counts when in criterion scope"
+        ],
+        "defining_verifier": "consumers recompute attempted-draw denominator, covariance/axes/target fit, subject identity, and fresh evidence lineage; counterfeit metadata refuses",
+        "owner_roles": [
+          "L01 source facts",
+          "C09 E law/calibration producers",
+          "C08 model when LA-036 applies",
+          "D/F/A consumers by named edge"
+        ],
+        "source_pin_keys": [
+          "E",
+          "E_source",
+          "C",
+          "D",
+          "D_source"
+        ],
+        "candidate_source_paths": [
+          "policy-engine/src/polisyos/foundry/calibration/",
+          "policy-engine/src/polisyos/foundry/uncertainty/",
+          "policy-engine/src/polisyos/scientist/methods/doe/",
+          "policy-engine/src/polisyos/scientist/methods/backtesting/"
+        ],
+        "packet_status": "No actual law/calibration/lineage packet in G; packets are criterion-specific and cannot substitute for one another; synthetic fits only qualify generic mechanics.",
+        "smallest_next_packet_owner": "For each selected occurrence, E/source owner gives the matching exact packet; C08/model or D/F/A consumer joins it under the relevant S1 decision."
+      },
+      {
+        "task": "T2",
+        "plan_pointer": "tasks.json#/tasks/T2",
+        "finding_ids": [
+          "B05",
+          "B08",
+          "B154",
+          "LA-018",
+          "LA-024",
+          "LA-025",
+          "B131",
+          "B137",
+          "B164",
+          "LA-054",
+          "LA-055"
+        ],
+        "depends": [
+          "T1"
+        ],
+        "conditional_inputs": [
+          "specific admitted owner fact/API required by criterion"
+        ],
+        "minimum_input": [
+          "one criterion-specific legitimate owner fact/API",
+          "subject/tenant/view and purpose",
+          "source/issuer/verifier provenance",
+          "validity/revocation/rule epoch and applicable time roles"
+        ],
+        "defining_verifier": "protected positive plus fake/foreign/stale/revoked zero-effects, including commit-time revalidation",
+        "owner_roles": [
+          "L01 custody/source inventory",
+          "C02 CAS",
+          "C11 D Search/permit",
+          "C10 A served consumer"
+        ],
+        "source_pin_keys": [
+          "A",
+          "B_prepared_source",
+          "B_prepared_receipt",
+          "D",
+          "D_source",
+          "C"
+        ],
+        "candidate_source_paths": [
+          "policy-engine/src/polisyos/core/artifacts/",
+          "policy-engine/src/polisyos/scientist/methods/search/",
+          "policy-engine/src/polisyos/scientist/validation/phase5_preflight.py",
+          "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py"
+        ],
+        "packet_status": "No L01 owner/API packet in G; §06 marks B164 matching issuer/verifier/writer API not_established. Internal PolicyOS owner act and external institutional fact remain separate.",
+        "smallest_next_packet_owner": "L01 names the exact internal owner or external institution and one criterion-scoped fact/API with currentness/revocation/verifier fields; no generic permission service."
+      },
+      {
+        "task": "Q2",
+        "plan_pointer": "tasks.json#/tasks/Q2",
+        "finding_ids": [
+          "B04",
+          "B11",
+          "B29",
+          "B30",
+          "LA-033",
+          "B34",
+          "B35",
+          "B36",
+          "LA-045",
+          "LA-005",
+          "LA-006",
+          "LA-021",
+          "LA-023",
+          "LA-026",
+          "LA-027",
+          "LA-042",
+          "LA-050",
+          "LA-053",
+          "B201",
+          "B202",
+          "B212"
+        ],
+        "depends": [
+          "Q1"
+        ],
+        "conditional_inputs": [
+          "selected source contracts fixed",
+          "relevant upstream task exits",
+          "source/test/config/companion input manifest before acceptance"
+        ],
+        "minimum_input": [
+          "exact selected source tree and source/test/config/lock/companion blob manifest",
+          "canonical generated family from selected contracts",
+          "declared Mac supported profile and actual installed/default consumer"
+        ],
+        "defining_verifier": "frozen contracts -> canonical generated family -> actual typed client/default-installed consumer; verify declared supported Mac profiles only",
+        "owner_roles": [
+          "G generated/global output owner",
+          "C06 DFK/CAN reader",
+          "C10 dashboard/API consumer",
+          "C13 independent conformance",
+          "L02 Mac-only profile"
+        ],
+        "source_pin_keys": [
+          "G",
+          "A",
+          "C",
+          "C_DFK_source",
+          "C_CAN_source",
+          "D_source",
+          "E_source",
+          "F_source"
+        ],
+        "candidate_source_paths": [
+          "policy-engine/tools/quality/validation/schema_fqn_census.py",
+          "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+          "policy-engine/src/polisyos/ir/artifacts/io.py",
+          "policy-engine/src/polisyos/ir/artifacts/README.md",
+          "policy-engine/apps/runtime-dashboard/src/api/types.ts"
+        ],
+        "packet_status": "No Q1-selected source/config/companion manifest or L02 consumer receipt in G. Three associated rows have author_proposal=closed, but G closure remains not_adjudicated.",
+        "smallest_next_packet_owner": "G/C06/C10/C13 freeze the exact selected contract family and consumer profile/input manifest; L02 verifies only the declared Mac profile on that candidate."
+      }
+    ],
+    "pattern_pass": {
+      "relevant_ids": [
+        "P01",
+        "P02",
+        "P05",
+        "P10",
+        "P35",
+        "P37",
+        "P38",
+        "P41"
+      ],
+      "finding": "The plan establishes routes and required packet fields but no factual L01 artifact or task-specific admitted source composition. Treat source path/profile/hash presence as locator evidence only; custody/provenance and the consumer's semantic predicate need their own source-bound verifier. Counts above are from a full JSON row walk, not prose or a sample. No test/baseline result was used, so no P41 attribution is made."
+    },
+    "verification": {
+      "tests_run": false,
+      "baseline_result_pack_used": false,
+      "production_payload_read": false,
+      "source_test_config_changes": false,
+      "next_step": "Root may commit or retain this ignored prepared receipt. Obtain the L01 packet and a Q1 exact source/input manifest before scheduling dependent authentic positives; keep the shared local heavy-slot state not_established until an actual lease/availability readback."
+    }
+  }
+}

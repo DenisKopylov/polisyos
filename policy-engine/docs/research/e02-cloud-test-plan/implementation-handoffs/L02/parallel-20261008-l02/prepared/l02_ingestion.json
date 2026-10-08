@@ -1,0 +1,355 @@
+{
+  "schema": "policyos.e02.l02.qualified_preparation.v1",
+  "role": "L02",
+  "helper": "l02_ingestion",
+  "source_candidate_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "source_candidate_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "preparer_raw_local_ref": {
+    "path": ".tmp/parallel-20261008-l02/prepared/l02_ingestion.json",
+    "bytes": 25183,
+    "sha256": "484fbf717ba3a52e3b1da827da016d2f0714f4395c76df0ad5bd0ef5f02fa60e"
+  },
+  "delivery_compaction": {
+    "removed_derivable_text_fields": [],
+    "raw_report_preserved": true,
+    "no_semantic_qualification_promoted": true
+  },
+  "preparation": {
+    "schema_version": 1,
+    "task": "I3 L02 authentic ingestion preparation for B79, B80, B83",
+    "prepared_by": "L02 read-only helper",
+    "prepared_at": "2026-10-08",
+    "status": "prepared_read_only_unrun",
+    "scope": {
+      "authorized_write": ".tmp/parallel-20261008-l02/prepared/l02_ingestion.json only",
+      "runtime_tests_run": false,
+      "production_reads": false,
+      "source_or_test_changes": false,
+      "install_or_checkout_creation": false,
+      "claims": "No authentic current-G PASS or closure is claimed. Exact positive source-backed recipes below remain UNRUN pending admitted L01 facts and the root importer/source selection.",
+      "root_importer_state": "navigation_only_raw0; do not infer source-backed PASS or promote a finding"
+    },
+    "frozen_refs": {
+      "documentation_carrier": {
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+        "inputs_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json",
+        "inputs_blob": "749255cd37f93955b176c748d63b2a3a7b7ee214"
+      },
+      "current_G": {
+        "source_commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "source_tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617",
+        "findings_path": "policy-engine/docs/research/e02-cloud-test-plan/findings.json",
+        "findings_blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e",
+        "coverage_path": "policy-engine/docs/research/e02-cloud-test-plan/coverage.json",
+        "coverage_blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+        "dispatch_path": "policy-engine/docs/research/e02-cloud-test-plan/dispatch.json",
+        "dispatch_pins_G": true,
+        "routes": {
+          "I3": [
+            "C04",
+            "L01",
+            "L02"
+          ],
+          "C04": [
+            "R2",
+            "I3"
+          ],
+          "L01": [
+            "I3:facts"
+          ],
+          "L02": [
+            "I3:authentic"
+          ]
+        }
+      },
+      "original_criteria": {
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+      },
+      "dispatch_review": "HANDOFF.md, execution-prompts/parallel-2026-10-08/COMMON.md, L02.md, L01.md, C04.md and CONTRIBUTING.md were read; failure/repair register reviewed before and after this analysis."
+    },
+    "finding_rows": [
+      {
+        "finding": "B79",
+        "findings_row": 129,
+        "coverage_pointer": "/findings/204",
+        "original_criterion_pointer": "/findings/204/criterion_refs",
+        "original_criterion_lines": "2153-2166",
+        "original_criterion_sha256": "27bcd616e4c3651c5234684c5f00bfc90929f35b417c71f57e4740fa2afb567d",
+        "original_unit": "C",
+        "original_primary_bundle": "ING-01",
+        "current_G_closure": "not_adjudicated",
+        "current_G_capability_label": "bridge_missing",
+        "current_C_author_row": "/rows/1",
+        "current_C_recommendation": "limited; no formal G closure",
+        "required_property": "A verified persisted dataset boundary must reach the actual connector FetchRequest.incremental_since, filter the source rows, and advance the same tenant cursor only after source-confirmed evidence is resolved and content-bound to the exact dataset and ingestion run. Missing cursor means honest full read; unsupported connectors are not incremental.",
+        "divergent_current_G_behavior": "The REST batch_incremental path injects a stored DataVersion into the real request, but _save_confirmed_cursors is a no-op because no verifier resolves evidence and binds its content to confirmed dataset/run. CursorState has optional ingestion_run_id/evidence_bundle_ref but the current producer does not populate a source-confirmed binder.",
+        "authentic_acceptance": "Run the admitted source through POST /api/v1/control/data/ingest with execution_mode=batch_incremental. Independently map expected source rows at the exact persisted ETag/revision. Observe the actual connector request and returned rows; read the persisted evidence bytes; reopen CursorStore for the same tenant and compare cursor bytes to the verified source boundary. Probe absent, forged, stale, wrong-dataset, wrong-run and content-mismatched binder refusal. Remove only the request injection while route markers remain and show the positive property fails. Current-G authentic positive selector is not established; all this remains UNRUN until L01 supplies the source and binder.",
+        "current_G_negative_or_synthetic_selectors": [
+          "tests/unit/fabric/data_plane/test_incremental.py::test_incremental_native_rest_version_requires_persisted_evidence",
+          "tests/unit/fabric/data_plane/test_incremental.py::test_incremental_rejects_unverified_evidence_reference (parameterized malformed/nonexistent/stale cases)",
+          "tests/unit/fabric/data_plane/test_incremental.py::test_incremental_does_not_advance_incomplete_result",
+          "tests/unit/fabric/data_plane/test_incremental.py::test_incremental_does_not_pass_unproven_legacy_cursor_to_requests",
+          "tests/unit/fabric/data_plane/test_incremental.py::test_incremental_advances_only_confirmed_dataset_boundaries (currently exercises no-op/negative behavior)"
+        ]
+      },
+      {
+        "finding": "B80",
+        "findings_row": 130,
+        "coverage_pointer": "/findings/205",
+        "original_criterion_pointer": "/findings/205/criterion_refs",
+        "original_criterion_lines": "2167-2180",
+        "original_criterion_sha256": "4c1a2181de7a1faab9b419139aacb69af646339f4920a172f21dbe2c4d0cbdad",
+        "original_unit": "C",
+        "original_primary_bundle": "ING-01",
+        "current_G_closure": "not_adjudicated",
+        "current_G_capability_label": "semantic_test_missing",
+        "current_C_author_row": "/rows/2",
+        "current_C_recommendation": "held; progress remains bounded only",
+        "required_property": "Source/event/offset semantics govern each source's progress. Partial success advances only the independently confirmed source. A failed source stays at its predecessor, and a late event is not discarded because it predates local wall-clock time.",
+        "divergent_current_G_behavior": "Current batch cursor promotion is not connected to a source-confirmed dataset/run/content binder. A local wall-clock boundary is not an acceptable source progress oracle.",
+        "authentic_acceptance": "Use two admitted sources with independently recorded source event logs. Begin B at confirmed cursor 4; A confirms 9 while B fails. Include a B event whose source event-time is earlier than local now. Verify after failure and fresh CursorStore reopen that B remains at 4 and the late row remains eligible; retry B and promote only after B's exact dataset/run/cursor/content binder verifies. Repeat with absent, forged, mismatched and wrong-run binder. This is independent of B83 event-dedupe identity and has no B83 prerequisite.",
+        "current_G_semantic_positive_selector": "not_established",
+        "current_G_negative_or_synthetic_selectors": [
+          "tests/unit/fabric/data_plane/test_incremental.py::test_incremental_does_not_advance_incomplete_result",
+          "tests/unit/fabric/data_plane/test_incremental.py::test_incremental_advances_only_confirmed_dataset_boundaries (currently no-op/negative)"
+        ]
+      },
+      {
+        "finding": "B83",
+        "findings_row": 133,
+        "coverage_pointer": "/findings/208",
+        "original_criterion_pointer": "/findings/208/criterion_refs",
+        "original_criterion_lines": "2209-2222",
+        "original_criterion_sha256": "33f33619aeda80550a33302bfc571497c218ec5f0f6ea09fa22d447e74d58441",
+        "original_unit": "C",
+        "original_primary_bundle": "ING-03",
+        "current_G_closure": "not_adjudicated",
+        "current_G_capability_label": "semantic_test_missing",
+        "current_C_author_row": "/rows/5",
+        "current_C_recommendation": "held; source-owned event/version identity binding and replay evidence remain missing",
+        "required_property": "A declared 86,400-second UTC ingestion-time horizon uses typed source-owned event/version identity scoped by connector/source, dataset and partition. Reusing an entity ID at distinct source versions is distinct. Missing, ambiguous or fake identity is typed unsupported. Capacity overflow spills durably or refuses before evicting a live key. Restart preserves the same behavior.",
+        "divergent_current_G_behavior": "Current G uses a count-bounded deque/set, persists a tail for restart, and does not apply dedupe_window_seconds in the processing loop. With cap 2, a,b,c,a can accept a again after c evicts it. EventStreamConnector synthesizes _message_id as dataset_id:index; that file-local offset is not a source-owned event/version identity.",
+        "authentic_acceptance": "On the actual admitted streaming path, lease through ConnectionPool and StreamingSourceSession.create/poll; process the source events; persist raw chunk/window evidence to CAS and atomically commit cursor plus StreamCheckpoint through CursorStore.commit_stream_progress; close/release; construct a fresh CursorStore against the same CAS/index; then replay from the verified source boundary. Independent source log/oracle maps a,b,c,a at cap 2 and all timestamps inside 24h. Assert uninterrupted and crash-after-c/resume both suppress final a; distinct event versions for a reused domain/entity ID stay distinct; UTC expiry occurs exactly at 86,400 seconds after restart; connector/dataset/partition scopes isolate; at live capacity the system refuses/spills before eviction or frontier/CAS mutation. Absent, ambiguous and fake identity must return typed unsupported before progress writes. Include remove-property/keep-markers probe. UNRUN; no accepted source identity currently supplied.",
+        "current_G_synthetic_selectors": [
+          "tests/unit/fabric/data_plane/test_streaming_runtime.py::test_process_stream_dataset_recovers_from_checkpoint_and_dedupes_replay",
+          "tests/unit/fabric/data_plane/test_streaming_runtime.py::test_stream_dedupe_count_horizon_is_restart_invariant",
+          "tests/unit/fabric/data_plane/test_streaming_runtime.py::test_stream_partitions_keep_frontiers_isolated_across_restart"
+        ],
+        "current_G_authentic_semantic_selector": "not_established"
+      }
+    ],
+    "current_G_source_receipts": [
+      {
+        "path": "fabric/data_plane/modes.py",
+        "blob": "198ca13aac6a3edf29120f530b155cb9139d38da",
+        "relevant_behavior": "_CursorAwareConnector injects DataVersion into FetchRequest.incremental_since; _save_confirmed_cursors deliberately does not promote without source evidence resolver/content binder."
+      },
+      {
+        "path": "fabric/data_plane/streaming.py",
+        "blob": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6",
+        "relevant_behavior": "Count-bounded dedupe deque/set and checkpoint tail; no UTC TTL enforcement in processing path."
+      },
+      {
+        "path": "fabric/connectors/sources/event_stream.py",
+        "blob": "1d3e5c36215cb4f4ccda86a9ac7f05908a81fc1c",
+        "relevant_behavior": "Synthetic _message_id is dataset_id plus row index; not source-owned event/version identity."
+      },
+      {
+        "path": "core/contracts/cursor.py",
+        "blob": "0e5e772008545beab99ef5ea9c489d0febed406e",
+        "relevant_behavior": "CursorState has optional ingestion_run_id and evidence_bundle_ref but these are not themselves proof."
+      },
+      {
+        "path": "fabric/data_plane/orchestrator.py",
+        "blob": "40fa241d849e41839436723d74feaaef751e8811",
+        "relevant_behavior": "IngestionResult has no unique ingestion_run_id; provenance activity is fixed connector_ingestion_run; dataset provenance has content hash but no exact unique run binding."
+      },
+      {
+        "path": "tests/unit/fabric/data_plane/test_cursor_store.py",
+        "blob": "035ccd38c5e6448f5bb9db14c507fc12c96c5b30",
+        "relevant_behavior": "Current-G CursorStore tests cover persisted state and stream cursor/checkpoint behavior across a fresh store."
+      },
+      {
+        "path": "fabric/connectors/contracts/source_contract.py",
+        "blob": "572366d6ab84a331b45aecaa4b55c7c5426dafbc",
+        "relevant_behavior": "SourceContract does not supply a verified source-owned event/version identity binder."
+      },
+      {
+        "path": "fabric/quality/processing_guarantees.py",
+        "blob": "3074055a1cdac38d7031f36158a2a0b33b54620b",
+        "relevant_behavior": "IdempotencyDedupePolicy declares key fields, 86400-second window and max keys, but declaration does not prove enforcement or source ownership."
+      },
+      {
+        "path": "fabric/ingestion/ingestion.py",
+        "blob": "996e1d8cc8dac15f023ae5260146f49b0336bf69",
+        "relevant_behavior": "Current ingestion/orchestration path lacks a source-confirmed unique run/content binder for cursor promotion."
+      },
+      {
+        "path": "tests/unit/fabric/data_plane/test_incremental.py",
+        "blob": "bbdcedfb8a0f0341d463e4d953f2665f7cdeee49",
+        "relevant_behavior": "Current-G incremental negative/fail-closed selectors listed per B79/B80; no source-backed authentic positive."
+      },
+      {
+        "path": "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "blob": "d7913c3de3ba60d96f5ad7f66e70311641e95633",
+        "relevant_behavior": "Current-G synthetic restart/count/partition selectors listed for B83; no typed source-owned identity/UTC horizon proof."
+      }
+    ],
+    "historical_suppliers_and_nontransferable_receipts": {
+      "B_inputs": {
+        "current_author_rows_commit": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+        "tree": "677257974c442ba878a6bf4dba6686ae854b2e67",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-exact53-repair-all60-delta.json",
+        "blob": "04a43399a0dd189f83426ee125600c75f63be404",
+        "note": "The 60-row B handoff has no B79/B80/B83 rows; current findings route these findings to C. B published source 53b14a6e5af66f2a784d7f4981c4613e534acd40 (tree 568e2e42e18abcea9fd39759546f1e48525c590a) is docs-only and not ancestor of G."
+      },
+      "B_prepared_R2_candidate": {
+        "commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+        "tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+        "ancestor_of_G": false,
+        "note": "15-file candidate is Scientist executor/snapshot physical cleanup with test_stream_pool_physical_cleanup_oracle.py; it does not change Fabric ingestion, source identity or cursor binder. R2 is not an I3 identity/progress supplier and is not a B79/B80 prerequisite unless later source evidence demonstrates that dependency."
+      },
+      "C_current_author": {
+        "commit": "980d91b36452307d683283ddcf1e89a653af3ce2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c5-v1.json",
+        "blob": "98c39eb77e4397bc9a6e95d8e0a210100fa96e5f",
+        "bytes": 655130,
+        "note": "Current C root records B79 limited, B80 held, B83 held and no formal G closure. This is a recommendation/source receipt, not current-G runtime proof."
+      },
+      "C5_outer_handoff": {
+        "commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+        "tree": "7edd87e6730739fbe2d7c7ed0c35d4a4e1e11ba8",
+        "blob": "7310778b273b89341330154ab215b183c79e2e53"
+      },
+      "C2_leaf_and_candidate": {
+        "leaf_commit": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+        "leaf_tree": "573063f560533e73518ef87d29acc1a46959cf33",
+        "leaf_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/C54-final-20261006-v10.json",
+        "leaf_blob": "61e1abe90ae5f81e37077e2dc8e92f7e4de0cb76",
+        "leaf_sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc",
+        "leaf_bytes": 322414,
+        "candidate_commit": "81a4af184d72cd28e7ab4063140432e2af764547",
+        "candidate_tree": "c3423c94f28409ec663ec3b161ca85eecfe6207c",
+        "candidate_parent_source_commit": "68eed6d56f48e9a676edeb3251902300a64d5fad",
+        "candidate_parent_source_tree": "0d0163f817c7b697e18f96c0056076a7360b8e8f",
+        "candidate_is_ancestor_of_G": false,
+        "candidate_source_blobs": {
+          "fabric/data_plane/modes.py": "9f68fb5c4453789362f0d089b9b4c2b2ceeb7439",
+          "fabric/data_plane/streaming.py": "08b304cc85885e0a95348b4b2d69bf3459e11e21",
+          "tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py": "5148d6b6aeaec3ce7a5fc26267189ba0647060d9"
+        },
+        "historical_leaf_status": "B79 limited; B80 and B83 held; no production input/raw VM archives; old focused-196 and pointer-delta-145 PASS receipts apply only to this mismatched candidate and do not transfer to current G.",
+        "candidate_only_selectors": {
+          "B79": [
+            "test_b79_supported_rest_request_uses_the_persisted_etag_cursor",
+            "test_b79_served_incremental_route_filters_source_rows_from_the_stored_etag"
+          ],
+          "B80": [
+            "test_b80_two_source_failure_keeps_predecessors_and_retry_reads_late_event"
+          ],
+          "B83": [
+            "test_b83_live_event_key_cap_refuses_without_eviction_and_retries_from_checkpoint",
+            "test_b83_nonempty_legacy_dedupe_keys_without_utc_time_refuse_before_rewind",
+            "test_b83_first_accepted_key_expires_at_utc_86400_seconds_after_restart",
+            "test_b83_missing_or_nonprimitive_event_version_refuses_without_fallback_writes",
+            "test_b83_horizon_scope_isolated_by_connector_dataset_and_partition"
+          ]
+        },
+        "current_G_test_file_presence": "test_e02_c_streaming_oracle.py is absent from current G; candidate-only selectors are not runnable against G and are not evidence for G.",
+        "historical_receipt_command_and_result_blobs": [
+          {
+            "kind": "prewrite",
+            "command_blob": "beabcf6642c90c3ed1b4301ac6c1fe93c1c1697e",
+            "result_blob": "e70bba02b9f5f2b1d3d116d0d4ee95d47228a4f8"
+          },
+          {
+            "kind": "committed_ref_restart",
+            "command_blob": "268a4fdf0cc1a00e39ced3b9bc89c84be248c5cb",
+            "result_blob": "d0357ac9df747712e1a256df55c743d920967a3a"
+          },
+          {
+            "kind": "source_invocation",
+            "command_blob": "f3140073ebe44a02e368a8694d0f08a083e4b137",
+            "result_blob": "8d3e011737575f81827f9877f515c71da6e0b5b2"
+          }
+        ]
+      }
+    },
+    "minimum_L01_source_owned_packet": {
+      "shared_for_B79_B80": [
+        "One actual read-only owner-selected source/profile/alias, connector_id, dataset_id and partition; source-confirmed incremental boundary type and semantics (ETag/revision/offset) plus replay behavior.",
+        "Unique source-owned ingestion_run_id and independently verifiable evidence/binder that resolves and content-binds exact source, dataset, run, cursor/source boundary, content hash and artifact. Include independent verifier provenance. Presence, shape, hash, field name or producer self-attestation alone is insufficient.",
+        "One expected source-row/event map and exact confirmation/failure/retry chronology, including the two-source B80 partial-success/late-event case.",
+        "Source/ref/input digest/time/authority purpose/verifier/consumer and exact absence where relevant. Keep secrets, confidential paths, payload and rows in local ignored custody; only share permitted hashes/nonsecret facts. Do not run a payload census."
+      ],
+      "additional_for_B83_only": [
+        "Source-issued event ID plus source-owned version/revision semantics; explicitly distinguish event/version ID from domain/entity ID and from synthetic row index.",
+        "Partition and replay ownership, source event-time versus ingestion-time, and independent source-log map for a,b,c,a with cap 2, all within 86,400 UTC seconds; include a reused entity ID at distinct source versions.",
+        "Exact missing/ambiguous/fake identity cases and expected typed unsupported outcome before any durable cursor/checkpoint/frontier write."
+      ],
+      "separation": "B79/B80 source cursor/run/content binder can be verified without B83's event/version identity. B83 does not gate B79 or B80."
+    },
+    "source_selection_and_recipe": {
+      "current_G_owner_paths": [
+        "fabric/data_plane/modes.py: run_batch_incremental, _CursorAwareConnector, _save_confirmed_cursors",
+        "fabric/data_plane/orchestrator.py: connector ingestion and provenance creation",
+        "fabric/data_plane/cursor_store.py: save_cursor and commit_stream_progress",
+        "fabric/data_plane/streaming.py: _run_streaming_windowed_async and process_stream_dataset",
+        "fabric/connectors/sources/event_stream.py: synthetic _message_id generation",
+        "fabric/connectors/contracts/source_contract.py and fabric/quality/processing_guarantees.py: declarations without a verified source-owned binder"
+      ],
+      "B79_B80_real_path": "POST /api/v1/control/data/ingest with execution_mode=batch_incremental -> persisted tenant cursor lookup -> _CursorAwareConnector -> actual connector FetchRequest.incremental_since -> source response/expected rows -> evidence artifact verification and dataset/run/content bind -> only confirmed per-source CursorStore promotion -> fresh same-tenant CursorStore reopen. Current G stops at fail-closed no-op promotion because the verifier/binder/source run identity is missing.",
+      "B83_real_path": "ConnectionPool lease -> StreamingSourceSession.create/poll -> process_stream_dataset -> CAS raw chunk/window artifact -> CursorStore.commit_stream_progress(cursor+checkpoint) -> close/release -> fresh CursorStore using same CAS/index -> resume and replay from source-confirmed boundary. Current G has durable count-bounded replay dedupe only, not UTC expiry or source-owned typed identity.",
+      "commands_for_existing_current_G_selectors_if_later_authorized": [
+        "cd policy-engine && uv run pytest tests/unit/fabric/data_plane/test_incremental.py::test_incremental_native_rest_version_requires_persisted_evidence tests/unit/fabric/data_plane/test_incremental.py::test_incremental_rejects_unverified_evidence_reference tests/unit/fabric/data_plane/test_incremental.py::test_incremental_does_not_advance_incomplete_result tests/unit/fabric/data_plane/test_incremental.py::test_incremental_does_not_pass_unproven_legacy_cursor_to_requests tests/unit/fabric/data_plane/test_incremental.py::test_incremental_advances_only_confirmed_dataset_boundaries",
+        "cd policy-engine && uv run pytest tests/unit/fabric/data_plane/test_streaming_runtime.py::test_process_stream_dataset_recovers_from_checkpoint_and_dedupes_replay tests/unit/fabric/data_plane/test_streaming_runtime.py::test_stream_dedupe_count_horizon_is_restart_invariant tests/unit/fabric/data_plane/test_streaming_runtime.py::test_stream_partitions_keep_frontiers_isolated_across_restart"
+      ],
+      "run_state": "Commands and selectors recorded only; none executed by this helper. Current-G positive authentic selectors are not established."
+    },
+    "supplier_inventory": {
+      "admitted_supplier": "Frozen current-G source fe5ccf9ce90c336fff749da48bd0138d321baf23/tree 17f2b3e019b7ae82b85ad10af52dd9fb14049617 is the only admitted implementation base; its source confirms request hint plumbing, durable CursorStore mechanics, and missing promotion binder/source identity described above.",
+      "unaccepted_prepared_supplier": "B prepared R2 source 1e18a965b4334331dc3d5542b609f8a00bb35c6d is non-ancestor physical cleanup and provides no I3 ingestion progress/event identity. C streaming source candidate 81a4af184d72cd28e7ab4063140432e2af764547 is non-ancestor and has a bounded UTC horizon helper, scope and cap refusal fixtures, but source identity remains source-owner responsibility and EventStreamConnector remains synthetic. Neither is admitted current-G evidence.",
+      "next_C04_L01_G_selection": "C04 may compose R2 only if later admitted source evidence proves it supplies the actual B79/B80 binder or B83 source identity/progress. L01 must first provide the nonsecret source-owned packet. Root selects/merges only explicitly admitted source changes against frozen G; then re-review B79, B80, B83 independently and run the actual source-backed recipes. Do not globally gate B79/B80 on B83."
+    },
+    "pattern_pass": {
+      "relevant_ids": [
+        "P01",
+        "P02",
+        "P05",
+        "P08",
+        "P10",
+        "P27",
+        "P32",
+        "P33",
+        "P35",
+        "P37",
+        "P38",
+        "P40",
+        "P41"
+      ],
+      "existing_antipatterns": [
+        "Producer/bridge gap: source cursor hint plumbing exists, but evidence resolver/content binder and source-confirmed run identity do not; promotion is intentionally fail-closed (P01/P02/P05/P32).",
+        "Time role conflation risk: local now cannot determine source progress or UTC ingestion-time expiry (P08).",
+        "Synthetic/proxy identity: dataset row index and bounded count stand in for source event/version identity and 24-hour TTL; cap2 a,b,c,a distinguishes them (P10/P33/P38).",
+        "Source-owned predicate is not established; do not promote based on declaration/ref/hash presence (P37).",
+        "Historical candidate receipts are mismatched to G; report exact owner rows and hashes, not counts or inherited PASS claims (P35/P41)."
+      ],
+      "smallest_correct_pattern": "Reuse canonical modes.py, CursorStore, SourceContract and ProcessingGuarantee owners; add only a source-owned, independently verified content-bound run/cursor binder for B79/B80 and, separately, typed event/version identity plus durable UTC-scoped dedupe/refusal for B83 after L01 evidence. Acceptance requires real path, persisted artifact, fresh restart, independent source oracle, forged/absent/mismatch negatives, and remove-property/keep-markers probes.",
+      "current_missing_labels": {
+        "B79": [
+          "bridge_missing"
+        ],
+        "B80": [
+          "semantic_test_missing"
+        ],
+        "B83": [
+          "semantic_test_missing"
+        ]
+      }
+    }
+  }
+}

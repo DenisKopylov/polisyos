@@ -1,0 +1,508 @@
+{
+  "schema": "policyos.e02.l02.qualified_preparation.v1",
+  "role": "L02",
+  "helper": "l02_serving",
+  "source_candidate_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "source_candidate_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "preparer_raw_local_ref": {
+    "path": ".tmp/parallel-20261008-l02/prepared/l02_serving.json",
+    "bytes": 31057,
+    "sha256": "55db1c1cd5fbc4969be5c2f6855166383f472f1c03c68f5ee52d3937eabad5c9"
+  },
+  "delivery_compaction": {
+    "removed_derivable_text_fields": [],
+    "raw_report_preserved": true,
+    "no_semantic_qualification_promoted": true
+  },
+  "preparation": {
+    "schema": "policyos.e02.l02_prepared_receipt.v1",
+    "role": "L02",
+    "task": "I4 authentic serving-profile preparation for LA-028 and LA-040; LA-033 only as a narrow Catalog report/input seam",
+    "state": "prepared_read_only",
+    "authentic_I4_outcome": "UNRUN",
+    "formal_G_closure": "not_adjudicated",
+    "scope_and_write_boundary": {
+      "mode": "read_only_verification",
+      "source_test_config_writes": "none",
+      "only_write_authorized": ".tmp/parallel-20261008-l02/prepared/l02_serving.json",
+      "production_reads": "none: no production database, row, text, vector, or weight read",
+      "install_or_test_execution": "none",
+      "parent_admission": "Root reports canonical create and resume admission both exit 0 for the exact branch/path below.",
+      "branch": "codex/e02-L02-authentic-20261008",
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+      "HEAD": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "HEAD_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767"
+    },
+    "task_contract": {
+      "frozen_G": {
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767"
+      },
+      "dispatch_G_source_pin": {
+        "commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617",
+        "note": "Dispatch source pin and later frozen G snapshot are distinct."
+      },
+      "L02_dispatch": {
+        "path_ref": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json@f2e8d2096b86148fb93d4eb61520d22002228a1d",
+        "role_pointer": "/roles/L02",
+        "mode": "read_only_verification",
+        "source_scopes": [],
+        "test_write_rule": "No production/test source writes; own non-secret receipt docs only on an admitted topic.",
+        "task_parts_including_I4": true
+      },
+      "I4_task": {
+        "path_ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json@a27cf7e78dc7c16df279a5136399ee0a5daeee9a",
+        "pointer": "/tasks/I4",
+        "title": "Catalog/Legal serving profile bridge",
+        "depends": [
+          "I1"
+        ],
+        "conditional_inputs": [
+          "I1 acceptance required for Catalog; isolated Legal fixture preparation may proceed earlier",
+          "Paired Legal generation/assets/encoder only for production claim"
+        ],
+        "exit_property": "actual request -> typed profile/encoded query -> fresh reader; wrong or missing profile refuses"
+      }
+    },
+    "source_admission": {
+      "decision": "Current G is the only frozen runtime source used to assess the consumer. The C Legal, Catalog, DFI, and DFK source pins are candidate inputs only and are not in frozen G ancestry.",
+      "dispatch_ref": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json@f2e8d2096b86148fb93d4eb61520d22002228a1d",
+      "pins": [
+        {
+          "key": "C_DFK_source",
+          "commit": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+          "tree": "35d9c02156f8a27335b858bfe8053d7cbc6a54f2",
+          "in_G_ancestry": false,
+          "relation": "Original LA-028 owner-source pin."
+        },
+        {
+          "key": "C_CAT_source",
+          "commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+          "tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+          "in_G_ancestry": false
+        },
+        {
+          "key": "C_DFI_source",
+          "commit": "ab44166335130463178e65dfc29a252c96afe479",
+          "tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+          "in_G_ancestry": false
+        },
+        {
+          "key": "C_Legal_source",
+          "commit": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+          "tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+          "in_G_ancestry": false
+        }
+      ],
+      "C5_carrier_pin": {
+        "commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+        "tree": "7edd87e6730739fbe2d7c7ed0c35d4a4e1e11ba8",
+        "distinction": "C carrier/root receipt; not the C Legal source candidate."
+      }
+    },
+    "criterion_rows": {
+      "row_source": {
+        "path_ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json@f9beb4db06c6e269c51e8a3f931a1902dde0fb6e",
+        "original_criteria_source_manifest": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json@749255cd37f93955b176c748d63b2a3a7b7ee214"
+      },
+      "coverage_source": {
+        "path_ref": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+        "commit": "6f3983466f1eca14b510c4f5006fab5092d418d3"
+      },
+      "original_criteria_file": {
+        "path_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5"
+      },
+      "findings": [
+        {
+          "id": "LA-028",
+          "original_unit": "C",
+          "bundle": "DFK-02",
+          "findings_json_pointer": "/findings/252",
+          "author_row_pointer": "/rows/36",
+          "original_criterion_pointer": "/findings/252/criterion_refs",
+          "author_proposal": "held",
+          "G_closure": "not_adjudicated",
+          "next_task": "I4",
+          "coverage_criterion_ref": {
+            "document": "LA_r09",
+            "lines": [
+              1466,
+              1517
+            ],
+            "span_sha256": "ca582afd9387c0ba6c4c4bbc9278a6da82d00d06d347269c089531d12355b2f6",
+            "card": "DFK-02"
+          },
+          "original_property": "One versioned Catalog source registry and shared selection semantics; distinguish explicit empty selection from None/default and disabled/missing mandatory seeds; carry the real caller profile into serving. Existing dual source declarations/selection paths are a legacy risk; do not assume either current output is automatically authoritative."
+        },
+        {
+          "id": "LA-040",
+          "original_unit": "C",
+          "bundle": "EMB-03",
+          "findings_json_pointer": "/findings/264",
+          "author_row_pointer": "/rows/45",
+          "original_criterion_pointer": "/findings/264/criterion_refs",
+          "author_proposal": "held",
+          "G_closure": "not_adjudicated",
+          "next_task": "I4",
+          "coverage_capability_at_base": "producer_missing",
+          "coverage_criterion_ref": {
+            "document": "LA_r09",
+            "lines": [
+              2556,
+              2594
+            ],
+            "span_sha256": "04d9279a2c0e0e0f10649e69a1a06e4e8a4128b384d5b44f2c9cd45fff8ba67a",
+            "card": "EMB-03"
+          },
+          "original_property": "Incremental reuse must bind current projected text and membership plus projection rule and actual model/tokenizer/weight identity; same ID or dimension is insufficient. Deletion/withdrawal, changed text, changed same-dimension weights, generation pairing, and fresh Legal reader behavior distinguish correct reuse."
+        },
+        {
+          "id": "LA-033",
+          "original_unit": "A",
+          "bundle": "REP-01",
+          "findings_json_pointer": "/findings/257",
+          "author_row_pointer": "#/current_root_adjudication_20261008/rows/31",
+          "original_criterion_pointer": "/findings/257/criterion_refs",
+          "author_proposal": "limited",
+          "G_closure": "not_adjudicated",
+          "next_tasks": [
+            "R1",
+            "I4",
+            "Q2"
+          ],
+          "coverage_criterion_ref": {
+            "document": "LA_r09",
+            "lines": [
+              1994,
+              2028
+            ],
+            "span_sha256": "60a48ac490a9fe0add1bbecc3bbfb74a011f8038a5dc3f6196f929f9de19739f",
+            "card": "REP-01"
+          },
+          "scope_limit": "Original LA-033 is Runtime replay compatibility, not a Catalog/Legal profile criterion. Mention only the observed Catalog report/input seam needed to map the current request consumer; do not re-route or close LA-033."
+        },
+        {
+          "id": "LA-046",
+          "original_unit": "A",
+          "bundle": "ACQ-01",
+          "findings_json_pointer": "/findings/270",
+          "author_row_pointer": "#/current_root_adjudication_20261008/rows/33",
+          "original_criterion_pointer": "/findings/270/criterion_refs",
+          "author_proposal": "limited",
+          "G_closure": "not_adjudicated",
+          "coverage_occurrences": [
+            {
+              "lines": [
+                3034,
+                3068
+              ],
+              "span_sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38",
+              "card": "REQ-01"
+            },
+            {
+              "lines": [
+                3034,
+                3068
+              ],
+              "span_sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38",
+              "card": "ACQ-01"
+            }
+          ],
+          "scope_limit": "A reissue helper owns LA-046 and its two distinct acceptance occurrences; not this I4 slice."
+        },
+        {
+          "id": "LA-032",
+          "original_unit": "C",
+          "bundle": "UDF-05",
+          "findings_json_pointer": "/findings/256",
+          "author_row_pointer": "/rows/40",
+          "original_criterion_pointer": "/findings/256/criterion_refs",
+          "author_proposal": "held",
+          "G_closure": "not_adjudicated",
+          "next_tasks": [
+            "I4",
+            "S1"
+          ],
+          "coverage_criterion_ref": {
+            "document": "LA_r09",
+            "lines": [
+              1668,
+              1715
+            ],
+            "span_sha256": "5f5c7a56a652a0328e25fd8b6091a2f780750d9eaee8f10c0129b2f9f0609cf2",
+            "card": "UDF-05"
+          },
+          "scope_limit": "UDF-05/S1 source-state inventory and reader bridge is a separate owner slice."
+        }
+      ]
+    },
+    "source_slice": {
+      "base": {
+        "commit": "f428b114f4afb5c9cdde93a8e9bf036abe5ac329",
+        "tree": "feda38826ac6cf2a3a5ac38e0e86dd72d72d8730"
+      },
+      "candidate": {
+        "commit": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+        "parent": "f428b114f4afb5c9cdde93a8e9bf036abe5ac329"
+      },
+      "complete_owned_delta": {
+        "comparison": "git diff f428b114f4afb5c9cdde93a8e9bf036abe5ac329 c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "changed_path_count": 10,
+        "file_type_denominator": {
+          "markdown": 4,
+          "python": 5,
+          "toml": 1
+        },
+        "insertions": 969,
+        "deletions": 205,
+        "changed_path_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/legal-query-profile-20261007.json@677801f5f2979495e0c15493434a0ccd90b1a881#/changed_paths",
+        "scope_note": "This is the full C Legal owned slice. A selected G-to-c60 path comparison is a different denominator and is not substituted for this delta."
+      },
+      "merge_base_with_frozen_G": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_acceptance": "candidate only; no G acceptance or finding closure inferred"
+    },
+    "owner_receipts": [
+      {
+        "name": "C5 root final",
+        "commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+        "tree": "7edd87e6730739fbe2d7c7ed0c35d4a4e1e11ba8",
+        "path_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261007-C5.json@7310778b273b89341330154ab215b183c79e2e53",
+        "locator": "/remaining_inputs_and_owners/C_W04_serving_G",
+        "relevant_state": "Requires paired production Legal generation/assets/live encoder provider and then local read-only projection/membership plus same-profile served readback. DB existence is recorded; matching production generation/profile is not established. This L02 assignment forbids the production reads."
+      },
+      {
+        "name": "C Legal query-profile leaf",
+        "commit": "51609922447716115c22287ac79c218d13cd9067",
+        "tree": "bc8b7ac5989b71aba55d1b4cc646589e85daf0a2",
+        "path_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/legal-query-profile-20261007.json@677801f5f2979495e0c15493434a0ccd90b1a881",
+        "source_candidate": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "state": "Bounded query-profile mechanism GO; LA-040 remains held/bridge_missing; no finding closure. Test coverage is tiny deterministic fixture DB/encoder/tokenizer with native hnswlib, not production."
+      },
+      {
+        "name": "C Catalog C2 leaf",
+        "commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+        "path_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006.json@a55309ba73dd3d02e92b140996db34e0bf99c88d",
+        "state": "Catalog registry/selection and actual internal RetrievalService fixture consumers are covered, but LA-028 remains held/bridge_missing: the HTTP/request and other serving callers have no admitted profile-context supplier. Its production/static Catalog invocation is UNRUN."
+      },
+      {
+        "name": "C DFI/EMB leaf",
+        "commit": "ab44166335130463178e65dfc29a252c96afe479",
+        "tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+        "path_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006.json@397cd862ea08867be42518871da2522463dcbd06",
+        "installed_consumer_receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-consumer-receipt.json@e66fa7e5a34d72d3d773f49114a5470940faf871",
+        "state": "Native installed fixture readers include Legal entity/fact/provision channels and mutation refusals; synthetic encoder/tokenizer/weights and fixture corpus only. Production corpus completeness and model-release provenance remain not_established."
+      },
+      {
+        "name": "Legal fixture deciding output",
+        "path_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/legal-query-profile-20261007-evidence/test_emb_03.stdout.txt@cd9efdec46821e47380e26a23aa7b31cfad481b0",
+        "owner_receipt_sha256": "c66ef7936b32d2201bf6eb901cf69cbc8e71996669c38afe1f70ad40098e04a3",
+        "reported_result": "20 passed on c60 fixture scope"
+      }
+    ],
+    "source_and_consumer_chain": {
+      "frozen_G_contract": {
+        "path_ref": "policy-engine/src/polisyos/core/contracts/control.py@f50c1bf321abfb05ed5c7aaa56a845a8ecf9ab65",
+        "locator": "LexSearchRequest at line 1722",
+        "fields": [
+          "query",
+          "top_k",
+          "output_dir"
+        ],
+        "profile_field": "absent"
+      },
+      "frozen_G_HTTP_consumer": {
+        "path_ref": "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py@5c1f8bba235764741a64aca54f953846bccddc25",
+        "locator": "search_lex_graph around line 290",
+        "route": "POST /api/v1/control/lex/search",
+        "actual_call_chain": [
+          "LexSearchRequest",
+          "derive lex_knowledge_graph.duckdb and index_dir from output_dir",
+          "LegalKnowledgeGraph(db_path, index_dir) with no query encoder/profile",
+          "graph.text_search(query, ...)",
+          "map results to LexSearchResponse"
+        ],
+        "refusal_surface": "Caught errors can be projected as results=[] and total=0; response has no typed distinction between profile refusal and no matches."
+      },
+      "frozen_G_Legal_graph": {
+        "path_ref": "policy-engine/src/polisyos/lex/knowledge/search.py@ed7710c10a76913b0f0e209481baf65129943270",
+        "behavior": "Direct vector helpers use optional OpenAI query embedding defaults, but the HTTP consumer above does not call them or bind query encoder identity to the selected Legal generation."
+      },
+      "frozen_G_Legal_producer": {
+        "path_ref": "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py@02f47ec1dc17eab658849a764cc43a90cf419857",
+        "behavior": "Existing Legal builder persists embeddings/index artifacts; its local SentenceTransformer configuration is not resolved from the HTTP request's admitted Catalog profile."
+      },
+      "frozen_G_generation_provider": {
+        "path_ref": "policy-engine/src/polisyos/data_forge/kernel/embeddings.py@7f90187b92f632e540326d8efe997f510b4f0c15",
+        "generation_basis": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py@19ca41eead188afac99ed21cca386c460763e15d",
+        "boundary": "Generic generation machinery does not by itself connect a typed request profile to a live query encoder and the same HTTP reader."
+      },
+      "candidate_C_Legal_mechanism": {
+        "source_commit_tree": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2@8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+        "embedder": "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py@48c6f4e1e899613962e984ffd25d4bd7baa8230e",
+        "projection": "policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py@ee526dd88b8acf41931793010ac7a81b7b64329c",
+        "graph": "policy-engine/src/polisyos/lex/knowledge/search.py@a25674788cf0d7305cbb60db5172aa113fd5c8cf",
+        "store": "policy-engine/src/polisyos/lex/knowledge/store.py@95c2ab216c5c4bd60c71bf13eb1e0c1596d8df8a",
+        "test": "policy-engine/tests/unit/remediation/test_emb_03.py@27f18067fc33723a4d147df1f1bff2d5c1dcece5",
+        "mechanism": "Direct LegalQueryInput(text, encoder) reader recomputes loaded encoder identity before/after text encoding, reconciles the selected generation/member basis and refuses before HNSW when mismatched. This API is not wired into frozen G's HTTP request/handler."
+      },
+      "candidate_C_Catalog_mechanism": {
+        "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006.json@a55309ba73dd3d02e92b140996db34e0bf99c88d",
+        "mechanism": "Versioned registry and shared selection with typed internal RetrievalService.run_profile behavior; fixture consumer evidence does not supply a profile through frozen G's HTTP request."
+      },
+      "A_context_boundary": {
+        "source_ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json@749255cd37f93955b176c748d63b2a3a7b7ee214#/source_manifest/A_progress",
+        "progress_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json@5beae048efe4b4ffda43583d1f9b93c3298e0d86",
+        "current_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-current-index.json@2a14fa091eb1b1d1f8ab0b9aa0d4757baddddcb0",
+        "limit": "The served_candidate_GET evidence is synthetic/candidate-only/manual-handler simulate_only, and its local Legal/profile source inputs are not established. It cannot stand in for an ordinary same-profile Legal HTTP consumer."
+      }
+    },
+    "commands": {
+      "authentic_same_profile_HTTP": {
+        "command": null,
+        "outcome": "UNRUN",
+        "reason": "No exact existing runtime command can exercise this property on frozen G: the request has no profile and the handler only calls text_search. No replacement command or default profile is invented."
+      },
+      "prior_C_Legal_fixture_test": {
+        "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=\"$PWD/policy-engine/src:$PWD/policy-engine\" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest policy-engine/tests/unit/remediation/test_emb_03.py -q",
+        "source_candidate": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "reported_owner_outcome": "PASS; 20 passed",
+        "L02_outcome": "UNRUN",
+        "scope": "Small deterministic DuckDB, tokenizer, and fake encoder fixtures with native hnswlib; not production and not the G HTTP consumer.",
+        "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/legal-query-profile-20261007.json@677801f5f2979495e0c15493434a0ccd90b1a881"
+      },
+      "production_DB_or_asset_probe": {
+        "command": null,
+        "outcome": "UNRUN",
+        "reason": "This assignment explicitly prohibits production DB/row/text/vector/weight reads. C5 notes a DB exists and prior reading authorization, but no matching production profile/generation was established; this L02 run did not read it."
+      }
+    },
+    "minimum_L01_local_packet": {
+      "payload_rule": "Keep DB, source rows/text, vectors, model weights, tokenizer bytes, and secrets local. Receipt may contain opaque aliases, non-secret version identifiers, and hashes only.",
+      "required_inputs": [
+        "Opaque local read-only aliases for Legal DB and index root; no path or payload disclosure in the committed receipt.",
+        "Selected immutable Legal generation/selector and inventory references, completeness status, and artifact hashes for each entity/fact/provision projection; paired NPZ/HNSW identity.",
+        "Projection schema/rule version, generation basis digest, source/member-set digest and current-membership/withdrawal summary. Do not claim membership from file presence or vector dimension.",
+        "Actual loaded local model, tokenizer, weight revision and immutable artifact provenance identifiers/hashes, device/dimension/normalization, plus the provider resolution that creates the query encoder. A model label or dimension is insufficient.",
+        "Admitted Catalog profile identifier/version and its effective ordered source/dependency selection; explicit omitted-versus-empty, disabled/missing seed, and cycle semantics.",
+        "The actual HTTP/request-context source of that profile and the exact consumer/adapter that passes the resolved profile-bound encoder into the Legal reader.",
+        "A local independent target/decoy oracle using opaque expected IDs and the projection/generation snapshot, so the positive and fake-encoder controls are discriminating without copying rows or legal text."
+      ],
+      "input_state": "not_established in this read-only slice, not asserted absent/unavailable. C5 root assigns paired production generation/assets/live encoder facts to L01/L02."
+    },
+    "verification_recipe": {
+      "execution_gate": "First require G admission of the exact request/profile bridge and accepted Catalog/Legal source pins, plus the L01 local metadata packet. Then run only the exact same-profile HTTP consumer against a read-only selected production generation with a fresh reader. Keep all production payload local.",
+      "positive": "Use the admitted Catalog profile and its actual resolved encoder against the selected complete Legal generation; an independently chosen known target must be returned through the ordinary HTTP route while the matched decoy is not. Verify the response identifies success distinctly from a profile refusal or zero matches.",
+      "fake_or_foreign": [
+        "Same label and dimension, changed actual weights/tokenizer: profile gate refuses before native knn_query; do not accept name/dimension as identity.",
+        "A profile/source/generation bound to a different Legal source or encoder is refused before HNSW.",
+        "Missing, unknown, disabled, stale, unsupported-rule, or unpaired profile/generation fails with a typed refusal; it must not collapse into an empty-success response.",
+        "LA-028 selection controls: omitted/None is distinct from explicit empty; disabled or missing mandatory seeds and cycles refuse with their typed reason."
+      ],
+      "removal": "On a matched target/decoy fixture or approved local discriminating case, remove only the encoder-identity/profile gate while preserving the selected generation and real HNSW consumer. The same-dimensional wrong vector should select the decoy; restoring the gate must refuse that query and preserve the positive target result. Existing c60 fixture test test_raw_vector_cannot_bypass_query_profile_gate_and_control_is_discriminating demonstrates this structural removal, not production authenticity.",
+      "freshness_and_pairing": [
+        "Replace the selector during a blocked encode: one request remains on one immutable generation; a subsequent request with the previous encoder refuses.",
+        "Changed projected text at same ID, withdrawal/current-membership change, changed same-dimension encoder/tokenizer, projection-rule change, missing/corrupt selector, or NPZ/HNSW mismatch cannot reuse the old Legal generation."
+      ],
+      "current_test_selectors_in_C_candidate": [
+        "test_graph_query_encoder_reads_all_three_selected_legal_generations",
+        "test_live_query_encoder_must_match_selected_generation_before_knn",
+        "test_encoder_asset_change_during_query_encode_is_rejected_before_knn",
+        "test_raw_vector_cannot_bypass_query_profile_gate_and_control_is_discriminating",
+        "test_wrong_selected_generation_rejects_previous_query_encoder",
+        "test_concurrent_selector_replacement_keeps_query_on_one_generation",
+        "test_previous_rule_generation_is_unsupported_even_with_same_encoder"
+      ],
+      "status": "All listed candidate selectors are source/fixture references only; L02 did not run them."
+    },
+    "predicate_and_proxy_review": {
+      "P37_predicate_basis": [
+        {
+          "predicate": "Request profile is valid and complete for this source",
+          "current_basis": "not_established; G request carries no profile. Any future raw request token starts consumer_asserted and must resolve through an admitted registry."
+        },
+        {
+          "predicate": "Selected generation, paired artifacts, projection basis, and current Legal membership agree",
+          "current_basis": "not_established for production; candidate fixture reader recomputes these from fixture bytes and fixture DB."
+        },
+        {
+          "predicate": "Live model/tokenizer/weight identity matches the selected generation before and after encoding",
+          "current_basis": "not_established for production; c60 fixture code recomputes identity from synthetic loaded assets."
+        },
+        {
+          "predicate": "Target/decoy oracle represents the requested production source and profile",
+          "current_basis": "not_established until L01 supplies a local independent oracle/source binding."
+        }
+      ],
+      "failure_rule": "Freeze predicate classifications at admission; fail closed while any authority-bearing predicate is consumer_asserted, institutionally supplied without reconciliation, or not_established.",
+      "P38_property_vs_proxy": {
+        "property": "Ordinary HTTP request resolves an admitted Catalog profile to the live Legal encoder bound to the selected generation, then returns the actual fresh Legal reader result or a distinguishable typed refusal.",
+        "what_G_actually_exercises": "The HTTP DTO contains query/top_k/output_dir and the handler calls text_search; it does not exercise profile resolution or vector query encoding.",
+        "what_candidate_tests_actually_exercise": "Direct LegalKnowledgeGraph/LegalKnowledgeStore construction with an injected deterministic encoder and tiny fixture database/native HNSW.",
+        "divergent_case": "The direct fixture can return its target while the real G POST never calls that encoder and returns lexical results; conversely, handler exceptions can look like no matches. A passing constructor fixture therefore does not prove the HTTP property.",
+        "distinguishing_probe": "Keep fixture and marker tests unchanged while withholding/removing the HTTP profile-to-encoder bridge. If a proposed I4 gate remains green although POST still reaches text_search only, it is a proxy gate."
+      }
+    },
+    "pattern_pass": {
+      "register_ref": "policy-engine/docs/reference/policy-design-case-failure-patterns.md@652fb2d0b3fbcaa48681adf2e79b66486b4a65a1",
+      "relevant_ids": [
+        "P01",
+        "P02",
+        "P04",
+        "P09",
+        "P10",
+        "P31",
+        "P32",
+        "P37",
+        "P38"
+      ],
+      "existing_anti_patterns": [
+        "P02: a rich Legal query-profile reader exists only as a candidate direct API; frozen G does not orchestrate it through the real HTTP consumer.",
+        "P04/P09: an empty-result HTTP projection cannot distinguish no matches from a refused request/profile.",
+        "P10: field presence, model label, vector dimension, or successful fixture query is not the target/decoy semantic discriminator.",
+        "P31: avoid per-caller encoder defaults; extend the one canonical HTTP request/context-to-reader bridge.",
+        "P32/P37/P38: injected fixture metadata and declared profile labels do not prove resolved assets, current membership, or actual HTTP behavior."
+      ],
+      "smallest_existing_capability_option": "Wire the admitted Catalog profile/context through the existing canonical control HTTP request/service into the existing Legal generation reader and the candidate's identity-checking text-query input. Reuse CatalogSourceRegistry/selection and Legal generation/provider owners; do not add a parallel registry or invented default encoder.",
+      "capability_state": {
+        "LA-028_at_G": "bridge_missing",
+        "LA-040_original_coverage_at_1980768": "producer_missing",
+        "candidate_Legal_mechanism": "fixture-verified but not orchestrated into the frozen HTTP request",
+        "authentic_same_profile_HTTP_consumer": "consumer_missing",
+        "typed_HTTP_refusal_surface": "surface_missing",
+        "production_semantic_test": "semantic_test_missing",
+        "overall_I4_authentic": "UNRUN / not_established"
+      }
+    },
+    "minimum_next_input_and_owner": [
+      {
+        "owner": "L01",
+        "input": "Local-only metadata/projection packet described above for the actual selected Legal generation, paired assets, immutable model/tokenizer/weights, and actual profile provider; no rows/text/vectors/weights copied into Git."
+      },
+      {
+        "owner": "I1/Catalog canonical owner plus G",
+        "input": "Admit the exact typed profile selection contract and supplier semantics; ensure None/empty/disabled/unknown cases remain distinguishable."
+      },
+      {
+        "owner": "C12 Legal serving owner / G shared-contract owner",
+        "input": "Wire that resolved profile to the existing HTTP consumer and Legal query reader, with an externally distinguishable typed refusal and the actual same-profile provider. Current L02 is read-only and owns no source path."
+      },
+      {
+        "owner": "L02",
+        "input": "After source admission and the local packet arrive, execute the authentic positive, fake/foreign/profile negatives, and matched removal on the same exact immutable candidate and ordinary HTTP consumer."
+      }
+    ],
+    "supporting_instruction_refs": [
+      "AGENTS.md@94173d77ab34173f12883ee6575db4a461f6df98",
+      "policy-engine/CONTRIBUTING.md@ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md@b9f1a717049d9e30f68bf291e3f8321013abf83e",
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/COMMON.md@116b74d20e0bb9a9e9421bc48a6d95b86a373a79",
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/L02.md@e97385084b0101fcc6dca2c5aba5519ab55b3090"
+    ],
+    "prior_note_correction": "The complete C Legal owned slice is f428b114f4afb5c9cdde93a8e9bf036abe5ac329 -> c60e37e7833b2dbb22af1868e31dc3f519d6a4f2, ten changed paths (4 Markdown, 5 Python, 1 TOML; 969 insertions, 205 deletions), as recorded by the Legal leaf changed_paths and exact Git diff. A selected G-to-c60 path-filtered comparison is a different denominator and must not be reported as the owned slice.",
+    "no_closure_claim": "This is a prepared read-only receipt. It does not admit candidate sources, measure production behavior, change any finding outcome, or assign formal G closure."
+  }
+}

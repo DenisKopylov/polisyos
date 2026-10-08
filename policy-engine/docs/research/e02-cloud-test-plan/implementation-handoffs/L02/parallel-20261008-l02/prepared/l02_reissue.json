@@ -1,0 +1,542 @@
+{
+  "schema": "policyos.e02.l02.qualified_preparation.v1",
+  "role": "L02",
+  "helper": "l02_reissue",
+  "source_candidate_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "source_candidate_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "preparer_raw_local_ref": {
+    "path": ".tmp/parallel-20261008-l02/prepared/l02_reissue.json",
+    "bytes": 31381,
+    "sha256": "9e751f4590f0eaafd52b13d548f1282f1b820a460b49bffd9174f3aae9fd0c7b"
+  },
+  "delivery_compaction": {
+    "removed_derivable_text_fields": [],
+    "raw_report_preserved": true,
+    "no_semantic_qualification_promoted": true
+  },
+  "preparation": {
+    "schema": "policyos.e02.l02_prepared_receipt.v1",
+    "slice": "V3:authentic",
+    "analysis_date": "2026-10-08",
+    "status": {
+      "execution": "UNRUN",
+      "source_level_property": "property_not_established",
+      "authentic_inputs": "not_received_or_admitted_in_this_slice",
+      "product_outcome": "not_adjudicated",
+      "source_acceptance": "not_performed_by_L02",
+      "finding_closure": "none"
+    },
+    "workspace": {
+      "repository": "/Users/deniskopylov/polisyos",
+      "isolated_checkout": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+      "branch": "codex/e02-L02-authentic-20261008",
+      "canonical_create_resume_admission": {
+        "status": "parent-confirmed-admitted",
+        "exit_code": 0,
+        "raw_deciding_output": "not copied into this read-only receipt"
+      },
+      "candidate": {
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+        "status_at_start": "clean"
+      },
+      "dispatch_start_source": {
+        "commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617",
+        "note": "Dispatch G start pin; not substituted for frozen f00 candidate."
+      },
+      "connected_plan_analysis_parent": {
+        "commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "tree": "32a32cc77039554a3777a11fd7fc8f96f3a88625"
+      }
+    },
+    "scope": {
+      "role": "L02 local read_only_verification",
+      "allowed_write": "this non-secret prepared receipt only",
+      "performed": [
+        "Read-only inspection of the pinned runtime bridge, related tests, exact original criteria, and committed planning/leaf receipts."
+      ],
+      "not_performed": [
+        "No tests, authentic route execution, results importer, production-data reads, dependency installs, or source/test/config writes."
+      ],
+      "input_boundary": "No production rows, secrets, or private source payload copied into Git."
+    },
+    "source_refs": {
+      "dispatch": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "f2e8d2096b86148fb93d4eb61520d22002228a1d",
+        "sha256": "6d9d894368a214c820ef88265e22c07a832294fe0681cde4eedce14998f512a6"
+      },
+      "L02_prompt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/L02.md",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "e97385084b0101fcc6dca2c5aba5519ab55b3090",
+        "sha256": "87d37391dc50fbd6ecc66a6db9ee1de71fceb2b339a4f432ac66c46f163145a9"
+      },
+      "COMMON": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/COMMON.md",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "116b74d20e0bb9a9e9421bc48a6d95b86a373a79",
+        "sha256": "b919e06683b70a3df5961dd0a7ef5cbde792874879265d433fcb7bcb15024685"
+      },
+      "connected_closeout_inputs": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "749255cd37f93955b176c748d63b2a3a7b7ee214",
+        "sha256": "5c9068d134f391eeb26dbed01d59197b009bda01bef55646eb97dcf4a1079b28",
+        "scope": "planning only; no new source acceptance or finding closure"
+      },
+      "findings": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e",
+        "sha256": "590cb7631422175148022217a96fc1c234f8ba4f0d22e83bde46d9636bdd5ce0"
+      },
+      "coverage": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "git_blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+        "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+        "scope": "planned criterion traceability, not behavioral proof/closure"
+      },
+      "original_criterion_documents": [
+        {
+          "document": "B_r19",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+        },
+        {
+          "document": "LA_r09",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+        }
+      ],
+      "tasks_and_delivery": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+          "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "a27cf7e78dc7c16df279a5136399ee0a5daeee9a",
+          "sha256": "488806f7ffa455a84e311e19b2cc1d207016b587625abf846ddd11753b21cd7d"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/03-delivery-plan.md",
+          "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "7d309b5e8055425cff4b0d2fbb69fc1d7f14b47a",
+          "sha256": "4f822d7320ed2bcd1cf429b0942c5fe26b2e8286b6cc882d275d5025dec4b83a"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C10.md",
+          "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "bc3384e1c7bfa61fd269fd5bbeeae552dd54ba33",
+          "sha256": "63973b1ead21327d85b029fb0c5c3f6b1f207c8b0ab2eb4f675317f21acdf4bc"
+        }
+      ]
+    },
+    "criteria": [
+      {
+        "id": "B09",
+        "findings_row": "findings.json#/rows/8",
+        "original_criterion_pointer": "/findings/8/criterion_refs",
+        "coverage_row": "coverage.json#/findings/8",
+        "bundle": "CYC-03",
+        "coverage_capability_label": "producer_missing",
+        "criterion_refs": [
+          {
+            "document": "B_r19",
+            "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "lines": [
+              301,
+              312
+            ],
+            "sha256": "62b0ba80257fe40aee4e48fda73caf00a617fa55d29c54693185e6996b0ce64c",
+            "card": "CYC-03"
+          }
+        ],
+        "criterion": "The same candidate is reevaluated when real data changes; a new name, UUID, or timestamp on unchanged inputs must not create repeated work. Preserve occurrence and task binding."
+      },
+      {
+        "id": "B12",
+        "findings_row": "findings.json#/rows/11",
+        "original_criterion_pointer": "/findings/31/criterion_refs",
+        "coverage_row": "coverage.json#/findings/31",
+        "bundle": "ACQ-01",
+        "coverage_capability_label": "producer_missing",
+        "criterion_refs": [
+          {
+            "document": "B_r19",
+            "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "lines": [
+              337,
+              348
+            ],
+            "sha256": "06171b3b04ee5503cea6193347c3299e0016b1f54a96564e3dc5e439feb85798",
+            "card": "ACQ-01"
+          }
+        ],
+        "criterion": "Actually obtained and admitted data must change the dependent calculation. Job/URL/receipt presence is not world growth; authority/method/mapping gaps are not missing rows."
+      },
+      {
+        "id": "B27",
+        "findings_row": "findings.json#/rows/22",
+        "original_criterion_pointer": "/findings/152/criterion_refs",
+        "coverage_row": "coverage.json#/findings/152",
+        "bundle": "CYC-03",
+        "coverage_capability_label": "producer_missing",
+        "criterion_refs": [
+          {
+            "document": "B_r19",
+            "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "lines": [
+              537,
+              550
+            ],
+            "sha256": "052dfe6a01330cee3d1975a69adaed578a7c1d3259c9c9889c09ce9e867ecc44",
+            "card": "CYC-03"
+          }
+        ],
+        "criterion": "A revised-context second cycle must align to the revised basis; subject/population/model changes cannot reuse old evidence. A hash change alone is not new knowledge."
+      },
+      {
+        "id": "B28",
+        "findings_row": "findings.json#/rows/23",
+        "original_criterion_pointer": "/findings/153/criterion_refs",
+        "coverage_row": "coverage.json#/findings/153",
+        "bundle": "CYC-03",
+        "coverage_capability_label": "verification_missing",
+        "criterion_refs": [
+          {
+            "document": "B_r19",
+            "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "lines": [
+              551,
+              564
+            ],
+            "sha256": "24bde0d2e6c00856b28cf4cc5bc1be23c22e6395760df1a5c615bc74ab99b343",
+            "card": "CYC-03"
+          }
+        ],
+        "criterion": "Candidate subject ID is distinct from per-iteration occurrence. Persist both versions, select one current occurrence, and bind downstream output to the correct version."
+      },
+      {
+        "id": "LA-046",
+        "findings_row": "findings.json#/rows/33",
+        "original_criterion_pointer": "/findings/270/criterion_refs",
+        "coverage_row": "coverage.json#/findings/270",
+        "bundle_occurrences": [
+          "REQ-01",
+          "ACQ-01"
+        ],
+        "coverage_capability_label": "verification_missing",
+        "criterion_refs": [
+          {
+            "document": "LA_r09",
+            "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+            "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "lines": [
+              3034,
+              3068
+            ],
+            "sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38",
+            "occurrence": "REQ-01"
+          },
+          {
+            "document": "LA_r09",
+            "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+            "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "lines": [
+              3034,
+              3068
+            ],
+            "sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38",
+            "occurrence": "ACQ-01"
+          }
+        ],
+        "criterion": "REQ-01 separately tests explicit pilot profile/scope/date/jurisdiction, opaque scenario IDs, request/text and negation. ACQ-01 separately requires actual admitted N7 data to change WMR; neither occurrence closes the other."
+      }
+    ],
+    "committed_leaf_context": {
+      "input_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json@sha256:5c9068d134f391eeb26dbed01d59197b009bda01bef55646eb97dcf4a1079b28",
+      "A_source_pin": {
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+        "in_G_ancestry": false
+      },
+      "A_progress": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json@sha256:caeb74facc6e3f99ff3f35265c3e83b5e073863f164b0957644ba33b00e2fcf9",
+      "A_current_index": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-current-index.json@sha256:4f21921a254f6a0b50f0f4f0e61a9f8f2f494932d5dba7c3d0de4bc50d00184d",
+      "leaf_packets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/basis-rule-review.json",
+          "sha256": "e0241ddb64a4633a7058f222bc2387eaef188ae430cab26257723fdc312dfd14",
+          "scope": "B09/B27/B28/B12/LA-046: source/profile-to-WMR rule not owner-ratified; same-candidate positive and ID/time-only negatives UNRUN."
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/configured-n7-resolver-current.json",
+          "sha256": "668805eb63696f4722c6c315363d34f9d356d1c20223ecc5213ed82b320be2cd",
+          "scope": "B12: configured fixture resolver and compiler controls; admitted C N7 artifact/readback changing dependent WMR UNRUN."
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/conditional-interaction-history-readback.json",
+          "sha256": "d454eac3603615b163cc58eb340d618047ea99598db1311ac09e3ba19d47ea19",
+          "scope": "B27/B28: fixture occurrence/history controls; authentic revised-context second cycle not established."
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/occurrence-voi-compiler-current-checks.json",
+          "sha256": "98a7e770f1b0519abf88a24f2ab1dfe3149fdb3bab1758f0d2dbcc04eaa30b62",
+          "scope": "B28: occurrence replay/readback uses fixtures; not two authentic admitted versions."
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/acquisition-compiler.json",
+          "sha256": "08a3e0519257c8ac9795e5fefd224bbae52dbd5db3180c3679e37a4a3f1a14d5",
+          "scope": "B12/LA-046: compiler/REQ controls separate from ACQ; actual N7 caller/receiver changing WMR UNRUN."
+        }
+      ],
+      "G_A_receipts_from_input_manifest": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/A-delta-owner-actions-2026-10-06.md",
+          "commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+          "git_blob": "30d3c87cc779be9801ea2262cbdeef007c5e7675",
+          "sha256": "08423a644550dbd4cb12e40e677c28071d3f4fdb4a9f388ab3c38669cba2a515",
+          "scope": "Earlier ordinary served attempt stopped before app/POST/N5/GET: three required L6 files missing and available files disagreed with nested manifest; historical UNRUN, not a fresh local input inspection."
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/2100-A-delivery-identity-surface.md",
+          "commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+          "git_blob": "54ba6429478e8e5b70cf195567a8889f9962fbe8",
+          "sha256": "02f4819f85f8907a50b7289d25c29b7d6f0062d985134bad0f7258e0dd74d211",
+          "scope": "Identity/readback and bounded API freshness only; no served POST, production authority, or V3 closure."
+        }
+      ],
+      "use_limit": "A source pin is outside G ancestry. These source-reported receipts are historical/input context only and do not accept f00 or establish a product PASS."
+    },
+    "runtime_mapping": {
+      "candidate_source_refs": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py",
+          "git_blob": "4fb8915d22f669a1a11c7202341b6a2f494792f7",
+          "sha256": "04e5c70d450b297a50ad8936f72d5bf526b5a2520ee6de60fc92bbb1a1fd8bcf"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+          "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py",
+          "git_blob": "5f920c8ffa3ac0bb200d24b947df7f5228d86a87",
+          "sha256": "b0e6bd37b948136b8a4a6b2a52faab0f7ffdb341e58792b39089b027883147cd"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/candidate_simulation.py",
+          "git_blob": "9435d465d5035e658e66d6cbd0aa78452a2ecac6",
+          "sha256": "993866948d5cd9aac4fe89edf51d2365e647ae6d17df4316ccddd0cef31e8c24"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/world_model_record.py",
+          "git_blob": "27c54eb017475c4d7b8054508ae0b88c45be6e2e",
+          "sha256": "84bbec4b46114d5fb1872c969c0dd374e9de28c183c567c888cca54fefc2f495"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+          "git_blob": "9e376388a474f49c8a83dc671ecdd0fc92a81b98",
+          "sha256": "1e938ffe83af05cb13d40808e6b38328db29502f5f3ae122acd6546012d7e3c8"
+        }
+      ],
+      "actual_flow": [
+        "AcquisitionWorldGrowthBridge.admit records a pending attempt under the native overlay lock and requests Data Forge/Epoch admission.",
+        "It verifies activation/passport and active owner projection, then uses admitted_membership_delta over before/after epoch members; nonpositive delta returns no growth, positive delta emits a growth receipt.",
+        "resume verifies active refs and selects the configured AcquisitionCandidateWorldRefresh by exact tenant/cell/run/route; refresh binds profile_selection_ref, canonical_variable_id, and target_slot_id.",
+        "The refresh materializes the uniquely selected source observation into a DataSnapshot and candidate WMR/context, then invokes GenerationCycleController.reenter_after_active_acquisition_overlay on the original case to run the next ordinary cycle/N5 path. It persists an AcquisitionOverlayReentryReceipt and CAS/event refs.",
+        "GET /api/v1/runs/{run_id} exists and projects current run details with tenant and temporal controls. The generic normalized-payload test does not assert the new V3 WMR/N5 occurrence is current, history retains both, or response binds to that occurrence."
+      ],
+      "closest_fixture": {
+        "selector": "tests/integration/core_runtime/test_acquisition_authority_served.py::test_served_acquisition_selects_committed_human_authority_and_reopens_worker",
+        "source": "policy-engine/tests/integration/core_runtime/test_acquisition_authority_served.py@sha256:073430d8c147f5e702269c801e45e240821bf797a0c91f4d315459595361afda",
+        "scope": "Served fixture route with test-owned persisted catalog/CAS/signers and intercepted WDI transport; candidate generation is enabled after a quarantined action.",
+        "gap": "Does not prove the same preexisting candidate across authentic admitted content change and ID/time-only control.",
+        "state": "UNRUN"
+      },
+      "related_selectors": [
+        {
+          "selector": "tests/integration/core_runtime/test_acquisition_world_growth_chain.py::test_bridge_resume_reenters_after_current_source_passport_and_epoch",
+          "source": "policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py@sha256:1240471f96e89532460010ae52675166a3ca662ce6d50968ccdf8c24f7abaffb",
+          "scope": "Fixture native admission/resume and next cycle; not semantic same-candidate differential.",
+          "state": "UNRUN"
+        },
+        {
+          "selector": "tests/integration/core_runtime/test_acquisition_world_growth_chain.py::test_served_resume_refuses_selected_value_drift_with_receipt_markers_retained",
+          "scope": "Fixture post-admission tamper/content integrity negative; not the matched ID/time-only control.",
+          "state": "UNRUN"
+        },
+        {
+          "selector": "tests/unit/remediation/test_acq_01.py::test_n7_acq01_real_measurement_root_delta_builds_fresh_wmr",
+          "source": "policy-engine/tests/unit/remediation/test_acq_01.py@sha256:762a05de1c56acb8ea09462e1806dc7fbb874155041ccd3815922862bf6367fb",
+          "scope": "Fixture resolver/N7 path; name does not make inputs authentic.",
+          "state": "UNRUN"
+        },
+        {
+          "selector": "tests/unit/runtime/quality/test_generation_cycle.py::test_same_candidate_new_basis_preserves_history_and_current_front",
+          "source": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py@sha256:930637f7be4141c6073259b0909a2cc246ba61790280e92f1512f6e3ad0733a0",
+          "scope": "Generic candidate occurrence/history; not native admitted N7 input.",
+          "state": "UNRUN"
+        },
+        {
+          "selector": "tests/unit/runtime/http/test_runs_api.py::test_get_run_details_returns_normalized_payload",
+          "source": "policy-engine/tests/unit/runtime/http/test_runs_api.py@sha256:1bfcc732edbe96fd632a4c3e3bb1a359bca409c86c94fa3d9da2a0be9fb314cb",
+          "scope": "Generic GET payload normalization; no V3 current-occurrence binding.",
+          "state": "UNRUN"
+        }
+      ],
+      "authentic_selector": "No pinned selector found that combines authentic local source/profile/authority, two source versions for one candidate, N7, N5/CAS/history, and fresh GET."
+    },
+    "prepared_commands": [
+      {
+        "purpose": "Closest served fixture route",
+        "command": "cd policy-engine && uv run --no-sync pytest -q tests/integration/core_runtime/test_acquisition_authority_served.py::test_served_acquisition_selects_committed_human_authority_and_reopens_worker",
+        "state": "UNRUN",
+        "qualification": "Fixture baseline; not authentic V3 acceptance."
+      },
+      {
+        "purpose": "Bridge reentry, retained-marker value drift, and ACQ-01 fixture consumers",
+        "command": "cd policy-engine && uv run --no-sync pytest -q tests/integration/core_runtime/test_acquisition_world_growth_chain.py::test_bridge_resume_reenters_after_current_source_passport_and_epoch tests/integration/core_runtime/test_acquisition_world_growth_chain.py::test_served_resume_refuses_selected_value_drift_with_receipt_markers_retained tests/unit/remediation/test_acq_01.py::test_n7_acq01_real_measurement_root_delta_builds_fresh_wmr tests/unit/remediation/test_acq_01.py::test_n7_acq01_reentry_rebuilds_fresh_context_before_n5_and_n7 tests/unit/remediation/test_acq_01.py::test_n7_acq01_reentry_rebinds_real_n5_and_default_n8 tests/unit/remediation/test_acq_01.py::test_n7_run_recalculates_dependent_simulation_after_verified_owner_write tests/unit/remediation/test_acq_01.py::test_n7_acq01_measurement_root_rejects_same_id_altered_source_requirement",
+        "state": "UNRUN",
+        "qualification": "Existing fixture/bridge checks; no authentic source/profile admission."
+      },
+      {
+        "purpose": "Occurrence/history and fresh-GET consumer controls",
+        "command": "cd policy-engine && uv run --no-sync pytest -q tests/unit/runtime/quality/test_generation_cycle.py::test_same_candidate_new_basis_preserves_history_and_current_front tests/unit/runtime/quality/test_generation_cycle.py::test_value_data_gap_cannot_repoint_same_candidate_content tests/unit/runtime/http/test_runs_api.py::test_get_run_details_returns_normalized_payload",
+        "state": "UNRUN",
+        "qualification": "Generic history and GET only; not a V3 fresh-GET proof."
+      }
+    ],
+    "authentic_run": {
+      "state": "UNRUN_BLOCKED_ON_INPUT_AND_RULE",
+      "exact_command": null,
+      "reason": "No exact authentic V3 selector or named local input packet is present in the admitted manifest. Do not invent a path/profile or substitute synthetic fixtures.",
+      "minimum_packet": [
+        "L01: read-only immutable source/profile packet for one exact route and same candidate; profile/source identity and version, matching asset manifest, candidate/cycle/run/tenant/cell/route refs, old/new source-content refs/hashes (no raw confidential rows).",
+        "Native source authority for both versions: Data Forge/Epoch owner receipt, passport, admitted epoch/projection, selected observation refs/content binding, and valid/transaction-time roles; authority, method/license, and mapping remain explicit.",
+        "Exact configured refresh profile_selection_ref, canonical variable, target slot, original bound candidate context/WMR, and the uniquely selected observation.",
+        "C/F owner-ratified source-to-observation/target relevance rule that distinguishes WMR-relevant content from ID/order/transaction-time churn."
+      ],
+      "missing_mechanism_separate_from_input": "After authentic files arrive, the reviewed path still lacks a field-level admitted-content-vs-prior-WMR discriminator for the same candidate plus a paired no-reissue path for identity/time-only changes. C10 must consume a ratified semantic signal and prove persisted N5/history/current GET.",
+      "prior_input_record": "The G-pinned A-owner receipt reports an earlier ordinary served L6 attempt stopped before app/POST/N5/GET because three required files were absent and available bytes disagreed with the nested manifest; no fresh production-input inspection was made here."
+    },
+    "P37_P38": {
+      "property": "For one stable candidate and bound profile, an admitted source-content change relevant to WMR creates a new current WMR/N5 occurrence with old/new refs preserved; UUID/order/write-time churn alone does not reissue.",
+      "P37_predicates": [
+        {
+          "predicate": "Native authority/admission and active epoch/passport bind to route/variable.",
+          "basis": "Data Forge/Epoch owner projection, activation/passport refs, route config evidence refs.",
+          "classification": "institutionally_supplied",
+          "scope": "Admission validity only; does not prove change relevance."
+        },
+        {
+          "predicate": "A positive new owner-projected epoch member exists.",
+          "basis": "admitted_membership_delta over before/after owner-projected members.",
+          "classification": "recomputed"
+        },
+        {
+          "predicate": "The member is new candidate-relevant factual content, not ID/time churn.",
+          "basis": "No ratified source/profile-to-WMR discriminator in reviewed path; count and artifact identity cannot establish it.",
+          "classification": "not_established"
+        }
+      ],
+      "P38": {
+        "property": "Content change relevant to the same candidate reissues; ID/order/write-time-only change does not.",
+        "implementation": "Trigger checks positive membership count; refresh materializes the selected row with a fresh transaction_time and builds a new context/WMR. No reviewed comparison to the prior WMR classifies which source fields are semantically relevant.",
+        "divergent_case": "Same factual value under a newly admitted observation_id can make membership positive and alter the materialized artifact/context bytes. This is a source-level divergent trigger case; whether the native projection remains unique and downstream N5 completes is not established without the exact run/input.",
+        "classification": "source-level proxy divergence identified; product behavior UNRUN"
+      },
+      "matched_falsifiers": [
+        {
+          "case": "ID/order/time-only negative",
+          "hold": "Same candidate, admitted value/content, target, profile, authority and receipt markers.",
+          "vary": "Observation UUID, row order, or transaction/write time only.",
+          "expected": "No new WMR/N5 occurrence; existing history/current front remains.",
+          "state": "PREPARED_UNRUN"
+        },
+        {
+          "case": "Admitted-content positive",
+          "hold": "Same candidate, profile, route, authority scope and target mapping.",
+          "vary": "Only source-owned admitted factual content declared relevant by C/F rule.",
+          "expected": "New WMR and normal N5; old/new refs persist; one current occurrence binds to new N5; fresh GET returns current binding.",
+          "state": "PREPARED_UNRUN"
+        },
+        {
+          "case": "Remove-property/keep-markers",
+          "hold": "Passport, epoch, receipt IDs, count, claimed status, URL/marker fields and route config.",
+          "remove": "Selected content-bound observation/WMR delta or its owner-resolved source/profile binding.",
+          "expected": "Fail closed, no new N5/current occurrence; a green marker-only gate falsifies verifier.",
+          "state": "PREPARED_UNRUN"
+        }
+      ],
+      "existing_negative_limit": "The retained-marker value-drift test is a post-admission tamper refusal, not an ID/time-only control or admitted-content positive."
+    },
+    "smallest_existing_capability_and_owners": {
+      "reuse_first_option": "Extend existing AcquisitionWorldGrowthBridge -> GenerationCycleController N7/N5 reentry, CAS/history, and existing GET; do not build a parallel reissue engine.",
+      "smallest_missing_piece": "Owner-ratified source/profile-to-WMR content discriminator against prior bound WMR, with matched identity/time-only no-reissue and content-change reissue witness; then consume through A/C10 and persist old/new refs/current occurrence.",
+      "owners": [
+        {
+          "owner": "L01",
+          "work": "Supply exact local read-only immutable source/profile/authority packet and matching manifest."
+        },
+        {
+          "owner": "C source/N7 supplier",
+          "work": "Supply admitted content-bound row and source/measurement contract; exact upstream institution/source authority is not appointed in reviewed packet."
+        },
+        {
+          "owner": "F relevance/model semantics",
+          "work": "Ratify which content changes are relevant to candidate WMR, including time roles and identity/time-only negative."
+        },
+        {
+          "owner": "A / C10 reentry/lifecycle/history/GET",
+          "work": "Consume immutable semantic signal in existing reentry path and prove N5/CAS/history plus fresh GET binding."
+        }
+      ],
+      "boundary": "L01 input availability, C/F rule, native Data Forge/Epoch admission, and A/C10 consumer behavior are separate dependencies.",
+      "LA-046": "REQ-01 generic compiler/profile acceptance remains separate from ACQ-01 actual admitted N7-to-WMR consumer."
+    },
+    "capability_state": {
+      "existing": [
+        "Native N7 admission attempt/receipt",
+        "active epoch/passport projection",
+        "controlled candidate-world context refresh",
+        "normal next-cycle/N5 entry",
+        "persisted reentry receipt",
+        "GET /api/v1/runs/{run_id}"
+      ],
+      "not_established": [
+        "Same-candidate semantic content-change discriminator",
+        "ID/order/write-time-only no-reissue",
+        "two authentic admitted versions",
+        "fresh GET bound to current same-candidate N5 occurrence"
+      ],
+      "labels": [
+        "producer_missing",
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "scope_note": "Labels describe the V3 slice, not the overall N7/runtime capability."
+    },
+    "pattern_pass": {
+      "P37": "Owner admission and member count are evidenced; candidate-relevant semantic change is not established at the gate.",
+      "P38": "Membership count and artifact identity are proxies for semantic reissue; ID/time-only change is a distinguishing case.",
+      "P29_P32": "Run remove-content/keep-markers; receipt/marker presence is not semantic proof.",
+      "acceptance_signal": "Matched authentic content positive, ID/order/time negative, removal probe, and fresh GET bound to current occurrence."
+    },
+    "outputs": {
+      "tests_executed": [],
+      "raw_deciding_test_output": null,
+      "next_step": "Await exact L01 input packet and ratified C/F rule; then run prepared selectors and a named authentic consumer path on the same f00 candidate."
+    }
+  }
+}

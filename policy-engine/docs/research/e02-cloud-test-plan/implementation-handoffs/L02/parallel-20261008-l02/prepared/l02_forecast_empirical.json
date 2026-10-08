@@ -1,0 +1,646 @@
+{
+  "schema": "policyos.e02.l02.qualified_preparation.v1",
+  "role": "L02",
+  "helper": "l02_forecast_empirical",
+  "source_candidate_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "source_candidate_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "preparer_raw_local_ref": {
+    "path": ".tmp/parallel-20261008-l02/prepared/l02_forecast_empirical.json",
+    "bytes": 38305,
+    "sha256": "c10a4c628d715c2ae1f5080ed58484170b1c0e60107b3d1e41dbae780d385cdb"
+  },
+  "delivery_compaction": {
+    "removed_derivable_text_fields": [],
+    "raw_report_preserved": true,
+    "no_semantic_qualification_promoted": true
+  },
+  "preparation": {
+    "schema": "polisyos.e02.l02.forecast_empirical_prepared.v1",
+    "role": "L02",
+    "mode": "read_only_verification",
+    "task_parts": [
+      "V4:authentic",
+      "V7:authentic"
+    ],
+    "original_findings": [
+      "B16",
+      "B32",
+      "LA-051"
+    ],
+    "disposition": "prepared_unrun_waiting_for_L01_factual_inputs_and_exact_default_consumer_path",
+    "output_path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/parallel-20261008-l02/prepared/l02_forecast_empirical.json",
+    "checkout": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+      "branch": "codex/e02-L02-authentic-20261008",
+      "head_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "head_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+      "head_parent_source_G": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+      "source_G_tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617",
+      "status_before_write": "clean",
+      "identity_note": "f00dd is the frozen docs/dispatch commit; its direct parent fe5cc is the exact dispatch source-G code tree."
+    },
+    "read_set": [
+      {
+        "path": "AGENTS.md",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98"
+      },
+      {
+        "path": "policy-engine/CONTRIBUTING.md",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/COMMON.md",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "116b74d20e0bb9a9e9421bc48a6d95b86a373a79"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/L02.md",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "e97385084b0101fcc6dca2c5aba5519ab55b3090"
+      },
+      {
+        "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "652fb2d0b3fbcaa48681adf2e79b66486b4a65a1",
+        "pattern_pass": [
+          "P01",
+          "P02",
+          "P05",
+          "P07",
+          "P08",
+          "P10",
+          "P15",
+          "P29",
+          "P31",
+          "P32",
+          "P37",
+          "P38"
+        ]
+      }
+    ],
+    "planning_refs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "f2e8d2096b86148fb93d4eb61520d22002228a1d",
+        "source_G_commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "source_G_tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617",
+        "L02_mode": "read_only_verification"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "a27cf7e78dc7c16df279a5136399ee0a5daeee9a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "749255cd37f93955b176c748d63b2a3a7b7ee214",
+        "historical_G_pin": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "historical_G_tree": "32a32cc77039554a3777a11fd7fc8f96f3a88625",
+        "pin_note": "inputs.json historical analysis pin is not the newer dispatch source G; keep refs source-qualified."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf"
+      }
+    ],
+    "finding_rows_and_original_criteria": [
+      {
+        "id": "B16",
+        "unit": "A",
+        "bundle": "EMP-01",
+        "author_proposal": "limited",
+        "flows": [
+          "V"
+        ],
+        "tasks": [
+          "V4",
+          "V7"
+        ],
+        "G_closure": "not_adjudicated",
+        "finding_row": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+          "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e",
+          "pointer": "/rows/13",
+          "original_criteria_pointer": "/findings/75/criterion_refs",
+          "author_row_pointers": [
+            "/current_index/13",
+            "#/current_root_adjudication_20261008/rows/13"
+          ]
+        },
+        "criterion": {
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "full_file_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines_inclusive": [
+            387,
+            398
+          ],
+          "criterion_span_sha256": "fddf1601c092be1f87a19a79a3f6975264850d8df9428e3f54bd3f8fe48d8706",
+          "coverage_ref_commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+          "coverage_pointer": "/findings/75/criterion_refs/0",
+          "hint": "Pass task region/population and measurement semantics before sort/LIMIT/aggregation; preserve source/unit; refuse unapproved mixed-unit averaging; distinguish genuinely small sample from completeness; scope changes alter consumed-row identity."
+        },
+        "A_leaf_refs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-current-index.json",
+            "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+            "git_blob": "2a14fa091eb1b1d1f8ab0b9aa0d4757baddddcb0"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+            "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+            "git_blob": "5beae048efe4b4ffda43583d1f9b93c3298e0d86"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/sparse-owner-v2-intake.json",
+            "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+            "git_blob": "16686d756db00514f8d5e04932014d3136de2216",
+            "candidate_commit": "4ef715efc89865325b789eed3ccd340da7b9f3be",
+            "candidate_tree": "b6fddbfb771ab158dd8145daa551e181510477f4",
+            "source_blob": "e3c369a8a40db0849db4bb08ca732fd7c5761fa7",
+            "test_blob": "284f373c87eb7212aaf8bc9d67a1a3fcbb34e203",
+            "boundary": "Synthetic sparse/scope refusal is bounded; full B16 acceptance, source/population/time completeness and authentic forecast/holdout remain UNRUN/verification_missing."
+          }
+        ]
+      },
+      {
+        "id": "B32",
+        "unit": "E",
+        "bundle": "FRC-01",
+        "author_proposal": "limited",
+        "flows": [
+          "S",
+          "V"
+        ],
+        "tasks": [
+          "V4",
+          "V7"
+        ],
+        "G_closure": "not_adjudicated",
+        "finding_row": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+          "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e",
+          "pointer": "/rows/193",
+          "original_criteria_pointer": "/findings/157/criterion_refs",
+          "author_row_pointer": "E#/rows/0"
+        },
+        "criterion": {
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "full_file_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines_inclusive": [
+            607,
+            620
+          ],
+          "criterion_span_sha256": "68a3acb0a34e8ebfce5217cdc99785a851a21368ea2d552795f68272e7140d6c",
+          "coverage_ref_commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+          "coverage_pointer": "/findings/157/criterion_refs/0",
+          "hint": "Distinct prediction/observation/valid/policy-effective/calibration-window roles; no credible/pass defaults from estimator shape."
+        }
+      },
+      {
+        "id": "LA-051",
+        "unit": "E",
+        "bundle": "FRC-02",
+        "companion_bundles": [
+          "FRC-01",
+          "FRC-02"
+        ],
+        "author_proposal": "limited",
+        "flows": [
+          "S",
+          "V"
+        ],
+        "tasks": [
+          "V4",
+          "V7"
+        ],
+        "G_closure": "not_adjudicated",
+        "finding_row": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+          "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "git_blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e",
+          "pointer": "/rows/194",
+          "original_criteria_pointer": "/findings/275/criterion_refs",
+          "author_row_pointer": "E#/rows/48"
+        },
+        "criterion_occurrences": [
+          {
+            "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+            "full_file_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+            "lines_inclusive": [
+              3712,
+              3746
+            ],
+            "criterion_span_sha256": "5d3fe7ce8b71d77c07f35e5a68fed244c0d40e0f24925714edbf7297c37ea616",
+            "coverage_ref_commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+            "coverage_pointer": "/findings/275/criterion_refs/0",
+            "bundle": "FRC-01"
+          },
+          {
+            "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+            "full_file_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+            "lines_inclusive": [
+              3712,
+              3746
+            ],
+            "criterion_span_sha256": "5d3fe7ce8b71d77c07f35e5a68fed244c0d40e0f24925714edbf7297c37ea616",
+            "coverage_ref_commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+            "coverage_pointer": "/findings/275/criterion_refs/1",
+            "bundle": "FRC-02"
+          }
+        ],
+        "criterion_hint": "Finite causal-estimator CI/shape is not measured empirical calibration. Use a method/design/estimand-compatible prediction-observation corpus; S10 consumes verified results. Do not turn nominal confidence/CI width into coverage or remove causal-purpose denials."
+      }
+    ],
+    "task_acceptance": {
+      "V4": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "a27cf7e78dc7c16df279a5136399ee0a5daeee9a",
+        "conditional_input": "E producer refs compatible with actual method/estimand/purpose/time",
+        "exit": "CAS resolver recomputes -> fresh grade/default HTTP; predictive coverage not causal calibration",
+        "scope": "Predictive-purpose positive only; causal S10 remains limited/blocked until compatible V7 producer."
+      },
+      "V7": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "a27cf7e78dc7c16df279a5136399ee0a5daeee9a",
+        "conditional_input": "scoped same-estimand/design/time/purpose paired predictions/observations",
+        "exit": "Measured counts -> persisted evidence -> fresh S10/default HTTP; same CI but different actual outcomes changes grade; predictive only, not causal."
+      }
+    },
+    "source_and_leaf_evidence": {
+      "current_G_code": {
+        "commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617",
+        "files": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+            "git_blob": "e9302eb353ab7be6b03f4812ab9b473fb9555f64",
+            "actual_state": "Older request has predictive estimand, source ref, metric, split, rule and request-level temporal roles; lacks later configured empirical-profile ref and explicit v2 target unit/source-schema binding. It loads generic snapshot.data_ref and computes train-only ETS/heldout predictive coverage."
+          },
+          {
+            "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "git_blob": "db07beb895ca7c2262bcd945d3940bc46e008590",
+            "actual_state": "Existing generic calibration bridge; not wired into A default consumer."
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+            "actual_state": "Shape-only S10 helper returns zero numerator/denominator/rate, floor_passed=false and insufficient_history; default FoundryValuePort constructs RealValueOwnerGateway without evidence_resolver. Retains limitation; no current G fake pass claim."
+          }
+        ],
+        "existing_fixture_tests": [
+          {
+            "path": "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+            "git_blob": "f86ecee0c4630b5182e7132bff11ecdc88f372f5",
+            "selector": "test_same_ets_shape_uses_held_out_observations_for_suitability"
+          },
+          {
+            "path": "policy-engine/tests/unit/remediation/test_frc_02_bridge.py",
+            "git_blob": "6a8158b17f2e7599190370ca0f9cd76c90da069a",
+            "selector": "test_observed_comparisons_change_empirical_admission_with_same_nominal_confidence"
+          },
+          {
+            "path": "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+            "git_blob": "868e41d61a656e29ecfbb9b0dd738cb6ae448f45",
+            "selector": "test_same_ets_shape_with_different_held_out_observations_changes_s10_suitability"
+          }
+        ]
+      },
+      "E_current_author_row": {
+        "commit": "7bf53fd0cf69a568b37d8a881e26bfb16c315653",
+        "tree": "946ec147aa09db5b76c66e7ac3e3a2e491f9868b",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries/full54/all54-delta-associations-v2-source11082.json",
+        "git_blob": "502f44eb34c277b11764f89f153df17231864bf6",
+        "candidate_commit": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+        "candidate_tree": "9263d367d41359f1f1a2758419fbc1c8f1eace0f",
+        "scope": "documentation/evidence delta, independent review/deciding receipts incomplete; not FRC runtime code. B32/LA-051 owner decisions pending; formal G acceptance false."
+      },
+      "E_prior_leaf_and_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final54-current-and-independent-joins/003/current-all-54-b2-final-v4-normal.json",
+          "commit": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+          "git_blob": "95d2203524f51e6b849166230811b1d0b3170469",
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b",
+          "B32_pointer": "/rows/0",
+          "LA051_pointer": "/rows/48"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E54-current-decisions.json",
+          "commit": "2abc17f46a033a7879663486ff9946a95786601f",
+          "git_blob": "4dc2adb6f38f2c1674ec1c8b616d1985914e2b9e",
+          "sha256": "3dfb3431c3e11d64d1790350f697de93929bbb06ab8b662c5bdaee628b336b5c",
+          "B32_pointer": "/per_finding_rows/0",
+          "LA051_pointer": "/per_finding_rows/48"
+        }
+      ],
+      "E_v2_FRC_candidate": {
+        "commit": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+        "tree": "3be4935b1bfa426a71f8581bc376fa322145fe31",
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2.json",
+          "commit": "f73e554bfe567aec29aff957a2c026f1537e4834",
+          "git_blob": "bc0154972567f3fd9d453d5d384ae72e0780a0df"
+        },
+        "complete_changed_paths": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/README.md",
+            "git_blob": "60376f4791494d0bd11658943b144a6c1f5f7275"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt",
+            "git_blob": "79aef69c9303f480e31ab02be0fe015efc8af4f1"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-status-reason-tests.py.txt",
+            "git_blob": "7465ec3af54e082ce033df76f6e727a1822a00c8"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-status-reason.patch.txt",
+            "git_blob": "3d6da36973c3cac1a941d3ac916bb4004d1d4512"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/legacy-replay-probe.py.txt",
+            "git_blob": "6bb6e30c6f2b6ab98be3b08df4cd72aa64a7c672"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/measurement-probe.py.txt",
+            "git_blob": "2582c9d9209ac5536844be21bd89b9233d73feaa"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/measurement-property-removal.py.txt",
+            "git_blob": "fa04fb6cb1c2099c01412cc9ca393a7303343871"
+          },
+          {
+            "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-forecast-source-measurement.toml",
+            "git_blob": "eb1ee71487f4bfa114d499a8314dd3d256dec3a6"
+          },
+          {
+            "path": "policy-engine/src/polisyos/calibration/README.md",
+            "git_blob": "ce2a77449860cc167a597a078b57b96604d3fa99"
+          },
+          {
+            "path": "policy-engine/src/polisyos/calibration/__init__.py",
+            "git_blob": "cf6830efbf67557bb3530bac7d37d71b278d6c92"
+          },
+          {
+            "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "git_blob": "b3bce8ce42df233d434196fafdca31225e949c18"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+            "git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c"
+          },
+          {
+            "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+            "git_blob": "4dbfe9b8ea4bd9cb95597dbeb6c9f37b56ae0861"
+          },
+          {
+            "path": "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+            "git_blob": "db9cf3bf3b79473c0bbf71e2a622f8b10b044795"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+            "git_blob": "7f71808fa8c56e861c9ed359c22c5297d2b3613d"
+          }
+        ],
+        "historical_checks": {
+          "affected_native": {
+            "status": "PASS",
+            "tests": 19
+          },
+          "A_CAS_contract": {
+            "status": "PASS",
+            "tests": 5
+          },
+          "A_status_reason": {
+            "status": "EXPECTED_FAIL",
+            "tests": 2,
+            "reason": "A-owned missing-ref versus resolved-limited reason remains unresolved."
+          },
+          "unit_property_removal": {
+            "status": "EXPECTED_FAIL",
+            "meaning": "When unit equality is removed with DTO markers intact, wrong-unit test reaches the numerical callback."
+          }
+        },
+        "historical_synthetic_positive": "Train 1..30 -> holdout 31..34 yielded independent 4/4; same training/forecast with synthetic outcomes 1000 yielded 0/4. This is only a mechanistic fixture, not production history.",
+        "output_refs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/positive-artifact.stdout",
+            "commit": "f73e554bfe567aec29aff957a2c026f1537e4834",
+            "git_blob": "0d581b1d35bdfbd300492a16527b3b0353f1ce0b"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/measurement-probe.stdout",
+            "commit": "f73e554bfe567aec29aff957a2c026f1537e4834",
+            "git_blob": "1141b1072d985655586d2b810d66ccc6d71b420e"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/property-removal.stdout",
+            "commit": "f73e554bfe567aec29aff957a2c026f1537e4834",
+            "git_blob": "8f284c176a256c0397d553123487dfc0b234f75b"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/a-status-reason.stdout",
+            "commit": "f73e554bfe567aec29aff957a2c026f1537e4834",
+            "git_blob": "db55c0eca70b6fd003a770a08e522905ba02289b"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/affected-native.stdout",
+            "commit": "f73e554bfe567aec29aff957a2c026f1537e4834",
+            "git_blob": "f93f5f20c78f0cc0854c26d362016a0cc7b76e75"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/a-cas-contract.stdout",
+            "commit": "f73e554bfe567aec29aff957a2c026f1537e4834",
+            "git_blob": "4b1ed3ff68a5f04b52f6fea75044a34d631632d8"
+          }
+        ],
+        "recipe_identity_warning": "The existing recipe lists source implementation commit 8486baad6fdef8063cfaad80b15f6b6d8532460a but also implementation_sha_for_this_recipe=a9f78817c873be5b35a08155f2593b229d9fdbb6/tree=c02e043c3e1c8222c28aa71187fa8db4e2fdeea7, a different commit/tree. Use the exact receipt-pinned candidate 8486baad6fdef8063cfaad80b15f6b6d8532460a/tree 3be4935b1bfa426a71f8581bc376fa322145fe31.",
+        "observed_output_authority": {
+          "authority_scope": "predictive_only",
+          "verifier_provenance": "not_established",
+          "source": "candidate output at policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/positive-artifact.stdout, commit f73e554bfe567aec29aff957a2c026f1537e4834, Git blob 0d581b1d35bdfbd300492a16527b3b0353f1ce0b"
+        }
+      },
+      "A_consumer_leaf_refs": {
+        "supplier_review": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/s10-supplier-review.json",
+          "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+          "git_blob": "bfa91fd29e3312fbf932b98316686c0e5aa64575"
+        },
+        "verifier_review": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/s10-verifier-review.json",
+          "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+          "git_blob": "5c92024213834d6bb168dcc71c42cb593b6111c8",
+          "candidate_commit": "263729e956c74e123695bd97edee0001d970aae3",
+          "candidate_tree": "e84673a5cc2439aab5e3af7f12986bc5778589b3",
+          "source_blob": "6f85abcdb664062628ebd35b8e3e5e5d70391ae1",
+          "test_blob": "b11a96c8ebde79541451b2f5375480968fabbbef",
+          "review_receipt_commit": "be8f8d53597b8cdd480a28b9ab023c34facf5726",
+          "assessment": "source-only review; reviewer ran no tests/numerics; supplied model/policy pair delta bounded GO, full scoped S10 NO_GO pending C source admission and default bridge."
+        },
+        "frc01_consumer_delta": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/frc01-consumer-delta.json",
+          "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+          "git_blob": "bdb332e0a50c1931ba8c9282b969f6af28a8e787",
+          "candidate_commit": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f",
+          "candidate_tree": "ba0f37a481beaa782166b88ef29e21ac48f5aa2c",
+          "source_blob": "a9bee33288e66aecada88a58b44fd504a33b78c7",
+          "test_blob": "c906eeb7fc678f2028f9b9525b7c4c30a8ff71c4",
+          "historical_result": "12/12 synthetic limited-evidence/time/reason/purpose tests PASS; not actual ETS, C source, or default served route."
+        },
+        "frc01_output": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/frc01-consumer-delta/frozen-6f1e/stdout.txt",
+          "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+          "git_blob": "d148ef547492807c3c22285af9c416273738fd30",
+          "sha256": "e25379ab2d1524b5edcc6f5572301262452cfe41d24fd53e2ae068f3b656cd1b",
+          "junit_git_blob": "63acd77c143a1f9f30f70474c31570c2827af266",
+          "junit_sha256": "1dc051677bb84c058614f8a81a900b39e4275683c4d51878a274cc72b9fdac5e",
+          "environment_git_blob": "7b1a98a3a8ffb17b71626267499c0836367a3b66",
+          "environment_sha256": "1377848b56297c3dbecf4627b4bb9f28f07d7b9e36967b2c752bfa7e3fd9df24"
+        }
+      }
+    },
+    "actual_G_and_source_admission_boundary": {
+      "C_profile_wording": "C-owned source/profile admission is upstream evidence context for L02; this is not role C's formal G adjudication or a C-finding closure.",
+      "source_status_from_A_supplier_review": "not_established: the reusable activated C observation projection is content-bound but source_time_status is literally not_established; it materializes a scalar and does not emit the ordered typed metric series/DataSchema/scope-population/source-version/completeness/train-holdout profile. The 0346 source census reports 12 direct DataSnapshot construction sites (13th grep hit is class declaration); no single admitted forecast profile binds all required fields. No production rows were read.",
+      "bridge_status": "No default source call invokes RealValueOwnerGateway.produce_forecast_inputs; FoundryValuePort's default RealValueOwnerGateway has no evidence resolver configured. A review says A bridge is missing/not orchestrated, default HTTP surface is missing, served POST-to-GET verification is UNRUN. Preserve treatment_assignment_not_owner_derived and terminal causal/treatment/policy denials.",
+      "labels": {
+        "B16": "verification_missing",
+        "C_forecast_profile": "producer_missing/not_established",
+        "E_v2": "source candidate present but not G-accepted; predictive_only",
+        "A": "bridge_missing/implemented_but_not_orchestrated",
+        "default_HTTP": "surface_missing",
+        "served_semantic_test": "semantic_test_missing/UNRUN"
+      }
+    },
+    "prepared_commands": [
+      {
+        "name": "Existing E native ForecastOwner selector",
+        "candidate_commit": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+        "candidate_tree": "3be4935b1bfa426a71f8581bc376fa322145fe31",
+        "exact_command_from_recipe": "(cd policy-engine && .venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/methods/backtesting/test_forecast_owner.py)",
+        "recipe": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json",
+          "commit": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+          "git_blob": "ef2376dd46a325400a8a0a2e0966acb34ced54c0",
+          "pointer": "/recipes/4"
+        },
+        "status": "UNRUN_BY_THIS_ROLE",
+        "reason": "E source candidate is not G-accepted and no L01 admitted local series/profile is present in the pinned evidence."
+      },
+      {
+        "name": "Existing G same-forecast/different-observation fixture selectors",
+        "target_commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "selectors": [
+          "tests/unit/remediation/test_frc_02_owner.py::test_same_ets_shape_uses_held_out_observations_for_suitability",
+          "tests/unit/remediation/test_frc_02_bridge.py::test_observed_comparisons_change_empirical_admission_with_same_nominal_confidence",
+          "tests/unit/remediation/test_frc_02_s10.py::test_same_ets_shape_with_different_held_out_observations_changes_s10_suitability"
+        ],
+        "prepared_command_not_previously_receipted_as_single_argv": "cd policy-engine && .venv/bin/python -m pytest -o addopts= -q tests/unit/remediation/test_frc_02_owner.py::test_same_ets_shape_uses_held_out_observations_for_suitability tests/unit/remediation/test_frc_02_bridge.py::test_observed_comparisons_change_empirical_admission_with_same_nominal_confidence tests/unit/remediation/test_frc_02_s10.py::test_same_ets_shape_with_different_held_out_observations_changes_s10_suitability",
+        "status": "UNRUN_BY_THIS_ROLE",
+        "scope": "Fixture discriminators only; not authentic source evidence."
+      },
+      {
+        "name": "E unit-preflight property-removal control",
+        "target_commit": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+        "exact_command_from_E_receipt": "cd policy-engine && .venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/measurement-property-removal.py.txt",
+        "status": "UNRUN_BY_THIS_ROLE",
+        "historical_status": "EXPECTED_FAIL when unit-equality property is removed; this is preflight evidence, not V7 outcome-to-grade consumer evidence."
+      },
+      {
+        "name": "A FRC-01 fixture consumer selector",
+        "candidate_commit": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f",
+        "selector": "tests/unit/remediation/test_frc_01.py",
+        "status": "UNRUN_BY_THIS_ROLE",
+        "historical_status": "Prior A candidate receipt says 12/12 synthetic limited-evidence cases pass; not current-G served acceptance."
+      },
+      {
+        "name": "Authentic default HTTP POST-to-GET consumer",
+        "status": "UNRUN_NO_WIRED_SELECTOR",
+        "command": null,
+        "reason": "The A review says producer/verifier is not wired to the default gateway/HTTP lifecycle. Do not invent an authentic selector; A/G must expose the canonical consumer test after wiring."
+      }
+    ],
+    "acceptance": {
+      "V4_authentic": [
+        "Use actual C-owned source/profile context only when it resolves to typed DataSnapshot and canonical DataSchema in configured local CAS: numeric target metric, exact unit/source_native scale, source/version/content identity, task scope/geography/population, completeness/truncation, selected-row identity/order and row-valid times.",
+        "For B16, apply scope/measurement semantics before sort/LIMIT/aggregation; preserve source/unit; reject unapproved mixed-unit aggregation; distinguish genuinely small sample from incomplete/truncated population; altered scope changes consumed-row identity.",
+        "Use issued ForecastOwnerRequest/profile/rule and explicit split/horizon/method/params/seed; train-only producer pairs actual heldout observations to persisted forecast intervals, recomputes counts/rate, and persists distinct report/evidence/candidate receipt.",
+        "A same-CAS resolver resolves/binds/verifies source/schema/metric/unit/request/profile/rule/model-policy where present/split/horizon/pairs/counts/threshold/six roles/purpose/verifier provenance; then fresh served GET grade is derived from those artifacts."
+      ],
+      "V7_authentic": [
+        "Require a real matched pair with same compatible estimand/design/time/purpose, training rows, method/version/params/seed, request/profile/rule, split/horizon, prediction points and intervals (same CI/nominal level), but actual heldout outcomes differ enough to change recomputed hits/rate and fresh grade across the issuer-bound threshold.",
+        "Do not substitute different nominal confidence, estimator shape, status/bool marker, fixture row, or unrelated cohort as the discriminator. One real holdout can support bounded V4 measurement but leaves V7's same-prediction/different-outcome grade property not_established.",
+        "E's predictive interval coverage does not calibrate a causal-effect CI by itself. For LA-051, only a method/design/estimand-compatible evaluation corpus can support empirical calibration; otherwise keep causal S10 limited and preserve purpose denials."
+      ]
+    },
+    "oracle_and_controls": {
+      "oracle": "Independently join actual source rows to persisted prediction intervals; compute each hit as lower <= observed <= upper, sum numerator/denominator, apply the issued rule threshold, and compare fresh consumer result. Keep other inputs fixed while varying only actual holdout outcomes. E's historical analytic oracle train 1..30 -> 31..34 with 4/4 vs synthetic 1000 -> 0/4 is fixture-only, not factual evidence.",
+      "fake": "Keep valid CAS hashes/schema/request/profile/evidence markers but forge counts/rate/floor/credible/hit flags. Fresh A resolver recomputes from loaded pairs and refuses or remains limited.",
+      "foreign": "Swap a content-valid but wrong-kind/non-admitted source/profile, wrong metric/unit/source_native scale, task population/geography, or method/rule/design while preserving markers; reject before ETS where preflight applies and never yield a positive fresh grade.",
+      "stale": "Use old source version/content, profile/request, changed rule/model/policy revision, stale valid time, or mismatched prediction/observation/calibration-window role while retaining old evidence/grade. Fresh resolver/readback rejects or downgrades with typed reason.",
+      "removal": "Remove actual lower<=observation<=upper pairing/count recomputation while keeping DTO/manifests/markers. The unchanged same-forecast/different-outcome assertion must fail. Keep E's unit-comparison removal as separate preflight property evidence; it does not replace V7 consumer falsifier.",
+      "absence_vs_floor": "Missing/unresolved ref produces a distinct typed reason from resolved evidence whose recomputed rate misses the issued floor; unresolved fake mapping refuses."
+    },
+    "minimum_L01_packet": {
+      "owners": "C canonical source/profile issuer provides factual source context; E ForecastOwner supplier provides exact request/profile/rule/artifact contract; A generation-cycle/default gateway/S10 verifier/HTTP owner provides fresh consumer. G owns formal G acceptance. This C-owned profile is an L02 input context, not role C formal adjudication or C-finding closure.",
+      "required_inputs": [
+        "Local-only immutable CAS refs to ordered numeric series plus typed DataSnapshot/DataSchema; metric/field, unit/source_native scale, source/version/content digest, task scope/geography/population, completeness/truncation state, selected row IDs/order and per-row valid times; source/query receipt proving scope-before-limit and no unapproved mixed-unit averaging. No raw production rows/secrets in Git/cloud.",
+        "Issued request/profile/rule refs and issuer, compatible predictive estimand/purpose, method/version/params/seed, model/policy refs if present as complete pair, explicit train/holdout/horizon, evaluator version and six distinct timezone-aware roles; per-row time mapping where the source supplies it. E candidate profile is not C admission.",
+        "For V7, two genuine heldout slices sharing the exact training/request/method/rule/forecast points/intervals and source context, with actual outcomes changing hits, plus issued threshold and immutable identities. Never manufacture the second outcome. If only one factual holdout exists, record V4 bounded and V7 not_established.",
+        "A locally accessible configured CAS/resolver and fresh default POST/persist/GET or new-process readback identity tied to the same source/profile/request/rule/report/evidence/receipt refs."
+      ],
+      "if_packet_unavailable": "No authentic V4/V7 positive is claimable; keep B16 verification_missing and B32/LA-051 limited. Fixture PASS and source presence do not establish admission."
+    },
+    "capability_labels": {
+      "B16": "verification_missing",
+      "C_forecast_profile": "producer_missing/not_established",
+      "E_v2": "candidate source present but not G-accepted; predictive_only",
+      "A": "bridge_missing/implemented_but_not_orchestrated",
+      "default_HTTP": "surface_missing",
+      "served_semantic_test": "semantic_test_missing/UNRUN",
+      "formal_G_closure": "not_adjudicated"
+    },
+    "pattern_pass": {
+      "existing_anti_patterns": [
+        "P01/P02: bounded producer and consumer pieces lack admitted producer-to-default-consumer bridge",
+        "P05/P15/P32: predictive evidence or fixture markers must not gain causal/verifier authority by form",
+        "P07/P08: rule/source/model version and distinct time roles must bind and replay",
+        "P10/P29/P37/P38: declared refs/fixture output are not the semantic predicate; independently reconcile actual observations and remove the property while retaining markers"
+      ],
+      "target_pattern": "content-bound local source profile -> issued request/profile/rule -> train-only producer -> persisted measured evidence -> independent A recomputation -> fresh default GET; predictive-only purpose and causal denials remain explicit",
+      "acceptance_signal": "Identical actual forecasts/intervals and nominal CI with different admissible observations yield recomputed different counts and changed fresh predictive grade; fake/foreign/stale/removal controls refuse; no causal calibration claim unless evaluation corpus matches causal estimand/design."
+    },
+    "execution_record": {
+      "tests_run_by_this_role": 0,
+      "numeric_or_heavy_tests_run": false,
+      "production_inputs_read": false,
+      "source_test_config_runtime_input_writes": 0,
+      "only_authorized_write": "this prepared JSON receipt",
+      "root_owns_committed_publisher": true
+    }
+  }
+}

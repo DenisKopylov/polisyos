@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "df",
+    "-k",
+    "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos"
+  ],
+  "exit_code": 0,
+  "stdout": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239362496 162176484  47270508    78% 3000096 472705080    1%   /System/Volumes/Data\n",
+  "stderr": "",
+  "claim_limit": "No physical disk recovery claim from same-volume Trash"
+}

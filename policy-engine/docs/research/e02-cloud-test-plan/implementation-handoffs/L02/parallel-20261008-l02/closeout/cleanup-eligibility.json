@@ -1,0 +1,98 @@
+[
+  {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/node_modules",
+    "device": 16777231,
+    "inode": 174869902,
+    "inactive_lsof": {
+      "argv": [
+        "lsof",
+        "+D",
+        "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/node_modules"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    "eligibility": "Only own frozen offline installed dependency workspace, reproducible from pinned lock; no source/docs/production/unique data/deciding receipts. Normal first and leaf publication complete."
+  },
+  {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/apps/runtime-dashboard/node_modules",
+    "device": 16777231,
+    "inode": 174937665,
+    "inactive_lsof": {
+      "argv": [
+        "lsof",
+        "+D",
+        "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/apps/runtime-dashboard/node_modules"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    "eligibility": "Only own frozen offline installed dependency workspace, reproducible from pinned lock; no source/docs/production/unique data/deciding receipts. Normal first and leaf publication complete."
+  },
+  {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/apps/runtime-reference-shell/node_modules",
+    "device": 16777231,
+    "inode": 174937672,
+    "inactive_lsof": {
+      "argv": [
+        "lsof",
+        "+D",
+        "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/apps/runtime-reference-shell/node_modules"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    "eligibility": "Only own frozen offline installed dependency workspace, reproducible from pinned lock; no source/docs/production/unique data/deciding receipts. Normal first and leaf publication complete."
+  },
+  {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/packages/atlas-ui/node_modules",
+    "device": 16777231,
+    "inode": 174937673,
+    "inactive_lsof": {
+      "argv": [
+        "lsof",
+        "+D",
+        "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/packages/atlas-ui/node_modules"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    "eligibility": "Only own frozen offline installed dependency workspace, reproducible from pinned lock; no source/docs/production/unique data/deciding receipts. Normal first and leaf publication complete."
+  },
+  {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/packages/cli/node_modules",
+    "device": 16777231,
+    "inode": 174937676,
+    "inactive_lsof": {
+      "argv": [
+        "lsof",
+        "+D",
+        "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/packages/cli/node_modules"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    "eligibility": "Only own frozen offline installed dependency workspace, reproducible from pinned lock; no source/docs/production/unique data/deciding receipts. Normal first and leaf publication complete."
+  },
+  {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/packages/runtime-api-client/node_modules",
+    "device": 16777231,
+    "inode": 174937677,
+    "inactive_lsof": {
+      "argv": [
+        "lsof",
+        "+D",
+        "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/packages/runtime-api-client/node_modules"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    "eligibility": "Only own frozen offline installed dependency workspace, reproducible from pinned lock; no source/docs/production/unique data/deciding receipts. Normal first and leaf publication complete."
+  }
+]

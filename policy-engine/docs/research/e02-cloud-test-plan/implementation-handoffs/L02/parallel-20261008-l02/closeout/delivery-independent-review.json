@@ -1,0 +1,221 @@
+{
+  "mac_Q2_and_B212_boundary": {
+    "bounded_property": "A direct call without worker_execution_context refuses with backend_unavailable/no point, and six unsupported requests return input-invalid without point/confidence.",
+    "fake_point_sensitivity_control": "Injected point_estimate=7.0 with status/capability markers unchanged; retained control rejected it and genuine missing-context refusal was restored. This is test/report sensitivity evidence, not a worker-source resolver or actual point-only backend proof.",
+    "independent_mac_review_outcome": "bounded_go_for_missing_context_refusal only; B212 remains outside this slice and is not closed.",
+    "minimum_next_verification": "Run test_real_estimate_point_only_survives_parent_cas_and_reader against the immutable exact G source with the locked standalone workers/dowhy-014 Python 3.12 profile; retain command, profile identity, input/source hashes, stdout/stderr/JUnit.",
+    "not_established": [
+      "Whether a standalone DoWhy worker is installed/configured on Mac.",
+      "A real DoWhy 0.14 point-only worker result.",
+      "Persisted parent-CAS report and fresh reader behavior for the point-only result.",
+      "Backend confidence-interval preservation.",
+      "Authentic producer/artifact/bridge/consumer closure or formal G finding closure."
+    ],
+    "original_B212_property": "The original point-only criterion remains limited/not adjudicated; the missing-context selectors do not exercise the real point-only estimate/CAS/reader path.",
+    "receipt_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/command.json@45c82745292baeeb5414b7367dde931872ee0417",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/junit.xml@45c82745292baeeb5414b7367dde931872ee0417",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_mac_independent_review.json@45c82745292baeeb5414b7367dde931872ee0417"
+    ],
+    "recorded_environment": "Mac arm64 App Python 3.14 with exact G source on PYTHONPATH; source execution, not an installed wheel/profile.",
+    "recorded_test_result": {
+      "errors": 0,
+      "failures": 0,
+      "junit_testcases": 7,
+      "selectors": [
+        "test_default_without_actual_source_context_has_no_backend_witness",
+        "test_selected_profile_does_not_relabel_unsupported_requests (six parameter cases)"
+      ]
+    }
+  },
+  "pattern_pass_at_closeout": {
+    "application": {
+      "P01_P02_P05_P10": "The handoff does not claim an authentic positive capability without the producer, persisted artifact/event, bridge, consumer and verification chain.",
+      "P35": "Counts above come from complete pinned file/row walks with path and file-type denominators.",
+      "P37": "Missing worker context is recomputed for the direct test invocation; separate installed-worker existence remains not_established.",
+      "P38": "The Mac tests exercise the missing-context path, not the original real point-only producer-to-CAS property; that divergence is an explicit bounded limitation.",
+      "P41": "No inherited red is claimed or waived by this review."
+    },
+    "ids": [
+      "P01",
+      "P02",
+      "P05",
+      "P10",
+      "P35",
+      "P37",
+      "P38",
+      "P41"
+    ],
+    "register": "policy-engine/docs/reference/policy-design-case-failure-patterns.md@ca78ef245e592f8adfbeb273f7a404c8e84a6ae8"
+  },
+  "pins": {
+    "candidate": {
+      "branch": "codex/e02-L02-authentic-20261008",
+      "commit": "ca78ef245e592f8adfbeb273f7a404c8e84a6ae8",
+      "local_worktree_status": "clean",
+      "parent": "45c82745292baeeb5414b7367dde931872ee0417",
+      "tree": "85a08af3359ed11302d2a355e514793ecb136989"
+    },
+    "receipt": {
+      "commit": "45c82745292baeeb5414b7367dde931872ee0417",
+      "parent": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "tree": "7324a8e4e7f91a88682a188f5bcce37e91901a3a"
+    },
+    "source_under_review": {
+      "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "parent": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+      "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767"
+    }
+  },
+  "receipt_integrity": {
+    "all_paths_in_declared_L02_receipt_namespace": true,
+    "candidate_delta_all_json": true,
+    "candidate_delta_paths": 7,
+    "candidate_leaf_rows_by_original_unit": {
+      "A": 21,
+      "B": 3,
+      "C": 18,
+      "D": 4,
+      "E": 11,
+      "F": 1
+    },
+    "candidate_leaf_sizes_and_sha256_match_root_handoff": true,
+    "file_type_denominator_by_extension": {
+      ".gz": 1,
+      ".json": 28,
+      ".stderr": 9,
+      ".stdout": 9,
+      ".txt": 1,
+      ".xml": 1
+    },
+    "mac_stdout_gzip_bytes": 298,
+    "mac_stdout_uncompressed_bytes": 606,
+    "mac_stdout_uncompressed_sha256": "bb5416691116073b8086fcc9fe21b5616c6b756cfa4296572369e72fee9283e0",
+    "manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/manifest.json@45c82745292baeeb5414b7367dde931872ee0417",
+    "path_denominator": 49,
+    "payload_size_or_sha256_mismatches": 0,
+    "payloads": 48,
+    "prepared_raw_report_sha256_mismatches": 0,
+    "prepared_raw_reports_checked": 17
+  },
+  "remote_delivery": {
+    "hook_mode": "normal required hooks",
+    "hook_result": "typecheck skipped: no matching push files; this is not a typecheck pass",
+    "push_exit_code": 0,
+    "push_receipt": ".tmp/parallel-20261008-l02/publication/leaf-push.command.json@local; stdout/stderr recorded",
+    "readback_command": "git ls-remote origin refs/heads/codex/e02-L02-authentic-20261008",
+    "readback_commit": "ca78ef245e592f8adfbeb273f7a404c8e84a6ae8",
+    "readback_exit_code": 0,
+    "readback_matches_candidate": true,
+    "ref": "refs/heads/codex/e02-L02-authentic-20261008",
+    "remote_tree_and_bytes": "The remote ref resolves to the exact candidate commit ID; its immutable object ID binds the locally verified tree and receipt blobs. No fetch, checkout, or additional repository mutation was performed."
+  },
+  "review_mode": "read_only_except_this_review_json",
+  "reviewed_at_utc": "2026-10-08T10:42:56Z",
+  "reviewer_actions": {
+    "read_only_integrity_commands": [
+      "git status -sb",
+      "git rev-parse for exact candidate/source/receipt trees",
+      "git diff-tree complete path census",
+      "git ls-remote exact branch readback",
+      "Python read-only Git-object/payload/criterion-span audit"
+    ],
+    "reviewer_fetched_or_checked_out": false,
+    "reviewer_installed_dependencies": false,
+    "reviewer_ran_tests": false,
+    "reviewer_read_production_payloads": false,
+    "source_test_config_generated_writes": false
+  },
+  "role": "independent direct L02 delivery binding and scope review",
+  "schema": "codex.l02_delivery_review.v1",
+  "scoped_residuals": {
+    "C54": {
+      "disposition": "No C54 source acceptance or status uplift; LA032 remains held. No C54 reaccounting or G closure is promoted.",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_udf_inventory.json@45c82745292baeeb5414b7367dde931872ee0417"
+    },
+    "LA032": {
+      "boundary": "C-W19 producer/read paths are only a proposed existing-capability path; L01 factual input is absent and G must confirm the lease before source changes. Four readers sharing a selector do not establish producer-bound mapping.",
+      "disposition": "held/not_adjudicated",
+      "production_payload_read": false,
+      "state": "bridge_missing"
+    }
+  },
+  "source_acceptance_and_status": {
+    "admitted_F_scope": {
+      "G_acceptance_merge": "99c7eb501c525912e4142a9ca833f07de3ff6c8e",
+      "accepted_tree": "a1faa2717458f9bd330b566404ec1555c47817ac",
+      "rebuilt_sdist": "UNRUN",
+      "recorded_installed_wheel_profile": "17 PASS",
+      "recorded_native_profile": "38 PASS",
+      "scope_limit": "Existing scoped F profile only; not whole-package/global acceptance, and not an acceptance of other owner source families.",
+      "source_commit": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8"
+    },
+    "authentic_or_installed_positives": {
+      "effect": "No positive producer/artifact/bridge/consumer acceptance is claimed.",
+      "reason": "No exact Q1-selected composition plus task-specific factual source/profile/producer evidence was admitted in G.",
+      "state": "UNRUN",
+      "typed_missing_state": "verification_missing"
+    },
+    "historical_author_proposals": "Preserved as historical only; all 58 selected rows retain G_formal_status=not_adjudicated and the root handoff has closure_ids=[].",
+    "other_owner_candidates": "This handoff does not admit A-E as one current-G source composition. The L02 packet preserves their distinct source pins and named next inputs."
+  },
+  "source_and_criterion_binding": {
+    "all_58_prepared_source_consumer_refs_match_receipt_commit_tree_size_and_sha256": true,
+    "all_source_row_identity_author_proposal_membership_and_formal_status_joins_match": true,
+    "criterion_spans": {
+      "count": 61,
+      "file_type_denominator": "two Markdown files",
+      "line_span_sha256_mismatches": 0,
+      "paths": [
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md"
+      ],
+      "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    "no_blanket_global_barrier": "Dependencies are per task. V3 waits only on its selected supplier; I4 Legal fixtures can proceed before a production packet; unaffected F/native checks are not blocked on all source families.",
+    "selected_findings": 58,
+    "source_and_next_owner_packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_input_packets.json@45c82745292baeeb5414b7367dde931872ee0417",
+    "source_findings": {
+      "complete_row_count": 282,
+      "file_type_denominator": "one JSON file",
+      "other_pinned_denominators": {
+        "bundles": 127,
+        "criterion_occurrences": 291
+      },
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json@f00dd7661a8d3329fb1fa1b049decb0d1d2f277b"
+    },
+    "task_minimum_inputs_and_next_owners": {
+      "I3": "Dataset/run/cursor/content binder, source-owned event/version identity, durable 24-hour replay semantics; connector/source owner and C04/R2.",
+      "I4": "Accepted Catalog basis; Legal generation/assets/membership/model/encoder tuple only for the production claim; C05/L01 and C12/data owner.",
+      "Q2": "Exact selected source/test/config/lock/companion manifest, canonical generated family, declared Mac profile and actual installed/default consumer; G/C06/C10/C13, with L02 limited to Mac.",
+      "S2": "Criterion-specific law, calibration, and lineage packet for each selected occurrence; E/source owner with C08/model or D/F/A consumer as applicable.",
+      "T2": "One criterion-specific owner fact/API plus subject, purpose, issuer/verifier provenance, currentness/revocation, rule epoch and time roles; L01.",
+      "V1": "Matching Catalog/acquisition/history inputs, artifact pair or versioned replacement, source/context/tenant/run refs; L01 supplies local profile/artifact facts, C05 accepted Catalog basis, C10 exact consumer after Q1.",
+      "V3": "One admitted before/after content-changing source pair, identity/order/write-time-only control, WMR relevance/units/time, and permitted acquisition; L01 plus only the selected source owner.",
+      "V4": "E producer refs matching method/estimand/purpose/time and compatible source/model/unit/split/horizon, with observations for empirical claims; E owner to C10.",
+      "V6": "V1 profile, actual served producer, later independent sibling failure, persisted success/history/CAS ref and exact error; L01, G/C01 and B/R1 owners.",
+      "V7": "Paired source-bound predictions/observations with same estimand/design/time/purpose and holdout refs; E measurement owner and S1 purpose decision."
+    },
+    "task_route_counts": {
+      "I3": 3,
+      "I4": 5,
+      "Q2": 21,
+      "S2": 6,
+      "T2": 11,
+      "V1": 10,
+      "V3": 5,
+      "V4": 3,
+      "V6": 1,
+      "V7": 3
+    },
+    "task_route_memberships": 68
+  },
+  "verdict": {
+    "content_blockers": [],
+    "content_review": "bounded_go",
+    "delivery_binding": "bound_to_remote_branch",
+    "delivery_scope_limit": "The remote-ref readback is ls-remote; it points to the exact locally verified immutable Git commit. No fetch or checkout was needed.",
+    "product_or_functional_acceptance": "not_claimed"
+  }
+}

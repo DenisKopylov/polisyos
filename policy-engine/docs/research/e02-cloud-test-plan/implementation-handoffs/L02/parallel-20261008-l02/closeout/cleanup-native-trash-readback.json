@@ -1,0 +1,74 @@
+{
+  "schema": "l02_native_cleanup.v1",
+  "operation": {
+    "argv": [
+      "swift",
+      "-e",
+      "import Foundation\nfor argument in CommandLine.arguments.dropFirst(){\n let source=URL(fileURLWithPath:argument)\n var target:NSURL?=nil\n try FileManager.default.trashItem(at:source,resultingItemURL:&target)\n print(argument+\"\\t\"+target!.path!)\n}\n",
+      "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/node_modules",
+      "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/apps/runtime-dashboard/node_modules",
+      "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/apps/runtime-reference-shell/node_modules",
+      "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/packages/atlas-ui/node_modules",
+      "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/packages/cli/node_modules",
+      "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/packages/runtime-api-client/node_modules"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 1.1723176669911481,
+    "stdout": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/node_modules\t/Users/deniskopylov/.Trash/node_modules 13-43-34-758\n/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/apps/runtime-dashboard/node_modules\t/Users/deniskopylov/.Trash/node_modules 13-43-34-769\n/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/apps/runtime-reference-shell/node_modules\t/Users/deniskopylov/.Trash/node_modules 13-43-34-770\n/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/packages/atlas-ui/node_modules\t/Users/deniskopylov/.Trash/node_modules 13-43-34-771\n/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/packages/cli/node_modules\t/Users/deniskopylov/.Trash/node_modules 13-43-34-772\n/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/packages/runtime-api-client/node_modules\t/Users/deniskopylov/.Trash/node_modules 13-43-34-773\n",
+    "stderr": ""
+  },
+  "dependency_directories": [
+    {
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/node_modules",
+      "native_trash_destination": "/Users/deniskopylov/.Trash/node_modules 13-43-34-758",
+      "same_inode_device": true,
+      "source_absent": true
+    },
+    {
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/apps/runtime-dashboard/node_modules",
+      "native_trash_destination": "/Users/deniskopylov/.Trash/node_modules 13-43-34-769",
+      "same_inode_device": true,
+      "source_absent": true
+    },
+    {
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/apps/runtime-reference-shell/node_modules",
+      "native_trash_destination": "/Users/deniskopylov/.Trash/node_modules 13-43-34-770",
+      "same_inode_device": true,
+      "source_absent": true
+    },
+    {
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/packages/atlas-ui/node_modules",
+      "native_trash_destination": "/Users/deniskopylov/.Trash/node_modules 13-43-34-771",
+      "same_inode_device": true,
+      "source_absent": true
+    },
+    {
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/packages/cli/node_modules",
+      "native_trash_destination": "/Users/deniskopylov/.Trash/node_modules 13-43-34-772",
+      "same_inode_device": true,
+      "source_absent": true
+    },
+    {
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/packages/runtime-api-client/node_modules",
+      "native_trash_destination": "/Users/deniskopylov/.Trash/node_modules 13-43-34-773",
+      "same_inode_device": true,
+      "source_absent": true
+    }
+  ],
+  "tool_retained_for_required_final_publication": {
+    "original_frozen_binary": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/node_modules/.pnpm/lefthook-darwin-arm64@2.1.6/node_modules/lefthook-darwin-arm64/bin/lefthook",
+    "retained_local_binary": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/parallel-20261008-l02/hook-tool/lefthook",
+    "sha256": "1f034e34c3dbfdf08652f4e4d45eb307f506ae917f269d7a097d0980d4e2ae2b",
+    "bytes": 12825122,
+    "version": "2.1.6\n",
+    "checkout_local_hook_symlink": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/apps/runtime-dashboard/node_modules/.bin/lefthook",
+    "same_bytes": true,
+    "reason": "Keep genuine required Lefthook2.1.6 running actual checkout config for final receipt commit/push; no hook disable/config override. Full workspaces can be offline-recommissioned only when a later criterion needs them."
+  },
+  "original_code_docs_data_reports_preserved": true,
+  "trash_emptied": false,
+  "permanent_delete": false,
+  "disk_space_recovery_claimed": false,
+  "minimal_hook_tool_is_active_publication_environment": true
+}

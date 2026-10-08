@@ -160,7 +160,7 @@ No operational `Metrics` count or latency is used as a scientific state response
 IR envelopes. Each supplied envelope's `metadata.param_name`, registered
 `metadata.unit` and point must match the verified axis/unit/center. Missing laws
 hold rows with nonzero coefficients; verified zero-Jacobian local rows retain
-the actual center singleton without inventing a law. Covariance/law inputs are
+the actual center singleton of the local first-order map without inventing a law. A zero local Jacobian does not establish global natural-model constancy. Covariance/law inputs are
 caller-declared and handled by the existing propagation dispatcher; Fisher,
 weighting and ridge values never become a parameter noise scale.
 
@@ -169,10 +169,10 @@ The projection is the dimensioned **local** response
 nonzero baseline and does not prove a global affine law. Output intervals are
 non-gating heuristic local-linearization ranges, not estimator confidence
 intervals or scientific/Runtime admission. Exact source/matrix/input-law views
-remain in envelope/report manifests and the updated SimulationResult. Bare
+remain in envelope/report manifests and the updated SimulationResult. The exact propagation-config view binds every output and report. The existing strict three-field IR payload refs are preserved; a finite Node output reader resolves the complete alias-owned SimulationResult manifest edges, refusing missing, duplicate, extra or contradictory edges before loading envelope bytes. It admits no default-latest selector substitution. Bare
 legacy `propagation_sensitivity` keeps its historical relative/additive numerics
 as an explicitly non-gating, consumer-asserted hypothesis; it does not establish
-a registered dimensional map or a full native mapping.
+a registered dimensional map or a full native mapping. Unmapped legacy siblings also use the addressed UNKNOWN/missing-output profile; they are not emitted as zero-variance Normal constants.
 
 The native synthetic income-tax witness gives balance `4 * rate - 2`, while
 `global.tax_rate` remains `0.125` (Jacobian zero). Its declared synthetic input

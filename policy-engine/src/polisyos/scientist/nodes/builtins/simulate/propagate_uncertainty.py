@@ -37,8 +37,8 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
     load_uncertainty_envelope,
-    persist_uncertainty_envelope,
 )
+from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_PROPAGATION_REPORT_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
@@ -209,14 +209,20 @@ class PropagateUncertaintyNode:
             )
         ]
 
+        config_ref = _persist_config(ctx, config)
+        response_inputs.append(input_ref_from_artifact_ref(config_ref, role="propagation_config"))
+        response_metadata = {
+            **response_metadata,
+            "propagation_config_ref": config_ref.model_dump(mode="json"),
+            "propagation_config": config.model_dump(mode="json"),
+        }
         envelope_refs: dict[str, ArtifactRef] = {}
         artifacts: list[ArtifactRef] = []
         for item in results:
-            ref = persist_uncertainty_envelope(ctx.store, item.envelope, inputs=response_inputs)
+            ref = _persist_node_envelope(ctx, item.envelope, inputs=response_inputs)
             envelope_refs[item.metric_id] = ref
             artifacts.append(ref)
 
-        config_ref = _persist_config(ctx, config)
         report_ref = _persist_report(
             ctx,
             results=results,
@@ -232,7 +238,14 @@ class PropagateUncertaintyNode:
 
         updated_sim = sim_result.model_copy(
             update={
-                "uncertainty_envelopes": envelope_refs,
+                # Preserve the historical strict IR payload ABI. Exact selected
+                # views live in this SimulationResult's owned manifest edges.
+                "uncertainty_envelopes": {
+                    name: UncertaintyEnvelopeRef(
+                        artifact_id=str(ref.artifact_id), kind=ref.kind, media_type=ref.media_type
+                    )
+                    for name, ref in envelope_refs.items()
+                },
                 "propagation_config_ref": config_ref,
                 "propagation_report_ref": report_ref,
             }
@@ -252,7 +265,9 @@ class PropagateUncertaintyNode:
             PutOptions(
                 kind="foundry.simulation_result",
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.core.SimulationResult", version="1.1"),
+                schema=SchemaInfo(
+                    name="polisyos.core.SimulationResult", version=updated_sim.schema_version
+                ),
                 inputs=update_inputs,
             ),
         )
@@ -377,7 +392,12 @@ def _native_response_results(
                         propagation_method=PropagationMethod.DELTA_METHOD,
                         interval_semantics=IntervalSemantics.DETERMINISTIC_BOUNDS,
                         gate_eligible=False,
-                        metadata={"verified_zero_jacobian": True, "output_variance": 0.0},
+                        metadata={
+                            "verified_zero_jacobian": True,
+                            "output_variance": 0.0,
+                            "constant_scope": "local_linearized_response",
+                            "global_constancy": "not_established",
+                        },
                     ),
                     input_envelopes_used=[],
                     method_used=PropagationMethod.DELTA_METHOD,
@@ -479,6 +499,64 @@ def _mark_response_scope(
         method_used=result.method_used,
         diagnostics={**result.diagnostics, "response_profile": profile, "gate_eligible": False},
     )
+
+
+def _persist_node_envelope(
+    ctx: ExecutionContext, envelope: UncertaintyEnvelope, *, inputs: list[InputRef]
+) -> ArtifactRef:
+    """Retain the actual CAS view without changing the historical IR ref DTO."""
+    return ctx.store.put_json(
+        envelope.model_dump(mode="python", round_trip=True),
+        PutOptions(
+            kind="ir.uncertainty_envelope",
+            media_type="application/json",
+            schema=SchemaInfo(name="ir.uncertainty_envelope", version="1.1"),
+            inputs=inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+
+
+def _load_propagated_envelopes(
+    store, simulation_ref: ArtifactRef
+) -> dict[str, UncertaintyEnvelope]:
+    """Read this finite SimulationResult output roster through its owned views.
+
+    Historical IR payload refs omit selectors. The producer's exact manifest
+    edges own those views; no default-latest or shape-only fallback is admitted.
+    This reader verifies custody/ABI, not scientific or Runtime authority.
+    """
+    simulation = SimulationResult.model_validate(
+        from_canonical_bytes(store.get_bytes(simulation_ref))
+    )
+    payload_refs = simulation.uncertainty_envelopes or {}
+    edges = [
+        item
+        for item in store.get_manifest(simulation_ref).inputs
+        if item.role.startswith("metric_envelope.")
+    ]
+    if len(edges) != len(payload_refs) or {item.role for item in edges} != {
+        f"metric_envelope.{name}" for name in payload_refs
+    }:
+        raise ValueError("propagated envelope manifest roster differs from the payload")
+    refs = {}
+    for name, payload_ref in payload_refs.items():
+        matches = [item for item in edges if item.role == f"metric_envelope.{name}"]
+        if len(matches) != 1 or str(matches[0].artifact_id) != str(payload_ref.artifact_id):
+            raise ValueError("propagated envelope has missing/duplicate/contradictory owned view")
+        ref = ArtifactRef(
+            artifact_id=matches[0].artifact_id,
+            kind=payload_ref.kind,
+            media_type=payload_ref.media_type,
+            manifest_profile_sha256=matches[0].manifest_profile_sha256,
+        )
+        store.get_manifest(ref)
+        refs[name] = ref
+    # Resolve the complete roster before loading any output envelope.
+    return {
+        name: UncertaintyEnvelope.model_validate(from_canonical_bytes(store.get_bytes(ref)))
+        for name, ref in refs.items()
+    }
 
 
 def _load_model(ctx: ExecutionContext, ref: ArtifactRef, model_cls):
@@ -622,16 +700,18 @@ def _resolve_sensitivity_map(
 
 
 def _mark_unresolved_sensitivity(result: PropagationResult) -> PropagationResult:
-    """Mark a result non-authoritative when no response map was established."""
-
-    metadata = {
-        **result.envelope.metadata,
-        "sensitivity_mapping": "unresolved",
-    }
+    """Address an unknown relation without emitting a Normal constant."""
+    profile = result.envelope.metadata.get("response_profile", "consumer_asserted_hypothesis")
+    unit = result.envelope.metadata.get("unit")
+    if result.envelope.distribution_family is not DistributionFamily.UNKNOWN:
+        result = _missing_output_result(
+            result.metric_id, input_param_names=result.input_envelopes_used
+        )
+        result = _mark_response_scope(result, profile, unit=unit)
     envelope = result.envelope.model_copy(
         update={
             "gate_eligible": False,
-            "metadata": metadata,
+            "metadata": {**result.envelope.metadata, "sensitivity_mapping": "unresolved"},
         }
     )
     return PropagationResult(
@@ -639,10 +719,7 @@ def _mark_unresolved_sensitivity(result: PropagationResult) -> PropagationResult
         envelope=envelope,
         input_envelopes_used=result.input_envelopes_used,
         method_used=result.method_used,
-        diagnostics={
-            **result.diagnostics,
-            "sensitivity_mapping": "unresolved",
-        },
+        diagnostics={**result.diagnostics, "sensitivity_mapping": "unresolved"},
     )
 
 

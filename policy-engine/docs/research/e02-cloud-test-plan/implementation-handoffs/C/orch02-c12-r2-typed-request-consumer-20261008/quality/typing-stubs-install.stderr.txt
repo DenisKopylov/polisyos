@@ -1,0 +1,8 @@
+Using Python 3.14.2 environment at: /workspace/orch02-r2/c12/typing-venv
+Resolved 2 packages in 418ms
+Downloading numpy (15.8MiB)
+ Downloaded numpy
+Prepared 2 packages in 889ms
+Installed 2 packages in 19ms
+ + numpy==2.3.5
+ + types-hnswlib==0.8.0.20260911

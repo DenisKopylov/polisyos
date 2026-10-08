@@ -1,0 +1,273 @@
+{
+  "schema": "orch02r2.c12-coverage-supplement.v1",
+  "source_sha": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+  "source_tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+  "original_native_receipt": "/workspace/orch02-r2/native-c05-c12/c12-native-receipt-a47ec396.json",
+  "original_native_receipt_sha256": "ad95f93d8babf3a6c95534d21dc9bd10905cb6b3f9c2af7b11557d92783b3ffe",
+  "coverage_definition": "/workspace/orch02-r2/native-c05-c12/c12-coverage-definition-a47ec396.json",
+  "coverage_definition_sha256": "ecd9b0fa4d4bbee4449e06aed37064fa9bd56ba2e0b34007a8f5cb3fb9649a1f",
+  "commands": [
+    {
+      "name": "c12-a47-full-emb03-collection",
+      "role": "COLLECT_ONLY64_NO_NATIVE_ASSERTION_PASS",
+      "argv": [
+        "/workspace/orch02-native-c05-c12/venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "orch02_capture",
+        "--basetemp",
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/basetemp",
+        "--junitxml",
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/junit.xml",
+        "--collect-only",
+        "-q",
+        "tests/unit/remediation/test_emb_03.py"
+      ],
+      "raw_exit_code": 0,
+      "wall_seconds": 3.5504728910000267,
+      "maximum_resident_set_size_kib": 172240,
+      "resource_measurement": "Linux wait4 actual command child usage",
+      "source_binding_intact": true,
+      "source_status_all_before": "",
+      "source_status_all_after": "",
+      "selected_node_count": 64,
+      "nodeids": [
+        "tests/unit/remediation/test_emb_03.py::test_unchanged_append_reuses_only_unchanged_current_member",
+        "tests/unit/remediation/test_emb_03.py::test_changed_projected_text_same_id_is_reembedded",
+        "tests/unit/remediation/test_emb_03.py::test_withdrawal_removes_id_from_current_generation",
+        "tests/unit/remediation/test_emb_03.py::test_encoder_revision_and_dimension_change_never_reuses_old_vectors",
+        "tests/unit/remediation/test_emb_03.py::test_same_model_label_and_dimension_with_changed_loaded_weights_invalidates_reuse",
+        "tests/unit/remediation/test_emb_03.py::test_same_model_label_and_dimension_with_changed_tokenizer_invalidates_reuse",
+        "tests/unit/remediation/test_emb_03.py::test_legal_entity_fact_and_provision_readers_follow_selected_membership",
+        "tests/unit/remediation/test_emb_03.py::test_projection_rule_change_invalidates_reuse",
+        "tests/unit/remediation/test_emb_03.py::test_missing_or_corrupt_generation_selector_fails_closed_to_rebuild",
+        "tests/unit/remediation/test_emb_03.py::test_legacy_backend_argument_is_rejected_explicitly",
+        "tests/unit/remediation/test_emb_03.py::test_legacy_wrapper_preserves_canonical_result_and_forwards_profile",
+        "tests/unit/remediation/test_emb_03.py::test_legacy_entrypoint_uses_supported_encoder_and_legal_reader",
+        "tests/unit/remediation/test_emb_03.py::test_graph_query_encoder_reads_all_three_selected_legal_generations",
+        "tests/unit/remediation/test_emb_03.py::test_live_query_encoder_must_match_selected_generation_before_knn",
+        "tests/unit/remediation/test_emb_03.py::test_encoder_asset_change_during_query_encode_is_rejected_before_knn",
+        "tests/unit/remediation/test_emb_03.py::test_raw_vector_cannot_bypass_query_profile_gate_and_control_is_discriminating",
+        "tests/unit/remediation/test_emb_03.py::test_wrong_selected_generation_rejects_previous_query_encoder",
+        "tests/unit/remediation/test_emb_03.py::test_concurrent_selector_replacement_keeps_query_on_one_generation",
+        "tests/unit/remediation/test_emb_03.py::test_previous_rule_generation_is_unsupported_even_with_same_encoder",
+        "tests/unit/remediation/test_emb_03.py::test_openai_label_does_not_authorize_query_vectors_and_hybrid_falls_back",
+        "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode[missing]",
+        "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode[foreign_table]",
+        "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode[duplicate]",
+        "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode[wrong_model]",
+        "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode[malformed]",
+        "tests/unit/remediation/test_emb_03.py::test_same_assets_new_generation_requires_fresh_request_intent_and_fresh_reader",
+        "tests/unit/remediation/test_emb_03.py::test_request_snapshot_does_not_alias_selected_generation_inventory",
+        "tests/unit/remediation/test_emb_03.py::test_raw_query_profile_cannot_carry_mutable_or_malformed_snapshot[legal_lex_entities_embedding-generation-inventory0]",
+        "tests/unit/remediation/test_emb_03.py::test_raw_query_profile_cannot_carry_mutable_or_malformed_snapshot[-generation-{}]",
+        "tests/unit/remediation/test_emb_03.py::test_raw_query_profile_cannot_carry_mutable_or_malformed_snapshot[legal_lex_entities_embedding--{}]",
+        "tests/unit/remediation/test_emb_03.py::test_raw_query_profile_cannot_carry_mutable_or_malformed_snapshot[legal_lex_entities_embedding-generation-{}]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-in]"
+      ],
+      "physical_test_inputs": {
+        "/workspace/orch02-c12/policy-engine/tests/unit/remediation/test_emb_03.py": {
+          "bytes": 56014,
+          "sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+        }
+      },
+      "junit": {
+        "native_cases": 0,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "runtime_origins": {
+        "complete_loaded_own_module_count": 90,
+        "total_origins_including_named_native": 95,
+        "all_own_source_bound": true,
+        "same_path_and_hash_reconciled_to_already_Git_verified_a47_origins": 90,
+        "new_origin_names_verified_directly_against_a47_Git": [],
+        "mismatches": [],
+        "native_hnsw": null,
+        "denominator": "complete loaded sys.modules set matching polisyos/tools namespaces plus named native modules, with a filesystem __file__; unexecuted modules are not runtime input evidence"
+      },
+      "outputs": {
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/command.json": {
+          "sha256": "42103dfc0c19b1dd3d972c2617c71790c9042b9f006e169e39d84a7a0eebfe65",
+          "bytes": 3250
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/junit.xml": {
+          "sha256": "3ab78e3043a78677fedac41243ed420717a6b81af3c5e2610393b51a458a89f9",
+          "bytes": 238
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/stdout.txt": {
+          "sha256": "9be31eaea253e2d18dd9f461b3c54ae34f21b606ffb3f9158f8bee07c763eb7d",
+          "bytes": 522
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/runtime-origins.json": {
+          "sha256": "b98a86702e3dc393ef66c1e7af4e6b486d8a6b98f218ab41272ee8805808a446",
+          "bytes": 22229
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/selected-tests.json": {
+          "sha256": "d68f3632322da9bae7cd537e406b899ec9ac4f2e6e3557d655ca553ab8e01e37",
+          "bytes": 8313
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/resource.json": {
+          "sha256": "ee6ced2c5ea71edf449ec3388dbd35a60629c433d248208764297c8d090881c3",
+          "bytes": 287
+        }
+      }
+    },
+    {
+      "name": "c12-a47-omitted-affected-consumers",
+      "role": "ADDITIONAL_AFFECTED_CONSUMER13",
+      "argv": [
+        "/workspace/orch02-native-c05-c12/venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "orch02_capture",
+        "--basetemp",
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/basetemp",
+        "--junitxml",
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/junit.xml",
+        "-q",
+        "tests/unit/remediation/test_emb_03.py::test_legacy_entrypoint_uses_supported_encoder_and_legal_reader",
+        "tests/unit/remediation/test_emb_03.py::test_raw_vector_cannot_bypass_query_profile_gate_and_control_is_discriminating",
+        "tests/unit/remediation/test_emb_03.py::test_wrong_selected_generation_rejects_previous_query_encoder",
+        "tests/unit/remediation/test_emb_03.py::test_concurrent_selector_replacement_keeps_query_on_one_generation",
+        "tests/unit/remediation/test_emb_03.py::test_previous_rule_generation_is_unsupported_even_with_same_encoder",
+        "tests/unit/remediation/test_emb_03.py::test_openai_label_does_not_authorize_query_vectors_and_hybrid_falls_back",
+        "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode",
+        "tests/unit/remediation/test_emb_03.py::test_same_assets_new_generation_requires_fresh_request_intent_and_fresh_reader",
+        "tests/unit/remediation/test_emb_03.py::test_request_snapshot_does_not_alias_selected_generation_inventory"
+      ],
+      "raw_exit_code": 0,
+      "wall_seconds": 8.650816732000749,
+      "maximum_resident_set_size_kib": 272484,
+      "resource_measurement": "Linux wait4 actual command child usage",
+      "source_binding_intact": true,
+      "source_status_all_before": "",
+      "source_status_all_after": "",
+      "selected_node_count": 13,
+      "nodeids": [
+        "tests/unit/remediation/test_emb_03.py::test_legacy_entrypoint_uses_supported_encoder_and_legal_reader",
+        "tests/unit/remediation/test_emb_03.py::test_raw_vector_cannot_bypass_query_profile_gate_and_control_is_discriminating",
+        "tests/unit/remediation/test_emb_03.py::test_wrong_selected_generation_rejects_previous_query_encoder",
+        "tests/unit/remediation/test_emb_03.py::test_concurrent_selector_replacement_keeps_query_on_one_generation",
+        "tests/unit/remediation/test_emb_03.py::test_previous_rule_generation_is_unsupported_even_with_same_encoder",
+        "tests/unit/remediation/test_emb_03.py::test_openai_label_does_not_authorize_query_vectors_and_hybrid_falls_back",
+        "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode[missing]",
+        "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode[foreign_table]",
+        "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode[duplicate]",
+        "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode[wrong_model]",
+        "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode[malformed]",
+        "tests/unit/remediation/test_emb_03.py::test_same_assets_new_generation_requires_fresh_request_intent_and_fresh_reader",
+        "tests/unit/remediation/test_emb_03.py::test_request_snapshot_does_not_alias_selected_generation_inventory"
+      ],
+      "physical_test_inputs": {
+        "/workspace/orch02-c12/policy-engine/tests/unit/remediation/test_emb_03.py": {
+          "bytes": 56014,
+          "sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+        }
+      },
+      "junit": {
+        "native_cases": 13,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "runtime_origins": {
+        "complete_loaded_own_module_count": 90,
+        "total_origins_including_named_native": 96,
+        "all_own_source_bound": true,
+        "same_path_and_hash_reconciled_to_already_Git_verified_a47_origins": 90,
+        "new_origin_names_verified_directly_against_a47_Git": [],
+        "mismatches": [],
+        "native_hnsw": {
+          "path": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so",
+          "sha256": "a610bcdb0465ee4559a4f88e42926d0df80992bbc1cf3ee5c05e4ec646ca4dfd"
+        },
+        "denominator": "complete loaded sys.modules set matching polisyos/tools namespaces plus named native modules, with a filesystem __file__; unexecuted modules are not runtime input evidence"
+      },
+      "outputs": {
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/command.json": {
+          "sha256": "0cc98dfd8dd1932d72d4dbec862ce96ee8d877418d0745e1c665d6aa0a641cfa",
+          "bytes": 4259
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/junit.xml": {
+          "sha256": "1ff77aeb52cf9a8ee906ff320a2f4c42f061bac4fb5b7efe6369a479667b8cba",
+          "bytes": 2313
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/stdout.txt": {
+          "sha256": "0a29f1cd691fe5801350e509616e24d68a2b18e51675222c6bea5988e9d2ebbb",
+          "bytes": 559
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/runtime-origins.json": {
+          "sha256": "a675f6fe81b5b57e97ade9c340a9d92b0caea0092fe9cfdab00c8c9a9d31a4b0",
+          "bytes": 22460
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/selected-tests.json": {
+          "sha256": "d9a8c6f995cd4aeb76ba788a2c7982e0c4dcf1033187b7a549fbf22ff59d1613",
+          "bytes": 2060
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/resource.json": {
+          "sha256": "6e4c5672e8a79a3df1eab5a7b84520f82d76b90c7eb13fcf5c75979f84da5100",
+          "bytes": 290
+        }
+      }
+    }
+  ],
+  "initial45_and_matched_removals_not_replayed": true,
+  "whole_unchanged_native_suite_not_replayed": true,
+  "source_files_changed": false,
+  "full_emb03_actual_collection": 64,
+  "emb03_native_affected_unique_cases": 50,
+  "unchanged_emb03_excluded_cases": 14,
+  "full_numeric_row_epoch_filter_consumer_file_actual_cases": 8,
+  "all_unique_affected_native_cases": 58,
+  "claim": "Complete selected affected semantic/consumer coverage: original45PASS plus only omitted13PASS, unique58PASS; no complete64nativefile PASS claim. Full64 actual collection classified casewise,14unchanged producer/constructor cases not rerun.",
+  "selected_sets_disjoint_verified": true,
+  "complete_additional_expected_node_set_equal_actual_verified": true
+}

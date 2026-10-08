@@ -1,0 +1,30 @@
+{
+  "memory_current_bytes": 10858110976,
+  "memory_max_bytes": 17179869184,
+  "memory_stat": {
+    "anon": 762302464,
+    "file": 8784986112,
+    "kernel": 1310253056,
+    "shmem": 6094848,
+    "file_mapped": 178323456,
+    "file_dirty": 489324544
+  },
+  "memory_events": "low 0\nhigh 0\nmax 120738\noom 3\noom_kill 1\noom_group_kill 0\n",
+  "observed_top_rss": "RSS is process residency, including shared pages; no independent cloud quota or timeout.",
+  "processes": [
+    "    PID COMMAND           RSS",
+    "  42700 python3         607332",
+    "  42883 node            82480",
+    "  42823 node            78992",
+    "  38046 python          74440",
+    "  42278 python3         72436",
+    "    516 codex           37456",
+    "    199 dockerd         35040",
+    "  42685 uv              26120",
+    "    249 containerd      21348",
+    "  42275 uv              13824",
+    "  38028 python3         10608",
+    "  42248 python3         10540"
+  ],
+  "intent": "one required production_invocation on final a47 with Legal base c60; prior192 run remains preserved, no repeat of unchanged source run"
+}

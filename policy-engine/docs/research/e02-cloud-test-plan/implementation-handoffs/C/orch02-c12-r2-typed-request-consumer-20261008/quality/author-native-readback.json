@@ -1,0 +1,157 @@
+{
+  "source": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+  "qualification": "Read complete independent receipt and deciding outputs; byte-readback only, no native rerun",
+  "files": [
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/command.json",
+      "bytes": 4526,
+      "sha256": "e556e230001cc0e17f3d143e83fbf78e7bdb2abe46b6a0bb585d55e6612b8667",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/junit.xml",
+      "bytes": 7250,
+      "sha256": "4b1dd93834bb3ab39efcb9f3e08e67d31403ddb1a7aec7c0f3f9222cc34afc20",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/numeric-events.json",
+      "bytes": 66208,
+      "sha256": "ae70582cf53080fdac9cabf2783ef17273eca3e8ff66bf5e9f4c8da7ff14b270",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/stdout.txt",
+      "bytes": 559,
+      "sha256": "5c9778b1771ced62401a722c308fda660d1b623553799e94c724198f2695ca15",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/profile-events.json",
+      "bytes": 82833,
+      "sha256": "848a0c535af19fb721812fa10d5b991749149c93cae700cdf771cb97c7ba501b",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/runtime-origins.json",
+      "bytes": 352061,
+      "sha256": "a936a4b82a472515a0d19659695aaf46cb7e60e16aaf94fd0f0a958ca3b69edf",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/selected-tests.json",
+      "bytes": 6143,
+      "sha256": "081931cc87f3f4279789af923a76563791ef2cf842441c740cd112b34df49bb6",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/resource.json",
+      "bytes": 294,
+      "sha256": "b15148565ccb69f28584f6328d8caf2e0b88960e249813b5febfeeb5dc372ec9",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/command.json",
+      "bytes": 3621,
+      "sha256": "080f07ade388e12925b49ce35ee1b1d3eb5fa1b1d9c1b6cf31df18cc9b2d01eb",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/junit.xml",
+      "bytes": 43809,
+      "sha256": "b665b5477bbbf6f59931fc93b831fde44cdee00aaa691c24f64e3c419e191d4f",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/stdout.txt",
+      "bytes": 43543,
+      "sha256": "a2c9b5b05afe8b4a6958960a73497e18254fcbe9d1186878c38e398a4e5e59e9",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/profile-events.json",
+      "bytes": 68322,
+      "sha256": "47c2edc9d13e0d881d673bc10deccaa1c0329931060bf610f6242d8c88ee4acc",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/runtime-origins.json",
+      "bytes": 22460,
+      "sha256": "571402bcac1caddfcbdb69df43c0340b0662c875cc587bbbafaf42817f171960",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/selected-tests.json",
+      "bytes": 1711,
+      "sha256": "c9ce1ef15374dfc18b7166564e158a3dfdc8013815284f79f0f7ee61738154a3",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/resource.json",
+      "bytes": 292,
+      "sha256": "35e88b012458d870b921e01e5cbb5f6d4df4fb465345b5aaac886e4472114039",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/command.json",
+      "bytes": 3609,
+      "sha256": "03eac021aa41b438e52c1fb1ba6cf16994385b0a9d82ec7b52a87739d05459a9",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/junit.xml",
+      "bytes": 38482,
+      "sha256": "915eefc8477d113042f413140dfbe732931d913b3ce714758414df88c7a40535",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/numeric-events.json",
+      "bytes": 66749,
+      "sha256": "ded6c72074c24fe3c00b9a34d728fb0f6c1868080d3a385d3fac1b4bb1fd12f8",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/stdout.txt",
+      "bytes": 34446,
+      "sha256": "142e0316b97782acdf1a5169c5403bdac7f9bc34fc844cca82095afdd8aaeb5b",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/runtime-origins.json",
+      "bytes": 22229,
+      "sha256": "94127f79d1307d11d6dc6da9f2fd77422f6152c955739c631f97bdca53777c88",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/selected-tests.json",
+      "bytes": 3257,
+      "sha256": "bd92eba19eb08c59ce1df78693b024a107a3e7d4b0decb818bee3b23ad2f4a0b",
+      "matches_receipt": true
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/resource.json",
+      "bytes": 292,
+      "sha256": "1a0387ada6ba6cea7fee546e8e53c1114fe94cf0886de3e9ae91abcb4ae1ef7b",
+      "matches_receipt": true
+    }
+  ],
+  "all_match": true
+}

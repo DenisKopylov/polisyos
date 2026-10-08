@@ -1,0 +1,37 @@
+{
+  "schema": "orch02r2.selected-pytest-inputs.v1",
+  "denominator": "complete selected pytest items after collection and deselection; no unselected-suite claim",
+  "count": 24,
+  "nodeids": [
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-in]"
+  ],
+  "physical_test_inputs": {
+    "/workspace/orch02-c12/policy-engine/tests/unit/remediation/test_emb_03.py": {
+      "bytes": 56014,
+      "sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    }
+  }
+}

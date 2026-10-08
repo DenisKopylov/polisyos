@@ -1,0 +1,51 @@
+{
+  "schema": "orch02.r2.independent_numeric_class_review.v1",
+  "reviewer": "/root/recovery_review",
+  "at": "2026-10-08T18:17:45.872921+00:00",
+  "base_source": "fd3898acf23212c14b0fea62647e882c81d4f479",
+  "frozen_tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+  "verdict": "GO_SOURCE_ONLY_FINAL_NUMERIC_CLASS_AND_ONE_AFFECTED_WAVE",
+  "changed_paths": [
+    {
+      "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+      "base_blob": "d91c0a8484ce92de8eb3a605b9126442626dc724",
+      "bytes": 110582,
+      "sha256": "c46b383658938c98bd78883f21236b90fe630e2063cecaeeb1c24aa6bbff7705",
+      "git_blob": "2d87ced6ca51b63e28b7da5b3265867d6c78b103"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+      "base_blob": "1c2c64838e05ebc26f9f1bfbda18d5e5313d51ad",
+      "bytes": 56014,
+      "sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3",
+      "git_blob": "7e65b8d7631aa66a9c4713f16b5a28ebc6ff3ce7"
+    }
+  ],
+  "patch": {
+    "bytes": 3462,
+    "sha256": "d78ce8f00a513ed614a5d02fa224e502dc9e542e247cad1e2296eb9293ed1081",
+    "git_blob": "14a6c5028f8d4249ab24f784d8ecd06e2a222f71"
+  },
+  "changed_store_method_denominator": 1,
+  "changed_store_methods": [
+    "_parse_numeric_values"
+  ],
+  "other_store_methods_AST_identical_to_reviewed_fd": true,
+  "P40": "second escape same numeric-scalar class closed structurally, no further named-site ladder",
+  "implemented_property": "None is absent; float scalar preserved directly, including zero and exponent-form representable values; only textual str passes existing lexical text extraction",
+  "new_test_case_denominator": 24,
+  "case_product": "twooperators between/in \u00d7twolowerbounds0.0/1e-5 \u00d7sixcandidatevalues-1/0/1e-5/2/5/6",
+  "actual_consumer": "persist DuckDB fact/threshold rows, closewriter connection, openLegalKnowledgeStore.evaluate_rule_threshold, assert actualadmitted/blocked/reason and normalizedbound/candidate/unit/identity",
+  "native_wave": "45affectedcases=21approved typed/request consumers+24numeric actualconsumers; sourcecommit must equal reviewedtree before one execution",
+  "matched_removal": "9profileguard cases unchanged; numeric branch-removal or exactoldmethod substitution should preserve real persisted consumer and unchanged24assertions, with deciding operands retained",
+  "quality": "freshfocused Ruff/typing binding after ordinarycommit; oldheavy scanner/native/architecture outcomes retain oldpins and no replay requested",
+  "findings": [],
+  "prior_source_review": {
+    "path": "/workspace/orch02-r2/reviews/c12-independent-source-review-fd3898ac.json",
+    "sha256": "b5e8123f075310aa331dd5c5a398fc8bb92e87645fc251540eef8e42cf51fbdf"
+  },
+  "old_minimal_numeric_HOLD": "36d5 remains historical, superseded by class structural repair",
+  "native_verdict": "UNRUN_BY_REVIEWER",
+  "source_acceptance": "not_admitted_by_G",
+  "formal_closure_ids": []
+}

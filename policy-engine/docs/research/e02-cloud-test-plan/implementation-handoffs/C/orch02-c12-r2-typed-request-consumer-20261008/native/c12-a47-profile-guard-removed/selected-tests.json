@@ -1,0 +1,22 @@
+{
+  "schema": "orch02r2.selected-pytest-inputs.v1",
+  "denominator": "complete selected pytest items after collection and deselection; no unselected-suite claim",
+  "count": 9,
+  "nodeids": [
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]"
+  ],
+  "physical_test_inputs": {
+    "/workspace/orch02-c12/policy-engine/tests/unit/remediation/test_emb_03.py": {
+      "bytes": 56014,
+      "sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    }
+  }
+}

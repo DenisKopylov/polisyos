@@ -1,0 +1,62 @@
+{
+  "schema": "orch02r2.selected-pytest-inputs.v1",
+  "denominator": "complete selected pytest items after collection and deselection; no unselected-suite claim",
+  "count": 45,
+  "nodeids": [
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]",
+    "tests/unit/remediation/test_emb_03.py::test_graph_query_encoder_reads_all_three_selected_legal_generations",
+    "tests/unit/remediation/test_emb_03.py::test_legal_entity_fact_and_provision_readers_follow_selected_membership",
+    "tests/unit/remediation/test_emb_03.py::test_live_query_encoder_must_match_selected_generation_before_knn",
+    "tests/unit/remediation/test_emb_03.py::test_encoder_asset_change_during_query_encode_is_rejected_before_knn",
+    "tests/unit/lex/test_knowledge_store_filters.py::test_legal_store_evidence_refs_ignore_physical_checkout_path",
+    "tests/unit/lex/test_knowledge_store_filters.py::test_legal_knowledge_store_prefers_high_trust_layers",
+    "tests/unit/lex/test_knowledge_store_filters.py::test_missing_native_table_is_blocked_not_empty",
+    "tests/unit/lex/test_knowledge_store_filters.py::test_retroactive_row_differs_before_and_after_knowledge_cutoff",
+    "tests/unit/lex/test_knowledge_store_filters.py::test_missing_amendment_effective_window_stays_in_complete_denominator",
+    "tests/unit/lex/test_knowledge_store_filters.py::test_unresolved_lex_window_partition_is_typed_and_verified",
+    "tests/unit/lex/test_knowledge_store_filters.py::test_legal_knowledge_store_supports_quality_band_and_fused_confidence_filters",
+    "tests/unit/lex/test_knowledge_store_filters.py::test_legal_knowledge_store_hides_temporal_unknown_rows_for_as_of",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-in]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-between]",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-in]"
+  ],
+  "physical_test_inputs": {
+    "/workspace/orch02-c12/policy-engine/tests/unit/remediation/test_emb_03.py": {
+      "bytes": 56014,
+      "sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    "/workspace/orch02-c12/policy-engine/tests/unit/lex/test_knowledge_store_filters.py": {
+      "bytes": 26934,
+      "sha256": "fe6037b03cbf2ba364d463dfc6036b61a678b124d0e9f2c7dcd8f5bd68dfea88"
+    }
+  }
+}

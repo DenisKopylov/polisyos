@@ -1,0 +1,64 @@
+{
+  "schema": "policyos.e02.C12.r2.isolated_typing_setup.v1",
+  "source_qualification": "Fresh 192 diagnosis separate from final a47 PASS; optional types-hnswlib absent in locked app profile was a tooling diagnostic, resolved in isolated supplemental type profile only.",
+  "shared_mutation": false,
+  "repository_lock_mutation": false,
+  "recipe": [
+    {
+      "cwd": "/workspace/orch02-c12/policy-engine",
+      "argv": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "venv",
+        "--system-site-packages",
+        "--python",
+        "/workspace/polisyos/policy-engine/.venv/bin/python3.14",
+        "/workspace/orch02-r2/c12/typing-venv"
+      ],
+      "capture_limit": "Creation was performed before final freeze; no complete stdout/resource file was preserved. Do not infer a measured resource outcome."
+    },
+    {
+      "argv": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "pip",
+        "compile",
+        "--python",
+        "/workspace/orch02-r2/c12/typing-venv/bin/python",
+        "--generate-hashes",
+        "--output-file",
+        "/workspace/orch02-r2/c12/typing-stubs.lock",
+        "/workspace/orch02-r2/c12/typing-stubs.in"
+      ],
+      "capture_limit": "Lock/result bytes preserved; original creation/compile streams are not promoted as complete captures."
+    },
+    {
+      "argv": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "pip",
+        "install",
+        "--python",
+        "/workspace/orch02-r2/c12/typing-venv/bin/python",
+        "--require-hashes",
+        "-r",
+        "/workspace/orch02-r2/c12/typing-stubs.lock"
+      ],
+      "capture_receipt": "typing-stubs-install.receipt.json"
+    },
+    {
+      "isolated_file": "typing-venv/lib/python3.14/site-packages/orch02-readonly-app.pth",
+      "contents": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages\n",
+      "reason": "The selected shared app venv is not automatically included by --system-site-packages; this private .pth exposes locked app packages read-only."
+    }
+  ],
+  "locks": {
+    "typing-stubs.in": {
+      "bytes": 27,
+      "sha256": "ee71e4519e2609b3a18844e90432a2b65ea56af768426984633529157b1c2cf6"
+    },
+    "typing-stubs.lock": {
+      "bytes": 6875,
+      "sha256": "ad33b8a0a462d55bdb52152f91c2088fc7bbaf4ffc0f6591cd8e66e56e103185"
+    }
+  },
+  "origins": "typing-profile.json",
+  "current_final_gate": "mypy-a47.receipt.json"
+}

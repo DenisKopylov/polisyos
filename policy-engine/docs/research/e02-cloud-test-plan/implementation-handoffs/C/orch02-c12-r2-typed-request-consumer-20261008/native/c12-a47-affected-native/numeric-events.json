@@ -1,0 +1,1650 @@
+{
+  "schema": "orch02r2.actual-numeric-scalar-probe.v1",
+  "mode": "observe",
+  "raw_pytest_exitstatus": 0,
+  "removed_quantity": null,
+  "retained_quantities": [
+    "actual persisted DuckDB fact/threshold rows",
+    "reopened LegalKnowledgeStore",
+    "actual evaluate_rule_threshold and unit/scope/operator rules",
+    "unchanged owned test assertions"
+  ],
+  "oracle": "Raw actual consumer pytest assertions, no keyword/marker classifier; actual status/reason/normalized scalar events accompany failures",
+  "reports": [
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-between]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.0026109290010936093
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-between]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.1240026690011291
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-between]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.00017948000095202588
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-in]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.0011068959993281169
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-in]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.11240593299953616
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-in]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.00018494799951440655
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-between]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.0011528739996720105
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-between]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.09965640799964604
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-between]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.00021670199930667877
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-in]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.0013714400010940153
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-in]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.12885701100094593
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-in]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.0001652289993216982
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-between]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.002634140999361989
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-between]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.12992822699925455
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-between]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.00032142600139195565
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-in]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.002299139001479489
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-in]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.11749172100098804
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-in]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.00028244299937796313
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-between]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.0011248680002609035
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-between]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.11098324999875331
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-between]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.00016170500020962209
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-in]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.001279576999877463
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-in]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.13519858400104567
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-in]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.00022031399930710904
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-between]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.006283397999141016
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-between]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.18299969399959082
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-between]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.00020326699996076059
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-in]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.005157600999154965
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-in]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.10609812899929238
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-in]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.0001645319989620475
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-between]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.002150868000171613
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-between]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.10408800400000473
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-between]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.00038052200034144334
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-in]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.001171079999039648
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-in]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.09679381900059525
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-in]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.00018706300033954903
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-between]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.0015799979992152657
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-between]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.4278693870001007
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-between]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.002467813001203467
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-in]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.23489715799951227
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-in]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 15.900015000999701
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-in]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.26584404300047026
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-between]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 6.605292960999577
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-between]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 3.0683579309989
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-between]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.0060899440013599815
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-in]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.16093342400017718
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-in]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.4442790250013786
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-in]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.002646492999701877
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-between]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.004099024001334328
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-between]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.27593781699943065
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-between]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.000303933000395773
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-in]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.002986171999509679
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-in]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.3176987619990541
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-in]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.0014607270004489692
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-between]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.006211030000486062
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-between]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.20887165600106528
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-between]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.003830273000858142
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-in]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.00821234899922274
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-in]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.1935133829992992
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-in]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.0001593750002939487
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-between]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.004224952999720699
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-between]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.16646032499920693
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-between]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.00016128900097100995
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-in]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.001490818000092986
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-in]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.14565366900023946
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-in]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.0002139510015695123
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-between]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.003659286001493456
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-between]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.13854898600038723
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-between]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.00016003699965949636
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-in]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.0020890319992759032
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-in]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.16927164400112815
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-in]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.0007402549999824259
+    }
+  ],
+  "events": [
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-between]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-between]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        0.0,
+        "5"
+      ],
+      "supplied_values": [
+        0.0,
+        "5"
+      ],
+      "parsed_values": [
+        0.0,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-between]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": -1.0,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "blocked",
+        "reason": "threshold_violated",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum0/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "between",
+        "applies_to": "firms",
+        "normalized_candidate_value": -1.0,
+        "normalized_threshold_value": 0.0,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum0/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-in]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-in]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        0.0,
+        "5"
+      ],
+      "supplied_values": [
+        0.0,
+        "5"
+      ],
+      "parsed_values": [
+        0.0,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-in]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": -1.0,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "blocked",
+        "reason": "threshold_violated",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum1/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "in",
+        "applies_to": "firms",
+        "normalized_candidate_value": -1.0,
+        "normalized_threshold_value": 0.0,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum1/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-between]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-between]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        1e-05,
+        "5"
+      ],
+      "supplied_values": [
+        1e-05,
+        "5"
+      ],
+      "parsed_values": [
+        1e-05,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-between]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": -1.0,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "blocked",
+        "reason": "threshold_violated",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum2/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "between",
+        "applies_to": "firms",
+        "normalized_candidate_value": -1.0,
+        "normalized_threshold_value": 1e-05,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum2/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-in]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-in]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        1e-05,
+        "5"
+      ],
+      "supplied_values": [
+        1e-05,
+        "5"
+      ],
+      "parsed_values": [
+        1e-05,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-in]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": -1.0,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "blocked",
+        "reason": "threshold_violated",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum3/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "in",
+        "applies_to": "firms",
+        "normalized_candidate_value": -1.0,
+        "normalized_threshold_value": 1e-05,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum3/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-between]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-between]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        0.0,
+        "5"
+      ],
+      "supplied_values": [
+        0.0,
+        "5"
+      ],
+      "parsed_values": [
+        0.0,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-between]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": 0.0,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "admitted",
+        "reason": "threshold_satisfied",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum4/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "between",
+        "applies_to": "firms",
+        "normalized_candidate_value": 0.0,
+        "normalized_threshold_value": 0.0,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum4/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-in]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-in]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        0.0,
+        "5"
+      ],
+      "supplied_values": [
+        0.0,
+        "5"
+      ],
+      "parsed_values": [
+        0.0,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-in]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": 0.0,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "admitted",
+        "reason": "threshold_satisfied",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum5/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "in",
+        "applies_to": "firms",
+        "normalized_candidate_value": 0.0,
+        "normalized_threshold_value": 0.0,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum5/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-between]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-between]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        1e-05,
+        "5"
+      ],
+      "supplied_values": [
+        1e-05,
+        "5"
+      ],
+      "parsed_values": [
+        1e-05,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-between]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": 0.0,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "blocked",
+        "reason": "threshold_violated",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum6/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "between",
+        "applies_to": "firms",
+        "normalized_candidate_value": 0.0,
+        "normalized_threshold_value": 1e-05,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum6/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-in]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-in]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        1e-05,
+        "5"
+      ],
+      "supplied_values": [
+        1e-05,
+        "5"
+      ],
+      "parsed_values": [
+        1e-05,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-in]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": 0.0,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "blocked",
+        "reason": "threshold_violated",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum7/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "in",
+        "applies_to": "firms",
+        "normalized_candidate_value": 0.0,
+        "normalized_threshold_value": 1e-05,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum7/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-between]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-between]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        0.0,
+        "5"
+      ],
+      "supplied_values": [
+        0.0,
+        "5"
+      ],
+      "parsed_values": [
+        0.0,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-between]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": 1e-05,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "admitted",
+        "reason": "threshold_satisfied",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum8/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "between",
+        "applies_to": "firms",
+        "normalized_candidate_value": 1e-05,
+        "normalized_threshold_value": 0.0,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum8/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-in]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-in]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        0.0,
+        "5"
+      ],
+      "supplied_values": [
+        0.0,
+        "5"
+      ],
+      "parsed_values": [
+        0.0,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-in]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": 1e-05,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "blocked",
+        "reason": "threshold_violated",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum9/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "in",
+        "applies_to": "firms",
+        "normalized_candidate_value": 1e-05,
+        "normalized_threshold_value": 0.0,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum9/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-between]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-between]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        1e-05,
+        "5"
+      ],
+      "supplied_values": [
+        1e-05,
+        "5"
+      ],
+      "parsed_values": [
+        1e-05,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-between]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": 1e-05,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "admitted",
+        "reason": "threshold_satisfied",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum10/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "between",
+        "applies_to": "firms",
+        "normalized_candidate_value": 1e-05,
+        "normalized_threshold_value": 1e-05,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum10/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-in]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-in]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        1e-05,
+        "5"
+      ],
+      "supplied_values": [
+        1e-05,
+        "5"
+      ],
+      "parsed_values": [
+        1e-05,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-in]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": 1e-05,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "admitted",
+        "reason": "threshold_satisfied",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum11/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "in",
+        "applies_to": "firms",
+        "normalized_candidate_value": 1e-05,
+        "normalized_threshold_value": 1e-05,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum11/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-between]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-between]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        0.0,
+        "5"
+      ],
+      "supplied_values": [
+        0.0,
+        "5"
+      ],
+      "parsed_values": [
+        0.0,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-between]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": 2.0,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "admitted",
+        "reason": "threshold_satisfied",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum12/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "between",
+        "applies_to": "firms",
+        "normalized_candidate_value": 2.0,
+        "normalized_threshold_value": 0.0,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum12/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-in]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-in]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        0.0,
+        "5"
+      ],
+      "supplied_values": [
+        0.0,
+        "5"
+      ],
+      "parsed_values": [
+        0.0,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-in]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": 2.0,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "blocked",
+        "reason": "threshold_violated",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum13/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "in",
+        "applies_to": "firms",
+        "normalized_candidate_value": 2.0,
+        "normalized_threshold_value": 0.0,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum13/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-between]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-between]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        1e-05,
+        "5"
+      ],
+      "supplied_values": [
+        1e-05,
+        "5"
+      ],
+      "parsed_values": [
+        1e-05,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-between]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": 2.0,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "admitted",
+        "reason": "threshold_satisfied",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum14/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "between",
+        "applies_to": "firms",
+        "normalized_candidate_value": 2.0,
+        "normalized_threshold_value": 1e-05,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum14/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-in]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-in]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        1e-05,
+        "5"
+      ],
+      "supplied_values": [
+        1e-05,
+        "5"
+      ],
+      "parsed_values": [
+        1e-05,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-in]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": 2.0,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "blocked",
+        "reason": "threshold_violated",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum15/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "in",
+        "applies_to": "firms",
+        "normalized_candidate_value": 2.0,
+        "normalized_threshold_value": 1e-05,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum15/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-between]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-between]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        0.0,
+        "5"
+      ],
+      "supplied_values": [
+        0.0,
+        "5"
+      ],
+      "parsed_values": [
+        0.0,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-between]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": 5.0,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "admitted",
+        "reason": "threshold_satisfied",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum16/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "between",
+        "applies_to": "firms",
+        "normalized_candidate_value": 5.0,
+        "normalized_threshold_value": 0.0,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum16/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-in]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-in]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        0.0,
+        "5"
+      ],
+      "supplied_values": [
+        0.0,
+        "5"
+      ],
+      "parsed_values": [
+        0.0,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-in]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": 5.0,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "admitted",
+        "reason": "threshold_satisfied",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum17/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "in",
+        "applies_to": "firms",
+        "normalized_candidate_value": 5.0,
+        "normalized_threshold_value": 0.0,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum17/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-between]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-between]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        1e-05,
+        "5"
+      ],
+      "supplied_values": [
+        1e-05,
+        "5"
+      ],
+      "parsed_values": [
+        1e-05,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-between]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": 5.0,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "admitted",
+        "reason": "threshold_satisfied",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum18/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "between",
+        "applies_to": "firms",
+        "normalized_candidate_value": 5.0,
+        "normalized_threshold_value": 1e-05,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum18/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-in]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-in]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        1e-05,
+        "5"
+      ],
+      "supplied_values": [
+        1e-05,
+        "5"
+      ],
+      "parsed_values": [
+        1e-05,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-in]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": 5.0,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "admitted",
+        "reason": "threshold_satisfied",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum19/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "in",
+        "applies_to": "firms",
+        "normalized_candidate_value": 5.0,
+        "normalized_threshold_value": 1e-05,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum19/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-between]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-between]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        0.0,
+        "5"
+      ],
+      "supplied_values": [
+        0.0,
+        "5"
+      ],
+      "parsed_values": [
+        0.0,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-between]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": 6.0,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "blocked",
+        "reason": "threshold_violated",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum20/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "between",
+        "applies_to": "firms",
+        "normalized_candidate_value": 6.0,
+        "normalized_threshold_value": 0.0,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum20/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-in]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-in]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        0.0,
+        "5"
+      ],
+      "supplied_values": [
+        0.0,
+        "5"
+      ],
+      "parsed_values": [
+        0.0,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-in]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": 6.0,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "blocked",
+        "reason": "threshold_violated",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum21/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "in",
+        "applies_to": "firms",
+        "normalized_candidate_value": 6.0,
+        "normalized_threshold_value": 0.0,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum21/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-between]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-between]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        1e-05,
+        "5"
+      ],
+      "supplied_values": [
+        1e-05,
+        "5"
+      ],
+      "parsed_values": [
+        1e-05,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-between]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": 6.0,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "blocked",
+        "reason": "threshold_violated",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum22/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "between",
+        "applies_to": "firms",
+        "normalized_candidate_value": 6.0,
+        "normalized_threshold_value": 1e-05,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum22/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-in]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "parser_source_sha256": "289d0eb80215f9b5ce45474f987ac74a3b996287d508c60ac7665ba0528951b6",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-in]",
+      "kind": "actual_parser_call",
+      "raw_values": [
+        1e-05,
+        "5"
+      ],
+      "supplied_values": [
+        1e-05,
+        "5"
+      ],
+      "parsed_values": [
+        1e-05,
+        5.0
+      ],
+      "float_branch_removed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-in]",
+      "kind": "actual_persisted_threshold_evaluation",
+      "request": {
+        "threshold_id": "threshold-zero",
+        "candidate_value": 6.0,
+        "candidate_unit": "km",
+        "applies_to": "firms"
+      },
+      "actual_result": {
+        "status": "blocked",
+        "reason": "threshold_violated",
+        "threshold_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum23/lex_knowledge_graph.duckdb#lex_rule_thresholds/threshold-zero",
+        "threshold_id": "threshold-zero",
+        "fact_id": "fact-zero",
+        "metric": "distance",
+        "operator": "in",
+        "applies_to": "firms",
+        "normalized_candidate_value": 6.0,
+        "normalized_threshold_value": 1e-05,
+        "canonical_unit": "km",
+        "temporal_status": "in_force",
+        "obligation_ref": "duckdb:///workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp/test_reopened_threshold_consum23/lex_knowledge_graph.duckdb#lex_normative_facts/fact-zero",
+        "provision_ref": ""
+      }
+    }
+  ],
+  "source_files_changed": false
+}

@@ -1,0 +1,117 @@
+{
+  "schema": "orch02r2.c12-wave-definition.v1",
+  "source_sha": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+  "source_tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+  "state": "FROZEN_BEFORE_EXECUTION_SOURCE_ORACLE_GO_ROOT_RELEASE",
+  "expected_counts_not_executed": {
+    "intact": 45,
+    "profile_removal_same_consumer": 9,
+    "numeric_removal_same_consumer": 24
+  },
+  "selected_intact": [
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index",
+    "tests/unit/remediation/test_emb_03.py::test_graph_query_encoder_reads_all_three_selected_legal_generations",
+    "tests/unit/remediation/test_emb_03.py::test_legal_entity_fact_and_provision_readers_follow_selected_membership",
+    "tests/unit/remediation/test_emb_03.py::test_live_query_encoder_must_match_selected_generation_before_knn",
+    "tests/unit/remediation/test_emb_03.py::test_encoder_asset_change_during_query_encode_is_rejected_before_knn",
+    "tests/unit/lex/test_knowledge_store_filters.py",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar"
+  ],
+  "selected_profile_removal": [
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index"
+  ],
+  "selected_numeric_removal": [
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar"
+  ],
+  "env_intact": {
+    "ORCH02_PROFILE_GUARD": "observe",
+    "ORCH02_NUMERIC_SCALAR": "observe"
+  },
+  "env_profile_removal": {
+    "ORCH02_PROFILE_GUARD": "remove"
+  },
+  "env_numeric_removal": {
+    "ORCH02_NUMERIC_SCALAR": "remove"
+  },
+  "harnesses": {
+    "/workspace/orch02-r2/native-c05-c12/run_gate_r2.py": {
+      "sha256": "6544e822bb11b92bd288ea63a55999ebe70f9d1477ed21b1f6df5a5989180e9d",
+      "bytes": 6505
+    },
+    "/workspace/orch02-r2/native-c05-c12/orch02_capture.py": {
+      "sha256": "9cfc5463e907c0420e58e74a68c82f81b573eeafa00768301c9ab0da32874c6e",
+      "bytes": 3543
+    },
+    "/workspace/orch02-r2/native-c05-c12/run_script_capture.py": {
+      "sha256": "5944fef637d0f7edec3c0093f944a044c210e4905a5c63209f2a0ef460d4d396",
+      "bytes": 689
+    },
+    "/workspace/orch02-r2/native-c05-c12/orch02_profile_probe.py": {
+      "sha256": "6be3ba8dba12cf0be0837fbed780df3ed22009a51a78d49b37973274386673e1",
+      "bytes": 5037
+    },
+    "/workspace/orch02-r2/native-c05-c12/orch02_numeric_probe.py": {
+      "sha256": "aece30df4b4dc9968269b680d0afc199aac1d48da6b8354800160aa9948b7647",
+      "bytes": 3962
+    },
+    "/workspace/orch02-r2/native-c05-c12/environment-readiness.json": {
+      "sha256": "2240a2599b54b2b8d6bcd941d8bae0fac4932a48506449f2c6dae5e0fd7d1462",
+      "bytes": 6059
+    }
+  },
+  "source_input_refs": {
+    "policy-engine/src/polisyos/lex/knowledge/store.py": {
+      "blob": "2d87ced6ca51b63e28b7da5b3265867d6c78b103",
+      "bytes": 110582,
+      "sha256": "c46b383658938c98bd78883f21236b90fe630e2063cecaeeb1c24aa6bbff7705"
+    },
+    "policy-engine/src/polisyos/lex/knowledge/search.py": {
+      "blob": "58925aa6754b4decdbc7dcc236bd76e516827002",
+      "bytes": 21240,
+      "sha256": "384d9377c3fe8f0fef6142d3f9b7161c5a3cf46a927f6136462e60aa5199b9cb"
+    },
+    "policy-engine/src/polisyos/lex/knowledge/types.py": {
+      "blob": "7668844f547a18c21be978316b1451db436f8981",
+      "bytes": 13220,
+      "sha256": "6d826f613f71bfae01d8351c4262c9f25704058ef6130e855e651e68ae4e6243"
+    },
+    "policy-engine/src/polisyos/core/contracts/epoch.py": {
+      "blob": "20ede491f0cdb3260448b959d01657dc1ef89206",
+      "bytes": 40837,
+      "sha256": "743f7184a27de865a9f8a944163998282b1a3f047fbc93bc038205fe2c2248fb"
+    },
+    "policy-engine/src/polisyos/data_forge/kernel/embeddings.py": {
+      "blob": "0e1d2a5229b3167c7a3d211386f6e7607b9d30a3",
+      "bytes": 41005,
+      "sha256": "b774a86cb9b7741aed97297670781653d97d7fe65a7a53ae8f718281bdeaf86f"
+    },
+    "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py": {
+      "blob": "48c6f4e1e899613962e984ffd25d4bd7baa8230e",
+      "bytes": 16492,
+      "sha256": "c131c2ccc6351d23d88807bdb89f443e211c7932f63fea374c91ec1c308233e3"
+    },
+    "policy-engine/tests/unit/remediation/test_emb_03.py": {
+      "blob": "7e65b8d7631aa66a9c4713f16b5a28ebc6ff3ce7",
+      "bytes": 56014,
+      "sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    },
+    "policy-engine/tests/unit/lex/test_knowledge_store_filters.py": {
+      "blob": "d821c96b6bfbd3a067785b82e48a09d85e1aaa46",
+      "bytes": 26934,
+      "sha256": "fe6037b03cbf2ba364d463dfc6036b61a678b124d0e9f2c7dcd8f5bd68dfea88"
+    }
+  },
+  "source_input_denominator": "Exact defining tests and canonical changed/actual runtime dependencies listed; runtime-loaded closure recorded separately after execution, full GitDAG preserves other inputs",
+  "criterion": "Raw actual owned consumers intactPASS; guard-only same9FAIL; scalar-float branch removal same24 unchanged assertions detects scientific scalar text-scanner divergence while zero controls maypass. Actual encode/membership/index/native knn and persisted DuckDB/evaluate_rule_threshold retained.",
+  "limits": [
+    "Only queried table pairing; no globalall3 synchronization",
+    "Zero encode/nativeknn for refused request; nozero indexloading claim",
+    "Trusted-canonical-callable residual historical unchanged and notreplayed",
+    "Generic fixtures; productionlaw/C10lifecycle/Gacceptance separate"
+  ],
+  "review_refs": [
+    "/workspace/orch02-r2/reviews/c12-independent-source-review-fd3898ac.json",
+    "/workspace/orch02-r2/reviews/c12-independent-numeric-class-review-2e40b42e.json"
+  ],
+  "root_release_received": true
+}

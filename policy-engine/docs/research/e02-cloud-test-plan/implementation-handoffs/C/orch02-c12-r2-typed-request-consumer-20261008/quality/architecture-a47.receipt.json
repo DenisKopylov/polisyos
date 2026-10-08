@@ -1,0 +1,77 @@
+{
+  "argv": [
+    "/workspace/.polisyos-environment/uv/bin/uv",
+    "run",
+    "--no-sync",
+    "python",
+    "-m",
+    "tools.cli",
+    "architecture",
+    "guardrails",
+    "check",
+    "--generated-freshness-workspace-root",
+    "/workspace/orch02-r2/c12/architecture-a47/generated-freshness",
+    "--generated-freshness-uv-cache-dir",
+    "/workspace/.polisyos-environment/cache/uv"
+  ],
+  "cwd": "/workspace/orch02-c12/policy-engine",
+  "source_HEAD": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+  "source_tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+  "status_before": "",
+  "input_bytes": {
+    "src/polisyos/lex/knowledge/store.py": {
+      "bytes": 110582,
+      "sha256": "c46b383658938c98bd78883f21236b90fe630e2063cecaeeb1c24aa6bbff7705"
+    },
+    "src/polisyos/lex/knowledge/search.py": {
+      "bytes": 21240,
+      "sha256": "384d9377c3fe8f0fef6142d3f9b7161c5a3cf46a927f6136462e60aa5199b9cb"
+    },
+    "tests/unit/remediation/test_emb_03.py": {
+      "bytes": 56014,
+      "sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    }
+  },
+  "env": {
+    "PYTHONPATH": "/workspace/orch02-c12/policy-engine/src:/workspace/orch02-c12/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "PATH": "/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/workspace/.polisyos-environment/uv/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "UV_PROJECT_ENVIRONMENT": "/workspace/polisyos/policy-engine/.venv"
+  },
+  "timeout_seconds": null,
+  "exit_code": 1,
+  "wall_seconds": 493.39626459399915,
+  "resource": {
+    "measurement": "Linux wait4 actual child",
+    "maxrss_kib": 1114148,
+    "user_seconds": 420.885004,
+    "system_seconds": 56.917575
+  },
+  "HEAD_after": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+  "status_after": "",
+  "inputs_after": {
+    "src/polisyos/lex/knowledge/store.py": {
+      "bytes": 110582,
+      "sha256": "c46b383658938c98bd78883f21236b90fe630e2063cecaeeb1c24aa6bbff7705"
+    },
+    "src/polisyos/lex/knowledge/search.py": {
+      "bytes": 21240,
+      "sha256": "384d9377c3fe8f0fef6142d3f9b7161c5a3cf46a927f6136462e60aa5199b9cb"
+    },
+    "tests/unit/remediation/test_emb_03.py": {
+      "bytes": 56014,
+      "sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    }
+  },
+  "outputs": {
+    ".stdout.txt": {
+      "bytes": 117177,
+      "sha256": "6ad9532d14ba4e77db2c6824cf83c4cab810550738d7935daeff5b7cd0797488"
+    },
+    ".stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

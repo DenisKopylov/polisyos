@@ -1,0 +1,2119 @@
+{
+  "schema": "orch02r2.actual-query-profile-probe.v1",
+  "mode": "observe",
+  "raw_pytest_exitstatus": 0,
+  "removed_quantity": null,
+  "retained_quantities": [
+    "actual encoder identity and encode",
+    "persisted matrix/membership/index validation",
+    "native HNSW knn",
+    "unchanged owned test assertions"
+  ],
+  "oracle": "Raw actual consumer pytest assertions, no keyword/marker classifier; events are observations and do not replace assertions",
+  "boundary": "Only queried table pairing; refuse before encode/native knn, not before selected index loading",
+  "reports": [
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.007738548001725576
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.4433371180002723
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.00193394899906707
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.0015116869999474147
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.6057586839997384
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.0001874290010164259
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.0019538740016287193
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.6527054519992816
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.00019324499953654595
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.0028688640013569966
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.42910321800081874
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.001806190999559476
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.002263962000142783
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.48319310400074755
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.0001695749997452367
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.0013383049990807194
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.4892733109991241
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.0002185299999837298
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.001145614998677047
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.4575888159997703
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.00017513000057078898
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.0015991349991963943
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.5858900229995925
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.00021965199994156137
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration_seconds": 0.0011668719998851884
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]",
+      "when": "call",
+      "outcome": "passed",
+      "duration_seconds": 0.5770441450004
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration_seconds": 0.00018053900021186564
+    }
+  ],
+  "events": [
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "guard_source_sha256": "38cbaa12387987c83fee2006d8622579f4fa405f2be7729f8fe3279c452aa4d3",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3",
+      "native_module_origin": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140482492972208,
+      "texts": [
+        "ENTITY\nen: decoy entity\nuk: decoy entity\ntype: concept",
+        "ENTITY\nen: target entity\nuk: target entity\ntype: concept"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140482492972208,
+      "texts": [
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Decoy (Decoy) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: decoy fact text\nthresholds: []\nquote_uk: decoy quote",
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Target (Target) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: target fact text\nthresholds: []\nquote_uk: target quote"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140482492972208,
+      "texts": [
+        "decoy provision text",
+        "target provision text"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140482492972208,
+      "texts": [
+        "ENTITY\nen: decoy entity\nuk: decoy entity\ntype: concept",
+        "ENTITY\nen: target entity\nuk: target entity\ntype: concept"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140482492972208,
+      "texts": [
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Decoy (Decoy) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: decoy fact text\nthresholds: []\nquote_uk: decoy quote",
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Target (Target) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: target fact text\nthresholds: []\nquote_uk: target quote"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140482492972208,
+      "texts": [
+        "decoy provision text",
+        "target provision text"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+      "kind": "request_guard_refusal",
+      "table_name": "lex_entities",
+      "query_text": "target",
+      "encoder_object_id": 140481210656528,
+      "selected_generation_id": "81511094c2e44f9e932a8650cc0f2d30",
+      "requested": null,
+      "error_type": "LegalQueryProfileError",
+      "error_code": "query_profile_unavailable"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+      "kind": "request_guard_accept",
+      "table_name": "lex_entities",
+      "query_text": "target",
+      "encoder_object_id": 140481210656848,
+      "selected_generation_id": "81511094c2e44f9e932a8650cc0f2d30",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "81511094c2e44f9e932a8650cc0f2d30",
+          "inventory_sha256": "ebf1ba94e6da10b79b2f3aabeb14ef6da321ae34812449eaaf4100547cb9d632"
+        },
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "065ae8da2043490a81dcf9450b8c013e",
+          "inventory_sha256": "b754ad55ab61c83e6901012c02f52a2d4fc8939d31f3bc9e8851a69824e6666c"
+        },
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "25388acfb8804eeba6d7c3527020ddbc",
+          "inventory_sha256": "0610a7056fec7d1d61574e080243d8f421e0e8a99fbbbaf92cbd0f4332022f9c"
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+      "kind": "request_guard_accept",
+      "table_name": "lex_entities",
+      "query_text": "target",
+      "encoder_object_id": 140481210656848,
+      "selected_generation_id": "81511094c2e44f9e932a8650cc0f2d30",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "81511094c2e44f9e932a8650cc0f2d30",
+          "inventory_sha256": "ebf1ba94e6da10b79b2f3aabeb14ef6da321ae34812449eaaf4100547cb9d632"
+        },
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "065ae8da2043490a81dcf9450b8c013e",
+          "inventory_sha256": "b754ad55ab61c83e6901012c02f52a2d4fc8939d31f3bc9e8851a69824e6666c"
+        },
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "25388acfb8804eeba6d7c3527020ddbc",
+          "inventory_sha256": "0610a7056fec7d1d61574e080243d8f421e0e8a99fbbbaf92cbd0f4332022f9c"
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481210656848,
+      "texts": [
+        "target"
+      ],
+      "output_shape": [
+        1,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 1,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+      "kind": "actual_native_knn",
+      "labels": [
+        [
+          1
+        ]
+      ],
+      "distances": [
+        [
+          0.0
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "guard_source_sha256": "38cbaa12387987c83fee2006d8622579f4fa405f2be7729f8fe3279c452aa4d3",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3",
+      "native_module_origin": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481191595360,
+      "texts": [
+        "ENTITY\nen: decoy entity\nuk: decoy entity\ntype: concept",
+        "ENTITY\nen: target entity\nuk: target entity\ntype: concept"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481191595360,
+      "texts": [
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Decoy (Decoy) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: decoy fact text\nthresholds: []\nquote_uk: decoy quote",
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Target (Target) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: target fact text\nthresholds: []\nquote_uk: target quote"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481191595360,
+      "texts": [
+        "decoy provision text",
+        "target provision text"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481191595360,
+      "texts": [
+        "ENTITY\nen: decoy entity\nuk: decoy entity\ntype: concept",
+        "ENTITY\nen: target entity\nuk: target entity\ntype: concept"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481191595360,
+      "texts": [
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Decoy (Decoy) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: decoy fact text\nthresholds: []\nquote_uk: decoy quote",
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Target (Target) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: target fact text\nthresholds: []\nquote_uk: target quote"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481191595360,
+      "texts": [
+        "decoy provision text",
+        "target provision text"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+      "kind": "request_guard_refusal",
+      "table_name": "lex_facts",
+      "query_text": "target",
+      "encoder_object_id": 140481191595664,
+      "selected_generation_id": "8747df74aec84cc39356741943fdbf54",
+      "requested": null,
+      "error_type": "LegalQueryProfileError",
+      "error_code": "query_profile_unavailable"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+      "kind": "request_guard_accept",
+      "table_name": "lex_facts",
+      "query_text": "target",
+      "encoder_object_id": 140481216732560,
+      "selected_generation_id": "8747df74aec84cc39356741943fdbf54",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "ab634254f9654546a82ff5d16d32e9e5",
+          "inventory_sha256": "ccb9df5855d6deedaaad2b715cf7bc74ef58eff75628ca371cdda8110249aa62"
+        },
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "8747df74aec84cc39356741943fdbf54",
+          "inventory_sha256": "1f486b1d10e62a652823a73ed60393245ff880ea80af03fce2f02c86fd5d8a46"
+        },
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "0b94eb3729314973978430014d66a566",
+          "inventory_sha256": "c9d7d087224a4f8a088540ff6669147398665971db378da7645489404a598967"
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+      "kind": "request_guard_accept",
+      "table_name": "lex_facts",
+      "query_text": "target",
+      "encoder_object_id": 140481216732560,
+      "selected_generation_id": "8747df74aec84cc39356741943fdbf54",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "ab634254f9654546a82ff5d16d32e9e5",
+          "inventory_sha256": "ccb9df5855d6deedaaad2b715cf7bc74ef58eff75628ca371cdda8110249aa62"
+        },
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "8747df74aec84cc39356741943fdbf54",
+          "inventory_sha256": "1f486b1d10e62a652823a73ed60393245ff880ea80af03fce2f02c86fd5d8a46"
+        },
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "0b94eb3729314973978430014d66a566",
+          "inventory_sha256": "c9d7d087224a4f8a088540ff6669147398665971db378da7645489404a598967"
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481216732560,
+      "texts": [
+        "target"
+      ],
+      "output_shape": [
+        1,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 1,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+      "kind": "actual_native_knn",
+      "labels": [
+        [
+          1
+        ]
+      ],
+      "distances": [
+        [
+          0.0
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "guard_source_sha256": "38cbaa12387987c83fee2006d8622579f4fa405f2be7729f8fe3279c452aa4d3",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3",
+      "native_module_origin": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481194094352,
+      "texts": [
+        "ENTITY\nen: decoy entity\nuk: decoy entity\ntype: concept",
+        "ENTITY\nen: target entity\nuk: target entity\ntype: concept"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481194094352,
+      "texts": [
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Decoy (Decoy) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: decoy fact text\nthresholds: []\nquote_uk: decoy quote",
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Target (Target) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: target fact text\nthresholds: []\nquote_uk: target quote"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481194094352,
+      "texts": [
+        "decoy provision text",
+        "target provision text"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481194094352,
+      "texts": [
+        "ENTITY\nen: decoy entity\nuk: decoy entity\ntype: concept",
+        "ENTITY\nen: target entity\nuk: target entity\ntype: concept"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481194094352,
+      "texts": [
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Decoy (Decoy) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: decoy fact text\nthresholds: []\nquote_uk: decoy quote",
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Target (Target) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: target fact text\nthresholds: []\nquote_uk: target quote"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481194094352,
+      "texts": [
+        "decoy provision text",
+        "target provision text"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+      "kind": "request_guard_refusal",
+      "table_name": "lex_provisions",
+      "query_text": "target",
+      "encoder_object_id": 140481194096800,
+      "selected_generation_id": "bfe39a5e1e5444d79a9945c2705c44b8",
+      "requested": null,
+      "error_type": "LegalQueryProfileError",
+      "error_code": "query_profile_unavailable"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+      "kind": "request_guard_accept",
+      "table_name": "lex_provisions",
+      "query_text": "target",
+      "encoder_object_id": 140481193985360,
+      "selected_generation_id": "bfe39a5e1e5444d79a9945c2705c44b8",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "ef240b8ac5c641049cd826c10c822c65",
+          "inventory_sha256": "a64842ed48ae492640b061fea7d0954317c8d23e04ca2b194def6677a6984466"
+        },
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "b654f8e4dcd14e559b710468a16e7680",
+          "inventory_sha256": "706f8f1a9c678a35c707e81905cd8d0219aa42a1afb65bd2e5b86ef306b8e6b6"
+        },
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "bfe39a5e1e5444d79a9945c2705c44b8",
+          "inventory_sha256": "268c46ad9fe910cb6bdabf2e36fa740943eef307beaec1af247bce3e8169e3b2"
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+      "kind": "request_guard_accept",
+      "table_name": "lex_provisions",
+      "query_text": "target",
+      "encoder_object_id": 140481193985360,
+      "selected_generation_id": "bfe39a5e1e5444d79a9945c2705c44b8",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "ef240b8ac5c641049cd826c10c822c65",
+          "inventory_sha256": "a64842ed48ae492640b061fea7d0954317c8d23e04ca2b194def6677a6984466"
+        },
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "b654f8e4dcd14e559b710468a16e7680",
+          "inventory_sha256": "706f8f1a9c678a35c707e81905cd8d0219aa42a1afb65bd2e5b86ef306b8e6b6"
+        },
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "bfe39a5e1e5444d79a9945c2705c44b8",
+          "inventory_sha256": "268c46ad9fe910cb6bdabf2e36fa740943eef307beaec1af247bce3e8169e3b2"
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193985360,
+      "texts": [
+        "target"
+      ],
+      "output_shape": [
+        1,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 1,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+      "kind": "actual_native_knn",
+      "labels": [
+        [
+          1
+        ]
+      ],
+      "distances": [
+        [
+          0.0
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "guard_source_sha256": "38cbaa12387987c83fee2006d8622579f4fa405f2be7729f8fe3279c452aa4d3",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3",
+      "native_module_origin": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193986896,
+      "texts": [
+        "ENTITY\nen: decoy entity\nuk: decoy entity\ntype: concept",
+        "ENTITY\nen: target entity\nuk: target entity\ntype: concept"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193986896,
+      "texts": [
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Decoy (Decoy) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: decoy fact text\nthresholds: []\nquote_uk: decoy quote",
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Target (Target) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: target fact text\nthresholds: []\nquote_uk: target quote"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193986896,
+      "texts": [
+        "decoy provision text",
+        "target provision text"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193986896,
+      "texts": [
+        "ENTITY\nen: decoy entity\nuk: decoy entity\ntype: concept",
+        "ENTITY\nen: target entity\nuk: target entity\ntype: concept"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193986896,
+      "texts": [
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Decoy (Decoy) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: decoy fact text\nthresholds: []\nquote_uk: decoy quote",
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Target (Target) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: target fact text\nthresholds: []\nquote_uk: target quote"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193986896,
+      "texts": [
+        "decoy provision text",
+        "target provision text"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+      "kind": "request_guard_refusal",
+      "table_name": "lex_entities",
+      "query_text": "target",
+      "encoder_object_id": 140481193804576,
+      "selected_generation_id": "e8b17708bbf5404fb4f1d857ff1cbe0d",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "94744568eb5c46fba633b7689f1ca001",
+          "inventory_sha256": "ac3afd7373a604dffec488ab6f7d5e8206028c1d45628678b333bab4a08d51a8"
+        },
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "7e4cce906d48426482998af05a48e98d",
+          "inventory_sha256": "3b9a68f5c6e7c987f9fb353c1beb6c5c609566d3b52ae59e379cd94467b95c8a"
+        },
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "2e361a1e4d3d41638ee496eb19698265",
+          "inventory_sha256": "a8cebbd1bf3b300262ded6cb332e26bcaf7c209cd84d791a3b23da973fc74dfb"
+        }
+      ],
+      "error_type": "LegalQueryProfileError",
+      "error_code": "query_profile_stale_or_mismatched"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+      "kind": "request_guard_accept",
+      "table_name": "lex_entities",
+      "query_text": "target",
+      "encoder_object_id": 140481193804336,
+      "selected_generation_id": "e8b17708bbf5404fb4f1d857ff1cbe0d",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "e8b17708bbf5404fb4f1d857ff1cbe0d",
+          "inventory_sha256": "f1fb0b95da59e25681b12e939e8cc86b105246894c74e5c91ca5f3d00108a0d3"
+        },
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "3f8a2a9b6949471c88828cc85706f5e6",
+          "inventory_sha256": "5d85259db4b1942bf7485c25aa1f3d6faa033448d75af254f7bca851b2cdb564"
+        },
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "506f9fc5a8104555a13fd3f4c70903f1",
+          "inventory_sha256": "355b44df638faaaeb2613f04e3c39f7915b4e1f8fa4724dc0cd548eaa3ca3236"
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+      "kind": "request_guard_accept",
+      "table_name": "lex_entities",
+      "query_text": "target",
+      "encoder_object_id": 140481193804336,
+      "selected_generation_id": "e8b17708bbf5404fb4f1d857ff1cbe0d",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "e8b17708bbf5404fb4f1d857ff1cbe0d",
+          "inventory_sha256": "f1fb0b95da59e25681b12e939e8cc86b105246894c74e5c91ca5f3d00108a0d3"
+        },
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "3f8a2a9b6949471c88828cc85706f5e6",
+          "inventory_sha256": "5d85259db4b1942bf7485c25aa1f3d6faa033448d75af254f7bca851b2cdb564"
+        },
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "506f9fc5a8104555a13fd3f4c70903f1",
+          "inventory_sha256": "355b44df638faaaeb2613f04e3c39f7915b4e1f8fa4724dc0cd548eaa3ca3236"
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193804336,
+      "texts": [
+        "target"
+      ],
+      "output_shape": [
+        1,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 1,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+      "kind": "actual_native_knn",
+      "labels": [
+        [
+          1
+        ]
+      ],
+      "distances": [
+        [
+          0.0
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "guard_source_sha256": "38cbaa12387987c83fee2006d8622579f4fa405f2be7729f8fe3279c452aa4d3",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3",
+      "native_module_origin": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193787920,
+      "texts": [
+        "ENTITY\nen: decoy entity\nuk: decoy entity\ntype: concept",
+        "ENTITY\nen: target entity\nuk: target entity\ntype: concept"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193787920,
+      "texts": [
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Decoy (Decoy) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: decoy fact text\nthresholds: []\nquote_uk: decoy quote",
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Target (Target) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: target fact text\nthresholds: []\nquote_uk: target quote"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193787920,
+      "texts": [
+        "decoy provision text",
+        "target provision text"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193787920,
+      "texts": [
+        "ENTITY\nen: decoy entity\nuk: decoy entity\ntype: concept",
+        "ENTITY\nen: target entity\nuk: target entity\ntype: concept"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193787920,
+      "texts": [
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Decoy (Decoy) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: decoy fact text\nthresholds: []\nquote_uk: decoy quote",
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Target (Target) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: target fact text\nthresholds: []\nquote_uk: target quote"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193787920,
+      "texts": [
+        "decoy provision text",
+        "target provision text"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+      "kind": "request_guard_refusal",
+      "table_name": "lex_facts",
+      "query_text": "target",
+      "encoder_object_id": 140481193789040,
+      "selected_generation_id": "e0c97a3dea86401b9f0acb8a4a155b17",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "06fcf548d3284aba941b1539b86cbd4e",
+          "inventory_sha256": "4adfb9a5a174cb03031db705a0f2604ee5f70a763ab2d6cc907c751e9c595582"
+        },
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "248797ac34ba4eea9259c8cbb64dda7a",
+          "inventory_sha256": "ea89a5c61785c35f9c03e10520b4923dce0264ff5c5ac1d4173cf66de09d29b5"
+        },
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "81885a3916664795b78da079ebab389f",
+          "inventory_sha256": "1c8e157373e37650021749ece4342050f48d4251a320c79453eab3404ddfa677"
+        }
+      ],
+      "error_type": "LegalQueryProfileError",
+      "error_code": "query_profile_stale_or_mismatched"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+      "kind": "request_guard_accept",
+      "table_name": "lex_facts",
+      "query_text": "target",
+      "encoder_object_id": 140481194046960,
+      "selected_generation_id": "e0c97a3dea86401b9f0acb8a4a155b17",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "549c586a395641d0a620380b559b236d",
+          "inventory_sha256": "c3da8503cbd32532aee39ff418d8262c9d77ffe40b743c7ec469895356f89c2e"
+        },
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "e0c97a3dea86401b9f0acb8a4a155b17",
+          "inventory_sha256": "63653c7dbf4db220ac80ae45b904bc0527f610426dcd48abc8eb2a57a157e291"
+        },
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "c30746f92c9e4f57a6c8bc5d22ac8f20",
+          "inventory_sha256": "2fb90de3d5a70d10446a5d0852b475ee271a8f93affca250915f6c6cc5a3801e"
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+      "kind": "request_guard_accept",
+      "table_name": "lex_facts",
+      "query_text": "target",
+      "encoder_object_id": 140481194046960,
+      "selected_generation_id": "e0c97a3dea86401b9f0acb8a4a155b17",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "549c586a395641d0a620380b559b236d",
+          "inventory_sha256": "c3da8503cbd32532aee39ff418d8262c9d77ffe40b743c7ec469895356f89c2e"
+        },
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "e0c97a3dea86401b9f0acb8a4a155b17",
+          "inventory_sha256": "63653c7dbf4db220ac80ae45b904bc0527f610426dcd48abc8eb2a57a157e291"
+        },
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "c30746f92c9e4f57a6c8bc5d22ac8f20",
+          "inventory_sha256": "2fb90de3d5a70d10446a5d0852b475ee271a8f93affca250915f6c6cc5a3801e"
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481194046960,
+      "texts": [
+        "target"
+      ],
+      "output_shape": [
+        1,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 1,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+      "kind": "actual_native_knn",
+      "labels": [
+        [
+          1
+        ]
+      ],
+      "distances": [
+        [
+          0.0
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "guard_source_sha256": "38cbaa12387987c83fee2006d8622579f4fa405f2be7729f8fe3279c452aa4d3",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3",
+      "native_module_origin": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193837968,
+      "texts": [
+        "ENTITY\nen: decoy entity\nuk: decoy entity\ntype: concept",
+        "ENTITY\nen: target entity\nuk: target entity\ntype: concept"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193837968,
+      "texts": [
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Decoy (Decoy) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: decoy fact text\nthresholds: []\nquote_uk: decoy quote",
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Target (Target) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: target fact text\nthresholds: []\nquote_uk: target quote"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193837968,
+      "texts": [
+        "decoy provision text",
+        "target provision text"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193837968,
+      "texts": [
+        "ENTITY\nen: decoy entity\nuk: decoy entity\ntype: concept",
+        "ENTITY\nen: target entity\nuk: target entity\ntype: concept"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193837968,
+      "texts": [
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Decoy (Decoy) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: decoy fact text\nthresholds: []\nquote_uk: decoy quote",
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Target (Target) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: target fact text\nthresholds: []\nquote_uk: target quote"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193837968,
+      "texts": [
+        "decoy provision text",
+        "target provision text"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+      "kind": "request_guard_refusal",
+      "table_name": "lex_provisions",
+      "query_text": "target",
+      "encoder_object_id": 140481193838352,
+      "selected_generation_id": "eba315344e044135bcfda1823d171b64",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "7a698ad95fce451e8aef20b122c972ec",
+          "inventory_sha256": "15111311b3dca599a3044859baeb9ebf4bac02b4dfa98ebc809a6000b96b37a5"
+        },
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "0a633dfabb61478fa88cf1b991b516be",
+          "inventory_sha256": "2e101ee9781aa7c408793feb6967dcf69990f6dd142189b4e405af61992bc7e8"
+        },
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "246a606b64484d79954f471ff085224e",
+          "inventory_sha256": "c90f11167185ebf0224b9ca9301b8afdb10479dcf469a57b23050df20561deab"
+        }
+      ],
+      "error_type": "LegalQueryProfileError",
+      "error_code": "query_profile_stale_or_mismatched"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+      "kind": "request_guard_accept",
+      "table_name": "lex_provisions",
+      "query_text": "target",
+      "encoder_object_id": 140481193564960,
+      "selected_generation_id": "eba315344e044135bcfda1823d171b64",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "2704e6d643ea416e95511288895f8317",
+          "inventory_sha256": "a0f9cea0fc848a968f1c492137d7f8af0c4f3ed66f8135c2042a0d689d3a40ea"
+        },
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "c80884a0629b413f9af5dbcf5eef799c",
+          "inventory_sha256": "9d71b94a34f84e2e5ab760fa7f135d0aa3fc49676af56fe1c1a08fd360a99403"
+        },
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "eba315344e044135bcfda1823d171b64",
+          "inventory_sha256": "9614f68e3a31a176c88f544681381376d29ee7132f0a3265ba02a85e8bbb1ba6"
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+      "kind": "request_guard_accept",
+      "table_name": "lex_provisions",
+      "query_text": "target",
+      "encoder_object_id": 140481193564960,
+      "selected_generation_id": "eba315344e044135bcfda1823d171b64",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "2704e6d643ea416e95511288895f8317",
+          "inventory_sha256": "a0f9cea0fc848a968f1c492137d7f8af0c4f3ed66f8135c2042a0d689d3a40ea"
+        },
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "c80884a0629b413f9af5dbcf5eef799c",
+          "inventory_sha256": "9d71b94a34f84e2e5ab760fa7f135d0aa3fc49676af56fe1c1a08fd360a99403"
+        },
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "eba315344e044135bcfda1823d171b64",
+          "inventory_sha256": "9614f68e3a31a176c88f544681381376d29ee7132f0a3265ba02a85e8bbb1ba6"
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193564960,
+      "texts": [
+        "target"
+      ],
+      "output_shape": [
+        1,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 1,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+      "kind": "actual_native_knn",
+      "labels": [
+        [
+          1
+        ]
+      ],
+      "distances": [
+        [
+          0.0
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "guard_source_sha256": "38cbaa12387987c83fee2006d8622579f4fa405f2be7729f8fe3279c452aa4d3",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3",
+      "native_module_origin": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193573056,
+      "texts": [
+        "ENTITY\nen: decoy entity\nuk: decoy entity\ntype: concept",
+        "ENTITY\nen: target entity\nuk: target entity\ntype: concept"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193573056,
+      "texts": [
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Decoy (Decoy) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: decoy fact text\nthresholds: []\nquote_uk: decoy quote",
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Target (Target) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: target fact text\nthresholds: []\nquote_uk: target quote"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193573056,
+      "texts": [
+        "decoy provision text",
+        "target provision text"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193573056,
+      "texts": [
+        "ENTITY\nen: decoy entity\nuk: decoy entity\ntype: concept",
+        "ENTITY\nen: target entity\nuk: target entity\ntype: concept"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193573056,
+      "texts": [
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Decoy (Decoy) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: decoy fact text\nthresholds: []\nquote_uk: decoy quote",
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Target (Target) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: target fact text\nthresholds: []\nquote_uk: target quote"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193573056,
+      "texts": [
+        "decoy provision text",
+        "target provision text"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+      "kind": "request_guard_refusal",
+      "table_name": "lex_entities",
+      "query_text": "target",
+      "encoder_object_id": 140481194053296,
+      "selected_generation_id": "90eb66b5f4be4a2aae06e2cec0d65c32",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "90eb66b5f4be4a2aae06e2cec0d65c32",
+          "inventory_sha256": "a0f2be8e42435d160e4f959ddf515c8d163a607073ae222cd7e61db72d719451"
+        }
+      ],
+      "error_type": "LegalQueryProfileError",
+      "error_code": "query_profile_stale_or_mismatched"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+      "kind": "request_guard_accept",
+      "table_name": "lex_entities",
+      "query_text": "target",
+      "encoder_object_id": 140481194053936,
+      "selected_generation_id": "90eb66b5f4be4a2aae06e2cec0d65c32",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "90eb66b5f4be4a2aae06e2cec0d65c32",
+          "inventory_sha256": "5928db0fc37dc5bc7764b637d57d6d52ef504de564bd0423b57394ae75bcab55"
+        },
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "6ec6e3b07e6440efb456c3a48847516c",
+          "inventory_sha256": "bedb3b96c25d22e57e52ac20f99ffed38f6ddf21af27852b172ef65b63a314d4"
+        },
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "45e0365c0f9145ed9f08e5f0e0390f62",
+          "inventory_sha256": "cd794829079624eb4bd1affb86e1c6a4982be13a569b11b59ab078ccc3c105aa"
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+      "kind": "request_guard_accept",
+      "table_name": "lex_entities",
+      "query_text": "target",
+      "encoder_object_id": 140481194053936,
+      "selected_generation_id": "90eb66b5f4be4a2aae06e2cec0d65c32",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "90eb66b5f4be4a2aae06e2cec0d65c32",
+          "inventory_sha256": "5928db0fc37dc5bc7764b637d57d6d52ef504de564bd0423b57394ae75bcab55"
+        },
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "6ec6e3b07e6440efb456c3a48847516c",
+          "inventory_sha256": "bedb3b96c25d22e57e52ac20f99ffed38f6ddf21af27852b172ef65b63a314d4"
+        },
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "45e0365c0f9145ed9f08e5f0e0390f62",
+          "inventory_sha256": "cd794829079624eb4bd1affb86e1c6a4982be13a569b11b59ab078ccc3c105aa"
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481194053936,
+      "texts": [
+        "target"
+      ],
+      "output_shape": [
+        1,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 1,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+      "kind": "actual_native_knn",
+      "labels": [
+        [
+          1
+        ]
+      ],
+      "distances": [
+        [
+          0.0
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "guard_source_sha256": "38cbaa12387987c83fee2006d8622579f4fa405f2be7729f8fe3279c452aa4d3",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3",
+      "native_module_origin": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481214686576,
+      "texts": [
+        "ENTITY\nen: decoy entity\nuk: decoy entity\ntype: concept",
+        "ENTITY\nen: target entity\nuk: target entity\ntype: concept"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481214686576,
+      "texts": [
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Decoy (Decoy) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: decoy fact text\nthresholds: []\nquote_uk: decoy quote",
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Target (Target) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: target fact text\nthresholds: []\nquote_uk: target quote"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481214686576,
+      "texts": [
+        "decoy provision text",
+        "target provision text"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481214686576,
+      "texts": [
+        "ENTITY\nen: decoy entity\nuk: decoy entity\ntype: concept",
+        "ENTITY\nen: target entity\nuk: target entity\ntype: concept"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481214686576,
+      "texts": [
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Decoy (Decoy) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: decoy fact text\nthresholds: []\nquote_uk: decoy quote",
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Target (Target) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: target fact text\nthresholds: []\nquote_uk: target quote"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481214686576,
+      "texts": [
+        "decoy provision text",
+        "target provision text"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+      "kind": "request_guard_refusal",
+      "table_name": "lex_facts",
+      "query_text": "target",
+      "encoder_object_id": 140481193778384,
+      "selected_generation_id": "08c41c4f46c147a3b09178f3c76a5951",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "08c41c4f46c147a3b09178f3c76a5951",
+          "inventory_sha256": "d9c352d4d9b6c15a09d5509339f7c20e1e638333733d7a969d9511e15cd7acd4"
+        }
+      ],
+      "error_type": "LegalQueryProfileError",
+      "error_code": "query_profile_stale_or_mismatched"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+      "kind": "request_guard_accept",
+      "table_name": "lex_facts",
+      "query_text": "target",
+      "encoder_object_id": 140481193445840,
+      "selected_generation_id": "08c41c4f46c147a3b09178f3c76a5951",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "838fb364d044469fa39d35add22772e0",
+          "inventory_sha256": "75e7fff620e2a305146753d30a9e1a2bcabd7866dcbd9e976f6af7101d631fad"
+        },
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "08c41c4f46c147a3b09178f3c76a5951",
+          "inventory_sha256": "e6e91bd85d5f9584bc148145aed10073d8ce8a3f7cce97ef7050e4dc27198de1"
+        },
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "36c6372e84614252afcad4d654dd6356",
+          "inventory_sha256": "257cd881de3cd66a465393c610cb8d23ef7eca4db8df227b0a7acd862152b619"
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+      "kind": "request_guard_accept",
+      "table_name": "lex_facts",
+      "query_text": "target",
+      "encoder_object_id": 140481193445840,
+      "selected_generation_id": "08c41c4f46c147a3b09178f3c76a5951",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "838fb364d044469fa39d35add22772e0",
+          "inventory_sha256": "75e7fff620e2a305146753d30a9e1a2bcabd7866dcbd9e976f6af7101d631fad"
+        },
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "08c41c4f46c147a3b09178f3c76a5951",
+          "inventory_sha256": "e6e91bd85d5f9584bc148145aed10073d8ce8a3f7cce97ef7050e4dc27198de1"
+        },
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "36c6372e84614252afcad4d654dd6356",
+          "inventory_sha256": "257cd881de3cd66a465393c610cb8d23ef7eca4db8df227b0a7acd862152b619"
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193445840,
+      "texts": [
+        "target"
+      ],
+      "output_shape": [
+        1,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 1,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+      "kind": "actual_native_knn",
+      "labels": [
+        [
+          1
+        ]
+      ],
+      "distances": [
+        [
+          0.0
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]",
+      "kind": "fixture_setup",
+      "mode": "observe",
+      "guard_source_sha256": "38cbaa12387987c83fee2006d8622579f4fa405f2be7729f8fe3279c452aa4d3",
+      "owned_test_source_sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3",
+      "native_module_origin": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481194138576,
+      "texts": [
+        "ENTITY\nen: decoy entity\nuk: decoy entity\ntype: concept",
+        "ENTITY\nen: target entity\nuk: target entity\ntype: concept"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481194138576,
+      "texts": [
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Decoy (Decoy) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: decoy fact text\nthresholds: []\nquote_uk: decoy quote",
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Target (Target) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: target fact text\nthresholds: []\nquote_uk: target quote"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481194138576,
+      "texts": [
+        "decoy provision text",
+        "target provision text"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481194138576,
+      "texts": [
+        "ENTITY\nen: decoy entity\nuk: decoy entity\ntype: concept",
+        "ENTITY\nen: target entity\nuk: target entity\ntype: concept"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481194138576,
+      "texts": [
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Decoy (Decoy) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: decoy fact text\nthresholds: []\nquote_uk: decoy quote",
+        "FACT\nnorm_type: obligation\naction: describes\nspo: Target (Target) describes record (\u0437\u0430\u043f\u0438\u0441)\nfact_en: target fact text\nthresholds: []\nquote_uk: target quote"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481194138576,
+      "texts": [
+        "decoy provision text",
+        "target provision text"
+      ],
+      "output_shape": [
+        2,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 24,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]",
+      "kind": "request_guard_refusal",
+      "table_name": "lex_provisions",
+      "query_text": "target",
+      "encoder_object_id": 140482470262608,
+      "selected_generation_id": "2ac46fa6ca6047c1afba103763362914",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "2ac46fa6ca6047c1afba103763362914",
+          "inventory_sha256": "f731c9d8be3a0ddcb9062356ce693e8f7ca744d0e7ba4970d36a2fb69f7d8e9b"
+        }
+      ],
+      "error_type": "LegalQueryProfileError",
+      "error_code": "query_profile_stale_or_mismatched"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]",
+      "kind": "request_guard_accept",
+      "table_name": "lex_provisions",
+      "query_text": "target",
+      "encoder_object_id": 140481193621200,
+      "selected_generation_id": "2ac46fa6ca6047c1afba103763362914",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "0b41285699294ab882f5bbf8e34c7898",
+          "inventory_sha256": "0ed25877212c45f2de5826695757ccf97f9c43e893246c5808b11466447dd4cd"
+        },
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "bab0428fa9cb4991a618b47b3b7877ae",
+          "inventory_sha256": "de420de6f9301a750bfb8cec864fadeca6d24612b2a7ec1f34c9a79ac2f327de"
+        },
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "2ac46fa6ca6047c1afba103763362914",
+          "inventory_sha256": "78e437e7c1aa674969dae389395b72aaa4bb3f78ca7970cb0d303f415ae68e4a"
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]",
+      "kind": "request_guard_accept",
+      "table_name": "lex_provisions",
+      "query_text": "target",
+      "encoder_object_id": 140481193621200,
+      "selected_generation_id": "2ac46fa6ca6047c1afba103763362914",
+      "requested": [
+        {
+          "basis_kind": "legal_lex_entities_embedding",
+          "generation_id": "0b41285699294ab882f5bbf8e34c7898",
+          "inventory_sha256": "0ed25877212c45f2de5826695757ccf97f9c43e893246c5808b11466447dd4cd"
+        },
+        {
+          "basis_kind": "legal_lex_facts_embedding",
+          "generation_id": "bab0428fa9cb4991a618b47b3b7877ae",
+          "inventory_sha256": "de420de6f9301a750bfb8cec864fadeca6d24612b2a7ec1f34c9a79ac2f327de"
+        },
+        {
+          "basis_kind": "legal_lex_provisions_embedding",
+          "generation_id": "2ac46fa6ca6047c1afba103763362914",
+          "inventory_sha256": "78e437e7c1aa674969dae389395b72aaa4bb3f78ca7970cb0d303f415ae68e4a"
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]",
+      "kind": "actual_encoder_call",
+      "encoder_object_id": 140481193621200,
+      "texts": [
+        "target"
+      ],
+      "output_shape": [
+        1,
+        4
+      ],
+      "kwargs": {
+        "batch_size": 1,
+        "show_progress_bar": false,
+        "normalize_embeddings": true
+      }
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]",
+      "kind": "actual_native_knn",
+      "labels": [
+        [
+          1
+        ]
+      ],
+      "distances": [
+        [
+          0.0
+        ]
+      ]
+    }
+  ],
+  "source_files_changed": false
+}

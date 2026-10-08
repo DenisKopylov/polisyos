@@ -1,0 +1,101 @@
+{
+  "schema": "orch02r2.native-command.v1",
+  "source_sha": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+  "source_tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+  "branch": "codex/e02-C-orch02-c12-recovery",
+  "repo": "/workspace/orch02-c12",
+  "cwd": "/workspace/orch02-c12/policy-engine",
+  "argv": [
+    "/workspace/orch02-native-c05-c12/venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-p",
+    "orch02_capture",
+    "--basetemp",
+    "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp",
+    "--junitxml",
+    "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/junit.xml",
+    "-q",
+    "-p",
+    "orch02_profile_probe",
+    "-p",
+    "orch02_numeric_probe",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index",
+    "tests/unit/remediation/test_emb_03.py::test_graph_query_encoder_reads_all_three_selected_legal_generations",
+    "tests/unit/remediation/test_emb_03.py::test_legal_entity_fact_and_provision_readers_follow_selected_membership",
+    "tests/unit/remediation/test_emb_03.py::test_live_query_encoder_must_match_selected_generation_before_knn",
+    "tests/unit/remediation/test_emb_03.py::test_encoder_asset_change_during_query_encode_is_rejected_before_knn",
+    "tests/unit/lex/test_knowledge_store_filters.py",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar"
+  ],
+  "timeout_seconds": null,
+  "executable_path": "/workspace/orch02-native-c05-c12/venv/bin/python",
+  "executable_resolved": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+  "executable_sha256": "010d370720b52e3ad79b21a079be6a10ea848acfc460552aaf3d36334980129f",
+  "timeout_basis": "first wall measurement; no arbitrary cutoff",
+  "environment": {
+    "PYTHONPATH": "/workspace/orch02-c12/policy-engine/src:/workspace/orch02-c12/policy-engine/tests:/workspace/orch02-r2/native-c05-c12",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_CAS_DIR": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/cas",
+    "ORCH02_OUTPUT_DIR": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native",
+    "ORCH02_PROFILE_GUARD": "observe",
+    "ORCH02_NUMERIC_SCALAR": "observe"
+  },
+  "explicit_external_plugins": {
+    "orch02_profile_probe": "6be3ba8dba12cf0be0837fbed780df3ed22009a51a78d49b37973274386673e1",
+    "orch02_numeric_probe": "aece30df4b4dc9968269b680d0afc199aac1d48da6b8354800160aa9948b7647"
+  },
+  "source_status_before": "",
+  "source_status_all_before": "",
+  "environment_profile": "/workspace/orch02-r2/native-c05-c12/environment-readiness.json",
+  "environment_profile_sha256": "2240a2599b54b2b8d6bcd941d8bae0fac4932a48506449f2c6dae5e0fd7d1462",
+  "plugin_sha256": "9cfc5463e907c0420e58e74a68c82f81b573eeafa00768301c9ab0da32874c6e",
+  "harness_sha256": "6544e822bb11b92bd288ea63a55999ebe70f9d1477ed21b1f6df5a5989180e9d",
+  "command_python_input": {},
+  "disk_available_bytes_before": 15602401280,
+  "started_at_utc": "2026-10-08T18:20:42.588820+00:00",
+  "exit_code": 0,
+  "wall_seconds": 100.89588847200139,
+  "finished_at_utc": "2026-10-08T18:22:23.484757+00:00",
+  "source_status_after": "",
+  "source_sha_after": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+  "source_status_all_after": "",
+  "source_binding_intact": true,
+  "disk_available_bytes_after": 14844698624,
+  "outputs": {
+    "junit.xml": {
+      "bytes": 7250,
+      "sha256": "4b1dd93834bb3ab39efcb9f3e08e67d31403ddb1a7aec7c0f3f9222cc34afc20"
+    },
+    "numeric-events.json": {
+      "bytes": 66208,
+      "sha256": "ae70582cf53080fdac9cabf2783ef17273eca3e8ff66bf5e9f4c8da7ff14b270"
+    },
+    "stdout.txt": {
+      "bytes": 559,
+      "sha256": "5c9778b1771ced62401a722c308fda660d1b623553799e94c724198f2695ca15"
+    },
+    "profile-events.json": {
+      "bytes": 82833,
+      "sha256": "848a0c535af19fb721812fa10d5b991749149c93cae700cdf771cb97c7ba501b"
+    },
+    "runtime-origins.json": {
+      "bytes": 352061,
+      "sha256": "a936a4b82a472515a0d19659695aaf46cb7e60e16aaf94fd0f0a958ca3b69edf"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "selected-tests.json": {
+      "bytes": 6143,
+      "sha256": "081931cc87f3f4279789af923a76563791ef2cf842441c740cd112b34df49bb6"
+    },
+    "resource.json": {
+      "bytes": 294,
+      "sha256": "b15148565ccb69f28584f6328d8caf2e0b88960e249813b5febfeeb5dc372ec9"
+    }
+  }
+}

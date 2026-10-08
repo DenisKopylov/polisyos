@@ -1,0 +1,87 @@
+{
+  "schema": "orch02r2.native-command.v1",
+  "source_sha": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+  "source_tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+  "branch": "codex/e02-C-orch02-c12-recovery",
+  "repo": "/workspace/orch02-c12",
+  "cwd": "/workspace/orch02-c12/policy-engine",
+  "argv": [
+    "/workspace/orch02-native-c05-c12/venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-p",
+    "orch02_capture",
+    "--basetemp",
+    "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/basetemp",
+    "--junitxml",
+    "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/junit.xml",
+    "-q",
+    "-p",
+    "orch02_profile_probe",
+    "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index"
+  ],
+  "timeout_seconds": null,
+  "executable_path": "/workspace/orch02-native-c05-c12/venv/bin/python",
+  "executable_resolved": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+  "executable_sha256": "010d370720b52e3ad79b21a079be6a10ea848acfc460552aaf3d36334980129f",
+  "timeout_basis": "first wall measurement; no arbitrary cutoff",
+  "environment": {
+    "PYTHONPATH": "/workspace/orch02-c12/policy-engine/src:/workspace/orch02-c12/policy-engine/tests:/workspace/orch02-r2/native-c05-c12",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_CAS_DIR": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/cas",
+    "ORCH02_OUTPUT_DIR": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed",
+    "ORCH02_PROFILE_GUARD": "remove"
+  },
+  "explicit_external_plugins": {
+    "orch02_profile_probe": "6be3ba8dba12cf0be0837fbed780df3ed22009a51a78d49b37973274386673e1"
+  },
+  "source_status_before": "",
+  "source_status_all_before": "",
+  "environment_profile": "/workspace/orch02-r2/native-c05-c12/environment-readiness.json",
+  "environment_profile_sha256": "2240a2599b54b2b8d6bcd941d8bae0fac4932a48506449f2c6dae5e0fd7d1462",
+  "plugin_sha256": "9cfc5463e907c0420e58e74a68c82f81b573eeafa00768301c9ab0da32874c6e",
+  "harness_sha256": "6544e822bb11b92bd288ea63a55999ebe70f9d1477ed21b1f6df5a5989180e9d",
+  "command_python_input": {},
+  "disk_available_bytes_before": 15602401280,
+  "started_at_utc": "2026-10-08T18:20:42.573288+00:00",
+  "exit_code": 1,
+  "wall_seconds": 16.658099882999522,
+  "finished_at_utc": "2026-10-08T18:20:59.231445+00:00",
+  "source_status_after": "",
+  "source_sha_after": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+  "source_status_all_after": "",
+  "source_binding_intact": true,
+  "disk_available_bytes_after": 15571238912,
+  "outputs": {
+    "junit.xml": {
+      "bytes": 43809,
+      "sha256": "b665b5477bbbf6f59931fc93b831fde44cdee00aaa691c24f64e3c419e191d4f"
+    },
+    "stdout.txt": {
+      "bytes": 43543,
+      "sha256": "a2c9b5b05afe8b4a6958960a73497e18254fcbe9d1186878c38e398a4e5e59e9"
+    },
+    "profile-events.json": {
+      "bytes": 68322,
+      "sha256": "47c2edc9d13e0d881d673bc10deccaa1c0329931060bf610f6242d8c88ee4acc"
+    },
+    "runtime-origins.json": {
+      "bytes": 22460,
+      "sha256": "571402bcac1caddfcbdb69df43c0340b0662c875cc587bbbafaf42817f171960"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "selected-tests.json": {
+      "bytes": 1711,
+      "sha256": "c9ce1ef15374dfc18b7166564e158a3dfdc8013815284f79f0f7ee61738154a3"
+    },
+    "resource.json": {
+      "bytes": 292,
+      "sha256": "35e88b012458d870b921e01e5cbb5f6d4df4fb465345b5aaac886e4472114039"
+    }
+  }
+}

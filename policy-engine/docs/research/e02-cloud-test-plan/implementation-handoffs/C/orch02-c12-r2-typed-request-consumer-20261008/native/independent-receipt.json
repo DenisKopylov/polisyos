@@ -1,0 +1,1980 @@
+{
+  "schema": "orch02r2.independent-native-receipt.v1",
+  "owner": "/root/native_c05_c12 independent direct tester",
+  "source_sha": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+  "source_tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+  "wave_definition": "/workspace/orch02-r2/native-c05-c12/c12-wave-definition-a47ec396.json",
+  "wave_definition_sha256": "9361b847434ed92d5cdded4092d01068210ad34ba60a4e83051d4f987a970cb3",
+  "commands": [
+    {
+      "name": "c12-a47-affected-native",
+      "command_receipt": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/command.json",
+      "argv": [
+        "/workspace/orch02-native-c05-c12/venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "orch02_capture",
+        "--basetemp",
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/basetemp",
+        "--junitxml",
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/junit.xml",
+        "-q",
+        "-p",
+        "orch02_profile_probe",
+        "-p",
+        "orch02_numeric_probe",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index",
+        "tests/unit/remediation/test_emb_03.py::test_graph_query_encoder_reads_all_three_selected_legal_generations",
+        "tests/unit/remediation/test_emb_03.py::test_legal_entity_fact_and_provision_readers_follow_selected_membership",
+        "tests/unit/remediation/test_emb_03.py::test_live_query_encoder_must_match_selected_generation_before_knn",
+        "tests/unit/remediation/test_emb_03.py::test_encoder_asset_change_during_query_encode_is_rejected_before_knn",
+        "tests/unit/lex/test_knowledge_store_filters.py",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar"
+      ],
+      "source_sha": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+      "source_tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+      "source_sha_after": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+      "source_binding_intact": true,
+      "source_status_all_before": "",
+      "source_status_all_after": "",
+      "raw_exit_code": 0,
+      "wall_seconds": 100.89588847200139,
+      "maximum_resident_set_size_kib": 779884,
+      "measurement": "Linux wait4 actual command child usage",
+      "started_at_utc": "2026-10-08T18:20:42.588820+00:00",
+      "finished_at_utc": "2026-10-08T18:22:23.484757+00:00",
+      "junit": {
+        "cases": 45,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "selected_nodes": [
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]",
+        "tests/unit/remediation/test_emb_03.py::test_graph_query_encoder_reads_all_three_selected_legal_generations",
+        "tests/unit/remediation/test_emb_03.py::test_legal_entity_fact_and_provision_readers_follow_selected_membership",
+        "tests/unit/remediation/test_emb_03.py::test_live_query_encoder_must_match_selected_generation_before_knn",
+        "tests/unit/remediation/test_emb_03.py::test_encoder_asset_change_during_query_encode_is_rejected_before_knn",
+        "tests/unit/lex/test_knowledge_store_filters.py::test_legal_store_evidence_refs_ignore_physical_checkout_path",
+        "tests/unit/lex/test_knowledge_store_filters.py::test_legal_knowledge_store_prefers_high_trust_layers",
+        "tests/unit/lex/test_knowledge_store_filters.py::test_missing_native_table_is_blocked_not_empty",
+        "tests/unit/lex/test_knowledge_store_filters.py::test_retroactive_row_differs_before_and_after_knowledge_cutoff",
+        "tests/unit/lex/test_knowledge_store_filters.py::test_missing_amendment_effective_window_stays_in_complete_denominator",
+        "tests/unit/lex/test_knowledge_store_filters.py::test_unresolved_lex_window_partition_is_typed_and_verified",
+        "tests/unit/lex/test_knowledge_store_filters.py::test_legal_knowledge_store_supports_quality_band_and_fused_confidence_filters",
+        "tests/unit/lex/test_knowledge_store_filters.py::test_legal_knowledge_store_hides_temporal_unknown_rows_for_as_of",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-in]"
+      ],
+      "physical_test_inputs": {
+        "/workspace/orch02-c12/policy-engine/tests/unit/remediation/test_emb_03.py": {
+          "bytes": 56014,
+          "sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+        },
+        "/workspace/orch02-c12/policy-engine/tests/unit/lex/test_knowledge_store_filters.py": {
+          "bytes": 26934,
+          "sha256": "fe6037b03cbf2ba364d463dfc6036b61a678b124d0e9f2c7dcd8f5bd68dfea88"
+        }
+      },
+      "runtime_origins": {
+        "own_loaded_module_names": 1433,
+        "unique_own_physical_origin_paths": 1433,
+        "total_origins_including_named_native_modules": 1439,
+        "source_root": "/workspace/orch02-c12",
+        "independent_readback_all_own_namespace_origins_match_exact_source": true,
+        "mismatches": [],
+        "outside_source_root": [],
+        "all_selected_physical_test_inputs_match_source": true,
+        "named_native_origins": {
+          "pytest": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+            "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+          },
+          "numpy._core._multiarray_umath": {
+            "path": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/numpy/_core/_multiarray_umath.cpython-314-x86_64-linux-gnu.so",
+            "sha256": "61052ef771d926665ca135b1840662516f058d5c98843aa429ef2abdd7f46a04"
+          },
+          "numpy": {
+            "path": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/numpy/__init__.py",
+            "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38"
+          },
+          "_duckdb": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_duckdb.cpython-314-x86_64-linux-gnu.so",
+            "sha256": "a2b1ae52d4116fc609184d407e11a8d15465da34095341e08c53847d752fb5fc"
+          },
+          "duckdb": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb/__init__.py",
+            "sha256": "2b20aa68f219791777a195cfec5f87fff610299d26bfbc1e6ef7692476c704a1"
+          },
+          "hnswlib": {
+            "path": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so",
+            "sha256": "a610bcdb0465ee4559a4f88e42926d0df80992bbc1cf3ee5c05e4ec646ca4dfd"
+          }
+        },
+        "verification": "Every observed own origin and physical test input hashed against git show a47:path in one read-only postwave verifier; no test rerun"
+      },
+      "outputs": {
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/command.json": {
+          "bytes": 4526,
+          "sha256": "e556e230001cc0e17f3d143e83fbf78e7bdb2abe46b6a0bb585d55e6612b8667"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/junit.xml": {
+          "bytes": 7250,
+          "sha256": "4b1dd93834bb3ab39efcb9f3e08e67d31403ddb1a7aec7c0f3f9222cc34afc20"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/numeric-events.json": {
+          "bytes": 66208,
+          "sha256": "ae70582cf53080fdac9cabf2783ef17273eca3e8ff66bf5e9f4c8da7ff14b270"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/stdout.txt": {
+          "bytes": 559,
+          "sha256": "5c9778b1771ced62401a722c308fda660d1b623553799e94c724198f2695ca15"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/profile-events.json": {
+          "bytes": 82833,
+          "sha256": "848a0c535af19fb721812fa10d5b991749149c93cae700cdf771cb97c7ba501b"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/runtime-origins.json": {
+          "bytes": 352061,
+          "sha256": "a936a4b82a472515a0d19659695aaf46cb7e60e16aaf94fd0f0a958ca3b69edf"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/selected-tests.json": {
+          "bytes": 6143,
+          "sha256": "081931cc87f3f4279789af923a76563791ef2cf842441c740cd112b34df49bb6"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/resource.json": {
+          "bytes": 294,
+          "sha256": "b15148565ccb69f28584f6328d8caf2e0b88960e249813b5febfeeb5dc372ec9"
+        }
+      },
+      "profile_observations_complete_9_cases": [
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+          "refusal_codes": [
+            "query_profile_unavailable"
+          ],
+          "invalid_request_query_encoded_texts": [],
+          "invalid_request_query_encode_before_refusal": [],
+          "native_knn_events_count": 1,
+          "native_labels": [
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "profile_removed_calls": 0,
+          "fresh_matching_query_encode": [
+            [
+              "target"
+            ]
+          ]
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+          "refusal_codes": [
+            "query_profile_unavailable"
+          ],
+          "invalid_request_query_encoded_texts": [],
+          "invalid_request_query_encode_before_refusal": [],
+          "native_knn_events_count": 1,
+          "native_labels": [
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "profile_removed_calls": 0,
+          "fresh_matching_query_encode": [
+            [
+              "target"
+            ]
+          ]
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+          "refusal_codes": [
+            "query_profile_unavailable"
+          ],
+          "invalid_request_query_encoded_texts": [],
+          "invalid_request_query_encode_before_refusal": [],
+          "native_knn_events_count": 1,
+          "native_labels": [
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "profile_removed_calls": 0,
+          "fresh_matching_query_encode": [
+            [
+              "target"
+            ]
+          ]
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+          "refusal_codes": [
+            "query_profile_stale_or_mismatched"
+          ],
+          "invalid_request_query_encoded_texts": [],
+          "invalid_request_query_encode_before_refusal": [],
+          "native_knn_events_count": 1,
+          "native_labels": [
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "profile_removed_calls": 0,
+          "fresh_matching_query_encode": [
+            [
+              "target"
+            ]
+          ]
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+          "refusal_codes": [
+            "query_profile_stale_or_mismatched"
+          ],
+          "invalid_request_query_encoded_texts": [],
+          "invalid_request_query_encode_before_refusal": [],
+          "native_knn_events_count": 1,
+          "native_labels": [
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "profile_removed_calls": 0,
+          "fresh_matching_query_encode": [
+            [
+              "target"
+            ]
+          ]
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+          "refusal_codes": [
+            "query_profile_stale_or_mismatched"
+          ],
+          "invalid_request_query_encoded_texts": [],
+          "invalid_request_query_encode_before_refusal": [],
+          "native_knn_events_count": 1,
+          "native_labels": [
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "profile_removed_calls": 0,
+          "fresh_matching_query_encode": [
+            [
+              "target"
+            ]
+          ]
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+          "refusal_codes": [
+            "query_profile_stale_or_mismatched"
+          ],
+          "invalid_request_query_encoded_texts": [],
+          "invalid_request_query_encode_before_refusal": [],
+          "native_knn_events_count": 1,
+          "native_labels": [
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "profile_removed_calls": 0,
+          "fresh_matching_query_encode": [
+            [
+              "target"
+            ]
+          ]
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+          "refusal_codes": [
+            "query_profile_stale_or_mismatched"
+          ],
+          "invalid_request_query_encoded_texts": [],
+          "invalid_request_query_encode_before_refusal": [],
+          "native_knn_events_count": 1,
+          "native_labels": [
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "profile_removed_calls": 0,
+          "fresh_matching_query_encode": [
+            [
+              "target"
+            ]
+          ]
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]",
+          "refusal_codes": [
+            "query_profile_stale_or_mismatched"
+          ],
+          "invalid_request_query_encoded_texts": [],
+          "invalid_request_query_encode_before_refusal": [],
+          "native_knn_events_count": 1,
+          "native_labels": [
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "profile_removed_calls": 0,
+          "fresh_matching_query_encode": [
+            [
+              "target"
+            ]
+          ]
+        }
+      ],
+      "numeric_observations_complete_24_cases": [
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-between]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            0.0,
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": -1.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": -1.0,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-in]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            0.0,
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": -1.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": -1.0,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-between]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            1e-05,
+            "5"
+          ],
+          "parsed_values": [
+            1e-05,
+            5.0
+          ],
+          "candidate": -1.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": -1.0,
+          "normalized_threshold_value": 1e-05,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-in]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            1e-05,
+            "5"
+          ],
+          "parsed_values": [
+            1e-05,
+            5.0
+          ],
+          "candidate": -1.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": -1.0,
+          "normalized_threshold_value": 1e-05,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-between]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            0.0,
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": 0.0,
+          "status": "admitted",
+          "reason": "threshold_satisfied",
+          "normalized_candidate_value": 0.0,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-in]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            0.0,
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": 0.0,
+          "status": "admitted",
+          "reason": "threshold_satisfied",
+          "normalized_candidate_value": 0.0,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-between]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            1e-05,
+            "5"
+          ],
+          "parsed_values": [
+            1e-05,
+            5.0
+          ],
+          "candidate": 0.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": 0.0,
+          "normalized_threshold_value": 1e-05,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-in]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            1e-05,
+            "5"
+          ],
+          "parsed_values": [
+            1e-05,
+            5.0
+          ],
+          "candidate": 0.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": 0.0,
+          "normalized_threshold_value": 1e-05,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-between]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            0.0,
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": 1e-05,
+          "status": "admitted",
+          "reason": "threshold_satisfied",
+          "normalized_candidate_value": 1e-05,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-in]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            0.0,
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": 1e-05,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": 1e-05,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-between]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            1e-05,
+            "5"
+          ],
+          "parsed_values": [
+            1e-05,
+            5.0
+          ],
+          "candidate": 1e-05,
+          "status": "admitted",
+          "reason": "threshold_satisfied",
+          "normalized_candidate_value": 1e-05,
+          "normalized_threshold_value": 1e-05,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-in]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            1e-05,
+            "5"
+          ],
+          "parsed_values": [
+            1e-05,
+            5.0
+          ],
+          "candidate": 1e-05,
+          "status": "admitted",
+          "reason": "threshold_satisfied",
+          "normalized_candidate_value": 1e-05,
+          "normalized_threshold_value": 1e-05,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-between]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            0.0,
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": 2.0,
+          "status": "admitted",
+          "reason": "threshold_satisfied",
+          "normalized_candidate_value": 2.0,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-in]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            0.0,
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": 2.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": 2.0,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-between]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            1e-05,
+            "5"
+          ],
+          "parsed_values": [
+            1e-05,
+            5.0
+          ],
+          "candidate": 2.0,
+          "status": "admitted",
+          "reason": "threshold_satisfied",
+          "normalized_candidate_value": 2.0,
+          "normalized_threshold_value": 1e-05,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-in]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            1e-05,
+            "5"
+          ],
+          "parsed_values": [
+            1e-05,
+            5.0
+          ],
+          "candidate": 2.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": 2.0,
+          "normalized_threshold_value": 1e-05,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-between]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            0.0,
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": 5.0,
+          "status": "admitted",
+          "reason": "threshold_satisfied",
+          "normalized_candidate_value": 5.0,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-in]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            0.0,
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": 5.0,
+          "status": "admitted",
+          "reason": "threshold_satisfied",
+          "normalized_candidate_value": 5.0,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-between]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            1e-05,
+            "5"
+          ],
+          "parsed_values": [
+            1e-05,
+            5.0
+          ],
+          "candidate": 5.0,
+          "status": "admitted",
+          "reason": "threshold_satisfied",
+          "normalized_candidate_value": 5.0,
+          "normalized_threshold_value": 1e-05,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-in]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            1e-05,
+            "5"
+          ],
+          "parsed_values": [
+            1e-05,
+            5.0
+          ],
+          "candidate": 5.0,
+          "status": "admitted",
+          "reason": "threshold_satisfied",
+          "normalized_candidate_value": 5.0,
+          "normalized_threshold_value": 1e-05,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-between]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            0.0,
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": 6.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": 6.0,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-in]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            0.0,
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": 6.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": 6.0,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-between]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            1e-05,
+            "5"
+          ],
+          "parsed_values": [
+            1e-05,
+            5.0
+          ],
+          "candidate": 6.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": 6.0,
+          "normalized_threshold_value": 1e-05,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-in]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            1e-05,
+            "5"
+          ],
+          "parsed_values": [
+            1e-05,
+            5.0
+          ],
+          "candidate": 6.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": 6.0,
+          "normalized_threshold_value": 1e-05,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        }
+      ]
+    },
+    {
+      "name": "c12-a47-profile-guard-removed",
+      "command_receipt": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/command.json",
+      "argv": [
+        "/workspace/orch02-native-c05-c12/venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "orch02_capture",
+        "--basetemp",
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/basetemp",
+        "--junitxml",
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/junit.xml",
+        "-q",
+        "-p",
+        "orch02_profile_probe",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index"
+      ],
+      "source_sha": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+      "source_tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+      "source_sha_after": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+      "source_binding_intact": true,
+      "source_status_all_before": "",
+      "source_status_all_after": "",
+      "raw_exit_code": 1,
+      "wall_seconds": 16.658099882999522,
+      "maximum_resident_set_size_kib": 252740,
+      "measurement": "Linux wait4 actual command child usage",
+      "started_at_utc": "2026-10-08T18:20:42.573288+00:00",
+      "finished_at_utc": "2026-10-08T18:20:59.231445+00:00",
+      "junit": {
+        "cases": 9,
+        "failures": 9,
+        "errors": 0,
+        "skips": 0
+      },
+      "selected_nodes": [
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]"
+      ],
+      "physical_test_inputs": {
+        "/workspace/orch02-c12/policy-engine/tests/unit/remediation/test_emb_03.py": {
+          "bytes": 56014,
+          "sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+        }
+      },
+      "runtime_origins": {
+        "own_loaded_module_names": 90,
+        "unique_own_physical_origin_paths": 90,
+        "total_origins_including_named_native_modules": 96,
+        "source_root": "/workspace/orch02-c12",
+        "independent_readback_all_own_namespace_origins_match_exact_source": true,
+        "mismatches": [],
+        "outside_source_root": [],
+        "all_selected_physical_test_inputs_match_source": true,
+        "named_native_origins": {
+          "pytest": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+            "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+          },
+          "numpy._core._multiarray_umath": {
+            "path": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/numpy/_core/_multiarray_umath.cpython-314-x86_64-linux-gnu.so",
+            "sha256": "61052ef771d926665ca135b1840662516f058d5c98843aa429ef2abdd7f46a04"
+          },
+          "numpy": {
+            "path": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/numpy/__init__.py",
+            "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38"
+          },
+          "_duckdb": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_duckdb.cpython-314-x86_64-linux-gnu.so",
+            "sha256": "a2b1ae52d4116fc609184d407e11a8d15465da34095341e08c53847d752fb5fc"
+          },
+          "duckdb": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb/__init__.py",
+            "sha256": "2b20aa68f219791777a195cfec5f87fff610299d26bfbc1e6ef7692476c704a1"
+          },
+          "hnswlib": {
+            "path": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so",
+            "sha256": "a610bcdb0465ee4559a4f88e42926d0df80992bbc1cf3ee5c05e4ec646ca4dfd"
+          }
+        },
+        "verification": "Every observed own origin and physical test input hashed against git show a47:path in one read-only postwave verifier; no test rerun"
+      },
+      "outputs": {
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/command.json": {
+          "bytes": 3621,
+          "sha256": "080f07ade388e12925b49ce35ee1b1d3eb5fa1b1d9c1b6cf31df18cc9b2d01eb"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/junit.xml": {
+          "bytes": 43809,
+          "sha256": "b665b5477bbbf6f59931fc93b831fde44cdee00aaa691c24f64e3c419e191d4f"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/stdout.txt": {
+          "bytes": 43543,
+          "sha256": "a2c9b5b05afe8b4a6958960a73497e18254fcbe9d1186878c38e398a4e5e59e9"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/profile-events.json": {
+          "bytes": 68322,
+          "sha256": "47c2edc9d13e0d881d673bc10deccaa1c0329931060bf610f6242d8c88ee4acc"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/runtime-origins.json": {
+          "bytes": 22460,
+          "sha256": "571402bcac1caddfcbdb69df43c0340b0662c875cc587bbbafaf42817f171960"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/selected-tests.json": {
+          "bytes": 1711,
+          "sha256": "c9ce1ef15374dfc18b7166564e158a3dfdc8013815284f79f0f7ee61738154a3"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/resource.json": {
+          "bytes": 292,
+          "sha256": "35e88b012458d870b921e01e5cbb5f6d4df4fb465345b5aaac886e4472114039"
+        }
+      },
+      "profile_observations_complete_9_cases": [
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+          "refusal_codes": [],
+          "invalid_request_query_encoded_texts": [
+            [
+              "target"
+            ]
+          ],
+          "invalid_request_query_encode_before_refusal": [],
+          "native_knn_events_count": 1,
+          "native_labels": [
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "profile_removed_calls": 2,
+          "fresh_matching_query_encode": []
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+          "refusal_codes": [],
+          "invalid_request_query_encoded_texts": [
+            [
+              "target"
+            ]
+          ],
+          "invalid_request_query_encode_before_refusal": [],
+          "native_knn_events_count": 1,
+          "native_labels": [
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "profile_removed_calls": 2,
+          "fresh_matching_query_encode": []
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+          "refusal_codes": [],
+          "invalid_request_query_encoded_texts": [
+            [
+              "target"
+            ]
+          ],
+          "invalid_request_query_encode_before_refusal": [],
+          "native_knn_events_count": 1,
+          "native_labels": [
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "profile_removed_calls": 2,
+          "fresh_matching_query_encode": []
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+          "refusal_codes": [],
+          "invalid_request_query_encoded_texts": [
+            [
+              "target"
+            ]
+          ],
+          "invalid_request_query_encode_before_refusal": [],
+          "native_knn_events_count": 1,
+          "native_labels": [
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "profile_removed_calls": 2,
+          "fresh_matching_query_encode": []
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+          "refusal_codes": [],
+          "invalid_request_query_encoded_texts": [
+            [
+              "target"
+            ]
+          ],
+          "invalid_request_query_encode_before_refusal": [],
+          "native_knn_events_count": 1,
+          "native_labels": [
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "profile_removed_calls": 2,
+          "fresh_matching_query_encode": []
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+          "refusal_codes": [],
+          "invalid_request_query_encoded_texts": [
+            [
+              "target"
+            ]
+          ],
+          "invalid_request_query_encode_before_refusal": [],
+          "native_knn_events_count": 1,
+          "native_labels": [
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "profile_removed_calls": 2,
+          "fresh_matching_query_encode": []
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+          "refusal_codes": [],
+          "invalid_request_query_encoded_texts": [
+            [
+              "target"
+            ]
+          ],
+          "invalid_request_query_encode_before_refusal": [],
+          "native_knn_events_count": 1,
+          "native_labels": [
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "profile_removed_calls": 2,
+          "fresh_matching_query_encode": []
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+          "refusal_codes": [],
+          "invalid_request_query_encoded_texts": [
+            [
+              "target"
+            ]
+          ],
+          "invalid_request_query_encode_before_refusal": [],
+          "native_knn_events_count": 1,
+          "native_labels": [
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "profile_removed_calls": 2,
+          "fresh_matching_query_encode": []
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]",
+          "refusal_codes": [],
+          "invalid_request_query_encoded_texts": [
+            [
+              "target"
+            ]
+          ],
+          "invalid_request_query_encode_before_refusal": [],
+          "native_knn_events_count": 1,
+          "native_labels": [
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "profile_removed_calls": 2,
+          "fresh_matching_query_encode": []
+        }
+      ]
+    },
+    {
+      "name": "c12-a47-numeric-scalar-removed",
+      "command_receipt": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/command.json",
+      "argv": [
+        "/workspace/orch02-native-c05-c12/venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "orch02_capture",
+        "--basetemp",
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/basetemp",
+        "--junitxml",
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/junit.xml",
+        "-q",
+        "-p",
+        "orch02_numeric_probe",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar"
+      ],
+      "source_sha": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+      "source_tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+      "source_sha_after": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+      "source_binding_intact": true,
+      "source_status_all_before": "",
+      "source_status_all_after": "",
+      "raw_exit_code": 1,
+      "wall_seconds": 15.993522193999524,
+      "maximum_resident_set_size_kib": 239924,
+      "measurement": "Linux wait4 actual command child usage",
+      "started_at_utc": "2026-10-08T18:20:42.590887+00:00",
+      "finished_at_utc": "2026-10-08T18:20:58.584529+00:00",
+      "junit": {
+        "cases": 24,
+        "failures": 12,
+        "errors": 0,
+        "skips": 0
+      },
+      "selected_nodes": [
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-in]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-between]",
+        "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-in]"
+      ],
+      "physical_test_inputs": {
+        "/workspace/orch02-c12/policy-engine/tests/unit/remediation/test_emb_03.py": {
+          "bytes": 56014,
+          "sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+        }
+      },
+      "runtime_origins": {
+        "own_loaded_module_names": 90,
+        "unique_own_physical_origin_paths": 90,
+        "total_origins_including_named_native_modules": 95,
+        "source_root": "/workspace/orch02-c12",
+        "independent_readback_all_own_namespace_origins_match_exact_source": true,
+        "mismatches": [],
+        "outside_source_root": [],
+        "all_selected_physical_test_inputs_match_source": true,
+        "named_native_origins": {
+          "pytest": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+            "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+          },
+          "numpy._core._multiarray_umath": {
+            "path": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/numpy/_core/_multiarray_umath.cpython-314-x86_64-linux-gnu.so",
+            "sha256": "61052ef771d926665ca135b1840662516f058d5c98843aa429ef2abdd7f46a04"
+          },
+          "numpy": {
+            "path": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/numpy/__init__.py",
+            "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38"
+          },
+          "_duckdb": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_duckdb.cpython-314-x86_64-linux-gnu.so",
+            "sha256": "a2b1ae52d4116fc609184d407e11a8d15465da34095341e08c53847d752fb5fc"
+          },
+          "duckdb": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb/__init__.py",
+            "sha256": "2b20aa68f219791777a195cfec5f87fff610299d26bfbc1e6ef7692476c704a1"
+          }
+        },
+        "verification": "Every observed own origin and physical test input hashed against git show a47:path in one read-only postwave verifier; no test rerun"
+      },
+      "outputs": {
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/command.json": {
+          "bytes": 3609,
+          "sha256": "03eac021aa41b438e52c1fb1ba6cf16994385b0a9d82ec7b52a87739d05459a9"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/junit.xml": {
+          "bytes": 38482,
+          "sha256": "915eefc8477d113042f413140dfbe732931d913b3ce714758414df88c7a40535"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/numeric-events.json": {
+          "bytes": 66749,
+          "sha256": "ded6c72074c24fe3c00b9a34d728fb0f6c1868080d3a385d3fac1b4bb1fd12f8"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/stdout.txt": {
+          "bytes": 34446,
+          "sha256": "142e0316b97782acdf1a5169c5403bdac7f9bc34fc844cca82095afdd8aaeb5b"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/runtime-origins.json": {
+          "bytes": 22229,
+          "sha256": "94127f79d1307d11d6dc6da9f2fd77422f6152c955739c631f97bdca53777c88"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/selected-tests.json": {
+          "bytes": 3257,
+          "sha256": "bd92eba19eb08c59ce1df78693b024a107a3e7d4b0decb818bee3b23ad2f4a0b"
+        },
+        "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/resource.json": {
+          "bytes": 292,
+          "sha256": "1a0387ada6ba6cea7fee546e8e53c1114fe94cf0886de3e9ae91abcb4ae1ef7b"
+        }
+      },
+      "numeric_observations_complete_24_cases": [
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-between]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            "0.0",
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": -1.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": -1.0,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-in]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            "0.0",
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": -1.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": -1.0,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-between]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            "1e-05",
+            "5"
+          ],
+          "parsed_values": [
+            1.0,
+            -5.0,
+            5.0
+          ],
+          "candidate": -1.0,
+          "status": "admitted",
+          "reason": "threshold_satisfied",
+          "normalized_candidate_value": -1.0,
+          "normalized_threshold_value": -5.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-in]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            "1e-05",
+            "5"
+          ],
+          "parsed_values": [
+            1.0,
+            -5.0,
+            5.0
+          ],
+          "candidate": -1.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": -1.0,
+          "normalized_threshold_value": 1.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-between]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            "0.0",
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": 0.0,
+          "status": "admitted",
+          "reason": "threshold_satisfied",
+          "normalized_candidate_value": 0.0,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-in]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            "0.0",
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": 0.0,
+          "status": "admitted",
+          "reason": "threshold_satisfied",
+          "normalized_candidate_value": 0.0,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-between]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            "1e-05",
+            "5"
+          ],
+          "parsed_values": [
+            1.0,
+            -5.0,
+            5.0
+          ],
+          "candidate": 0.0,
+          "status": "admitted",
+          "reason": "threshold_satisfied",
+          "normalized_candidate_value": 0.0,
+          "normalized_threshold_value": -5.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-in]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            "1e-05",
+            "5"
+          ],
+          "parsed_values": [
+            1.0,
+            -5.0,
+            5.0
+          ],
+          "candidate": 0.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": 0.0,
+          "normalized_threshold_value": 1.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-between]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            "0.0",
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": 1e-05,
+          "status": "admitted",
+          "reason": "threshold_satisfied",
+          "normalized_candidate_value": 1e-05,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-in]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            "0.0",
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": 1e-05,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": 1e-05,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-between]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            "1e-05",
+            "5"
+          ],
+          "parsed_values": [
+            1.0,
+            -5.0,
+            5.0
+          ],
+          "candidate": 1e-05,
+          "status": "admitted",
+          "reason": "threshold_satisfied",
+          "normalized_candidate_value": 1e-05,
+          "normalized_threshold_value": -5.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-in]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            "1e-05",
+            "5"
+          ],
+          "parsed_values": [
+            1.0,
+            -5.0,
+            5.0
+          ],
+          "candidate": 1e-05,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": 1e-05,
+          "normalized_threshold_value": 1.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-between]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            "0.0",
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": 2.0,
+          "status": "admitted",
+          "reason": "threshold_satisfied",
+          "normalized_candidate_value": 2.0,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-in]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            "0.0",
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": 2.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": 2.0,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-between]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            "1e-05",
+            "5"
+          ],
+          "parsed_values": [
+            1.0,
+            -5.0,
+            5.0
+          ],
+          "candidate": 2.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": 2.0,
+          "normalized_threshold_value": -5.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-in]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            "1e-05",
+            "5"
+          ],
+          "parsed_values": [
+            1.0,
+            -5.0,
+            5.0
+          ],
+          "candidate": 2.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": 2.0,
+          "normalized_threshold_value": 1.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-between]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            "0.0",
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": 5.0,
+          "status": "admitted",
+          "reason": "threshold_satisfied",
+          "normalized_candidate_value": 5.0,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-in]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            "0.0",
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": 5.0,
+          "status": "admitted",
+          "reason": "threshold_satisfied",
+          "normalized_candidate_value": 5.0,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-between]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            "1e-05",
+            "5"
+          ],
+          "parsed_values": [
+            1.0,
+            -5.0,
+            5.0
+          ],
+          "candidate": 5.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": 5.0,
+          "normalized_threshold_value": -5.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-in]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            "1e-05",
+            "5"
+          ],
+          "parsed_values": [
+            1.0,
+            -5.0,
+            5.0
+          ],
+          "candidate": 5.0,
+          "status": "admitted",
+          "reason": "threshold_satisfied",
+          "normalized_candidate_value": 5.0,
+          "normalized_threshold_value": 1.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-between]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            "0.0",
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": 6.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": 6.0,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-in]",
+          "raw_values": [
+            0.0,
+            "5"
+          ],
+          "supplied_values": [
+            "0.0",
+            "5"
+          ],
+          "parsed_values": [
+            0.0,
+            5.0
+          ],
+          "candidate": 6.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": 6.0,
+          "normalized_threshold_value": 0.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-between]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            "1e-05",
+            "5"
+          ],
+          "parsed_values": [
+            1.0,
+            -5.0,
+            5.0
+          ],
+          "candidate": 6.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": 6.0,
+          "normalized_threshold_value": -5.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        },
+        {
+          "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-in]",
+          "raw_values": [
+            1e-05,
+            "5"
+          ],
+          "supplied_values": [
+            "1e-05",
+            "5"
+          ],
+          "parsed_values": [
+            1.0,
+            -5.0,
+            5.0
+          ],
+          "candidate": 6.0,
+          "status": "blocked",
+          "reason": "threshold_violated",
+          "normalized_candidate_value": 6.0,
+          "normalized_threshold_value": 1.0,
+          "canonical_unit": "km",
+          "threshold_id": "threshold-zero",
+          "fact_id": "fact-zero"
+        }
+      ]
+    }
+  ],
+  "predicate_basis": "recomputed from real persisted owner consumers and independently reconciled complete deciding outputs",
+  "old_inputs_not_replayed": [
+    "old36 native suite",
+    "unchanged callable-hash residual",
+    "old recovered blob/522 readback",
+    "170MB scanner"
+  ],
+  "claims": {
+    "affected_native": "45PASS, 0FAIL/ERROR/SKIP on one final new source",
+    "request_profile_removal": "Only request pairing removed; same9 actual consumers FAIL with DID_NOT_RAISE and actual query encode/nativeknn observed",
+    "numeric_scalar_removal": "Only float-preservation branch bypassed through existing scanner; same24 actual consumers give12FAIL scientific lowerbound and12PASS zerolowerbound; property failure retained despite zero proxycontrols passing"
+  },
+  "limits": [
+    "Generic declared fixtures; no authentic production corpus/model/source-law or L01/L02/C10/A serving lifecycle positive",
+    "Only queried table pairing; no globalthree-table generation lockstep",
+    "Request refusal beforeencode/nativeknn only; selected persisted index loading may precede guard",
+    "Asset/config/tokenizer content identity does not attest arbitrary replaced encode callable; trusted canonical callable boundary remains, old residual falsifier not rerun",
+    "Native supplemental isolated backend profile, not whole uv-frozen shared lock acceptance",
+    "Static source typing/lint review and G admission/closure separate from native outcomes",
+    "Complete loaded polisyos/tools __file__ namespace denominator plus named native modules; unexecuted modules/functions are not dynamic execution evidence"
+  ],
+  "source_files_edited_by_tester": false,
+  "shared_environment_or_lock_mutated": false,
+  "children": false
+}

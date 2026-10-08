@@ -1,0 +1,127 @@
+{
+  "schema": "policyos.e02.C12.r2.shared_public_api_companion_proposal.v1",
+  "status": "unapplied_proposal_only",
+  "current_G": {
+    "sha": "dee58973f7673299070b7c7374f419b0adb8175c",
+    "tree": "4caee698bd9a6c61277a1608bb38376b669f0372",
+    "parents": [
+      "e01d15c71a46c129805ab8e9f5310b53cad6efdc"
+    ]
+  },
+  "own_final_source": {
+    "sha": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+    "tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+    "parents": [
+      "fd3898acf23212c14b0fea62647e882c81d4f479"
+    ]
+  },
+  "paths": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/legal.py",
+      "owner": "G shared DataForge public API",
+      "exact_preimage_ref": "dee58973f7673299070b7c7374f419b0adb8175c",
+      "preimage": {
+        "blob": "5538eb5f2da7ada3df408641979c703a5186a771",
+        "bytes": 7830,
+        "sha256": "98f449d1dd6bea322e1f2459b1eb5057441304441a9bafc41e1dac1d9341a2b8"
+      },
+      "proposed_postimage_bytes": 10064,
+      "proposed_postimage_sha256": "71d908631afc6eab810adbe31a1abbafb723500533848e3e6099fd71a4492449"
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/knowledge/__init__.py",
+      "owner": "G existing declared Legal knowledge facade",
+      "exact_preimage_ref": "dee58973f7673299070b7c7374f419b0adb8175c",
+      "preimage": {
+        "blob": "c3d5f8f194331ff473515c881d27539c33e01711",
+        "bytes": 1859,
+        "sha256": "ff80168dfa0547e02712ae6ffff029f9d80a797be42d0d0a1dd1024a69360010"
+      },
+      "proposed_postimage_bytes": 2709,
+      "proposed_postimage_sha256": "936f9813a6ac4a22bbdeb516e45679cd585775ea63d30dcaef651950cc28cf7c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+      "owner": "C12 after exact G public API admission",
+      "exact_preimage_ref": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+      "preimage": {
+        "blob": "2d87ced6ca51b63e28b7da5b3265867d6c78b103",
+        "bytes": 110582,
+        "sha256": "c46b383658938c98bd78883f21236b90fe630e2063cecaeeb1c24aa6bbff7705"
+      },
+      "proposed_postimage_bytes": 110601,
+      "proposed_postimage_sha256": "a3092498904186b67aeb9e5f98e8906b2ea832a396dc75e871ae10f150411a63"
+    }
+  ],
+  "patches": [
+    {
+      "path": "shared-public-api-companion-proposal.patch.gz",
+      "decoded_path": "shared-public-api-companion-proposal.patch",
+      "decoded_bytes": 4619,
+      "decoded_sha256": "9bb01d1a9dbe6d601097355f7b799ad7ae7d2eb84691134c20c02bb4cf4c92b9",
+      "representation": "gzip",
+      "stored_bytes": 1250,
+      "stored_sha256": "a558a9182ff981b278f318000387454b738a5fdade8bac5f84c51d8b22e6998c"
+    },
+    {
+      "path": "owned-store-public-api-consumer-proposal.patch",
+      "decoded_path": "owned-store-public-api-consumer-proposal.patch",
+      "decoded_bytes": 867,
+      "decoded_sha256": "4cb8825c8578707c0a35e3550f4c9ef9d7d1027b60b472f0ca5af8dffba87d0a",
+      "representation": "identity",
+      "stored_bytes": 867,
+      "stored_sha256": "4cb8825c8578707c0a35e3550f4c9ef9d7d1027b60b472f0ca5af8dffba87d0a"
+    }
+  ],
+  "supplier_precondition": {
+    "selected_c60_foreign_supplier_inputs": [
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py",
+        "final_own_lane_supplier": {
+          "blob": "ee526dd88b8acf41931793010ac7a81b7b64329c",
+          "bytes": 2892,
+          "sha256": "de61daaa01231282185e8947d6848b94bf6c9c6473ae709397eea138c510efa9"
+        },
+        "current_G": null
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+        "final_own_lane_supplier": {
+          "blob": "0e1d2a5229b3167c7a3d211386f6e7607b9d30a3",
+          "bytes": 41005,
+          "sha256": "b774a86cb9b7741aed97297670781653d97d7fe65a7a53ae8f718281bdeaf86f"
+        },
+        "current_G": {
+          "blob": "7f90187b92f632e540326d8efe997f510b4f0c15",
+          "bytes": 28325,
+          "sha256": "d36a974d9717d7b6882bde898f26e08373613c645e687eb21af622378016d075"
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+        "final_own_lane_supplier": {
+          "blob": "b1b60eefd5513ebdf717bdd4eb39b1bbd9538eac",
+          "bytes": 9655,
+          "sha256": "86ba6f9022c385ae8f031a7d7d2e67eabe348a074c7d8ddaf712e3d381270412"
+        },
+        "current_G": {
+          "blob": "19ca41eead188afac99ed21cca386c460763e15d",
+          "bytes": 8832,
+          "sha256": "47900cf9a05067a27e17d149ffd11228ce6259794264f43ce58cccdb059466b0"
+        }
+      }
+    ],
+    "missing_on_G": [
+      "GenerationIdentity",
+      "derive_encoder_identity",
+      "generation_basis_matches_members",
+      "hnsw_index_matches_vectors",
+      "LEGAL_EMBEDDING_PROJECTION_RULE_VERSION/entity_embedding_text/fact_embedding_text/provision_embedding_text module"
+    ],
+    "action": "G selects/reconciles exact supplier first. This proposal does not import kernel/domain snapshots or formula copies; canonical rule wrapper delegates to selected existing producer function. New shared symbols and public export census require G admission and generated/architecture companions."
+  },
+  "owned_current_illegal_imports": "Deep imports remain at final a47; this unadopted patch is no source-level architecture repair/PASS. G shared policy/baseline/generated files are untouched.",
+  "caller_proposal": "C10-A-served-handshake-proposal.json",
+  "formal_closure": false,
+  "closure_ids": []
+}

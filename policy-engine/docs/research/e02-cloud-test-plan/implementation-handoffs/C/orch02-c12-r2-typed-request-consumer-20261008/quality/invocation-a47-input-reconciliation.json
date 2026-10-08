@@ -1,0 +1,42 @@
+{
+  "schema": "policyos.e02.C12.r2.invocation_input_reconciliation.v1",
+  "qualification": "Read complete selected tracked source maps only; no graph/audit_repository/audit_sources replay",
+  "source_sha": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+  "maps": {
+    "current": {
+      "files": 5908,
+      "source_files": 2702,
+      "tools_files": 445,
+      "tests_files": 2761,
+      "script_entrypoints": [
+        "polisyos.foundry.plugins.cli:main",
+        "tools.ops_runners.runtime_cli:main",
+        "polisyos.foundry.methods.catalog.causal.capabilities:main",
+        "tools.ops_runners.runtime_cli:foundry_main",
+        "tools.cli:main",
+        "polisyos.data_forge.domains.ukraine.cli:main"
+      ],
+      "complete_map_sha256": "3cab0b03463c59a4eff222d41f0a326bcd279dd8d478a667759100d92f4206fa",
+      "raw_expected_sha256": "3cab0b03463c59a4eff222d41f0a326bcd279dd8d478a667759100d92f4206fa",
+      "matches": true
+    },
+    "base": {
+      "files": 5908,
+      "source_files": 2702,
+      "tools_files": 445,
+      "tests_files": 2761,
+      "script_entrypoints": [
+        "polisyos.foundry.plugins.cli:main",
+        "tools.ops_runners.runtime_cli:main",
+        "polisyos.foundry.methods.catalog.causal.capabilities:main",
+        "tools.ops_runners.runtime_cli:foundry_main",
+        "tools.cli:main",
+        "polisyos.data_forge.domains.ukraine.cli:main"
+      ],
+      "complete_map_sha256": "b58230a633e0e3deaaf939b20c1d2c8502d267cedd4601a7a40ba635db23afb8",
+      "raw_expected_sha256": "b58230a633e0e3deaaf939b20c1d2c8502d267cedd4601a7a40ba635db23afb8",
+      "matches": true
+    }
+  },
+  "all_maps_match": true
+}

@@ -1,0 +1,986 @@
+{
+  "schema": "policyos.e02.C12.r2.invocation_complete_deciding_extract.v1",
+  "source_sha": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+  "source_tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+  "raw": {
+    "path": "/workspace/orch02-c12/policy-engine/_build/e02-C-orch02-c12-recovery/production-invocation-r2-a47.json",
+    "gitignored": true,
+    "bytes": 170878513,
+    "sha256": "f085965bdedca04acf47ae5cdc2f9f7c316b1e0d04dead869fde1ff69b93e50b",
+    "complete_json_parse": true,
+    "published": false
+  },
+  "raw_root_fields": {
+    "regressions": [],
+    "new_unresolved_by_construction": [
+      "polisyos.lex.knowledge.search.LegalKnowledgeGraph.hybrid_search",
+      "polisyos.lex.knowledge.store.LegalKnowledgeStore.resolve_amendment_window_denominator",
+      "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_entities_by_vector",
+      "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_facts_by_vector",
+      "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_provisions_by_vector",
+      "polisyos.lex.knowledge.store.LegalQueryProfile.from_generation"
+    ],
+    "coverage": "partial",
+    "measured": "Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.",
+    "unmeasured": [
+      "HTTP router dispatch",
+      "dependency injection/container dispatch",
+      "event-bus dispatch",
+      "registered callback invocation",
+      "deferred lambda/coroutine execution and generator resumption",
+      "reflection and dynamic receiver/factory resolution",
+      "runtime execution, persisted business receipts, and gate substance"
+    ],
+    "summary": "Partial coverage: Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies. Unmeasured: HTTP router dispatch; dependency injection/container dispatch; event-bus dispatch; registered callback invocation; deferred lambda/coroutine execution and generator resumption; reflection and dynamic receiver/factory resolution; runtime execution, persisted business receipts, and gate substance.",
+    "uninvoked_meaning": "No resolved direct path or recognized indirect witness in the static model; not proof of runtime non-invocation.",
+    "root_count": 401,
+    "predicate_provenance": "recomputed",
+    "runtime_invocation_established": false,
+    "limitations": [
+      "Static paths do not prove execution, persisted receipts, or gate substance.",
+      "Reflection, callbacks, receiver types and conditional aliases need manual tracing.",
+      "Concrete public source callables are candidates; helpers are traversed.",
+      "No HTTP route is assumed runnable merely because it has a decorator."
+    ],
+    "base": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+    "denominator": {
+      "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+      "current_files": 5908,
+      "base_files": 5908,
+      "source_files": 2702,
+      "current_sha256": "3cab0b03463c59a4eff222d41f0a326bcd279dd8d478a667759100d92f4206fa",
+      "base_sha256": "b58230a633e0e3deaaf939b20c1d2c8502d267cedd4601a7a40ba635db23afb8"
+    }
+  },
+  "complete_candidate_count": 13106,
+  "complete_candidate_status_counts": {
+    "unresolved_by_construction": 9216,
+    "uninvoked": 2156,
+    "static_path": 1734
+  },
+  "all_changed_candidate_details": {
+    "polisyos.lex.knowledge.search.LegalKnowledgeGraph.hybrid_search": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/lex/knowledge/search.py",
+      "terminus": null,
+      "changed": true,
+      "lost_path": false,
+      "source_callers": [],
+      "test_callers": [
+        "tests.unit.remediation.test_emb_03.test_openai_label_does_not_authorize_query_vectors_and_hybrid_falls_back"
+      ],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.lex.knowledge.search.LegalKnowledgeGraph.hybrid_search",
+      "indirect_boundary_evidence": [
+        {
+          "path": "src/polisyos/lex/knowledge/benchmark.py",
+          "line": 937,
+          "column": 63,
+          "scope": "polisyos.lex.knowledge.benchmark.run_legal_benchmark",
+          "reason": "callable_value_escape",
+          "expression": "graph"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/benchmark.py",
+          "line": 939,
+          "column": 12,
+          "scope": "polisyos.lex.knowledge.benchmark.run_legal_benchmark",
+          "reason": "callable_value_escape",
+          "expression": "graph"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/benchmark.py",
+          "line": 942,
+          "column": 12,
+          "scope": "polisyos.lex.knowledge.benchmark.run_legal_benchmark",
+          "reason": "callable_value_escape",
+          "expression": "graph"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/search.py",
+          "line": 100,
+          "column": 51,
+          "scope": "polisyos.lex.knowledge.search.LegalKnowledgeGraph._get_query_input",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/search.py",
+          "line": 100,
+          "column": 80,
+          "scope": "polisyos.lex.knowledge.search.LegalKnowledgeGraph._get_query_input",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/validation/policy_verified/service.py",
+          "line": 637,
+          "column": 40,
+          "scope": "polisyos.scientist.validation.policy_verified.service._build_legal_toolkit",
+          "reason": "callable_value_escape",
+          "expression": "legal_graph"
+        }
+      ]
+    },
+    "polisyos.lex.knowledge.store.LegalKnowledgeStore.resolve_amendment_window_denominator": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/lex/knowledge/store.py",
+      "terminus": null,
+      "changed": true,
+      "lost_path": false,
+      "source_callers": [],
+      "test_callers": [
+        "tests.unit.lex.test_knowledge_store_filters.test_missing_amendment_effective_window_stays_in_complete_denominator",
+        "tests.unit.lex.test_knowledge_store_filters.test_retroactive_row_differs_before_and_after_knowledge_cutoff",
+        "tests.unit.lex.test_knowledge_store_filters.test_unresolved_lex_window_partition_is_typed_and_verified"
+      ],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.lex.knowledge.store.LegalKnowledgeStore.resolve_amendment_window_denominator",
+      "indirect_boundary_evidence": [
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 282,
+          "column": 42,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._parse_amendment_date",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 290,
+          "column": 22,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._parse_amendment_datetime",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 293,
+          "column": 46,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._parse_amendment_datetime",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 759,
+          "column": 26,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._numeric_row_value",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 761,
+          "column": 21,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._numeric_row_value",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 838,
+          "column": 60,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._scope_applies",
+          "reason": "callable_value_escape",
+          "expression": "declared_scope"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 849,
+          "column": 20,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._scope_tokens",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1083,
+          "column": 12,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._resolve_legal_generation",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1084,
+          "column": 35,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._resolve_legal_generation",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1085,
+          "column": 30,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._resolve_legal_generation",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1179,
+          "column": 26,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._require_query_profile",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1188,
+          "column": 18,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._require_query_profile",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1221,
+          "column": 26,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1223,
+          "column": 26,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1233,
+          "column": 51,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1255,
+          "column": 35,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1256,
+          "column": 32,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1258,
+          "column": 40,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1260,
+          "column": 54,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1287,
+          "column": 21,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1294,
+          "column": 53,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1900,
+          "column": 20,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._parse_lex_date",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        }
+      ]
+    },
+    "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_entities_by_vector": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/lex/knowledge/store.py",
+      "terminus": null,
+      "changed": true,
+      "lost_path": false,
+      "source_callers": [],
+      "test_callers": [
+        "tests.unit.remediation.test_emb_03.test_legacy_entrypoint_uses_supported_encoder_and_legal_reader",
+        "tests.unit.remediation.test_emb_03.test_legal_entity_fact_and_provision_readers_follow_selected_membership",
+        "tests.unit.remediation.test_emb_03.test_raw_vector_cannot_bypass_query_profile_gate_and_control_is_discriminating"
+      ],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_entities_by_vector",
+      "indirect_boundary_evidence": [
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 282,
+          "column": 42,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._parse_amendment_date",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 290,
+          "column": 22,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._parse_amendment_datetime",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 293,
+          "column": 46,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._parse_amendment_datetime",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 759,
+          "column": 26,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._numeric_row_value",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 761,
+          "column": 21,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._numeric_row_value",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 838,
+          "column": 60,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._scope_applies",
+          "reason": "callable_value_escape",
+          "expression": "declared_scope"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 849,
+          "column": 20,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._scope_tokens",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1083,
+          "column": 12,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._resolve_legal_generation",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1084,
+          "column": 35,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._resolve_legal_generation",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1085,
+          "column": 30,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._resolve_legal_generation",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1179,
+          "column": 26,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._require_query_profile",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1188,
+          "column": 18,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._require_query_profile",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1221,
+          "column": 26,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1223,
+          "column": 26,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1233,
+          "column": 51,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1255,
+          "column": 35,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1256,
+          "column": 32,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1258,
+          "column": 40,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1260,
+          "column": 54,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1287,
+          "column": 21,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1294,
+          "column": 53,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1900,
+          "column": 20,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._parse_lex_date",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        }
+      ]
+    },
+    "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_facts_by_vector": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/lex/knowledge/store.py",
+      "terminus": null,
+      "changed": true,
+      "lost_path": false,
+      "source_callers": [],
+      "test_callers": [
+        "tests.unit.remediation.test_emb_03.test_legal_entity_fact_and_provision_readers_follow_selected_membership"
+      ],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_facts_by_vector",
+      "indirect_boundary_evidence": [
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 282,
+          "column": 42,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._parse_amendment_date",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 290,
+          "column": 22,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._parse_amendment_datetime",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 293,
+          "column": 46,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._parse_amendment_datetime",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 759,
+          "column": 26,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._numeric_row_value",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 761,
+          "column": 21,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._numeric_row_value",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 838,
+          "column": 60,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._scope_applies",
+          "reason": "callable_value_escape",
+          "expression": "declared_scope"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 849,
+          "column": 20,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._scope_tokens",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1083,
+          "column": 12,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._resolve_legal_generation",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1084,
+          "column": 35,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._resolve_legal_generation",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1085,
+          "column": 30,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._resolve_legal_generation",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1179,
+          "column": 26,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._require_query_profile",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1188,
+          "column": 18,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._require_query_profile",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1221,
+          "column": 26,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1223,
+          "column": 26,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1233,
+          "column": 51,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1255,
+          "column": 35,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1256,
+          "column": 32,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1258,
+          "column": 40,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1260,
+          "column": 54,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1287,
+          "column": 21,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1294,
+          "column": 53,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1900,
+          "column": 20,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._parse_lex_date",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        }
+      ]
+    },
+    "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_provisions_by_vector": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/lex/knowledge/store.py",
+      "terminus": null,
+      "changed": true,
+      "lost_path": false,
+      "source_callers": [],
+      "test_callers": [
+        "tests.unit.remediation.test_emb_03.test_legal_entity_fact_and_provision_readers_follow_selected_membership"
+      ],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_provisions_by_vector",
+      "indirect_boundary_evidence": [
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 282,
+          "column": 42,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._parse_amendment_date",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 290,
+          "column": 22,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._parse_amendment_datetime",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 293,
+          "column": 46,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._parse_amendment_datetime",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 759,
+          "column": 26,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._numeric_row_value",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 761,
+          "column": 21,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._numeric_row_value",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 838,
+          "column": 60,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._scope_applies",
+          "reason": "callable_value_escape",
+          "expression": "declared_scope"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 849,
+          "column": 20,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._scope_tokens",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1083,
+          "column": 12,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._resolve_legal_generation",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1084,
+          "column": 35,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._resolve_legal_generation",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1085,
+          "column": 30,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._resolve_legal_generation",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1179,
+          "column": 26,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._require_query_profile",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1188,
+          "column": 18,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._require_query_profile",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1221,
+          "column": 26,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1223,
+          "column": 26,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1233,
+          "column": 51,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1255,
+          "column": 35,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1256,
+          "column": 32,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1258,
+          "column": 40,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1260,
+          "column": 54,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1287,
+          "column": 21,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1294,
+          "column": 53,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._query_vector_for_generation",
+          "reason": "callable_value_escape",
+          "expression": "query"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1900,
+          "column": 20,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._parse_lex_date",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        }
+      ]
+    },
+    "polisyos.lex.knowledge.store.LegalQueryProfile.from_generation": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/lex/knowledge/store.py",
+      "terminus": null,
+      "changed": true,
+      "lost_path": false,
+      "source_callers": [],
+      "test_callers": [
+        "tests.unit.remediation.test_emb_03._legal_query_profile",
+        "tests.unit.remediation.test_emb_03.test_request_snapshot_does_not_alias_selected_generation_inventory"
+      ],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.lex.knowledge.store.LegalQueryProfile.from_generation",
+      "indirect_boundary_evidence": [
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 131,
+          "column": 1,
+          "scope": "polisyos.lex.knowledge.store",
+          "reason": "decorated_definition",
+          "expression": "dataclass(frozen=True, slots=True)"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 147,
+          "column": 17,
+          "scope": "polisyos.lex.knowledge.store.LegalQueryProfile.__post_init__",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 149,
+          "column": 20,
+          "scope": "polisyos.lex.knowledge.store.LegalQueryProfile.__post_init__",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 151,
+          "column": 20,
+          "scope": "polisyos.lex.knowledge.store.LegalQueryProfile.__post_init__",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 156,
+          "column": 5,
+          "scope": "polisyos.lex.knowledge.store.LegalQueryProfile",
+          "reason": "decorated_definition",
+          "expression": "classmethod"
+        },
+        {
+          "path": "src/polisyos/lex/knowledge/store.py",
+          "line": 1192,
+          "column": 33,
+          "scope": "polisyos.lex.knowledge.store.LegalKnowledgeStore._require_query_profile:<deferred:1191:48>",
+          "reason": "callable_value_escape",
+          "expression": "LegalQueryProfile"
+        }
+      ]
+    }
+  },
+  "all_lost_path_candidate_details": {},
+  "measurement_limit": "Required wrapper executed once and emitted UNRESOLVED/partial after complete raw JSON persistence/readback. Unified session later became unknown, no child/runner exists, and author wait4 receipt was not persisted. Exact process exit/wall/RSS unavailable; root independently confirms no completion/resource capture. Preserve ERROR for capture separately from actual raw UNRESOLVED diagnostic. No replay, no inferred exit3, no OOM attribution (oom_kill unchanged1).",
+  "unresolved_candidate_denominator": {
+    "count": 9216,
+    "complete_list_json_sha256": "fbe76eb000bbc44e57871ecf91e7548e889fe88ed8345582502fcd3848c61905",
+    "detail_location": "full ignored raw JSON"
+  },
+  "capture_status": "ERROR_INCOMPLETE_AUTHOR_PROCESS_CAPTURE",
+  "raw_diagnostic_status": "UNRESOLVED",
+  "exit_code": null,
+  "wall_seconds": null,
+  "maxrss_kib": null,
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python3.14",
+    "-m",
+    "polisyos.runtime.quality.production_invocation",
+    "--base",
+    "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+    "--receipt",
+    "_build/e02-C-orch02-c12-recovery/production-invocation-r2-a47.json"
+  ],
+  "cwd": "/workspace/orch02-c12/policy-engine",
+  "environment": {
+    "PYTHONPATH": "/workspace/orch02-c12/policy-engine/src:/workspace/orch02-c12/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "source_binding_basis": "No HEAD/source mutation between frozen a47 review, native observations, required architecture receipt before/after, and raw readback; complete current/base input checksum reconciliation follows separately."
+}

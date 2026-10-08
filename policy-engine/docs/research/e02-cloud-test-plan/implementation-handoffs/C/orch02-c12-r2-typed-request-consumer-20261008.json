@@ -1,0 +1,373 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "execution_role": "C12",
+  "slice": "ORCH02 r2 typed Legal store and portable persisted request consumer",
+  "branch": "codex/e02-C-orch02-c12-recovery",
+  "mode": "owned_source_implementation_and_source_qualified_append_only_receipt",
+  "source_candidate": {
+    "sha": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+    "tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+    "parents": [
+      "fd3898acf23212c14b0fea62647e882c81d4f479"
+    ]
+  },
+  "implementation_commits": [
+    {
+      "sha": "fd3898acf23212c14b0fea62647e882c81d4f479",
+      "tree": "3fedb319b3262f6d3f2af76771f309aeba8d6253",
+      "parents": [
+        "9c46da826c3d54b6d0a13cc1772bda4b2c646e68"
+      ]
+    },
+    {
+      "sha": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+      "tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+      "parents": [
+        "fd3898acf23212c14b0fea62647e882c81d4f479"
+      ]
+    }
+  ],
+  "source_review_order": "Numeric repair tree2e40b42e independently reviewed before ordinary a47 commit. Earlier fd implementation boundary remains append-only; independent source review qualified it before affected native wave.",
+  "r2_slice_base": {
+    "sha": "9c46da826c3d54b6d0a13cc1772bda4b2c646e68",
+    "tree": "99e992c598468fdfe6d5bc17d4d77951e52117e0",
+    "parents": [
+      "0a613e861a45981cf1f2808d5934d6d355147f13"
+    ]
+  },
+  "original_Legal_slice_base": {
+    "sha": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+    "tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+    "parents": [
+      "f428b114f4afb5c9cdde93a8e9bf036abe5ac329"
+    ]
+  },
+  "current_G": {
+    "sha": "dee58973f7673299070b7c7374f419b0adb8175c",
+    "tree": "4caee698bd9a6c61277a1608bb38376b669f0372",
+    "parents": [
+      "e01d15c71a46c129805ab8e9f5310b53cad6efdc"
+    ]
+  },
+  "admission": {
+    "coordinator_commit": "e5e32e19b69d1847b153efc0b83987fdd28e68c2",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c12-resume.json",
+    "binding": {
+      "blob": "88c10873dd2be91b328b64e6703613a2081904cc",
+      "bytes": 36332,
+      "sha256": "4eee8a655367751b957a83c3842f9eabc0999dc175abc060d0946de4a66f7808"
+    },
+    "result": "fresh resume admitted exact own path/branch; root explicitly released source mutation"
+  },
+  "owned_source_test_document_release_changed_paths": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-legal-store-typed-request-consumer-r2.toml",
+      "preimage_r2_parent": null,
+      "postimage": {
+        "blob": "627306a715f05ad83bbfca4448d183d3663d00f9",
+        "bytes": 1160,
+        "sha256": "790523a3ef29d15c0b7bde1f03889dc139b72c4b9301dca95ac91edfe9ea7c90"
+      },
+      "current_G": null
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/knowledge/README.md",
+      "preimage_r2_parent": {
+        "blob": "15ef2244c71a5162e2772127eb56fdabbf57fd18",
+        "bytes": 6429,
+        "sha256": "f7e3ab550a4634b509f3a47962f5719c521ed6f7855c54b1bd68ddde641d1c48"
+      },
+      "postimage": {
+        "blob": "faee6622a7a60672bfcd2ec22c66f4ddab7691c0",
+        "bytes": 7522,
+        "sha256": "00bfa1789c43cc6e3ac511b87ff7700a24f687c1ab077cad5fb2a6a0a3138ecb"
+      },
+      "current_G": {
+        "blob": "5bb71b6fc1a5229dfee5fe0043afdd8d0763622c",
+        "bytes": 3498,
+        "sha256": "505790b027867c20c88640698d7f98d90de101b73b20d3bbcac5f229397c427b"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+      "preimage_r2_parent": {
+        "blob": "5831a8c63410a1b002970e7cd82e43b780f92342",
+        "bytes": 108831,
+        "sha256": "7027efe1b04286f3fc9b07f8ab42f1a410e0cfbbd7938771469487b604b2d481"
+      },
+      "postimage": {
+        "blob": "2d87ced6ca51b63e28b7da5b3265867d6c78b103",
+        "bytes": 110582,
+        "sha256": "c46b383658938c98bd78883f21236b90fe630e2063cecaeeb1c24aa6bbff7705"
+      },
+      "current_G": {
+        "blob": "9a01a6c2cd2baa0ae29736b526153046ae2e822a",
+        "bytes": 93645,
+        "sha256": "a2863ef4fe24653bff1518588fc3df6430911d21bc41fc219b281f239b6231dc"
+      }
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+      "preimage_r2_parent": {
+        "blob": "b555dd0e9770a095400857675b64e6cffdeeace2",
+        "bytes": 49372,
+        "sha256": "b966282f9084b31a852e232aaee8f268864d486ccebd9a8fff55ce2e757ab89c"
+      },
+      "postimage": {
+        "blob": "7e65b8d7631aa66a9c4713f16b5a28ebc6ff3ce7",
+        "bytes": 56014,
+        "sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+      },
+      "current_G": {
+        "blob": "0267e54b7143b862b703a3b99aa24e383ea490a2",
+        "bytes": 11370,
+        "sha256": "f2f34bb3b01fd0daebcd9cc1956045519f972d90c6f843b565bc3e038bceb162"
+      }
+    }
+  ],
+  "implementation": {
+    "typed_contracts": "Canonical existing core.contracts.epoch DTO bindings, explicit actual DuckDB LIST(STRUCT) scope normalization, optional COUNT row handling, SQL scalar conversion and float32 query vector return. No duplicate DTO, Any widening or ignore blanket.",
+    "numeric_class": "None absent, float scalar directly preserved, only string lexical scanner retained. Closes zero loss and scientific-notation scalar reinterpretation as one numeric class; 24 persisted/reopened actual evaluate_rule_threshold witnesses.",
+    "request_consumer": "Saved immutable G0 request intent survives same-corpus/same-assets G1 publication. Fresh reopened Graph searches entities/facts/provisions with actual existing encode/native HNSW. Missing/stale/mixed generation-inventory request refuses before encode/native knn; independently supplied fresh matching request succeeds.",
+    "unchanged_search": "search.py remains exact source192 blob58925aa6754b4decdbc7dcc236bd76e516827002, hash384d9377c3fe8f0fef6142d3f9b7161c5a3cf46a927f6136462e60aa5199b9cb. Deprecated Graph.embedding_model is no request selector."
+  },
+  "new_source_verification": [
+    {
+      "gate": "fresh baseline192 two-file mypy",
+      "outcome": "FAIL",
+      "errors": 14,
+      "scope": "13 owned source findings plus absent optional hnswlib typing stubs; fresh192 command distinct from historical677. Full output retained."
+    },
+    {
+      "gate": "final a47 two-file strict mypy",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 52.12633948599978,
+      "maxrss_kib": 620796,
+      "profile": "Isolated hash-pinned types-hnswlib0.8.0.20260911 + NumPy2.3.5 with locked app packages read-only; repository/shared lock unchanged. Supplemental type profile, no native execution or global quality claim.",
+      "receipt": "quality/mypy-a47.receipt.json"
+    },
+    {
+      "gate": "final Ruff/check and format",
+      "outcome": "PASS",
+      "scope": "exact a47 store/search/owned EMB03; both complete outputs/resources source-bound"
+    },
+    {
+      "gate": "final independent affected native",
+      "outcome": "PASS",
+      "unique_cases": 58,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "denominator": "45 original final cases + only13 previously omitted serving consumers; disjoint sets. 50 relevant EMB cases + all8 knowledge_store_filters cases. Actual full64 EMB collection is COLLECT_ONLY;14 unchanged pure producer/constructor cases explicitly not rerun. No complete64 or old36 replay/PASS claim.",
+      "primary": "native/independent-receipt.json",
+      "append_only_supplement": "native/coverage-supplement.json"
+    },
+    {
+      "gate": "same request-consumer guard-only removal",
+      "outcome": "EXPECTED_FAIL",
+      "raw_exit_code": 1,
+      "cases": 9,
+      "failures": 9,
+      "errors": 0,
+      "skips": 0,
+      "predicate": "Actual unchanged pytest refusal assertions DID_NOT_RAISE, each invalid request reaches actual encode/nativeknn once; only _require_query_profile removed, actual encoder/membership/index retained."
+    },
+    {
+      "gate": "same numeric-consumer float branch removal",
+      "outcome": "EXPECTED_FAIL",
+      "raw_exit_code": 1,
+      "cases": 24,
+      "failures": 12,
+      "passes": 12,
+      "errors": 0,
+      "skips": 0,
+      "predicate": "Float routed through existing text scanner only; every scientific scalar variant fails actual status/normalized-value assertion, zero controls still pass. Not a full old-parser replacement or all24FAIL claim."
+    },
+    {
+      "gate": "required full default architecture a47",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 493.39626459399915,
+      "maxrss_kib": 1114148,
+      "deep_import_diagnostics": 154,
+      "baseline_drifts": 1,
+      "generated_drifts": 2,
+      "required_default_families": 4,
+      "UNRUN": 0,
+      "worktree_escapes": 0,
+      "output": "quality/architecture-a47.stdout.txt",
+      "limit": "Client3/dashboard1 match against committed schema copied into isolated source, which differs separately regenerated OpenAPI. No refreshed cross-family runtime chain, optional family or standalone Atlas PASS. Own store2 deep imports still require selected G canonical suppliers/public API; baseline/policy/generated owners G."
+    },
+    {
+      "gate": "required production_invocation wrapper on NEW a47/basec60 once",
+      "outcome": "ERROR",
+      "capture_status": "ERROR_INCOMPLETE_AUTHOR_PROCESS_CAPTURE",
+      "raw_diagnostic": "UNRESOLVED",
+      "coverage": "partial",
+      "process_exit_code": null,
+      "wall_seconds": null,
+      "maxrss_kib": null,
+      "raw_json_complete": true,
+      "raw_bytes": 170878513,
+      "raw_sha256": "f085965bdedca04acf47ae5cdc2f9f7c316b1e0d04dead869fde1ff69b93e50b",
+      "raw_path": "/workspace/orch02-c12/policy-engine/_build/e02-C-orch02-c12-recovery/production-invocation-r2-a47.json",
+      "raw_gitignored": true,
+      "raw_published": false,
+      "deciding_candidates": 6,
+      "regressions": 0,
+      "complete_current_and_base_Python_files": 5908,
+      "source_files": 2702,
+      "tools_files": 445,
+      "tests_files": 2761,
+      "candidate_count": 13106,
+      "unresolved_by_construction": 9216,
+      "uninvoked_static_model": 2156,
+      "static_paths": 1734,
+      "root_count": 401,
+      "unresolved_receiver_calls": 139838,
+      "runtime_invocation_established": false,
+      "limit": "Complete raw input hashes and deciding diagnostic read back. Unified session unknown and child/runner absent; wait4 receipt not persisted and root had no independent completion/resources. Do not infer3 or OOM cause or replay unchanged graph solely to recover capture. Required diagnostic remains partial/red; process capture ERROR is separate.",
+      "extract": "quality/invocation-a47-extract.json",
+      "input_checksum_reconciliation": "quality/invocation-a47-input-reconciliation.json",
+      "origin": "quality/invocation-a47-entrypoint-origins.json"
+    }
+  ],
+  "complete_source_dependency_and_supplier_provenance": {
+    "matrix": "companions/prospective-G-reconciliation.json.gz",
+    "declared_input_rows": 29,
+    "complete_upstream_ancestor_count": 35,
+    "complete_ranges": 9,
+    "scope": "Full DFI\u2192CAT\u2192pre-Legal\u2192Legal\u2192C12 Git DAG/range path identities and all declared companion/runtime/test/config bindings; native complete observed polisyos/tools __file__ namespace origins separately reconciled. No complete external dynamic closure claim.",
+    "current_G_product_comparison": "All59 changed paths G032\u2192Gdee are documentation; exact product source/test/config/locks unchanged. Four original existing C12 preimages differ from G, both original new paths absent; r2 unique release new.",
+    "foreign_selection": "Current G lacks canonical encoder-identity/membership/Legal projection suppliers in old carried c60. G must select/reconcile them pathwise; no whole old c60/DFI/CAT/shared kernel snapshot adoption.",
+    "one_G_isolation": "Proposed only for exact composed Legal port after selected foreign supplier/public API; root commissions and grants exact paths. Old admitted lane unchanged."
+  },
+  "partner_packets": {
+    "actual_fetchable_C10_handoff": {
+      "topic": "codex/e02-C10-recovery-20261008",
+      "HEAD": "8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+      "checked_source": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+      "adoption": false
+    },
+    "C10_A_handshake": "companions/C10-A-served-handshake-proposal.json",
+    "minimal_runnable_existing_call": "companions/existing-Legal-typed-call-proposal.py",
+    "actual_current_C10_caller": "LexPipelineMixin.search_lex_graph calls Graph.text_search; strict request fields only query/top_k/output_dir. Exact C10 DTO/nl/lex bytes match G, lifecycle only recursive keyword forwarding. No saved Legal profile/encoder/vector bridge.",
+    "shared_public_API": "companions/shared-public-api-companion-proposal.json",
+    "patches": [
+      "companions/shared-public-api-companion-proposal.patch.gz",
+      "companions/owned-store-public-api-consumer-proposal.patch"
+    ],
+    "proposal_status": "Unapplied exact preimage proposals to existing declared DataForge read_api and Legal knowledge facade only. No new DTO/facade, Core/A/source/lock/generated writes or guessed HTTP status. Exact A/G lease/assembly/request/refusal projection remains required.",
+    "L01_L02_minimal_authentic_tuple": "Not established. L01 supplies existing local matching producer tuple with saved request intent/gen/model/encoder/membership/index basis and actual paths/hashes; L02 consumes authentic selected tuple once admitted. No upload/new producer/fixture relabeled production authority. Generic typing/native fixtures did not wait this tuple.",
+    "LA032": "Exactly one authoritative versioned state/target/prior/donor inventory for four existing readers; no second producer claim."
+  },
+  "common_executed_independent_harness_refs": {
+    "commit": "e5e32e19b69d1847b153efc0b83987fdd28e68c2",
+    "tree": "c6f7eee86568425e5659c0a4fb8786d7c0b45077",
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/native-harness-c05-c12/run_gate_r2.py",
+        "git_blob": "bab005f157024c6e5ce0ba8ce93b331619983cc8",
+        "sha256": "6544e822bb11b92bd288ea63a55999ebe70f9d1477ed21b1f6df5a5989180e9d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/native-harness-c05-c12/orch02_capture.py",
+        "git_blob": "7cbf86739ca1ab92c9979c036d566f7dadab5b23",
+        "sha256": "9cfc5463e907c0420e58e74a68c82f81b573eeafa00768301c9ab0da32874c6e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/native-harness-c05-c12/run_script_capture.py",
+        "git_blob": "8c5afec15978f40cd95b5d387f3f6acfd5c09912",
+        "sha256": "5944fef637d0f7edec3c0093f944a044c210e4905a5c63209f2a0ef460d4d396"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/native-harness-c05-c12/orch02_profile_probe.py",
+        "git_blob": "9537b9bdf725d89b506f81bc5f966218b12e8647",
+        "sha256": "6be3ba8dba12cf0be0837fbed780df3ed22009a51a78d49b37973274386673e1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/native-harness-c05-c12/orch02_numeric_probe.py",
+        "git_blob": "949b3eca288e94e7cb3690d6e7bd0f62cc86c933",
+        "sha256": "aece30df4b4dc9968269b680d0afc199aac1d48da6b8354800160aa9948b7647"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/native-harness-c05-c12/environment-readiness.json",
+        "git_blob": "7bfb7ebba43fa686886bda767859c0e180d6618b",
+        "sha256": "2240a2599b54b2b8d6bcd941d8bae0fac4932a48506449f2c6dae5e0fd7d1462"
+      }
+    ],
+    "replay": "Recreate isolated supplemental native environment via normal uv/tooling with declared pinned native backend. Preserve exact source/lock/tool origins; no venv/database/model assets copy. Exact run commands/fixture assertions are in native receipts; common harness handles observed event/matched removal only."
+  },
+  "historical_original_C_receipt": {
+    "commit": "9c46da826c3d54b6d0a13cc1772bda4b2c646e68",
+    "source192": "192c8b935b824e2e4d38276f10d3061877207e9f",
+    "main_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008.json",
+    "binding": {
+      "blob": "a1252d4d636b38458ada55834b27b44465819258",
+      "bytes": 55961,
+      "sha256": "75c5c5b108ebe5ff437be2656fbe77de235802b2ed00fdb71ae37fdadb783f5a"
+    },
+    "preservation": "All old84 receipt paths and all original6 proposal postimages except newly owned r2 store/test/README source repairs remain intact. Old full36/native callable residual,677mypyFAIL/architectureUNRUN,192 architectureFAIL and192 measured invocationUNRESOLVED remain exact historical qualification. No rewritten historical prepared.md/release/quality."
+  },
+  "remaining_limits": [
+    "Arbitrary replaced encode callable under unchanged hash-covered state/assets is unchanged declared trusted-canonical-encoder residual; historical192 falsifier retained without rerun.",
+    "Only queried-table request pairing; no global three-table generation lockstep. Refusal before encode/nativeknn, selected persisted index loading may precede guard.",
+    "Pytest cache_dir warning from disabling cacheprovider retained, no warning-free assertion.",
+    "Global architecture FAIL and new invocation partial/red + capture ERROR remain; source/type/native scope are separate. No P41 inherited-green shortcut.",
+    "Actual served caller/request assembly/Core API/generated/refusal response and authentic local L01/L02 tuple remain held.",
+    "No current-law authority, whole LA040/LA042 retirement, G source acceptance or formal closure."
+  ],
+  "evidence_manifest": "evidence-representation-map.json",
+  "evidence_namespace": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008",
+  "independent_review_refs": [
+    {
+      "path": "reviews/c12-independent-source-review-fd3898ac.md",
+      "decoded_bytes": 2239,
+      "decoded_sha256": "3f4f34f354c55f1f0714fae835aa095614bdeaa67647e886dca38b2f4433f699",
+      "scope": "exact source fd3898/staged numeric2e40 snapshot"
+    },
+    {
+      "path": "reviews/c12-independent-source-review-fd3898ac.json",
+      "decoded_bytes": 21691,
+      "decoded_sha256": "b5e8123f075310aa331dd5c5a398fc8bb92e87645fc251540eef8e42cf51fbdf",
+      "scope": "exact source fd3898/staged numeric2e40 snapshot"
+    },
+    {
+      "path": "reviews/c12-independent-numeric-class-review-2e40b42e.md",
+      "decoded_bytes": 1334,
+      "decoded_sha256": "14438260b107a61701778c3dd851ba2cccb5d8514d5c24cb5309d771b0ad05b6",
+      "scope": "exact source fd3898/staged numeric2e40 snapshot"
+    },
+    {
+      "path": "reviews/c12-independent-numeric-class-review-2e40b42e.json",
+      "decoded_bytes": 2934,
+      "decoded_sha256": "865cc797699e2a4fdc6f4e45f63861843914fc356cce6479d79446ed51d940a1",
+      "scope": "exact source fd3898/staged numeric2e40 snapshot"
+    },
+    {
+      "path": "reviews/c12-independent-final-native-review-a47ec396.json.gz",
+      "decoded_bytes": 170830,
+      "decoded_sha256": "47593f7d3302d95a9884a47eef3c838408f0bac6ddca6623eb0acf5cc0e5f803",
+      "scope": "exact a47 native/coverage snapshot; quality/handoff separate"
+    },
+    {
+      "path": "reviews/c12-independent-final-native-review-a47ec396.md",
+      "decoded_bytes": 1284,
+      "decoded_sha256": "311c038be57bae4ad2537fac628b218ec022a4752711a8c55ef36c549160c70c",
+      "scope": "exact a47 native/coverage snapshot; quality/handoff separate"
+    }
+  ],
+  "G_source_acceptance": "not_admitted_by_G",
+  "formal_G_closure": false,
+  "closure_ids": [],
+  "production_claim": false,
+  "publication": {
+    "status": "Prepared concrete source-qualified packet precedes ordinary authorized own-topic push/readback after independent handoff review",
+    "force_or_history_rewrite": false,
+    "main_or_integration_publication": false
+  },
+  "evidence_rows_at_freeze": 99,
+  "evidence_representation": "Lossless gzip for large origin/review/matrix and exact captured trailing-whitespace stdout/JUnit/patch artifacts; original bytes/hashes and stored bytes/hashes mapped. No normalized or truncated outputs."
+}

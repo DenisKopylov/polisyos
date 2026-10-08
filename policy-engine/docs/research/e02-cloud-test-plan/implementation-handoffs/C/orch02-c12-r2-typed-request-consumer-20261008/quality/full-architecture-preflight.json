@@ -1,0 +1,23 @@
+{
+  "schema": "policyos.e02.C12.r2.resource_preflight.v1",
+  "observations": {
+    "memory.current": "11442343936",
+    "memory.max": "17179869184",
+    "memory.events": "low 0\nhigh 0\nmax 120738\noom 3\noom_kill 1\noom_group_kill 0"
+  },
+  "intent": "full architecture on final a47 once; invocation static graph queued separately until observed capacity free",
+  "timeout": null,
+  "source_HEAD": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+  "toolchain": {
+    "node": {
+      "path": "/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin/node",
+      "version": "v22.23.3",
+      "sha256": "fde6a4bf8d0562f7751d1a2d6cb9b417c4cfe107bbcb0aa3e9a24e125e348f48"
+    },
+    "uv": {
+      "path": "/workspace/.polisyos-environment/uv/bin/uv",
+      "version": "uv 0.9.21",
+      "sha256": "53d4952a603676225cf4c19899b8f23d8d5e20f1d052e7b25b1cc2209e15deb0"
+    }
+  }
+}

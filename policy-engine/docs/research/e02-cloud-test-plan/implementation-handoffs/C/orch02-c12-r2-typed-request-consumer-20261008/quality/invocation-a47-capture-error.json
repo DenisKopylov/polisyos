@@ -1,0 +1,35 @@
+{
+  "schema": "policyos.e02.C12.r2.invocation_capture_error.v1",
+  "source_sha": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+  "source_tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+  "capture_status": "ERROR_INCOMPLETE_AUTHOR_PROCESS_CAPTURE",
+  "raw_diagnostic_status": "UNRESOLVED",
+  "exit_code": null,
+  "wall_seconds": null,
+  "maxrss_kib": null,
+  "measurement_limit": "Required wrapper executed once and emitted UNRESOLVED/partial after complete raw JSON persistence/readback. Unified session later became unknown, no child/runner exists, and author wait4 receipt was not persisted. Exact process exit/wall/RSS unavailable; root independently confirms no completion/resource capture. Preserve ERROR for capture separately from actual raw UNRESOLVED diagnostic. No replay, no inferred exit3, no OOM attribution (oom_kill unchanged1).",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python3.14",
+    "-m",
+    "polisyos.runtime.quality.production_invocation",
+    "--base",
+    "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+    "--receipt",
+    "_build/e02-C-orch02-c12-recovery/production-invocation-r2-a47.json"
+  ],
+  "cwd": "/workspace/orch02-c12/policy-engine",
+  "environment": {
+    "PYTHONPATH": "/workspace/orch02-c12/policy-engine/src:/workspace/orch02-c12/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "source_binding_basis": "No HEAD/source mutation between frozen a47 review, native observations, required architecture receipt before/after, and raw readback; complete current/base input checksum reconciliation follows separately.",
+  "raw": {
+    "path": "/workspace/orch02-c12/policy-engine/_build/e02-C-orch02-c12-recovery/production-invocation-r2-a47.json",
+    "gitignored": true,
+    "bytes": 170878513,
+    "sha256": "f085965bdedca04acf47ae5cdc2f9f7c316b1e0d04dead869fde1ff69b93e50b",
+    "complete_json_parse": true,
+    "published": false
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "orch02r2.selected-pytest-inputs.v1",
+  "denominator": "complete selected pytest items after collection and deselection; no unselected-suite claim",
+  "count": 13,
+  "nodeids": [
+    "tests/unit/remediation/test_emb_03.py::test_legacy_entrypoint_uses_supported_encoder_and_legal_reader",
+    "tests/unit/remediation/test_emb_03.py::test_raw_vector_cannot_bypass_query_profile_gate_and_control_is_discriminating",
+    "tests/unit/remediation/test_emb_03.py::test_wrong_selected_generation_rejects_previous_query_encoder",
+    "tests/unit/remediation/test_emb_03.py::test_concurrent_selector_replacement_keeps_query_on_one_generation",
+    "tests/unit/remediation/test_emb_03.py::test_previous_rule_generation_is_unsupported_even_with_same_encoder",
+    "tests/unit/remediation/test_emb_03.py::test_openai_label_does_not_authorize_query_vectors_and_hybrid_falls_back",
+    "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode[missing]",
+    "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode[foreign_table]",
+    "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode[duplicate]",
+    "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode[wrong_model]",
+    "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode[malformed]",
+    "tests/unit/remediation/test_emb_03.py::test_same_assets_new_generation_requires_fresh_request_intent_and_fresh_reader",
+    "tests/unit/remediation/test_emb_03.py::test_request_snapshot_does_not_alias_selected_generation_inventory"
+  ],
+  "physical_test_inputs": {
+    "/workspace/orch02-c12/policy-engine/tests/unit/remediation/test_emb_03.py": {
+      "bytes": 56014,
+      "sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    }
+  }
+}

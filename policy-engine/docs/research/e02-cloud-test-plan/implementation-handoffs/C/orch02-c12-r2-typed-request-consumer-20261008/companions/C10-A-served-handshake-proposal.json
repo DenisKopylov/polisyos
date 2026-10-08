@@ -1,0 +1,266 @@
+{
+  "schema": "policyos.e02.C12.r2.C10_A_served_handshake_proposal.v1",
+  "unit": "C",
+  "execution_role": "C12",
+  "status": "proposal_only_requires_C10_A_and_G",
+  "C12_source": {
+    "sha": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+    "tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+    "parents": [
+      "fd3898acf23212c14b0fea62647e882c81d4f479"
+    ]
+  },
+  "current_G": {
+    "sha": "dee58973f7673299070b7c7374f419b0adb8175c",
+    "tree": "4caee698bd9a6c61277a1608bb38376b669f0372",
+    "parents": [
+      "e01d15c71a46c129805ab8e9f5310b53cad6efdc"
+    ]
+  },
+  "C10_fetchable_topic": "codex/e02-C10-recovery-20261008",
+  "C10_handoff_HEAD": {
+    "sha": "8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+    "tree": "124dc6e5746716ade61e5d9d6d8633009db48315",
+    "parents": [
+      "e5310c8e75147ab6c5124784ae859e4a1d30490c"
+    ]
+  },
+  "C10_declared_checked_source": {
+    "sha": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+    "tree": "6506a68152d7a957fc7762e9846a72e7ab98d557",
+    "parents": [
+      "cfe46cfa8428d4388a44d2d68828ad1a5a19b256"
+    ]
+  },
+  "exact_fetched_records": {
+    "HANDOFF.json": {
+      "blob": "10b7d3646c009a0918d9b550698535a97f564924",
+      "bytes": 13331,
+      "sha256": "0d75c023f18d653bb264427cec40b8809d0855ed94a578590da9028b57861bb2"
+    },
+    "README.md": {
+      "blob": "b0531c6f06feacdcf659de9196a46e85334fb0e3",
+      "bytes": 1605,
+      "sha256": "57ad3f2ca281e20fc8208dba054d6b0636e274960808f9171ef94b3d3870e1cf"
+    },
+    "companion-requirements.json": {
+      "blob": "06ce71b32d18569ce77437d3a26818fa9e3cdfc6",
+      "bytes": 14395,
+      "sha256": "2f31d391003ec220208f903e2031f0d30fae9660179482032b68d3a04725b7b4"
+    },
+    "source-manifest.json": {
+      "blob": "8a35f803e0876fe571486cb61cd63cbb00716eb3",
+      "bytes": 13536,
+      "sha256": "597d6e10f234dd41b80c7953d9b12c1696d181a347ceb280bfdcb20b76af93ba"
+    },
+    "progress-packet.json": {
+      "blob": "dfe9c2095dd36bd596db9ab27ba48f23710c40d8",
+      "bytes": 2364,
+      "sha256": "510363b3c6919f2e616c5d704918ea00738b25673862379f142f42cdf4067d0f"
+    },
+    "lease-packet.json": {
+      "blob": "edb0f9d0bcb7926d385841166b8628d6041943a2",
+      "bytes": 8225,
+      "sha256": "464e11f149885273bac897cf019e093bbc78814498ae4bb6336df0f9584e1562"
+    }
+  },
+  "source_contract_binding": [
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/control.py",
+      "G": {
+        "blob": "f50c1bf321abfb05ed5c7aaa56a845a8ecf9ab65",
+        "bytes": 63306,
+        "sha256": "9de30a4eac9b123b9fc8cdfbedeb35e43663ea6d12d93d44b6dc8f68b14c7822"
+      },
+      "C10_checked_source": {
+        "blob": "f50c1bf321abfb05ed5c7aaa56a845a8ecf9ab65",
+        "bytes": 63306,
+        "sha256": "9de30a4eac9b123b9fc8cdfbedeb35e43663ea6d12d93d44b6dc8f68b14c7822"
+      },
+      "C10_handoff_HEAD": {
+        "blob": "f50c1bf321abfb05ed5c7aaa56a845a8ecf9ab65",
+        "bytes": 63306,
+        "sha256": "9de30a4eac9b123b9fc8cdfbedeb35e43663ea6d12d93d44b6dc8f68b14c7822"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "G": {
+        "blob": "4956678ca4ec4253cdf96e103ff83e7226e192da",
+        "bytes": 427462,
+        "sha256": "e73f044870901509f76f73a20e7ea34919029d1d60e3557cf3b507981256b6bd"
+      },
+      "C10_checked_source": {
+        "blob": "4956678ca4ec4253cdf96e103ff83e7226e192da",
+        "bytes": 427462,
+        "sha256": "e73f044870901509f76f73a20e7ea34919029d1d60e3557cf3b507981256b6bd"
+      },
+      "C10_handoff_HEAD": {
+        "blob": "4956678ca4ec4253cdf96e103ff83e7226e192da",
+        "bytes": 427462,
+        "sha256": "e73f044870901509f76f73a20e7ea34919029d1d60e3557cf3b507981256b6bd"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py",
+      "G": {
+        "blob": "5c1f8bba235764741a64aca54f953846bccddc25",
+        "bytes": 11198,
+        "sha256": "dfc4910d4b5ae6785939437b6190912e14a0e1ca43ca48fdf9a0b63f0044ade7"
+      },
+      "C10_checked_source": {
+        "blob": "5c1f8bba235764741a64aca54f953846bccddc25",
+        "bytes": 11198,
+        "sha256": "dfc4910d4b5ae6785939437b6190912e14a0e1ca43ca48fdf9a0b63f0044ade7"
+      },
+      "C10_handoff_HEAD": {
+        "blob": "5c1f8bba235764741a64aca54f953846bccddc25",
+        "bytes": 11198,
+        "sha256": "dfc4910d4b5ae6785939437b6190912e14a0e1ca43ca48fdf9a0b63f0044ade7"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "G": {
+        "blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+        "bytes": 347497,
+        "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9"
+      },
+      "C10_checked_source": {
+        "blob": "57554e1c1b63dd685f81f545ec8dae2201ab2466",
+        "bytes": 347884,
+        "sha256": "300c0b5b0fa2294abb07b02e09fd91eea5a2600c6e23a46ab6cc45ec7f05784b"
+      },
+      "C10_handoff_HEAD": {
+        "blob": "57554e1c1b63dd685f81f545ec8dae2201ab2466",
+        "bytes": 347884,
+        "sha256": "300c0b5b0fa2294abb07b02e09fd91eea5a2600c6e23a46ab6cc45ec7f05784b"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_search_projection.py",
+      "G": {
+        "blob": "24485affe9a5471d186d0b4191edeca841f98fc9",
+        "bytes": 783,
+        "sha256": "90b6de7c11845c63e8a85108814f7d24420927c1ce9be16dcd4a65e0ed97c415"
+      },
+      "C10_checked_source": {
+        "blob": "24485affe9a5471d186d0b4191edeca841f98fc9",
+        "bytes": 783,
+        "sha256": "90b6de7c11845c63e8a85108814f7d24420927c1ce9be16dcd4a65e0ed97c415"
+      },
+      "C10_handoff_HEAD": {
+        "blob": "24485affe9a5471d186d0b4191edeca841f98fc9",
+        "bytes": 783,
+        "sha256": "90b6de7c11845c63e8a85108814f7d24420927c1ce9be16dcd4a65e0ed97c415"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/routes/control.py",
+      "G": {
+        "blob": "b525f2601a311f1b47fd97ae429e1647a6c5d993",
+        "bytes": 39885,
+        "sha256": "0018f247b22b9479be1e37e3827c0381740d8b42649bd08490fe8823494e238c"
+      },
+      "C10_checked_source": {
+        "blob": "b525f2601a311f1b47fd97ae429e1647a6c5d993",
+        "bytes": 39885,
+        "sha256": "0018f247b22b9479be1e37e3827c0381740d8b42649bd08490fe8823494e238c"
+      },
+      "C10_handoff_HEAD": {
+        "blob": "b525f2601a311f1b47fd97ae429e1647a6c5d993",
+        "bytes": 39885,
+        "sha256": "0018f247b22b9479be1e37e3827c0381740d8b42649bd08490fe8823494e238c"
+      }
+    }
+  ],
+  "actual_current_caller": {
+    "callable": "LexPipelineMixin.search_lex_graph(request: core.contracts.control.LexSearchRequest, *, request_id: str | None = None) -> runtime.http.services.control.lex_search_projection.LexSearchResponse",
+    "route": "POST /api/v1/control/lex/search",
+    "request_fields": [
+      "query: str",
+      "top_k: int",
+      "output_dir: str"
+    ],
+    "current_algorithm": "Constructs LegalKnowledgeGraph without query_encoder/query_profile and calls graph.text_search; no actual Legal vector admission. DuckDB/OSError/RuntimeError/TypeError/ValueError exceptions become empty response.",
+    "nl_pipeline": "Exact G/C10 bytes equal; complete named-symbol scan over8622 lines finds only legal_kg_db_path context key, no LegalKnowledgeGraph/query_encoder/query_profile/CatalogRunProfile binding.",
+    "C10_run_lifecycle_delta": "Only existing recursive generation compile keyword forwarding adds n4_recursive_source and recursive_leaf_context_owner. It does not supply Legal intent or encoder.",
+    "lease": "C10 fetched lease permits nl_pipeline/run_lifecycle and listed runtime generation slices; lex_pipeline is outside declared C10 source lease. Need exact A/G grant; no C12 caller or Core writes."
+  },
+  "existing_typed_Legal_capability": {
+    "public_entrypoint": "polisyos.lex.knowledge, already declared supported in architecture/public_surface/contract.toml",
+    "existing_callable": "LegalKnowledgeGraph(db_path: Path, index_dir: Path, *, query_encoder: object | None, query_profile: tuple[LegalQueryProfile, ...] | None) -> LegalKnowledgeGraph",
+    "actual_vector_fact_consumer": "LegalKnowledgeGraph.search_facts(query: str, *, top_k: int = 20, min_similarity: float = 0.3, trust_tier: str | None = grounded_fact, include_candidates: bool = False, ...) -> list[LegalFactResult]",
+    "existing_input_owner": "lex.knowledge.store.LegalQueryProfile frozen dataclass(basis_kind: str, generation_id: str, inventory_bytes: bytes); LegalQueryInput frozen dataclass(text: str, encoder: object, profile: tuple[LegalQueryProfile, ...] | None)",
+    "output_owner": "lex.knowledge.types.LegalFactResult; current C10 local LexSearchResultItem inherits this exact owner model and model_validate(result.model_dump(mode=python)) already projects it",
+    "typed_refusal": "LegalQueryProfileError(ValueError), .code: str; missing encoder currently Graph returns[] with query_profile_error populated, so A must explicitly retain/serve refusal rather than treat[] as vector proof",
+    "public_typing_gap": "Existing lazy knowledge facade exports Graph/results but not LegalQueryProfile/Input/Error, and has no TYPE_CHECKING typed exports. Extend this existing declared facade only under G lease; no invented facade/DTO."
+  },
+  "minimal_actual_caller_delta": [
+    {
+      "owner": "G Core/API/generated",
+      "path": "policy-engine/src/polisyos/core/contracts/control.py",
+      "requirement": "Extend the existing strict LexSearchRequest contract with a versioned immutable expected Legal generation inventory/profile reference from saved request intent (or an owner-persisted request record with exact declared request binding). Do not invent another DTO or derive expected intent from the serving reader selector. Decide exact existing owner schema before generating OpenAPI/client/validator companions."
+    },
+    {
+      "owner": "A/C10 with G lease for actual caller",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py",
+      "requirement": "Resolve the saved immutable request-intent tuple and trusted canonical local encoder from actual configured assembly; pass both into reopened existing LegalKnowledgeGraph and call direct search_facts preserving current request top_k/trust/include_candidates filters and existing LegalFactResult projection. Never authorize by deprecated embedding_model label or raw caller vector. Do not count hybrid/text fallback as vector positive."
+    },
+    {
+      "owner": "A/G response/route",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_search_projection.py",
+      "requirement": "Preserve typed refusal code and request/generation/mode binding through actual served response/error contract; current generic ValueError catch must not erase LegalQueryProfileError into successful empty results. Use existing owner HTTP error/response contracts under exact lease; no C12 guessed new error DTO or status code."
+    },
+    {
+      "owner": "G shared public API",
+      "path": "policy-engine/src/polisyos/lex/knowledge/__init__.py",
+      "requirement": "Expose/type the existing owner LegalQueryProfile/Input/Error alongside existing Graph/results through this existing supported entrypoint. Do not reconstruct same DTO in Core/A."
+    }
+  ],
+  "encoder_and_generation_provenance": {
+    "trusted_encoder": "Existing canonical local sentence-transformer encoder; derive_encoder_identity hashes loaded state_dict, module config, tokenizer vocabulary/settings before and after existing encode call. Desired model/device/dimension/projection/generator-rule version derive from immutable saved inventory requested by caller, not new reader selector.",
+    "membership": "Current SQL owner membership + exact projected text against selected generation basis; only queriedtable tuple is compared, other tables can be independent.",
+    "generation": "Saved intent basis_kind + exact generation_id + immutable canonical inventory_bytes; reader independently resolves current persisted selector and checks exact equality. Generation G0\u2192G1 with same corpus/assets is stale until caller independently supplies fresh matching saved intent.",
+    "callable_residual": "An arbitrary replaced encode callable under unchanged hash-covered assets/state is not proven; retained explicit trusted-canonical-encoder boundary. No rerun or claim of whole runtime capability attestation."
+  },
+  "minimal_authentic_local_tuple": {
+    "owner": "L01 emits existing producer tuple; L02 executes authentic local consumer once admitted",
+    "actual_fields_not_yet_provided": [
+      "local canonical DuckDB path",
+      "local selected generation/inventory/NPZ/HNSW/IDs paths and exact hashes",
+      "saved expected basis_kind/generation_id/inventory bytes/profile request provenance",
+      "declared model/device/dimension/projection/generator rule and loaded encoder assets/local identity",
+      "queriedtable current SQL membership/projected-text basis and true local caller request/profile"
+    ],
+    "asset_upload": false,
+    "new_producer_or_fixture_authority": false,
+    "authentic_positive_status": "not_established; generic persisted fixtures remain eligible and do not wait for production tuple"
+  },
+  "acceptance_selectors": {
+    "positive": "Actual configured request with independently saved matching profile + trusted canonical existing encode + reopened persisted Graph.search_facts + actual served response and generation/mode binding. Fresh second reader must agree.",
+    "negative": [
+      "missing saved profile: refuse before encode/native knn",
+      "G0 saved request with fresh G1 selected generation same corpus/assets: refuse before encode/native knn",
+      "same current generation_id carrying other generation inventory_bytes: refuse before encode/native knn",
+      "wrong encoder weights/tokenizer/device/dimension/projection: typed refusal",
+      "owner membership or projected-text update: no stale member/vector served",
+      "typed refusal survives actual route/response parser; empty text fallback is not vector positive"
+    ],
+    "matched_removal": "Disable only LegalKnowledgeStore._require_query_profile, retain canonical encode/membership/index/markers and run same actual consumer assertions: nine r2 persisted request cases must FAIL. No zero-index-load claim.",
+    "source_qualification": "New own tests do not establish C10 served/production/whole-law authority; caller source acceptance and G formal closure remain separate"
+  },
+  "C10_adoption": false,
+  "G_source_acceptance": "not_admitted_by_G",
+  "formal_closure": false,
+  "closure_ids": [],
+  "numeric_reviewed_source_tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+  "minimal_runnable_existing_call_excerpt": {
+    "path": "existing-Legal-typed-call-proposal.py",
+    "bytes": 1827,
+    "sha256": "7d24410a127b5098777de5639ff17abf8aef9b36f8a6beb49df88ea83d00cf69",
+    "qualification": "Unapplied function excerpt, not a served caller or new producer; same constructor/search_facts behavior exercised by the nine generic persisted consumers. Actual Core/request-assembly/refusal response decisions remain explicit A/G requirements.",
+    "owner_type_imports": "Existing defining modules, pending typed exports through existing declared public knowledge facade. No guessed DTO or status code.",
+    "actual_response_projection": "Current C10 local LexSearchResultItem.model_validate(result.model_dump(mode=python)) remains the existing owner-model projection; actual route refusal must be decided by A/G."
+  }
+}

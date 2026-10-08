@@ -1,0 +1,10 @@
+{
+  "source": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+  "receipt_sha256": "818c26f41a8cc7e9d19aa5d7171dc3ab304145f9ab67719410b6c5f6b3688d2e",
+  "all_recorded_output_rows_verified": 14,
+  "all_match": true,
+  "actual_collected64_no_native_claim": true,
+  "unique_affected58": true,
+  "primary_receipt_unchanged": true,
+  "qualification": "Full supplement/definition/actual output byte readback only; no replay"
+}

@@ -1,0 +1,86 @@
+{
+  "schema": "orch02r2.native-command.v1",
+  "source_sha": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+  "source_tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+  "branch": "codex/e02-C-orch02-c12-recovery",
+  "repo": "/workspace/orch02-c12",
+  "cwd": "/workspace/orch02-c12/policy-engine",
+  "argv": [
+    "/workspace/orch02-native-c05-c12/venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-p",
+    "orch02_capture",
+    "--basetemp",
+    "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/basetemp",
+    "--junitxml",
+    "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/junit.xml",
+    "-q",
+    "tests/unit/remediation/test_emb_03.py::test_legacy_entrypoint_uses_supported_encoder_and_legal_reader",
+    "tests/unit/remediation/test_emb_03.py::test_raw_vector_cannot_bypass_query_profile_gate_and_control_is_discriminating",
+    "tests/unit/remediation/test_emb_03.py::test_wrong_selected_generation_rejects_previous_query_encoder",
+    "tests/unit/remediation/test_emb_03.py::test_concurrent_selector_replacement_keeps_query_on_one_generation",
+    "tests/unit/remediation/test_emb_03.py::test_previous_rule_generation_is_unsupported_even_with_same_encoder",
+    "tests/unit/remediation/test_emb_03.py::test_openai_label_does_not_authorize_query_vectors_and_hybrid_falls_back",
+    "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode",
+    "tests/unit/remediation/test_emb_03.py::test_same_assets_new_generation_requires_fresh_request_intent_and_fresh_reader",
+    "tests/unit/remediation/test_emb_03.py::test_request_snapshot_does_not_alias_selected_generation_inventory"
+  ],
+  "timeout_seconds": null,
+  "executable_path": "/workspace/orch02-native-c05-c12/venv/bin/python",
+  "executable_resolved": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+  "executable_sha256": "010d370720b52e3ad79b21a079be6a10ea848acfc460552aaf3d36334980129f",
+  "timeout_basis": "first wall measurement; no arbitrary cutoff",
+  "environment": {
+    "PYTHONPATH": "/workspace/orch02-c12/policy-engine/src:/workspace/orch02-c12/policy-engine/tests:/workspace/orch02-r2/native-c05-c12",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_CAS_DIR": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/cas",
+    "ORCH02_OUTPUT_DIR": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers"
+  },
+  "explicit_external_plugins": {},
+  "source_status_before": "",
+  "source_status_all_before": "",
+  "environment_profile": "/workspace/orch02-r2/native-c05-c12/environment-readiness.json",
+  "environment_profile_sha256": "2240a2599b54b2b8d6bcd941d8bae0fac4932a48506449f2c6dae5e0fd7d1462",
+  "plugin_sha256": "9cfc5463e907c0420e58e74a68c82f81b573eeafa00768301c9ab0da32874c6e",
+  "harness_sha256": "6544e822bb11b92bd288ea63a55999ebe70f9d1477ed21b1f6df5a5989180e9d",
+  "command_python_input": {},
+  "disk_available_bytes_before": 12384231424,
+  "started_at_utc": "2026-10-08T19:19:18.005552+00:00",
+  "exit_code": 0,
+  "wall_seconds": 8.650816732000749,
+  "finished_at_utc": "2026-10-08T19:19:26.656412+00:00",
+  "source_status_after": "",
+  "source_sha_after": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+  "source_status_all_after": "",
+  "source_binding_intact": true,
+  "disk_available_bytes_after": 12370321408,
+  "outputs": {
+    "junit.xml": {
+      "bytes": 2313,
+      "sha256": "1ff77aeb52cf9a8ee906ff320a2f4c42f061bac4fb5b7efe6369a479667b8cba"
+    },
+    "stdout.txt": {
+      "bytes": 559,
+      "sha256": "0a29f1cd691fe5801350e509616e24d68a2b18e51675222c6bea5988e9d2ebbb"
+    },
+    "runtime-origins.json": {
+      "bytes": 22460,
+      "sha256": "a675f6fe81b5b57e97ade9c340a9d92b0caea0092fe9cfdab00c8c9a9d31a4b0"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "selected-tests.json": {
+      "bytes": 2060,
+      "sha256": "d9a8c6f995cd4aeb76ba788a2c7982e0c4dcf1033187b7a549fbf22ff59d1613"
+    },
+    "resource.json": {
+      "bytes": 290,
+      "sha256": "6e4c5672e8a79a3df1eab5a7b84520f82d76b90c7eb13fcf5c75979f84da5100"
+    }
+  }
+}

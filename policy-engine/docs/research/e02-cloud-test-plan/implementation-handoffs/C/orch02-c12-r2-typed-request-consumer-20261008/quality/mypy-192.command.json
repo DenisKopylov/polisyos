@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python3.14",
+    "-m",
+    "mypy",
+    "--no-incremental",
+    "--cache-dir",
+    "/workspace/orch02-r2/c12/mypy-cache-192",
+    "--follow-imports",
+    "silent",
+    "src/polisyos/lex/knowledge/store.py",
+    "src/polisyos/lex/knowledge/search.py"
+  ],
+  "cwd": "/workspace/orch02-c12/policy-engine",
+  "env": {
+    "PYTHONPATH": "/workspace/orch02-c12/policy-engine/src:/workspace/orch02-c12/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "actual_whole_head": "9c46da826c3d54b6d0a13cc1772bda4b2c646e68",
+  "source_sha": "192c8b935b824e2e4d38276f10d3061877207e9f"
+}

@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python3.14",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/lex/knowledge/store.py",
+    "src/polisyos/lex/knowledge/search.py"
+  ],
+  "cwd": "/workspace/orch02-c12/policy-engine",
+  "exit_code": 0,
+  "wall_seconds": 0.08429407000039646,
+  "maxrss_kib": 14208,
+  "timeout_seconds": null,
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/orch02-r2/c12/ruff-192.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "stderr": {
+      "path": "/workspace/orch02-r2/c12/ruff-192.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

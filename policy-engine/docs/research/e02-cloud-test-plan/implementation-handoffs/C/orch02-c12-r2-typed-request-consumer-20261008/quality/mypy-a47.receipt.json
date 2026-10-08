@@ -1,0 +1,72 @@
+{
+  "argv": [
+    "/workspace/orch02-r2/c12/typing-venv/bin/python",
+    "-m",
+    "mypy",
+    "--no-incremental",
+    "--cache-dir",
+    "/workspace/orch02-r2/c12/mypy-cache-a47",
+    "--follow-imports",
+    "silent",
+    "src/polisyos/lex/knowledge/store.py",
+    "src/polisyos/lex/knowledge/search.py"
+  ],
+  "cwd": "/workspace/orch02-c12/policy-engine",
+  "source_HEAD": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+  "source_tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+  "status_before": "",
+  "input_bytes": {
+    "src/polisyos/lex/knowledge/store.py": {
+      "bytes": 110582,
+      "sha256": "c46b383658938c98bd78883f21236b90fe630e2063cecaeeb1c24aa6bbff7705"
+    },
+    "src/polisyos/lex/knowledge/search.py": {
+      "bytes": 21240,
+      "sha256": "384d9377c3fe8f0fef6142d3f9b7161c5a3cf46a927f6136462e60aa5199b9cb"
+    },
+    "tests/unit/remediation/test_emb_03.py": {
+      "bytes": 56014,
+      "sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    }
+  },
+  "env": {
+    "PYTHONPATH": "/workspace/orch02-c12/policy-engine/src:/workspace/orch02-c12/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "timeout_seconds": null,
+  "exit_code": 0,
+  "wall_seconds": 52.12633948599978,
+  "resource": {
+    "measurement": "Linux wait4 actual child",
+    "maxrss_kib": 620796,
+    "user_seconds": 48.630647,
+    "system_seconds": 3.259878
+  },
+  "HEAD_after": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+  "status_after": "",
+  "inputs_after": {
+    "src/polisyos/lex/knowledge/store.py": {
+      "bytes": 110582,
+      "sha256": "c46b383658938c98bd78883f21236b90fe630e2063cecaeeb1c24aa6bbff7705"
+    },
+    "src/polisyos/lex/knowledge/search.py": {
+      "bytes": 21240,
+      "sha256": "384d9377c3fe8f0fef6142d3f9b7161c5a3cf46a927f6136462e60aa5199b9cb"
+    },
+    "tests/unit/remediation/test_emb_03.py": {
+      "bytes": 56014,
+      "sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    }
+  },
+  "outputs": {
+    ".stdout.txt": {
+      "bytes": 43,
+      "sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"
+    },
+    ".stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

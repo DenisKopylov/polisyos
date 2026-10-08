@@ -1,0 +1,914 @@
+{
+  "schema": "policyos.e02.C12.r2.evidence_representation_map.v1",
+  "status": "frozen source-qualified packet for independent quality/handoff review",
+  "rows": [
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/prospective-G-reconciliation.json",
+      "tracked_relative_path": "companions/prospective-G-reconciliation.json.gz",
+      "representation": "gzip",
+      "original_bytes": 180072,
+      "original_sha256": "8768b213e5b87d1077d9abc802b85d44f75b4bca826e4b0ba9b3d645a85153bf",
+      "stored_bytes": 31909,
+      "stored_sha256": "2c54a0c7efe04a1870ab5460c069a0e3f07660897289c6e94caff4ff198587e9"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/shared-public-api-companion-proposal.json",
+      "tracked_relative_path": "companions/shared-public-api-companion-proposal.json",
+      "representation": "identity",
+      "original_bytes": 5466,
+      "original_sha256": "cb196f515924b6ccc30e89670359ee8c99dd0f880c001880092bd1878a152cc7",
+      "stored_bytes": 5466,
+      "stored_sha256": "cb196f515924b6ccc30e89670359ee8c99dd0f880c001880092bd1878a152cc7"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/shared-public-api-companion-proposal.patch",
+      "tracked_relative_path": "companions/shared-public-api-companion-proposal.patch.gz",
+      "representation": "gzip",
+      "original_bytes": 4619,
+      "original_sha256": "9bb01d1a9dbe6d601097355f7b799ad7ae7d2eb84691134c20c02bb4cf4c92b9",
+      "stored_bytes": 1250,
+      "stored_sha256": "a558a9182ff981b278f318000387454b738a5fdade8bac5f84c51d8b22e6998c"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/owned-store-public-api-consumer-proposal.patch",
+      "tracked_relative_path": "companions/owned-store-public-api-consumer-proposal.patch",
+      "representation": "identity",
+      "original_bytes": 867,
+      "original_sha256": "4cb8825c8578707c0a35e3550f4c9ef9d7d1027b60b472f0ca5af8dffba87d0a",
+      "stored_bytes": 867,
+      "stored_sha256": "4cb8825c8578707c0a35e3550f4c9ef9d7d1027b60b472f0ca5af8dffba87d0a"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/author-native-readback.json",
+      "tracked_relative_path": "quality/author-native-readback.json",
+      "representation": "identity",
+      "original_bytes": 6419,
+      "original_sha256": "62b2c42734af0a40da44b1482d94634096d8bb2e7053cea0fb0acd8260bea6db",
+      "stored_bytes": 6419,
+      "stored_sha256": "62b2c42734af0a40da44b1482d94634096d8bb2e7053cea0fb0acd8260bea6db"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/typing-profile.json",
+      "tracked_relative_path": "quality/typing-profile.json",
+      "representation": "identity",
+      "original_bytes": 5880,
+      "original_sha256": "0a413a7e9f6a9cd08cfee84216b2900398124afbf32c8a63916209996944d937",
+      "stored_bytes": 5880,
+      "stored_sha256": "0a413a7e9f6a9cd08cfee84216b2900398124afbf32c8a63916209996944d937"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/typing-setup.json",
+      "tracked_relative_path": "quality/typing-setup.json",
+      "representation": "identity",
+      "original_bytes": 2425,
+      "original_sha256": "fed3628db25b2bad5c3ffdeb3a3dd0d26ca366f432c39d44d5fc05444d5a6e1f",
+      "stored_bytes": 2425,
+      "stored_sha256": "fed3628db25b2bad5c3ffdeb3a3dd0d26ca366f432c39d44d5fc05444d5a6e1f"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/typing-stubs.in",
+      "tracked_relative_path": "quality/typing-stubs.in",
+      "representation": "identity",
+      "original_bytes": 27,
+      "original_sha256": "ee71e4519e2609b3a18844e90432a2b65ea56af768426984633529157b1c2cf6",
+      "stored_bytes": 27,
+      "stored_sha256": "ee71e4519e2609b3a18844e90432a2b65ea56af768426984633529157b1c2cf6"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/typing-stubs.lock",
+      "tracked_relative_path": "quality/typing-stubs.lock",
+      "representation": "identity",
+      "original_bytes": 6875,
+      "original_sha256": "ad33b8a0a462d55bdb52152f91c2088fc7bbaf4ffc0f6591cd8e66e56e103185",
+      "stored_bytes": 6875,
+      "stored_sha256": "ad33b8a0a462d55bdb52152f91c2088fc7bbaf4ffc0f6591cd8e66e56e103185"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/run_check-a47-typing-executed.py",
+      "tracked_relative_path": "quality/run_check-a47-typing-executed.py",
+      "representation": "identity",
+      "original_bytes": 2011,
+      "original_sha256": "59ad6814ee2f5ae123cc4c4159b57ab585606bc0565bc7171d2beec94b57b07d",
+      "stored_bytes": 2011,
+      "stored_sha256": "59ad6814ee2f5ae123cc4c4159b57ab585606bc0565bc7171d2beec94b57b07d"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/run_check.py",
+      "tracked_relative_path": "quality/run_check.py",
+      "representation": "identity",
+      "original_bytes": 2055,
+      "original_sha256": "9f35218788b7cd3bf00007d5873122baa9a720115ea8521c0eeef2cd391bc613",
+      "stored_bytes": 2055,
+      "stored_sha256": "9f35218788b7cd3bf00007d5873122baa9a720115ea8521c0eeef2cd391bc613"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/full-architecture-preflight.json",
+      "tracked_relative_path": "quality/full-architecture-preflight.json",
+      "representation": "identity",
+      "original_bytes": 873,
+      "original_sha256": "c0536f6e9f00e25c4c20b9dd3b5a6ce634e208ef2b807d3dd7571249ab9d9b68",
+      "stored_bytes": 873,
+      "stored_sha256": "c0536f6e9f00e25c4c20b9dd3b5a6ce634e208ef2b807d3dd7571249ab9d9b68"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/invocation-a47-preflight.json",
+      "tracked_relative_path": "quality/invocation-a47-preflight.json",
+      "representation": "identity",
+      "original_bytes": 1108,
+      "original_sha256": "6a24923327771798ea7b31e1272a93e4accfcb06587d412a8f498b7e7a00e2da",
+      "stored_bytes": 1108,
+      "stored_sha256": "6a24923327771798ea7b31e1272a93e4accfcb06587d412a8f498b7e7a00e2da"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/mypy-192.command.json",
+      "tracked_relative_path": "quality/mypy-192.command.json",
+      "representation": "identity",
+      "original_bytes": 673,
+      "original_sha256": "5cf28f93d68707a0ff2e578e16060a63b7d24e3e51be9009f83376d4e11af408",
+      "stored_bytes": 673,
+      "stored_sha256": "5cf28f93d68707a0ff2e578e16060a63b7d24e3e51be9009f83376d4e11af408"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/mypy-192.receipt.json",
+      "tracked_relative_path": "quality/mypy-192.receipt.json",
+      "representation": "identity",
+      "original_bytes": 870,
+      "original_sha256": "a5b892b1b8b95749ca3e7424852135b4f4a6eba35fcdb501106bb0325bd5f950",
+      "stored_bytes": 870,
+      "stored_sha256": "a5b892b1b8b95749ca3e7424852135b4f4a6eba35fcdb501106bb0325bd5f950"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/mypy-192.stderr.txt",
+      "tracked_relative_path": "quality/mypy-192.stderr.txt",
+      "representation": "identity",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/mypy-192.stdout.txt",
+      "tracked_relative_path": "quality/mypy-192.stdout.txt",
+      "representation": "identity",
+      "original_bytes": 2573,
+      "original_sha256": "4c515308a018abea60c54b51c9741ecc9d3f961d356561425e98db433459f0ac",
+      "stored_bytes": 2573,
+      "stored_sha256": "4c515308a018abea60c54b51c9741ecc9d3f961d356561425e98db433459f0ac"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/ruff-192.command.json",
+      "tracked_relative_path": "quality/ruff-192.command.json",
+      "representation": "identity",
+      "original_bytes": 558,
+      "original_sha256": "1a4d607ae016597d730575597cc773e90d74f9681e28b9705bda8978b4fa1a34",
+      "stored_bytes": 558,
+      "stored_sha256": "1a4d607ae016597d730575597cc773e90d74f9681e28b9705bda8978b4fa1a34"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/ruff-192.receipt.json",
+      "tracked_relative_path": "quality/ruff-192.receipt.json",
+      "representation": "identity",
+      "original_bytes": 753,
+      "original_sha256": "8aeaa5c39486c3dfa36ac189128c2a4a984c4e97e8565de60c03fb6a461acfc9",
+      "stored_bytes": 753,
+      "stored_sha256": "8aeaa5c39486c3dfa36ac189128c2a4a984c4e97e8565de60c03fb6a461acfc9"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/ruff-192.stderr.txt",
+      "tracked_relative_path": "quality/ruff-192.stderr.txt",
+      "representation": "identity",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/ruff-192.stdout.txt",
+      "tracked_relative_path": "quality/ruff-192.stdout.txt",
+      "representation": "identity",
+      "original_bytes": 19,
+      "original_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "stored_bytes": 19,
+      "stored_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/mypy-a47.receipt.json",
+      "tracked_relative_path": "quality/mypy-a47.receipt.json",
+      "representation": "identity",
+      "original_bytes": 2276,
+      "original_sha256": "252bf973547a06d2b349a30f5f72c918f456d6274e075bb8a3d5d40842cc50ba",
+      "stored_bytes": 2276,
+      "stored_sha256": "252bf973547a06d2b349a30f5f72c918f456d6274e075bb8a3d5d40842cc50ba"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/mypy-a47.stderr.txt",
+      "tracked_relative_path": "quality/mypy-a47.stderr.txt",
+      "representation": "identity",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/mypy-a47.stdout.txt",
+      "tracked_relative_path": "quality/mypy-a47.stdout.txt",
+      "representation": "identity",
+      "original_bytes": 43,
+      "original_sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8",
+      "stored_bytes": 43,
+      "stored_sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/ruff-a47.receipt.json",
+      "tracked_relative_path": "quality/ruff-a47.receipt.json",
+      "representation": "identity",
+      "original_bytes": 2213,
+      "original_sha256": "25ff38ece7111491230faf385c82e35485cbdfd72f8ba87b01f7e12c8a0d339c",
+      "stored_bytes": 2213,
+      "stored_sha256": "25ff38ece7111491230faf385c82e35485cbdfd72f8ba87b01f7e12c8a0d339c"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/ruff-a47.stderr.txt",
+      "tracked_relative_path": "quality/ruff-a47.stderr.txt",
+      "representation": "identity",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/ruff-a47.stdout.txt",
+      "tracked_relative_path": "quality/ruff-a47.stdout.txt",
+      "representation": "identity",
+      "original_bytes": 19,
+      "original_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "stored_bytes": 19,
+      "stored_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/format-a47.receipt.json",
+      "tracked_relative_path": "quality/format-a47.receipt.json",
+      "representation": "identity",
+      "original_bytes": 2228,
+      "original_sha256": "9da627cb3d3dbb55190fe9ae6fc19a5c88e4525a6763395969e467948f2060bb",
+      "stored_bytes": 2228,
+      "stored_sha256": "9da627cb3d3dbb55190fe9ae6fc19a5c88e4525a6763395969e467948f2060bb"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/format-a47.stderr.txt",
+      "tracked_relative_path": "quality/format-a47.stderr.txt",
+      "representation": "identity",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/format-a47.stdout.txt",
+      "tracked_relative_path": "quality/format-a47.stdout.txt",
+      "representation": "identity",
+      "original_bytes": 26,
+      "original_sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+      "stored_bytes": 26,
+      "stored_sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/typing-stubs-install.receipt.json",
+      "tracked_relative_path": "quality/typing-stubs-install.receipt.json",
+      "representation": "identity",
+      "original_bytes": 359,
+      "original_sha256": "15595be22fe96c77c97cb9c90b615efad16a8269172d3b464d35011166e19cf1",
+      "stored_bytes": 359,
+      "stored_sha256": "15595be22fe96c77c97cb9c90b615efad16a8269172d3b464d35011166e19cf1"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/typing-stubs-install.stderr.txt",
+      "tracked_relative_path": "quality/typing-stubs-install.stderr.txt",
+      "representation": "identity",
+      "original_bytes": 255,
+      "original_sha256": "f78755ab691e0d8787bf643ec97c1fbe8875ccecfb55e707d5e7a2feece319f1",
+      "stored_bytes": 255,
+      "stored_sha256": "f78755ab691e0d8787bf643ec97c1fbe8875ccecfb55e707d5e7a2feece319f1"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/typing-stubs-install.stdout.txt",
+      "tracked_relative_path": "quality/typing-stubs-install.stdout.txt",
+      "representation": "identity",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/numeric-zero-fd-red.junit.xml",
+      "tracked_relative_path": "quality/author-numeric-fd-red/numeric-zero-fd-red.junit.xml.gz",
+      "representation": "gzip",
+      "original_bytes": 27435,
+      "original_sha256": "b1099a7abef719a709301138675a2150ba1bce1bba6bde77f1271237cc8a938d",
+      "stored_bytes": 1838,
+      "stored_sha256": "a80bddc5a013a97d866e21c20df27fa8c96c12982ed73c5a8cd28ef0bf2dcfbb"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/numeric-zero-fd-red.receipt.json",
+      "tracked_relative_path": "quality/author-numeric-fd-red/numeric-zero-fd-red.receipt.json",
+      "representation": "identity",
+      "original_bytes": 2340,
+      "original_sha256": "20c5e3c05232d0032470fa16d902a8f4cef4ac6788abc1ebc9f1894d2d4873b6",
+      "stored_bytes": 2340,
+      "stored_sha256": "20c5e3c05232d0032470fa16d902a8f4cef4ac6788abc1ebc9f1894d2d4873b6"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/numeric-zero-fd-red.stderr.txt",
+      "tracked_relative_path": "quality/author-numeric-fd-red/numeric-zero-fd-red.stderr.txt",
+      "representation": "identity",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/numeric-zero-fd-red.stdout.txt",
+      "tracked_relative_path": "quality/author-numeric-fd-red/numeric-zero-fd-red.stdout.txt.gz",
+      "representation": "gzip",
+      "original_bytes": 26289,
+      "original_sha256": "42021ed5f9c6700e5f33d81d033aef7e9b866811df5d0f189953abb482d63bae",
+      "stored_bytes": 1813,
+      "stored_sha256": "a0b1b4008b36847a8cdcdc98809afd1561756d47ade16aae4646a577e455666c"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/c12-native-receipt-a47ec396.json",
+      "tracked_relative_path": "native/independent-receipt.json",
+      "representation": "identity",
+      "original_bytes": 75370,
+      "original_sha256": "ad95f93d8babf3a6c95534d21dc9bd10905cb6b3f9c2af7b11557d92783b3ffe",
+      "stored_bytes": 75370,
+      "stored_sha256": "ad95f93d8babf3a6c95534d21dc9bd10905cb6b3f9c2af7b11557d92783b3ffe"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/c12-wave-definition-a47ec396.json",
+      "tracked_relative_path": "native/wave-definition.json",
+      "representation": "identity",
+      "original_bytes": 5717,
+      "original_sha256": "9361b847434ed92d5cdded4092d01068210ad34ba60a4e83051d4f987a970cb3",
+      "stored_bytes": 5717,
+      "stored_sha256": "9361b847434ed92d5cdded4092d01068210ad34ba60a4e83051d4f987a970cb3"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/command.json",
+      "tracked_relative_path": "native/c12-a47-affected-native/command.json",
+      "representation": "identity",
+      "original_bytes": 4526,
+      "original_sha256": "e556e230001cc0e17f3d143e83fbf78e7bdb2abe46b6a0bb585d55e6612b8667",
+      "stored_bytes": 4526,
+      "stored_sha256": "e556e230001cc0e17f3d143e83fbf78e7bdb2abe46b6a0bb585d55e6612b8667"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/junit.xml",
+      "tracked_relative_path": "native/c12-a47-affected-native/junit.xml",
+      "representation": "identity",
+      "original_bytes": 7250,
+      "original_sha256": "4b1dd93834bb3ab39efcb9f3e08e67d31403ddb1a7aec7c0f3f9222cc34afc20",
+      "stored_bytes": 7250,
+      "stored_sha256": "4b1dd93834bb3ab39efcb9f3e08e67d31403ddb1a7aec7c0f3f9222cc34afc20"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/numeric-events.json",
+      "tracked_relative_path": "native/c12-a47-affected-native/numeric-events.json",
+      "representation": "identity",
+      "original_bytes": 66208,
+      "original_sha256": "ae70582cf53080fdac9cabf2783ef17273eca3e8ff66bf5e9f4c8da7ff14b270",
+      "stored_bytes": 66208,
+      "stored_sha256": "ae70582cf53080fdac9cabf2783ef17273eca3e8ff66bf5e9f4c8da7ff14b270"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/stdout.txt",
+      "tracked_relative_path": "native/c12-a47-affected-native/stdout.txt.gz",
+      "representation": "gzip",
+      "original_bytes": 559,
+      "original_sha256": "5c9778b1771ced62401a722c308fda660d1b623553799e94c724198f2695ca15",
+      "stored_bytes": 274,
+      "stored_sha256": "701c6b9e19c4b8a4c7c2aa9c41874733b607acca8427d7920014e4e43e87cdb3"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/profile-events.json",
+      "tracked_relative_path": "native/c12-a47-affected-native/profile-events.json",
+      "representation": "identity",
+      "original_bytes": 82833,
+      "original_sha256": "848a0c535af19fb721812fa10d5b991749149c93cae700cdf771cb97c7ba501b",
+      "stored_bytes": 82833,
+      "stored_sha256": "848a0c535af19fb721812fa10d5b991749149c93cae700cdf771cb97c7ba501b"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/runtime-origins.json",
+      "tracked_relative_path": "native/c12-a47-affected-native/runtime-origins.json.gz",
+      "representation": "gzip",
+      "original_bytes": 352061,
+      "original_sha256": "a936a4b82a472515a0d19659695aaf46cb7e60e16aaf94fd0f0a958ca3b69edf",
+      "stored_bytes": 80465,
+      "stored_sha256": "0c0d3c7ef83ef2ee25462297b844a0e2c300c82a9878c354d20d426c6f0b0220"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/stderr.txt",
+      "tracked_relative_path": "native/c12-a47-affected-native/stderr.txt",
+      "representation": "identity",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/selected-tests.json",
+      "tracked_relative_path": "native/c12-a47-affected-native/selected-tests.json",
+      "representation": "identity",
+      "original_bytes": 6143,
+      "original_sha256": "081931cc87f3f4279789af923a76563791ef2cf842441c740cd112b34df49bb6",
+      "stored_bytes": 6143,
+      "stored_sha256": "081931cc87f3f4279789af923a76563791ef2cf842441c740cd112b34df49bb6"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/resource.json",
+      "tracked_relative_path": "native/c12-a47-affected-native/resource.json",
+      "representation": "identity",
+      "original_bytes": 294,
+      "original_sha256": "b15148565ccb69f28584f6328d8caf2e0b88960e249813b5febfeeb5dc372ec9",
+      "stored_bytes": 294,
+      "stored_sha256": "b15148565ccb69f28584f6328d8caf2e0b88960e249813b5febfeeb5dc372ec9"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/command.json",
+      "tracked_relative_path": "native/c12-a47-profile-guard-removed/command.json",
+      "representation": "identity",
+      "original_bytes": 3621,
+      "original_sha256": "080f07ade388e12925b49ce35ee1b1d3eb5fa1b1d9c1b6cf31df18cc9b2d01eb",
+      "stored_bytes": 3621,
+      "stored_sha256": "080f07ade388e12925b49ce35ee1b1d3eb5fa1b1d9c1b6cf31df18cc9b2d01eb"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/junit.xml",
+      "tracked_relative_path": "native/c12-a47-profile-guard-removed/junit.xml.gz",
+      "representation": "gzip",
+      "original_bytes": 43809,
+      "original_sha256": "b665b5477bbbf6f59931fc93b831fde44cdee00aaa691c24f64e3c419e191d4f",
+      "stored_bytes": 2173,
+      "stored_sha256": "a0c7f322770773b718ccd0f12cd65eef6a1fad646dd22e2bba93c7bce04f88cd"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/stdout.txt",
+      "tracked_relative_path": "native/c12-a47-profile-guard-removed/stdout.txt.gz",
+      "representation": "gzip",
+      "original_bytes": 43543,
+      "original_sha256": "a2c9b5b05afe8b4a6958960a73497e18254fcbe9d1186878c38e398a4e5e59e9",
+      "stored_bytes": 2232,
+      "stored_sha256": "93427b1ac663f79ba068dff2ecf32fb4f4f08128c84f978014933f26f54315f2"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/profile-events.json",
+      "tracked_relative_path": "native/c12-a47-profile-guard-removed/profile-events.json",
+      "representation": "identity",
+      "original_bytes": 68322,
+      "original_sha256": "47c2edc9d13e0d881d673bc10deccaa1c0329931060bf610f6242d8c88ee4acc",
+      "stored_bytes": 68322,
+      "stored_sha256": "47c2edc9d13e0d881d673bc10deccaa1c0329931060bf610f6242d8c88ee4acc"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/runtime-origins.json",
+      "tracked_relative_path": "native/c12-a47-profile-guard-removed/runtime-origins.json",
+      "representation": "identity",
+      "original_bytes": 22460,
+      "original_sha256": "571402bcac1caddfcbdb69df43c0340b0662c875cc587bbbafaf42817f171960",
+      "stored_bytes": 22460,
+      "stored_sha256": "571402bcac1caddfcbdb69df43c0340b0662c875cc587bbbafaf42817f171960"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/stderr.txt",
+      "tracked_relative_path": "native/c12-a47-profile-guard-removed/stderr.txt",
+      "representation": "identity",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/selected-tests.json",
+      "tracked_relative_path": "native/c12-a47-profile-guard-removed/selected-tests.json",
+      "representation": "identity",
+      "original_bytes": 1711,
+      "original_sha256": "c9ce1ef15374dfc18b7166564e158a3dfdc8013815284f79f0f7ee61738154a3",
+      "stored_bytes": 1711,
+      "stored_sha256": "c9ce1ef15374dfc18b7166564e158a3dfdc8013815284f79f0f7ee61738154a3"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/resource.json",
+      "tracked_relative_path": "native/c12-a47-profile-guard-removed/resource.json",
+      "representation": "identity",
+      "original_bytes": 292,
+      "original_sha256": "35e88b012458d870b921e01e5cbb5f6d4df4fb465345b5aaac886e4472114039",
+      "stored_bytes": 292,
+      "stored_sha256": "35e88b012458d870b921e01e5cbb5f6d4df4fb465345b5aaac886e4472114039"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/command.json",
+      "tracked_relative_path": "native/c12-a47-numeric-scalar-removed/command.json",
+      "representation": "identity",
+      "original_bytes": 3609,
+      "original_sha256": "03eac021aa41b438e52c1fb1ba6cf16994385b0a9d82ec7b52a87739d05459a9",
+      "stored_bytes": 3609,
+      "stored_sha256": "03eac021aa41b438e52c1fb1ba6cf16994385b0a9d82ec7b52a87739d05459a9"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/junit.xml",
+      "tracked_relative_path": "native/c12-a47-numeric-scalar-removed/junit.xml.gz",
+      "representation": "gzip",
+      "original_bytes": 38482,
+      "original_sha256": "915eefc8477d113042f413140dfbe732931d913b3ce714758414df88c7a40535",
+      "stored_bytes": 1952,
+      "stored_sha256": "051d9fea02d65a7e043907d363498a72576103982c356946e3e9f48246409451"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/numeric-events.json",
+      "tracked_relative_path": "native/c12-a47-numeric-scalar-removed/numeric-events.json",
+      "representation": "identity",
+      "original_bytes": 66749,
+      "original_sha256": "ded6c72074c24fe3c00b9a34d728fb0f6c1868080d3a385d3fac1b4bb1fd12f8",
+      "stored_bytes": 66749,
+      "stored_sha256": "ded6c72074c24fe3c00b9a34d728fb0f6c1868080d3a385d3fac1b4bb1fd12f8"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/stdout.txt",
+      "tracked_relative_path": "native/c12-a47-numeric-scalar-removed/stdout.txt.gz",
+      "representation": "gzip",
+      "original_bytes": 34446,
+      "original_sha256": "142e0316b97782acdf1a5169c5403bdac7f9bc34fc844cca82095afdd8aaeb5b",
+      "stored_bytes": 1836,
+      "stored_sha256": "37357f9f249f9c6bba54651ee749b67f720b74468ccec0e6dd3388ee1888ef49"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/runtime-origins.json",
+      "tracked_relative_path": "native/c12-a47-numeric-scalar-removed/runtime-origins.json",
+      "representation": "identity",
+      "original_bytes": 22229,
+      "original_sha256": "94127f79d1307d11d6dc6da9f2fd77422f6152c955739c631f97bdca53777c88",
+      "stored_bytes": 22229,
+      "stored_sha256": "94127f79d1307d11d6dc6da9f2fd77422f6152c955739c631f97bdca53777c88"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/stderr.txt",
+      "tracked_relative_path": "native/c12-a47-numeric-scalar-removed/stderr.txt",
+      "representation": "identity",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/selected-tests.json",
+      "tracked_relative_path": "native/c12-a47-numeric-scalar-removed/selected-tests.json",
+      "representation": "identity",
+      "original_bytes": 3257,
+      "original_sha256": "bd92eba19eb08c59ce1df78693b024a107a3e7d4b0decb818bee3b23ad2f4a0b",
+      "stored_bytes": 3257,
+      "stored_sha256": "bd92eba19eb08c59ce1df78693b024a107a3e7d4b0decb818bee3b23ad2f4a0b"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/resource.json",
+      "tracked_relative_path": "native/c12-a47-numeric-scalar-removed/resource.json",
+      "representation": "identity",
+      "original_bytes": 292,
+      "original_sha256": "1a0387ada6ba6cea7fee546e8e53c1114fe94cf0886de3e9ae91abcb4ae1ef7b",
+      "stored_bytes": 292,
+      "stored_sha256": "1a0387ada6ba6cea7fee546e8e53c1114fe94cf0886de3e9ae91abcb4ae1ef7b"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/reviews/c12-independent-source-review-fd3898ac.md",
+      "tracked_relative_path": "reviews/c12-independent-source-review-fd3898ac.md",
+      "representation": "identity",
+      "original_bytes": 2239,
+      "original_sha256": "3f4f34f354c55f1f0714fae835aa095614bdeaa67647e886dca38b2f4433f699",
+      "stored_bytes": 2239,
+      "stored_sha256": "3f4f34f354c55f1f0714fae835aa095614bdeaa67647e886dca38b2f4433f699"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/reviews/c12-independent-source-review-fd3898ac.json",
+      "tracked_relative_path": "reviews/c12-independent-source-review-fd3898ac.json",
+      "representation": "identity",
+      "original_bytes": 21691,
+      "original_sha256": "b5e8123f075310aa331dd5c5a398fc8bb92e87645fc251540eef8e42cf51fbdf",
+      "stored_bytes": 21691,
+      "stored_sha256": "b5e8123f075310aa331dd5c5a398fc8bb92e87645fc251540eef8e42cf51fbdf"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/reviews/c12-independent-numeric-class-review-2e40b42e.md",
+      "tracked_relative_path": "reviews/c12-independent-numeric-class-review-2e40b42e.md",
+      "representation": "identity",
+      "original_bytes": 1334,
+      "original_sha256": "14438260b107a61701778c3dd851ba2cccb5d8514d5c24cb5309d771b0ad05b6",
+      "stored_bytes": 1334,
+      "stored_sha256": "14438260b107a61701778c3dd851ba2cccb5d8514d5c24cb5309d771b0ad05b6"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/reviews/c12-independent-numeric-class-review-2e40b42e.json",
+      "tracked_relative_path": "reviews/c12-independent-numeric-class-review-2e40b42e.json",
+      "representation": "identity",
+      "original_bytes": 2934,
+      "original_sha256": "865cc797699e2a4fdc6f4e45f63861843914fc356cce6479d79446ed51d940a1",
+      "stored_bytes": 2934,
+      "stored_sha256": "865cc797699e2a4fdc6f4e45f63861843914fc356cce6479d79446ed51d940a1"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/C10-A-served-handshake-proposal.json",
+      "tracked_relative_path": "companions/C10-A-served-handshake-proposal.json",
+      "representation": "identity",
+      "original_bytes": 15596,
+      "original_sha256": "cb5e98af0a186742cd5c78b2a509533457ac3a2057515bdab257aaab18a7a78f",
+      "stored_bytes": 15596,
+      "stored_sha256": "cb5e98af0a186742cd5c78b2a509533457ac3a2057515bdab257aaab18a7a78f"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/existing-Legal-typed-call-proposal.py",
+      "tracked_relative_path": "companions/existing-Legal-typed-call-proposal.py",
+      "representation": "identity",
+      "original_bytes": 1827,
+      "original_sha256": "7d24410a127b5098777de5639ff17abf8aef9b36f8a6beb49df88ea83d00cf69",
+      "stored_bytes": 1827,
+      "stored_sha256": "7d24410a127b5098777de5639ff17abf8aef9b36f8a6beb49df88ea83d00cf69"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/architecture-a47.receipt.json",
+      "tracked_relative_path": "quality/architecture-a47.receipt.json",
+      "representation": "identity",
+      "original_bytes": 3002,
+      "original_sha256": "64d204f8c5d2d3b1339073968e6228316ad08321d84ad5fd1f163cd2448fe116",
+      "stored_bytes": 3002,
+      "stored_sha256": "64d204f8c5d2d3b1339073968e6228316ad08321d84ad5fd1f163cd2448fe116"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/architecture-a47.stdout.txt",
+      "tracked_relative_path": "quality/architecture-a47.stdout.txt",
+      "representation": "identity",
+      "original_bytes": 117177,
+      "original_sha256": "6ad9532d14ba4e77db2c6824cf83c4cab810550738d7935daeff5b7cd0797488",
+      "stored_bytes": 117177,
+      "stored_sha256": "6ad9532d14ba4e77db2c6824cf83c4cab810550738d7935daeff5b7cd0797488"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/architecture-a47.stderr.txt",
+      "tracked_relative_path": "quality/architecture-a47.stderr.txt",
+      "representation": "identity",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/architecture-a47-taxonomy.json",
+      "tracked_relative_path": "quality/architecture-a47-taxonomy.json",
+      "representation": "identity",
+      "original_bytes": 12283,
+      "original_sha256": "8f7645b3fc0ec7ec5100850e3701daff83cb4a41e5ab62c7b8d600f3bf2f2e83",
+      "stored_bytes": 12283,
+      "stored_sha256": "8f7645b3fc0ec7ec5100850e3701daff83cb4a41e5ab62c7b8d600f3bf2f2e83"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/invocation-a47.stdout.txt",
+      "tracked_relative_path": "quality/invocation-a47.stdout.txt",
+      "representation": "identity",
+      "original_bytes": 1808,
+      "original_sha256": "c791d248ca56210519704611aa69396be224161029960d604bbb4faf8a8cab71",
+      "stored_bytes": 1808,
+      "stored_sha256": "c791d248ca56210519704611aa69396be224161029960d604bbb4faf8a8cab71"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/invocation-a47.stderr.txt",
+      "tracked_relative_path": "quality/invocation-a47.stderr.txt",
+      "representation": "identity",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/invocation-a47-extract.json",
+      "tracked_relative_path": "quality/invocation-a47-extract.json",
+      "representation": "identity",
+      "original_bytes": 39032,
+      "original_sha256": "5ef0a06951451eeefbdc47222f1599d8265d29a398b6b88bee4f0cdaae689760",
+      "stored_bytes": 39032,
+      "stored_sha256": "5ef0a06951451eeefbdc47222f1599d8265d29a398b6b88bee4f0cdaae689760"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/invocation-a47-entrypoint-origins.json",
+      "tracked_relative_path": "quality/invocation-a47-entrypoint-origins.json",
+      "representation": "identity",
+      "original_bytes": 521,
+      "original_sha256": "873b20b9c343f8721cb9ffb1ac214ef0b8a24b0441afc407efaec775c0482bc4",
+      "stored_bytes": 521,
+      "stored_sha256": "873b20b9c343f8721cb9ffb1ac214ef0b8a24b0441afc407efaec775c0482bc4"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/invocation-a47-input-reconciliation.json",
+      "tracked_relative_path": "quality/invocation-a47-input-reconciliation.json",
+      "representation": "identity",
+      "original_bytes": 1642,
+      "original_sha256": "a47102dedb013b0f62cc67d89263aa88ea911f445777de56442b1fe7267a63ca",
+      "stored_bytes": 1642,
+      "stored_sha256": "a47102dedb013b0f62cc67d89263aa88ea911f445777de56442b1fe7267a63ca"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/invocation-a47-capture-error.json",
+      "tracked_relative_path": "quality/invocation-a47-capture-error.json",
+      "representation": "identity",
+      "original_bytes": 1934,
+      "original_sha256": "044b5e06ed56871e2da97dc90b668b0049918833bf59c4771771a25f0f7616fd",
+      "stored_bytes": 1934,
+      "stored_sha256": "044b5e06ed56871e2da97dc90b668b0049918833bf59c4771771a25f0f7616fd"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/c12-coverage-supplement-a47ec396.json",
+      "tracked_relative_path": "native/coverage-supplement.json",
+      "representation": "identity",
+      "original_bytes": 19434,
+      "original_sha256": "818c26f41a8cc7e9d19aa5d7171dc3ab304145f9ab67719410b6c5f6b3688d2e",
+      "stored_bytes": 19434,
+      "stored_sha256": "818c26f41a8cc7e9d19aa5d7171dc3ab304145f9ab67719410b6c5f6b3688d2e"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/c12-coverage-definition-a47ec396.json",
+      "tracked_relative_path": "native/coverage-definition.json",
+      "representation": "identity",
+      "original_bytes": 24010,
+      "original_sha256": "ecd9b0fa4d4bbee4449e06aed37064fa9bd56ba2e0b34007a8f5cb3fb9649a1f",
+      "stored_bytes": 24010,
+      "stored_sha256": "ecd9b0fa4d4bbee4449e06aed37064fa9bd56ba2e0b34007a8f5cb3fb9649a1f"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/command.json",
+      "tracked_relative_path": "native/c12-a47-full-emb03-collection/command.json",
+      "representation": "identity",
+      "original_bytes": 3250,
+      "original_sha256": "42103dfc0c19b1dd3d972c2617c71790c9042b9f006e169e39d84a7a0eebfe65",
+      "stored_bytes": 3250,
+      "stored_sha256": "42103dfc0c19b1dd3d972c2617c71790c9042b9f006e169e39d84a7a0eebfe65"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/junit.xml",
+      "tracked_relative_path": "native/c12-a47-full-emb03-collection/junit.xml",
+      "representation": "identity",
+      "original_bytes": 238,
+      "original_sha256": "3ab78e3043a78677fedac41243ed420717a6b81af3c5e2610393b51a458a89f9",
+      "stored_bytes": 238,
+      "stored_sha256": "3ab78e3043a78677fedac41243ed420717a6b81af3c5e2610393b51a458a89f9"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/stdout.txt",
+      "tracked_relative_path": "native/c12-a47-full-emb03-collection/stdout.txt.gz",
+      "representation": "gzip",
+      "original_bytes": 522,
+      "original_sha256": "9be31eaea253e2d18dd9f461b3c54ae34f21b606ffb3f9158f8bee07c763eb7d",
+      "stored_bytes": 287,
+      "stored_sha256": "ac598b64f8efb3046f12fd99a05737aa39ea261d469fd424061e49995dcb69d3"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/runtime-origins.json",
+      "tracked_relative_path": "native/c12-a47-full-emb03-collection/runtime-origins.json",
+      "representation": "identity",
+      "original_bytes": 22229,
+      "original_sha256": "b98a86702e3dc393ef66c1e7af4e6b486d8a6b98f218ab41272ee8805808a446",
+      "stored_bytes": 22229,
+      "stored_sha256": "b98a86702e3dc393ef66c1e7af4e6b486d8a6b98f218ab41272ee8805808a446"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/stderr.txt",
+      "tracked_relative_path": "native/c12-a47-full-emb03-collection/stderr.txt",
+      "representation": "identity",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/selected-tests.json",
+      "tracked_relative_path": "native/c12-a47-full-emb03-collection/selected-tests.json",
+      "representation": "identity",
+      "original_bytes": 8313,
+      "original_sha256": "d68f3632322da9bae7cd537e406b899ec9ac4f2e6e3557d655ca553ab8e01e37",
+      "stored_bytes": 8313,
+      "stored_sha256": "d68f3632322da9bae7cd537e406b899ec9ac4f2e6e3557d655ca553ab8e01e37"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/resource.json",
+      "tracked_relative_path": "native/c12-a47-full-emb03-collection/resource.json",
+      "representation": "identity",
+      "original_bytes": 287,
+      "original_sha256": "ee6ced2c5ea71edf449ec3388dbd35a60629c433d248208764297c8d090881c3",
+      "stored_bytes": 287,
+      "stored_sha256": "ee6ced2c5ea71edf449ec3388dbd35a60629c433d248208764297c8d090881c3"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/command.json",
+      "tracked_relative_path": "native/c12-a47-omitted-affected-consumers/command.json",
+      "representation": "identity",
+      "original_bytes": 4259,
+      "original_sha256": "0cc98dfd8dd1932d72d4dbec862ce96ee8d877418d0745e1c665d6aa0a641cfa",
+      "stored_bytes": 4259,
+      "stored_sha256": "0cc98dfd8dd1932d72d4dbec862ce96ee8d877418d0745e1c665d6aa0a641cfa"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/junit.xml",
+      "tracked_relative_path": "native/c12-a47-omitted-affected-consumers/junit.xml",
+      "representation": "identity",
+      "original_bytes": 2313,
+      "original_sha256": "1ff77aeb52cf9a8ee906ff320a2f4c42f061bac4fb5b7efe6369a479667b8cba",
+      "stored_bytes": 2313,
+      "stored_sha256": "1ff77aeb52cf9a8ee906ff320a2f4c42f061bac4fb5b7efe6369a479667b8cba"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/stdout.txt",
+      "tracked_relative_path": "native/c12-a47-omitted-affected-consumers/stdout.txt.gz",
+      "representation": "gzip",
+      "original_bytes": 559,
+      "original_sha256": "0a29f1cd691fe5801350e509616e24d68a2b18e51675222c6bea5988e9d2ebbb",
+      "stored_bytes": 274,
+      "stored_sha256": "d76edd16f67eb3f8f647063ca969bc7136c93fe738b4b2af7ff67c55e65852ca"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/runtime-origins.json",
+      "tracked_relative_path": "native/c12-a47-omitted-affected-consumers/runtime-origins.json",
+      "representation": "identity",
+      "original_bytes": 22460,
+      "original_sha256": "a675f6fe81b5b57e97ade9c340a9d92b0caea0092fe9cfdab00c8c9a9d31a4b0",
+      "stored_bytes": 22460,
+      "stored_sha256": "a675f6fe81b5b57e97ade9c340a9d92b0caea0092fe9cfdab00c8c9a9d31a4b0"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/stderr.txt",
+      "tracked_relative_path": "native/c12-a47-omitted-affected-consumers/stderr.txt",
+      "representation": "identity",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/selected-tests.json",
+      "tracked_relative_path": "native/c12-a47-omitted-affected-consumers/selected-tests.json",
+      "representation": "identity",
+      "original_bytes": 2060,
+      "original_sha256": "d9a8c6f995cd4aeb76ba788a2c7982e0c4dcf1033187b7a549fbf22ff59d1613",
+      "stored_bytes": 2060,
+      "stored_sha256": "d9a8c6f995cd4aeb76ba788a2c7982e0c4dcf1033187b7a549fbf22ff59d1613"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/resource.json",
+      "tracked_relative_path": "native/c12-a47-omitted-affected-consumers/resource.json",
+      "representation": "identity",
+      "original_bytes": 290,
+      "original_sha256": "6e4c5672e8a79a3df1eab5a7b84520f82d76b90c7eb13fcf5c75979f84da5100",
+      "stored_bytes": 290,
+      "stored_sha256": "6e4c5672e8a79a3df1eab5a7b84520f82d76b90c7eb13fcf5c75979f84da5100"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/c12/author-coverage-readback.json",
+      "tracked_relative_path": "quality/author-coverage-readback.json",
+      "representation": "identity",
+      "original_bytes": 416,
+      "original_sha256": "82f346e6f9b6f7f0e6bb3145e378ef00ef486c5c2596c9ff127b94a5475742cd",
+      "stored_bytes": 416,
+      "stored_sha256": "82f346e6f9b6f7f0e6bb3145e378ef00ef486c5c2596c9ff127b94a5475742cd"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/reviews/c12-independent-final-native-review-a47ec396.json",
+      "tracked_relative_path": "reviews/c12-independent-final-native-review-a47ec396.json.gz",
+      "representation": "gzip",
+      "original_bytes": 170830,
+      "original_sha256": "47593f7d3302d95a9884a47eef3c838408f0bac6ddca6623eb0acf5cc0e5f803",
+      "stored_bytes": 12928,
+      "stored_sha256": "33d7eb1671e24eeba3c167e9fff4130b25c752e23d169f364487c4e33cb6917f"
+    },
+    {
+      "original_local_path": "/workspace/orch02-r2/reviews/c12-independent-final-native-review-a47ec396.md",
+      "tracked_relative_path": "reviews/c12-independent-final-native-review-a47ec396.md",
+      "representation": "identity",
+      "original_bytes": 1284,
+      "original_sha256": "311c038be57bae4ad2537fac628b218ec022a4752711a8c55ef36c549160c70c",
+      "stored_bytes": 1284,
+      "stored_sha256": "311c038be57bae4ad2537fac628b218ec022a4752711a8c55ef36c549160c70c"
+    }
+  ],
+  "qualification": "Complete captured bytes preserved losslessly; raw170MB invocation receipt and generated/database/model assets excluded. Original external receipt paths are remapped here, not silently rewritten.",
+  "representation_delta": {
+    "preliminary_staged_tree": "23fd65da6cef67b4c81cf89d491b9112f2eaf3e1",
+    "reason": "Captured stdout/JUnit and valid unified-patch context lines contain trailing whitespace. Lossless gzip preserves exact original bytes and permits clean Git diff checks; no source/runtime/harness/replay delta.",
+    "paths": {
+      "companions/shared-public-api-companion-proposal.patch": "companions/shared-public-api-companion-proposal.patch.gz",
+      "quality/author-numeric-fd-red/numeric-zero-fd-red.junit.xml": "quality/author-numeric-fd-red/numeric-zero-fd-red.junit.xml.gz",
+      "quality/author-numeric-fd-red/numeric-zero-fd-red.stdout.txt": "quality/author-numeric-fd-red/numeric-zero-fd-red.stdout.txt.gz",
+      "native/c12-a47-affected-native/stdout.txt": "native/c12-a47-affected-native/stdout.txt.gz",
+      "native/c12-a47-profile-guard-removed/junit.xml": "native/c12-a47-profile-guard-removed/junit.xml.gz",
+      "native/c12-a47-profile-guard-removed/stdout.txt": "native/c12-a47-profile-guard-removed/stdout.txt.gz",
+      "native/c12-a47-numeric-scalar-removed/junit.xml": "native/c12-a47-numeric-scalar-removed/junit.xml.gz",
+      "native/c12-a47-numeric-scalar-removed/stdout.txt": "native/c12-a47-numeric-scalar-removed/stdout.txt.gz",
+      "native/c12-a47-full-emb03-collection/stdout.txt": "native/c12-a47-full-emb03-collection/stdout.txt.gz",
+      "native/c12-a47-omitted-affected-consumers/stdout.txt": "native/c12-a47-omitted-affected-consumers/stdout.txt.gz"
+    }
+  }
+}

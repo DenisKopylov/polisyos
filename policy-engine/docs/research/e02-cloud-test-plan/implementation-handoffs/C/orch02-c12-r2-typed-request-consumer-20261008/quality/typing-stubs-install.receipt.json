@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/workspace/.polisyos-environment/uv/bin/uv",
+    "pip",
+    "install",
+    "--python",
+    "/workspace/orch02-r2/c12/typing-venv/bin/python",
+    "--require-hashes",
+    "-r",
+    "/workspace/orch02-r2/c12/typing-stubs.lock"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 1.4193965770009527,
+  "maxrss_kib": 37560,
+  "timeout_seconds": null
+}

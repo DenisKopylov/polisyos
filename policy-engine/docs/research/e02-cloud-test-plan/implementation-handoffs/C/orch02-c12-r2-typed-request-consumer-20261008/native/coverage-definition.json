@@ -1,0 +1,369 @@
+{
+  "schema": "orch02r2.c12-complete-affected-coverage.v1",
+  "source_sha": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+  "source_tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+  "state": "FROZEN_BEFORE_ADDITIONAL13_EXECUTION",
+  "actual_full_emb03_collection_count": 64,
+  "collection_command_receipt": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/command.json",
+  "collection_manifest_sha256": "d68f3632322da9bae7cd537e406b899ec9ac4f2e6e3557d655ca553ab8e01e37",
+  "counts": {
+    "ALREADY_EXECUTED_INITIAL45": 37,
+    "UNCHANGED_OUTSIDE_AFFECTED_RUNTIME": 14,
+    "ADDITIONAL_OMITTED_AFFECTED_CONSUMER": 13
+  },
+  "all_cases_classified": [
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_unchanged_append_reuses_only_unchanged_current_member",
+      "state": "UNCHANGED_OUTSIDE_AFFECTED_RUNTIME",
+      "rationale": "Pure unchanged canonical embedder/kernel generation producer; no LegalKnowledgeStore/Graph consumer or changed store method."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_changed_projected_text_same_id_is_reembedded",
+      "state": "UNCHANGED_OUTSIDE_AFFECTED_RUNTIME",
+      "rationale": "Pure unchanged canonical embedder/kernel generation producer; no changed store method."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_withdrawal_removes_id_from_current_generation",
+      "state": "UNCHANGED_OUTSIDE_AFFECTED_RUNTIME",
+      "rationale": "Pure unchanged canonical embedder/kernel generation producer; actual membership reader counterpart already in initial wave."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_encoder_revision_and_dimension_change_never_reuses_old_vectors",
+      "state": "UNCHANGED_OUTSIDE_AFFECTED_RUNTIME",
+      "rationale": "Pure unchanged canonical embedder/kernel producer reuse; live query encoder consumers covered separately."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_same_model_label_and_dimension_with_changed_loaded_weights_invalidates_reuse",
+      "state": "UNCHANGED_OUTSIDE_AFFECTED_RUNTIME",
+      "rationale": "Pure unchanged canonical embedder/kernel producer assets reuse; query wrong-encoder actual consumer already initial wave."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_same_model_label_and_dimension_with_changed_tokenizer_invalidates_reuse",
+      "state": "UNCHANGED_OUTSIDE_AFFECTED_RUNTIME",
+      "rationale": "Pure unchanged canonical embedder/kernel producer tokenizer assets reuse; no changed store path."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_legal_entity_fact_and_provision_readers_follow_selected_membership",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_projection_rule_change_invalidates_reuse",
+      "state": "UNCHANGED_OUTSIDE_AFFECTED_RUNTIME",
+      "rationale": "Pure unchanged embedder/kernel generation producer rule reuse; actual query old-rule consumer included supplement."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_missing_or_corrupt_generation_selector_fails_closed_to_rebuild",
+      "state": "UNCHANGED_OUTSIDE_AFFECTED_RUNTIME",
+      "rationale": "Pure unchanged producer generation selector rebuild; no store query consumer."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_legacy_backend_argument_is_rejected_explicitly",
+      "state": "UNCHANGED_OUTSIDE_AFFECTED_RUNTIME",
+      "rationale": "Unchanged batch embedder compatibility intake rejection, before changed store is called."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_legacy_wrapper_preserves_canonical_result_and_forwards_profile",
+      "state": "UNCHANGED_OUTSIDE_AFFECTED_RUNTIME",
+      "rationale": "Unchanged batch producer wrapper forwarding using controlled canonical producer; no changed store consumer."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_legacy_entrypoint_uses_supported_encoder_and_legal_reader",
+      "state": "ADDITIONAL_OMITTED_AFFECTED_CONSUMER",
+      "rationale": "Actual LegalKnowledgeStore.search_entities_by_vector reaches changed _query_vector_for_generation scalar/dtype path with supported legacy-produced generation."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_graph_query_encoder_reads_all_three_selected_legal_generations",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_live_query_encoder_must_match_selected_generation_before_knn",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_encoder_asset_change_during_query_encode_is_rejected_before_knn",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_raw_vector_cannot_bypass_query_profile_gate_and_control_is_discriminating",
+      "state": "ADDITIONAL_OMITTED_AFFECTED_CONSUMER",
+      "rationale": "Same actual store vector intake includes valid encoded-query positive and discriminating raw-vector removal control around the shared changed serving path."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_wrong_selected_generation_rejects_previous_query_encoder",
+      "state": "ADDITIONAL_OMITTED_AFFECTED_CONSUMER",
+      "rationale": "Actual graph selected-generation/model rejection covers changed query-vector decoding path and same serving intake class."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_concurrent_selector_replacement_keeps_query_on_one_generation",
+      "state": "ADDITIONAL_OMITTED_AFFECTED_CONSUMER",
+      "rationale": "Actual concurrent graph query encodes through changed query-vector path while selector changes; preserves acquired generation snapshot."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_previous_rule_generation_is_unsupported_even_with_same_encoder",
+      "state": "ADDITIONAL_OMITTED_AFFECTED_CONSUMER",
+      "rationale": "Actual store query-vector generation-rule validation is in changed _query_vector_for_generation body."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_openai_label_does_not_authorize_query_vectors_and_hybrid_falls_back",
+      "state": "ADDITIONAL_OMITTED_AFFECTED_CONSUMER",
+      "rationale": "Actual high-level hybrid fallback invokes text_search_facts and changed _to_fact_result numeric/text materialization; vector label does not authorize encode."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode[missing]",
+      "state": "ADDITIONAL_OMITTED_AFFECTED_CONSUMER",
+      "rationale": "Five sibling request controls use same actual store serving intake; guard rejects before changed vector body. Included to complete relevant request-consumer semantic file coverage, not because guard implementation changed."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode[foreign_table]",
+      "state": "ADDITIONAL_OMITTED_AFFECTED_CONSUMER",
+      "rationale": "Five sibling request controls use same actual store serving intake; guard rejects before changed vector body. Included to complete relevant request-consumer semantic file coverage, not because guard implementation changed."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode[duplicate]",
+      "state": "ADDITIONAL_OMITTED_AFFECTED_CONSUMER",
+      "rationale": "Five sibling request controls use same actual store serving intake; guard rejects before changed vector body. Included to complete relevant request-consumer semantic file coverage, not because guard implementation changed."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode[wrong_model]",
+      "state": "ADDITIONAL_OMITTED_AFFECTED_CONSUMER",
+      "rationale": "Five sibling request controls use same actual store serving intake; guard rejects before changed vector body. Included to complete relevant request-consumer semantic file coverage, not because guard implementation changed."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode[malformed]",
+      "state": "ADDITIONAL_OMITTED_AFFECTED_CONSUMER",
+      "rationale": "Five sibling request controls use same actual store serving intake; guard rejects before changed vector body. Included to complete relevant request-consumer semantic file coverage, not because guard implementation changed."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_same_assets_new_generation_requires_fresh_request_intent_and_fresh_reader",
+      "state": "ADDITIONAL_OMITTED_AFFECTED_CONSUMER",
+      "rationale": "Actual G0/G1 stale/refuse, guard-only in-test removal, restored refusal and reopened fresh reader exercises changed vector decoding path."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_request_snapshot_does_not_alias_selected_generation_inventory",
+      "state": "ADDITIONAL_OMITTED_AFFECTED_CONSUMER",
+      "rationale": "Immutable requested bytes positive flows through real graph query and changed vector decoding path after selected inventory object mutation."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_raw_query_profile_cannot_carry_mutable_or_malformed_snapshot[legal_lex_entities_embedding-generation-inventory0]",
+      "state": "UNCHANGED_OUTSIDE_AFFECTED_RUNTIME",
+      "rationale": "Four constructor-only DTO shape/immutability cases; LegalQueryProfile class unchanged. Actual saved immutable profile reader positive included supplement."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_raw_query_profile_cannot_carry_mutable_or_malformed_snapshot[-generation-{}]",
+      "state": "UNCHANGED_OUTSIDE_AFFECTED_RUNTIME",
+      "rationale": "Four constructor-only DTO shape/immutability cases; LegalQueryProfile class unchanged. Actual saved immutable profile reader positive included supplement."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_raw_query_profile_cannot_carry_mutable_or_malformed_snapshot[legal_lex_entities_embedding--{}]",
+      "state": "UNCHANGED_OUTSIDE_AFFECTED_RUNTIME",
+      "rationale": "Four constructor-only DTO shape/immutability cases; LegalQueryProfile class unchanged. Actual saved immutable profile reader positive included supplement."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_raw_query_profile_cannot_carry_mutable_or_malformed_snapshot[legal_lex_entities_embedding-generation-{}]",
+      "state": "UNCHANGED_OUTSIDE_AFFECTED_RUNTIME",
+      "rationale": "Four constructor-only DTO shape/immutability cases; LegalQueryProfile class unchanged. Actual saved immutable profile reader positive included supplement."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_entities]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_facts]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[missing-lex_provisions]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_entities]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_facts]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[stale-lex_provisions]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_entities]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_facts]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_consumer_uses_saved_request_intent_before_encode_and_index[mixed_generation-lex_provisions]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-between]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-in]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-between]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-in]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-between]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-in]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-between]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-in]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-between]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-in]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-between]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-in]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-between]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-in]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-between]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-in]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-between]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-in]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-between]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-in]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-between]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-in]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-between]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emb_03.py::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-in]",
+      "state": "ALREADY_EXECUTED_INITIAL45",
+      "rationale": "Actual selected node recorded in initial45 native receipt; no replay."
+    }
+  ],
+  "additional_selectors": [
+    "tests/unit/remediation/test_emb_03.py::test_legacy_entrypoint_uses_supported_encoder_and_legal_reader",
+    "tests/unit/remediation/test_emb_03.py::test_raw_vector_cannot_bypass_query_profile_gate_and_control_is_discriminating",
+    "tests/unit/remediation/test_emb_03.py::test_wrong_selected_generation_rejects_previous_query_encoder",
+    "tests/unit/remediation/test_emb_03.py::test_concurrent_selector_replacement_keeps_query_on_one_generation",
+    "tests/unit/remediation/test_emb_03.py::test_previous_rule_generation_is_unsupported_even_with_same_encoder",
+    "tests/unit/remediation/test_emb_03.py::test_openai_label_does_not_authorize_query_vectors_and_hybrid_falls_back",
+    "tests/unit/remediation/test_emb_03.py::test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode",
+    "tests/unit/remediation/test_emb_03.py::test_same_assets_new_generation_requires_fresh_request_intent_and_fresh_reader",
+    "tests/unit/remediation/test_emb_03.py::test_request_snapshot_does_not_alias_selected_generation_inventory"
+  ],
+  "full_filter_file_coverage": {
+    "path": "/workspace/orch02-c12/policy-engine/tests/unit/lex/test_knowledge_store_filters.py",
+    "file_sha256": "fe6037b03cbf2ba364d463dfc6036b61a678b124d0e9f2c7dcd8f5bd68dfea88",
+    "full_physical_test_function_count": 8,
+    "parametrized_functions": 0,
+    "all_actual_selected_nodeids": [
+      "tests/unit/lex/test_knowledge_store_filters.py::test_legal_knowledge_store_hides_temporal_unknown_rows_for_as_of",
+      "tests/unit/lex/test_knowledge_store_filters.py::test_legal_knowledge_store_prefers_high_trust_layers",
+      "tests/unit/lex/test_knowledge_store_filters.py::test_legal_knowledge_store_supports_quality_band_and_fused_confidence_filters",
+      "tests/unit/lex/test_knowledge_store_filters.py::test_legal_store_evidence_refs_ignore_physical_checkout_path",
+      "tests/unit/lex/test_knowledge_store_filters.py::test_missing_amendment_effective_window_stays_in_complete_denominator",
+      "tests/unit/lex/test_knowledge_store_filters.py::test_missing_native_table_is_blocked_not_empty",
+      "tests/unit/lex/test_knowledge_store_filters.py::test_retroactive_row_differs_before_and_after_knowledge_cutoff",
+      "tests/unit/lex/test_knowledge_store_filters.py::test_unresolved_lex_window_partition_is_typed_and_verified"
+    ],
+    "all_file_tests_already_executed": true
+  },
+  "selection_boundary": "Complete actual collected file denominator. Typed broad store query/numeric/row/epoch consumers and sibling request semantics included; unchanged generation producer/legacy producer wrappers and constructor-only DTO tests remain historical unchanged-input evidence, not fresh nativePASS.",
+  "initial45_not_replayed": true,
+  "matched_removals_not_replayed": true,
+  "source_files_changed": false,
+  "full_native_file_not_replayed": true
+}

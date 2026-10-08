@@ -1,0 +1,138 @@
+{
+  "schema": "policyos.e02.C12.r2.typing_profile.v1",
+  "qualification": "Isolated optional hnswlib typing stubs only; no native HNSW execution claim. Shared locked app env and repository locks unchanged.",
+  "python": {
+    "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "executable": "/workspace/orch02-r2/c12/typing-venv/bin/python",
+    "resolved": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14"
+  },
+  "distributions": {
+    "mypy": {
+      "version": "1.19.1",
+      "metadata": {
+        "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/mypy-1.19.1.dist-info/METADATA",
+        "bytes": 2234,
+        "sha256": "3129168be583bc96f3fac62a7c23f3d4ff6517fa3ae048baf78fda405129f679"
+      }
+    },
+    "numpy": {
+      "version": "2.3.5",
+      "metadata": {
+        "path": "/workspace/orch02-r2/c12/typing-venv/lib/python3.14/site-packages/numpy-2.3.5.dist-info/METADATA",
+        "bytes": 62117,
+        "sha256": "6002f29765e5bc1a3be4a1b92ed56b64968a0fecba73e7f81cd536d0c40f4fa3"
+      }
+    },
+    "duckdb": {
+      "version": "1.4.3",
+      "metadata": {
+        "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb-1.4.3.dist-info/METADATA",
+        "bytes": 4294,
+        "sha256": "341eb461699e7fee4d4e319d8d3912b2f080a32851bb60d4d31d3144e18e5e72"
+      }
+    },
+    "types-hnswlib": {
+      "version": "0.8.0.20260911",
+      "metadata": {
+        "path": "/workspace/orch02-r2/c12/typing-venv/lib/python3.14/site-packages/types_hnswlib-0.8.0.20260911.dist-info/METADATA",
+        "bytes": 1836,
+        "sha256": "0ba22e02047bc3a9e2210ae8cd32522429f55fe1e6e9bfc0f9d64092c8e2bbb3"
+      }
+    },
+    "ruff": {
+      "version": "0.14.10",
+      "metadata": {
+        "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/ruff-0.14.10.dist-info/METADATA",
+        "bytes": 26100,
+        "sha256": "86e063cb7acbb27119b412806f65b8c3effacff999fe8801273a9d20c450539e"
+      }
+    }
+  },
+  "modules": {
+    "mypy": {
+      "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/mypy/__init__.cpython-314-x86_64-linux-gnu.so",
+      "bytes": 15976,
+      "sha256": "cf4e1ca6480b73f8208448f078ca4aad5941f0d5fbb58225d98f3a33d9757256"
+    },
+    "mypy.version": {
+      "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/mypy/version.py",
+      "bytes": 23,
+      "sha256": "46972b42847d3932b125c506721eed040724e605c5462c4cc03ca0ab23224ada"
+    },
+    "numpy": {
+      "path": "/workspace/orch02-r2/c12/typing-venv/lib/python3.14/site-packages/numpy/__init__.py",
+      "bytes": 25919,
+      "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38"
+    },
+    "numpy._core._multiarray_umath": {
+      "path": "/workspace/orch02-r2/c12/typing-venv/lib/python3.14/site-packages/numpy/_core/_multiarray_umath.cpython-314-x86_64-linux-gnu.so",
+      "bytes": 10800697,
+      "sha256": "61052ef771d926665ca135b1840662516f058d5c98843aa429ef2abdd7f46a04"
+    },
+    "duckdb": {
+      "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb/__init__.py",
+      "bytes": 7507,
+      "sha256": "2b20aa68f219791777a195cfec5f87fff610299d26bfbc1e6ef7692476c704a1"
+    },
+    "_duckdb": {
+      "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_duckdb.cpython-314-x86_64-linux-gnu.so",
+      "bytes": 57830776,
+      "sha256": "a2b1ae52d4116fc609184d407e11a8d15465da34095341e08c53847d752fb5fc"
+    },
+    "polisyos.lex.knowledge.store": {
+      "path": "/workspace/orch02-c12/policy-engine/src/polisyos/lex/knowledge/store.py",
+      "bytes": 110582,
+      "sha256": "c46b383658938c98bd78883f21236b90fe630e2063cecaeeb1c24aa6bbff7705"
+    },
+    "polisyos.lex.knowledge.search": {
+      "path": "/workspace/orch02-c12/policy-engine/src/polisyos/lex/knowledge/search.py",
+      "bytes": 21240,
+      "sha256": "384d9377c3fe8f0fef6142d3f9b7161c5a3cf46a927f6136462e60aa5199b9cb"
+    }
+  },
+  "locks": {
+    "typing-stubs.in": {
+      "path": "/workspace/orch02-r2/c12/typing-stubs.in",
+      "bytes": 27,
+      "sha256": "ee71e4519e2609b3a18844e90432a2b65ea56af768426984633529157b1c2cf6"
+    },
+    "typing-stubs.lock": {
+      "path": "/workspace/orch02-r2/c12/typing-stubs.lock",
+      "bytes": 6875,
+      "sha256": "ad33b8a0a462d55bdb52152f91c2088fc7bbaf4ffc0f6591cd8e66e56e103185"
+    },
+    "uv.lock": {
+      "path": "/workspace/orch02-c12/policy-engine/uv.lock",
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    },
+    "pyproject.toml": {
+      "path": "/workspace/orch02-c12/policy-engine/pyproject.toml",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    }
+  },
+  "isolated_readonly_pth": {
+    "path": "/workspace/orch02-r2/c12/typing-venv/lib/python3.14/site-packages/orch02-readonly-app.pth",
+    "bytes": 69,
+    "sha256": "266721c2c08a955e301460fa6e29c8b0ad825981771ddff04301c5feb64a2cb6",
+    "contents": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages\n"
+  },
+  "stub_files": [
+    {
+      "path": "/workspace/orch02-r2/c12/typing-venv/lib/python3.14/site-packages/hnswlib-stubs/METADATA.toml",
+      "bytes": 476,
+      "sha256": "74246c84a726274b77119c02099c567a2d79da298b50160e146bd1eb45bd1936"
+    },
+    {
+      "path": "/workspace/orch02-r2/c12/typing-venv/lib/python3.14/site-packages/hnswlib-stubs/__init__.pyi",
+      "bytes": 2378,
+      "sha256": "8a6d2c6019e8a6c1349eec8fb109d941d80b24b95981ef61ade400acb2ce7b13"
+    },
+    {
+      "path": "/workspace/orch02-r2/c12/typing-venv/lib/python3.14/site-packages/hnswlib-stubs/py.typed",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

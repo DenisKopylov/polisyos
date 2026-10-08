@@ -1,0 +1,21 @@
+--- a/policy-engine/src/polisyos/lex/knowledge/store.py
++++ b/policy-engine/src/polisyos/lex/knowledge/store.py
+@@ -21,15 +21,15 @@
+ from polisyos.common.logger import get_logger
+ from polisyos.core import artifacts
+ from polisyos.core.contracts import epoch as epoch_contract
+-from polisyos.data_forge.domains.legal.embedding_projection import (
++from polisyos.data_forge.read_api.legal import (
+     LEGAL_EMBEDDING_PROJECTION_RULE_VERSION,
+     entity_embedding_text,
+     fact_embedding_text,
+     provision_embedding_text,
+ )
+-from polisyos.data_forge.kernel.embeddings import (
++from polisyos.data_forge.read_api.legal import (
+     EmbeddingGenerationRef,
+-    _generator_rule_version,
++    legal_embedding_generator_rule_version as _generator_rule_version,
+     derive_encoder_identity,
+     generation_basis_matches_members,
+     hnsw_index_matches_vectors,

@@ -1,0 +1,110 @@
+{
+  "schema": "policyos.e02.stopped_four_inputs.v1",
+  "analysis_source_G": {
+    "sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+    "tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e"
+  },
+  "current_local_composition_G": {
+    "sha": "e01d15c71a46c129805ab8e9f5310b53cad6efdc",
+    "tree": "f5af4060bded0f660f6fca77085470316acf68cd",
+    "scope": "Only qualified L01/L02 documentation and metadata since analysis source; no product source/test/config/lock change"
+  },
+  "main_anchor": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "inputs": [
+    {
+      "role": "ORCH02",
+      "remote_ref": "origin/codex/e02-C-orch02-recovery-coordination",
+      "sha": "e2a737ffda0e3fc5b621e0ba539a0563fe151e1a",
+      "tree": "dec42f938f99dc5a39f1230ee1e5ec8ca77d605a",
+      "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/final-handoff.json",
+      "handoff_git_blob": "c664ceeb06193c20c9d16b8c332d9f73d721f8bc",
+      "handoff_sha256": "06cabe0570ec177140d63789cfc3baaa5c9dc9b9b264f711a956a05b56038393",
+      "qualification": "not_accepted_new_source_queue"
+    },
+    {
+      "role": "C05",
+      "remote_ref": "origin/codex/e02-C-orch02-c05-recovery",
+      "sha": "2a7f9bf8f02aa8e751614f751b6d9ee2af2dfe5e",
+      "tree": "fe3e10ca4e87ef13e07390dfadc1dff0ecfbc80b",
+      "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008.json",
+      "handoff_git_blob": "efa3af6759985e07470681a69dd6d91b6464a42b",
+      "handoff_sha256": "67a31b4897b034d19c21018fbc399530dd445bc9aba25220c138b32b7f003be5",
+      "qualification": "not_accepted_new_source_queue"
+    },
+    {
+      "role": "C06_DFK",
+      "remote_ref": "origin/codex/e02-C-orch02-c06-dfk-recovery",
+      "sha": "e4bd1527c941ff880a5d34898c57428c7be4b1cc",
+      "tree": "ac28670d3de31221e3f553902d4287fb8e482c40",
+      "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/handoff.json",
+      "handoff_git_blob": "dc5a67337d4bf0425a4a1e15e14669ae3fef5890",
+      "handoff_sha256": "e3f3d00da1dc4711d46e9e75e59e3b7ccd10633193cb892f9ae73a4ab50ec849",
+      "qualification": "not_accepted_new_source_queue"
+    },
+    {
+      "role": "C06_CAN",
+      "remote_ref": "origin/codex/e02-C-orch02-c06-can-recovery",
+      "sha": "6602fbd087ef31d3f8eff42e94fc1fc074326d45",
+      "tree": "5c281ce135abc9e7e25ae75268c09fa8316a63c6",
+      "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/handoff.json",
+      "handoff_git_blob": "d9867fea12fe0a559743f99271f5e2719e0a13fb",
+      "handoff_sha256": "618f70ecdcb652c69f3eb302914c0903d35c2d915b34191269479c34b0dcb605",
+      "qualification": "not_accepted_new_source_queue"
+    },
+    {
+      "role": "C12",
+      "remote_ref": "origin/codex/e02-C-orch02-c12-recovery",
+      "sha": "9c46da826c3d54b6d0a13cc1772bda4b2c646e68",
+      "tree": "99e992c598468fdfe6d5bc17d4d77951e52117e0",
+      "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008.json",
+      "handoff_git_blob": "a1252d4d636b38458ada55834b27b44465819258",
+      "handoff_sha256": "75c5c5b108ebe5ff437be2656fbe77de235802b2ed00fdb71ae37fdadb783f5a",
+      "qualification": "not_accepted_new_source_queue"
+    },
+    {
+      "role": "L01",
+      "remote_ref": "origin/codex/e02-L01-custody-20261008",
+      "sha": "5bcc319d1c2c08d7abba82fe87b818e502caea78",
+      "tree": "af5951a104438a915ae995f293ab56fcdaa4426c",
+      "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/delivery.json",
+      "handoff_git_blob": "3209b5362eb416658b6ad260ee96f582fc276029",
+      "handoff_sha256": "e069f2b44b2b14d5ca97dcddaf2235fc1bae95c6bfaf4944b3bcf159ff51f081",
+      "qualification": "metadata_custody_only_merged"
+    },
+    {
+      "role": "L02",
+      "remote_ref": "origin/codex/e02-L02-authentic-20261008",
+      "sha": "a0e6ab0f3ce6c1c50b8eb73e29dea0d3928caf3e",
+      "tree": "6038ab197007c496c16281d98f83118dee63ee9c",
+      "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008-source-qualified-handoff.json",
+      "handoff_git_blob": "743df99e32dce509f8cea7227d96885132ad10f2",
+      "handoff_sha256": "2523cc2d8e671c5eb9c610df7a9480f88abbcfbf8106e73afe172004c103cf5f",
+      "qualification": "metadata_custody_only_merged"
+    },
+    {
+      "role": "C10_navigation_new",
+      "remote_ref": "origin/codex/e02-C10-recovery-20261008",
+      "sha": "8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+      "tree": "124dc6e5746716ade61e5d9d6d8633009db48315",
+      "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/orch04-recovery-20261008/HANDOFF.json",
+      "handoff_git_blob": "10b7d3646c009a0918d9b550698535a97f564924",
+      "handoff_sha256": "0d75c023f18d653bb264427cec40b8809d0855ed94a578590da9028b57861bb2",
+      "qualification": "not_accepted_new_source_queue"
+    }
+  ],
+  "ORCH03_reported_unpublished": {
+    "root_head": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+    "C08_tested_tree": "3de5411c4c844e4b2ed9874f4889da93a5d247c5",
+    "C09_tested_tree": "89bbbc5688bf5f19a333f1d6814e3bf4ccdb9bef",
+    "B190_numerical_tree": "73b1a4c8a19d79fbcad1770fdc730bcd306f4a5d",
+    "archive": {
+      "cloud_path": "/workspace/ORCH03-restart-local-recovery-20261008.tar.gz",
+      "bytes": 1450812,
+      "sha256": "e23b39c78f614247070505d4bb9688034c1d5dac24b1aef3ea8d3c6d782c080c",
+      "regular_members": 104,
+      "G_archive_byte_readback": "not_established; not available on this host"
+    },
+    "qualification": "Source-reported tree/profile results via predecessor tool outputs, not fetchable candidate commits or new G source acceptance"
+  },
+  "formal_closure_ids": []
+}

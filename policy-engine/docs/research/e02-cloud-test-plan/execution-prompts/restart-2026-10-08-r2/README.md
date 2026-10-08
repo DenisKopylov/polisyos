@@ -1,0 +1,34 @@
+# Четыре продолжения E02: действия после остановок
+
+Этот пакет заменяет неопределённое ожидание конкретными owner tasks. Это инструкция на исполнение, а не новая source acceptance, waiver native gates, scientific/product authority или formal finding closure. Main не меняется. [Exact inputs](inputs.json); прежние [общие инструкции](../restart-2026-10-08/COMMON.md) и [canonical dispatch](../parallel-2026-10-08/dispatch.json) остаются в силе вместе с узкими [test leases](continuation-leases.json).
+
+| Агент / среда | Причина текущей остановки | Следующий исполнимый результат |
+|---|---|---|
+| [ORCH02 / cloud](ORCH02.md) | Старый executor восстановлен. Own-base код доставлен, C05 quality red, C12 stale typing, текущая композиция и consumers не приняты | C05/C12 source repairs; scoped G-compatible DFK/CAN proposals; finite Core compatibility matrix и C12 caller packet |
+| [ORCH03 / cloud](ORCH03.md) | Healthy VM; mandatory native gates. C09 ordinary temporal fixtures и B190 precision/profile остаток; новые source trees пока не опубликованы | Сохранить staged work; C07 fixture companion, C09 generic required-basis и precision oracle, C08 actual trace/import; ordinary source delivery после applicable gates |
+| [L01 / local](L01.md) | Выбранные L6 bytes не связаны с согласованным выпуском; отдельные I3/Legal/B194/B56 facts отсутствуют | Source-owned matching release/replacement custody packet; по одному готовому tuple каждому consumer, без all-input gate |
+| [L02 / local](L02.md) | Byte observer выполнен, но serving/source/profile/data-root identity не установлен. Runtime defect не доказан | Path-only root trace и реальный read-only loader/preflight witness; authentic checks каждого готового criterion отдельно |
+
+## Что принято и что пока нет
+
+G последовательно обычными merge принял L01 `5bcc319d…` и L02 `a0e6ab0f…` как **qualified metadata/evidence custody**:17 и31новых файлов, source-byte readback всех48 совпал. Это не повторение private production observer в G и не authentic positive. Metadata merge commits `40570212…` и `e01d15c7…` сохраняют upstream историю; product source/tests/config/locks равны G `0321633…`.
+
+ORCH02 источники и receipts прочитаны на exact published refs, но их own-base PASS ещё не G composed PASS. C12 final9c46 source192unchanged; earlier677typing нельзя назвать current check. Coordinator e2a final publication снимает старую неопределённость доставки, а не engineering red. C05 mypy14/19 конфликт требует fresh exact command, не выбора меньшего числа.
+
+ORCH03 new123PASS относится к reported uncommitted C08 tree3de, а G's earlier121/2HOLD — к old a5 source. C09 reported24+3controls на89bb отдельно от ordinary127/2; G's required-kind BLOCKED сохраняется до точных новых source bytes/review. Combined B190145/1 и отдельные143x64/3float32 не суммируются. Cloud archive104members не доступен на этом Mac: его G byte custody `not_established`. Эти различия встроены в prompt.
+
+## Что делать при возможной следующей остановке
+
+- **Machine/context:** healthy VM reuse. Реальный новый offline/configuration ERROR допускает fresh host recovery из опубликованных refs и обычного recovery artifact с readback; это инфраструктура, не product FAIL. ORCH03 uncommitted archive/tree требуют передачи самих bytes. Один cloud path или blob hash не заменяет recoverable artifact. Новая машина не исправляет native policy/type failures.
+- **Branch/pending work:** fresh attachment/HEAD/status/admission. Own predecessor staging сохранить, включая native autofixes. Unexpected state — сохранить и сообщить точное отличие; никакого reset/rebase/autostash/force. Новая isolated lane лишь при настоящем missing path или G reconciliation, с сохранённой исходной history.
+- **Scope:** C07 temporal fixture и C09 MC test grants уже выданы; prior C08 trace/C09 validation leases сохранены. Не спрашивать повторное разрешение. Canonical author исправляет механизм/companions, independent reviewer не пишет его source. C02 Core, C10 served path и G shared config/API/generated остаются отдельными writers. Foreign conflict → готовый exact packet; остальные owners не простаивают.
+- **Tooling:** использовать supported pinned profiles, фиксировать actual origins; разумное необходимое isolated provisioning разрешено существующей recipe. Shared lock/generator не менять чужим owner. Type-stub/backend absence отделять от source name/type/runtime error. [Native gates](G-DEVX.md) имеют конкретных G/DevX owners и acceptance checks; их repair ещё не выполнен этим пакетом.
+- **Authority/input:** unknown release/law/issuer/currentness удерживает ровно зависимый protected/authentic claim. Не выдумывать tuple, default profile, source authority или научную law. Byte/path comparison и generic portable mechanisms не требуют всех institutional inputs. Использовать существующие nominated records до вопроса человеку; если они не отвечают, отдавать минимальное точное поле/owner и продолжать независимые задачи.
+- **Verification:** законченные unchanged runs не повторять. Новый source delta → независимый review и affected defining/importer/consumer/negative/removal checks. Profile и source footprints не смешивать. P41 требует exact pre-work slice base И zero overlap с полным gate denominator; иначе not_established. Static UNRESOLVED не превращать в отсутствие реального runtime вызова.
+- **Publication:** ordinary own-topic commit/push/readback, hooks не обходить. Если mandatory gate объективно блокирует publication, закончить доступные own repairs и сохранить ready source/deciding outputs/recovery export плюс точный owner decision packet. Это конкретный внешне оставшийся blocker, не просьба заново определить задачу. Общий replay только после G selection/reviews/freeze.
+
+Все четыре root могут работать одновременно: ORCH02 own types/readers; ORCH03 test/source repairs и gate diagnostics; L01 custody; L02 root/reader verification. Cloud compute не получает искусственную Mac-квоту. Local heavy slot общий с A/C/G; лёгкие read-only действия независимы. Disk threshold18GiB: выше лишь лёгкая проверка, без broad census/cleanup. Native Trash никогда не очищать, permanent deletion запрещён.
+
+Минимальный результат каждого продолжения — новый проверяемый source/consumer/input artifact, точные действующие ограничения и законченный next-owner packet. Generic повторный ledger и одинаковое сообщение ожидания этого результата не заменяют.
+
+Pattern pass: P01/P02/P12 — завершить producer/bridge/consumer; P04/P05/P07/P08 — custody/status/version/time; P29/P32/P37/P38 — actual behavioral witness/content binding; P35 — full path/evidence denominator; P39 — mandatory companions вне mechanism cap; P40 — generic required-basis/precision invariant вместо ladder repair; P41 — честная provenance красного. Missing authentic inputs — criterion-specific `verification_missing`; unbound served path — `bridge_missing`/`consumer_missing`; generic own-base code не объявлен complete capability.

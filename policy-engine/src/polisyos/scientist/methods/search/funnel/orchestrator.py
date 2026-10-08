@@ -12,7 +12,7 @@ from typing import Any, Literal
 from uuid import uuid4
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.scientist.methods.search.funnel.types import (
     FunnelEvaluationStatus,
     FunnelStage,
@@ -142,6 +142,8 @@ def _is_volatile_cache_key(key: str) -> bool:
 def _cache_identity_value(value: Any) -> Any:
     """Project stable context identity while excluding runtime handles and timestamps."""
 
+    if isinstance(value, ArtifactRef):
+        return artifact_ref_identity_key(value)
     if value is None or isinstance(value, (str, int, float, bool)):
         return value
     if isinstance(value, Enum):

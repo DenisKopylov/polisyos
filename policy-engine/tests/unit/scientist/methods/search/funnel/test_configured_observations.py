@@ -190,3 +190,31 @@ def test_same_request_reuses_real_cache_changed_version_executes_callback(packet
     outcome = runtime.advance(third)
     assert producer.calls == 2
     assert outcome.current_uncertainty_envelope is None
+
+
+def test_selected_manifest_view_change_executes_real_callback(packet):
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.canon import CanonSpec
+
+    store, basis, basis_ref, _, stage = packet
+    producer = stage(0, _envelope(0.3))
+    runtime = FunnelOrchestrator([producer])
+    context = _context(packet)
+    runtime.advance(runtime.submit({"a": 1}, context))
+    different_view = store.put_json(
+        basis,
+        PutOptions(
+            kind="scientist.search.uncertainty_basis",
+            media_type="application/json",
+            schema=SchemaInfo(name="SameScientificContentDifferentView", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    assert different_view.artifact_id == basis_ref.artifact_id
+    assert different_view.manifest_profile_sha256 != basis_ref.manifest_profile_sha256
+    outcome = runtime.advance(
+        runtime.submit({"a": 1}, {**context, "uncertainty_basis_ref": different_view})
+    )
+    assert producer.calls == 2
+    assert outcome.current_uncertainty_envelope is None
+    assert "foreign or stale basis" in outcome.uncertainty_intake_failures[0]

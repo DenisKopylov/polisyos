@@ -30,3 +30,18 @@ Pattern pass: P01/P12 supplier absence remains explicit; P29/P32/P37 actual
 content/behavior is exercised; P38 last-result-as-current and pass-marker BERL
 proxies are removed; P40 no invented refinement/issuer ladder; P41 no inherited
 failure waiver. Formal closure/source acceptance remain G decisions.
+
+The append-only selected-view follow-up widens the owned cache quantity from a
+blob ID to the existing complete ArtifactRef identity (kind/media/selected
+manifest view included). A real CAS same-content/different-view witness must
+execute a fresh callback and reject the old observation. This is the same
+basis-identity class one level deeper (P40); it adds no Core writer.
+
+Affected FUN-03 expectations are corrected explicitly: the old test assigned
+current=0.1 solely from a later unbound stage, with no producer basis/procedure;
+it now retains that stage diagnostic and historical1 but asserts current
+unavailable. The old normal bool-preflight test expected a runner write without
+an issuer/verifier/commit bridge; it now asserts zero effects/bridge_missing.
+These are candidate-local proxy-test corrections, not original B161 or B164
+positive acceptance. Both original required owner positives remain held/UNRUN.
+No inherited-red waiver is taken for the previous assertions.

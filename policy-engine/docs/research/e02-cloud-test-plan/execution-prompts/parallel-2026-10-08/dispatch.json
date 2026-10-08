@@ -1,0 +1,1111 @@
+{
+  "schema": "policyos.e02.parallel_dispatch.v1",
+  "planning_only": true,
+  "analysis_git_sha": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+  "source_pins": {
+    "G": {
+      "sha": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+      "tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617",
+      "kind": "commit",
+      "in_G_ancestry": true
+    },
+    "A": {
+      "sha": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+      "tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "B_published": {
+      "sha": "53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "tree": "568e2e42e18abcea9fd39759546f1e48525c590a",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "B_prepared_source": {
+      "sha": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+      "tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "B_prepared_receipt": {
+      "sha": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+      "tree": "677257974c442ba878a6bf4dba6686ae854b2e67",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "C": {
+      "sha": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+      "tree": "7edd87e6730739fbe2d7c7ed0c35d4a4e1e11ba8",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "D": {
+      "sha": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+      "tree": "10efc41e7a2d792f42bce59af5b87816843df07e",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "E": {
+      "sha": "7bf53fd0cf69a568b37d8a881e26bfb16c315653",
+      "tree": "946ec147aa09db5b76c66e7ac3e3a2e491f9868b",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "F_source": {
+      "sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+      "kind": "commit",
+      "in_G_ancestry": true
+    },
+    "F_receipt": {
+      "sha": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "tree": "682b043138464c912dd728c12e80049dd44b47f1",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "D_source": {
+      "sha": "8e864f4ed0eeedf509d836381b20976c413f2443",
+      "tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "E_source": {
+      "sha": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+      "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "C_DFK_source": {
+      "sha": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+      "tree": "35d9c02156f8a27335b858bfe8053d7cbc6a54f2",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "C_Legal_source": {
+      "sha": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "C_CAN_source": {
+      "sha": "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+      "tree": "2d27c9c182cf550088c5a8c072dc2f36df84e20d",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "C_NET_source": {
+      "sha": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+      "tree": "267fef2e1a46aee7a7b2c1f6baaa00bf66e3cbd9",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "C_stream_source": {
+      "sha": "81a4af184d72cd28e7ab4063140432e2af764547",
+      "tree": "c3423c94f28409ec663ec3b161ca85eecfe6207c",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "C_DFI_source": {
+      "sha": "ab44166335130463178e65dfc29a252c96afe479",
+      "tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "C_CAT_source": {
+      "sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+      "kind": "commit",
+      "in_G_ancestry": false
+    },
+    "G_analysis_parent": {
+      "sha": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+      "tree": "32a32cc77039554a3777a11fd7fc8f96f3a88625",
+      "kind": "commit",
+      "in_G_ancestry": true
+    }
+  },
+  "source_selection": "linked plan 07-source-selection.md; re-fetch exact heads and G; source freeze is not receipt/root carrier",
+  "modes": {
+    "recommended_cloud_roots": {
+      "ORCH01": [
+        "C01",
+        "C02",
+        "C03",
+        "C04"
+      ],
+      "ORCH02": [
+        "C05",
+        "C06",
+        "C12"
+      ],
+      "ORCH03": [
+        "C07",
+        "C08",
+        "C09"
+      ],
+      "ORCH04": [
+        "C10",
+        "C11",
+        "C13"
+      ]
+    },
+    "expanded_cloud_roots": [
+      "C01",
+      "C02",
+      "C03",
+      "C04",
+      "C05",
+      "C06",
+      "C07",
+      "C08",
+      "C09",
+      "C10",
+      "C11",
+      "C12",
+      "C13"
+    ],
+    "local_roots": [
+      "L01",
+      "L02"
+    ],
+    "integration_root": "G",
+    "mutually_exclusive_cloud_modes": true
+  },
+  "roles": {
+    "C01": {
+      "title": "Runtime: producer scope, graph validation, async/SKG и общий worker admission",
+      "environment": "cloud",
+      "original_units": [
+        "B"
+      ],
+      "input_pin_keys": [
+        "B_prepared_source",
+        "B_prepared_receipt",
+        "G"
+      ],
+      "task_parts": [
+        "R1",
+        "R4:Runtime API"
+      ],
+      "source_scopes": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/",
+        "policy-engine/src/polisyos/data_forge/read_api/academic.py",
+        "policy-engine/src/polisyos/scientist/orchestration/workflows/builder.py",
+        "policy-engine/src/polisyos/scientist/compute/runner.py"
+      ],
+      "excluded_paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py"
+      ],
+      "test_start_paths": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/",
+        "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py"
+      ],
+      "mode": "candidate_source_writer",
+      "test_write_rule": "Only named mirrored tests of own mechanism after actual file lease; existing shared tests stay with canonical mechanism owner; otherwise submit a patch. Test-start paths are discovery/check selectors, not blanket write leases.",
+      "prompt": "C01.md",
+      "receipt_namespace": "parallel-20261008-c01",
+      "test_exclusions": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py"
+      ],
+      "property_and_execution_source": "C01.md + original criterion refs in linked findings.json/tasks.json"
+    },
+    "C02": {
+      "title": "CAS: custody, owner/manifest, transfer/import и Core facade",
+      "environment": "cloud",
+      "original_units": [
+        "B"
+      ],
+      "input_pin_keys": [
+        "B_prepared_source",
+        "G"
+      ],
+      "task_parts": [
+        "Q1:CAS supplier",
+        "T2:CAS"
+      ],
+      "source_scopes": [
+        "policy-engine/src/polisyos/core/artifacts/"
+      ],
+      "excluded_paths": [
+        "policy-engine/src/polisyos/core/artifacts/ir_adapter.py"
+      ],
+      "test_start_paths": [
+        "policy-engine/tests/unit/core/artifacts/test_bound_import_preservation.py",
+        "policy-engine/tests/unit/remediation/test_cas_01.py",
+        "policy-engine/tests/unit/remediation/test_cas_02.py",
+        "policy-engine/tests/unit/remediation/test_cas_03.py"
+      ],
+      "mode": "candidate_source_writer",
+      "test_write_rule": "Only named mirrored tests of own mechanism after actual file lease; existing shared tests stay with canonical mechanism owner; otherwise submit a patch. Test-start paths are discovery/check selectors, not blanket write leases.",
+      "prompt": "C02.md",
+      "receipt_namespace": "parallel-20261008-c02",
+      "property_and_execution_source": "C02.md + original criterion refs in linked findings.json/tasks.json"
+    },
+    "C03": {
+      "title": "Money: producer events → durable ledger → budget/cache contract",
+      "environment": "cloud",
+      "original_units": [
+        "B"
+      ],
+      "input_pin_keys": [
+        "B_prepared_source",
+        "A",
+        "D_source",
+        "G"
+      ],
+      "task_parts": [
+        "R3:producer/ledger",
+        "Q1:money supplier"
+      ],
+      "source_scopes": [
+        "policy-engine/src/polisyos/core/llm/",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py"
+      ],
+      "excluded_paths": [],
+      "test_start_paths": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+        "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py"
+      ],
+      "mode": "candidate_source_writer",
+      "test_write_rule": "Only named mirrored tests of own mechanism after actual file lease; existing shared tests stay with canonical mechanism owner; otherwise submit a patch. Test-start paths are discovery/check selectors, not blanket write leases.",
+      "prompt": "C03.md",
+      "receipt_namespace": "parallel-20261008-c03",
+      "explicit_test_writer_paths": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+        "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py"
+      ],
+      "property_and_execution_source": "C03.md + original criterion refs in linked findings.json/tasks.json"
+    },
+    "C04": {
+      "title": "B pool + C streaming: physical cleanup, cursor/restart и progress",
+      "environment": "cloud",
+      "original_units": [
+        "B",
+        "C"
+      ],
+      "input_pin_keys": [
+        "B_prepared_source",
+        "C",
+        "G",
+        "C_stream_source",
+        "C_NET_source"
+      ],
+      "task_parts": [
+        "R2",
+        "I3"
+      ],
+      "source_scopes": [
+        "policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "policy-engine/src/polisyos/fabric/connectors/registry.py",
+        "policy-engine/src/polisyos/fabric/connectors/resilience/",
+        "policy-engine/src/polisyos/fabric/data_plane/"
+      ],
+      "excluded_paths": [],
+      "test_start_paths": [
+        "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py",
+        "policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+        "policy-engine/tests/unit/fabric/data_plane/"
+      ],
+      "mode": "candidate_source_writer",
+      "test_write_rule": "Only named mirrored tests of own mechanism after actual file lease; existing shared tests stay with canonical mechanism owner; otherwise submit a patch. Test-start paths are discovery/check selectors, not blanket write leases.",
+      "prompt": "C04.md",
+      "receipt_namespace": "parallel-20261008-c04",
+      "property_and_execution_source": "C04.md + original criterion refs in linked findings.json/tasks.json"
+    },
+    "C05": {
+      "title": "Catalog/DFI: effective source basis и profile serving",
+      "environment": "cloud",
+      "original_units": [
+        "C"
+      ],
+      "input_pin_keys": [
+        "C",
+        "G",
+        "C_DFI_source",
+        "C_CAT_source"
+      ],
+      "task_parts": [
+        "I1",
+        "I4:Catalog",
+        "S1:scoped residual input/research"
+      ],
+      "source_scopes": [
+        "policy-engine/src/polisyos/data_forge/domains/catalog/",
+        "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+        "policy-engine/src/polisyos/fabric/connectors/profiles/",
+        "policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py",
+        "policy-engine/src/polisyos/fabric/retrieval/service.py"
+      ],
+      "excluded_paths": [],
+      "test_start_paths": [
+        "policy-engine/tests/unit/remediation/test_dfk_02.py",
+        "policy-engine/tests/unit/remediation/test_dfi_03.py"
+      ],
+      "mode": "candidate_source_writer",
+      "test_write_rule": "Only named mirrored tests of own mechanism after actual file lease; existing shared tests stay with canonical mechanism owner; otherwise submit a patch. Test-start paths are discovery/check selectors, not blanket write leases.",
+      "prompt": "C05.md",
+      "receipt_namespace": "parallel-20261008-c05",
+      "explicit_test_writer_paths": [
+        "policy-engine/tests/unit/remediation/test_dfi_03.py",
+        "policy-engine/tests/unit/remediation/test_dfk_02.py"
+      ],
+      "property_and_execution_source": "C05.md + original criterion refs in linked findings.json/tasks.json"
+    },
+    "C06": {
+      "title": "DFK census/retirement и CAN installed reader companions",
+      "environment": "cloud",
+      "original_units": [
+        "C"
+      ],
+      "input_pin_keys": [
+        "C",
+        "G",
+        "C_DFK_source",
+        "C_CAN_source"
+      ],
+      "task_parts": [
+        "I2",
+        "Q2:CAN reader",
+        "S1:scoped residual input/research"
+      ],
+      "source_scopes": [
+        "policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+        "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md",
+        "policy-engine/src/polisyos/ir/artifacts/io.py",
+        "policy-engine/src/polisyos/ir/artifacts/README.md"
+      ],
+      "excluded_paths": [],
+      "test_start_paths": [
+        "policy-engine/tests/unit/remediation/test_dfk_01.py",
+        "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+        "policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py"
+      ],
+      "mode": "candidate_source_writer",
+      "test_write_rule": "Only named mirrored tests of own mechanism after actual file lease; existing shared tests stay with canonical mechanism owner; otherwise submit a patch. Test-start paths are discovery/check selectors, not blanket write leases.",
+      "prompt": "C06.md",
+      "receipt_namespace": "parallel-20261008-c06",
+      "explicit_test_writer_paths": [
+        "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+        "policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+        "policy-engine/tests/unit/remediation/test_dfk_01.py"
+      ],
+      "property_and_execution_source": "C06.md + original criterion refs in linked findings.json/tasks.json"
+    },
+    "C07": {
+      "title": "IR uncertainty и B31 persisted subject/estimand/unit relation",
+      "environment": "cloud",
+      "original_units": [
+        "E"
+      ],
+      "input_pin_keys": [
+        "E_source",
+        "E",
+        "A",
+        "G"
+      ],
+      "task_parts": [
+        "S1:B31",
+        "S3:producer"
+      ],
+      "source_scopes": [
+        "policy-engine/src/polisyos/core/contracts/value_outer_set.py",
+        "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py",
+        "policy-engine/src/polisyos/ir/analytics/estimand.py",
+        "policy-engine/src/polisyos/ir/registry/refs.py",
+        "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+        "policy-engine/src/polisyos/ir/__init__.py",
+        "policy-engine/src/polisyos/ir/api.py",
+        "policy-engine/src/polisyos/ir/analytics/__init__.py",
+        "policy-engine/src/polisyos/ir/migrations/schema_registry.py"
+      ],
+      "excluded_paths": [],
+      "test_start_paths": [
+        "policy-engine/tests/unit/core/contracts/test_value_outer_set.py",
+        "policy-engine/tests/unit/ir/test_uncertainty.py",
+        "policy-engine/tests/unit/foundry/methods/test_value_evidence.py"
+      ],
+      "mode": "candidate_source_writer",
+      "test_write_rule": "Only named mirrored tests of own mechanism after actual file lease; existing shared tests stay with canonical mechanism owner; otherwise submit a patch. Test-start paths are discovery/check selectors, not blanket write leases.",
+      "prompt": "C07.md",
+      "receipt_namespace": "parallel-20261008-c07",
+      "property_and_execution_source": "C07.md + original criterion refs in linked findings.json/tasks.json"
+    },
+    "C08": {
+      "title": "F graph/query profiles и TMLE competing-study admission",
+      "environment": "cloud",
+      "original_units": [
+        "F"
+      ],
+      "input_pin_keys": [
+        "F_source",
+        "F_receipt",
+        "G"
+      ],
+      "task_parts": [
+        "S1:B214",
+        "R4:TMLE"
+      ],
+      "source_scopes": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/",
+        "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+        "policy-engine/src/polisyos/ir/analytics/causal_graph_kuzu.py",
+        "policy-engine/src/polisyos/ir/analytics/mgraph.py",
+        "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+        "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+        "policy-engine/src/polisyos/ir/analytics/twin_network.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/causal/",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py"
+      ],
+      "excluded_paths": [],
+      "test_start_paths": [
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+        "policy-engine/tests/unit/remediation/test_grf_03.py"
+      ],
+      "mode": "candidate_source_writer",
+      "test_write_rule": "Only named mirrored tests of own mechanism after actual file lease; existing shared tests stay with canonical mechanism owner; otherwise submit a patch. Test-start paths are discovery/check selectors, not blanket write leases.",
+      "prompt": "C08.md",
+      "companion_paths": [
+        "policy-engine/src/polisyos/foundry/methods/__init__.py",
+        "policy-engine/src/polisyos/foundry/methods/README.md"
+      ],
+      "receipt_namespace": "parallel-20261008-c08",
+      "property_and_execution_source": "C08.md + original criterion refs in linked findings.json/tasks.json"
+    },
+    "C09": {
+      "title": "Calibration/UQ/DOE/Forecast: совместимые empirical producers",
+      "environment": "cloud",
+      "original_units": [
+        "E"
+      ],
+      "input_pin_keys": [
+        "E_source",
+        "E",
+        "G"
+      ],
+      "task_parts": [
+        "S2",
+        "V7:producer",
+        "V4:forecast supplier",
+        "S1:scoped residual input/research"
+      ],
+      "source_scopes": [
+        "policy-engine/src/polisyos/foundry/calibration/",
+        "policy-engine/src/polisyos/foundry/uncertainty/",
+        "policy-engine/src/polisyos/scientist/methods/doe/",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/"
+      ],
+      "excluded_paths": [],
+      "test_start_paths": [
+        "policy-engine/tests/unit/foundry/calibration/",
+        "policy-engine/tests/unit/foundry/uncertainty/",
+        "policy-engine/tests/unit/scientist/methods/backtesting/"
+      ],
+      "mode": "candidate_source_writer",
+      "test_write_rule": "Only named mirrored tests of own mechanism after actual file lease; existing shared tests stay with canonical mechanism owner; otherwise submit a patch. Test-start paths are discovery/check selectors, not blanket write leases.",
+      "prompt": "C09.md",
+      "receipt_namespace": "parallel-20261008-c09",
+      "property_and_execution_source": "C09.md + original criterion refs in linked findings.json/tasks.json"
+    },
+    "C10": {
+      "title": "A served path: N4/N5/N6/N7/WMR, S10, fresh GET и manual UI",
+      "environment": "cloud",
+      "original_units": [
+        "A"
+      ],
+      "input_pin_keys": [
+        "A",
+        "G",
+        "E_source",
+        "B_prepared_source"
+      ],
+      "task_parts": [
+        "V1",
+        "V2",
+        "V3",
+        "V4:consumer",
+        "V6",
+        "V7:consumer",
+        "S3:consumer",
+        "R3:A consumer",
+        "I4:A bridge",
+        "T2:A consumer",
+        "S1:scoped residual input/research",
+        "Q2:B11/manual UI consumer"
+      ],
+      "source_scopes": [
+        "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+        "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+        "policy-engine/apps/runtime-dashboard/src/api/hooks/useRunDetails.ts",
+        "policy-engine/apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+        "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/",
+        "policy-engine/src/polisyos/runtime/quality/explanation_reliability.py"
+      ],
+      "excluded_paths": [],
+      "test_start_paths": [
+        "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py",
+        "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+        "policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+        "policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+        "policy-engine/tests/unit/runtime/http/test_runs_api.py",
+        "policy-engine/apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx",
+        "policy-engine/apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx",
+        "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx",
+        "policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py"
+      ],
+      "mode": "candidate_source_writer",
+      "test_write_rule": "Only named mirrored tests of own mechanism after actual file lease; existing shared tests stay with canonical mechanism owner; otherwise submit a patch. Test-start paths are discovery/check selectors, not blanket write leases.",
+      "prompt": "C10.md",
+      "receipt_namespace": "parallel-20261008-c10",
+      "explicit_test_writer_paths": [
+        "policy-engine/apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx",
+        "policy-engine/apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx",
+        "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx"
+      ],
+      "property_and_execution_source": "C10.md + original criterion refs in linked findings.json/tasks.json"
+    },
+    "C11": {
+      "title": "D Search/funnel: configured consumer, history/refinement и permit bridge",
+      "environment": "cloud",
+      "original_units": [
+        "D"
+      ],
+      "input_pin_keys": [
+        "D_source",
+        "D",
+        "B_prepared_source",
+        "G"
+      ],
+      "task_parts": [
+        "V5",
+        "S1:B161",
+        "T2:D consumer",
+        "R3:D consumer",
+        "Q0:B156 source evidence supplier"
+      ],
+      "source_scopes": [
+        "policy-engine/src/polisyos/scientist/methods/search/",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/__init__.py",
+        "policy-engine/src/polisyos/scientist/nodes/components.py",
+        "policy-engine/src/polisyos/scientist/validation/phase5_preflight.py"
+      ],
+      "excluded_paths": [],
+      "test_start_paths": [
+        "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py",
+        "policy-engine/tests/unit/scientist/nodes/test_extension_registration.py",
+        "policy-engine/tests/unit/remediation/test_fun_03.py",
+        "policy-engine/tests/unit/scientist/validation/test_phase5_preflight.py"
+      ],
+      "mode": "candidate_source_writer",
+      "test_write_rule": "Only named mirrored tests of own mechanism after actual file lease; existing shared tests stay with canonical mechanism owner; otherwise submit a patch. Test-start paths are discovery/check selectors, not blanket write leases.",
+      "prompt": "C11.md",
+      "receipt_namespace": "parallel-20261008-c11",
+      "property_and_execution_source": "C11.md + original criterion refs in linked findings.json/tasks.json"
+    },
+    "C12": {
+      "title": "Legal: generation/model/query-profile → encoded query → serving",
+      "environment": "cloud",
+      "original_units": [
+        "C"
+      ],
+      "input_pin_keys": [
+        "C",
+        "G",
+        "C_Legal_source"
+      ],
+      "task_parts": [
+        "I4:Legal"
+      ],
+      "source_scopes": [
+        "policy-engine/src/polisyos/data_forge/domains/legal/",
+        "policy-engine/src/polisyos/lex/knowledge/search.py",
+        "policy-engine/src/polisyos/lex/knowledge/store.py",
+        "policy-engine/src/polisyos/lex/knowledge/README.md"
+      ],
+      "excluded_paths": [],
+      "test_start_paths": [
+        "policy-engine/tests/unit/remediation/test_emb_03.py"
+      ],
+      "mode": "candidate_source_writer",
+      "test_write_rule": "Only named mirrored tests of own mechanism after actual file lease; existing shared tests stay with canonical mechanism owner; otherwise submit a patch. Test-start paths are discovery/check selectors, not blanket write leases.",
+      "prompt": "C12.md",
+      "receipt_namespace": "parallel-20261008-c12",
+      "explicit_test_writer_paths": [
+        "policy-engine/tests/unit/remediation/test_emb_03.py"
+      ],
+      "property_and_execution_source": "C12.md + original criterion refs in linked findings.json/tasks.json"
+    },
+    "C13": {
+      "title": "Independent conformance: installed/backend/frontend и один frozen portable replay",
+      "environment": "cloud",
+      "original_units": [],
+      "input_pin_keys": [
+        "G",
+        "A",
+        "C",
+        "D_source",
+        "E_source",
+        "F_source"
+      ],
+      "task_parts": [
+        "Q2:independent conformance",
+        "T1:code/API census",
+        "S1:scoped residual input/research"
+      ],
+      "source_scopes": [],
+      "excluded_paths": [],
+      "test_start_paths": [
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+        "policy-engine/tests/repo_quality/tools/test_hatch_packaging.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py"
+      ],
+      "mode": "read_only_verification",
+      "test_write_rule": "Only named mirrored tests of own mechanism after actual file lease; existing shared tests stay with canonical mechanism owner; otherwise submit a patch. Test-start paths are discovery/check selectors, not blanket write leases.",
+      "prompt": "C13.md",
+      "receipt_namespace": "parallel-20261008-c13",
+      "property_and_execution_source": "C13.md + original criterion refs in linked findings.json/tasks.json"
+    },
+    "L01": {
+      "title": "Локальные owner inputs и custody inventory",
+      "environment": "local",
+      "mode": "read_only_inputs",
+      "original_units": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "input_pin_keys": [
+        "G"
+      ],
+      "task_parts": [
+        "T1",
+        "I3:facts",
+        "S2:facts",
+        "R4:workload facts",
+        "I4:profile facts",
+        "S1:scoped residual input/research"
+      ],
+      "source_scopes": [],
+      "excluded_paths": [],
+      "test_start_paths": [],
+      "prompt": "L01.md",
+      "test_write_rule": "No production/test source writes; own non-secret receipt docs only on an admitted topic.",
+      "receipt_namespace": "parallel-20261008-l01",
+      "property_and_execution_source": "L01.md + original criterion refs in linked findings.json/tasks.json"
+    },
+    "L02": {
+      "title": "Локальные exact-candidate authentic consumers и Mac profiles",
+      "environment": "local",
+      "mode": "read_only_verification",
+      "original_units": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "input_pin_keys": [
+        "G"
+      ],
+      "task_parts": [
+        "V1:authentic",
+        "V6:authentic",
+        "V3:authentic",
+        "V4:authentic",
+        "V7:authentic",
+        "I3:authentic",
+        "I4:authentic",
+        "S2:authentic",
+        "T2:authentic",
+        "Q2:Mac-only",
+        "S1:scoped residual input/research"
+      ],
+      "source_scopes": [],
+      "excluded_paths": [],
+      "test_start_paths": [],
+      "prompt": "L02.md",
+      "test_write_rule": "No production/test source writes; own non-secret receipt docs only on an admitted topic.",
+      "receipt_namespace": "parallel-20261008-l02",
+      "property_and_execution_source": "L02.md + original criterion refs in linked findings.json/tasks.json"
+    }
+  },
+  "task_routes": {
+    "Q0": [
+      "G",
+      "C11"
+    ],
+    "Q1": [
+      "G",
+      "C02",
+      "C03"
+    ],
+    "R1": [
+      "C01"
+    ],
+    "R2": [
+      "C04"
+    ],
+    "R3": [
+      "C03",
+      "C10",
+      "C11"
+    ],
+    "R4": [
+      "C01",
+      "C08",
+      "L01"
+    ],
+    "I1": [
+      "C05"
+    ],
+    "I2": [
+      "C06"
+    ],
+    "I3": [
+      "C04",
+      "L01",
+      "L02"
+    ],
+    "I4": [
+      "C05",
+      "C12",
+      "C10",
+      "L01",
+      "L02"
+    ],
+    "S1": [
+      "C05",
+      "C06",
+      "C07",
+      "C08",
+      "C09",
+      "C10",
+      "C11",
+      "C13",
+      "G",
+      "L01",
+      "L02"
+    ],
+    "S2": [
+      "C09",
+      "L01",
+      "L02"
+    ],
+    "S3": [
+      "C07",
+      "C10"
+    ],
+    "V1": [
+      "C10",
+      "L02"
+    ],
+    "V2": [
+      "C10"
+    ],
+    "V3": [
+      "C10",
+      "L02"
+    ],
+    "V4": [
+      "C09",
+      "C10",
+      "L02"
+    ],
+    "V5": [
+      "C11"
+    ],
+    "V6": [
+      "C10",
+      "L02"
+    ],
+    "V7": [
+      "C09",
+      "C10",
+      "L02"
+    ],
+    "T1": [
+      "L01",
+      "C13"
+    ],
+    "T2": [
+      "C02",
+      "C11",
+      "C10",
+      "L02"
+    ],
+    "Q2": [
+      "G",
+      "C06",
+      "C13",
+      "L02",
+      "C10"
+    ]
+  },
+  "task_dependency_source": "../../integration/connected-closeout-plan-2026-10-08/tasks.json",
+  "global_companion_owner": "G",
+  "actual_local_data_paths": "not_established; L01 resolves existing configured inputs before L02 recipe",
+  "concurrency": {
+    "unconditional_start_cards": [
+      "I1",
+      "I2",
+      "Q0",
+      "Q1",
+      "S1",
+      "T1"
+    ],
+    "conditional_initial_cards": [
+      "R4"
+    ],
+    "roles_are_not_simultaneous_ready_writers": true,
+    "cloud_capacity": "not_established; no artificial CPU/process quotas",
+    "local_shared_heavy_slots": 1
+  },
+  "shared_contract_choices": [
+    "B1e/A8b vs D8e monetary response/enforcer",
+    "CAS source+manifest+ownership inputs",
+    "A alone generation_cycle/S10/HTTP lifecycle",
+    "C07 alone uncertainty/IR facade; C08 graph supplier; C09 producer only",
+    "C11 builtin assembly vs C01 engine registry",
+    "C05 generation_basis and test_dfk_02 vs C06 census/test_dfk_01",
+    "G generated outputs/lock/family inventory"
+  ],
+  "verification_contract": "immutable source tree+input manifest+actual supported profile+full deciding output+matched negative; no formal closure assigned by this plan",
+  "decision_release_rule": "S1 decision-scoped receipts, no all-of barrier; relevant consumer semantics/immutable supplier only",
+  "delegation_rule": "user-owned ORCH or standalone C-root: one level direct helpers; C-role assigned as helper: no children; cloud modes mutually exclusive",
+  "S1_finding_allocations": {
+    "B07": {
+      "lead": "C10",
+      "partners": [
+        "C08"
+      ],
+      "property": "supported producer temporal/coupling contract; exact two-engine same-grid consumer",
+      "source_writer": "C10 consumer; actual engine supplier writer confirmed by G after source-path audit"
+    },
+    "B19": {
+      "lead": "C08",
+      "partners": [
+        "C10",
+        "C05"
+      ],
+      "property": "EvidenceStateRef/comparator same-model/horizon/scope; no zero invented baseline; no-op/missing/unchanged factual/joint controls",
+      "source_writer": "C10 consumer; supplier source paths require exact existing owner lease"
+    },
+    "B20": {
+      "lead": "C08",
+      "partners": [
+        "C10"
+      ],
+      "property": "explicit sequential atom/order/dependency producer vs unordered compatibility; no last-wins",
+      "source_writer": "C08 only existing assigned graph/method paths; other atom producer paths lease through G"
+    },
+    "B21": {
+      "lead": "C09",
+      "partners": [
+        "C10"
+      ],
+      "property": "IID or independent-scramble QMC draw law/source/estimand; s/sqrt(n) not universal error",
+      "source_writer": "C09 owned UQ producer; C10 consumer"
+    },
+    "B22": {
+      "lead": "C10",
+      "partners": [
+        "C08"
+      ],
+      "property": "physical unit/time/grid/initial/end point/step producer meaning; no invented dt",
+      "source_writer": "C10 consumer; actual engine supplier writer confirmed by G"
+    },
+    "B31": {
+      "lead": "C07",
+      "partners": [
+        "C10"
+      ],
+      "property": "persisted producer subject/unit join of identification and native uncertainty refs",
+      "source_writer": "C07 IR relation; C10 producer receipt/fresh ValuePort"
+    },
+    "B33": {
+      "lead": "C08",
+      "partners": [
+        "C10"
+      ],
+      "property": "source-target model/identification plan/selection diagram scope/time/lineage; same marginals two-topology negative",
+      "source_writer": "C08 graph/model owned paths; C10 consumer"
+    },
+    "B36": {
+      "lead": "C10",
+      "partners": [
+        "C05"
+      ],
+      "property": "required modality preserved; actual typed transform producer; unsupported refusal",
+      "source_writer": "consumer C10; transform producer not allocated until G verifies canonical paths",
+      "decision_status": "G producer lease required; immediate C05/C10 research/discriminator"
+    },
+    "LA-023": {
+      "lead": "G",
+      "partners": [
+        "C06",
+        "C13"
+      ],
+      "property": "public train/TrainingResult/checkpoint promise: existing one-call vs typed cross-call continuation or supported explicit unsupported",
+      "source_writer": "unallocated continuation paths until G contract decision; C06 readonly contract/compatibility research",
+      "decision_status": "G scope decision pending; do not repeat completed one-call suite"
+    },
+    "LA-032": {
+      "lead": "G",
+      "partners": [
+        "C05",
+        "L01",
+        "L02"
+      ],
+      "property": "versioned source→state-ID/target/prior/donor inventory producer/artifact/bridge for four readers",
+      "source_writer": "C05 proposes existing C-W19 producer/reader exact paths; G confirms lease before code",
+      "decision_status": "authority/source inventory not established; L01 exact factual packet plus C05 architecture proposal"
+    },
+    "LA-036": {
+      "lead": "C09",
+      "partners": [
+        "C08",
+        "C10",
+        "C11",
+        "L01",
+        "C07"
+      ],
+      "property": "verified observed-feature conditional law/model/support/epoch/bound; posterior parameter rows not conditional feature law",
+      "source_writer": "C09 law producer; C08 model; C10 explanation_reliability; C11 phase5_preflight; C07 IR companions"
+    },
+    "B161": {
+      "lead": "C11",
+      "partners": [
+        "C09",
+        "C10"
+      ],
+      "property": "same subject/value/input/rule/time permitted scientific refinement; foreign/independent-high-risk retains history/current distinction",
+      "source_writer": "C11 Search; no L01 semantic ratification"
+    },
+    "B172": {
+      "lead": "C09",
+      "partners": [
+        "G",
+        "C11"
+      ],
+      "property": "constant nonzero descriptive residual and unavailable inference cannot grant neutrality/trust",
+      "source_writer": "C09 Backtesting; accountable trust-purpose/profile decision named with G"
+    },
+    "B173": {
+      "lead": "C09",
+      "partners": [
+        "G",
+        "C11"
+      ],
+      "property": "Student t label has exact t law or honest unavailable inference; no missing-SciPy silent normal substitution or significance→equivalence",
+      "source_writer": "C09 Backtesting; preserve explicit limited profile until decision"
+    },
+    "B214": {
+      "lead": "C08",
+      "partners": [
+        "C10"
+      ],
+      "property": "query-specific partial graph/completion profile; preserve bounded original reverse-arrow/unresolved-cycle refusal",
+      "source_writer": "C08 graph/query owner"
+    }
+  },
+  "verification_only_finding_routes": {
+    "B11": {
+      "task": "Q2",
+      "roles": [
+        "G",
+        "C10",
+        "C13"
+      ],
+      "property": "low/unknown value proxy still executes permitted informative check within budget; exhausted actual budget stops; heuristic spend/VOI labeled; no invoice requirement",
+      "surface_companion": "Q2 existing surface check: retain selected/deferred reason and heuristic purpose; scheduler result never grants publishability. This is Q2 surface qualification, not an invoice/statistical extension of original B11."
+    },
+    "B156": {
+      "task": "Q0",
+      "roles": [
+        "G",
+        "C11"
+      ],
+      "property": "original mocked callback allowed on real orchestrator/cache, no new statistical independence bar"
+    }
+  },
+  "generated_companions": {
+    "owner": "G",
+    "source_requirement_owner": "C07 IR; C10 runtime DTO/manual UI",
+    "examples": [
+      "policy-engine/schemas/snapshots/ir/_manifest.json",
+      "policy-engine/docs/reference/ir/schema-catalog.md",
+      "policy-engine/docs/reference/schemas.md",
+      "policy-engine/docs/reference/public-surface.md",
+      "policy-engine/architecture/public_surface/inventory.json",
+      "policy-engine/apps/runtime-dashboard/src/api/types.ts"
+    ],
+    "rule": "exact actual generated family from canonical generator after relevant freeze; examples not denominator"
+  },
+  "R4_bridge_lease": {
+    "C01": [
+      "scientist/orchestration/workflows/builder.py",
+      "scientist/compute/runner.py",
+      "engine/executor/runner admission"
+    ],
+    "C10": [
+      "runtime/http/services/control/run_lifecycle.py"
+    ],
+    "C08": [
+      "simulate/run_causal_evaluation.py",
+      "TMLE method"
+    ],
+    "unleased_context_inputs": [
+      "runtime/http/services/control_worker.py",
+      "scientist/api.py",
+      "scientist/compute/job_spec.py"
+    ],
+    "rule": "inspect unleased seam read-only; request explicit G lease if needed, no second scheduler; actual route admission witness required"
+  },
+  "shared_non_generated_companions": {
+    "owner": "G",
+    "paths": [
+      "policy-engine/pyproject.toml",
+      "policy-engine/uv.lock"
+    ],
+    "release_rule": "original owner authors a unique slice release fragment and role-scoped plan/handoff/test documentation; G serially integrates, no shared release filename overwrites",
+    "docs_rule": "exact role/source package README assigned to its mechanism writer; shared reference/catalog/global plan needs named G lease before edit"
+  },
+  "source_transport_boundaries": {
+    "B_prepared": "Not advertised by B topic/PR55; exact origin SHA fetch verified by G previously; R1/C01 must attempt exact fetch and qualify transport separately. R1 must publish B topic; C13 broad consumes G accepted composition, not unpublished B baseline.",
+    "cloud_host_admission": "not established by prompt publication; actual host/path/branch mandatory before execution",
+    "prompt_pack": "published G branch after this documentation change; no main assumption"
+  }
+}

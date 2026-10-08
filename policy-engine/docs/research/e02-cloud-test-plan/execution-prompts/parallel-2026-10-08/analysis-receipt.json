@@ -1,0 +1,97 @@
+{
+  "schema": "policyos.e02.parallel_prompt_pack_review.v1",
+  "planning_only": true,
+  "parent_G_sha": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+  "scope": "execution organization/prompts; no implementation launch, source merge or formal closure",
+  "reviews": [
+    {
+      "review": "reviews/local.md",
+      "sha256": "31cd4a04517596e001c31c146a0e30174c22c3a60431bd6612c469be3d0cb500",
+      "stage": "independent document review before publication; corrections qualified below"
+    },
+    {
+      "review": "reviews/runtime.md",
+      "sha256": "ad767b3e064865275e321aeb551aa180fa03f1c7f64af183f9aa340d998526e9",
+      "stage": "independent document review before publication; corrections qualified below"
+    },
+    {
+      "review": "reviews/organization.md",
+      "sha256": "e67358934c9ef056892c730c84196252e72ff727089c61376bd704717b6f49fd",
+      "stage": "independent document review before publication; corrections qualified below"
+    },
+    {
+      "review": "reviews/coverage.md",
+      "sha256": "1f057911021eb2c76259c766fb3f597bbb6d4bf522e3cd6d0159947155c65b29",
+      "stage": "independent document review before publication; corrections qualified below"
+    },
+    {
+      "review": "reviews/budget.md",
+      "sha256": "4c8d6ff892fe7542ef20ef754d0822aa8e8bb1fa487dc22cfe017aec2697a07e",
+      "stage": "independent document review before publication; corrections qualified below"
+    },
+    {
+      "review": "reviews/data-paths.md",
+      "sha256": "cc663c0c2dab8b3901f85881e87b226d6b1f3cc85390f8344c2cea89d3f1123a",
+      "stage": "independent document review before publication; corrections qualified below"
+    },
+    {
+      "review": "reviews/science-served.md",
+      "sha256": "1c4e720c4b46233b5104b8705d324c8d5d297499ee1136525981723d6c9971a0",
+      "stage": "independent document review before publication; corrections qualified below"
+    },
+    {
+      "review": "reviews/platform.md",
+      "sha256": "d9bc67ae74755e2cc962cc16feb0bdce24885e47ca1222276de2d0feed252e7d",
+      "stage": "independent document review before publication; corrections qualified below"
+    }
+  ],
+  "structural_verification": {
+    "result": "PASS",
+    "scope": "documentation routes/path leases/source pins/links; no product tests",
+    "roles": 15,
+    "task_ids": 23,
+    "finding_ids": 282,
+    "S1_allocations": 15,
+    "source_pin_pairs": 20,
+    "immutable_tree_denominator": 20,
+    "complete_tracked_path_union_denominator": 41823,
+    "unresolved_paths": [],
+    "duplicate_writers": [],
+    "broken_links": []
+  },
+  "root_resolutions": [
+    "All15 S1 original finding routes have explicit leads/partners/source lease or named G decision, including actual unallocated producers; no generic no-owner stop.",
+    "One canonical IR uncertainty/S10/builtin assembly/source generator writer, exact test/README/lock/release companions.",
+    "R4 MethodJob bridge belongs to C01 builder/compute plus C10 lifecycle/C08 method; synthetic cap witness not actual admitted workload.",
+    "B11 original budget criterion retained; Q2 picked/deferred/heuristic/no-publishability surface qualified separately, no invoice/statistical bar.",
+    "B156 mocked callback allowed on real orchestrator/cache; E201202 decisions retained.",
+    "C_CAN e3 mapping separate non-G delta; accepted8f adapter not reimported.",
+    "Duplicate prose removed from machine roles; canonical prompt+original criterion source referenced.",
+    "Bprepared exact origin object fetch PASS on G host; B topic still53b; R1 host rechecks separately, C13 final wave reads G accepted composition.",
+    "Prompt availability resolved only by next ordinary G commit/push/readback; cloud host/environment/actual inputs remain runtime preflights, not current PASS.",
+    "Local narrow exact-candidate authentic checks allowed before whole freeze, one final closeout after freeze.",
+    "Expanded standalone roots one level of helpers, orchestrator specialists no children; cloud modes mutually exclusive."
+  ],
+  "baseline": {
+    "importer_check": "PASS",
+    "verification_source": "policy-engine/docs/research/e02-cloud-test-plan/results/verification.json@fe5ccf9ce90c336fff749da48bd0138d321baf23",
+    "navigation_query": "--failures-only --limit 30; full output ignored; not ownership or runtime evidence",
+    "raw_archive_transfer": "missing",
+    "closure": "not_established"
+  },
+  "execution_limits": {
+    "actual_cloud_host": "not_established",
+    "actual_local_mounts": "not_established",
+    "optional_backends": "not_established",
+    "cloud_VM_capacity": "not_established; roles not CPU quotas",
+    "local_heavy_slot": "one shared G/L02/A/C resource",
+    "product_tests_run": false,
+    "production_payload_traversal": false,
+    "new_checkouts_or_envs": 0,
+    "trash_moved": 0,
+    "permanent_deletion": false
+  },
+  "free_space_GiB": 49.416297912597656,
+  "publisher": "G codex/e02-integration only",
+  "main_authorization": false
+}

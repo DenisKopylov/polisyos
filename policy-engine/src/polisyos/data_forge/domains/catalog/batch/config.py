@@ -370,8 +370,7 @@ def _runtime_source_profile_payload() -> bytes:
     )
 
     profiles = [
-        profile.model_copy(deep=True)
-        for profile in SourceProfileRegistry.get_instance().list_all()
+        profile.model_copy(deep=True) for profile in SourceProfileRegistry.get_instance().list_all()
     ]
     payload: list[dict[str, object]] = []
     for profile in profiles:
@@ -387,9 +386,9 @@ def _runtime_source_profile_payload() -> bytes:
                 "execution_policy": resolve_execution_policy(profile).model_dump(mode="json"),
             }
         )
-    return json.dumps(
-        payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
-    ).encode("utf-8")
+    return json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode(
+        "utf-8"
+    )
 
 
 def _signature_safe(value: object) -> object:

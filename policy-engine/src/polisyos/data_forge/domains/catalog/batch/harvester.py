@@ -21,9 +21,9 @@ from polisyos.data_forge.domains.catalog.batch.checkpoints import (
 )
 from polisyos.data_forge.domains.catalog.batch.ckan_curation import curate_ckan_package
 from polisyos.data_forge.domains.catalog.batch.material_inputs import (
-    _MaterialFileSnapshot,
     _material_file_snapshot,
     _material_yaml_snapshot,
+    _MaterialFileSnapshot,
 )
 from polisyos.data_forge.domains.catalog.batch.normalizer import map_to_polisyos_metrics
 from polisyos.data_forge.domains.catalog.metrics_map import load_metrics_map
@@ -987,13 +987,9 @@ def _load_wvs_indicator_catalog_snapshot(
 
 
 # Retain cache-reset hooks for callers of the existing private readers.
-setattr(
-    _load_wvs_indicator_registry, "cache_clear", _load_wvs_indicator_registry_snapshot.cache_clear
-)
-setattr(
-    _load_wvs_indicator_catalog_from_local_file,
-    "cache_clear",
-    _load_wvs_indicator_catalog_snapshot.cache_clear,
+_load_wvs_indicator_registry.cache_clear = _load_wvs_indicator_registry_snapshot.cache_clear
+_load_wvs_indicator_catalog_from_local_file.cache_clear = (
+    _load_wvs_indicator_catalog_snapshot.cache_clear
 )
 
 
@@ -1219,7 +1215,9 @@ async def harvest_sources(config: DatasetBatchConfig) -> dict[str, list[dict]]:
     stage_manifest = config.manifests_dir / "harvest.json"
     selected_sources = [spec.name for spec in specs]
     successful_sources = [
-        name for name in selected_sources if source_outcomes.get(name, {}).get("status") == "complete"
+        name
+        for name in selected_sources
+        if source_outcomes.get(name, {}).get("status") == "complete"
     ]
     failed_sources = [name for name in selected_sources if name not in successful_sources]
     write_stage_manifest(

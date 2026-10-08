@@ -47,9 +47,9 @@ from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts im
 )
 from polisyos.data_forge.domains.catalog.batch.checkpoints import load_json, write_json
 from polisyos.data_forge.domains.catalog.batch.material_inputs import (
-    _MaterialFileSnapshot,
     _material_file_snapshot,
     _material_yaml_snapshot,
+    _MaterialFileSnapshot,
 )
 from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
     country_scope_members,
@@ -273,8 +273,6 @@ _ILO_INFERRED_DIMENSION_TOKENS: frozenset[str] = frozenset(
 )
 
 
-
-
 def _seed_alignments_path() -> Path:
     return (
         Path(__file__).resolve().parents[7]
@@ -314,9 +312,7 @@ def _load_wvs_registry_snapshot(snapshot: _MaterialFileSnapshot) -> dict[str, di
     try:
         data = _material_yaml_snapshot(snapshot)
         indicators = data.get("indicators", {}) if isinstance(data, dict) else {}
-        return {
-            str(k).strip().upper(): v for k, v in indicators.items() if isinstance(v, dict)
-        }
+        return {str(k).strip().upper(): v for k, v in indicators.items() if isinstance(v, dict)}
     except Exception:
         logger.warning("Failed to load WVS indicator registry")
         return {}
@@ -337,9 +333,7 @@ def _wvs_legacy_indicators() -> dict[str, str]:
     return result if result else dict(_LEGACY_WVS_INDICATORS_STATIC)
 
 
-def _wvs_aggregation_method(
-    indicator: str, *, registry: dict[str, dict] | None = None
-) -> str:
+def _wvs_aggregation_method(indicator: str, *, registry: dict[str, dict] | None = None) -> str:
     """Return aggregation method from a current or operation-bound registry."""
     if registry is None:
         registry = _load_wvs_registry()
@@ -349,9 +343,7 @@ def _wvs_aggregation_method(
     return _WVS_SPECIAL_AGGREGATIONS_STATIC.get(indicator, "weighted_mean")
 
 
-def _wvs_response_type(
-    indicator: str, *, registry: dict[str, dict] | None = None
-) -> str:
+def _wvs_response_type(indicator: str, *, registry: dict[str, dict] | None = None) -> str:
     """Return response type from a current or operation-bound registry."""
     if registry is None:
         registry = _load_wvs_registry()
@@ -576,6 +568,8 @@ def _normalize_wvs_response_value_typed(
     if value == 0:
         return None
     return value
+
+
 def _merge_observation_stats(
     stats: CoreSourcesIngestStats,
     inserted: ObservationInsertStats,
@@ -1837,6 +1831,8 @@ def _wvs_weight(row: dict[str, Any]) -> tuple[float | None, str]:
             continue
         return value, field
     return 1.0, ""
+
+
 async def _fetch_who_observations(
     *,
     indicator_id: str,
@@ -1882,9 +1878,7 @@ async def _fetch_uis_observations(
     url = "https://api.uis.unesco.org/api/public/data/indicators"
     params = {
         "indicator": indicator_id,
-        "geoUnit": __resolve_implementation_dependency("_to_iso3", "transformers")(
-            country_code
-        ),
+        "geoUnit": __resolve_implementation_dependency("_to_iso3", "transformers")(country_code),
         "start": int(start_year),
         "end": int(end_year),
     }

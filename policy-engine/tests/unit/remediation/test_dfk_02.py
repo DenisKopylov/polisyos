@@ -593,7 +593,10 @@ def test_warm_and_fresh_catalog_consumers_reconcile_same_id_source_policy(
     from polisyos.core.contracts.control import DataNeed, DataResolveRequest
     from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
     from polisyos.data_forge.domains.catalog.knowledge.search import DatasetCatalogGraph
-    from polisyos.data_forge.domains.catalog.knowledge.types import DatasetRecord, DistributionRecord
+    from polisyos.data_forge.domains.catalog.knowledge.types import (
+        DatasetRecord,
+        DistributionRecord,
+    )
 
     registry_path = tmp_path / "registry.yaml"
 
@@ -674,9 +677,12 @@ def test_warm_and_fresh_catalog_consumers_reconcile_same_id_source_policy(
         write_policy(False)
         os.utime(registry_path, ns=(previous_stat.st_atime_ns, previous_stat.st_mtime_ns))
         fresh = RetrievalService(curated_dir=tmp_path / "curated", dataset_catalog=catalog)
-        assert load_catalog_source_registry(registry_path).enabled_sources(
-            run_profile="prod_core_blocking"
-        ) == ()
+        assert (
+            load_catalog_source_registry(registry_path).enabled_sources(
+                run_profile="prod_core_blocking"
+            )
+            == ()
+        )
         assert plan_ids(warm) == []
         assert plan_ids(fresh) == []
 

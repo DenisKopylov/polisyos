@@ -107,9 +107,7 @@ class _MutableSentenceTransformer:
         self.device = device
 
     def state_dict(self) -> dict[str, np.ndarray]:
-        return {
-            "encoder.weight": np.asarray([type(self).asset_revision, 1.0], dtype=np.float32)
-        }
+        return {"encoder.weight": np.asarray([type(self).asset_revision, 1.0], dtype=np.float32)}
 
     def modules(self) -> list[_MutableSentenceTransformer]:
         return [self]
@@ -261,9 +259,7 @@ def test_graph_resume_rejects_same_stat_changed_input(stage: str, tmp_path) -> N
         stages=frozenset({stage}),
         resume=True,
     )
-    input_path = (
-        config.merged_records_path if stage == "graph_load" else config.db_path
-    )
+    input_path = config.merged_records_path if stage == "graph_load" else config.db_path
     input_path.parent.mkdir(parents=True, exist_ok=True)
     input_path.write_bytes(b"before\n")
     if stage == "graph_load":
@@ -567,9 +563,7 @@ def test_pipeline_preserves_current_core_producer_progress_for_benchmark(
     from polisyos.data_forge.domains.catalog.batch.benchmark import run_benchmark
 
     run_benchmark(retry_config)
-    marker_only_report = json.loads(
-        retry_config.benchmark_report_path.read_text(encoding="utf-8")
-    )
+    marker_only_report = json.loads(retry_config.benchmark_report_path.read_text(encoding="utf-8"))
     assert marker_only_report["evaluation_mode"] == "partial-eval"
     assert marker_only_report["metrics"]["benchmark_partial_eval"] == 1
 
@@ -595,9 +589,9 @@ def test_pipeline_preserves_current_core_producer_progress_for_benchmark(
     before_missing_output_retry = fetch_state["calls"]
     fetch_state["fail"] = True
     missing_output_stats = run_dataset_pipeline_sync(retry_config)
-    missing_output_state = json.loads(
-        retry_config.stage_state_path.read_text(encoding="utf-8")
-    )["core_sources_ingest"]
+    missing_output_state = json.loads(retry_config.stage_state_path.read_text(encoding="utf-8"))[
+        "core_sources_ingest"
+    ]
     missing_output_benchmark = json.loads(
         retry_config.benchmark_report_path.read_text(encoding="utf-8")
     )
@@ -845,9 +839,7 @@ def test_benchmark_resume_rejects_unselected_raw_source_change(monkeypatch, tmp_
     assert not _should_skip_stage(config, "benchmark")
 
 
-def test_qc_resume_rejects_selected_previous_snapshot_payload_change(
-    monkeypatch, tmp_path
-) -> None:
+def test_qc_resume_rejects_selected_previous_snapshot_payload_change(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         DatasetBatchConfig,
         "load_registry",
@@ -999,6 +991,7 @@ def test_publish_receipt_binds_full_registry_bytes_and_selected_source_contract(
     tmp_path: Path,
 ) -> None:
     registry_path = tmp_path / "registry.yaml"
+
     def _write_registry(endpoint: str) -> None:
         registry_path.write_text(
             "\n".join(
@@ -1232,9 +1225,7 @@ def test_real_qc_receipt_binds_shared_merged_and_duplicate_inputs(
     assert current_content_stage_receipt(config, "qc") is None
 
 
-def test_selected_empty_generation_is_reused_without_reencoding(
-    monkeypatch, tmp_path
-) -> None:
+def test_selected_empty_generation_is_reused_without_reencoding(monkeypatch, tmp_path) -> None:
     config = DatasetBatchConfig(
         snapshot_root=tmp_path / "snapshot",
         stages=frozenset({"embed"}),
@@ -1293,9 +1284,7 @@ def test_embed_resume_rejects_config_rule_and_selected_output_changes(
     )
     assert not _should_skip_stage(config, "embed")
 
-    monkeypatch.setitem(
-        pipeline_module._STAGE_RULE_VERSIONS, "embed", "policyos.catalog.embed.v2"
-    )
+    monkeypatch.setitem(pipeline_module._STAGE_RULE_VERSIONS, "embed", "policyos.catalog.embed.v2")
     selector = json.loads(
         (config.index_dir / "embedding_generation.json").read_text(encoding="utf-8")
     )
@@ -1494,9 +1483,12 @@ def test_same_id_live_source_profile_change_invalidates_stage_receipts(
     initial_signature = config.run_signature
     marker_bytes = config.stage_state_path.read_bytes()
     registry_bytes = registry_path.read_bytes()
-    assert _resolve_source_execution_policy(
-        source="fixture", profile_id="fixture_profile"
-    ).max_sync_cells == 1
+    assert (
+        _resolve_source_execution_policy(
+            source="fixture", profile_id="fixture_profile"
+        ).max_sync_cells
+        == 1
+    )
     assert _resolve_profile_config("fixture_profile").url == "https://example.test/source"
 
     # New object, identical bytes and only YAML write-time drift retain reuse.
@@ -1514,15 +1506,21 @@ def test_same_id_live_source_profile_change_invalidates_stage_receipts(
     assert config.stage_state_path.read_bytes() == marker_bytes
     assert config.run_signature != initial_signature
     if field == "max_sync_cells":
-        assert _resolve_source_execution_policy(
-            source="fixture", profile_id="fixture_profile"
-        ).max_sync_cells == 2
+        assert (
+            _resolve_source_execution_policy(
+                source="fixture", profile_id="fixture_profile"
+            ).max_sync_cells
+            == 2
+        )
     if field == "base_url":
         assert _resolve_profile_config("fixture_profile").url == replacement
     if field == "preferred_core_transport":
-        assert _resolve_source_execution_policy(
-            source="fixture", profile_id="fixture_profile"
-        ).preferred_core_transport == replacement
+        assert (
+            _resolve_source_execution_policy(
+                source="fixture", profile_id="fixture_profile"
+            ).preferred_core_transport
+            == replacement
+        )
     for stage in ("benchmark", "publish"):
         assert not _should_skip_stage(config, stage)
         assert current_content_stage_receipt(config, stage) is None
@@ -1641,7 +1639,10 @@ def test_material_input_change_recomputes_real_producer_and_benchmark(
         _current_core_output_receipt_state,
     )
     from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
-    from polisyos.data_forge.domains.catalog.knowledge.types import DatasetRecord, DistributionRecord
+    from polisyos.data_forge.domains.catalog.knowledge.types import (
+        DatasetRecord,
+        DistributionRecord,
+    )
     from polisyos.fabric.connectors.base import ConnectionHandle, DatasetCapabilitySnapshot
     from polisyos.fabric.connectors.profiles.models import SourceProfile
     from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
@@ -1870,9 +1871,10 @@ def test_material_input_change_recomputes_real_producer_and_benchmark(
     assert report["evaluation_mode"] == "full-ready"
     assert report["metrics"]["benchmark_partial_eval"] == 0
     assert report["diagnostic_context"]["core_output_receipt_current"] is True
-    assert report["diagnostic_context"]["core_output_receipt_digest"] == current.current_receipt[
-        "basis_digest"
-    ]
+    assert (
+        report["diagnostic_context"]["core_output_receipt_digest"]
+        == current.current_receipt["basis_digest"]
+    )
     assert report["diagnostic_context"]["publishable_core_complete"] is True
     assert report["diagnostic_context"]["publishable_core_pending"] == 0
     assert current_content_stage_receipt(config, "benchmark") is not None
@@ -1941,7 +1943,11 @@ def test_warm_proxy_policy_change_updates_actual_catalog_alignment(
             ).fetchone()
 
     assert persisted_alignment() == (
-        "economic.gdp", 0.8, 0.2, "metric_binding_proxy:fixture_metric", True
+        "economic.gdp",
+        0.8,
+        0.2,
+        "metric_binding_proxy:fixture_metric",
+        True,
     )
     signature = config.run_signature
     previous_stat = proxy_path.stat()
@@ -2072,20 +2078,16 @@ def test_wvs_metadata_fallback_tracks_actual_branch_and_optional_asset(
     )
     assert config.run_signature != present_signature
 
-    registry_path.write_text(
-        "indicators:\n  A165:\n    title: Primary YAML\n", encoding="utf-8"
-    )
+    registry_path.write_text("indicators:\n  A165:\n    title: Primary YAML\n", encoding="utf-8")
     primary_signature = config.run_signature
     assert (
-        catalog_harvester._load_wvs_indicator_catalog_from_local_file()[0]["name"]
-        == "Primary YAML"
+        catalog_harvester._load_wvs_indicator_catalog_from_local_file()[0]["name"] == "Primary YAML"
     )
     variable_path.unlink()
     variable_path.mkdir()
     assert config.run_signature == primary_signature
     assert (
-        catalog_harvester._load_wvs_indicator_catalog_from_local_file()[0]["name"]
-        == "Primary YAML"
+        catalog_harvester._load_wvs_indicator_catalog_from_local_file()[0]["name"] == "Primary YAML"
     )
     registry_path.write_text("indicators: {}\n", encoding="utf-8")
     with pytest.raises(IsADirectoryError):
@@ -2153,8 +2155,8 @@ def test_wvs_bulk_resolves_current_policy_once_per_operation(
 
     registry_path = tmp_path / "wvs.yaml"
     registry_path.write_text(
-        "indicators:\n  A165:\n    response_type: binary_12\n"
-        "    aggregation: weighted_mean\n", encoding="utf-8"
+        "indicators:\n  A165:\n    response_type: binary_12\n    aggregation: weighted_mean\n",
+        encoding="utf-8",
     )
     csv_path = tmp_path / "wvs.csv"
     csv_path.write_text(
@@ -2180,9 +2182,7 @@ def test_wvs_bulk_resolves_current_policy_once_per_operation(
     assert initial["A165"][0]["sample_size"] == 3
     assert initial["A165"][0]["value"] == 0.0
     previous_stat = registry_path.stat()
-    registry_path.write_bytes(
-        registry_path.read_bytes().replace(b"binary_12", b"continuous")
-    )
+    registry_path.write_bytes(registry_path.read_bytes().replace(b"binary_12", b"continuous"))
     _restore_stat(registry_path, previous_stat)
     reads.clear()
     changed = loaders._load_wvs_bulk_duckdb(["A165"], year_window=(2020, 2020))

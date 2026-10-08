@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import lru_cache
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @dataclass(frozen=True)
@@ -17,9 +19,7 @@ class _MaterialFileSnapshot:
     def generation_member(self, role: str) -> tuple[str, bytes]:
         """Bind file presence separately from the exact current file bytes."""
         presence = (
-            "unselected"
-            if not self.selected
-            else ("present" if self.raw is not None else "absent")
+            "unselected" if not self.selected else ("present" if self.raw is not None else "absent")
         )
         return (f"{role}:{self.path}:{presence}", self.raw if self.raw is not None else b"")
 
@@ -41,7 +41,7 @@ def _material_file_snapshot(
 
 
 @lru_cache(maxsize=32)
-def _material_yaml_snapshot(snapshot: _MaterialFileSnapshot) -> Any:
+def _material_yaml_snapshot(snapshot: _MaterialFileSnapshot) -> object:
     """Parse UTF-8 YAML with a cache keyed by path, presence and current bytes."""
     if snapshot.raw is None:
         return None

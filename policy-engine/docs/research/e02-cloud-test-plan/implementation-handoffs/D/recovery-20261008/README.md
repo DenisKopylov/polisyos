@@ -65,3 +65,12 @@ model on that fitted corpus and restores the real counters; conditioned rows do
 not rewrite the full-refit boundary. Missing legacy basis/counter bytes produce
 an explicit not-established error, never fabricated state history. Native author
 real-fitspy continuation test passes; independent numerical replay is separate.
+
+The independent immutable bdc94 native wave ran the complete selected125 cases:
+124 passed, one older orchestrator audit consumer still expected generic callback
+completion without an issuer. This is another worked example of the declared
+legacy permission-proxy expectation class, with raw failure preserved. The
+companion now tests both actual L5/L6 audit projections: a prepared payload has
+read-only interpretation/complete, an absent permit bridge defers, and neither
+invokes the effectful callback. Audit/side-information assertions remain. Runtime
+source is unchanged; only the affected test delta needs fresh consumer evidence.

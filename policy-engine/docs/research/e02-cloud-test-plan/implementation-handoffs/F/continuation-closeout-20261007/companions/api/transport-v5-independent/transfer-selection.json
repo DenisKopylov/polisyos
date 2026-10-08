@@ -1,0 +1,1228 @@
+{
+  "schema": "policyos.e02.independent_transfer_selection.v1",
+  "unit": "F",
+  "outcome": "PASS",
+  "primary_review": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/review.json",
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/a.gz",
+      "bytes": 35,
+      "sha256": "7d40467d751fc96f52795eb1f51342658b57df403e359d9642701ea817b13d38"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/ambiguous-refresh.stderr.txt",
+      "bytes": 650,
+      "sha256": "ec7080899fce98f8220342decb0c4c0afb234a79c5aa8672dce8f6580ae67a17"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/ambiguous-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/ambiguous.input.json",
+      "bytes": 725,
+      "sha256": "70182ca5669a20b7876484eaf2227c404dd09ba53231c11e5c94906817ec60ca"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/b.gz",
+      "bytes": 35,
+      "sha256": "46ad8fc6824b091372172356068a8c6253108375f8cfd2a937ab654eb8fa0788"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-decoded-sha-refresh.stderr.txt",
+      "bytes": 669,
+      "sha256": "c6b6b353c6b685430c4f5ac629e13ed64c9f4630e133802cd0cba367a27a92f1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-decoded-sha-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-decoded-sha.input.json",
+      "bytes": 364,
+      "sha256": "f9f3e8c4e1923ef3848215fd8e4dd170c124809ab10d0d7e304b8d75f60c7580"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-decoded-size-refresh.stderr.txt",
+      "bytes": 669,
+      "sha256": "c6b6b353c6b685430c4f5ac629e13ed64c9f4630e133802cd0cba367a27a92f1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-decoded-size-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-decoded-size.input.json",
+      "bytes": 364,
+      "sha256": "8e26531c33e23b6998e91be53e50e690ab99e5d771a9c0f8f31b37dda62f4357"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-stored-sha-refresh.stderr.txt",
+      "bytes": 623,
+      "sha256": "ff5e92c69cb8ff5dee147b9aff8ec3f0747f2c740ef686eae042a0534da7f58e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-stored-sha-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-stored-sha.input.json",
+      "bytes": 364,
+      "sha256": "836f049899dbb648898269c713e1b160d663b6eb60498ac8021b9df04ab5d46a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-stored-size-refresh.stderr.txt",
+      "bytes": 623,
+      "sha256": "ff5e92c69cb8ff5dee147b9aff8ec3f0747f2c740ef686eae042a0534da7f58e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-stored-size-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-stored-size.input.json",
+      "bytes": 364,
+      "sha256": "43652d68b0094b342a50adb615023faeb96748edabc9a65de4f6eea2eb133da9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/c.gz",
+      "bytes": 35,
+      "sha256": "7d40467d751fc96f52795eb1f51342658b57df403e359d9642701ea817b13d38"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/codec-only-correct-decoded-refresh.stderr.txt",
+      "bytes": 625,
+      "sha256": "84c9894c2fcda2be2a0b510fb92f92230b566f45fd96a0e088dee8993b6015b7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/codec-only-correct-decoded-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/codec-only-correct-decoded.input.json",
+      "bytes": 370,
+      "sha256": "a88ae7749fe4a142250d7705dca48ba206b464ac70ee87777d3587dbdfa3f9da"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/codec-only-wrong-decoded-refresh.stderr.txt",
+      "bytes": 625,
+      "sha256": "84c9894c2fcda2be2a0b510fb92f92230b566f45fd96a0e088dee8993b6015b7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/codec-only-wrong-decoded-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/codec-only-wrong-decoded.input.json",
+      "bytes": 370,
+      "sha256": "c89b7df0520bf9f7085846a805d9d1ad6b922dec6dd007eee16f3b1227a67f9a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/contradictory-codec-refresh.stderr.txt",
+      "bytes": 625,
+      "sha256": "db8085b288d0d6defedc0461ff144cfa5de3f501b1c138d5fd6e365bb6ce5349"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/contradictory-codec-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/contradictory-codec.input.json",
+      "bytes": 391,
+      "sha256": "ac6d2f1893f9c410ce760b2881a7aaa83fe7a9c0d9af35d36e969db5374682bf"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/different-stored-same-decoded-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/different-stored-same-decoded-publish.stdout.txt",
+      "bytes": 808,
+      "sha256": "21bce07bd218f003a65f58238ba2c9a447ee9ae7e7f57310656532f0c02bde5e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/different-stored-same-decoded-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/different-stored-same-decoded-refresh.stdout.txt",
+      "bytes": 541,
+      "sha256": "acd9453eab484b3e67b50e919d9d337ba6be1b1551c92eb32d9fa0181c1abc0b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/different-stored-same-decoded.input.json",
+      "bytes": 708,
+      "sha256": "b429e9c146b0433a04cbf68e86bba187be5ee9ae2fc4c3736f53aca9aa3fa294"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/different-stored-same-decoded.selected.json",
+      "bytes": 6938,
+      "sha256": "cbef164b83972972d2de7525b1c04f5fea8e9ae8610763bf478d26ae2ff1390a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/executions.json",
+      "bytes": 56519,
+      "sha256": "97d4de9fd281674e11d9386f3cb726dc2332ecd837159d66bae3d28f010dfae4"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/forged-decoded-only-alias-publish.stderr.txt",
+      "bytes": 503,
+      "sha256": "59939b230906a97816fd1b3097beabe47ac25ff0a8a1910d0f0cb2044638bf20"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/forged-decoded-only-alias-publish.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/forged-decoded-only-alias.selected.json",
+      "bytes": 7037,
+      "sha256": "3a9790808702b1deff7be24b9173cc8e574affd3365646c3414dd1c0e4f6f61c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/forged-input-binding-publish.stderr.txt",
+      "bytes": 803,
+      "sha256": "71c2a5797706710f75d8da9bf2371047e504194fa2260ce11268ad1fb6c373a6"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/forged-input-binding-publish.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/forged-input-binding.selected.json",
+      "bytes": 6938,
+      "sha256": "285c1b6f79d8fac2859945cbdb05ccd52f3d00dd783ce462fd4d0d8a9fd57742"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/future-git-refusal-refresh.stderr.txt",
+      "bytes": 883,
+      "sha256": "fc9677cc463f979a0efea9750ef92f2ada52d6eef0618feb4112bba21a8a1c53"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/future-git-refusal-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/future-git-refusal.input.json",
+      "bytes": 364,
+      "sha256": "6f07ed84b4b1cf384b6c6876679b7d7c6160574643e5f7111957ae3de00d95e8"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/future-git-spec.json",
+      "bytes": 256,
+      "sha256": "1d7d099e5092491af8128d15e19f1d2e9a5c13559976991616615ce56d697322"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/actual-git.gz",
+      "bytes": 90,
+      "sha256": "8aea3a1349f69e9136bbff2779f1c3dadb8d36f1c9ff1d37260691c2901d4361"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/executions.json",
+      "bytes": 4401,
+      "sha256": "b73a75f2a4cb2e0c56152ee4fae8d0b1c998b2e790289b3dc44fe8fdce00c816"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/existing-git-spec.json",
+      "bytes": 462,
+      "sha256": "18e38664f4b172a95928856763bd26d569e121ebd26817f26ef4b5ddb2cd75ea"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/input.json",
+      "bytes": 795,
+      "sha256": "3758a8b61c8fc5f5170eb5ec0dc9ae72354a75f7c64dc846c8897b15350ef7bd"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/materialized/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "bytes": 8389,
+      "sha256": "6f3c5d27f5b0e345bd73513bd25151c642665e04c64b17bfb60b33700723734d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/materialized/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/git-binding-controls/existing-git-spec.json",
+      "bytes": 462,
+      "sha256": "18e38664f4b172a95928856763bd26d569e121ebd26817f26ef4b5ddb2cd75ea"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/materialized/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/git-binding-controls/input.json",
+      "bytes": 795,
+      "sha256": "3758a8b61c8fc5f5170eb5ec0dc9ae72354a75f7c64dc846c8897b15350ef7bd"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/materialized/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/git-binding-controls/same-decoded-other-container.gz",
+      "bytes": 90,
+      "sha256": "68999c6b505584830d9e19d8c10fe1f1b0980ef115c8c5caea214f346cc96507"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/materialized/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "bytes": 11741,
+      "sha256": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/materialized/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "bytes": 17081,
+      "sha256": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/materialized/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "bytes": 1375,
+      "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/materialized/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+      "bytes": 9694,
+      "sha256": "91f0470031a9de534b4e7a7ffbfad83ed1312664cc89ff706c2c10a3df5b6abc"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/prior.json",
+      "bytes": 63,
+      "sha256": "3918bb79d2170297285cf8e319f99154106c93a7e70a0ddc8a438031ae7617ca"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/publish-actual-git.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/publish-actual-git.stdout.txt",
+      "bytes": 790,
+      "sha256": "3b5e3bd2bda5b651c74cea06766f64e8d5d5e9dc791f307556b9581ccabbd930"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/read-actual-published-gzip.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/read-actual-published-gzip.stdout.txt",
+      "bytes": 90,
+      "sha256": "8aea3a1349f69e9136bbff2779f1c3dadb8d36f1c9ff1d37260691c2901d4361"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/refresh-actual-git.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/refresh-actual-git.stdout.txt",
+      "bytes": 532,
+      "sha256": "a5de1a26ff9419d918bbde624c21f9bc36ae17d7c5ade2cbd94cc8ce2f0cdb97"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/results.json",
+      "bytes": 1109,
+      "sha256": "95e52c66d3444ba73d3eb47e0f2f3265f1cbee4616b75187426e84cd6ec9b67f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/same-decoded-other-container.gz",
+      "bytes": 90,
+      "sha256": "68999c6b505584830d9e19d8c10fe1f1b0980ef115c8c5caea214f346cc96507"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/seed.json",
+      "bytes": 267,
+      "sha256": "8cf2ac945ef079278f2436f0e114f6461ec68cb5ca55d555f622a56f7c4c65b1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/selected.json",
+      "bytes": 9694,
+      "sha256": "91f0470031a9de534b4e7a7ffbfad83ed1312664cc89ff706c2c10a3df5b6abc"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-probe.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-probe.stdout.txt",
+      "bytes": 1109,
+      "sha256": "95e52c66d3444ba73d3eb47e0f2f3265f1cbee4616b75187426e84cd6ec9b67f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git_binding_probe.py",
+      "bytes": 4555,
+      "sha256": "0b6bce36827652b7fc088f7cae159d71ad2f80ecaa7edc28e36814ff09f7f3d3"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identical-stored-and-decoded-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identical-stored-and-decoded-publish.stdout.txt",
+      "bytes": 806,
+      "sha256": "df02da66e6ee74f529a965cf17f6d319770cc18647301db6d13215a2dd95fd71"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identical-stored-and-decoded-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identical-stored-and-decoded-refresh.stdout.txt",
+      "bytes": 540,
+      "sha256": "bacf90f25eeb23fb1039c97751a1443c8bdf7be3c0ac2dee2090819bea115ec1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identical-stored-and-decoded.input.json",
+      "bytes": 717,
+      "sha256": "7b04f38b0ef1323d7acf0162bf633c9f8c80382950d1e31683ba17580826bcb1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identical-stored-and-decoded.selected.json",
+      "bytes": 6678,
+      "sha256": "1ec546f467fbdc9f8acb52ecc314a14c02f9c00fa6dcc91b9747913a3fffa9fb"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-false-decoded-refresh.stderr.txt",
+      "bytes": 722,
+      "sha256": "46f85a56bcd9e3d8d3fa3674f1dfc06c0f2fda274095ef334c524adaebdd13a9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-false-decoded-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-false-decoded.input.json",
+      "bytes": 376,
+      "sha256": "e38cfeba9b87ef1a8818502248af4cdb0ad2ca8e78ff5443da93d5f2dcdb7c5b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-incomplete-decoded-refresh.stderr.txt",
+      "bytes": 722,
+      "sha256": "46f85a56bcd9e3d8d3fa3674f1dfc06c0f2fda274095ef334c524adaebdd13a9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-incomplete-decoded-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-incomplete-decoded.input.json",
+      "bytes": 284,
+      "sha256": "8e2801084f66092b1cf82fd9bafbad02207eb79544839f5e4d539eb14cbade95"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-valid-decoded-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-valid-decoded-publish.stdout.txt",
+      "bytes": 794,
+      "sha256": "e505ba8bb493902448994597488d7659897d16036558987529cfcafc3efe4656"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-valid-decoded-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-valid-decoded-refresh.stdout.txt",
+      "bytes": 534,
+      "sha256": "363ca182364238d971c50f1aa86697dce838fb3796ca86f52347ddc2d82af7b1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-valid-decoded.input.json",
+      "bytes": 376,
+      "sha256": "446966b14d64fd56cddbe301f0d5efb2e0bf77dc3ae76d8acd17984df1d8921c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-valid-decoded.selected.json",
+      "bytes": 6002,
+      "sha256": "f2dbb9412fee8af3965d473488e8be2c844add44085e00c3c15c5401c6db27ff"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity.txt",
+      "bytes": 15,
+      "sha256": "30f8c589a5fd32a1b081cbeb75e4579120b39cebd3dd61af958e36cd104a68ee"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-different-stored-same-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "bytes": 6813,
+      "sha256": "9193070ce4bd42d09160d337b37f975aab51b7de09ce5943fd8cdb758d04b816"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-different-stored-same-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/a.gz",
+      "bytes": 35,
+      "sha256": "7d40467d751fc96f52795eb1f51342658b57df403e359d9642701ea817b13d38"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-different-stored-same-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/b.gz",
+      "bytes": 35,
+      "sha256": "46ad8fc6824b091372172356068a8c6253108375f8cfd2a937ab654eb8fa0788"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-different-stored-same-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/different-stored-same-decoded.input.json",
+      "bytes": 708,
+      "sha256": "b429e9c146b0433a04cbf68e86bba187be5ee9ae2fc4c3736f53aca9aa3fa294"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-different-stored-same-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+      "bytes": 6938,
+      "sha256": "cbef164b83972972d2de7525b1c04f5fea8e9ae8610763bf478d26ae2ff1390a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-identical-stored-and-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "bytes": 6943,
+      "sha256": "7775a5b4d020a1198e38d38d494b4595a018d9720b29ce8b9ddde707182218b4"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-identical-stored-and-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/a.gz",
+      "bytes": 35,
+      "sha256": "7d40467d751fc96f52795eb1f51342658b57df403e359d9642701ea817b13d38"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-identical-stored-and-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/identical-stored-and-decoded.input.json",
+      "bytes": 717,
+      "sha256": "7b04f38b0ef1323d7acf0162bf633c9f8c80382950d1e31683ba17580826bcb1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-identical-stored-and-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+      "bytes": 6678,
+      "sha256": "1ec546f467fbdc9f8acb52ecc314a14c02f9c00fa6dcc91b9747913a3fffa9fb"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-identity-valid-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "bytes": 5803,
+      "sha256": "23d9761b377590c3a0a3aeee419061f7e7518744b4ad67910eafa9d31b999d1e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-identity-valid-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/identity-valid-decoded.input.json",
+      "bytes": 376,
+      "sha256": "446966b14d64fd56cddbe301f0d5efb2e0bf77dc3ae76d8acd17984df1d8921c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-identity-valid-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/identity.txt.gz",
+      "bytes": 35,
+      "sha256": "0a040f78ab5f6cdcb57450ed09c581ce57062ce10da20c3dcb39be20c5c08642"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-identity-valid-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+      "bytes": 6002,
+      "sha256": "f2dbb9412fee8af3965d473488e8be2c844add44085e00c3c15c5401c6db27ff"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-files-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "bytes": 5960,
+      "sha256": "0255bb2563b26a07642234fd905c64098357214d3233831355786aee1ea9d087"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-files-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/a.gz",
+      "bytes": 35,
+      "sha256": "7d40467d751fc96f52795eb1f51342658b57df403e359d9642701ea817b13d38"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-files-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/valid-files-gzip.input.json",
+      "bytes": 364,
+      "sha256": "6f07ed84b4b1cf384b6c6876679b7d7c6160574643e5f7111957ae3de00d95e8"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-files-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+      "bytes": 5996,
+      "sha256": "ca7e940ad8be8d756469db2a1b7848d337b9bc15978fbdfdf2447a7d56544f68"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-files-gzip-lossless/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "bytes": 5996,
+      "sha256": "299e2bb5ab35e6e205c91ff7c8ecec7b421d7df056af82651d2db610138beecf"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-files-gzip-lossless/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/a.gz",
+      "bytes": 35,
+      "sha256": "7d40467d751fc96f52795eb1f51342658b57df403e359d9642701ea817b13d38"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-files-gzip-lossless/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/valid-files-gzip-lossless.input.json",
+      "bytes": 373,
+      "sha256": "8de05ae4aaefe239fd8dd3b7d638cd6073bb1eddce03b74b6704e6d43d4af29f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-files-gzip-lossless/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+      "bytes": 6041,
+      "sha256": "897e06bac7f50552999666552b7a9b81f4fb9af842d15414c9a0a44179708b3e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-items-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "bytes": 5960,
+      "sha256": "8685b79fcb6f8f14d70f8f063df1a81717ccbd58cb193692bdea11ffb32c3501"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-items-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/a.gz",
+      "bytes": 35,
+      "sha256": "7d40467d751fc96f52795eb1f51342658b57df403e359d9642701ea817b13d38"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-items-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/valid-items-gzip.input.json",
+      "bytes": 364,
+      "sha256": "ed50a6c4b026173239827f5779d96545f4bc459ace8cc194d6e803275d0e09a7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-items-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+      "bytes": 5996,
+      "sha256": "9d6965eb2fdb445260a645f9e16c2b02db85fde13c4aff2829170e04b244788f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-items-gzip-lossless/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "bytes": 5996,
+      "sha256": "5afd8c2bb0d8fef05de8d32706764b974c85438356898407e526ace0a1574ea8"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-items-gzip-lossless/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/a.gz",
+      "bytes": 35,
+      "sha256": "7d40467d751fc96f52795eb1f51342658b57df403e359d9642701ea817b13d38"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-items-gzip-lossless/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/valid-items-gzip-lossless.input.json",
+      "bytes": 373,
+      "sha256": "31914c9d06a501c92d0b28d881338f0b923fed35be31d59fed4d36bd73ea3234"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-items-gzip-lossless/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+      "bytes": 6041,
+      "sha256": "8b5430f281106e96fb228255b7d60d9028d19de0e9a3d67911fddb83dea79624"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-selection-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "bytes": 5976,
+      "sha256": "10105ba5b9b38bd640e36219afa3fbf004466a34c7fab4c1d242a5b3afa70b92"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-selection-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/a.gz",
+      "bytes": 35,
+      "sha256": "7d40467d751fc96f52795eb1f51342658b57df403e359d9642701ea817b13d38"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-selection-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/valid-selection-gzip.input.json",
+      "bytes": 368,
+      "sha256": "d8b0946ddf3dfdbcd034efc14005c695b1fb445a39f5ca1ec913f001bd69ae1a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-selection-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+      "bytes": 6016,
+      "sha256": "0d8dfea70c69fe1b91e82479c9cf413b8352ec4e1bb0381182b8890ed93e49bc"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-selection-gzip-lossless/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "bytes": 6012,
+      "sha256": "75f469356c15eaf438e69f4542a9d71c5c3637c22c2fa8180f51160434bcf633"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-selection-gzip-lossless/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/a.gz",
+      "bytes": 35,
+      "sha256": "7d40467d751fc96f52795eb1f51342658b57df403e359d9642701ea817b13d38"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-selection-gzip-lossless/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/valid-selection-gzip-lossless.input.json",
+      "bytes": 377,
+      "sha256": "8e2b62b5c9ca8bee5169ff84c6a2e7513788894887c5d9e8e27ef5f4b87ec8cc"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-selection-gzip-lossless/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+      "bytes": 6061,
+      "sha256": "214a7506a4c405453ccc62ea770b2b22787bc906841e2d99cdc031421c334cac"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/missing-decoded-identity-refresh.stderr.txt",
+      "bytes": 691,
+      "sha256": "58a1c8187b77b9be0f2e8ea0269e22f7f48ca348226c64203b6125dbf66e3f62"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/missing-decoded-identity-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/missing-decoded-identity.input.json",
+      "bytes": 272,
+      "sha256": "76064af35199e562ac0ef7c2b75aeb6061f2259999b26f533c3e4f8130331ef8"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/owner-metadata-results.json",
+      "bytes": 1151,
+      "sha256": "5f7b768a2ba4d6421721f702728c42911c5f48ca0157fdbf06e1318efd4bd572"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/owner-metadata.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/owner-metadata.stdout.json",
+      "bytes": 1151,
+      "sha256": "5f7b768a2ba4d6421721f702728c42911c5f48ca0157fdbf06e1318efd4bd572"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/owner_metadata_probe.py",
+      "bytes": 1397,
+      "sha256": "fe34143959dd2982a271c8f9247f888984a72a3f0410c7d5655f2309f498f71d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "bytes": 63,
+      "sha256": "3918bb79d2170297285cf8e319f99154106c93a7e70a0ddc8a438031ae7617ca"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/probe.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/probe.stdout.txt",
+      "bytes": 72,
+      "sha256": "9e512926b23ab5a5b4bafa165d5128460a70665ce3acb0ff2149c50fe35fb3c2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/probe_v5.py",
+      "bytes": 12378,
+      "sha256": "f22aeaa989cb47ae935ecbd2cfdb5bf0057e89eff09f97c60b360314d437799f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/recursive-output.stderr.txt",
+      "bytes": 758,
+      "sha256": "19537d7a5cc5e584763fbd1b3506cda1e9fb8d65bfc63de82d695b1c8373cf9f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/recursive-output.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/recursive.selected.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/results.json",
+      "bytes": 4477,
+      "sha256": "579d3058011a7eb427e465474715935a312f51221f25e202d240a401dffdd547"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/review.json",
+      "bytes": 14069,
+      "sha256": "1a072af2ce14146f36f7c90bc802f95db6a87b35660c3a63b4ed479bea037ff2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "bytes": 285,
+      "sha256": "14ad086a1084dd57163edd0364559f0336e1bb4b7e25a48fc53a84eb304868d6"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/stripped-alias-binding-publish.stderr.txt",
+      "bytes": 803,
+      "sha256": "185baa2d643c701d6b7f83c100c52c51c66a851aa344714f0698c592e9fe730e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/stripped-alias-binding-publish.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/stripped-alias-binding.selected.json",
+      "bytes": 6506,
+      "sha256": "77cf65d313cbddd2532702eb7beda95f02d44190bc25ce1f46f1a603e9a08777"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/unknown-codec-refresh.stderr.txt",
+      "bytes": 644,
+      "sha256": "1f78ebca809164c040aedd0e61c7034ed687fd46b335125ee9d666199da9fadd"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/unknown-codec-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/unknown-codec.input.json",
+      "bytes": 389,
+      "sha256": "1e924b2b9345eb20ae089be0d2c17ed2d00c1dbcf57340ffc6e229e3fe368ec9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/unknown-encoding-refresh.stderr.txt",
+      "bytes": 667,
+      "sha256": "56bc89bd7d13404431b8e8f6ae39fb77dcd9a5617331af8a42fedb34d6408f35"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/unknown-encoding-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/unknown-encoding.input.json",
+      "bytes": 366,
+      "sha256": "f4a8c17add3378a46770cbf121197515b0981bf8ddf772498cf8f266f17214de"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip-lossless-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip-lossless-publish.stdout.txt",
+      "bytes": 800,
+      "sha256": "0c52680171f18e88c99d4bb01fe14e885ab4f6fdbcad23a6cb8660c0cd5552d2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip-lossless-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip-lossless-refresh.stdout.txt",
+      "bytes": 537,
+      "sha256": "6113e7fbf5070ef18d7409361f3b0e857c5f6abca0d35528d70865436003d1b7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip-lossless.input.json",
+      "bytes": 373,
+      "sha256": "8de05ae4aaefe239fd8dd3b7d638cd6073bb1eddce03b74b6704e6d43d4af29f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip-lossless.selected.json",
+      "bytes": 6041,
+      "sha256": "897e06bac7f50552999666552b7a9b81f4fb9af842d15414c9a0a44179708b3e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip-publish.stdout.txt",
+      "bytes": 782,
+      "sha256": "87e205f9e087fd62d2fe5a8ae50accc851a77019a434e8be6b0d581b5c00e5cc"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip-refresh.stdout.txt",
+      "bytes": 528,
+      "sha256": "947d92f4850c7b45fbaa039b4d15506321699d4ae08fc365e5b66a9cea05b1b6"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip.input.json",
+      "bytes": 364,
+      "sha256": "6f07ed84b4b1cf384b6c6876679b7d7c6160574643e5f7111957ae3de00d95e8"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip.selected.json",
+      "bytes": 5996,
+      "sha256": "ca7e940ad8be8d756469db2a1b7848d337b9bc15978fbdfdf2447a7d56544f68"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-lossless-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-lossless-publish.stdout.txt",
+      "bytes": 800,
+      "sha256": "7fe567906d9c2c16e2137566c946872c132f5ea51131c1657928f140eb5ddc5b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-lossless-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-lossless-refresh.stdout.txt",
+      "bytes": 537,
+      "sha256": "ad6cacc57d78c50b5dd97d5b0cae2022804f774e6ce812669c028962f705ebbc"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-lossless.input.json",
+      "bytes": 373,
+      "sha256": "31914c9d06a501c92d0b28d881338f0b923fed35be31d59fed4d36bd73ea3234"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-lossless.selected.json",
+      "bytes": 6041,
+      "sha256": "8b5430f281106e96fb228255b7d60d9028d19de0e9a3d67911fddb83dea79624"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-publish.stdout.txt",
+      "bytes": 782,
+      "sha256": "9331d111e38d22817c03612ff934bd3fbce5f3035fb93867993312b84e5cd0d7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-refresh.stdout.txt",
+      "bytes": 528,
+      "sha256": "35731a2f2ae521b8a6d54cc47004677c5000c435f15779a4dc0712a1e39447c5"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip.input.json",
+      "bytes": 364,
+      "sha256": "ed50a6c4b026173239827f5779d96545f4bc459ace8cc194d6e803275d0e09a7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip.selected.json",
+      "bytes": 5996,
+      "sha256": "9d6965eb2fdb445260a645f9e16c2b02db85fde13c4aff2829170e04b244788f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip-lossless-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip-lossless-publish.stdout.txt",
+      "bytes": 808,
+      "sha256": "8f53fdd150dfd91ca78118de0b335633f6799f33b36e3c12a04992905d27b6b8"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip-lossless-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip-lossless-refresh.stdout.txt",
+      "bytes": 541,
+      "sha256": "47e96c2336cbcaae5519db7e0d9965e466f9e267bf68d1a26bc18ccd86bcf50a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip-lossless.input.json",
+      "bytes": 377,
+      "sha256": "8e2b62b5c9ca8bee5169ff84c6a2e7513788894887c5d9e8e27ef5f4b87ec8cc"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip-lossless.selected.json",
+      "bytes": 6061,
+      "sha256": "214a7506a4c405453ccc62ea770b2b22787bc906841e2d99cdc031421c334cac"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip-publish.stdout.txt",
+      "bytes": 790,
+      "sha256": "c1d28e550bb8de26fc1da6cd212713c977ef30eac0f473c4ee54cd74d1f6311f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip-refresh.stdout.txt",
+      "bytes": 532,
+      "sha256": "7d2d334611251d07b47614f8085fbea933928f827b77d8a7341d25fda3edc020"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip.input.json",
+      "bytes": 368,
+      "sha256": "d8b0946ddf3dfdbcd034efc14005c695b1fb445a39f5ca1ec913f001bd69ae1a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip.selected.json",
+      "bytes": 6016,
+      "sha256": "0d8dfea70c69fe1b91e82479c9cf413b8352ec4e1bb0381182b8890ed93e49bc"
+    }
+  ],
+  "count": 188,
+  "total_bytes": 391139,
+  "lossless_identical_source_body_aliases": [
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-different-stored-same-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+        "bytes": 11741,
+        "sha256": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-different-stored-same-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+        "bytes": 17081,
+        "sha256": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-different-stored-same-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/transport_text_policy.py",
+        "bytes": 1375,
+        "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-identical-stored-and-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+        "bytes": 11741,
+        "sha256": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-identical-stored-and-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+        "bytes": 17081,
+        "sha256": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-identical-stored-and-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/transport_text_policy.py",
+        "bytes": 1375,
+        "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-identity-valid-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+        "bytes": 11741,
+        "sha256": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-identity-valid-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+        "bytes": 17081,
+        "sha256": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-identity-valid-decoded/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/transport_text_policy.py",
+        "bytes": 1375,
+        "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-files-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+        "bytes": 11741,
+        "sha256": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-files-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+        "bytes": 17081,
+        "sha256": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-files-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/transport_text_policy.py",
+        "bytes": 1375,
+        "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-files-gzip-lossless/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+        "bytes": 11741,
+        "sha256": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-files-gzip-lossless/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+        "bytes": 17081,
+        "sha256": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-files-gzip-lossless/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/transport_text_policy.py",
+        "bytes": 1375,
+        "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-items-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+        "bytes": 11741,
+        "sha256": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-items-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+        "bytes": 17081,
+        "sha256": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-items-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/transport_text_policy.py",
+        "bytes": 1375,
+        "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-items-gzip-lossless/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+        "bytes": 11741,
+        "sha256": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-items-gzip-lossless/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+        "bytes": 17081,
+        "sha256": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-items-gzip-lossless/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/transport_text_policy.py",
+        "bytes": 1375,
+        "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-selection-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+        "bytes": 11741,
+        "sha256": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-selection-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+        "bytes": 17081,
+        "sha256": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-selection-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/transport_text_policy.py",
+        "bytes": 1375,
+        "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-selection-gzip-lossless/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+        "bytes": 11741,
+        "sha256": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-selection-gzip-lossless/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+        "bytes": 17081,
+        "sha256": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d"
+      },
+      "bytes_equal_checked": true
+    },
+    {
+      "redundant_materialized_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-selection-gzip-lossless/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "complete_exact_source": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/transport_text_policy.py",
+        "bytes": 1375,
+        "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+      },
+      "bytes_equal_checked": true
+    }
+  ],
+  "external_source_refs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "bytes": 17081,
+      "sha256": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "bytes": 11741,
+      "sha256": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "bytes": 1375,
+      "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py.full.diff",
+      "bytes": 5726,
+      "sha256": "5417458b15e7e1185e7888532242b201a0b4171497db2d8ece23fdcf003a4660"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py.full.diff",
+      "bytes": 4500,
+      "sha256": "9cc0773fb98ef8f67bf4122537dfb772ba8680750fe9464340c7d34fe8442649"
+    }
+  ],
+  "historical_review_refs": {
+    "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/review.json",
+    "bytes": 7988,
+    "sha256": "c843fc0c9c48dc31911bf17eed1173e4777dff19b90fcb349871792a216ad67e"
+  },
+  "scope": "Complete tiny deciding outputs/fixtures/replayers; no source normalization, no scientific or 171MB payload duplication."
+}

@@ -1,0 +1,250 @@
+{
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "review": {
+    "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/review.json",
+    "bytes": 26315,
+    "sha256": "d8ed8bf50d8097d2621bab578814e8acefd5c3b6e399a4fc0e0e89d93b1daae2"
+  },
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-native.json",
+      "bytes": 14939,
+      "sha256": "53bff0869bee5eb73785cd3e6c2223ab3be0a0576f9105e92d66927a0920f4bd"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-independent-consumer-proof.json",
+      "bytes": 123143,
+      "sha256": "85d3385abe16d25dd541065afa8f34b6d8290d02055ebdb9b8b9d26cbc6aa5b9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-installed-proof.json",
+      "bytes": 190440,
+      "sha256": "25900a789f3760fb21190bc3cf11900bdb3fe3d115b0ea069a7718c5347f7476"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removals.json",
+      "bytes": 8405,
+      "sha256": "32f5f080b075b43ee07620133251b73f76c806eed5a025490edfa3383b15d799"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-native.stdout.txt",
+      "bytes": 1396547,
+      "sha256": "310dd8c9ea444ac804eb874b7c603c25958f9ca84128c3a9af0d5af9a310ca51"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-native.stderr.txt",
+      "bytes": 16576,
+      "sha256": "623320ad7799d36dc4efecf96602b36ae5358d0b943297abb37a5ca7285246f3"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-raw_keys.stdout.txt",
+      "bytes": 1926,
+      "sha256": "45291d5dca5c2d21dcd3d61b07d88228bb64f65b0eaf6de1f6fa84210f08d9e6"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-raw_keys.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-no_raw_numeric.stdout.txt",
+      "bytes": 1587,
+      "sha256": "75d0f3f191ef93a1bcdff3d451e730bafc1997c43397d41e5d8953917aeed3cc"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-no_raw_numeric.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-no_consumption.stdout.txt",
+      "bytes": 6293,
+      "sha256": "f7d88d0d666d01c31e7ca146ee689c59c15d359fb4575be240489085f979b94a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-no_consumption.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-broad_identity_skip.stdout.txt",
+      "bytes": 3009,
+      "sha256": "7f963aa43988021a56df9f9744321b974c98f0f122041462f4ccb45a7a6c9e85"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-broad_identity_skip.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-native.json",
+      "bytes": 14940,
+      "sha256": "0af04e93ebe6a5752fae5e85c5363d373d6f76bd165d7376ff23659186d4de84"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-independent-consumer-proof.json",
+      "bytes": 123143,
+      "sha256": "fd0f1352a6755cc2ecbc5aee3fb7616138d8fc22db25770bde016eaa25e36bb0"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-installed-proof.json",
+      "bytes": 190440,
+      "sha256": "f69ea3c3d0b6427080dbaa22039ad443e5663ce29565868bdf442c7261935662"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removals.json",
+      "bytes": 8403,
+      "sha256": "506da601c0fa70b3ad5eb8c3b631686d2cbfa3cc5f7055f2f9834cd8508bb795"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-native.stdout.txt",
+      "bytes": 1396548,
+      "sha256": "7ea1f0a2794fa0d171180cb26e66f8345595606a642f9bf3de8bd333f9c2c834"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-native.stderr.txt",
+      "bytes": 16576,
+      "sha256": "1c51a0b35b5eeb658c91c2fe112ca5e548db7913a498789c667b9dd742d614c2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-raw_keys.stdout.txt",
+      "bytes": 1926,
+      "sha256": "b25a3c9a2500bffca87b96c2b45567dd55a3c2b534b4386a8058aae22ae59fc5"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-raw_keys.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-no_raw_numeric.stdout.txt",
+      "bytes": 1587,
+      "sha256": "eb9a707d56e43bb5400d8287ff87b442b8dd3e67d998289ab5f842227fb67582"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-no_raw_numeric.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-no_consumption.stdout.txt",
+      "bytes": 6293,
+      "sha256": "40245db223263bc24fd27cc8f6d4e27233b1a76913979f553d1a432a52f91418"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-no_consumption.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-broad_identity_skip.stdout.txt",
+      "bytes": 3009,
+      "sha256": "5135a2467b5703d2dfe6644742e3282d4bc8c222e17ec717561c851d6ce12191"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-broad_identity_skip.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/review.json",
+      "bytes": 26315,
+      "sha256": "d8ed8bf50d8097d2621bab578814e8acefd5c3b6e399a4fc0e0e89d93b1daae2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/independent-preflight.json",
+      "bytes": 15762,
+      "sha256": "50f4e8899b242b6404da264fc7fd42a43d47a7dfcb9cbff43f58077cfd124b15"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/packet-record-readback.json",
+      "bytes": 472,
+      "sha256": "135618cdcd120b5580395578f7b73bfc1134afcc3a521c55af110aee8619d51b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/preflight.stdout.txt",
+      "bytes": 130,
+      "sha256": "0b0450f0170e73ab0c61e58398c2407a06ed600584242fafbb73752492c3ff8d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/preflight.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-collection-denominator.json",
+      "bytes": 23047,
+      "sha256": "83af9cfae1dca53da20015502fab8a511cef4e3f2464f43a1ce5437319fa00e3"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/auxiliary-display-error.json",
+      "bytes": 2286,
+      "sha256": "909ca911b7765f8ed20d04a6e91cb2c3e5a15dfe39d56c5ae2c203fbae3ea7ec"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-collection.stdout.txt",
+      "bytes": 21283,
+      "sha256": "d513013622d45dbed9cfecad3c8a3e3c8a993b08ffebb664a53b0d14d8fb1811"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-collection.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/historical-warning-memberships.stdout.json",
+      "bytes": 45356,
+      "sha256": "977780776f65adfbd7702ae8d0a5d6f8b6b7acaacaf755d788aad34e9c089370"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/extract_historical_warnings.py",
+      "bytes": 5676,
+      "sha256": "3c245f9d3ca46d0137ab2528db18ed009f30462cf372cc6969a1218fa1872aef"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/test_installed_native_boundaries.py",
+      "bytes": 7999,
+      "sha256": "94ab10cf0c664eecde748f42008c76e5d0a13601657606e9c62d947a1c13bbfa"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/launch_independent_wave.py",
+      "bytes": 6162,
+      "sha256": "6b3e507842c765b3ded6862ebadcf803e78df1ae40f7d559e4d85a4ac4a8da0f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/verify_and_capture_final_wave.py",
+      "bytes": 8718,
+      "sha256": "8597ccefc8fd0ed0d9bdbbd5b332931bea07fcc093a15fa16cf10567e1852d9e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_monitor_property.py",
+      "bytes": 2180,
+      "sha256": "f4c84c9e4dd68ed1fac6bf6197089f7c79adead9dd9eb28f757095784403655e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_count_property.py",
+      "bytes": 2402,
+      "sha256": "db50f472562f61fa4432cb3ed0eee4a92ef9e189d050ee5706b0209c2433feca"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/capture_installed_removals.py",
+      "bytes": 3465,
+      "sha256": "cb70acfdebdbfc7d7f961a4e59ae219e456ba6cbe00779a14a4eb1a4a2f63208"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/collect_installed_denominator.py",
+      "bytes": 2666,
+      "sha256": "3b5f2122e1f32e34bbac749fa929db1c45f07fb5ae00ce4e39ac7f1188718c82"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/finalize_installed_review.py",
+      "bytes": 13816,
+      "sha256": "f50928df327055b065528a34a3ab076f1cd7b04cd0eef3246cce8624f041f9ea"
+    }
+  ],
+  "total_files": 47,
+  "total_bytes": 3713465,
+  "existing_api_owned_packet_refs": "API owns original config/setup/full3459 metadata/build/archive receipts; refer/copy once through its publication, no source bodies duplicated here.",
+  "no_archives_or_tracked_source_copies": true
+}

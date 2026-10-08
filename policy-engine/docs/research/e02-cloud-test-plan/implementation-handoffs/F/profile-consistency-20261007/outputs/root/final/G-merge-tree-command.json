@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "git",
+    "merge-tree",
+    "--write-tree",
+    "origin/codex/e02-integration",
+    "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2"
+  ],
+  "G_checkpoint": "2abc17f46a033a7879663486ff9946a95786601f",
+  "candidate_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "returncode": 0,
+  "role": "read-only composition diagnostic, not accepted merge/commit, no checkout mutation"
+}

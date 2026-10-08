@@ -1,0 +1,131 @@
+{
+  "logical_files": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/fixture.stdout.gz",
+      "bytes": 53,
+      "sha256": "1ed13de98c3f6d39fdc7a62e9dabb00d12a8fcc98349f72c1e53cb12a5247eb8",
+      "input_encoding": "gzip",
+      "input_binding": {
+        "bytes": 73,
+        "sha256": "61ecf38b8c76c8091efa4c4f6f8c434abaf5134267fc051867f1c2a20305f642"
+      },
+      "role": "Complete declared precompressed owner output; same compressed bytes reused, no double gzip.",
+      "transport_format_check": {
+        "gzip_required": true,
+        "reasons": [
+          "already_lossless_gzip_prior_snapshot"
+        ]
+      },
+      "disposition": "transport",
+      "encoding": "gzip",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/v4-codec-probe/fixture.stdout.gz"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/selection.json",
+      "bytes": 418,
+      "sha256": "6b416983b36734f2542598ce765694b3a102d025bcd14575719a67cd82cdcf17",
+      "role": "Exact explicit complete final reviewer selection input",
+      "transport_format_check": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      },
+      "disposition": "transport",
+      "encoding": "identity",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/v4-codec-probe/selection.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py",
+      "bytes": 15451,
+      "sha256": "3df0d51dffda5c4ad5f6232c759d830efd23bd5c5ce3b43cf6a56050fb8d63a7",
+      "role": "Exact final selection refresher source",
+      "transport_format_check": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      },
+      "disposition": "transport",
+      "encoding": "identity",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection_v4.py"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v3.py",
+      "bytes": 11196,
+      "sha256": "c55ab809c690634feb93b4b819d58f3b64518b9d15220742261805180bec41f4",
+      "role": "Exact final additive streaming publisher source",
+      "transport_format_check": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      },
+      "disposition": "transport",
+      "encoding": "identity",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v3.py"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "bytes": 1375,
+      "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a",
+      "role": "Exact complete transport-format classifier source",
+      "transport_format_check": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      },
+      "disposition": "transport",
+      "encoding": "identity",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/transport_text_policy.py"
+    }
+  ],
+  "existing_declared_git_references": [],
+  "pending_extensions": [],
+  "source_window": {
+    "actual_final_source_sha": "46cc03546f2572986962555ddf04d858163c1cf6",
+    "actual_final_source_tree": "bb2ceacff846b68466a03fce767f7d300b18240e",
+    "historical_seed_source_window": {
+      "meaning": "Synthetic transport metadata only; real Git source identity is used to test parser binding."
+    },
+    "meaning": "Actual explicit final source window; historical b5 quality and d833 original35 GO retain their old source scopes, not current final scientific PASS."
+  },
+  "selection_inputs": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/selection.json",
+      "bytes": 418,
+      "sha256": "6b416983b36734f2542598ce765694b3a102d025bcd14575719a67cd82cdcf17"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/seed.json",
+      "bytes": 317,
+      "sha256": "ee394c4d6a674af447c638c81fc9bd0e95d559dae4eb01dd94645a411a21968d"
+    }
+  ],
+  "policy": {
+    "sanitation": "none"
+  },
+  "counts": {
+    "logical_files": 5,
+    "unique_transport_files": 5,
+    "aliases": 0,
+    "existing_git_files": 0,
+    "changed_prior_inputs": 0,
+    "unique_raw_transport_bytes": 28493
+  },
+  "draft": false,
+  "transport_input_selection": true,
+  "refresh": {
+    "changed_prior_inputs": [],
+    "retained_prior_custody": [],
+    "explicit_extension_inputs": {
+      "probe": {
+        "kind": "explicit_hashchecked_selection",
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/selection.json",
+        "file_count": 1
+      }
+    },
+    "new_published_git_files": [],
+    "old_aliases_recomputed_from_actual_complete_bytes": true,
+    "old_existing_refs_kept_only_exact_bytes": true,
+    "old_quality_raw_outputs_not_modified": true,
+    "ROOT_decides_final_semantic_adoption": true
+  }
+}

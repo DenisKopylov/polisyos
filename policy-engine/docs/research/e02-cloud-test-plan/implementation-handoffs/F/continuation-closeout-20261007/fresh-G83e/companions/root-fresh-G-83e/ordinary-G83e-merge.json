@@ -1,0 +1,105 @@
+{
+  "records": [
+    {
+      "label": "G83e-identity",
+      "argv": [
+        "git",
+        "show",
+        "-s",
+        "--format=%H %T %P",
+        "83e7c0e934d0b40644dec8a24264a0602ef013e7"
+      ],
+      "returncode": 0,
+      "elapsed_s": 0.0033690929412841797,
+      "outputs": {
+        "stdout": {
+          "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-identity.stdout",
+          "bytes": 123,
+          "sha256": "01f8a1c4a245a62aa4debd2ce602957e28724f12d8ba79f0f96328a9af958d18"
+        },
+        "stderr": {
+          "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-identity.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "label": "G83e-full-patch",
+      "argv": [
+        "git",
+        "diff",
+        "--binary",
+        "--full-index",
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+        "83e7c0e934d0b40644dec8a24264a0602ef013e7"
+      ],
+      "returncode": 0,
+      "elapsed_s": 0.031797170639038086,
+      "outputs": {
+        "stdout": {
+          "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-full-patch.stdout",
+          "bytes": 293800,
+          "sha256": "4618bc8b407e90f56f2006d0c001b7fa8df43be9c3487d8d717a31995d2b25c4"
+        },
+        "stderr": {
+          "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-full-patch.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "label": "G83e-merge-tree",
+      "argv": [
+        "git",
+        "merge-tree",
+        "--write-tree",
+        "HEAD",
+        "83e7c0e934d0b40644dec8a24264a0602ef013e7"
+      ],
+      "returncode": 0,
+      "elapsed_s": 0.009231805801391602,
+      "outputs": {
+        "stdout": {
+          "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-merge-tree.stdout",
+          "bytes": 41,
+          "sha256": "f7850528765c35ed4d94a4b68daddd67d9b80ff4e8fd03b6ebe6ebb850242842"
+        },
+        "stderr": {
+          "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-merge-tree.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "label": "G83e-ordinary-merge",
+      "argv": [
+        "git",
+        "merge",
+        "--no-ff",
+        "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "-m",
+        "Merge fresh G83e documentation checkpoint into append-only F closeout"
+      ],
+      "returncode": 0,
+      "elapsed_s": 0.15431451797485352,
+      "outputs": {
+        "stdout": {
+          "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-ordinary-merge.stdout",
+          "bytes": 7586,
+          "sha256": "61acb5341c5867a92af69af67f788d14bb7c6f65fd81dae3d3c8873a03ef82e2"
+        },
+        "stderr": {
+          "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-ordinary-merge.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ],
+  "actual_merge_identity": "ea9a606f06dad1f94c0f841ec1ec7a53fc694f5c 4d5fccfc3f89c7149af500b523e5ad44a3838df2 92e1eea364e9038fc7f6868335b2c98226d2dab2 83e7c0e934d0b40644dec8a24264a0602ef013e7",
+  "source_product_519_not_relabelled": true,
+  "no_runtime_or_science_commands": true
+}

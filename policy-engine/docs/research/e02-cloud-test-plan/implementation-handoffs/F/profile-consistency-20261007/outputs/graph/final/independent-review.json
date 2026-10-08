@@ -1,0 +1,125 @@
+{
+  "P38_property_vs_proxy": "Declared ADMG tag alone contradicted valid independent MGraphMetadata; new shared gate consults reserved typed profile before transforms. Primary discriminator is actual admission/publication, not matching error strings.",
+  "P40_bucket": "Same static-profile semantic projection class deeper, widened shared invariant to all supplied known MGraph contracts, including malformed/null reserved input; no new finding ID",
+  "base_sha": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+  "candidate_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "candidate_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "cleanup_candidates_only": [
+    "/tmp/e02-F-profile-consistency-20261007/adversary/candidate852cc",
+    "/dev/shm/e02-F-profile-consistency-adversary/candidate852cc after publication/no-active-user check"
+  ],
+  "deciding_output_custody": "Full moderate stdout/stderr/report/script/command bytes remain available to root; source copies/origin inventories can be cited by exact source/hash rather than committed.",
+  "engineering_source_verdict": "GO; no blocking source findings in frozen graph delta",
+  "explicit_bounded_residual_and_falsifier": "Unknown metadata or missingness-looking node names remain uninterpreted, not a semantic classifier or authority. Same names/relations with no reserved typed MGraph profile execute through the actual positive route. Closing that broader residual would require a source-grounded graph-profile inference/admission capability, absent from this bounded reconciliation contract. B214 broad completion and B56 resource admission remain cross-owner deferred.",
+  "formal_G_closure": "not_issued",
+  "harness_attempts": {
+    "initial": "ERROR/incomplete: source-only archive lacked required canonical architecture digest registry, no runtime selector executed",
+    "retry": "Exact tracked source+architecture+pyproject lossless active relocation to /dev/shm, native completed with all attempt outputs retained; no data deletion",
+    "subsequent_setup": "ERROR: /tmp full prevented wrapper creation; empty file retained; no runtime execution"
+  },
+  "isolated_source": {
+    "fresh_reader_kind": "new FileSystemCAS object in the isolated process; independent installed/different-PID qualification handled by sibling owner",
+    "no_environment_clone": true,
+    "selectors": [
+      "policy-engine/src",
+      "policy-engine/architecture",
+      "policy-engine/pyproject.toml"
+    ],
+    "source_manifest_raw_ignored_ref": "/dev/shm/e02-F-profile-consistency-adversary/source-manifest.json",
+    "source_manifest_sha256": "afa55bb000e30290ee709594655ac962b6e2a6251cd4afd0ad3bcfd19e54f20e",
+    "tracked_before_after_errors": [],
+    "tracked_selector_denominator": 3648
+  },
+  "large_raw_not_for_transport": [
+    "candidate852cc/",
+    "source-manifest.json",
+    "repaired-attempt2/origins.json",
+    "retained-marker-mutant-attempt1/origins.json"
+  ],
+  "output_bindings": {
+    "execution852cc.json": {
+      "bytes": 5672,
+      "sha256": "0e923b4f03f991575acc15599f099b7fb170a148e61630c200a486641ec70fa1"
+    },
+    "probe.py": {
+      "bytes": 11674,
+      "sha256": "1fb8031a8031c05446708172a6bfa523e0eec9a141b3f1acba935a57861cc74e"
+    },
+    "repaired-attempt2.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "repaired-attempt2.stdout": {
+      "bytes": 8637,
+      "sha256": "c4583f9709455e161308041b62e86de9e0cb8b806dfc5cf366ec53a10ae55e6c"
+    },
+    "repaired-attempt2/report.json": {
+      "bytes": 7138,
+      "sha256": "735181c8394ce5b03c04eee95e380836f5777fa7a6662608cc4b6cdf1d290d8f"
+    },
+    "retained-marker-mutant-attempt1.stderr": {
+      "bytes": 314,
+      "sha256": "5104592572891d31ca06dd29d73e006e73553882bdc65ce565fe1fa563e98168"
+    },
+    "retained-marker-mutant-attempt1.stdout": {
+      "bytes": 15009,
+      "sha256": "b8baaef59b53d68620bcecf8d75a47e15ce5aaadd53ad711e7f39688493806a9"
+    },
+    "retained-marker-mutant-attempt1/report.json": {
+      "bytes": 13454,
+      "sha256": "84013fc5e5b9575f643abb8f5dcfbd7cf73d21c66f07ba1d1a689ee43d6b6013"
+    },
+    "run_wave.py": {
+      "bytes": 2955,
+      "sha256": "102aed72d49eb2bfbefc55f9eb3b887cef62f92150a6f0b0223db5f325ee7f00"
+    },
+    "storage-attempts.json": {
+      "bytes": 819,
+      "sha256": "af95ae9f8b6273e2e52bbf11bd723af1653c4eac7b2690d66d71b9019185a2d8"
+    },
+    "wave-wrapper-attempt2.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "wave-wrapper-attempt2.stdout": {
+      "bytes": 146,
+      "sha256": "ee8d4fa70e230a2bf63209c027eefe2a44e68ad71b12fc62d3ae289201a1f124"
+    }
+  },
+  "production_and_optional_backends": "not used or claimed; this is synthetic numpy graph intake only",
+  "property_verdict": "PASS_BOUNDED_KNOWN_PROFILE_CONSISTENCY",
+  "repaired_checks": {
+    "actual_registered_method_jobs_refused_without_method_result": 2,
+    "clean_same_names_edges_ADMG_job_Node_fresh_store_reader": {
+      "actual_job_node_fresh_store_reader": true,
+      "actual_ref": "sha256:d99ad6ce12582d96b2714723799cfa56ce84d12933e4036e5457d0c96319ed6e",
+      "declared": "admg",
+      "mgraph_key_absent": true,
+      "same_node_names_and_relations": true
+    },
+    "direct_supplied_current_selected_cache_and_cutoff_cases_refused_without_publication": 10,
+    "origin_errors": [],
+    "origin_module_denominator": 970,
+    "original_MGraph_remains_readable": true
+  },
+  "retained_marker_removal": {
+    "actual_Node_graph_publications": 8,
+    "actual_erroneous_job_admissions": 2,
+    "basis_note": "Two selected-only cases still fail for missing current source under the mutant; their additional semantic-error assertion is diagnostic routing coverage, not an independent publication escape. Eight Node publications and two registered method admissions are actual runtime discriminators.",
+    "failed_assertions_total": 12,
+    "guard_source_marker_bytes_unchanged": true,
+    "outcome": "FAIL expected",
+    "positive_control_retained": {
+      "actual_job_node_fresh_store_reader": true,
+      "actual_ref": "sha256:d99ad6ce12582d96b2714723799cfa56ce84d12933e4036e5457d0c96319ed6e",
+      "declared": "admg",
+      "mgraph_key_absent": true,
+      "same_node_names_and_relations": true
+    },
+    "returncode": 1,
+    "selected_only_basis_checks": 2
+  },
+  "reviewer": "F direct adversary helper, no author/source/G integration writes",
+  "schema": "policyos.e02.independent_review.v1",
+  "source_review": "/tmp/e02-F-profile-consistency-20261007/adversary/graph-source-review.json"
+}

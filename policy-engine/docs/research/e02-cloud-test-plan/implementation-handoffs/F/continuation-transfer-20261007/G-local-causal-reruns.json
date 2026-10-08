@@ -1,0 +1,146 @@
+{
+  "schema": "e02.F.minimal-owner-inputs.v2",
+  "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "no_self_issued_authority": true,
+  "packets": [
+    {
+      "packet_id": "original-B214-capability",
+      "finding_ids": [
+        "B214"
+      ],
+      "status": "limited",
+      "owner": "A/C/F canonical graph-family and requested consumer/output contract owners; G only integration/local execution",
+      "needed": [
+        "Tracked graph-family/identified-versus-conditional/partial output and authority-projection contract",
+        "Query whose effect differs across admissible completions, bounded profile and independent oracle; no arbitrary DAG completion"
+      ],
+      "current_result": "Current resolved CAS content/composition basis and fullcertificate/freshquery cache fixed on647; early typed static refusal prevents uncertainty erasure. No universal PAG/temporal identification implementation commissioned. New4ee rejects unsupported semantic graph families before cutoff/rewrite/persistence, preserves original MGraph and same-shapeADMG positive; broad contract stilllimited.",
+      "data_transfer": "none",
+      "unknown_input_refs": null,
+      "local_command": null
+    },
+    {
+      "packet_id": "original-B56-shared-study",
+      "finding_ids": [
+        "B56"
+      ],
+      "status": "UNRUN",
+      "owner": "Actual Runtime/admitted study workload and existing shared pool/resource admission owners; G executes exact local read-only receipt only after packet",
+      "needed": [
+        "Typed actual study/source refs and complete admitted input identity set",
+        "Models/folds/repeats/seeds/competing jobs; existing budget admission/context and same scheduler/pool path",
+        "Full all-results/CAS/wait/admission/wall/RSS/active/wait denominator; no omitted or reduced scientific folds",
+        "Canonical Runtime/Scientist shared admission/cap and full workload/input roster; serial folds retained, no second scheduler/CPU money alias"
+      ],
+      "current_result": "Actual configured/default nativeTMLE folds and combinedreport consumer measured; older fixture4study24fold not common production admission. Real pool attempt failed execution_context_missing before0fits. This narrow continuation does not commission workload/cap or alter folds. G measures local read-only active/wait/wall/RSS/all-results only after canonical packet.",
+      "data_transfer": "production inputs remain local read-only",
+      "unknown_input_refs": null,
+      "local_command": null
+    },
+    {
+      "packet_id": "followup-operational-EvalSafety",
+      "finding_ids": [],
+      "status": "UNRUN",
+      "owner": "Canonical Runtime/Core/PDC control intake/resolver/appointment/verifier owners",
+      "needed": [
+        "Actual current revision/context/issuer/appointment with verifier registry configured",
+        "Typed full manifest/bytes/content identity for exact mandatory and completeoptional inputs, actualsource/graph/method/target/profile",
+        "Consumer-generated freshchallenge and genuine issuer-verifiable basis; no copied/replayed/fake/self-issued seal"
+      ],
+      "current_result": "Existing fail-closed resolver/appointment and full source-content checks retained; default production authority_unresolved/verifier_unappointed, tests injectedresolvers not institutional production positives. Distinct artifactID/hash not aliases.",
+      "supporting_receipt_git_ref": "0552bd338dad23b2eabb0d22a1c7c4eb4bcd61d6",
+      "supporting_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007.json",
+      "data_transfer": "local read-only",
+      "unknown_input_refs": null,
+      "local_command": null
+    },
+    {
+      "packet_id": "followup-statistical-identification-gate",
+      "finding_ids": [],
+      "status": "UNRUN/capability_owner_contract_missing",
+      "owner": "Canonical causal report/uncertainty envelope/ConfidencePass/value evidence boundary owners (Runtime/IR); scientific identification basis from its accountable causal owner",
+      "needed": [
+        "Existing maintained accepted report/envelope basis contract and actual verifier capability for exactsource/graph/estimand/contrast/target/profile",
+        "Accountable issuer proof/content identity accepted by genuine configuredverifier; valid operationalEvalSafety alone is not statisticalidentification",
+        "Supported positive consumer capability with causal assumption/evaluator/source rights only where selected existingauthority contract actuallyrequires"
+      ],
+      "current_result": "Current converter/Confidence interface has no accepted positive statistical-identification verifier input. ActualnativeTMLEreport SUCCESS/CI staysnon-gating; missing/corrupt sibling simulation doesnot discard causalblocker. Pointestimate/identified_estimand field/markers do not supply basis. F didnot invent new enum/verifier/authority engine.",
+      "supporting_receipt_git_ref": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "data_transfer": "local read-only if actual criterion/data dependent",
+      "unknown_input_refs": null,
+      "local_command": null
+    },
+    {
+      "packet_id": "followup-TMLE-value-contract",
+      "finding_ids": [],
+      "status": "UNRUN/upstream_contract_unresolved",
+      "owner": "Existing method signature/output contract declaration and canonicalvalue evidence owners",
+      "needed": [
+        "Actual supported TMLE selected report-slot OutputContractDeclaration/contract_id, upstream applicability and value evidence projection contract",
+        "Same genuine identification basis if selected valuegate requiresit"
+      ],
+      "current_result": "Actual valueconsumer typed-refuses method_output_contract_unresolved beforegatepredicate; healthyAS/CAS/UUID isnotpositiveauthority. No standalone shim or new registry created.",
+      "supporting_receipt_git_ref": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "unknown_input_refs": null,
+      "local_command": null
+    },
+    {
+      "packet_id": "optional-current-law-authority",
+      "finding_ids": [],
+      "related_original_id": "LA-017",
+      "status": "UNRUN/local_only",
+      "owner": "Canonical Lex/NormPack legal source/authority owner; G localread-only runner",
+      "needed": [
+        "Exact NormPack baseline andcandidate refs/sourcehashes",
+        "Jurisdiction/effective-time/custody/applicable authorityprofile onlyfor actualcurrent-lawconclusion"
+      ],
+      "current_result": "Original supportedequivalentmigration recommendedclosed using realnormdiff/pass/issue/report/CAS/CLI; current-law claim notmade. Candidatetopics notcausalKPImagnitudes.",
+      "data_transfer": "No productionlaw transferred cloud",
+      "unknown_input_refs": null,
+      "local_command": null
+    },
+    {
+      "packet_id": "followup-A-EMP01-protected-graph-bridge",
+      "finding_ids": [],
+      "related_other_owner_bundle": "A EMP-01/B33",
+      "status": "bridge_missing",
+      "owner": "Canonical A generation-cycle/value-transport owner; F graph owner provides exact source-bound artifact contract only",
+      "needed": [
+        "Existing selected ArtifactStore/CausalGraphModelRef resolve/content-bound verifier bridge at _build_candidate_selection_diagram, tied to actual current design/world/source/transport context",
+        "Supported static profile and exact admitted identification/transport basis only where this protected consumer requires it; unsupported unresolved/temporal graph must refuse"
+      ],
+      "current_result": "Existing A helper always raises acquire_data:causal_graph_artifact_unresolved after context validation; no raw hints as topology. Two exact native refusal selectors PASS on currentF code/sourceb5; not a positive protectedconsumer witness or closure of A B33. No parallel F A-intake mechanism.",
+      "check_output": "Root committed closeout transport includes EMP01-narrow.{execution.json,stdout,stderr,xml}",
+      "data_transfer": "Production input refs/commands remain null until actual local packet",
+      "unknown_input_refs": null,
+      "local_command": null
+    }
+  ],
+  "not_original_prerequisites": [
+    "New welfareoptimizer/normative intent for unchanged historicalLA035",
+    "Four newfamily→stateexecutionmaps for originalLA002catalog/IC",
+    "Version2 temporalRNG drawlaw for originalLA001relocation",
+    "Allcomputed/externalclients or repository-wide reflectionzero for maintainedLA007/019/020migrationwindow",
+    "Actuallegal authority corpus for genericdedupe/normdiff supportedrelocation",
+    "Global scheduler or artificially reducedfoldcount for B56"
+  ],
+  "historical_source519": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d"
+  },
+  "focused_receipt": {
+    "git_ref": "248497d27aa7951492c9a6d12c3c3493f3c246ec",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+    "bytes": 71398,
+    "sha256": "889decd43e053de5c5c13a16bd5f38d49b4065907f92942cd40538ee58386ae5",
+    "git_blob": "01d6d2d1b662971e5534c3b7cebfcfd15812fb4a"
+  },
+  "previous_custom_receipt": {
+    "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+    "bytes": 38873,
+    "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+    "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e"
+  }
+}

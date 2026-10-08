@@ -1,0 +1,151 @@
+{
+  "schema": "policyos.e02.artifact_transports.v1",
+  "draft": false,
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/git-binding-controls/same-decoded-other-container.gz",
+      "encoding": "gzip",
+      "bytes": 90,
+      "sha256": "68999c6b505584830d9e19d8c10fe1f1b0980ef115c8c5caea214f346cc96507",
+      "decoded_bytes": 73,
+      "decoded_sha256": "f125cbeb0fcd08cedb1a6e2e96c3ec724f526541693418e6c71ee3b7366dd8e9",
+      "original_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/same-decoded-other-container.gz",
+      "role": "Complete declared precompressed owner output; same compressed bytes reused, no double gzip.",
+      "input_binding": {
+        "bytes": 90,
+        "sha256": "68999c6b505584830d9e19d8c10fe1f1b0980ef115c8c5caea214f346cc96507"
+      },
+      "input_encoding": "gzip"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/git-binding-controls/input.json",
+      "encoding": "identity",
+      "bytes": 795,
+      "sha256": "3758a8b61c8fc5f5170eb5ec0dc9ae72354a75f7c64dc846c8897b15350ef7bd",
+      "decoded_bytes": 795,
+      "decoded_sha256": "3758a8b61c8fc5f5170eb5ec0dc9ae72354a75f7c64dc846c8897b15350ef7bd",
+      "original_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/input.json",
+      "role": "Exact explicit complete final reviewer selection input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/git-binding-controls/existing-git-spec.json",
+      "encoding": "identity",
+      "bytes": 462,
+      "sha256": "18e38664f4b172a95928856763bd26d569e121ebd26817f26ef4b5ddb2cd75ea",
+      "decoded_bytes": 462,
+      "decoded_sha256": "18e38664f4b172a95928856763bd26d569e121ebd26817f26ef4b5ddb2cd75ea",
+      "original_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/existing-git-spec.json",
+      "role": "Exact published-ref extension spec/readback basis"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "encoding": "identity",
+      "bytes": 17081,
+      "sha256": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d",
+      "decoded_bytes": 17081,
+      "decoded_sha256": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d",
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "role": "Exact final selection refresher source"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "encoding": "identity",
+      "bytes": 11741,
+      "sha256": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2",
+      "decoded_bytes": 11741,
+      "decoded_sha256": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2",
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "role": "Exact final additive streaming publisher source"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "encoding": "identity",
+      "bytes": 1375,
+      "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a",
+      "decoded_bytes": 1375,
+      "decoded_sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a",
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "role": "Exact complete transport-format classifier source"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+      "encoding": "identity",
+      "bytes": 9694,
+      "sha256": "91f0470031a9de534b4e7a7ffbfad83ed1312664cc89ff706c2c10a3df5b6abc",
+      "decoded_bytes": 9694,
+      "decoded_sha256": "91f0470031a9de534b4e7a7ffbfad83ed1312664cc89ff706c2c10a3df5b6abc",
+      "original_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/selected.json",
+      "role": "Exact frozen publisher input selection; manifest hashes it, selection does not hash itself."
+    }
+  ],
+  "aliases": [],
+  "existing_git_files": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/actual-git.gz",
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/app-python-version.stdout.txt.gz",
+      "bytes": 90,
+      "sha256": "8aea3a1349f69e9136bbff2779f1c3dadb8d36f1c9ff1d37260691c2901d4361",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "observed_remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "role": "Exact new published owner receipt, referenced without copied bytes."
+    }
+  ],
+  "existing_declared_git_references": [
+    {
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/app-python-version.stdout.txt.gz",
+      "bytes": 90,
+      "sha256": "8aea3a1349f69e9136bbff2779f1c3dadb8d36f1c9ff1d37260691c2901d4361",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "observed_remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "role": "Exact new published owner receipt, referenced without copied bytes."
+    }
+  ],
+  "selection_inputs": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/input.json",
+      "bytes": 795,
+      "sha256": "3758a8b61c8fc5f5170eb5ec0dc9ae72354a75f7c64dc846c8897b15350ef7bd"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/existing-git-spec.json",
+      "bytes": 462,
+      "sha256": "18e38664f4b172a95928856763bd26d569e121ebd26817f26ef4b5ddb2cd75ea"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/seed.json",
+      "bytes": 267,
+      "sha256": "8cf2ac945ef079278f2436f0e114f6461ec68cb5ca55d555f622a56f7c4c65b1"
+    }
+  ],
+  "frozen_publisher_input": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+    "bytes": 9694,
+    "sha256": "91f0470031a9de534b4e7a7ffbfad83ed1312664cc89ff706c2c10a3df5b6abc"
+  },
+  "pending_extensions": [],
+  "source_window": {
+    "actual_final_source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "actual_final_source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "historical_seed_source_window": {
+      "scope": "Tiny actual Git custody check, no science"
+    },
+    "meaning": "Actual explicit final source window; historical b5 quality and d833 original35 GO retain their old source scopes, not current final scientific PASS."
+  },
+  "policy": {
+    "sanitation": "none"
+  },
+  "sanitation": "none; byte-exact identity or lossless gzip; originals preserved",
+  "decoded_count_scope": "decoded_unique_bytes sums decoded bytes per distinct stored custody object, including different original gzip containers; it does not assert distinct decoded payloads.",
+  "counts": {
+    "logical_files": 8,
+    "transported_files": 7,
+    "aliases": 0,
+    "existing_git_files": 1,
+    "stored_bytes": 41238,
+    "decoded_unique_bytes": 41221
+  }
+}

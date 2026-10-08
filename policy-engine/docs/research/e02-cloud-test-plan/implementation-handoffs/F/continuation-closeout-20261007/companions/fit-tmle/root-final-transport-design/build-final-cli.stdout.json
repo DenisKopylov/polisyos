@@ -1,0 +1,14 @@
+{
+  "cli": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-cli-inputs.json",
+    "bytes": 7663,
+    "sha256": "fea92bb877f0a65e0f34b3a3870459f0afe1497fc50d7cd539c494cb6d92d36a"
+  },
+  "own_helper_selection": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/own-helper-final-selection.json",
+    "bytes": 80301,
+    "sha256": "3ebe7ce42f4e88ebb80c0c613d055ba540e107366896c742dc1c3b831b198758"
+  },
+  "logical_own_inputs": 230,
+  "tiny_materialized_duplicate_bodies_not_recopied": 37
+}

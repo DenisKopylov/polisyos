@@ -1,0 +1,102 @@
+{
+  "environment": {
+    "python": "3.12.14",
+    "executable": "python3",
+    "purpose": "baselinemetadataqueryonly"
+  },
+  "checks": [
+    {
+      "argv": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--cell",
+        "F08-P048",
+        "--details",
+        "--job-context",
+        "--block-limit",
+        "1000",
+        "--limit",
+        "1000"
+      ],
+      "source_sha": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+      "exit": 0,
+      "wall_s": 0.11916225799359381,
+      "cell_source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_reported_state": "FAILED",
+      "raw_archives_received": 0,
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/baseline-F08-P048-fullcontext.stdout.json",
+        "bytes": 36355,
+        "sha256": "dcb08523ea7435c9b62d623fee4086bc2e2b46a0087e3f3a17ae2657be3dda7a"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/baseline-F08-P048-fullcontext.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "classification": "baseline source-reported compact metadata, not native candidate measurement or closure"
+    },
+    {
+      "argv": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--cell",
+        "F01-P025",
+        "--details",
+        "--job-context",
+        "--block-limit",
+        "1000",
+        "--limit",
+        "1000"
+      ],
+      "source_sha": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+      "exit": 0,
+      "wall_s": 0.1092750099778641,
+      "cell_source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_reported_state": "FAILED",
+      "raw_archives_received": 0,
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/baseline-F01-P025-fullcontext.stdout.json",
+        "bytes": 8535,
+        "sha256": "99f5bcef69dfab190026301a6cb6005aae4ef41ee5da3f31321a8170a7cd5fd9"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/baseline-F01-P025-fullcontext.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "classification": "baseline source-reported compact metadata, not native candidate measurement or closure"
+    },
+    {
+      "argv": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--cell",
+        "F13-P030",
+        "--details",
+        "--job-context",
+        "--block-limit",
+        "1000",
+        "--limit",
+        "1000"
+      ],
+      "source_sha": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+      "exit": 0,
+      "wall_s": 0.0947891179821454,
+      "cell_source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_reported_state": "FAILED",
+      "raw_archives_received": 0,
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/baseline-F13-P030-fullcontext.stdout.json",
+        "bytes": 6410,
+        "sha256": "d60d6247cc4356e3129921afaecc406ca2992eb432d7e98e133d09ff65b9f3b8"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/baseline-F13-P030-fullcontext.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "classification": "baseline source-reported compact metadata, not native candidate measurement or closure"
+    }
+  ]
+}

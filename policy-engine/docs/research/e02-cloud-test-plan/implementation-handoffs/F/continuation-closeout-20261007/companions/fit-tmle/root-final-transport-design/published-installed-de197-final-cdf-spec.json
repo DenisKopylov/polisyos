@@ -1,0 +1,1012 @@
+{
+  "files": [
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007.json",
+      "bytes": 47204,
+      "sha256": "d4cef17e72100250f5162b3642654882f1864c576e895ca8903b7b4f24e66f05",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Actual published external-source519 installed primary/full complete output manifest; no body duplication or scientific rerun."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/outputs.json",
+      "bytes": 97077,
+      "sha256": "32476d0ecc8cf997bc9fa5bbb6cbc7f8579b64e0ce45f0968a2e2f9c67ed49af",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Actual published external-source519 installed primary/full complete output manifest; no body duplication or scientific rerun."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/capture_one_consumers.py",
+      "bytes": 1306,
+      "sha256": "ce193eaa81348b64475b16bac409d479260387e80fc92c3ee448b027fe04f6b0",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/compare_sources.py",
+      "bytes": 5211,
+      "sha256": "15b1dd5954f07fb75b22ed8ee526a9f95a114deb1793b3cb030d3a404c17b61a",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/custody-review.json",
+      "bytes": 7155,
+      "sha256": "001a1052b69035ee59190dee71337c92503a86ada88745f8c8a4158c297c2a64",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/custody-review.stderr.txt.gz",
+      "bytes": 20,
+      "sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/finish_review.py",
+      "bytes": 11423,
+      "sha256": "348e4643cae81c37fe2ae1e61d1faee518ae140f3fbab2b0d42df1198ef20d98",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/full-runtime-tool-worker-blob-comparison.json.gz",
+      "bytes": 136568,
+      "sha256": "2a611cc0bb0c232592e595bbd9062c048582e623e9f8f50737ffc6a036ae3ef7",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/launch_one_consumer.py",
+      "bytes": 2599,
+      "sha256": "bd7a75752df5c2e2f17106dbdbd95dd9246711ae7554ff758bb827c706d9219c",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/native-output-review.json",
+      "bytes": 21686,
+      "sha256": "d591489ba2e06efb26c6425f69f6aae518e38d08116a82ee131f31886bfa506c",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/native-output-review.stdout.txt.gz",
+      "bytes": 479,
+      "sha256": "dfd920779eb70ca5b5262bafec97a0e76bc15bcf422df0c7e2d27ee91ea156bc",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/one-consumer-commands.json",
+      "bytes": 2247,
+      "sha256": "92cea8341e06df178a25d52f0623f473515f456fd153914c07d0861ba9574ff2",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/post-own-probe-guard.json",
+      "bytes": 405,
+      "sha256": "ea7eead4ca66360dea955be15700cd43ce7720115908ad20bd7c26dfdd092fba",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/post-own-probe-guard.stdout.txt.gz",
+      "bytes": 288,
+      "sha256": "6aa1587c3f01d671d60a752276ca0bcad19783a47a37b9b78d6b11511aff03f9",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/post_own_probe_guard.py",
+      "bytes": 1452,
+      "sha256": "132435bb1cae47d06454d8ebc7e3e8490a60c88aa1f2a83647e1310d7b66f775",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/review.json",
+      "bytes": 20652,
+      "sha256": "e315caff26b9efbf86bb1122b8e789f2eb8344521c3c1790c37b7ea149010937",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/review_custody.py",
+      "bytes": 8174,
+      "sha256": "5ac9b42b498c129543c11d41772f6f4e29dc629d2e8b2de71db4b64e96eebd7d",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/review_native_outputs.py",
+      "bytes": 7623,
+      "sha256": "7a6284bfdfa52f0ccd397c317b092c4084af504b671d1d0d7873fe71a984f52d",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/reviewer-runtime.json",
+      "bytes": 279,
+      "sha256": "8c02abcd5061942af7411ffad4c63fe4af9b359dc326ee7b8c4e3b6e6f891c94",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/sdist-consumer-proof.json.gz",
+      "bytes": 5163,
+      "sha256": "c2eacdc1a174536273f94910078ae436deb1eb89a6fb6e643c2c0d5f33171cf9",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/sdist-consumer.stdout.txt.gz",
+      "bytes": 109,
+      "sha256": "692efe7c13978f667a8347d7df32c54c849e6ebbfeccbee10ed1e77204c8b18a",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/source-bindings.json",
+      "bytes": 10978,
+      "sha256": "0565cec4541bddd813db85d0ef3475eaa7a8fd8c7c3b1fb3c2423c94eff1a974",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/source-bindings.stdout.txt.gz",
+      "bytes": 1072,
+      "sha256": "78de3e30686b384cc42bafb0629d8807325c9c68687294db076b0f8362f190ba",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/wheel-consumer-proof.json.gz",
+      "bytes": 5164,
+      "sha256": "ba9cd121f3867e6ab58d716b2664c632cd6f368ce131c57123cf8f22560fb848",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/wheel-consumer.stdout.txt.gz",
+      "bytes": 110,
+      "sha256": "1817d1a85903cda0c818528177e8dde15091a515f9fdb6a02d6ad925ac4670be",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/actual-sdist-decoded-payloads.json.gz",
+      "bytes": 723054,
+      "sha256": "5b34c954327ed95ec490093930d849295d28a0775d9813141c0de5971344f8bf",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/app-python-version.stdout.txt.gz",
+      "bytes": 90,
+      "sha256": "8aea3a1349f69e9136bbff2779f1c3dadb8d36f1c9ff1d37260691c2901d4361",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/archive-installed-source-bindings.json.gz",
+      "bytes": 297531,
+      "sha256": "186414ab869ca62e25696e3fb4cf6d0870045a5221a1ebc10b6bdbe18a4b9316",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/assemble_receipt.py",
+      "bytes": 13737,
+      "sha256": "89e8f2e4f82a0d1527e74673369b29a23a56fe844bcb6cb59b1789597190a071",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/bind.py",
+      "bytes": 4736,
+      "sha256": "49f7d0b65bca07d768635baa2022208abe3a16507fb33c10a6a2893b85b8dfef",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/binder.stdout.json.gz",
+      "bytes": 152,
+      "sha256": "78320ad68a66b586a5c4cda8f675273708f013fd256d7c2a290df666087e496e",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/build-rebuilt-sdist-wheel.stderr.txt.gz",
+      "bytes": 152,
+      "sha256": "0ac95ef665daf0f866d792ccc701526f1ffe0eee40b19dbbbd2faf10df738e49",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/build-source.stderr.txt.gz",
+      "bytes": 177,
+      "sha256": "8b03ff57a2a588defa64d81e285803e8abebcc2db8fd6b74b6816321964e424d",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/capture_controls.py",
+      "bytes": 3573,
+      "sha256": "83aea5c407acdb2b175e78e81526f0be5f99715777c89495b0c6c3201ced121a",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/capture_environment.py",
+      "bytes": 1950,
+      "sha256": "1769e318f285a2b42c127c7fff9675e9dc89346f3a0b69717e381dd9c38c1318",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/capture_native.py",
+      "bytes": 3350,
+      "sha256": "5c87e6d32e74234888a55f67a2d3cfef8deee7829fe50be774500b5e770856cc",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/carrier-manifest.json",
+      "bytes": 13789,
+      "sha256": "7ebf54b7a6c3580f3e306ae0c6f53d809ad67bb95d27f91dd5f0fe6c6dae9072",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/carriers.stdout.json.gz",
+      "bytes": 164,
+      "sha256": "b4fedc1222b9ac2223889393e9fb4d6e23c2d241222e75338d910b38196104ba",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/catalog-expected.json",
+      "bytes": 1706,
+      "sha256": "8305e02ed555e4b93f3c643742e731a5c4bc0094153233179f47faa8ff360aee",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/census.py",
+      "bytes": 4970,
+      "sha256": "72d8aa84b683a25ff5c604bac27f8d380d6372677192f5aec5d8a27e5b58cd3d",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/census.stdout.json.gz",
+      "bytes": 332,
+      "sha256": "7e7a5518576439b82f4c80b429e23324d2eef21e8d2352bb5c70669d77886f82",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/controls.stdout.json.gz",
+      "bytes": 348,
+      "sha256": "1312d4b775802c3a130fd596381422a8dd325e37f2c59bad1dd4c128926e1b98",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/environment-checks.json",
+      "bytes": 3118,
+      "sha256": "cce1c7b4199aed3079cc70695ea53150e55c54c7243e013b1b5c0fc34e913b1b",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/environment.py",
+      "bytes": 1119,
+      "sha256": "d12f21e34043e8229d59def002b3c06c35e2895b62eb4e8358285452ef10473b",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/environment.stdout.json.gz",
+      "bytes": 137,
+      "sha256": "816c57ccc6cac4a5468ccc9c5f14bd652a8a3d0920fbbeca899a2cb78f1b293c",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/external-source-footprint.json.gz",
+      "bytes": 33833,
+      "sha256": "2a0c0f3106d78b3b2720dbde9764d3e15455bb2058dfa5a26d3feaab5cdfe5f7",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent-api-transfer-selection.json",
+      "bytes": 8108,
+      "sha256": "aaf0e955e75ec0a7c83c8cfc2a6cfd0cdc9d5a2afb8990dbb1ded154f020ebb7",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/initial-capture-before-binder.json",
+      "bytes": 649,
+      "sha256": "7cb7d677a4ce9d4b391f3af4cd718e00e4fb01632a00950dae7fb25f0674204e",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/initial-capture-before-binder.stderr.txt.gz",
+      "bytes": 416,
+      "sha256": "58af00f6fb5cd858842532cf946521dc25b929ec3a0827452c6b83a904ba3b12",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/input-config.json",
+      "bytes": 1495,
+      "sha256": "ba62ee4d82c839a9c9d56d84f8bbdb6c718a4ec2ef0f385a1e8e5e53e2d4c893",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/installed-config.json",
+      "bytes": 3194,
+      "sha256": "9ce3b2efb477cfcdc667b1e86f7e4356dbc51de73c2d6c5cfb70a526f640b826",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/launch.py",
+      "bytes": 2774,
+      "sha256": "6496f1c6c95c377df5dc1307fdd31d3a5ffa32cb7bb36e560092decfb0d28f96",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/materialize-actual-sdist.stdout.txt.gz",
+      "bytes": 502,
+      "sha256": "f9baf983beaa00456b93c738bd092c590571e8f0b775fabc0b3d196dc1c98c2e",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/materialize_actual_sdist.py",
+      "bytes": 3018,
+      "sha256": "7b17a7523c8c823612f06dfe6aea6556b7d73f61ae43b0fb737c87f78bba830c",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/native-census.json",
+      "bytes": 46879,
+      "sha256": "c3bccba7c05d9ff2c3cfd6550493365e17026141508866aa5923f2ae13766da4",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/native-wave-v2.json",
+      "bytes": 5580,
+      "sha256": "f194cc87abc226bccb676e2877f8f3b415bd1ed91a60c20c359609e9152d7820",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/native-wave.stdout.json.gz",
+      "bytes": 127,
+      "sha256": "15468617a9e30b314f62a34f63dc4396af04ddc20a95627339e0f8a3a53cc6d8",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/negative-controls.json",
+      "bytes": 11704,
+      "sha256": "2cca9b35e170df9d6ac2a1e020b7673869ab22b05745a43c2b21fedd506b5ced",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/old-custody.json",
+      "bytes": 385,
+      "sha256": "1d6e692fce08d82c65f7104d7e521b5b80eef6fcdf3aa21d45d48b48ccc79c41",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/post-native-custody.json",
+      "bytes": 1249,
+      "sha256": "69ad00be86c2b5af85a940b61c0be4b3973d46f9d5d6138d739d76bf0c48bee0",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/postguard.py",
+      "bytes": 3972,
+      "sha256": "bd4b49cc939f700c8a65870a9c8cb4bcd91ed9bf7279b2c6e7f2c67cf2071910",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/postguard.stdout.json.gz",
+      "bytes": 600,
+      "sha256": "6cccaffdd347654f4511e885ed109ba84b2db30d935b1f775cfeb5810a042771",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/prepare.stdout.json.gz",
+      "bytes": 596,
+      "sha256": "9833d81f6806007f3ac60533567fd40731db000866bad35be8ce31e679e6ddf6",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/prepare_carriers.py",
+      "bytes": 3882,
+      "sha256": "c30d2be972243390fc7f455d223f4c3ad3e6672d4709507facc4391e08c0df57",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/prepare_forward.py",
+      "bytes": 4985,
+      "sha256": "831c0fc81150d7b72751550b27e9dbf8c98b427a7a4b9267d92a45b22a9f084e",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/prepared-config.json",
+      "bytes": 2079,
+      "sha256": "76560d5ada2558f01b10822838ae7849a728ad33a12f6f394e841de07b63fd6f",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/profile-expected.json",
+      "bytes": 923,
+      "sha256": "02af4cf2151950164bbcdd4d49207d127eb8e9a77acee05594d31daead6a3f69",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/recovery-admission.stdout.json.gz",
+      "bytes": 11976,
+      "sha256": "23f700c0267020318006f9f808fa80d8f627e1947ae7848839f561de2fd031be",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/recovery-publication-state.json",
+      "bytes": 3279,
+      "sha256": "0eb2e44e641d2b2976998d6a27fbb1777796f83ec078e066b893235b1da07b34",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/removal_replay.py",
+      "bytes": 1845,
+      "sha256": "867e3ff1976e81974bc6e94e9867cb2249286d8c5b54222b566b31b5a72e7ec7",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-create-env.stderr.txt.gz",
+      "bytes": 165,
+      "sha256": "b6eb804c68bade7409655407dbed06678ade288b0dad05e401087a424b46a2fd",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-environment.stdout.json.gz",
+      "bytes": 2852,
+      "sha256": "1a46055dbe59bb6840b72e07b048c86f4737f62fe30e5926990f05f0ce5ea849",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-install.stderr.txt.gz",
+      "bytes": 224,
+      "sha256": "d58739c42d03862b3541feb86cd3dab843a1f51d65ba7e4671b8220bc2887753",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-installed-proof.json.gz",
+      "bytes": 14623,
+      "sha256": "c1a747372b2ba308c25c72bd955ac15c3a7d169a9b1ebeee483b34f071951af0",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-junit.xml.gz",
+      "bytes": 2133,
+      "sha256": "f9ff18167fd0b8a499c0fecaab36756a43452330d882acc4d51535baf970d8ba",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-law-removal.stdout.txt.gz",
+      "bytes": 861,
+      "sha256": "73a048ffd1f7863a2d9696b3c01e509032ba3cf4c2be2588c23e7ba54d375097",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-native-v2.json",
+      "bytes": 2428,
+      "sha256": "b2121fc09c4f0b00efe5169d52ed5a2fd0c60f1a8c6007d0d238cf091f0ffecf",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-native-v2.stdout.txt.gz",
+      "bytes": 950,
+      "sha256": "46f7c37b77e7949a39557d3145c12bd0d9bb1a9e98a1bca222d27041369908bb",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-projection-changed.stdout.txt.gz",
+      "bytes": 778,
+      "sha256": "2fce242d84e653a2a6fdc30041d488ad1a448e18c7b9f793e83992c3a7d0a459",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-projection-missing.stdout.txt.gz",
+      "bytes": 946,
+      "sha256": "3504d8fbc5d5765dbabdd2460be6979264cfe157b12d57879f28bbd957444cc0",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-resources-v2.json",
+      "bytes": 234,
+      "sha256": "4f149aaa131915b1689d11f01e67f822b6665ba054f5fb107c1fade6e703f9fb",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/setup-command-records.json",
+      "bytes": 14822,
+      "sha256": "c3ed84ece51016126481dbeb52f4efbaa30f14395ec7f6d8a7a3fc165e74738a",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/setup.stdout.json.gz",
+      "bytes": 355,
+      "sha256": "40d52bdc5d8b343c8bbb2661587825a1df998bcf451c8633176aca233327c53f",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/setup_optimized.py",
+      "bytes": 6678,
+      "sha256": "4b81ca1a83afa50ecc07c263536612897afcf2be3144e43e48ef2b45087973d3",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/source-snapshot-proof.json",
+      "bytes": 1017,
+      "sha256": "18fce0fe44c87d4637f5960c34eb2ee1387132209bb6505935137afd9724c7c7",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/test_installed_catalog_defaults.py",
+      "bytes": 8056,
+      "sha256": "668d45112a45648f89a548746688b24f54ffe8513f5dd48d136d7cd72b0fb9cb",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/uv-version.stdout.txt.gz",
+      "bytes": 58,
+      "sha256": "82c2cccf0bdf22bcbb7f0a6d635256ec2b6d81dea44038979a8b5c07a21103ad",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-create-env.stderr.txt.gz",
+      "bytes": 166,
+      "sha256": "b315ae8d525420bf9159001876786bac83713c11b510df7f1fe433fb8dc6f753",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-environment.stdout.json.gz",
+      "bytes": 2850,
+      "sha256": "8ec23ecf0c4eb5b5d0e859b732402cb479aed6a2905bf127e1275b83dc5f7594",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-install.stderr.txt.gz",
+      "bytes": 221,
+      "sha256": "c1f663a7ce5826cd0118b05c1cac32497c7e69512ab90b1fb7092397cc58fbcf",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-installed-proof.json.gz",
+      "bytes": 14625,
+      "sha256": "061248f0ba5f9bd6a50f7e7646b2c1bef96dd72114ccb68f5145963948059859",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-junit.xml.gz",
+      "bytes": 2131,
+      "sha256": "3b04c39f4038726d08759384d6690409f8b33f6b6b12e5afc584453d63510dc9",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-law-removal.stdout.txt.gz",
+      "bytes": 861,
+      "sha256": "f54bec4a6db02d372d9bd0b0482c585a7872e352a5b579c1c42a2d16d68db698",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-native-v2.json",
+      "bytes": 2428,
+      "sha256": "542279c5e7836b9f8c5d86cb0b6520bcc261fc2e8a76e74000c9b2ea438059ca",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-native-v2.stdout.txt.gz",
+      "bytes": 951,
+      "sha256": "77ddc5709a84da43bc3667c199df5ce597957dacef1b013caef0b27af289e186",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-projection-changed.stdout.txt.gz",
+      "bytes": 778,
+      "sha256": "f126d5846890be06e6e25c8759d89098a4100305abc075c8e36e98340d8c5485",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-projection-missing.stdout.txt.gz",
+      "bytes": 946,
+      "sha256": "cf801ddd364b5cdf89fcba274c1f6035f7d59c80ca51fb6b9674aa2bd52064c4",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-resources-v2.json",
+      "bytes": 237,
+      "sha256": "3f14730ce11a426fc6cbc431bb8c2673fdefc0feeb177ddef1d6058457f4ff22",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/worker-metadata.stdout.txt.gz",
+      "bytes": 100,
+      "sha256": "c109bbcdba3d5c59a2705ae89e19c576f1a4ca057300d9c0184cdef112642d8b",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    },
+    {
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/worker-python-version.stdout.txt.gz",
+      "bytes": 97,
+      "sha256": "b261ecd0fc59d3de340c6878267929fb7c265957f2749c515b6e7b920b0628c1",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "extension_id": "new-final-installed-composition",
+      "role": "Already committed complete deciding output/replayer, exact stored bytes; lossless decoded identity declared in referenced outputs.json. No copied body."
+    }
+  ],
+  "coverage": "135 logical declared output rows,98 distinct stored paths plus manifest and primary; all stored/decompressed bodies independently readback verified in published-output-byte-audit.json. Earlier131/199/53 results retain own exact sources.",
+  "scientific_scope": "519 wheel/sdist91 and six negative failures as source-bound own receipt; no repeated TMLE numerical tests or causal authority/shared-study admission positive.",
+  "previous_spec": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/published-installed-de197-spec.json",
+    "bytes": 70256,
+    "sha256": "4979fe507b3c7613c8bd118ae00b65dcdac7a23aafdef15b5242f4b8ff98d6b6"
+  },
+  "refresh_scope": "Origin tip/readback changed only; immutable body references and historical scientific sources are identical."
+}

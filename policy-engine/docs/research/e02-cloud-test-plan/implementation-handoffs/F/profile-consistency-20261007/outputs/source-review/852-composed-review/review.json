@@ -1,0 +1,148 @@
+{
+  "schema": "policyos.e02.independent_source_review.v1",
+  "reviewer": "/root/graph_review",
+  "role": "non-author combined-source delta reviewer",
+  "slice_base_sha": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+  "candidate_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "candidate_tree_sha": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "source_review_verdict": "GO_BOUNDED_COMPOSED_PROFILE_AND_DISCOVERY_REPORT_REPAIRS",
+  "runtime_wave_verdict": "PENDING_ONE_FINAL_AFFECTED_WAVE",
+  "blockers": [],
+  "complete_source_footprint": [
+    "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/discovery_pipeline.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_pipeline.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+    "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+  ],
+  "guard_review_carry": [
+    {
+      "path": "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+      "reviewed_guard_blob": "afb69055f2a78bdf73f5dc0df7fe5a55c27654f5",
+      "composed_blob": "afb69055f2a78bdf73f5dc0df7fe5a55c27654f5",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+      "reviewed_guard_blob": "9153c96f3b955f563a5b49f18563ccb521eb4af0",
+      "composed_blob": "8ea6ce1d44a5090f556e6672091d67385b6ed6d3",
+      "unchanged": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+      "reviewed_guard_blob": "b535c853c7bb45bc980d3adda061c327643691fb",
+      "composed_blob": "21e4a6af610b8977801b40f0295a2c221a8b18ed",
+      "unchanged": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "reviewed_guard_blob": "5eda1db188d50495da7599f048501d64114aeb13",
+      "composed_blob": "5eda1db188d50495da7599f048501d64114aeb13",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+      "reviewed_guard_blob": "28be212da517d103518e043d94f45af2500a69ee",
+      "composed_blob": "28be212da517d103518e043d94f45af2500a69ee",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+      "reviewed_guard_blob": "2ef2b90d48c24cfa4f2612a5079f282a8f4393d7",
+      "composed_blob": "2ef2b90d48c24cfa4f2612a5079f282a8f4393d7",
+      "unchanged": true
+    }
+  ],
+  "discovery_source_carry": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/discovery_pipeline.py",
+      "reviewed_discovery_carrier_blob": "b75b58d0d1d8e90f11f64f5265eb5146fa5aca85",
+      "composed_blob": "b75b58d0d1d8e90f11f64f5265eb5146fa5aca85",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_pipeline.py",
+      "reviewed_discovery_carrier_blob": "713d7e7e61624692cbbd09b3a15662fbef6be6e8",
+      "composed_blob": "713d7e7e61624692cbbd09b3a15662fbef6be6e8",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py",
+      "reviewed_discovery_carrier_blob": "6373650ccf55d9cd82725ffebba261c810267477",
+      "composed_blob": "6373650ccf55d9cd82725ffebba261c810267477",
+      "unchanged": true
+    }
+  ],
+  "unchanged_canonical_contracts": {
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py": {
+      "slice_base_blob": "b1de9ace7e2535100b94cec3efe55ca92af34b47",
+      "composed_blob": "b1de9ace7e2535100b94cec3efe55ca92af34b47"
+    },
+    "policy-engine/src/polisyos/ir/analytics/mgraph.py": {
+      "slice_base_blob": "9e7308b213ce90be5033bf8077c357c8e38617eb",
+      "composed_blob": "9e7308b213ce90be5033bf8077c357c8e38617eb"
+    },
+    "policy-engine/src/polisyos/ir/analytics/causal_graph.py": {
+      "slice_base_blob": "f2635665550259d20323d29a784faf11dc8896b7",
+      "composed_blob": "f2635665550259d20323d29a784faf11dc8896b7"
+    },
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": {
+      "slice_base_blob": "411d98f8bc3d355a997a83653d2b551011ba35d9",
+      "composed_blob": "411d98f8bc3d355a997a83653d2b551011ba35d9"
+    },
+    "policy-engine/src/polisyos/ir/analytics/causal_discovery.py": {
+      "slice_base_blob": "b7e6c89e79947725d11a54aff399653cc3eea27e",
+      "composed_blob": "b7e6c89e79947725d11a54aff399653cc3eea27e"
+    }
+  },
+  "carry_basis": "Four of six guard paths exactly equal previously independently reviewed ba5 blobs. The other two are only the two-line canonical report alias README addition and release evidence-array extension; both exact changes reviewed. All three discovery component paths equal immutable8a carrier blobs.",
+  "source_findings": [
+    "The canonical reserved-contract consistency guard remains exactly unchanged after composition and continues to cover shared prior/fragment/Node intake before filtering and publication.",
+    "Discovery unsupported requested reconciliation retains original PAG and emits existing report warning plus structured requested=true/applied=false/not_applied/unsupported_profile metadata; broad catch now carries reason/detail instead of silently discarding failure.",
+    "Unexpected reconciliation errors are disclosed as reconciliation_failed; all discovery algorithms failed discloses discovery_failed only when an actual prior/hint request exists.",
+    "Ordinary no-request paths return no reconciliation warning or metadata; supported internal DAG control records applied status instead of false unsupported warning.",
+    "Both normal and all-failed producer branches emit the declared discovery_pipeline_report slot and preserve raw report as the same object. Existing private helper callsite and four maintained test seams are updated to tuple return; no new facade/registry/shim.",
+    "The actual MethodRegistry/run_job/CAS fresh-reader test exercises seeded native PC with JAX partial correlation, prior/hint requests, canonical report slot/readback, preserved graph and no-request control; mocks are confined to explicit unexpected-error/all-algorithms-failed adversaries.",
+    "Source module/class/method metadata no longer promise general id_algorithm readiness; README/release/reference match the real bounded consumer contract.",
+    "Previously pending discovery implementation dependency is now present in the composed source; no guard dependency remains missing."
+  ],
+  "P40_disposition": {
+    "bucket": "same static semantic-profile class deeper, no new finding ID or repair ladder",
+    "property_basis": "Canonical typed contract presence is recomputed from actual graph input; it only causes refusal, never establishes metadata validity, identification or authority.",
+    "bounded_residual": "Unknown/constructed/external metadata semantics or hidden real-world missingness without the canonical reserved contract remain uninterpreted. General PAG/CPDAG completion, temporal identification and scientific/institutional graph authority are outside this boundary.",
+    "falsifier": "Actual same-name/shape clean ADMG with opaque metadata and no reserved contract must remain supported; genuine builder MGraph retagged ADMG must refuse all current intake routes without publication. Final exact-source wave must include both, plus guard removal while retaining diagnostics/enums.",
+    "missing_capability": "No universal real-world graph semantics classifier or authority owner is implemented or inferred. Additional semantic contracts require an actual typed publisher/consumer contract and independent evidence, not name-based classification."
+  },
+  "checks_by_this_reviewer": [
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+        "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2"
+      ],
+      "outcome": "PASS",
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "checks_not_run_by_this_reviewer": [
+    "No runtime suites repeated",
+    "No installed wave repeated",
+    "No numerical/full35/optional backend replay",
+    "No removal probe repeated before final wave"
+  ],
+  "scope_of_GO": "Independent immutable code/composition review only. Author receipts remain source/input-qualified; actual final native/removal/installed results are separate deciding evidence. No G acceptance or formal finding closure.",
+  "deferred_cross_owner_limits": [
+    "B214 broad A/C/F graph completion/authority contract remains deferred with distinguishing completion query",
+    "B56 Runtime/Scientist shared workload/resource admission remains deferred"
+  ],
+  "actual_command_receipt": "/tmp/e02-F-profile-consistency-20261007/graph-review/852-composed-review/commands.json",
+  "repo_writes": [],
+  "reviewed_at_utc": "2026-10-07T19:42:22.522979+00:00"
+}

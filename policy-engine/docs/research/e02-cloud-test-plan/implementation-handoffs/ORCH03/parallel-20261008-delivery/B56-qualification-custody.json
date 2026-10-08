@@ -1,0 +1,18 @@
+{
+  "receipt": "ab48c152514b025618cd6e3fc9acc70a1ed773ee",
+  "count": 10,
+  "checked_paths": [
+    "worktree-resume.json.gz",
+    "worktree-resume.stderr",
+    "importer.stdout",
+    "importer.stderr",
+    "author-passive-check.json",
+    "independent-review.json",
+    "independent-passive-check.py",
+    "independent-passive-check.stdout",
+    "independent-passive-check.stderr",
+    "independent-first-attempt.stderr"
+  ],
+  "state": "PASS",
+  "scope": "Git output byte custody and passive source binding only; no product or authority acceptance"
+}

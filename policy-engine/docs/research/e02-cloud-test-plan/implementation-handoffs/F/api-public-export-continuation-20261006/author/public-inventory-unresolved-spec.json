@@ -1,0 +1,60 @@
+{
+  "schema": "policyos.e02.public_inventory_unresolved_proposal.v1",
+  "writer": "F/causal_api",
+  "status": "proposal_only_not_implemented",
+  "original_source_sha": "5484db7a25014953bdab7cb2418df735f972ff93",
+  "actual_case": {
+    "path": "policy-engine/src/polisyos/fabric/world/__init__.py",
+    "literal_all_lines": [
+      101,
+      142
+    ],
+    "dynamic_extension_lines": [
+      145,
+      146
+    ],
+    "selector": "conditional __all__.extend(export.__name__ for export in _MATERIALIZE_EXPORTS)",
+    "statically_declared_prefix_count": 41,
+    "dynamic_total": "UNRESOLVED without executing optional dependency branch"
+  },
+  "format_inventory": {
+    "generated_json": "policy-engine/architecture/public_surface/inventory.json",
+    "existing_schema": "schema_version=1; generic JSON producer, no explicit JSON-schema definition found in scoped tools/architecture/repo-quality readers",
+    "typed_owner": "SupportedEntrypointInventory.export_count:int / exports:tuple[str,...]; PackageInventory same types",
+    "existing_serialization": "entrypoint.exports=list(...), export_count=int, source_file, export_resolution dict newlyapprovedstaticmeasurement metadata",
+    "existing_consumers": "Internal dataclasses/renderers and architecture/repo-quality tests; _check_public_surface_contracts currently checks package roots only and has no incomplete entrypoint predicate"
+  },
+  "proposal": {
+    "kind": "surgical additive metadata with explicitly prefix-qualified output",
+    "representation": {
+      "export_count": 41,
+      "exports": "41 literal-prefix names, not a complete runtime namespace",
+      "export_resolution": {
+        "complete_verdict": false,
+        "status": "UNRESOLVED",
+        "quantity": "statically_declared_literal_prefix",
+        "total_export_count": null,
+        "reason": "Conditional dynamic extension requires unselected runtime/backend execution",
+        "source_path": "src/polisyos/fabric/world/__init__.py",
+        "inputs": "actual source reads/hash bytes"
+      }
+    },
+    "eligibility": "Only one unconditional direct literal string-sequence declaration with later extend-only bindings may have a source prefix. Rebind/delete/other mutation/shadowed computed declaration leaves strict unresolved exception; no fabricated prefix.",
+    "markdown": "Exports column shows 41 prefix; total unresolved, with displayed exact reason and source path.",
+    "gate": "Add explicit entrypoint completeness violation to existing _check_public_surface_contracts; incomplete generated inventory cannot yield whole architecture PASS.",
+    "compatibility": "Preserves existing int/sequence field shapes, additive metadata explicitly changes quantity scope; needs architecture owner acceptance before implementation. No C owner edits, no execution/whitelist."
+  },
+  "alternative": "If additive prefix semantics not accepted, retain full generation UNRUN/FAIL with exact source and failures; do not emit a fabricated total or refresh existing inventory as complete.",
+  "native_evidence": {
+    "actual_world_profile_stdout": "/tmp/e02-F-continuation-20261006/api/world-conditional-native.stdout",
+    "full_global_construction_stdout": "/tmp/e02-F-continuation-20261006/api/shadow-development.stdout",
+    "development_outcome": "6FAIL33PASS, all6 due actual world conditional extension; no inheritedP41 attribution"
+  },
+  "five_migrated_tests": [
+    "TestCausalEngineAudit::test_audit_returns_evidence_bundle",
+    "TestCausalEngineAudit::test_audit_run_id_preserved",
+    "TestCausalEngineAudit::test_audit_created_at_is_iso_string",
+    "TestCausalEngineAudit::test_audit_identification_status_in_bundle",
+    "TestCausalEngineAudit::test_audit_schema_report_in_diagnostics"
+  ]
+}

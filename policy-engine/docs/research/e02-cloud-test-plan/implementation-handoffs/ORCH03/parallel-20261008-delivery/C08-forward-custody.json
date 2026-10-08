@@ -1,0 +1,15 @@
+{
+  "commit": "222d0867d47428bdb1835c6e6a68c2787bc05be9",
+  "tree": "e4f5ddfa5cd9f7cb6638a235defe5992d91057cf",
+  "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/manifest.json",
+  "manifest_sha256": "065f0ca83cabb9201ecdd8ae4bc81a7891f124739be51525d91a5078e02e77ac",
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff.json",
+  "receipt_bytes": 63183,
+  "receipt_sha256": "5f9b59d89b8f961d26cae6fa53f8e8b2d6fb174b000238c2ad565b5a21313b0c",
+  "entries": 177,
+  "stored_bytes": 197606,
+  "decoded_bytes": 811039,
+  "check": "PASS",
+  "scope": "FetchedGitcomplete stored/decoded bytecustody only; no newruntimepass/Gacceptance",
+  "source_footprint_verified": 11
+}

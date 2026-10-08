@@ -136,6 +136,9 @@ class EconomicsPlugin(DomainPlugin[EconomicState]):
     def _viz_wealth_distribution(self, state: EconomicState, ax=None):
         import matplotlib.pyplot as plt
 
+        from polisyos.foundry.agent_sim.distributions import compute_gini_hard
+
+        gini = float(compute_gini_hard(state.agents.wealth, state.agents.active))
         if ax is None:
             _, ax = plt.subplots()
 
@@ -143,7 +146,7 @@ class EconomicsPlugin(DomainPlugin[EconomicState]):
         ax.hist(wealth, bins=50, density=True, alpha=0.7)
         ax.set_xlabel("Wealth")
         ax.set_ylabel("Density")
-        ax.set_title(f"Wealth Distribution (Gini: {float(state.distributions.gini_wealth):.3f})")
+        ax.set_title(f"Wealth Distribution (Gini: {gini:.3f})")
 
         return ax
 

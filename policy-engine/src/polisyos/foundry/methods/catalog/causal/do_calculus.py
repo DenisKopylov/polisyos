@@ -41,6 +41,7 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from polisyos.foundry.methods.catalog.causal.admg_ops import (
+    _validate_static_admg,
     ancestors,
     m_separation,
     remove_incoming_edges,
@@ -96,6 +97,7 @@ def apply_rule1(
     -------
     ``(new_ref, proof_step)`` if the rule fires, ``None`` otherwise.
     """
+    _validate_static_admg(graph)
     z = z_vars & frozenset(dist_ref.conditioning)
     if not z:
         return None
@@ -151,6 +153,7 @@ def apply_rule2(
     -------
     ``(new_ref, proof_step)`` if the rule fires, ``None`` otherwise.
     """
+    _validate_static_admg(graph)
     z = z_vars & frozenset(dist_ref.intervention_set)
     if not z:
         return None
@@ -217,6 +220,7 @@ def apply_rule3(
     -------
     ``(new_ref, proof_step)`` if the rule fires, ``None`` otherwise.
     """
+    _validate_static_admg(graph)
     z = z_vars & frozenset(dist_ref.intervention_set)
     if not z:
         return None
@@ -421,6 +425,7 @@ def rewrite_estimand(
     list of all :class:`~polisyos.ir.analytics.evidence_bundle.ProofStep`
     objects produced (one per rule application).
     """
+    _validate_static_admg(graph)
     all_steps: list[IRProofStep] = []
     current_root = ast.root
 

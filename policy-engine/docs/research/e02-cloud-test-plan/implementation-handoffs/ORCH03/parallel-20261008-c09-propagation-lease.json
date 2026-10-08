@@ -1,0 +1,70 @@
+{
+  "schema": "policyos.e02.orch03.exact_lease_supplement.v1",
+  "role": "C09",
+  "canonical_writer": "/root/c09",
+  "original_unit_owner": "E",
+  "reason": "Measured G71ec same-class interval limitation escape in temporal report/promotion/forecast projections; existing capability expanded class-wide, no bounded waiver.",
+  "G": {
+    "sha": "71ec2e0758cd7cd93423d3a91afe1a07cef61401",
+    "tree": "cede297dae4ab3a5a8b46dfeaaeb606ce6e8217e",
+    "product_delta_from_initial_f00": "none; documentation/evidence only",
+    "review_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/README.md"
+  },
+  "slice_base": {
+    "sha": "6d470eb884c31a8b19ee06058881cf0deaa492f5",
+    "tree": "99f904d38e56fc5709a78a3a20c980b6e6fba9d4"
+  },
+  "topic": "codex/e02-E-c09-20261008",
+  "worktree": "/dev/shm/e02-orch03-20261008/c09",
+  "exact_write_paths": [
+    "policy-engine/src/polisyos/calibration/interval_basis.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/temporal.py",
+    "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+    "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+    "policy-engine/src/polisyos/scientist/governance/calibration_validation.py",
+    "policy-engine/src/polisyos/scientist/governance/calibration_leaderboard.py",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_interval_basis.py",
+    "policy-engine/tests/unit/scientist/governance/test_interval_basis_promotion.py",
+    "policy-engine/tests/unit/calibration/test_forecast_interval_basis.py",
+    "policy-engine/tests/unit/scientist/governance/test_calibration_leaderboard.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+    "policy-engine/src/polisyos/calibration/README.md",
+    "policy-engine/release-fragments/unreleased/2026-10-08-c09-interval-consumer-basis.toml"
+  ],
+  "owned_documentation_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/phase2-interval-consumers/",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/supplier-requirements.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/REPORT.md"
+  ],
+  "exclusions": [
+    "No C07 IR/schema source writes; exact companion dependency if needed",
+    "No C10 Runtime/S10/served source writes",
+    "No generated schema/catalog/global inventory/lock edits",
+    "No world/scientific law, global trust policy, scheduler/service/authority invention"
+  ],
+  "single_invariant": "Recompute interval basis from actual finite rows/bounds/hits/full requested denominator, preserve limitation through temporal/CAS/score/validation/promotion/forecast; generic report.degraded alone is insufficient; point-only and complete predictive bridge-pending profiles preserved.",
+  "import_architecture": "Single owned helper in polisyos.calibration; calibration imports IR/core/common only, never Scientist; Scientist projections reuse the same helper.",
+  "admission": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-c09-propagation-resume.json.gz",
+    "encoding": "gzip",
+    "stored_bytes": 13887,
+    "stored_sha256": "4da37236e7dd32ae4cf4cc83a554dfe78d0ae333de071b29e1aa8dd0c6bf5a8f",
+    "decoded_bytes": 171103,
+    "decoded_sha256": "9eab02529709f5a7371785f639acd0e505118b38227905eecaaa8abb9c5fc1c6",
+    "requested": {
+      "branch": "codex/e02-E-c09-20261008",
+      "mode": "resume",
+      "path": "/dev/shm/e02-orch03-20261008/c09"
+    },
+    "status": "admitted",
+    "unresolved_inputs": []
+  },
+  "independent_reviewer": "/root/oracle_empirical",
+  "verification": "Immutable freeze then complete nonauthor review and one affected consumer/retained-marker wave. No broad repeat of unchanged77/MC37. Full Matrix/Leaderboard and forecast content-positive/limited/fake discriminators with fixture vs genuine S10 authority separate.",
+  "source_acceptance_G": "Historicalee0 HOLD; new repair not yet submitted",
+  "formal_closure_G": "not_issued",
+  "production_uploaded": false,
+  "root_source_writer": false
+}

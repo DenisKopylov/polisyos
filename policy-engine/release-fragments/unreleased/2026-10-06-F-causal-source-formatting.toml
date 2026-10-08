@@ -1,0 +1,28 @@
+id = "2026-10-06-F-causal-source-formatting"
+title = "Normalize causal source and equivalent pytest declarations"
+type = "fixed"
+component = "foundry"
+owner = "team-foundry"
+summary = "Normalize F-owned source formatting and use equivalent explicit pytest parameter names before regenerating source-bound inventory."
+change_class = "internal"
+surface_classification = "internal: source formatting and test declaration syntax"
+compatibility = "Production ASTs, literals, docstrings, causal algorithms, public identities and wire schemas are unchanged."
+migration = "Regenerate canonical source-bound inventory and bind installed evidence to the corrected SHA."
+limitations = "The broader runtime formatting and Core schema failures remain separate; no P41 or global-green claim."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/reference/foundry/causal-source-quality.md"]
+runbook_docs = ["docs/reference/foundry/causal-source-quality.md"]
+evidence = ["tests/repo_quality/architecture/test_public_surface_export_resolution.py", "tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py"]
+
+[[compatibility_change]]
+id = "F-causal-source-formatting"
+change_class = "internal"
+impact = "compatible"
+surface = "internal: causal source and test declaration formatting"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable: equivalent formatting correction"
+release_note = "Production ASTs and numerical algorithms remain unchanged; source hashes and their inventory bindings are refreshed."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/reference/foundry/causal-source-quality.md"]
+runbook_docs = ["docs/reference/foundry/causal-source-quality.md"]

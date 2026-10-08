@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261007/economics/recovery_review.py", line 42, in <module>
+    retryprior_native_path='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-native-final-candidate.json';prior_native_bytes=cmd('existing244-native-receipt',['git','show',F+':'+prior_native_path]);prior_native=json.loads(prior_native_bytes);positives['full_original244_deciding_metadata']=dict(path=prior_native_path,ref=F,bytes=len(prior_native_bytes),sha256=sha(prior_native_bytes),full_receipt=prior_native)
+                                                                                                                                                                                                                                                       ^^^^^^^^^^^^^^^^^
+NameError: name 'prior_native_path' is not defined. Did you mean: 'retryprior_native_path'?

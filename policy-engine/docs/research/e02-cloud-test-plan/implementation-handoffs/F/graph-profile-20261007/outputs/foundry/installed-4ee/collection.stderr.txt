@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-graph-profile-20261007/foundry/launch_narrow_installed.py", line 8, in <module>
+    assert not any(Path(p).is_relative_to(Path(config['source_root'])) for p in sys.path if p)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

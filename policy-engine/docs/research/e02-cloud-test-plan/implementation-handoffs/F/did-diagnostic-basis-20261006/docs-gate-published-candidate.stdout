@@ -1,0 +1,11 @@
+Docs freshness baseline FAILED:
+- docs freshness exception baseline expired
+- docs freshness violation count changed: expected 0, observed 10
+- docs freshness baseline hash changed: expected a3030ecf013ab9e3e7ffec891b2743e7dac6f2892361fad35f63774f7e4fe7a2, observed 459cc4ff53c6dcb5cb8444e1bc22c715583f3a69411870176a6bf06bafcdb6be
+Docs drift gate
+- changed files: 8
+- change window: `docs/reference/foundry/causal-statistical-validity.md`, `release-fragments/unreleased/2026-10-06-did-diagnostic-basis.toml`, `src/polisyos/foundry/methods/catalog/causal/README.md`, `src/polisyos/foundry/methods/catalog/causal/did.py`, and 4 more
+[docs-gate] verify docs freshness baseline
+[docs-gate] $ uv run polisyos-tools validation check-docs-freshness-baseline
+Docs drift gate FAILED:
+- [command_failure] verify docs freshness baseline failed with exit code 1: uv run polisyos-tools validation check-docs-freshness-baseline

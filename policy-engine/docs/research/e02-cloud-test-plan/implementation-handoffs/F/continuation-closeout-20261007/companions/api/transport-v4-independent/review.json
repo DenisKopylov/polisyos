@@ -1,0 +1,148 @@
+{
+  "schema": "e02-independent-transport-codec-review/v1",
+  "role": "F-API independent V4 helper delta reviewer",
+  "decision": "NO_GO",
+  "bounded_supported_profile_verdict": "PASS for current explicit encoding=gzip/identity rows and files/items/selection keyed-list schemas; does not admit unsupported declared compression metadata.",
+  "predicate_basis": "recomputed",
+  "source_inputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py",
+      "bytes": 15451,
+      "sha256": "3df0d51dffda5c4ad5f6232c759d830efd23bd5c5ce3b43cf6a56050fb8d63a7",
+      "complete": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v3.py",
+      "bytes": 14155,
+      "sha256": "4df1398167268650297f6a27acffe472759a3bd4829e741273bc10256a94d05a",
+      "complete": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v3.py",
+      "bytes": 11196,
+      "sha256": "c55ab809c690634feb93b4b819d58f3b64518b9d15220742261805180bec41f4",
+      "complete": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "bytes": 1375,
+      "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a",
+      "complete": true
+    }
+  ],
+  "exact_full_delta": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-v3.full.diff",
+    "bytes": 3432,
+    "sha256": "368379a4eb2f647fb98fb867a46edd17b850e9a3c95c5b34f848e07dfb814fc4",
+    "complete": true
+  },
+  "actual_owner_schema_inputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/transfer-selection.json",
+      "bytes": 13972,
+      "sha256": "664e03368ab39b6a28206906af574d557d69c125195e5f6d21df9807779cd1b2",
+      "complete": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/transfer-selection-final.json",
+      "bytes": 17608,
+      "sha256": "65409d69d6fdfd29a101b4b66aee5ca2ab3fdd34e837ac02689248ffa2dd2716",
+      "complete": true
+    }
+  ],
+  "actual_owner_schema_scope": "Complete Graph42 metadata files-list andEcon73 metadata selection-list read; no171MB orscientifictest/body duplication. Graph current compressed rows useexplicit encoding=gzip.",
+  "actual_commands": {
+    "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/executions.json",
+    "bytes": 28120,
+    "sha256": "ab8e69794e596393d4be7e7e6aea0ebca5108b810d0d557f6ad0fbee0c0eeeb4",
+    "complete": true
+  },
+  "complete_results": {
+    "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/results.json",
+    "bytes": 3892,
+    "sha256": "f3274eae620b7883b107db7f72073952146259d6ba76f2eb1a9b08e7ab9a1913",
+    "complete": true
+  },
+  "native_command_count": 18,
+  "small_control_case_count": 14,
+  "actual_case_outcomes": {
+    "PASS": 12,
+    "OBSERVED": 1,
+    "FAIL": 1
+  },
+  "blocking_finding": {
+    "class_bucket": "SAME precompressed-intake class one level deeper (P40), not scientific/product class",
+    "property": "Declared compression/decoded identity outside accepted finite schema refuses; a decoder identity cannot be silently discarded while transport admission succeeds.",
+    "implementation": "Only row.get(encoding)==gzip validates decoded_*; absentencoding defaultsidentity and ignorescodec/decodedidentity metadata.",
+    "actual_discriminator": "Tiny storedgzip35B withcodec=gzip lossless, decoded_sha256=000... and noencoding returns0 and emitsrawbyteslogical record without input_binding/decodedidentity.",
+    "outcome": "FAIL",
+    "output": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/codec-only-wrong-decoded-refresh.stdout.txt",
+    "input": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/codec-only-wrong-decoded.input.json",
+      "bytes": 370,
+      "sha256": "b257c1745eb6625d6d383bb8ecc36a5b380b819f69ea9d80273bfa6b97c363ae",
+      "complete": true
+    },
+    "selected_output": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/codec-only-wrong-decoded.selected.json",
+      "bytes": 6000,
+      "sha256": "f2b6e9be4a2d9232ff4c8f8852d87ee8640a3eee33bdad34a6b985752d24e973",
+      "complete": true
+    },
+    "minimal_next_owner": "FIT widen ONE finite compression/identity intake invariant: validate or explicitly refuse all declared encoding/decoded quantities before building logical records; avoid codec-name local ladder."
+  },
+  "alias_basis_observation": {
+    "outcome": "UNRUN",
+    "meaning": "Owner adjudication of stored-container preservation scope unresolved; actual byte difference is measured, not scientific failure.",
+    "actual_control": {
+      "case": "different-stored-same-decoded",
+      "outcome": "OBSERVED",
+      "canonical_original_stored_bytes_preserved": true,
+      "other_original_stored_bytes_recoverable_from_alias": false,
+      "decoded_identity_equal": true,
+      "alias_input_binding_preserved_in_selection": true,
+      "scope_question": "Deduplication binds decoded bytes; original distinct gzip-container bytes are not both transported."
+    },
+    "property_boundary": "Distinct gzip headers/same decoded payload dedup asone decoded-body alias; only canonicalcompressedcontainer bytes materialize. Secondinput_binding remains in inputselection but secondphysicalgzipbody is not the alias target.",
+    "next_owner": "ROOT/FIT explicitly choose decoded-payload aliasbasis withdeclaredcontainercustody limitation or retain distinctstoredcontainers; do not broadly claimalloriginalcompressedcontainers byte-preserved."
+  },
+  "checks": [
+    {
+      "id": "three-supported-list-schemas-and-no-double-gzip",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/executions.json",
+      "scope": "files/items/selection eachmaterializedsamecompressed35bytes+same15decodedbytes, input_encoding/input_binding retained."
+    },
+    {
+      "id": "stored-decoded-size-hash-and-ambiguous-refusals",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/executions.json",
+      "scope": "BadstoredSHA/size, baddecodedSHA/size, missingdecodedidentity, unknownencoding, ambiguouslist allactualexit1, nooutputcreated."
+    },
+    {
+      "id": "false-alias-and-unknown-future-Git-refusals",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/executions.json",
+      "scope": "Canonicalaliaspointedto actualdifferentknownbody refuses; nonexistent40hexGitref refuses. No realGit/sourcewrites orselfissuedauthority."
+    },
+    {
+      "id": "unsupported-declared-codec-decoded-identity",
+      "outcome": "FAIL",
+      "output": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/codec-only-wrong-decoded-refresh.stdout.txt",
+      "scope": "actualunsupportedsemanticinputisaccepted andlosesclaimeddecodedidentity."
+    },
+    {
+      "id": "stored-vs-decoded-alias-policy",
+      "outcome": "UNRUN",
+      "output": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/different-container-publish.stdout.txt",
+      "scope": "Actualdecodedbasis measured; broaderstored-container completeness needs explicit ownerpolicy, not assumed."
+    }
+  ],
+  "no_normalization_observed_in_supported_profile": true,
+  "publisher_selfhash_review": "Frozen selection is outside its logical_files; publisher adds its exactbytes to OUTPUT manifest. add_file rejects ownoutput path; unexpectedfutureGitref tested. No futureSHA minted bythisreview.",
+  "scientific_or_product_tests_run": false,
+  "Git_or_product_source_writes": false,
+  "source_hold_released_after_completed_reads": true,
+  "closure_ids": [],
+  "historical_scope": "Source V4 immutable even if author creates V5; no later source verdict fromthisreview."
+}

@@ -1,0 +1,31 @@
+# Independent review: ninth-wave G feedback
+
+**Decision: GO for the feedback documents.** Reviewed `README.md`, `B.md`, `D.md`, `E.md`, `F.md`, `pins.json`, and `F-merge-tree.txt` under `integration/reviews/2026-10-07-ninth-wave/` against the pinned Git objects and earlier independent evidence. No tests, installs, refs, or tracked files were changed. The only created file is this ignored review note.
+
+## Identity and document integrity
+
+- The review base is `ebae80eaa25482d84bc6ad2e78721bc318bc0228`, tree `4bc0ca606eaf5145e23769da3968a673d99a9abf`, matching G HEAD during this review.
+- All 19 captured pin commits exist and their Git trees match `pins.json`. All 19 captured SHAs are ancestors of the recorded `local_tracking_head_at_doc_preparation`; 11 tracking refs had advanced from capture by document-preparation time. The docs correctly scope review to immutable captured heads and state that later commits are outside review. A live-ref mismatch is not misrepresented as a failed capture.
+- All local Markdown links in README/B/D/E/F resolve. README correctly says no source is accepted and no finding is closed; it distinguishes input-integrity checks from product acceptance.
+
+## Claims and routing checked
+
+- **B:** The narrow decoder property is B66; original B120 remains the controller passing the owner's spend snapshot into `CostBudgetStopping`. The docs keep that consumer bridge open. The carrier remains HOLD because its full ancestry contains the held `state_branching.py` blob and associated broad source/test/release footprint; the successful bounded numeric witness does not admit that carrier. B's B74/RES-04 item now cites the exact committed `frame-mirrored/stdout.lossless.json@d26d687c6f8e2a0baf7de2148781ef0f2fa84453`, verified at 5,656 bytes with SHA-256 `be7a23690f950d66a267fb9ad100f953b7b9cff993a497cf4594f23022352f46`. Its captured observation is original `7`, resumed replacement `107`, physical `replacement` effect, and `refusal=null`; the sibling failure output and wrapper bind the source/test identity. `finding-owners.tsv` assigns B74 to B. Coordination stdout bindings and composition-footprint reconciliation remain actionable evidence corrections, not claimed product failures.
+- **D:** The pinned head/tree are `b5cdb56ad3a67cef451157e816d9dc246d307681` / `855ae45bd271d207ad3121276a5281454d1d38de`, with 40 changed paths (12 source, 14 tests). D explicitly says current-candidate deciding outputs are absent, so source inspection is not reported as current PASS or code acceptance. The `_read_metric_aliases` tiny-nonzero-to-float-zero boundary is kept distinct from B's HTTP decoder and B120's controller bridge; generic synthetic evidence and original production/history inputs are correctly separated.
+- **E:** The exact root is `d86ed53b82c4d31555e0c49698a44aa5c093286e` / `561837c96731267e1790dccf557be6e66bf11738`. The report preserves the distinction between Morris analysis-row admission, B99 adaptive child/cumulative budget, and B100 sampler/analyzer law. Appointment `a0ac10fc11975c345312034d0e568b4cfc330d76` already scopes E to B201/B202; it correctly requests no second appointment and does not treat appointment as ratification or closure. Remaining composed checks and input/backend limits stay explicit.
+- **F:** The captured tested source `8236d9c368336a5ea20c1586f29aea7321db6536` contains the named prerequisites missing from older G, so that absence is accurately an integration-order dependency. `F-merge-tree.txt` matches the exact command and complete output: exit 1, exactly two ledger conflicts (`closure-decisions/F.md`, `closure-decisions/method-decisions.md`), empty stderr. F routes these to an ordinary append merge; it does not call the virtual tree an accepted commit or claim source/test conflicts.
+
+No substantive counterexample remains in this document set. Product source admission, candidate-bound missing checks, integration, and finding closure remain separate work, as stated in the docs.
+
+## Final documentation delta review
+
+**Delta decision: GO; prior decision unchanged.** Reviewed only the appended source-admission paragraph in E and the fresh local-check paragraph/link in B; no tests or source/ref operations were performed.
+
+- E's new paragraph matches `R/incoming-20261007-0837/source-admission-order-B-E.md`: shared Core/Morris baseline `93d3b713abc5e40a0ef85d7fb86e568b36a3e124` / tree `211636937e6e9c3d9fcb8480084d624c7ae746f3`; 57 source, 48 test, and 27 release paths are explicitly not blanket acceptance. It correctly keeps the 53-path `9dde740f…` package conditional on that full scope, distinguishes standalone `2721d7f…` as `consumer_missing`, and says mapped-schedule `bbc4058…` is already in G. These are routing and scope claims, not new acceptance or closure.
+- B's new relative link resolves to `integration/checks/2026-10-07-ninth-wave/B-gateway/README.md`. Its receipt binds exact source `e7c5182…` / tree `bd3d762…` and G base `ebae80e…`. I recomputed all listed output asset byte lengths and SHA-256 values; all match. The candidate JUnit is 30/30 with no failures/errors/skips; the single-hook-removal control is 20 failures / 10 passes, also no errors/skips; recorded Ruff result is exit 0. The README and B.md preserve the narrow decoder/cost-status scope, do not close B120, and retain the broader carrier HOLD. The separate receipt-admission result is not represented as product closure.
+
+No delta counterexample found; no tracked files changed.
+
+## Final E source-scope delta
+
+**Delta decision: GO.** E's final qualification paragraph matches the finalized `R/incoming-20261007-0837/source-admission-order-B-E.md` source map. Exact candidate `0cb369b6…` bounds five unchanged calibration source blobs only; the remaining 13 source paths, including README companions and later uncertainty/Welfare blobs, are outside that qualification. The older Welfare and 150-test author receipts do not establish those changed final blobs. The paragraph correctly leaves the 53-path `9dde…` candidate unaccepted pending review of its remaining source and companions, and identifies the separate 23-path calibration ancestry through `0cb…` as a next candidate rather than an accepted merge. No further review or tests were run.

@@ -1,0 +1,50 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "reviewer": "F root, independent of DoWhy author",
+  "target_sha": "f6e80c4cb812f2e561791df9d323ebfbe40f7dd9",
+  "tree": "0283ef9c7e25ed14fc4edbc8cdfe54de9e1868ef",
+  "result": "GO",
+  "scope": "Complete primitive-to-report canonical projection and total strict numeric/installed-resource validation. Production evaluation authority remains UNRUN.",
+  "source_review": [
+    "Whole typed CausalEffectReport equality is generic over the canonical producer model, including p_value/default diagnostics/assumptions/status and every consumed field. Producer and consumer share one pure class method, no parallel implementation.",
+    "Public parameters resolve through actual signature defaults, dispatch RNG/seed are excluded, metadata assumptions come from the canonical method owner.",
+    "Numeric parser rejects strings/bools before conversion, oversized ints become typed refusals, CI accepts only finite ordered (2,) or (1,2) shapes.",
+    "Installed resolver requires the complete six fixed assets and otherwise typed unavailable, no app DoWhy shim/marker bypass."
+  ],
+  "source_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+      "sha256": "582ad243fec5406d577154b7bc1f97e03664cf01843e1fa6f23c3ea28746db56",
+      "bytes": 16599
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+      "sha256": "50e0b78c639b52444cc97abe35f8b71a5ce66c8c33cb2c920c34cbe42633c04e",
+      "bytes": 23546
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/worker.py",
+      "sha256": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253",
+      "bytes": 10652
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/protocol.py",
+      "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239",
+      "bytes": 4704
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/uv.lock",
+      "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a",
+      "bytes": 98340
+    }
+  ],
+  "independent_native_e589": "/workspace/e02-F-20261006-receipts/consumer/final-worker-native.json",
+  "root_real_jobs_whole_projection": "/workspace/e02-F-20261006-receipts/consumer/complete-projection-frozen-native.json",
+  "native_interpretation": "Actual numerical positives and earlier point/p_value/field corruptions executed; final two report-family tests initially failed at their diagnostics=dict test setup. Test-only schema-corrected replay is separately recorded, never counted as prior master PASS.",
+  "p40": "Second same-class p_value escape widened to the whole single canonical producer projection; no per-field product ladder.",
+  "limits": [
+    "Worker response binding is a candidate numerical contract, not real-data identification, signed external backend authority or EvalSafety permission.",
+    "Baseline Python3.14 DoWhy/EconML excluded markers do not provide any positive witness.",
+    "Installed sixasset projection is independently owned/tested by API packaging slice."
+  ]
+}

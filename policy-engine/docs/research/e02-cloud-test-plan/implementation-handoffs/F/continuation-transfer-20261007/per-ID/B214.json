@@ -1,0 +1,440 @@
+{
+  "finding_id": "B214",
+  "primary_owner_from_full_TSV": {
+    "finding_id": "B214",
+    "unit": "F",
+    "docx_analytical_package": "P34",
+    "source_closure_owner": "GRF-03",
+    "source_bundle_ids": "GRF-03",
+    "source_status": "partial"
+  },
+  "bundle_owner_from_full_TSV": {
+    "bundle_id": "GRF-03",
+    "unit": "F",
+    "initial_writer_family": "F-W06",
+    "title": "Известные направления и явная временная/частичная семантика"
+  },
+  "original_card_refs": [
+    {
+      "criterion_id": "B214",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        5218,
+        5229
+      ],
+      "bytes": 3537,
+      "sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+      "title": "## B214. Проекция PAG/CPDAG разворачивает известное направление и может создать цикл",
+      "byte_binding_check": "PASS"
+    }
+  ],
+  "original_text": "## B214. Проекция PAG/CPDAG разворачивает известное направление и может создать цикл\n\n**Приоритет:** высокий при передаче графа DAG-потребителю; нормализация известного направления дешева, выбор допустимого расширения — отдельная задача. **Основание:** полный _graph_projection.py, CausalGraphModel и GCM-fit caller; GP01–GP04. [C20.R08–R10]\n\n**Проблема.** Единственный признанный полностью ориентированным случай — tail на src и arrow на dst. Случай arrow на src и tail на dst означает известное обратное направление, но обрабатывается как неопределённость: метки меняются на tail/arrow без перестановки концов. Для неопределённых рёбер применяется тот же порядок хранения, после чего graph_type заменяется на DAG через model_copy без повторной валидации.\n\n**Воспроизведение.** В PAG ребро X←Y стало X→Y и получило orientation_uncertain=True. Полный неориентированный CPDAG-треугольник, записанный A—B, B—C, C—A, стал циклом A→B→C→A с меткой DAG. Численная фикстура графа — не полный native DTO; допустимость такого reversed edge и запрет циклов в настоящем DAG проверены чтением контракта.\n\n**Рекомендуемое исправление.** Сначала канонически нормализовать уже известные направления, сохраняя origin и marks. Затем либо использовать допускающий частичную ориентацию идентификатор, либо строить согласованное расширение с проверкой направлений, ацикличности и свойств класса эквивалентности. Для PAG произвольный выбор одного DAG вообще не заменяет causal-identification по допустимому семейству; исследовательскую модель нужно сохранять условной.\n\n**Положительные контроли.** Готовый корректный DAG возвращается без изменения; bidirected edge заменяется общим latent U и двумя исходящими рёбрами. Это полезные существующие части. Уточнение не должно превращать все частично определённые графы в полный отказ: можно сохранять несколько допустимых моделей или ограниченный результат. Простое удаление ребра цикла либо отключение DAG-validation неприемлемо. Исправленная нормализация одного известного reversed edge проверена отдельно; общий sound-extension алгоритм здесь не реализован.\n\n",
+  "primary_acceptance_scope": "Known reverse arrow normalization plus preserved endpoint uncertainty; sound DAG extension/declared conditional completion or typed partial/refusal, no arbitrary PAG-to-DAG identification.",
+  "source_chain": {
+    "producer": "existing ReconcileCausalGraph owner and CausalGraphModel",
+    "artifact": "current-request graph artifact with marks/lag/source lineage",
+    "bridge": "typed graph ref/CAS verifier → static consumer boundary",
+    "consumer": "actual reconciliation fresh reader/static GCM/ADMG consumers"
+  },
+  "actual_recorded_consumer": "ReconcileCausalGraph intake/CAS + static ADMG/GCM consumers",
+  "surface": "CausalGraphModel schema1.0 endpoint/lag representation; existing graph reconciliation, projection and static method consumer boundary",
+  "deciding_receipt_refs": [
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+      "bytes": 150139,
+      "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+      "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B214"
+      ]
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+      "bytes": 150139,
+      "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+      "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B214"
+      ],
+      "json_pointer": "/per_id/0"
+    },
+    {
+      "git_ref": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+      "head": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json",
+      "bytes": 150755,
+      "sha256": "78b07ba01cf9b483ff23d08c8144fc55b9ab678412b46fa8f170c775a3f1f05e",
+      "git_blob": "54111f5b33cea1e28a2e82e3b5c29a2707406bc0",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B214"
+      ],
+      "json_pointer": "/per_finding/0"
+    }
+  ],
+  "deciding_per_ID_carrier_ref": {
+    "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B214.json",
+    "bytes": 39196,
+    "sha256": "028c32dc8a74f30ea3a9ce5c59b8bd0a04086304513ac853a969615cfebcd31c",
+    "git_blob": "766e1b7ef8a89b6b8df9261a42c0db452ce64b8e"
+  },
+  "scientific_implementation": {
+    "sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+    "tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+    "not_receipt_carrier": true
+  },
+  "recorded_independent_oracle_and_negative": "Source reverse-arrow positive and circle/PAG/lag typed refusal; static518 now rejects all6 unsupported endpoint pairs",
+  "complete_raw_receipt_checks_refs": [
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/0",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/1",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/2",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/3",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/4",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/5",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/6",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/7",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/8",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/9",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/10",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/11",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/12",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/13",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/14",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/15",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/16",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/17",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/18",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/19",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/20",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/21",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/22",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/23",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/24",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/25",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/26",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/27",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/28",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/29",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/30",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/31",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/32",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/33",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/34",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/35",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/36",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/0",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/1",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/2",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/3",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/4",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/5",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/6",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/7",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/8",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/9",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/10",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/11",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/12",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/13",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/14",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/15",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/16",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/17",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/18",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/19",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/20",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/21",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/22",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/23",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/24",
+    "2044260c39dc4988b37d5a1568b65a1cdb1e3d31:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json#/checks/25"
+  ],
+  "historical_ROOT072": {
+    "check": "PASS",
+    "outcome": "limited",
+    "technical_original_criterion_recommendation": "limited",
+    "current_continuation_outcome_recommendation": "limited",
+    "original_criterion_remainder": "Latest shared518 static entry admission and reverse normalization are measured. Canonical DAG Scientist node profile does not claim arbitrary PAG/CPDAG completion or protected readiness. Keep current limited without a new original-per-ID authority decision.",
+    "actual_consumer": "ReconcileCausalGraph intake/CAS + static ADMG/GCM consumers",
+    "oracle_and_negative": "Source reverse-arrow positive and circle/PAG/lag typed refusal; static518 now rejects all6 unsupported endpoint pairs",
+    "separate_unavailable_inputs_or_authority": "General PAG identification and protected authority are not claimed."
+  },
+  "independent_original_criterion_recommendation": {
+    "check": "PASS",
+    "outcome": "limited",
+    "basis": "Reverse normalization and typed preserved/refused unresolved marks are measured. Original also discusses sound extension/declared conditional partial model, not blanket complete identification. Keep limited until the original owner supplies the precise supported partial/conditional route or explicit finite refusal capability criterion; protected authority is not the reason.",
+    "scientific_rerun": false,
+    "review_scope": "independent criterion/evidence reconciliation; not an independently rerun estimator measurement",
+    "missing_actual_original_criterion": "Supported sound extension/declared conditional partial-model route and exact finite capability discrimination need owner clarification; no protected-authority prerequisite.",
+    "new_owner_review_pending": false,
+    "not_formal_G_closure": true
+  },
+  "separate_unavailable_inputs_or_authority": "General PAG identification and protected authority are not claimed.",
+  "existing_author_or_reviewer_conflict": "Reviewer previously authored CAU and graph-intake provider; current independent role is ROOT original-criterion reconciliation. Prior scientific validation uses source-bound independent economics/graph/API receipts, not self-claimed fresh independent math.",
+  "schema": "e02.F.original-finding.v3",
+  "primary_bundle": "GRF-03",
+  "criterion_short": "Known reverse arrow normalization plus preserved endpoint uncertainty; sound DAG extension/declared conditional completion or typed partial/refusal, no arbitrary PAG-to-DAG identification.",
+  "check_result": "PASS",
+  "F_finding_outcome": "limited",
+  "F_technical_recommendation": "limited",
+  "F_rationale": "Reverse normalization and typed preserved/refused unresolved marks are measured. Original also discusses sound extension/declared conditional partial model, not blanket complete identification. Keep limited until the original owner supplies the precise supported partial/conditional route or explicit finite refusal capability criterion; protected authority is not the reason.",
+  "code_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+  "code_tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+  "consumer": "ReconcileCausalGraph intake/CAS + static ADMG/GCM consumers",
+  "oracle_and_negative": "Source reverse-arrow positive and circle/PAG/lag typed refusal; static518 now rejects all6 unsupported endpoint pairs",
+  "G_finding_acceptance": {
+    "status": "not_issued",
+    "formal_G_closed": false
+  },
+  "G_code_acceptance": {
+    "status": "not_inferred",
+    "source_sha": null,
+    "basis": "Independent F GO/code-ready is not G code acceptance"
+  },
+  "original_missing_input": "Supported sound extension/declared conditional partial-model route and exact finite capability discrimination need owner clarification; no protected-authority prerequisite.",
+  "original_next_owner": "Existing F graph-reconciliation/causal method owner; A/C protected contract only for requested broader route",
+  "next_concrete_result": "G review exact852 bounded known-profile consistency and requested-PAG report consumer receipt; A/C/F broad family/completion/authority contract remains limited.",
+  "root_assembled_source": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "not_new_numerical_proof": true
+  },
+  "new_property_followups_not_automatically_original_reopen": [
+    {
+      "lane": "Graph",
+      "git_ref": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007.json",
+      "bytes": 89153,
+      "sha256": "f3cbaadef8f0fb163150356bfa3a46edbd343bbd3934b0b86a919be7d629688b",
+      "git_blob": "df227f1efbd870db9c2de811c3ed472b2a532716",
+      "tree": "014203f04f72a477407df231372775f403e0cefb",
+      "code_candidate_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+      "code_candidate_tree": "6b699cac11fb1fe5b317ed0ccfc76940e5958906",
+      "role": "Full source-bound corrective or independent evidence; not G finding acceptance"
+    },
+    {
+      "lane": "Installed-b5-failed",
+      "git_ref": "c22786dfce8308bb7d48a177ccb1b109843262b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007.json",
+      "bytes": 31855,
+      "sha256": "f4cd659e42b8db8000a918f528d231cab1e8e70f95dd598d645e45acdc2d6fc5",
+      "git_blob": "de88da9f324d9657fe6feb28210f3c2419ce715a",
+      "tree": "2a13485d2b198b51643f78929a15d920b58e8e86",
+      "code_candidate_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "code_candidate_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+      "role": "Complete failed immutable installed checkpoint: each130PASS32GraphFAIL/0ERROR0SKIP; API2/FIT53/ECO28 passed unchanged. Full warnings/harness mistakes/decoded raw/source custody retained; no closure or final-candidate PASS."
+    },
+    {
+      "lane": "Catalog-resource",
+      "git_ref": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007.json",
+      "bytes": 102004,
+      "sha256": "8b7754451abfbfe2c78fcd261de84ebe8b3de1c373a8f23d7561c8b9c71b75af",
+      "git_blob": "62e24ee89c64ab756a8f5e914d44e0c4983e1f50",
+      "tree": "aa83a73a8b27785adc761898aa23d3ec85e83078",
+      "code_candidate_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "code_candidate_tree": "cc4c47d1c12fd3174b546d9622a0878d3b88361d",
+      "role": "Full immutable deciding component outputs; evidence carrier distinct from measured product source; no G acceptance"
+    },
+    {
+      "lane": "Installed-resource-forward",
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007.json",
+      "bytes": 47204,
+      "sha256": "d4cef17e72100250f5162b3642654882f1864c576e895ca8903b7b4f24e66f05",
+      "git_blob": "aede76d8e164702cab5b4d1da3a3aa3b0ef57b77",
+      "tree": "a4fad43369eb6ca56514591e27f70fb9033df4a5",
+      "code_candidate_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "code_candidate_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "role": "Full immutable deciding component outputs; evidence carrier distinct from measured product source; no G acceptance"
+    },
+    {
+      "lane": "Installed-recovered-fresh-child",
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007.json",
+      "bytes": 20686,
+      "sha256": "90dc84a5d1cc424cd9768937693fe8e32267f2a4a1b1b8a78151ce03c35bff88",
+      "git_blob": "2d3922dced9ea826c6c626f0a0e9d5b6fb8a36ea",
+      "tree": "8bb4badcc750f47833b402c32a5879f9bb7d59d7",
+      "code_candidate_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "code_candidate_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "role": "Actual graph ONEwheel registered MethodJob→Node→selectedCAS→different-PID isolated child; complete independent recovery review/guards, old unknown attempt UNRUN; no sdist-child or authority positive."
+    },
+    {
+      "lane": "Graph-profile-and-focused-companions",
+      "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+      "bytes": 38873,
+      "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+      "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e",
+      "code_candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "code_candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+      "role": "New property/consumer and companion proof, not new finding ID or G acceptance"
+    },
+    {
+      "lane": "Canonical-graph-profile-receipt",
+      "git_ref": "248497d27aa7951492c9a6d12c3c3493f3c246ec",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+      "bytes": 71398,
+      "sha256": "889decd43e053de5c5c13a16bd5f38d49b4065907f92942cd40538ee58386ae5",
+      "git_blob": "01d6d2d1b662971e5534c3b7cebfcfd15812fb4a",
+      "code_candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "code_candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+      "role": "HANDOFF minimal schema/check/property canonical aliases; old source/output bytes and custom receipt remain historical"
+    }
+  ],
+  "current_intake_followup": "Exact graph647 current selected CAS/manifest/body/result and composition basis recomputation fixes measured stale/fake/ref/endpoint/current certificate escape. This bounded delta does not establish original general sound partial/conditional extension capability.",
+  "focused_continuation": {
+    "source": {
+      "sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+      "base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "not_a_transfer_of_old_numerical_waves": true
+    },
+    "receipt": {
+      "git_ref": "248497d27aa7951492c9a6d12c3c3493f3c246ec",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+      "bytes": 71398,
+      "sha256": "889decd43e053de5c5c13a16bd5f38d49b4065907f92942cd40538ee58386ae5",
+      "git_blob": "01d6d2d1b662971e5534c3b7cebfcfd15812fb4a"
+    },
+    "implementation": "36b18cc142aff77a5825126b4f07bafec09a5180",
+    "check": "PASS",
+    "consumer": "Scored real build_mgraph → registered job → direct/supplied/selected-CAS ReconcileCausalGraphNode; same-shape ADMG → CAS → different-PID reader",
+    "result": "Declared DAG/ADMG family admission now precedes confidence/rewrites/persistence. MGraph/PAG/CPDAG refuse without publishing reconciled graph; original MGraph remains readable; ADMG/DAG/reverse positives preserved.",
+    "oracle_negative": "Actual missingness extractor and graph-family identity; independent guard removal2behavioralFAIL/5positivePASS, installed removal1FAIL;62native+16installedPASS and real fresh-child readback.",
+    "limitation": "Reconciliation-only family invariant. Broad sound partial/conditional extension and authority projection remainlimited; A/C/F tracked family/output contract and query whose effects differ across admissible completions are the trigger. No new general ID engine.",
+    "code_ready": true,
+    "G_new_code_acceptance": "not_issued",
+    "G_formal_finding_closure": "not_issued",
+    "no_original_criterion_rebinding": true,
+    "previous_custom_receipt": {
+      "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+      "bytes": 38873,
+      "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+      "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e"
+    },
+    "canonical_handoff_fields_review": "Forward receipt-only correction; no runtime/source/native outcome changes"
+  },
+  "profile_consistency_followup": {
+    "source": {
+      "sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+      "base_sha": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+      "base_tree": "c9dcc58e520cb2c161c85a74e8a2161c32a7276f",
+      "role": "New bounded graph consistency/report delta; original scientific component and historical receipts retain their own sources"
+    },
+    "canonical_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/profile-consistency-20261007.json",
+      "role": "Committed current handoff companion binds complete commands/outputs; source identity is the implementation candidate, not a receipt carrier or a future self-SHA"
+    },
+    "G_dependency": {
+      "sha": "2abc17f46a033a7879663486ff9946a95786601f",
+      "tree": "375301dd0c86a6168f4f747d8c56d9e0acb9567c",
+      "role": "Fetched review dependency only; not G source acceptance"
+    },
+    "property_check": "PASS",
+    "properties": [
+      "The shared reconciliation boundary refuses a supplied known MGraph metadata contract under declared DAG/ADMG before confidence filtering, rewrites, cache reuse or graph publication; unsupported types/marks/lags remain refused.",
+      "Requested PAG reconciliation preserves the PAG and emits an explicit not-applied/unsupported-profile warning and report metadata; no request emits no invented reconciliation warning."
+    ],
+    "actual_chains": [
+      "Genuine build_mgraph with synthetic DATA confidence0.9 for cutoff -> schema-valid retagged ADMG dict/JSON -> registered MethodJob/direct/supplied/current-selected ReconcileCausalGraphNode -> no reconciled artifact; original MGraph remains readable. A valid retagged DAG is exercised by the actual ComposeSCMFragments sibling; direct/Node DAG cases use malformed reserved-profile claims. Clean same-node-name/edge ADMG -> actual job/Node -> CAS -> fresh reader remains supported.",
+      "UnifiedCausalDiscovery.pure_step -> existing DiscoveryPipelineReport canonical discovery_pipeline_report slot and same-object legacy report alias -> actual registered MethodJob/CAS -> typed report reader and distinct-process fresh CAS reader -> requested prior/hint warning+metadata preserved; no-request control remains clean."
+    ],
+    "deciding_checks": {
+      "affected_native": {
+        "result": "PASS",
+        "cases": 38
+      },
+      "independent_graph": {
+        "result": "PASS",
+        "registered_jobs_refused": 2,
+        "Node_intake_cutoff_cases_refused": 10,
+        "clean_ADMG_actual_job_Node_fresh_CAS_reader": "PASS"
+      },
+      "independent_report": {
+        "result": "PASS",
+        "actual_MethodJob_CAS_cases": 3,
+        "distinct_process_reader_cases": 3
+      },
+      "affected_installed_wheel": {
+        "result": "PASS",
+        "cases": 17,
+        "separate_child_reader": "PASS",
+        "warnings": "One retained PytestUnknownMarkWarning in isolated harness; no blanket pytest/quality PASS"
+      },
+      "retained_marker_graph_removal": {
+        "raw_result": "FAIL",
+        "expected": true,
+        "actual_erroneous_job_admissions": 2,
+        "actual_Node_graph_publications": 8,
+        "failed_assertions_total": 12,
+        "selected_only_basis_diagnostics": 2,
+        "clean_positive_retained": true
+      },
+      "retained_marker_report_removal": {
+        "raw_result": "FAIL",
+        "expected": true,
+        "failed_cases": 2,
+        "positive_cases_passed": 1
+      },
+      "retained_marker_installed_removal": {
+        "raw_result": "FAIL",
+        "expected": true,
+        "failed_cases": 1
+      },
+      "scoped_quality": {
+        "release_fragment_cases_PASS": 5,
+        "Ruff_changed_Python_files_PASS": 6,
+        "format_changed_Python_files_PASS": 6
+      }
+    },
+    "historical_control_semantics_supersession": {
+      "source": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "historical_receipt_preserved": true,
+      "statement": "The earlier same-shape ADMG positive retained valid MGraph metadata. Its successful publication/fresh read established retagged-artifact persistence, not semantic supported-ADMG consistency. New clean ADMG control omits the reserved MGraph contract; retag-only known MGraph is now refused."
+    },
+    "predicate_basis": "recomputed",
+    "quality_and_execution_limits": {
+      "new_production_invocation": {
+        "check_state": "ERROR/incomplete",
+        "source": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+        "base": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+        "returncode": -9,
+        "wall_seconds": 172.8896110339847,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "completed_receipt": false,
+        "kill_reason": "unknown",
+        "configured_Python_input_counts_separately_enumerated": {
+          "base": 5958,
+          "candidate": 5959
+        },
+        "not_historical_519_scanner": true,
+        "P41": "not_established"
+      },
+      "new_rebuilt_sdist": "UNRUN",
+      "optional_Python3_14_DoWhy_EconML": "UNRUN",
+      "historical_quality": "Source519 scanner ERROR/-9, Ruff FAIL103, public-surface FAIL38 and P41 not_established remain on their exact inputs; no inherited-red attribution inferred."
+    },
+    "bounded_residual_and_falsifier": "Unknown metadata and missingness-looking node names are not classified. Same names/relations without the reserved typed profile pass the actual positive path. A broader source-grounded profile-inference/admission capability is absent from this bounded reconciliation contract; no general PAG/CPDAG completion, temporal identification or protected authority is asserted.",
+    "original_finding_recommendation": "limited",
+    "original_technical_recommendation": "limited",
+    "no_original_card_or_scientific_source_rebinding": true,
+    "code_ready": true,
+    "G_new_code_acceptance": "not_issued",
+    "G_formal_finding_closure": "not_issued",
+    "next_owner_and_result": "G reviews exact source852 and committed current receipt. A/C/F retain the deferred graph-family/conditional/partial-output and authority-projection contract, with a query whose effect differs across admissible completions. B56 remains a separate Runtime/Scientist shared admission/workload input task."
+  }
+}

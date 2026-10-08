@@ -1,0 +1,69 @@
+[
+  {
+    "name": "authored14-diff-check",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "3e5985076cee7e5dfa5627addc59d4aac6532a8a^",
+      "3e5985076cee7e5dfa5627addc59d4aac6532a8a"
+    ],
+    "exit_code": 0,
+    "diagnostic_location_count": 0,
+    "paths": [],
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "output_bytes": 0,
+    "raw_flagged_paths_present_in_transport": true
+  },
+  {
+    "name": "source10-diff-check",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d"
+    ],
+    "exit_code": 0,
+    "diagnostic_location_count": 0,
+    "paths": [],
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "output_bytes": 0,
+    "raw_flagged_paths_present_in_transport": true
+  },
+  {
+    "name": "allraw-ledger-diff-check",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "3e5985076cee7e5dfa5627addc59d4aac6532a8a"
+    ],
+    "exit_code": 2,
+    "diagnostic_location_count": 112,
+    "paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/api-review/combined4ee/combined.full.patch",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/api-review/combined4ee/graph-removed.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/cau/publication-http1.stderr",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/cau/publication-retry.stderr",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/economics-review/graph36-full.patch",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/economics-review/original-B204-0.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/economics-review/original-B212-0.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/economics-review/original-B213-0.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/economics-review/original-B214-0.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/economics-review/original-B218-0.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/economics-review/original-B56-0.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/foundry/layout-native.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/graph-review-prep/freshpid-first-attempt/freshpid-native.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/graph-review-prep/frozen36-full.patch",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/root/combined-implementation.full.patch",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/root/graph-implementation.full.patch",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/root/source-push.stderr",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/worker/frozen-4ee-native/wait4-replay/frozen-native.stdout.txt"
+    ],
+    "output_sha256": "59ccb4dd2083e7d2ef62c0cf2880eaadd4248c824cdbf4acffda8c5d609124ee",
+    "output_bytes": 19646,
+    "raw_flagged_paths_present_in_transport": true
+  }
+]

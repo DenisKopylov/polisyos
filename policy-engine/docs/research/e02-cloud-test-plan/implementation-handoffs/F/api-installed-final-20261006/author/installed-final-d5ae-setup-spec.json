@@ -1,0 +1,15 @@
+{
+  "source_root": "/workspace/e02-F-api-20261006",
+  "target_sha": "d5ae668fe6079bfa81bd7448aa911fa4bee4e03b",
+  "cwd": "/workspace",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "python3",
+    "/tmp/e02-F-continuation-20261006/api/setup_installed_final_wave_v2.py",
+    "/tmp/e02-F-continuation-20261006/api/installed-final-d5ae-config-input.json"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/installed-final-d5ae-setup",
+  "scope": "One source wheel+sdist+explicit rebuilt-sdist wheel and fresh two installed sites; native selected consumers UNRUN until separately launched."
+}

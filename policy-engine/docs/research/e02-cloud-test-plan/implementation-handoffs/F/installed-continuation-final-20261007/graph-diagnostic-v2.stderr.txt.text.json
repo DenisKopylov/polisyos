@@ -1,0 +1,6 @@
+{
+  "schema": "policyos.e02.lossless_utf8_text.v1",
+  "decoded_bytes": 523,
+  "decoded_sha256": "e639bfb5eaa44a541ffd8e798d32b7166072341b8f209ae4db288208b82f3526",
+  "text": "<frozen site>:101: RuntimeWarning: Unexpected value in sys.prefix, expected /tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env, got /tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-consumer/../wheel-env\n<frozen site>:101: RuntimeWarning: Unexpected value in sys.exec_prefix, expected /tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env, got /tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-consumer/../wheel-env\n"
+}

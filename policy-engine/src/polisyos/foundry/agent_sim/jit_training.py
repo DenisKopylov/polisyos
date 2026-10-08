@@ -64,6 +64,13 @@ class TrainingMetricsCarry(NamedTuple):
     metrics_step_counter: jnp.ndarray
 
 
+def _training_loss_dtype(
+    evaluate_loss: Callable[[jax.Array], jnp.ndarray], rng_key: jax.Array
+) -> jnp.dtype:
+    """Derive storage from the actual abstract rollout/PPO result, without draws."""
+    return jax.eval_shape(evaluate_loss, rng_key).dtype
+
+
 def create_jit_trainer(
     actor_critic: ActorCritic,
     executor_factory: Callable[[ActorCritic], PureExecutor],
@@ -214,12 +221,18 @@ def create_jit_trainer(
 
     def _train_loop(rng_key: jax.Array) -> tuple[object, jnp.ndarray]:
         opt_state = optimizer.init(params)
-        episode_losses = jnp.zeros((int(config.n_episodes),), dtype=jnp.float32)
+        loss_dtype = _training_loss_dtype(
+            lambda key: _ppo_update_jit(
+                params, opt_state, _collect_trajectory_jit(params, initial_state, key)[0]
+            )[2],
+            rng_key,
+        )
+        episode_losses = jnp.zeros((int(config.n_episodes),), dtype=loss_dtype)
         init_carry = TrainingCarry(
             params=params,
             opt_state=opt_state,
             rng_key=rng_key,
-            best_loss=jnp.array(jnp.inf, dtype=jnp.float32),
+            best_loss=jnp.array(jnp.inf, dtype=loss_dtype),
             episode_losses=episode_losses,
             metrics_collector=dummy_collector,
         )
@@ -462,12 +475,18 @@ def create_jit_trainer_with_metrics(
         rng_key: jax.Array,
     ) -> tuple[object, jnp.ndarray, MetricsBuffer, jnp.ndarray]:
         opt_state = optimizer.init(params)
-        episode_losses = jnp.zeros((int(config.n_episodes),), dtype=jnp.float32)
+        loss_dtype = _training_loss_dtype(
+            lambda key: _ppo_update_jit(
+                params, opt_state, _collect_trajectory_jit(params, initial_state, key)[0]
+            )[2],
+            rng_key,
+        )
+        episode_losses = jnp.zeros((int(config.n_episodes),), dtype=loss_dtype)
         init_carry = TrainingMetricsCarry(
             params=params,
             opt_state=opt_state,
             rng_key=rng_key,
-            best_loss=jnp.array(jnp.inf, dtype=jnp.float32),
+            best_loss=jnp.array(jnp.inf, dtype=loss_dtype),
             episode_losses=episode_losses,
             metrics_buffer=collector_template.buffer,
             metrics_step_counter=jnp.array(0, dtype=jnp.int32),

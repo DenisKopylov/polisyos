@@ -1,0 +1,21 @@
+{
+  "capabilities": [],
+  "connectivity": "connected",
+  "desired_phase": "running",
+  "environment_id": "ccarenv_b64_Y2NhcmVudl82MDQxNDkwM2MzMmM4MTkxYWIzNmE2MTRmNWRiNGZlMg",
+  "failure": null,
+  "network_policy": {
+    "mode": "unrestricted",
+    "state": "enforced"
+  },
+  "observations_current": true,
+  "observed_phase": "running",
+  "observed_spec_revision": "74",
+  "outbound_identities": [],
+  "provider": "cloud",
+  "runtime_variables": [],
+  "secrets": [],
+  "source_config_id": "a3c414f4-1444-4409-88b7-b3306d1e6a6f~cecfg_6ac24a8eab988194a41b3775d61e5d3e",
+  "source_config_version_id": "a3c414f4-1444-4409-88b7-b3306d1e6a6f~cecfgver_6ac2a17c61788194a84bf357feaf489a",
+  "spec_revision": "74"
+}

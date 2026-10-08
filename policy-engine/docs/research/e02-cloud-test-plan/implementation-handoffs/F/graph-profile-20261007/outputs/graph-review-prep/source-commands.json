@@ -1,0 +1,806 @@
+[
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/published-files.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 6528,
+    "stdout_sha256": "a3e84896a3fb6e924021a3914220b08e20e62bdf712723a523615f93da5568e9",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.stdout.txt"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 2626,
+    "stdout_sha256": "94d7cc9c55b92cebc55cce0c9df1996fd0e6f8f3243bdd51814031cd4124ff7e",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.stdout.txt"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "434a1e2e569b3ff755e597834d0e0afb7762ae1fb5f6bfd66113fc89f34323a2",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/report.md"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 3908,
+    "stdout_sha256": "bfacb9efca3b8963451fb8c8578af8908cc96753fdb37481b3542eb5f0f4ccd8",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/report.md"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "af4da8c0d5f89775d61d29c5608e48350deea99428de75d793055d93139113f5",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/deciding.stdout.txt"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 3050,
+    "stdout_sha256": "8160fecd4d7fa174c7a328b2970295a27d44c5e17ba830af72596c0417dd3197",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/deciding.stdout.txt"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "1a285a6825629e5a1332535a39e40d735c69276bc286656209de4face2f733d5",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/probe.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 23974,
+    "stdout_sha256": "5ce7244429ec1c6cf60507f5c4ef1b3059583ea3825aaa269c00dfc7b7f21bbc",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/probe.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "912006094dee06443686e7bfbcc9aca4628e3b78689e6882a0f2b7cb88ecf2d7",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.stderr.txt"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.stderr.txt"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "9ca990ad213db6735ea35d90b25433efd2e35300a1a42469eeed91c2d62ae235",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/run-native.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 2527,
+    "stdout_sha256": "840e32d15fdb762ebf0c68f5ddc1f2a90aca635822095212e517e3c6f045e0d6",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/run-native.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "017fb0ab2b69eb83b354ae0f695ba0838d0e2cdae6fec8e8d49e6b551a2308e5",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.execution.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 1248,
+    "stdout_sha256": "10b18c3a2e6c675d65dee40f8f6b8857b40d777421a39ac084637b317af3f27b",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.execution.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "12df6a81635a4b0860936794a5dd98caeebb6c5a009b432f437eaf84a45e7394",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/deciding.stderr.txt"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/deciding.stderr.txt"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "9ca990ad213db6735ea35d90b25433efd2e35300a1a42469eeed91c2d62ae235",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/preflight.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 3101,
+    "stdout_sha256": "a310c269d533902f4d1135321cca5273a472080be4787db486a83740e4254f1c",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/preflight.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "42df8cb7eec08059abf807599958e4aa3b910805b2b458893dbf8751cc146dde",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/execution.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 1346,
+    "stdout_sha256": "f020896b72787af5b409ca3e2e335b086b8e59fd38e70685f4502f87fd9e0d11",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/execution.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "357bedca22c7550e28996b404b44223a09a67e399f95f7d0443a4c64630b126e",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/receipt.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 26957,
+    "stdout_sha256": "97cbc9aba2cd526966b12de34be1494a0477b01f1063fdc11c301d9fc2476bbc",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/receipt.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "68d6297de35b51aabc03568219fd827e2f3b3e5a50b5efc6267d05458669f291",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/mgraph-target.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 10617,
+    "stdout_sha256": "6e99a3f2c30986008edf901527daac3fe8d63f2ef86f170dc11d8b5775652a6e",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/mgraph-target.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "46189fa391c4ba4877e43d876e242b29cf409d6266e90bffb8ee5408b7d44ac4",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/admg-control.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 6158,
+    "stdout_sha256": "47e47a5b9e6d81cce90c7703497993e19f92211eb2453adae1029d7d41f3c3cf",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/admg-control.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "48d20a2bcb09c7700fca2277dbc16c035f80480b0eae4710b812ec7c134a98b3",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/dag-control.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 4784,
+    "stdout_sha256": "d3728437b52fc566b936561fc071516d4a019486869069e40c8f7711f302c883",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/dag-control.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "e5a0d78a2cad7132ae4b98d3fb158851a3fffea78d64fc9e4487ddc77b412242",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/dag-control-request.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 1018,
+    "stdout_sha256": "79381e702c2893cf6d8ebedfa89c0742823a884a1782b512ae37f4f7e7a3cf78",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/dag-control-request.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "0c71123fe39032c000e4376b7ec11af2225c03a390cf2fb3251b89acf5f939ab",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-builder-unscored.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 2116,
+    "stdout_sha256": "b0340670241b67bfef2e0d7003e7aca289b472381bac88f24653daf4b637a71b",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-builder-unscored.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "3ea239551868124fa80e511b001ce13e091f2f6ed62f0fb5811b27f4391dd53c",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-target.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 2176,
+    "stdout_sha256": "9720406aeef3dc2f352764dc7ce0fdbba6bcebceb84c85fa03ed949396e7a17c",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-target.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "924577d11a42295a0d7d23a232f6d76ed433671493b1271336661d11729e5dda",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/admg-control-request.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 1537,
+    "stdout_sha256": "c00ee99fa7cb0cd1e9e18300aa740a29d8edfaee93c61e9f00af53339960d8ae",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/admg-control-request.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "909616ba2a8b6d12386a34e47c78a81ffe52ceacb9afffd2af40aeeeacfa6a2c",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-target-request.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 2569,
+    "stdout_sha256": "e7a18e9ab89845ef412ac35bb03645ea0316ecd1064bca66187be686b4608a96",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-target-request.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "e56db8280d162374ed8bf094b09b8a740d9bc6b646eac5506086119015311519",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-builder-arguments.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 696,
+    "stdout_sha256": "14b9630a497d41a356b8d70dea65dec13adb6a7a50050c5415d3acba23087823",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-builder-arguments.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "dd1559f4ba33f69e9dad14de2ad464afbf9e586ea1bbbc16190091ef1d6f66c1",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/admg-control.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 1236,
+    "stdout_sha256": "180ff927350ba499b90e712bc3cc9f4435420a70692fd3a795b9b7a6691c797f",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/admg-control.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "c082dc8b88621d74bc918fc9e2eebd90a0fc7021db39fd202d91e01bcf497d6c",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/dag-control.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 757,
+    "stdout_sha256": "1f2aad745173d5913678e20479f34f538c923bc1400c3197444fc111950e7291",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/dag-control.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "ccda4995b608d1efa77cfc9f10759cc263a6ffd467a9c5eb64e02b48cf2c0f64",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 62212,
+    "stdout_sha256": "559af61ee42f294bf28fe71beca620c9ce4091bcc2ffdc38c611f3a8da83ee44",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "389893778a7ccfa8b04f26d3a963bd453f74ec9e9f5fca4a7500dfbe689a6de5",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82:policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "389893778a7ccfa8b04f26d3a963bd453f74ec9e9f5fca4a7500dfbe689a6de5",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 48349,
+    "stdout_sha256": "4696b3597bf23b6dab8d3170cd846151d8c6d78b5c52d8dcc21a2d54aebe1253",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "201be959b83f3f877cdafea865523b8e1a49dee1a57f9cad3ebef1de643ca2bb",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82:policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "201be959b83f3f877cdafea865523b8e1a49dee1a57f9cad3ebef1de643ca2bb",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 20654,
+    "stdout_sha256": "431b0c00ddbc0c33720c1b5ee61b85493a3c4bb1759e1487d2cbe5b016456dc7",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "2414aae0eb75ffa3b9d4d50d1ca1859f61054c033e1941a9853dcc90ef8ccaa3",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82:policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "2414aae0eb75ffa3b9d4d50d1ca1859f61054c033e1941a9853dcc90ef8ccaa3",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/ir/analytics/mgraph.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 11577,
+    "stdout_sha256": "f2133e1fd2ee8abaa99154cc70032a700c55869e2c71976cc63a012c8db60497",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/ir/analytics/mgraph.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "8f9af499300c7181d4b59c844efd16f353cc97cb296c045f966d0290229899c6",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82:policy-engine/src/polisyos/ir/analytics/mgraph.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "8f9af499300c7181d4b59c844efd16f353cc97cb296c045f966d0290229899c6",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 89157,
+    "stdout_sha256": "250497e0024481a5bdc4e0b941fb31e57eaeb841702164490874f3978a3134c1",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "7716422bd4d9c2bf68fc58b0ba6dd7e89aa99d377d6d9939e1c326991d062b41",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82:policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "7716422bd4d9c2bf68fc58b0ba6dd7e89aa99d377d6d9939e1c326991d062b41",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41585,
+    "stdout_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "250290a9a500b36859bee6e956e9ce848d3e8bd693218fe82e1577032aad145a",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82:policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "250290a9a500b36859bee6e956e9ce848d3e8bd693218fe82e1577032aad145a",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B214.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 26943,
+    "stdout_sha256": "0e14cf984e41da503c7e184d62aaeb0396483ea4e1c75cc594c44f0d4b4a3cd7",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B214.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 41,
+    "stdout_sha256": "d7cd7bcb9d3b387d939e2a6075d061048ff20a115d90ddc098550e6fad623591",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "198076863e143dea9f89f02734b13d50dae3eed5:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 1336380,
+    "stdout_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit": 0,
+    "stdout_bytes": 9504,
+    "stdout_sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+    "stderr": ""
+  }
+]

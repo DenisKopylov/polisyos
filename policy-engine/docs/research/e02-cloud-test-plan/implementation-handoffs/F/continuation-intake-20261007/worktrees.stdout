@@ -1,0 +1,100 @@
+worktree /workspace/polisyos
+HEAD 0a4b9cd48068454bb8ce95b5ae69bf5c323ee924
+branch refs/heads/work
+
+worktree /workspace/e02-F-api-20261006
+HEAD 90c72b51155321684c788cd5a03fbb70fc001d53
+branch refs/heads/codex/e02-F-api-20261006
+
+worktree /workspace/e02-F-base-control
+HEAD c40d4acae1ce58b597267255026d9356565828fd
+branch refs/heads/codex/e02-F-base-control
+
+worktree /workspace/e02-F-cau
+HEAD 08aaccebfce37aa652ff243fce8037ff48020807
+branch refs/heads/codex/e02-F-cau
+
+worktree /workspace/e02-F-cau-20261006
+HEAD f88c98a190c336ef414361a236276ed7ea6d3d62
+branch refs/heads/codex/e02-F-cau-20261006
+
+worktree /workspace/e02-F-causal-api
+HEAD 0b6d872d8a681b1725abb5e2e3f57f9668e31c69
+branch refs/heads/codex/e02-F-causal-api
+
+worktree /workspace/e02-F-causal-output
+HEAD 9a952415bb988e6ff79983fa9ef782ac28f2e672
+branch refs/heads/codex/e02-F-causal-output
+
+worktree /workspace/e02-F-closeout-20261006
+HEAD 072d45a56d1119fe3e7665cec2cbbdca015d2934
+branch refs/heads/codex/e02-F-closeout-20261006
+
+worktree /workspace/e02-F-dowhy-20261006
+HEAD c8c2319d6c48f23f90103322da8cd63bc959da6f
+branch refs/heads/codex/e02-F-dowhy-20261006
+
+worktree /workspace/e02-F-economic-dtype
+HEAD bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42
+branch refs/heads/codex/e02-F-economic-dtype
+
+worktree /workspace/e02-F-economics
+HEAD e642bb9025a67739c201393acca5712603cb064d
+branch refs/heads/codex/e02-F-economics
+
+worktree /workspace/e02-F-economics-20261006
+HEAD 3912782bfd55cc87f76757310c32603ecbe58cc3
+branch refs/heads/codex/e02-F-economics-20261006
+
+worktree /workspace/e02-F-fit-tmle
+HEAD ef3f208db031671d9f0d5cefe1ffa68af0650f0a
+branch refs/heads/codex/e02-F-fit-tmle
+
+worktree /workspace/e02-F-foundry
+HEAD ea577ac3185829e066a39f51a8a2eae8f1bb5d43
+branch refs/heads/codex/e02-F-foundry
+
+worktree /workspace/e02-F-fry-20261006
+HEAD a2d55a1942e1f56f35cf2b9772ae56b0b46de95d
+branch refs/heads/codex/e02-F-fry-20261006
+
+worktree /workspace/e02-F-graph-20261006
+HEAD 46bbfa53adc8da775a08b66b80d02109cc5b2db8
+branch refs/heads/codex/e02-F-graph-20261006
+
+worktree /workspace/e02-F-graph-intake-20261006
+HEAD 2044260c39dc4988b37d5a1568b65a1cdb1e3d31
+branch refs/heads/codex/e02-F-graph-intake-20261006
+
+worktree /workspace/e02-F-graph-review-20261006
+HEAD 07beb7c2986770e1b9901f3061a4768251c5a154
+branch refs/heads/codex/e02-F-graph-review-20261006
+
+worktree /workspace/e02-F-graph-scm
+HEAD 85c16de9f16a4e21c05c516271b6c81e08b7a39f
+branch refs/heads/codex/e02-F-graph-scm
+
+worktree /workspace/e02-F-handoff-index
+HEAD f72e8fa6b7be831f8fda6f106c9d4f04572c4b69
+branch refs/heads/codex/e02-F-handoff-index
+
+worktree /workspace/e02-F-installed-worker-20261006
+HEAD 3dde887e22592cdd7c1fe8865707afdfd72dc6fb
+branch refs/heads/codex/e02-F-installed-worker-20261006
+
+worktree /workspace/e02-F-lex
+HEAD 3fab28d98997527b2a26d46fe4e16220e42383b7
+branch refs/heads/codex/e02-F-lex
+
+worktree /workspace/e02-F-lex-20261006
+HEAD 77166daa0ff8b9659e3978447f9016c691694266
+branch refs/heads/codex/e02-F-lex-20261006
+
+worktree /workspace/e02-F-rdd-20261006
+HEAD 15a04c4400497374416e167a5f61ebc12f61b8e4
+branch refs/heads/codex/e02-F-rdd-20261006
+
+worktree /workspace/e02-F-tmle-20261006
+HEAD d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a
+branch refs/heads/codex/e02-F-tmle-20261006
+

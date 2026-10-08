@@ -39,6 +39,44 @@ Package facade `polisyos.ir.analytics` намеренно уже, чем пол�
 | `polisyos.ir.analytics.StrategicSCM`, `StrategicResponseBundle`, `MeanFieldEquilibriumCertificate`     | Нужен strategic-response / performative-analysis surface, включая MFG certificates     | [`strategic.py`](./strategic.py)                             |
 | `polisyos.ir.analytics.DoWhyGraphBridge`, `EconMLDesignBridge`                                         | Нужны interoperability bridges в external causal toolchains                            | [`ecosystem_bridges.py`](./ecosystem_bridges.py)             |
 
+## Structural model schema compatibility
+
+`StructuralCausalModelSpec` defaults to schema 1.1, matching the selected GCM
+producer, schema snapshot and reflection catalog. A selected `fit_method="gcm"`
+model requires training rows and observed worker provenance; the schema version
+alone does not establish source custody or causal authority. The existing
+source-bound reader reopens the actual CAS source and validates that provenance.
+
+Current readers also accept schema 1.0. They retain 1.0 when a historical CAS
+manifest omits the payload version, rather than inheriting the new constructor
+default. Historical/manual fixtures should declare `schema_version="1.0"`
+explicitly when replaying that profile. Reading or rewriting them does not
+create selected worker provenance. Old 1.0 readers are not declared compatible
+with a new 1.1 producer.
+
+## Causal result interval semantics
+
+`CausalQueryResult` schema 1.2 and `TwinNetworkResult` schema 1.1 distinguish
+fixed-model outcome/ITE distributions from conditional Gaussian posterior
+credible intervals. Their historical `result_ci` / `ite_ci` fields carry central
+quantile spans; they do not assert estimator confidence intervals. The current
+shared uncertainty schema 1.1 represents ordinary distribution spans as a
+non-gating `HEURISTIC_RANGE`, and exact model posteriors as non-gating
+`CREDIBLE_INTERVAL`. This change does not ratify a new global uncertainty schema.
+
+`CausalEstimatorInterval` separately records iid-observation-row resampling,
+complete model refits, source/row/graph/target hashes, seeds, and replicate effect
+estimates. Its confidence interval describes approximate sampling inference for
+the fixed identified graph and declared iid law. Source custody and empirical
+causal identification require separate admission. Fresh CAS readers preserve the
+result kind; historical causal result schemas 1.0/1.1 and twin schema 1.0 remain
+decodable as limited distributions and cannot inherit old CI/gating markers.
+
+The public types `CausalResultKind` and `CausalEstimatorInterval` are available
+from both `polisyos.ir` and `polisyos.ir.analytics`.
+See [structural causal models](../../../../docs/reference/foundry/structural-causal-models.md)
+for selected backend, historical replay and refit-bootstrap limitations.
+
 ## Depends on / depended on by
 
 - Depends on: [`../artifacts/README.md`](../artifacts/README.md), [`../world/README.md`](../world/README.md), [`../observation/README.md`](../observation/README.md), `polisyos.ir.kernel`.

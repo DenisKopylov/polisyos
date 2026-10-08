@@ -1,0 +1,31 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____ test_mgraph_producer_and_node_refuse_without_retyping_or_publishing ______
+
+context = ExecutionContext(store=<polisyos.core.artifacts.store.FileSystemCAS object at 0x7f51f85cfa10>, run=RunContext(store=<p...one, memory=None, eval_safety_execution_context=None, eval_safety_verifier=None, epoch_certificate_issuance_owner=None)
+
+    def test_mgraph_producer_and_node_refuse_without_retyping_or_publishing(context):
+        """The actual missingness reader survives refusal of static reconciliation."""
+        source_graph = scored_mgraph()
+        original = persist_causal_graph_model(context.store, source_graph)
+        job, _ = produce(context, source_graph)
+        direct = ReconcileCausalGraphNode().execute(
+            context,
+            ExperimentState(
+                run_id="graph-content",
+                params={"data_causal_graph": source_graph.model_dump(mode="json")},
+            ),
+        )
+>       assert job.issues and job.method_result_ref is None, job
+E       AssertionError: JobResult(job_key=JobKey(value='job:3c5f3f351dbedf27d6c104081941cf3fd38256d1e0d5a6bdd0bf4656e7ce34ab'), state_delta_re...ues=[], warnings=['legacy_method_adapter_ref:sha256:c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771'])
+E       assert ([])
+E        +  where [] = JobResult(job_key=JobKey(value='job:3c5f3f351dbedf27d6c104081941cf3fd38256d1e0d5a6bdd0bf4656e7ce34ab'), state_delta_re...ues=[], warnings=['legacy_method_adapter_ref:sha256:c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771']).issues
+
+policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py:134: AssertionError
+---------------------------- Captured stdout setup -----------------------------
+2026-10-07 16:40:09 [info     ] method_registered              backend=numpy fqn=causal.prior.reconcile_causal_graph@1.0.0 lazy=False namespace=causal.prior override=True tags=['causal', 'estimation', 'prior', 'reconciliation', 'structural'] version=1.0.0
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 16:40:09 [debug    ] method_dispatch_start          backend=numpy fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 16:40:09 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=13.47 fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_mgraph_producer_and_node_refuse_without_retyping_or_publishing

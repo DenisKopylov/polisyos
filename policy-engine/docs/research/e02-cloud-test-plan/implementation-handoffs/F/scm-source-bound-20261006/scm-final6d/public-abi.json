@@ -1,0 +1,35 @@
+{
+  "source_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+  "source_tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/ir/test_root_facade_closeout.py",
+    "tests/unit/ir/test_schema_catalog.py",
+    "tests/unit/core/contracts/test_ir_ref_facades.py",
+    "tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "environment_overrides": {
+    "PYTHONPATH": "src:."
+  },
+  "started_utc": "2026-10-06T11:20:59.860674+00:00",
+  "wall_s": 22.76833506699768,
+  "exit": 0,
+  "outputs": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/public-abi.stdout.txt",
+      "bytes": 100,
+      "sha256": "20f34a55a47c74ee7cd82aec76211b73f81fd78d72d6a9f39b2d9de82c2bbee0"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/public-abi.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+[
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/workspace/e02-F-tmle-20261006",
+    "exit_code": 0,
+    "stdout": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-0.stdout.txt",
+    "stderr": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-0.stderr.txt"
+  },
+  {
+    "argv": [
+      "git",
+      "diff",
+      "--cached",
+      "--name-only",
+      "-z"
+    ],
+    "cwd": "/workspace/e02-F-tmle-20261006",
+    "exit_code": 0,
+    "stdout": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-1.stdout.txt",
+    "stderr": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-1.stderr.txt"
+  },
+  {
+    "argv": [
+      "git",
+      "ls-tree",
+      "-rz",
+      "47a2ff90186628afafa4c01ecf7158325b0026fc"
+    ],
+    "cwd": "/workspace/e02-F-tmle-20261006",
+    "exit_code": 0,
+    "stdout": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-2.stdout.txt",
+    "stderr": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-2.stderr.txt"
+  },
+  {
+    "argv": [
+      "git",
+      "add",
+      "-f",
+      "--pathspec-from-file=/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/target-paths.nul",
+      "--pathspec-file-nul"
+    ],
+    "cwd": "/workspace/e02-F-tmle-20261006",
+    "exit_code": 0,
+    "stdout": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-3.stdout.txt",
+    "stderr": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-3.stderr.txt"
+  },
+  {
+    "argv": [
+      "git",
+      "write-tree"
+    ],
+    "cwd": "/workspace/e02-F-tmle-20261006",
+    "exit_code": 0,
+    "stdout": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-4.stdout.txt",
+    "stderr": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-4.stderr.txt"
+  },
+  {
+    "argv": [
+      "git",
+      "commit",
+      "-F",
+      "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/recovery-commit-message.txt"
+    ],
+    "cwd": "/workspace/e02-F-tmle-20261006",
+    "exit_code": 0,
+    "stdout": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-5.stdout.txt",
+    "stderr": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-5.stderr.txt"
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/workspace/e02-F-tmle-20261006",
+    "exit_code": 0,
+    "stdout": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-6.stdout.txt",
+    "stderr": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-6.stderr.txt"
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD^{tree}"
+    ],
+    "cwd": "/workspace/e02-F-tmle-20261006",
+    "exit_code": 0,
+    "stdout": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-7.stdout.txt",
+    "stderr": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-7.stderr.txt"
+  },
+  {
+    "argv": [
+      "git",
+      "merge",
+      "--no-ff",
+      "--no-edit",
+      "47a2ff90186628afafa4c01ecf7158325b0026fc"
+    ],
+    "cwd": "/workspace/e02-F-tmle-20261006",
+    "exit_code": 0,
+    "stdout": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-8.stdout.txt",
+    "stderr": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-8.stderr.txt"
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/workspace/e02-F-tmle-20261006",
+    "exit_code": 0,
+    "stdout": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-9.stdout.txt",
+    "stderr": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-9.stderr.txt"
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD^{tree}"
+    ],
+    "cwd": "/workspace/e02-F-tmle-20261006",
+    "exit_code": 0,
+    "stdout": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-10.stdout.txt",
+    "stderr": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-10.stderr.txt"
+  },
+  {
+    "argv": [
+      "git",
+      "rev-list",
+      "--parents",
+      "-n",
+      "1",
+      "HEAD"
+    ],
+    "cwd": "/workspace/e02-F-tmle-20261006",
+    "exit_code": 0,
+    "stdout": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-11.stdout.txt",
+    "stderr": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-11.stderr.txt"
+  },
+  {
+    "argv": [
+      "git",
+      "status",
+      "--porcelain=v1",
+      "-uall"
+    ],
+    "cwd": "/workspace/e02-F-tmle-20261006",
+    "exit_code": 0,
+    "stdout": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-12.stdout.txt",
+    "stderr": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/finish-12.stderr.txt"
+  }
+]

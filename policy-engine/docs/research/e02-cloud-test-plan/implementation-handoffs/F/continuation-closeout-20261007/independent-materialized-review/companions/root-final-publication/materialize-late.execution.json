@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/materialize_late_transport_capture.py",
+    "--selection",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/late-refresh-validation-selection.json",
+    "--materialize",
+    "--destination",
+    "/workspace/e02-F-closeout-20261006"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006",
+  "environment_overrides": {},
+  "parent_receipt": "b300da2e134a67fbd6f585a21ab42286c356fe7e",
+  "elapsed_s": 0.049368858337402344,
+  "returncode": 0,
+  "outcome": "PASS",
+  "outputs": {
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/root-final-publication/materialize-late.stdout.txt",
+      "bytes": 1108,
+      "sha256": "4084140b886f51d25306ee0ef1de5b866c86da383f2bea6dc65e8835603b0115"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/root-final-publication/materialize-late.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "science_tests_run": false
+}

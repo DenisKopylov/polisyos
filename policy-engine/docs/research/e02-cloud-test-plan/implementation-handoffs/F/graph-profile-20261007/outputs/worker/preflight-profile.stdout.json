@@ -1,0 +1,16 @@
+{
+  "preflight_exits": [
+    {
+      "exit_code": 0,
+      "outcome": "PASS",
+      "interpreter_exists": true
+    },
+    {
+      "exit_code": 0,
+      "outcome": "PASS",
+      "interpreter_exists": true
+    }
+  ],
+  "profile_record": "/tmp/e02-F-graph-profile-20261007/worker/source-and-backend-preflight.json",
+  "native_status": "UNRUN; awaits exact frozen source/lane"
+}

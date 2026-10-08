@@ -1,0 +1,7 @@
+
+==================================== ERRORS ====================================
+_ ERROR collecting tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py _
+tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py::test_requested_pag_reconciliation_limitation_survives_method_cas_reader: 'request' is a reserved name and cannot be used in @pytest.mark.parametrize
+=========================== short test summary info ============================
+ERROR policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!

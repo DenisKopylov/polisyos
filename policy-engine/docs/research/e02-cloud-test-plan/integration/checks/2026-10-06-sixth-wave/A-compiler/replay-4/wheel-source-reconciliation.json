@@ -1,0 +1,9 @@
+{
+  "candidate": "577521c6651bba048d6bdfdc13f36a383c8146c6",
+  "wheel_sha256": "c1d20a264ced1691f0cdfdf89c5727bc152269a989be40ba352357d9abab8f27",
+  "python_entry_denominator": 3143,
+  "matched_candidate_git_blobs": 3143,
+  "unmatched_python_paths": [],
+  "predicate_basis": "independently_reconciled",
+  "scope": "all .py ZIP entries, matched to policy-engine/src or policy-engine/tools candidate Git blobs; does not establish production resolver admission"
+}

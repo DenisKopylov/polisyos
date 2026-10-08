@@ -1,0 +1,1490 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "family-layout-consumers-20261006",
+  "closure_ids": [
+    "LA-002",
+    "LA-037"
+  ],
+  "related_finding_ids": [
+    "LA-001",
+    "LA-002",
+    "LA-037"
+  ],
+  "bundle_ids": [
+    "FRY-01"
+  ],
+  "slice_base_sha": "ad8f0f7532022014c028d74d872c93fe3349d220",
+  "implementation_commits": [
+    "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+    "3e1819173f0593ce93d257c3c62cdb2fa627e426"
+  ],
+  "candidate_sha": "3e1819173f0593ce93d257c3c62cdb2fa627e426",
+  "candidate_tree_sha": "45852a68bb786a96d6d23c52cea790f13d3489d3",
+  "scientific_source_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+  "scientific_source_tree": "d1b9a51e9ac48bf79251a53a0478cad7305da41a",
+  "branch": "codex/e02-F-fry-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/60",
+  "changed_paths": [
+    "policy-engine/docs/reference/foundry/state.md",
+    "policy-engine/src/polisyos/foundry/methods/lifecycle/README.md",
+    "policy-engine/src/polisyos/foundry/methods/lifecycle/output_monitor.py",
+    "policy-engine/tests/unit/foundry/mechanisms/test_mechanism_design.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py"
+  ],
+  "mandatory_companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-frozen-checks.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-frozen-native.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-frozen-native.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-candidate.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-candidate.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-candidate-v2.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-candidate-v2.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-docs-backend.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-docs-backend.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-source-equivalence.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/layout-installed-equivalence.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/run_family_layout_checks.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family_layout_removal_replay.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/state-docs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/state-docs-reconciled.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/state-docs.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/state-docs.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/state-docs.yml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/build_state_docs.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-install-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-locked-requirements.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-venv.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-venv.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-install.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-install.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-pip-check.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-pip-check.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-equivalence.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-quality.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-ruff.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-ruff.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-format.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-format.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-diff.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-diff.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/verify_monitor_doc_companion.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-catalog_is_ic.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-catalog_is_ic.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-family_owner.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-family_owner.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-layout_paths.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-layout_paths.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/state-page.html.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/replay_review.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/layout_readback_removal.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/finish_review.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/native40.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/native40.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/native40.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/compiled1.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/compiled1.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/compiled1.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/negative3.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/negative3.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/negative3.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/evidence-custody-audit.json"
+  ],
+  "baseline_cells": [
+    "F08-P070",
+    "F14-P076"
+  ],
+  "baseline_caveat": "Baseline cells are source-reported historical observations, not positive witnesses for this candidate. New bounded generic native consumers use committed synthetic inputs.",
+  "checks": [
+    {
+      "name": "family-layout-frozen-native",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py",
+        "tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+        "tests/unit/foundry/mechanisms/test_mechanism_design.py",
+        "tests/unit/foundry/contracts/test_layout.py",
+        "tests/unit/foundry/compile/test_trinity_compiler.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261006/foundry/family-layout-frozen-tmp"
+      ],
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py tests/unit/foundry/methods/catalog/mechanism/test_families.py tests/unit/foundry/mechanisms/test_mechanism_design.py tests/unit/foundry/contracts/test_layout.py tests/unit/foundry/compile/test_trinity_compiler.py -o addopts= -q -ra --basetemp /tmp/e02-F-continuation-20261006/foundry/family-layout-frozen-tmp",
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "wall_seconds": 14.911826210998697,
+      "exit_code": 0,
+      "outcome": "PASS",
+      "expected_exit": 0,
+      "deciding_expectation_met": true,
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools",
+        "shared_venv_read_only": true
+      },
+      "input_closure": "Frozen source and committed synthetic migration consumers; no real data or authority admission.",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-frozen-native.stdout.txt",
+        "bytes": 99,
+        "sha256": "364bf2ceda7fac9cd1a8f3c782e2cdcdad38b0f8e69214486a3e19382a2cff1c"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-frozen-native.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-frozen-native.stdout.txt",
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-frozen-native.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-frozen-native.stderr.txt"
+      ]
+    },
+    {
+      "name": "family-removal-catalog_is_ic",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/family_layout_removal_replay.py",
+        "catalog_is_ic"
+      ],
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/family_layout_removal_replay.py catalog_is_ic",
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "wall_seconds": 12.27071597801114,
+      "exit_code": 1,
+      "outcome": "FAIL",
+      "expected_exit": 1,
+      "deciding_expectation_met": true,
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools",
+        "shared_venv_read_only": true
+      },
+      "input_closure": "Frozen source and committed synthetic migration consumers; no real data or authority admission.",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-catalog_is_ic.stdout.txt",
+        "bytes": 4061,
+        "sha256": "2946c9523db5acf2f8b2930214db5c8fd47053459febaf1219a119246e62d06e"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-catalog_is_ic.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-catalog_is_ic.stdout.txt",
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-catalog_is_ic.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-catalog_is_ic.stderr.txt"
+      ]
+    },
+    {
+      "name": "family-removal-family_owner",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/family_layout_removal_replay.py",
+        "family_owner"
+      ],
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/family_layout_removal_replay.py family_owner",
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "wall_seconds": 12.351280061993748,
+      "exit_code": 1,
+      "outcome": "FAIL",
+      "expected_exit": 1,
+      "deciding_expectation_met": true,
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools",
+        "shared_venv_read_only": true
+      },
+      "input_closure": "Frozen source and committed synthetic migration consumers; no real data or authority admission.",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-family_owner.stdout.txt",
+        "bytes": 4641,
+        "sha256": "6dc9bbc7d2b11478af72ea29ec0e9bd678f67a6bea0f3de4242460ab1bd38fc5"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-family_owner.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-family_owner.stdout.txt",
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-family_owner.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-family_owner.stderr.txt"
+      ]
+    },
+    {
+      "name": "family-removal-layout_paths",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/family_layout_removal_replay.py",
+        "layout_paths"
+      ],
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/family_layout_removal_replay.py layout_paths",
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "wall_seconds": 11.683231290997355,
+      "exit_code": 1,
+      "outcome": "FAIL",
+      "expected_exit": 1,
+      "deciding_expectation_met": true,
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools",
+        "shared_venv_read_only": true
+      },
+      "input_closure": "Frozen source and committed synthetic migration consumers; no real data or authority admission.",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-layout_paths.stdout.txt",
+        "bytes": 4783,
+        "sha256": "d0d463e8db769eae217723cc05bfc89cdf1e634d7bc71046392159d58b02d271"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-layout_paths.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-layout_paths.stdout.txt",
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-layout_paths.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-layout_paths.stderr.txt"
+      ]
+    },
+    {
+      "name": "family-layout-docs-backend",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "mkdocs",
+        "--version"
+      ],
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m mkdocs --version",
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "wall_seconds": 0.019784829011769034,
+      "exit_code": 1,
+      "outcome": "ERROR",
+      "expected_exit": 1,
+      "deciding_expectation_met": false,
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools",
+        "shared_venv_read_only": true
+      },
+      "input_closure": "Frozen source and committed synthetic migration consumers; no real data or authority admission.",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-docs-backend.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-docs-backend.stderr.txt",
+        "bytes": 90,
+        "sha256": "5e97e0b26312eba3d14f18e4f1f143e24d1006a552cb46877794b7e912132873"
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-docs-backend.stdout.txt",
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-docs-backend.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-docs-backend.stderr.txt"
+      ],
+      "interpretation": "Actual initial application-environment backend ERROR; later isolated real backend PASS is separate, not a skip-as-PASS."
+    },
+    {
+      "name": "actual maintained state page and three native API directives",
+      "command": "/tmp/e02-F-continuation-20261006/foundry/docs-venv/bin/python -m mkdocs build --config-file /tmp/e02-F-continuation-20261006/foundry/state-docs.yml --clean",
+      "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "environment": {
+        "interpreter": "/tmp/e02-F-continuation-20261006/foundry/docs-venv/bin/python",
+        "python": "Python 3.14.7",
+        "PYTHONPATH": "src:tools",
+        "installation_input": {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/docs-install-inputs.json",
+          "bytes": 1667,
+          "sha256": "9d7992801b01816bc2f5bd61e299822694b98fa1a0fdaffc7dfe0b896498fafc"
+        },
+        "shared_environment_mutated": false,
+        "cloud_quota_introduced": false
+      },
+      "input_closure": "One complete maintained state page and all its native API directives; repository MkDocs config/theme/plugin/Markdown options inherited without source stubs; only page/navigation scope narrowed.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 30.76476472200011,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/state-docs.stderr.txt",
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/state-docs.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/state-docs.stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/state-page.html.gz"
+      ],
+      "bounds": "Scoped page build, not strict full-project documentation/regression acceptance. All warnings retained in full stderr; no plugin/backend suppression or product import shim."
+    },
+    {
+      "command": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/bin/python -I /workspace/e02-F-20261006-receipts/installed-latest/compatibility_launch.py wheel",
+      "target_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/independent/fit/wheel-compatibility.stdout.txt",
+      "output_sha256": "5191d6133ab7e753c5e9bd151bbe5a2085b668dafb433a376dd1232b1ee95b7b",
+      "output_bytes": 144237,
+      "observed_census_lines": [
+        "13 passed in 5.78s"
+      ],
+      "custody": "Complete deciding output already committed at original_installed_receipt.git_sha:output. Reference/hash only; no redundant copy.",
+      "environment": "Application Python3.14.7 owned wheel/rebuilt-sdist product site under -I; literal read-only shared third-party .pth. Actual configured Python3.12.14/DoWhy0.14 worker environment unchanged/read-only; installed canonical six profile assets execute. No PYTHONPATH source fallback.",
+      "input_closure": "Reconciled exact byte-identical native IR layout owner and two direct wrappers only. Fresh isolated installed own product/API and four independentB220 controls; complete3146 actual Python Git/archive/bothinstalled bytes and2917 resource/product byte proof; no source fallback or productasset mutation.",
+      "output_git_sha": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb"
+    },
+    {
+      "command": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env/bin/python -I /workspace/e02-F-20261006-receipts/installed-latest/compatibility_launch.py sdist",
+      "target_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/independent/fit/sdist-compatibility.stdout.txt",
+      "output_sha256": "2ed8d20b54410462f00badbdb875c5269f432afa97c676ff4bb1936a60c1dd5c",
+      "output_bytes": 144237,
+      "observed_census_lines": [
+        "13 passed in 5.70s"
+      ],
+      "custody": "Complete deciding output already committed at original_installed_receipt.git_sha:output. Reference/hash only; no redundant copy.",
+      "environment": "Application Python3.14.7 owned wheel/rebuilt-sdist product site under -I; literal read-only shared third-party .pth. Actual configured Python3.12.14/DoWhy0.14 worker environment unchanged/read-only; installed canonical six profile assets execute. No PYTHONPATH source fallback.",
+      "input_closure": "Reconciled exact byte-identical native IR layout owner and two direct wrappers only. Fresh isolated installed own product/API and four independentB220 controls; complete3146 actual Python Git/archive/bothinstalled bytes and2917 resource/product byte proof; no source fallback or productasset mutation.",
+      "output_git_sha": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb"
+    },
+    {
+      "name": "independent_native40",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py tests/unit/foundry/methods/catalog/mechanism/test_families.py tests/unit/foundry/mechanisms/test_mechanism_design.py tests/unit/foundry/contracts/test_layout.py tests/unit/foundry/compile/test_trinity_compiler.py -o addopts= -q -ra -o cache_dir=/tmp/e02-F-continuation-20261006/fit-fry-review/native40-cache --basetemp /tmp/e02-F-continuation-20261006/fit-fry-review/native40-tmp",
+      "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+        "overrides": {
+          "PYTHONPATH": "src:tools"
+        },
+        "packages": {
+          "pytest": "9.0.2",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "numpy": "2.3.5",
+          "pydantic": "2.12.5"
+        },
+        "quota_introduced": false
+      },
+      "input_closure": [
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "2bac1cc0f59c236419bc41a199844677872bc664",
+          "bytes": 11681,
+          "sha256": "3abfcab5247de83372f956d0974a86a12c3d2cf30826cbcbc6821bd78fc00555"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "a76ec31da00b706e251a43e72d0b4a4ba58b09f3",
+          "bytes": 8646,
+          "sha256": "e8a26613978c76c52c8deeff620f82b81a9b033f5d2661baed7d5d78df4f4092"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/mechanisms/test_mechanism_design.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "02f1dc19ff01ca6edb7aa8652bab9ff9558bc3de",
+          "bytes": 947,
+          "sha256": "7f9cfc895b5abad2df04e9a53289e1a353b8ffbafb0e75b3ce4c373ed14144a9"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "ecab027e577267ffd680d96b816bee31352f922e",
+          "bytes": 4626,
+          "sha256": "475e5f0d195c9facbfbc56feef13b9cf385ec734de6b5b6a1b0beb8e5c5b1901"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/compile/test_trinity_compiler.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "e853b6ecd7dae25148f9a526b3029aa0aeb705cd",
+          "bytes": 16866,
+          "sha256": "d8da13a8a19f53f4357456ef6c4da09060c900a910ba8f4d1712776e2ded1e37"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "1cf28e384f09f6e9a3224b776d54f6588b8d19f2",
+          "bytes": 8018,
+          "sha256": "867f43def30b6a27fd780718ca502c69f7c617246f160b09e827dfff8928f5be"
+        },
+        {
+          "path": "policy-engine/docs/reference/foundry/state.md",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "4285201b5ecfa2d4e4b207bd61dd80e84d4f2b9f",
+          "bytes": 4810,
+          "sha256": "008b08d202406a570cc837a2c6f78c6f68bedcefb59057b7d0cdd269ba3a90a9"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/families.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "82b0dfa3b8b1bc34e038f37e567562f8bed2c6d0",
+          "bytes": 3839,
+          "sha256": "f2d93bcbf6af0623f2d3b7290cb6dddcf3b776ef235ee37072fb26e3686cd019"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/mechanisms/design.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "a00264c882eef6ce1e01db271454fb36371b07a1",
+          "bytes": 742,
+          "sha256": "40d35c0a867710d15a9b447370da4eda1be211eb6fc4336067f1160fc2b3f25e"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/mechanism_design.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "c4f27c281dad325194cfe7c458fe396b13ae5a5e",
+          "bytes": 30226,
+          "sha256": "40a58363f5b019c0b01153872c9f784fcc19909692e1b40c3a84a8c691cd8123"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/validation/verification/ic/service.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "c248f5e1c7fa1ec91aafbf3fef960a335d85580d",
+          "bytes": 87657,
+          "sha256": "8c29a0639c5ccadefd69cda575e690bbb846bc3a770dcd0f2345ef9df049497d"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/kernel/slots.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "1d656cc5b6643f6378f8dc54f4cc4272895cb6b8",
+          "bytes": 18445,
+          "sha256": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/layout.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "a48ecff22baec80ddaf8d2939417f48086a00555",
+          "bytes": 350,
+          "sha256": "fb528428135bf40ddf36336bbdac7043b049d4ef9bf7e954ada1c9727100a69b"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/compiler/layout.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "a732c7945a25c09de05ee0a7be8f1a8ec8c90fe3",
+          "bytes": 220,
+          "sha256": "d0f981b9d24ed767107a9238f5bc9a16c6f5b45ed533a01adf0c35e52cd6f1b7"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/runtime.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "5c107ad0fd66811c0702e1a808eb31b2c62561f0",
+          "bytes": 21006,
+          "sha256": "f2c622c699f85375925582d2d66ff683f40d3a925834f4ed523b2203d3ac8a23"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/compile/trinity_compiler.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "d80a17cd92b0127b85abd4e48bb4ed271283efae",
+          "bytes": 17693,
+          "sha256": "7608e9476321519fe9f8a024dc483caf909d97cefb185a7ec491fc21651bbe07"
+        }
+      ],
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 13.049323140992783,
+      "counts": {
+        "passed": 40,
+        "failed": 0,
+        "skipped": 0,
+        "warnings": 0,
+        "errors": 0
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/native40.stdout.txt",
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/native40.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/native40.stderr.txt"
+      ],
+      "scope": "Original LA002 family/certificate/runtime loading and LA037 layout/callers/compiler output bounded migration contract; no admitted real-data/global IC/unknown external retirement claim."
+    },
+    {
+      "name": "real_compile_scientist_cas_freshreader",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_native_compile_artifacts_survive_scientist_consumer_and_cas_reopen -o addopts= -q -ra -o cache_dir=/tmp/e02-F-continuation-20261006/fit-fry-review/compiled1-cache --basetemp /tmp/e02-F-continuation-20261006/fit-fry-review/compiled1-tmp",
+      "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+        "overrides": {
+          "PYTHONPATH": "src:tools"
+        },
+        "packages": {
+          "pytest": "9.0.2",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "numpy": "2.3.5",
+          "pydantic": "2.12.5"
+        },
+        "quota_introduced": false
+      },
+      "input_closure": [
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "2bac1cc0f59c236419bc41a199844677872bc664",
+          "bytes": 11681,
+          "sha256": "3abfcab5247de83372f956d0974a86a12c3d2cf30826cbcbc6821bd78fc00555"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "a76ec31da00b706e251a43e72d0b4a4ba58b09f3",
+          "bytes": 8646,
+          "sha256": "e8a26613978c76c52c8deeff620f82b81a9b033f5d2661baed7d5d78df4f4092"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/mechanisms/test_mechanism_design.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "02f1dc19ff01ca6edb7aa8652bab9ff9558bc3de",
+          "bytes": 947,
+          "sha256": "7f9cfc895b5abad2df04e9a53289e1a353b8ffbafb0e75b3ce4c373ed14144a9"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "ecab027e577267ffd680d96b816bee31352f922e",
+          "bytes": 4626,
+          "sha256": "475e5f0d195c9facbfbc56feef13b9cf385ec734de6b5b6a1b0beb8e5c5b1901"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/compile/test_trinity_compiler.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "e853b6ecd7dae25148f9a526b3029aa0aeb705cd",
+          "bytes": 16866,
+          "sha256": "d8da13a8a19f53f4357456ef6c4da09060c900a910ba8f4d1712776e2ded1e37"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "1cf28e384f09f6e9a3224b776d54f6588b8d19f2",
+          "bytes": 8018,
+          "sha256": "867f43def30b6a27fd780718ca502c69f7c617246f160b09e827dfff8928f5be"
+        },
+        {
+          "path": "policy-engine/docs/reference/foundry/state.md",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "4285201b5ecfa2d4e4b207bd61dd80e84d4f2b9f",
+          "bytes": 4810,
+          "sha256": "008b08d202406a570cc837a2c6f78c6f68bedcefb59057b7d0cdd269ba3a90a9"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/families.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "82b0dfa3b8b1bc34e038f37e567562f8bed2c6d0",
+          "bytes": 3839,
+          "sha256": "f2d93bcbf6af0623f2d3b7290cb6dddcf3b776ef235ee37072fb26e3686cd019"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/mechanisms/design.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "a00264c882eef6ce1e01db271454fb36371b07a1",
+          "bytes": 742,
+          "sha256": "40d35c0a867710d15a9b447370da4eda1be211eb6fc4336067f1160fc2b3f25e"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/mechanism_design.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "c4f27c281dad325194cfe7c458fe396b13ae5a5e",
+          "bytes": 30226,
+          "sha256": "40a58363f5b019c0b01153872c9f784fcc19909692e1b40c3a84a8c691cd8123"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/validation/verification/ic/service.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "c248f5e1c7fa1ec91aafbf3fef960a335d85580d",
+          "bytes": 87657,
+          "sha256": "8c29a0639c5ccadefd69cda575e690bbb846bc3a770dcd0f2345ef9df049497d"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/kernel/slots.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "1d656cc5b6643f6378f8dc54f4cc4272895cb6b8",
+          "bytes": 18445,
+          "sha256": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/layout.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "a48ecff22baec80ddaf8d2939417f48086a00555",
+          "bytes": 350,
+          "sha256": "fb528428135bf40ddf36336bbdac7043b049d4ef9bf7e954ada1c9727100a69b"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/compiler/layout.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "a732c7945a25c09de05ee0a7be8f1a8ec8c90fe3",
+          "bytes": 220,
+          "sha256": "d0f981b9d24ed767107a9238f5bc9a16c6f5b45ed533a01adf0c35e52cd6f1b7"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/runtime.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "5c107ad0fd66811c0702e1a808eb31b2c62561f0",
+          "bytes": 21006,
+          "sha256": "f2c622c699f85375925582d2d66ff683f40d3a925834f4ed523b2203d3ac8a23"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/compile/trinity_compiler.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "d80a17cd92b0127b85abd4e48bb4ed271283efae",
+          "bytes": 17693,
+          "sha256": "7608e9476321519fe9f8a024dc483caf909d97cefb185a7ec491fc21651bbe07"
+        }
+      ],
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 10.959506163999322,
+      "counts": {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "warnings": 0,
+        "errors": 0
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/compiled1.stdout.txt",
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/compiled1.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/compiled1.stderr.txt"
+      ],
+      "scope": "Original LA002 family/certificate/runtime loading and LA037 layout/callers/compiler output bounded migration contract; no admitted real-data/global IC/unknown external retirement claim."
+    },
+    {
+      "name": "layout_path_corruption_after_real_cas",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py::test_native_registered_income_tax_patches_consume_layout_and_fresh_state -o addopts= -q -ra -o cache_dir=/tmp/e02-F-continuation-20261006/fit-fry-review/negative3-cache --basetemp /tmp/e02-F-continuation-20261006/fit-fry-review/negative3-tmp -p layout_readback_removal",
+      "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+        "overrides": {
+          "PYTHONPATH": "/tmp/e02-F-continuation-20261006/fit-fry-review:src:tools"
+        },
+        "packages": {
+          "pytest": "9.0.2",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "numpy": "2.3.5",
+          "pydantic": "2.12.5"
+        },
+        "quota_introduced": false
+      },
+      "input_closure": [
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "2bac1cc0f59c236419bc41a199844677872bc664",
+          "bytes": 11681,
+          "sha256": "3abfcab5247de83372f956d0974a86a12c3d2cf30826cbcbc6821bd78fc00555"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "a76ec31da00b706e251a43e72d0b4a4ba58b09f3",
+          "bytes": 8646,
+          "sha256": "e8a26613978c76c52c8deeff620f82b81a9b033f5d2661baed7d5d78df4f4092"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/mechanisms/test_mechanism_design.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "02f1dc19ff01ca6edb7aa8652bab9ff9558bc3de",
+          "bytes": 947,
+          "sha256": "7f9cfc895b5abad2df04e9a53289e1a353b8ffbafb0e75b3ce4c373ed14144a9"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "ecab027e577267ffd680d96b816bee31352f922e",
+          "bytes": 4626,
+          "sha256": "475e5f0d195c9facbfbc56feef13b9cf385ec734de6b5b6a1b0beb8e5c5b1901"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/compile/test_trinity_compiler.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "e853b6ecd7dae25148f9a526b3029aa0aeb705cd",
+          "bytes": 16866,
+          "sha256": "d8da13a8a19f53f4357456ef6c4da09060c900a910ba8f4d1712776e2ded1e37"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "1cf28e384f09f6e9a3224b776d54f6588b8d19f2",
+          "bytes": 8018,
+          "sha256": "867f43def30b6a27fd780718ca502c69f7c617246f160b09e827dfff8928f5be"
+        },
+        {
+          "path": "policy-engine/docs/reference/foundry/state.md",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "4285201b5ecfa2d4e4b207bd61dd80e84d4f2b9f",
+          "bytes": 4810,
+          "sha256": "008b08d202406a570cc837a2c6f78c6f68bedcefb59057b7d0cdd269ba3a90a9"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/families.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "82b0dfa3b8b1bc34e038f37e567562f8bed2c6d0",
+          "bytes": 3839,
+          "sha256": "f2d93bcbf6af0623f2d3b7290cb6dddcf3b776ef235ee37072fb26e3686cd019"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/mechanisms/design.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "a00264c882eef6ce1e01db271454fb36371b07a1",
+          "bytes": 742,
+          "sha256": "40d35c0a867710d15a9b447370da4eda1be211eb6fc4336067f1160fc2b3f25e"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/mechanism_design.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "c4f27c281dad325194cfe7c458fe396b13ae5a5e",
+          "bytes": 30226,
+          "sha256": "40a58363f5b019c0b01153872c9f784fcc19909692e1b40c3a84a8c691cd8123"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/validation/verification/ic/service.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "c248f5e1c7fa1ec91aafbf3fef960a335d85580d",
+          "bytes": 87657,
+          "sha256": "8c29a0639c5ccadefd69cda575e690bbb846bc3a770dcd0f2345ef9df049497d"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/kernel/slots.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "1d656cc5b6643f6378f8dc54f4cc4272895cb6b8",
+          "bytes": 18445,
+          "sha256": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/layout.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "a48ecff22baec80ddaf8d2939417f48086a00555",
+          "bytes": 350,
+          "sha256": "fb528428135bf40ddf36336bbdac7043b049d4ef9bf7e954ada1c9727100a69b"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/compiler/layout.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "a732c7945a25c09de05ee0a7be8f1a8ec8c90fe3",
+          "bytes": 220,
+          "sha256": "d0f981b9d24ed767107a9238f5bc9a16c6f5b45ed533a01adf0c35e52cd6f1b7"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/runtime.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "5c107ad0fd66811c0702e1a808eb31b2c62561f0",
+          "bytes": 21006,
+          "sha256": "f2c622c699f85375925582d2d66ff683f40d3a925834f4ed523b2203d3ac8a23"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/compile/trinity_compiler.py",
+          "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+          "git_blob": "d80a17cd92b0127b85abd4e48bb4ed271283efae",
+          "bytes": 17693,
+          "sha256": "7608e9476321519fe9f8a024dc483caf909d97cefb185a7ec491fc21651bbe07"
+        }
+      ],
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 10.751888677987154,
+      "counts": {
+        "passed": 0,
+        "failed": 3,
+        "skipped": 0,
+        "warnings": 0,
+        "errors": 0
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/negative3.stdout.txt",
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/negative3.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/negative3.stderr.txt"
+      ],
+      "scope": "Original LA002 family/certificate/runtime loading and LA037 layout/callers/compiler output bounded migration contract; no admitted real-data/global IC/unknown external retirement claim."
+    },
+    {
+      "name": "ruff",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m ruff check src/polisyos/foundry/methods/lifecycle/output_monitor.py tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py tests/unit/foundry/mechanisms/test_mechanism_design.py",
+      "target_sha": "3e1819173f0593ce93d257c3c62cdb2fa627e426",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "shared_environment_read_only": true
+      },
+      "input_closure": "Only final owned changed Python/doc companion and exact source Git diff.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.046174624003469944,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-ruff.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-ruff.stderr.txt"
+    },
+    {
+      "name": "format",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/foundry/methods/lifecycle/output_monitor.py tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py tests/unit/foundry/mechanisms/test_mechanism_design.py",
+      "target_sha": "3e1819173f0593ce93d257c3c62cdb2fa627e426",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "shared_environment_read_only": true
+      },
+      "input_closure": "Only final owned changed Python/doc companion and exact source Git diff.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.04261813699849881,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-format.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-format.stderr.txt"
+    },
+    {
+      "name": "diff",
+      "command": "git diff --check 7f05b6259e0c78fac81a0baa4bff41e648a9d771 3e1819173f0593ce93d257c3c62cdb2fa627e426",
+      "target_sha": "3e1819173f0593ce93d257c3c62cdb2fa627e426",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "shared_environment_read_only": true
+      },
+      "input_closure": "Only final owned changed Python/doc companion and exact source Git diff.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.0033476300013717264,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-diff.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-diff.stderr.txt"
+    },
+    {
+      "name": "documentation companion executable AST and native/docs input equivalence",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/verify_monitor_doc_companion.py",
+      "target_sha": "3e1819173f0593ce93d257c3c62cdb2fa627e426",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "packages": {
+          "numpy": "2.3.5",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "scipy": "1.16.3",
+          "scikit-learn": "1.8.0",
+          "statsmodels": "0.14.6",
+          "pytest": "9.0.2",
+          "pymc": "not_installed",
+          "dowhy": "not_installed",
+          "econml": "not_installed"
+        },
+        "thread_environment": {
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "XLA_FLAGS": null
+        },
+        "cloud_quota_introduced": false
+      },
+      "input_closure": "Exact ec6944 executable monitor AST excluding docstrings and 14 actual native/docs source inputs at scientific7f; full Git delta restricted to docstring/README.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-equivalence.json"
+    },
+    {
+      "name": "initial native fixture diagnostic",
+      "command": "Historical five-file native run; complete output retained, exact historical argv not recorded.",
+      "target_sha": "ad8f0f7532022014c028d74d872c93fe3349d220",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "packages": {
+          "numpy": "2.3.5",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "scipy": "1.16.3",
+          "scikit-learn": "1.8.0",
+          "statsmodels": "0.14.6",
+          "pytest": "9.0.2",
+          "pymc": "not_installed",
+          "dowhy": "not_installed",
+          "econml": "not_installed"
+        },
+        "thread_environment": {
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "XLA_FLAGS": null
+        },
+        "cloud_quota_introduced": false
+      },
+      "input_closure": "Historical uncommitted consumer fixture omitted reported_income; exact frozen fixture identity is not established.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-candidate.stdout.txt",
+      "census": "3 failed, 37 passed",
+      "interpretation": "Author fixture mismatch against existing tax law, not claimed product regression or final candidate proof."
+    },
+    {
+      "name": "independent frozen original-criteria review",
+      "command": "See complete committed independent receipt policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/review.json",
+      "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "packages": {
+          "numpy": "2.3.5",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "scipy": "1.16.3",
+          "scikit-learn": "1.8.0",
+          "statsmodels": "0.14.6",
+          "pytest": "9.0.2",
+          "pymc": "not_installed",
+          "dowhy": "not_installed",
+          "econml": "not_installed"
+        },
+        "thread_environment": {
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "XLA_FLAGS": null
+        },
+        "cloud_quota_introduced": false
+      },
+      "input_closure": "Read-only independent native consumer replay and actual adversarial controls; no owner source edits.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/review.json"
+    },
+    {
+      "name": "full architecture/documentation/production admission gates",
+      "command": "No full gate run in this bounded family/layout slice",
+      "target_sha": "3e1819173f0593ce93d257c3c62cdb2fa627e426",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "packages": {
+          "numpy": "2.3.5",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "scipy": "1.16.3",
+          "scikit-learn": "1.8.0",
+          "statsmodels": "0.14.6",
+          "pytest": "9.0.2",
+          "pymc": "not_installed",
+          "dowhy": "not_installed",
+          "econml": "not_installed"
+        },
+        "thread_environment": {
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "XLA_FLAGS": null
+        },
+        "cloud_quota_introduced": false
+      },
+      "input_closure": "Full integration/production denominator and local data/authority not admitted for this slice.",
+      "outcome": "UNRUN",
+      "output": "UNRUN; P41 inheritance not_established; no source-base full gate replay or zero-denominator-overlap proof claimed."
+    }
+  ],
+  "property": {
+    "statement": "Canonical family/catalog and native IR layout migrations preserve original IDs/assumptions/parameters, real IC certificate consumption, runtime loading and supported compatibility consumers.",
+    "runtime_path": [
+      "canonical family specification",
+      "real IC request",
+      "IR-owned certificate persisted to CAS",
+      "fresh certificate reader",
+      "native registered income_tax dispatcher",
+      "IR slot layout and native patch application",
+      "State snapshot CAS",
+      "fresh state/layout reader",
+      "real Python-handler docs consumer"
+    ],
+    "proxy_divergence": "All four catalog members require a concrete IC certificate; identical license catalog membership yields positive or negative verdicts when payment constraints change. Preserved builder identity alone misses removed native layout behavior.",
+    "negative_controls": [
+      "wrong license payments produce negative IC certificates",
+      "unsupported family execution retains typed refusal",
+      "unknown family ID refuses",
+      "three retained-marker memory-only removals actually FAIL native consumers"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "closed",
+  "finding_outcomes": [
+    {
+      "finding_id": "LA-001",
+      "verification_role": "retained existing scientific receipt; no new RNG implementation or numeric rerun claimed",
+      "criteria": [
+        {
+          "criterion": "Canonical compile/randomization owner and direct compiler caller; preserve root_seed0 algorithm, IDs, serialization and old plan bytes.",
+          "evidence": "03bbfe14225d64a9977b77775c200e83eb717c5f +63425f734946979cfc990e9cb91b00163f051898; F/treasury-execution-20261006.json.",
+          "outcome": "PASS"
+        },
+        {
+          "criterion": "Seed0/nonzero, permutation, recompilation and historical plan readback; real seed\u2192persisted salts\u2192native kernel/dispatcher RNG.",
+          "evidence": "Committed treasury execution native76PASS + independent45+33PASS and actual retained-marker negative controls, exact source-bound prior receipt.",
+          "outcome": "PASS"
+        }
+      ],
+      "boundaries": [
+        "Versioned v1 intentionally keeps temporal identical node draws; no separately versioned new time law is requested by a named actual consumer.",
+        "Unmarked legacy plans keep their historical RNG law; new explicit v1 is a separate intentional behavior fix, not a cosmetic digest migration.",
+        "No production-data/external consumer activation or installed new Treasury law inferred from generic layout package witnesses."
+      ],
+      "outcome": "closed"
+    },
+    {
+      "finding_id": "LA-002",
+      "verification_role": "fresh native original migration criteria",
+      "criteria": [
+        {
+          "criterion": "Four stable family IDs, every assumption/parameter/parameterization, catalog view and unknown-ID behavior preserved at catalog owner.",
+          "evidence": "test_families.py exact characterization + migrated test_mechanism_design.py + canonical/compat getter consumers.",
+          "outcome": "PASS"
+        },
+        {
+          "criterion": "IC-service consumes canonical family owner; certificates stay IR-owned; public reexports remain narrow/direct and callable.",
+          "evidence": "test_family_consumer_contract.py:all4 real IC requests\u2192CAS\u2192fresh concrete IR certificates, direct compatibility affine call/identity; existing service owner negative import binding test.",
+          "outcome": "PASS"
+        },
+        {
+          "criterion": "Load registered runtime methods and keep family specifications distinct from executable descriptors.",
+          "evidence": "5 actual canonical runtime descriptor/native class resolutions;4 typed missing-support refusals; existing income_tax actual dispatcher\u2192patches\u2192real State/CAS consumer.",
+          "outcome": "PASS"
+        },
+        {
+          "criterion": "Catalog presence must not stand in for incentive compatibility.",
+          "evidence": "2 existing nonmonotone tax positive/negative cases +2 fresh wrong-payment license negatives; catalog_is_ic and family_owner retained-marker controls FAIL as required.",
+          "outcome": "PASS"
+        }
+      ],
+      "boundaries": [
+        "Original card explicitly says a family specification need not be an executable method;4 new family-to-state kernel mappings are optional execution extensions, not acceptance requirements.",
+        "Certificates establish the supplied finite instance under declared family assumptions, not IC on admitted real data or a new economic normative objective.",
+        "Existing registry view is preserved; no second registry, new model law or copied certificate implementation."
+      ],
+      "outcome": "closed"
+    },
+    {
+      "finding_id": "LA-037",
+      "verification_role": "fresh native + real scoped docs + reconciled unchanged installed layout owners",
+      "criteria": [
+        {
+          "criterion": "One native IR owner, direct first-party compiler and docs/API callers; compatibility surfaces avoid a required two-hop chain.",
+          "evidence": "Trinity direct IR binding/control; actual maintained state.md source-of-truth/prose/API directive migrated to IR; both wrappers directly bind5 existing IR objects.",
+          "outcome": "PASS"
+        },
+        {
+          "criterion": "All5 identities/builders, omission of absent state_path, family grouping/order/global fallback, compiler outputs and registry defaults.",
+          "evidence": "Existing native layout/family/compiler40-case denominator +3 fresh supported income_tax\u2192native layout\u2192PatchOp/state application\u2192CAS fresh reader addresses; layout_paths removes body while retaining builder object/type markers and fails3 consumers.",
+          "outcome": "PASS"
+        },
+        {
+          "criterion": "Old and intermediate public imports/package distribution preserve callable ABI and slot identities.",
+          "evidence": "Exact3 owner-file byte equivalence7f\u2194installed5cd; original3dde committed wheel/sdist native compatibility outputs each13PASS source-bound in layout-installed-equivalence.json.",
+          "outcome": "PASS"
+        },
+        {
+          "criterion": "Real documentation build consumes the migrated native API directive.",
+          "evidence": "state-docs.json:complete actual state page/all3 directives, real locked MkDocs/Material/Python handler;exit0,5 native layout anchors+GlobalState+load_state_snapshot rendered; full warnings retained.",
+          "outcome": "PASS"
+        }
+      ],
+      "boundaries": [
+        "Both known old addresses remain supported compatibility bindings; removal needs its own owner lifecycle decision. No invented retirement date or blanket absence of all external users.",
+        "Real scoped page build is distinct from strict full-project docs gate, architecture gate and production invocation; those remain UNRUN/not_established on this source.",
+        "Installed witness applies only to byte-identical IR owner/wrappers, not new Treasury RNG or shared monitor implementation.",
+        "Optional new catalog-family execution/state mappings are not original layout migration criteria."
+      ],
+      "outcome": "closed"
+    }
+  ],
+  "finding_closure_effect": "LA-002 and LA-037 original address-migration criteria closed in bounded supplied-instance scope; LA-001 prior closure retained without a new RNG execution claim. Optional new family-to-state kernels are outside the original criteria.",
+  "review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/review.json",
+    "bytes": 11405,
+    "sha256": "4bc898c695323f1009f9ec89d770cff7d81ddb0634a9d7c3d3825c86a61251db"
+  },
+  "source_equivalence": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-source-equivalence.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/layout-installed-equivalence.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-equivalence.json"
+  ],
+  "external_content_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json",
+      "git_sha": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "sha256": "1ebacf5377764b5c0958d7e6597e10eab56536c570aacea64d25be3ee7cff908",
+      "bytes": 209475
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/independent/fit/wheel-compatibility.stdout.txt",
+      "git_sha": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "bytes": 144237,
+      "sha256": "5191d6133ab7e753c5e9bd151bbe5a2085b668dafb433a376dd1232b1ee95b7b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/independent/fit/sdist-compatibility.stdout.txt",
+      "git_sha": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "bytes": 144237,
+      "sha256": "2ed8d20b54410462f00badbdb875c5269f432afa97c676ff4bb1936a60c1dd5c"
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Root owns common35/index decisions and composed current installed monitor warning denominator. This receipt is not G integration or production acceptance.",
+    "IC evidence applies to declared finite supplied mechanism instances and assumptions; admitted real-data IC and economic normative authority are not established.",
+    "Both known layout public addresses remain direct compatibility bindings to IR. Removal requires an owner lifecycle decision; no invented retirement deadline.",
+    "Installed evidence is reconciled only for three byte-identical IR layout/wrapper source owners; it does not establish newly installed Treasury RNG or monitor behavior.",
+    "Complete scoped state page/native API build PASS is distinct from strict full-project docs, architecture and production gates. Those remain UNRUN/not_established here.",
+    "Baseline DoWhy/EconML exclusion and absent backends are not positive backend witnesses; no shim or shared-environment mutation."
+  ],
+  "content_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-frozen-checks.json",
+      "bytes": 10630,
+      "sha256": "65b750d62f21e202c91798acda19e9a342ef12ecf3a935de1386100cee914622"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-frozen-native.stdout.txt",
+      "bytes": 99,
+      "sha256": "364bf2ceda7fac9cd1a8f3c782e2cdcdad38b0f8e69214486a3e19382a2cff1c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-frozen-native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-candidate.stdout.txt",
+      "bytes": 11563,
+      "sha256": "984e96880bb0b794eb53b400c812419f799d532d562a0aa19d8f56e57a6f47f9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-candidate.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-candidate-v2.stdout.txt",
+      "bytes": 100,
+      "sha256": "6d806403d7979c8aed2dab58a033b43af13d7c428513bbb376a1cb3a03e0a035"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-candidate-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-docs-backend.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-docs-backend.stderr.txt",
+      "bytes": 90,
+      "sha256": "5e97e0b26312eba3d14f18e4f1f143e24d1006a552cb46877794b7e912132873"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-source-equivalence.json",
+      "bytes": 2769,
+      "sha256": "283ec33d0b8afcf4c5d07cd5e5b3c6fc5ec88b1d19ab4c5570fdd4efbf33459d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/layout-installed-equivalence.json",
+      "bytes": 4219,
+      "sha256": "d6c6a137b345714e0f13a71c141e0a4a09260509353cf1e157799883e03a8dc9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/run_family_layout_checks.py",
+      "bytes": 4286,
+      "sha256": "b2fd1e7d741eae8c494b46fec3ee87abc1209a923a415ec4cb599475c0c1b87a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family_layout_removal_replay.py",
+      "bytes": 1456,
+      "sha256": "c92ca16061f2e399378a27e0a8c44741d4baa28daa660f9f25607d7f089d6514"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/state-docs.json",
+      "bytes": 3560,
+      "sha256": "7ef6f4390f8a1b8a84c8b8b628e4d1cf077c3a347420479185eb40aea36ef880"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/state-docs-reconciled.json",
+      "bytes": 1545,
+      "sha256": "c999227055313996466f78c9953f886ebd6c58eabb461dc9781abcdc3a8cd593"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/state-docs.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/state-docs.stderr.txt",
+      "bytes": 1440,
+      "sha256": "63fc76f8dc4210768e771727d035ed867164ed38917cb0ec878ada18c1a6041b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/state-docs.yml",
+      "bytes": 307,
+      "sha256": "a62f8dcc7c81079eb7e0cf68dd2ac52c8f7da3052c8810a99ae07a93bacbd763"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/build_state_docs.py",
+      "bytes": 4066,
+      "sha256": "128b5106fb81ce704e4c81379ad057f93a46a24462319cd40111390b1486ca10"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-install-inputs.json",
+      "bytes": 1667,
+      "sha256": "9d7992801b01816bc2f5bd61e299822694b98fa1a0fdaffc7dfe0b896498fafc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-locked-requirements.txt",
+      "bytes": 11202,
+      "sha256": "dc0bd8107841c6419bce6619f1e2fc5769e108d9d3a16ffa1931195391ef5e9f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-venv.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-venv.stderr.txt",
+      "bytes": 273,
+      "sha256": "0cd73ad61a3772345bb5f45b83a2cdca2fd8821bba768a9d773493c709c2bc85"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-install.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-install.stderr.txt",
+      "bytes": 1100,
+      "sha256": "60550a685d944d841f8f5a36dc37cde7119124f63490678bc96b935c9ef7fc46"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-pip-check.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-pip-check.stderr.txt",
+      "bytes": 152,
+      "sha256": "af84b50f84db49e5afa7793050c4befffd34379d994d19714c971c7a396b85f5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-equivalence.json",
+      "bytes": 5914,
+      "sha256": "77a27773d4d098658f2fc6e5e5bb069ee9367a1a0bcf80f68d2290a8123d40e2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-quality.json",
+      "bytes": 2690,
+      "sha256": "7afc7d245677d45ad353ff5c773641e30b667f82804e1da56b1538cfcf82fa19"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-format.stdout.txt",
+      "bytes": 26,
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-diff.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-diff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/verify_monitor_doc_companion.py",
+      "bytes": 5246,
+      "sha256": "bfa1809a30157a4b509523c8a19995e20a94b6e5d0995e4228ac4539988ce6aa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-catalog_is_ic.stdout.txt",
+      "bytes": 4061,
+      "sha256": "2946c9523db5acf2f8b2930214db5c8fd47053459febaf1219a119246e62d06e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-catalog_is_ic.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-family_owner.stdout.txt",
+      "bytes": 4641,
+      "sha256": "6dc9bbc7d2b11478af72ea29ec0e9bd678f67a6bea0f3de4242460ab1bd38fc5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-family_owner.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-layout_paths.stdout.txt",
+      "bytes": 4783,
+      "sha256": "d0d463e8db769eae217723cc05bfc89cdf1e634d7bc71046392159d58b02d271"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-layout_paths.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/state-page.html.gz",
+      "bytes": 39681,
+      "sha256": "beeec1d3f4c5fb4d03dc2ec3afb2289109e938ca886c6dfe9ef39b5c2a24c2d1",
+      "encoding": "gzip",
+      "decoded_bytes": 422842,
+      "decoded_sha256": "2506604b81c603f4f598f03e1c2e56697972eed976837e2f2053e9cc1887433e",
+      "purpose": "Complete actual rendered state page and native API directive deciding bytes; site assets omitted."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/review.json",
+      "bytes": 11405,
+      "sha256": "4bc898c695323f1009f9ec89d770cff7d81ddb0634a9d7c3d3825c86a61251db"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/replay_review.py",
+      "bytes": 6181,
+      "sha256": "1acfaf69a93c06fe7098c340f8c1734340307d251b1b633a92f6da977e1494d5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/layout_readback_removal.py",
+      "bytes": 2313,
+      "sha256": "dbd25f3c0c0aa949234b8d506e63ddf5aac44db9c1ed46573ea56660289227c7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/finish_review.py",
+      "bytes": 11614,
+      "sha256": "234cb375f08b1237077b27c208288cac5e893cf997372e6095fa34f6c47faca2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/native40.json",
+      "bytes": 7684,
+      "sha256": "b2e86c552950ac4da26a4de07b90b84b789cfd91bfc2cb4b5aedddf7382f72f7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/native40.stdout.txt",
+      "bytes": 99,
+      "sha256": "6d06aadc35fe8b6836959b1fff8a291b9a581bfeda0a16c9847e7ab0e38e9e0c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/native40.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/compiled1.json",
+      "bytes": 7504,
+      "sha256": "b4a0232c474ead9521129ac0a8becdde1c92e1cf9bd869649157ad68ace3ac00"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/compiled1.stdout.txt",
+      "bytes": 98,
+      "sha256": "a992ed7d25f33c38049513f06d7a6f70960cc7721f9c785d404ffbaacc47e294"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/compiled1.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/negative3.json",
+      "bytes": 8574,
+      "sha256": "e9091a0d44c4dd7a4fc386ad8ec192994515b1f06365156be90595da1e35a578"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/negative3.stdout.txt",
+      "bytes": 13700,
+      "sha256": "a63544700695cbc5a4d61e6d91554ac94953feb494b456784bf8eb322dad063a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/negative3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/evidence-custody-audit.json",
+      "bytes": 13494,
+      "sha256": "c53392495f0baf963f13600e5c5fc89204b4530b0aa605d900572d45e2888c39"
+    }
+  ],
+  "scratch_to_git_transport": {
+    "/tmp/e02-F-continuation-20261006/foundry/family-layout-frozen-checks.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-frozen-checks.json",
+    "/tmp/e02-F-continuation-20261006/foundry/family-layout-frozen-native.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-frozen-native.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/family-layout-frozen-native.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-frozen-native.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/family-layout-candidate.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-candidate.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/family-layout-candidate.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-candidate.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/family-layout-candidate-v2.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-candidate-v2.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/family-layout-candidate-v2.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-candidate-v2.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/family-layout-docs-backend.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-docs-backend.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/family-layout-docs-backend.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-docs-backend.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/family-layout-source-equivalence.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-layout-source-equivalence.json",
+    "/tmp/e02-F-continuation-20261006/foundry/layout-installed-equivalence.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/layout-installed-equivalence.json",
+    "/tmp/e02-F-continuation-20261006/foundry/run_family_layout_checks.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/run_family_layout_checks.py",
+    "/tmp/e02-F-continuation-20261006/foundry/family_layout_removal_replay.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family_layout_removal_replay.py",
+    "/tmp/e02-F-continuation-20261006/foundry/state-docs.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/state-docs.json",
+    "/tmp/e02-F-continuation-20261006/foundry/state-docs-reconciled.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/state-docs-reconciled.json",
+    "/tmp/e02-F-continuation-20261006/foundry/state-docs.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/state-docs.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/state-docs.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/state-docs.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/state-docs.yml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/state-docs.yml",
+    "/tmp/e02-F-continuation-20261006/foundry/build_state_docs.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/build_state_docs.py",
+    "/tmp/e02-F-continuation-20261006/foundry/docs-install-inputs.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-install-inputs.json",
+    "/tmp/e02-F-continuation-20261006/foundry/docs-locked-requirements.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-locked-requirements.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/docs-venv.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-venv.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/docs-venv.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-venv.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/docs-install.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-install.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/docs-install.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-install.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/docs-pip-check.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-pip-check.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/docs-pip-check.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/docs-pip-check.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-doc-equivalence.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-equivalence.json",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-doc-quality.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-quality.json",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-doc-ruff.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-ruff.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-doc-ruff.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-ruff.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-doc-format.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-format.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-doc-format.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-format.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-doc-diff.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-diff.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-doc-diff.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/monitor-doc-diff.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/verify_monitor_doc_companion.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/verify_monitor_doc_companion.py",
+    "/tmp/e02-F-continuation-20261006/foundry/family-removal-catalog_is_ic.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-catalog_is_ic.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/family-removal-catalog_is_ic.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-catalog_is_ic.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/family-removal-family_owner.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-family_owner.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/family-removal-family_owner.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-family_owner.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/family-removal-layout_paths.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-layout_paths.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/family-removal-layout_paths.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/family-removal-layout_paths.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/fit-fry-review/review.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/review.json",
+    "/tmp/e02-F-continuation-20261006/fit-fry-review/replay_review.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/replay_review.py",
+    "/tmp/e02-F-continuation-20261006/fit-fry-review/layout_readback_removal.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/layout_readback_removal.py",
+    "/tmp/e02-F-continuation-20261006/fit-fry-review/finish_review.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/finish_review.py",
+    "/tmp/e02-F-continuation-20261006/fit-fry-review/native40.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/native40.json",
+    "/tmp/e02-F-continuation-20261006/fit-fry-review/native40.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/native40.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/fit-fry-review/native40.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/native40.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/fit-fry-review/compiled1.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/compiled1.json",
+    "/tmp/e02-F-continuation-20261006/fit-fry-review/compiled1.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/compiled1.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/fit-fry-review/compiled1.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/compiled1.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/fit-fry-review/negative3.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/negative3.json",
+    "/tmp/e02-F-continuation-20261006/fit-fry-review/negative3.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/negative3.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/fit-fry-review/negative3.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/negative3.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/fit-fry-review/evidence-custody-audit.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006/independent/evidence-custody-audit.json"
+  },
+  "portable_replay": "Read source-bound native argv and unique replayers; substitute only workspace/interpreter/output roots and preserve exact source SHA, synthetic inputs, real service/dispatcher/CAS path and negative assertions. Docs tool-only environment is installed from committed locked/hash requirements, with inherited real repo configuration."
+}

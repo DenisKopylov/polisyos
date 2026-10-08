@@ -1,0 +1,91 @@
+{
+  "role": "independent read-only known-profile/source investigation; no runtime PASS claimed",
+  "immutable_base_sha": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+  "base_tree_sha": "c9dcc58e520cb2c161c85a74e8a2161c32a7276f",
+  "runtime_source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "fetched_g_sha": "2abc17f46a033a7879663486ff9946a95786601f",
+  "bucket": "same P40 static semantic profile class deeper",
+  "existing_property": "Static reconciliation admits only declared static DAG/ADMG and refuses supplied contradictory known typed-profile contracts before filtering, rewrites, caching and persistence.",
+  "actual_divergence": "At 4ee, genuine build_mgraph retagged ADMG with unchanged metadata[mgraph] passes MethodJob/Node/CAS; canonical extractor rejects the declared type. Clean bidirected ADMG without that contract is supported.",
+  "canonical_sources": [
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/mgraph.py",
+      "sha": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+      "symbols": [
+        "MGraphMetadata",
+        "extract_mgraph_metadata",
+        "build_mgraph"
+      ],
+      "meaning": "Reserved mgraph payload owns missingness semantics; canonical extractor handles dict and JSON-string payloads."
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "sha": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+      "symbols": [
+        "GraphType",
+        "CausalGraphModel"
+      ],
+      "meaning": "ADMG enum comment excludes R-nodes but node names alone do not establish semantic missingness. Metadata remains extensible."
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/administrative_missingness.py",
+      "sha": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+      "symbols": [
+        "extract_administrative_missingness_metadata",
+        "attach_administrative_missingness_metadata"
+      ],
+      "meaning": "Separate typed annotation; its extractor has no hard graph_type requirement. Do not infer MGRAPH solely from this annotation."
+    }
+  ],
+  "minimum_repair": "In _validate_reconciliation_profile, retain declared family guard, then reject a supplied reserved mgraph metadata key before _validate_static_admg. No parser is required for refusal: all valid or malformed claims in this unsupported semantic namespace are outside the admitted static contract. The refusal must not be described as successful MGraph classification.",
+  "presence_is_not_proxy": "Presence triggers only fail-closed refusal on a known reserved input contract. It does not confer validity, identification or authority. Parse validity cannot turn an unsupported semantic claim into supported reconciliation.",
+  "adversarial_matrix": [
+    {
+      "input": "actual scored build_mgraph, retag ADMG only",
+      "expected": "registered producer refuses; direct/supplied/selected Node fail; no reconciled artifact; original MGraph fresh reader/extractor stays readable"
+    },
+    {
+      "input": "same actual graph with JSON-string MGraphMetadata",
+      "expected": "same refusal; canonical original MGraph extractor validates string encoding"
+    },
+    {
+      "input": "DAG or ADMG with supplied reserved mgraph null, empty object, malformed scalar",
+      "expected": "refusal; malformed supplied input must not become permissive absence"
+    },
+    {
+      "input": "same nodes/edge shape with no mgraph metadata, including R_X and X_star spellings",
+      "expected": "supported ADMG; no inference from names"
+    },
+    {
+      "input": "clean bidirected ADMG",
+      "expected": "supported real producer/Node/fresh-reader positive; MGraph extractor rejecting ADMG is expected"
+    },
+    {
+      "input": "remove new semantic guard but retain enum checks/diagnostic strings",
+      "expected": "actual retagged negative test FAILS; positive controls remain green"
+    }
+  ],
+  "known_profile_inventory_scope": {
+    "executing_party": "graph_review",
+    "tracked_source_paths": 2914,
+    "python_source_paths": 2700,
+    "analytics_tracked_paths": 97,
+    "selection": "complete Git tree plus literal graph.metadata/get and GraphType uses in canonical IR/Foundry owners; semantic reading of actual publishers/extractors",
+    "unresolved_by_construction": [
+      "constructed/dynamic/external metadata keys",
+      "unknown arbitrary metadata meanings",
+      "hidden real-world missingness with no reserved typed contract",
+      "universal graph authority/identification/completion"
+    ]
+  },
+  "callers_of_existing_shared_boundary": [
+    "ReconcileCausalGraph.pure_step data_graph before edge confidence filtering",
+    "ComposeSCMFragments.pure_step all supplied fragment graphs",
+    "ReconcileCausalGraphNode._resolve_graph_ref current selected CAS graph/fragment",
+    "ReconcileCausalGraphNode composed graph validation",
+    "ReconcileCausalGraphNode revalidated output immediately before CAS persistence"
+  ],
+  "recommended_docs": "Static reconciliation rejects a supplied reserved metadata[mgraph] contract, including malformed/null claims; it does not infer missingness from node names or unknown metadata. Unknown semantics remain unresolved and do not establish graph authority.",
+  "verification_status": "source investigation complete; immutable implementation review and affected execution pending root freeze",
+  "repo_mutations": []
+}

@@ -1,0 +1,1068 @@
+{
+  "schema": "policyos.e02.output_transport.v1",
+  "complete_companions": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/AST-proof.json.gz",
+      "bytes": 1395,
+      "sha256": "497d0b6bbe4c3c076bb6b180bbf6ae3e26ce1b931a024f8d16c15406abad278c",
+      "decoded_bytes": 4007,
+      "decoded_sha256": "1497113bc48b0a7e34b8354beef8b4317e0adbc49cd92d1a10478dd393de0e11",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/AST-proof.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/before/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py.gz",
+      "bytes": 17429,
+      "sha256": "176b184d0aec13c42332e17a2ed80c276a08218d1a6c4c6d32e9a89a94284eec",
+      "decoded_bytes": 81116,
+      "decoded_sha256": "f1974d6f7e7d44023f3be66df17a71271e8b657d6daccaf4da8fac54e4c99b3c",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/before/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/before/src/polisyos/foundry/methods/catalog/causal/id_engine/counterfactual.py.gz",
+      "bytes": 8906,
+      "sha256": "22c821ffd4f6b1d009cd068119defad423ff2c039513efb7e21b43295766bc0c",
+      "decoded_bytes": 48259,
+      "decoded_sha256": "9403daa9823f7cc3d5d8e3c8c13d68804fee45156b189234f47c4e48d154a2a8",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/before/src/polisyos/foundry/methods/catalog/causal/id_engine/counterfactual.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/before/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py.gz",
+      "bytes": 7525,
+      "sha256": "796cc9f4033a1e7e02e7e505292ea472e0d175c54fae01281b8269b33cc846f8",
+      "decoded_bytes": 31756,
+      "decoded_sha256": "d8d0057a48beb6cbbfb1659890af37f3e8ed78303e49ffaa0df514610689b331",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/before/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/before/src/polisyos/ir/analytics/causal.py.gz",
+      "bytes": 13930,
+      "sha256": "4760b082f52cef14a8436899b46cbea4335027c78e71efc5632fbc58e6ecd4a5",
+      "decoded_bytes": 76429,
+      "decoded_sha256": "c7c6e0d382ce4d671ff1c783726a422464873bf7b3d93a602109f919222b7af7",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/before/src/polisyos/ir/analytics/causal.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/before/src/polisyos/ir/analytics/causal_graph.py.gz",
+      "bytes": 5436,
+      "sha256": "f9de34b96e64864d26a0e40278dceb697e2f9d82e7621602a33e64a9957dd1dc",
+      "decoded_bytes": 20746,
+      "decoded_sha256": "b8cc85501f67668b61b6265abe7970026b5124dd9c2204205251697988bfb5cc",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/before/src/polisyos/ir/analytics/causal_graph.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/before/tests/repo_quality/architecture/test_public_surface_export_resolution.py.gz",
+      "bytes": 6358,
+      "sha256": "7c24f1f62a4caf5ea94461dba46f3903cdde42145f33a82fcdbd3175fd8222f0",
+      "decoded_bytes": 29092,
+      "decoded_sha256": "99dbf454a391210897884e30405d89e1043840966115242dcd23711db0e4d52e",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/before/tests/repo_quality/architecture/test_public_surface_export_resolution.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/before/tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py.gz",
+      "bytes": 3297,
+      "sha256": "c61aa6b2e90cb149e561fb9406073ddf463c7424bc98d3f4346f302f53979e0b",
+      "decoded_bytes": 12493,
+      "decoded_sha256": "a9d7a0c10aba96e2460c7fd5010b8c4fd836a845844c32f249e420eb0194d7fb",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/before/tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/before/tests/unit/foundry/methods/catalog/causal/test_causal_engine.py.gz",
+      "bytes": 17058,
+      "sha256": "9755a1166114523b7b4c00de91064796546ce0e9ba75551db10900557c2c48c5",
+      "decoded_bytes": 109248,
+      "decoded_sha256": "6ab5e81bef1addfccd8a1d2c5ab931c086c4262096df77060e6852630faf8713",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/before/tests/unit/foundry/methods/catalog/causal/test_causal_engine.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/before/tools/devx/architecture/guardrails.py.gz",
+      "bytes": 27716,
+      "sha256": "52d050e65d13ab82bf70bb3a5c616915971d8aa1a0e3a57ddf83980df12ea540",
+      "decoded_bytes": 136149,
+      "decoded_sha256": "9a17bb5c404cb4d60d9d13835f42552211d75e2c9c0e89ae15a405e4d4517794",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/before/tools/devx/architecture/guardrails.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/format.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/format.stdout.txt",
+      "bytes": 43,
+      "sha256": "b286ddbb75021254821883acddb202a4a769b4e80a4263656ab738925bea232d",
+      "decoded_bytes": 43,
+      "decoded_sha256": "b286ddbb75021254821883acddb202a4a769b4e80a4263656ab738925bea232d",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/format.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/frozen-native-api.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/frozen-native-api.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/frozen-native-api.stdout.txt",
+      "bytes": 160,
+      "sha256": "a9d6c55ed9d807b32d5bf39b92352c1be384488db2b8135a515cc9266b970a29",
+      "decoded_bytes": 160,
+      "decoded_sha256": "a9d6c55ed9d807b32d5bf39b92352c1be384488db2b8135a515cc9266b970a29",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/frozen-native-api.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/frozen-native-api.xml.gz",
+      "bytes": 2592,
+      "sha256": "25c279748797e3bb20b1a9182a1fdd3fb9342169929b263093d7bb58413f254f",
+      "decoded_bytes": 22592,
+      "decoded_sha256": "d5f807f629403ac5a457d4a802343262596fd3480f0d976cf6e5411a6d6871fc",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/frozen-native-api.xml"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/frozen-native-receipt.json.gz",
+      "bytes": 619,
+      "sha256": "13a275b0ca6c18ff13dc208e1e497571e413a613ca8425ffd59f86a2c4fd180e",
+      "decoded_bytes": 1365,
+      "decoded_sha256": "053ba905dc845a713e6646b77930f64fce17ac623f49fb4bbd337c0402342512",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/frozen-native-receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/import-fix.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/import-fix.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/import-fix.stdout.txt",
+      "bytes": 38,
+      "sha256": "aac3a0503d8b95052cc85fb9f1717dc82b74aa55853a5aa9749b41e30275d472",
+      "decoded_bytes": 38,
+      "decoded_sha256": "aac3a0503d8b95052cc85fb9f1717dc82b74aa55853a5aa9749b41e30275d472",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/import-fix.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/native-api.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/native-api.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/native-api.stdout.txt",
+      "bytes": 160,
+      "sha256": "a9d6c55ed9d807b32d5bf39b92352c1be384488db2b8135a515cc9266b970a29",
+      "decoded_bytes": 160,
+      "decoded_sha256": "a9d6c55ed9d807b32d5bf39b92352c1be384488db2b8135a515cc9266b970a29",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/native-api.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/native-api.xml.gz",
+      "bytes": 2594,
+      "sha256": "8addf55312e993527afb835ac3e8e9699ce0dedc13c01243ac9b82ae0c8ddd24",
+      "decoded_bytes": 22592,
+      "decoded_sha256": "f4e273be3b5c7fe87fd528e404a56db4aa0f6242d2d009da2fcb466f3fb9a6ac",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/native-api.xml"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/push.stderr.txt",
+      "bytes": 111,
+      "sha256": "93920a69aac71b461d0a5da91fd159e79df290437e90aede5f6dc307740e6051",
+      "decoded_bytes": 111,
+      "decoded_sha256": "93920a69aac71b461d0a5da91fd159e79df290437e90aede5f6dc307740e6051",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/push.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/push.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/push.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/remote.txt",
+      "bytes": 82,
+      "sha256": "fb58abe542d884819701f2f22955384996614fbd0d81b50549881445e8d488c4",
+      "decoded_bytes": 82,
+      "decoded_sha256": "fb58abe542d884819701f2f22955384996614fbd0d81b50549881445e8d488c4",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/remote.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/ruff.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "decoded_bytes": 19,
+      "decoded_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/ruff.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-format-forward/spec.json.gz",
+      "bytes": 1318,
+      "sha256": "4b5848d351e0867b16d023f88b0f440e7b2c74f21779297f24ab6fc91877f283",
+      "decoded_bytes": 3640,
+      "decoded_sha256": "2e272db89c13ba40e76ad30152ea7838ad671b56ddf83255d00928ae6df6a0e3",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/spec.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality/format.receipt.json.gz",
+      "bytes": 2008,
+      "sha256": "b068fdf060020a56d1c9bfd30960f05ed08824b679f88c7785b9deeaa89d58ee",
+      "decoded_bytes": 13596,
+      "decoded_sha256": "a5c935bbe25facf2ebd403719d1b48c35f923432da9fab6c71a4519671e26370",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality/format.receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality/format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality/format.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality/format.stdout.txt.gz",
+      "bytes": 303,
+      "sha256": "19eb9407b61c944bef94da9e28183eeb2beee3666a76a9e767a6a3f5e2dec1f6",
+      "decoded_bytes": 911,
+      "decoded_sha256": "bf2d6587cb39a7a6fe9102437e56a7524d9ab319aad45f0acb4fa6d0661a75dc",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality/format.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality/invocation-full.json.gz",
+      "bytes": 6513131,
+      "sha256": "0e4385c41169a7ae621f4260aa64afbf5050edcedfa55d1ddefa41bb941dcc8c",
+      "decoded_bytes": 171579225,
+      "decoded_sha256": "b562534cf18cef62a3dd16388526241ef4587b7481e161b7837de95293e6eaf1",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality/invocation-full.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality/invocation.receipt.json.gz",
+      "bytes": 827,
+      "sha256": "077224bc62177fb085693c78c8e5db62615b69007a5c0d5454bee8aa3110f7bc",
+      "decoded_bytes": 1799,
+      "decoded_sha256": "ab0fcaff5583fb793337c52126f1bacf1764822abbac776e3b49332c4fa3474c",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality/invocation.receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality/invocation.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality/invocation.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality/invocation.stdout.txt.gz",
+      "bytes": 2117,
+      "sha256": "b0e27a6e3dadf26fb7ff26031f194199850c41c19b06eb647e1e291394a6f9d1",
+      "decoded_bytes": 9444,
+      "decoded_sha256": "9745d210137e2c7d00935023c673c3ff57a01e1db07e24bfaa870b51f2f2a0b8",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality/invocation.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality/ruff.receipt.json.gz",
+      "bytes": 2000,
+      "sha256": "4d03189dc1ba136ccec69703937bd1c8ab539ca62905995f2c59c31190667b24",
+      "decoded_bytes": 13577,
+      "decoded_sha256": "c40e2a9f38858df1cc3c7204d8cd15dc9c735afce1b3a9aee58446fac38e6119",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality/ruff.receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality/ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality/ruff.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality/ruff.stdout.txt.gz",
+      "bytes": 2072,
+      "sha256": "43f2ac8d76be7f767a792420bccd17cf8f9d5ccf2d965475be593eee1d4a823d",
+      "decoded_bytes": 6377,
+      "decoded_sha256": "3e834b31e6b261f25d958e0965ff0075841fe5528480dfeffd3071697d368167",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality/ruff.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality/run_check.py.gz",
+      "bytes": 1406,
+      "sha256": "983c495756fd924ac54302a6469f760f4ed3e11f6030bc418efb973ec2d209b8",
+      "decoded_bytes": 2885,
+      "decoded_sha256": "936cd5bd2d7b93804a8b1e0cc78e8677d448f9b3acd4d92f54c4e792ce20805e",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality/run_check.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality/run_frozen_check.py.gz",
+      "bytes": 1407,
+      "sha256": "e435542331fe55693a28e390773654173e06ea348af48212a1e87e38429d0da1",
+      "decoded_bytes": 2890,
+      "decoded_sha256": "b46a8b501c426eaefe8bcd77d42bfbaaa4df0d54980c10bdea61805a622119e0",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality/run_frozen_check.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality/schema.receipt.json.gz",
+      "bytes": 755,
+      "sha256": "e7a59427c581202936c07ebe23b032575ddf16f9f683bc362469389f7ac7c904",
+      "decoded_bytes": 1446,
+      "decoded_sha256": "3d5f1fe9e19c196045ef94cd86e1afdab2982f72b96c0fa609e265055839237b",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality/schema.receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality/schema.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality/schema.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality/schema.stdout.txt",
+      "bytes": 261,
+      "sha256": "236d35816b0657fe0f1ddec91ee306e452406479d9a023cca7578b2bfe09124e",
+      "decoded_bytes": 261,
+      "decoded_sha256": "236d35816b0657fe0f1ddec91ee306e452406479d9a023cca7578b2bfe09124e",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality/schema.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality-8236/format.receipt.json.gz",
+      "bytes": 2012,
+      "sha256": "c8aea2e1fc59959e67aa7bd0b1cabe3beb9976fa4fb42650f2fcf7c7217af97b",
+      "decoded_bytes": 13605,
+      "decoded_sha256": "dba99f336cbf29842cc93e69fd92d5aca6f11fa3f2518ddfc17a2a9e4593c618",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality-8236/format.receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality-8236/format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality-8236/format.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality-8236/format.stdout.txt",
+      "bytes": 308,
+      "sha256": "aefde25304e44af293f365dc4e15a26039a8e37d4c87d5b5edd16bc7d2b790c8",
+      "decoded_bytes": 308,
+      "decoded_sha256": "aefde25304e44af293f365dc4e15a26039a8e37d4c87d5b5edd16bc7d2b790c8",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality-8236/format.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality-8236/invocation-full.json.gz",
+      "bytes": 6513083,
+      "sha256": "28e1e754486d7fa0f3e844c6dbdc167e6d4138600093cc5416a48379395b50d8",
+      "decoded_bytes": 171579228,
+      "decoded_sha256": "a238b347a3086a5db2a2b4bd934de93b6fdf84f473553e8f1ff39d898b95f983",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality-8236/invocation-full.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality-8236/invocation.receipt.json.gz",
+      "bytes": 829,
+      "sha256": "c98a80ed8b096ee4abdd546c900c3c9a8c4b76a18065e1011157bb1faa473a73",
+      "decoded_bytes": 1819,
+      "decoded_sha256": "bcbcb29c14231326179586ceeaad0c502c6aff44cc47db2ce588783296ea4ab2",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality-8236/invocation.receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality-8236/invocation.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality-8236/invocation.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality-8236/invocation.stdout.txt.gz",
+      "bytes": 2122,
+      "sha256": "28afebaa0de596e76c73df4e54a38312b29efba6b66dc9f679177d934adab0f1",
+      "decoded_bytes": 9449,
+      "decoded_sha256": "396fbf353e48fe52aabd29da95546a22d508e4792db2f5cd25b6dea6cb1bf5c0",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality-8236/invocation.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality-8236/ruff.receipt.json.gz",
+      "bytes": 2005,
+      "sha256": "ad9107aff4472ee3abcf5ece248fea9abb153d230dc4c3e4bb27792dc5a743c4",
+      "decoded_bytes": 13585,
+      "decoded_sha256": "91d445467239a74125a51bbf53a17594e9d608b32ee359b56d9993397f7ce40c",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality-8236/ruff.receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality-8236/ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality-8236/ruff.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality-8236/ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "decoded_bytes": 19,
+      "decoded_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality-8236/ruff.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality-8236/schema.receipt.json.gz",
+      "bytes": 758,
+      "sha256": "118b8558d4dcf63056104e2bba1247aee27a7c6a5520ce5e3af4dc0f0f4b26bd",
+      "decoded_bytes": 1460,
+      "decoded_sha256": "f5c12fb86d4c7c6cb058d1c4e43bbfe11fd03de9c48bfc6873e97f2f45f7139f",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality-8236/schema.receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality-8236/schema.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality-8236/schema.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-quality-8236/schema.stdout.txt",
+      "bytes": 261,
+      "sha256": "236d35816b0657fe0f1ddec91ee306e452406479d9a023cca7578b2bfe09124e",
+      "decoded_bytes": 261,
+      "decoded_sha256": "236d35816b0657fe0f1ddec91ee306e452406479d9a023cca7578b2bfe09124e",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality-8236/schema.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-G-checkpoint/fetch.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-G-checkpoint/fetch.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-G-checkpoint/fetch.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-G-checkpoint/fetch.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/root-final-G-checkpoint/receipt.json",
+      "bytes": 569,
+      "sha256": "1cc288759f067dbd901aa9c00e39cc44295696c1ff5467af3fdf79643023b533",
+      "decoded_bytes": 569,
+      "decoded_sha256": "1cc288759f067dbd901aa9c00e39cc44295696c1ff5467af3fdf79643023b533",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-G-checkpoint/receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/independent-source-review.json.gz",
+      "bytes": 4530,
+      "sha256": "d382651c675e55d9eb90b6a8324d1e7b68cdc3565b5da40820a01a8bd633a15e",
+      "decoded_bytes": 19380,
+      "decoded_sha256": "3368c2dbbd039da3b5e161bb7d81d8fe321914f36fed0c054dd4d81a5cd4a305",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/independent-source-review.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/review.txt.gz",
+      "bytes": 582,
+      "sha256": "314c898c5fc021eb082c019120eab416af831e2895830679b123a37c2f0d73e7",
+      "decoded_bytes": 874,
+      "decoded_sha256": "641f33c8fb0b15d923da0b21b43a16113b98d7bf51a4561438fe80c036d1f3a7",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/review.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/review_source.py.gz",
+      "bytes": 4490,
+      "sha256": "c8c188d54064b4d943d85eb1c27ecb7194809ad932b8c752de45fdbc3f2123c3",
+      "decoded_bytes": 13304,
+      "decoded_sha256": "1ef0161784a1697b7f0aefae8245eab675e03170fced2e7264533dcfbc1d8816",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/review_source.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/finalize_review.py.gz",
+      "bytes": 2660,
+      "sha256": "dc8c2b98a509ce129858a028be78fd3158a8fe471e020166871808dc1ebcc48b",
+      "decoded_bytes": 6679,
+      "decoded_sha256": "0a7832e29089738ffec2e66048a2e6a5c22a15862e8a0b0e07f614a97a85862e",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/finalize_review.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/provenance.json.gz",
+      "bytes": 1485,
+      "sha256": "1da0dc19f3a68f46995b4cb73de9b73a5b004ad9fa0777d9f32cc3b8db19346c",
+      "decoded_bytes": 6790,
+      "decoded_sha256": "34fd9042ba84848d3a68fa9afdd033868ab5c9bf51190f0ab334646a89c74be0",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/provenance.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/provenance-corrected.py.gz",
+      "bytes": 1442,
+      "sha256": "299cd844be6b5a9f9827164f6a23fd20c88c4c97300ac16811359d49aa691fff",
+      "decoded_bytes": 3007,
+      "decoded_sha256": "081b2be69f316689e189544ff6a3cb921ec5ad404c7d91b049f201b1250b57f2",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/provenance-corrected.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/provenance.py.gz",
+      "bytes": 1288,
+      "sha256": "92244bc696727f4970db0ab5fed8f06d566220aaedc9398b41d3debf0d85ccc1",
+      "decoded_bytes": 2743,
+      "decoded_sha256": "69d80a7b28d8f3cc20fa548fb060f31f811626fb5379525dc3320aec65dbf9e9",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/provenance.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/initial-type-ignore-location-harness.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/initial-type-ignore-location-harness.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/initial-type-ignore-location-harness.stderr.txt",
+      "bytes": 465,
+      "sha256": "53c3826766b7131720b4e1565dcfa12b325205e9627d1575eedbe949ca960e75",
+      "decoded_bytes": 465,
+      "decoded_sha256": "53c3826766b7131720b4e1565dcfa12b325205e9627d1575eedbe949ca960e75",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/initial-type-ignore-location-harness.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/fragment-validation.json.gz",
+      "bytes": 560,
+      "sha256": "8bd3135ccc569231b56166e69a0e1694a8af205d4e36485182f66569b495e5e5",
+      "decoded_bytes": 1137,
+      "decoded_sha256": "588b3ee29c2b75f91a57ad72a1c10ed070d708d0ee9fba8ac0ca5d7035081ac1",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/fragment-validation.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/fragment-rendered.md.gz",
+      "bytes": 561,
+      "sha256": "c2249090e42f5982bd32023ef3bff70999e4c359a91797727720a35e1fa65045",
+      "decoded_bytes": 1102,
+      "decoded_sha256": "372b4ffcd71b5ab17388986986a193ba9b7e8dcce20f6339155b7ca2bc67c3cf",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/fragment-rendered.md"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/base-d5ae-collection.stdout.txt.gz",
+      "bytes": 2508,
+      "sha256": "2ba7fffeea6cd014dcea1907f7f7a2f43d0ba83a510faac6aeca25d39bb5476a",
+      "decoded_bytes": 18259,
+      "decoded_sha256": "be3b21faa3cce9a9324460ba31a0bfca32ca583604826c0a6882eb2efe9caa39",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/base-d5ae-collection.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/base-d5ae-collection.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/base-d5ae-collection.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/candidate-8236-collection.stdout.txt.gz",
+      "bytes": 2503,
+      "sha256": "23e8a99ae790f66bb824ed3dac85071f22e592d6058f45aca6f2a14ccc870278",
+      "decoded_bytes": 18215,
+      "decoded_sha256": "5e7c2e3d6dd616abdd6bcd9831c3eb1c2df61756ddf433d6f2187b80e8f6baf3",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/candidate-8236-collection.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/candidate-8236-collection.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/candidate-8236-collection.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/independent-ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "decoded_bytes": 19,
+      "decoded_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/independent-ruff.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/independent-ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/independent-ruff.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/independent-format.stdout.txt",
+      "bytes": 26,
+      "sha256": "2ce9758b9f8abd876ec3e76c589e099e8b05377b1e7ea2331e81ee80f07bdff8",
+      "decoded_bytes": 26,
+      "decoded_sha256": "2ce9758b9f8abd876ec3e76c589e099e8b05377b1e7ea2331e81ee80f07bdff8",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/independent-format.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/independent-format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/independent-format.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/core.py.base198.formatted.txt.gz",
+      "bytes": 17399,
+      "sha256": "29f20b1b52826bf56ac93864a0c524b76d9accf5eb7e119e084f15b7047fb69b",
+      "decoded_bytes": 80958,
+      "decoded_sha256": "ffe81c30c7f738ad804c8072391bfb6a23c299e90c55efddc1e8f3db834a5121",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/core.py.base198.formatted.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/core.py.base198.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/core.py.base198.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/core.py.currentd5.formatted.txt.gz",
+      "bytes": 17428,
+      "sha256": "4cc11f4d267a3885844292738091dc8b8ab10d0a3864200362361b49940856e8",
+      "decoded_bytes": 81117,
+      "decoded_sha256": "54a919c33f3b0ba0720116d587590da5d86fa487f09a6c4d681bbc0cf84c6cef",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/core.py.currentd5.formatted.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/core.py.currentd5.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/core.py.currentd5.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/counterfactual.py.base198.formatted.txt.gz",
+      "bytes": 8848,
+      "sha256": "1b4cce692b532cd77369affdfce92efb6f86f86fb0881e4df0f4eeea0587f024",
+      "decoded_bytes": 48196,
+      "decoded_sha256": "b141a5bef489806c83435671413f4dbc49eaf2b06b6f62200f6bca9be0d2bcbd",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/counterfactual.py.base198.formatted.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/counterfactual.py.base198.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/counterfactual.py.base198.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/counterfactual.py.currentd5.formatted.txt.gz",
+      "bytes": 8909,
+      "sha256": "f7a580b76cffeea73e0a661fc08b46d623428224f4b2f3de0c4e2869d25ede5a",
+      "decoded_bytes": 48265,
+      "decoded_sha256": "8c7ad876d86d7e6620439796e5713c40dc0177073d2d91d04e7bfa6e70674b1e",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/counterfactual.py.currentd5.formatted.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/counterfactual.py.currentd5.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/counterfactual.py.currentd5.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/causal_graph.py.base198.formatted.txt.gz",
+      "bytes": 5346,
+      "sha256": "d99abbaaa1851bc4141caaf9401cb2d150adc250191649c9ed670c4b8e188f50",
+      "decoded_bytes": 20022,
+      "decoded_sha256": "9cc4687f2e34a64c76b997f9e90b2a82497389620a8ee6f40d257a5a0474ed29",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/causal_graph.py.base198.formatted.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/causal_graph.py.base198.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/causal_graph.py.base198.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/causal_graph.py.currentd5.formatted.txt.gz",
+      "bytes": 5423,
+      "sha256": "de905087e54918d87782a69ab43d6045182f695c40019644e15f5f80de408c98",
+      "decoded_bytes": 20654,
+      "decoded_sha256": "431b0c00ddbc0c33720c1b5ee61b85493a3c4bb1759e1487d2cbe5b016456dc7",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/causal_graph.py.currentd5.formatted.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/causal_graph.py.currentd5.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/causal_graph.py.currentd5.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/author/spec.json.gz",
+      "bytes": 1318,
+      "sha256": "4b5848d351e0867b16d023f88b0f440e7b2c74f21779297f24ab6fc91877f283",
+      "decoded_bytes": 3640,
+      "decoded_sha256": "2e272db89c13ba40e76ad30152ea7838ad671b56ddf83255d00928ae6df6a0e3",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/spec.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/author/AST-proof.json.gz",
+      "bytes": 1395,
+      "sha256": "497d0b6bbe4c3c076bb6b180bbf6ae3e26ce1b931a024f8d16c15406abad278c",
+      "decoded_bytes": 4007,
+      "decoded_sha256": "1497113bc48b0a7e34b8354beef8b4317e0adbc49cd92d1a10478dd393de0e11",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/AST-proof.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/author/native-api.xml.gz",
+      "bytes": 2594,
+      "sha256": "8addf55312e993527afb835ac3e8e9699ce0dedc13c01243ac9b82ae0c8ddd24",
+      "decoded_bytes": 22592,
+      "decoded_sha256": "f4e273be3b5c7fe87fd528e404a56db4aa0f6242d2d009da2fcb466f3fb9a6ac",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/native-api.xml"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/author/native-api.stdout.txt",
+      "bytes": 160,
+      "sha256": "a9d6c55ed9d807b32d5bf39b92352c1be384488db2b8135a515cc9266b970a29",
+      "decoded_bytes": 160,
+      "decoded_sha256": "a9d6c55ed9d807b32d5bf39b92352c1be384488db2b8135a515cc9266b970a29",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/native-api.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/author/native-api.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/native-api.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/author/frozen-native-api.xml.gz",
+      "bytes": 2592,
+      "sha256": "25c279748797e3bb20b1a9182a1fdd3fb9342169929b263093d7bb58413f254f",
+      "decoded_bytes": 22592,
+      "decoded_sha256": "d5f807f629403ac5a457d4a802343262596fd3480f0d976cf6e5411a6d6871fc",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/frozen-native-api.xml"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/author/frozen-native-api.stdout.txt",
+      "bytes": 160,
+      "sha256": "a9d6c55ed9d807b32d5bf39b92352c1be384488db2b8135a515cc9266b970a29",
+      "decoded_bytes": 160,
+      "decoded_sha256": "a9d6c55ed9d807b32d5bf39b92352c1be384488db2b8135a515cc9266b970a29",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/frozen-native-api.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/author/frozen-native-api.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/frozen-native-api.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/prior-quality/format.receipt.json.gz",
+      "bytes": 2008,
+      "sha256": "b068fdf060020a56d1c9bfd30960f05ed08824b679f88c7785b9deeaa89d58ee",
+      "decoded_bytes": 13596,
+      "decoded_sha256": "a5c935bbe25facf2ebd403719d1b48c35f923432da9fab6c71a4519671e26370",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality/format.receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/prior-quality/format.stdout.txt.gz",
+      "bytes": 303,
+      "sha256": "19eb9407b61c944bef94da9e28183eeb2beee3666a76a9e767a6a3f5e2dec1f6",
+      "decoded_bytes": 911,
+      "decoded_sha256": "bf2d6587cb39a7a6fe9102437e56a7524d9ab319aad45f0acb4fa6d0661a75dc",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality/format.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/prior-quality/format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-final-quality/format.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/independent-review/transfer-selection.json.gz",
+      "bytes": 2936,
+      "sha256": "ff1c07352692abe361ff997d0db6d2aa3d791eaa09137863f421cc5bc936140f",
+      "decoded_bytes": 15066,
+      "decoded_sha256": "3e64d04d867ca734b839654236d088cf9c2b46d4a24a361d7db8960b60764d5d",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/graph/root-format-review/transfer-selection.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/economics/acceptance-owner-inputs/A-ABM-diagnostic-owner-packet.json.gz",
+      "bytes": 3856,
+      "sha256": "d055edc2f46587bc741ca80c7099d2abb470e6bd6d27230cb19e8d382d771614",
+      "decoded_bytes": 11523,
+      "decoded_sha256": "ed5749acae81457e00342874708dd9d12a28f27805a9d443387c062eaf13d5d4",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/economics/acceptance-owner-inputs/A-ABM-diagnostic-owner-packet.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/economics/acceptance-owner-inputs/LA003-technical-migration-recommendation.json.gz",
+      "bytes": 8321,
+      "sha256": "3e55dd6da7c3a426d3a56a459ad15d406421c1de022208b2fe347fa9a6ef88c2",
+      "decoded_bytes": 33527,
+      "decoded_sha256": "51afe1637af85b1af64536e81a25e4b319540a2209682c1bdc67e50cf9081f00",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/economics/acceptance-owner-inputs/LA003-technical-migration-recommendation.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/economics/acceptance-owner-inputs/LA035-objective-owner-packet.json.gz",
+      "bytes": 7596,
+      "sha256": "da9125f9bbf88ecf5078b4f2772b28a40636563e39a8af5802bc5f011fe46932",
+      "decoded_bytes": 21927,
+      "decoded_sha256": "b72c35fbceae429570d91337b9f9bce6be278c173c6bfd74c65d5fcb151c77dc",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/economics/acceptance-owner-inputs/LA035-objective-owner-packet.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/economics/acceptance-owner-inputs/root-recommendation.md.gz",
+      "bytes": 1054,
+      "sha256": "b9ca9718a27bf5e6ea1ac95cf99b71f32c8106416380fc4ebfe0954fabf87184",
+      "decoded_bytes": 1865,
+      "decoded_sha256": "39b720af6ffe6fa54c079f5a54845d5bb0888481ba5345e68c029200d1f7b157",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/economics/acceptance-owner-inputs/root-recommendation.md"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/economics/acceptance-owner-inputs/transfer-selection.json.gz",
+      "bytes": 640,
+      "sha256": "9059eec5ac2e1db87a529a65043d51f77dd2bce3207ab37c595fdf08a3fb6ba4",
+      "decoded_bytes": 1334,
+      "decoded_sha256": "a38d578f5b1e13ab911892c3b358140a6a5a850eeacd33f05f45606443f7d608",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/economics/acceptance-owner-inputs/transfer-selection.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/api/lex-owner-packet/packet.json.gz",
+      "bytes": 2377,
+      "sha256": "842921d674475e3e81934ba5281384d65c64d586b3a20eb40f84e0715af89356",
+      "decoded_bytes": 6763,
+      "decoded_sha256": "6338f98de6b3621f79caf820953676f3e294e2929c483b5ddb090d417f8a629a",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/api/lex-owner-packet/packet.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/api/lex-owner-packet/source-00.txt.gz",
+      "bytes": 3965,
+      "sha256": "8331d3df079e7f5e8207c922042f9cd6db8ecc3276e433581cf29374419a0997",
+      "decoded_bytes": 15975,
+      "decoded_sha256": "144030072b61170d93ba387cb9f8977ff73e867f7ba2bb5b873a979a3c3e8230",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/api/lex-owner-packet/source-00.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/api/lex-owner-packet/source-01.txt",
+      "bytes": 179,
+      "sha256": "11b8417241a535508f1e41f4876c8650defd70fd33647c480c4b1d9db46e17d9",
+      "decoded_bytes": 179,
+      "decoded_sha256": "11b8417241a535508f1e41f4876c8650defd70fd33647c480c4b1d9db46e17d9",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/api/lex-owner-packet/source-01.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/api/lex-owner-packet/source-02.txt",
+      "bytes": 331,
+      "sha256": "e983c41a73fcc7b36c0717c961544820969e43675aa25c3f87929de299b9274d",
+      "decoded_bytes": 331,
+      "decoded_sha256": "e983c41a73fcc7b36c0717c961544820969e43675aa25c3f87929de299b9274d",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/api/lex-owner-packet/source-02.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/api/lex-owner-packet/source-03.txt.gz",
+      "bytes": 923,
+      "sha256": "d32ab6cf43a30bbc177aba07d93814e829f91561226d0f142709bf2f172845ee",
+      "decoded_bytes": 2541,
+      "decoded_sha256": "5d627f7f97e05096748d75e45aea5548526301dfce33f2bb6a53e8cc1bf86a68",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/api/lex-owner-packet/source-03.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/api/lex-owner-packet/source-04.txt.gz",
+      "bytes": 1126,
+      "sha256": "47e0a0c2f44e35519a8527238259486b35d7bc61ae9bcf33ea4497b83a9e9ff5",
+      "decoded_bytes": 3287,
+      "decoded_sha256": "0d99b29dfe41c73d8a62d767e5666e012ae66dc6750c15f194e855156e4764e1",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/api/lex-owner-packet/source-04.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/api/lex-owner-packet/source-05.txt.gz",
+      "bytes": 1291,
+      "sha256": "4abd9b878a4e37d585665e97e97f29bbca31ba0ca1c06107b12a02cfe4791531",
+      "decoded_bytes": 3587,
+      "decoded_sha256": "9f5b1f65b37e608a127ffff7559b311ee4d0fc4707433fd95393d98a9300b3b5",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/api/lex-owner-packet/source-05.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/api/lex-owner-packet/source-06.txt.gz",
+      "bytes": 1466,
+      "sha256": "ce25fd9a95593a0e65f0be8bf6f2439bd94741b403c7680c75681019ac1de9d7",
+      "decoded_bytes": 3985,
+      "decoded_sha256": "6613777ebe6fb355d537b39b9b4968dd9dcc866a2173696f95207d5a0e21686d",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/api/lex-owner-packet/source-06.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/api/lex-owner-packet/source-07.txt.gz",
+      "bytes": 920,
+      "sha256": "9008042ad919b05fb13bf42bc44915128fa272d70689a56d420003de83f0935b",
+      "decoded_bytes": 2929,
+      "decoded_sha256": "3458c0c8c080ecefeefe1232855ec440570dedd5a23e0441bae6f358a855ad91",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/api/lex-owner-packet/source-07.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/api/lex-owner-packet/source-08.txt.gz",
+      "bytes": 2559,
+      "sha256": "4656e0ac598bec0482e80a958bb6c45b9a945f215bb54cbfbc4f05bf73623675",
+      "decoded_bytes": 9775,
+      "decoded_sha256": "f45085e041d7f9d9040b189ed156b3420f7e7dbfa7caa43765dcb98702d0a3b7",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/api/lex-owner-packet/source-08.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/api/final-8236-inventory-samebytes-proof.json.gz",
+      "bytes": 813,
+      "sha256": "a2fa2b37b112eca05706eb1b043c71db1221b1b8cd964c1bbfe242cf2df24a50",
+      "decoded_bytes": 1628,
+      "decoded_sha256": "706645ce97d79f00e5313fd9e252262ec276b3f177fa38d9de0310dcf107db0d",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/api/final-8236-inventory-samebytes-proof.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006/source-implementation-full.patch.gz",
+      "bytes": 14796,
+      "sha256": "ced05033807b05b16e2447d63d98e722ad4d90821f1be35235aa6a4a11217dd3",
+      "decoded_bytes": 70739,
+      "decoded_sha256": "f1e0585169cc1ba56cd31990d87fa4807a2633707602173552c0984ef4eb4a18",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-format-forward/source-implementation-full.patch"
+    }
+  ],
+  "role": "Complete earlier and frozen source-quality outputs, implementation diff, independent review, exact owner packets; no scientific reruns hidden by aggregation"
+}

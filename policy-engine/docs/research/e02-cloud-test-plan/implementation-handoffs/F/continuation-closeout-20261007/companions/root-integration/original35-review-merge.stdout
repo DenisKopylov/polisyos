@@ -1,0 +1,112 @@
+Merge made by the 'ort' strategy.
+ ...al35-independent-criterion-review-20261007.json | 1560 ++++
+ .../README.md                                      |   15 +
+ .../api-published-material-review.json             |   10 +
+ .../baseline-F-failures30.stderr                   |    0
+ .../baseline-F-failures30.stdout.json              |  772 ++
+ .../baseline-F01-P025-fullcontext.stderr           |    0
+ .../baseline-F01-P025-fullcontext.stdout.json      |  324 +
+ .../baseline-F08-P048-fullcontext.stderr           |    0
+ .../baseline-F08-P048-fullcontext.stdout.json      | 1488 ++++
+ .../baseline-F13-P030-fullcontext.stderr           |    0
+ .../baseline-F13-P030-fullcontext.stdout.json      |  220 +
+ .../baseline-current-context.execution.json        |  102 +
+ .../baseline-import-check.execution.json           |   22 +
+ .../baseline-import-check.stderr                   |    0
+ .../baseline-import-check.stdout.gz                |  Bin 0 -> 103 bytes
+ .../baseline-query-execution.json                  | 1337 ++++
+ .../bind_published_reviews.py                      |   44 +
+ .../frozen-candidate-verifier.execution.json       |   32 +
+ .../frozen-candidate-verifier.stderr               |    0
+ .../frozen-candidate-verifier.stdout.gz            |  Bin 0 -> 708 bytes
+ .../full-implementation-diff.patch.gz              |  Bin 0 -> 175840 bytes
+ .../full-output-manifest.json                      |  531 ++
+ .../original35-review-compact.stderr               |    0
+ .../original35-review-compact.stdout.gz            |  Bin 0 -> 524 bytes
+ .../original35-review-final-v2.stderr              |    0
+ .../original35-review-final-v2.stdout.gz           |  Bin 0 -> 520 bytes
+ .../original35-review-final-v3.stderr              |    0
+ .../original35-review-final-v3.stdout.gz           |  Bin 0 -> 524 bytes
+ .../original35-review-final.stderr                 |    0
+ .../original35-review-final.stdout.gz              |  Bin 0 -> 526 bytes
+ .../original35-review.json.gz                      |  Bin 0 -> 119985 bytes
+ .../original35-review.stderr                       |    0
+ .../original35-review.stdout.gz                    |  Bin 0 -> 521 bytes
+ .../publication-binding.execution.json             |   30 +
+ .../publication-binding.stderr                     |    0
+ .../publication-binding.stdout.gz                  |  Bin 0 -> 252 bytes
+ .../publication-verifier.execution.json            |   38 +
+ .../publication-verifier.stderr                    |    0
+ .../publication-verifier.stdout.gz                 |  Bin 0 -> 709 bytes
+ .../query-B214.stderr                              |    0
+ .../query-B214.stdout.json                         |  672 ++
+ .../query-B215.stderr                              |    0
+ .../query-B215.stdout.json                         |  508 ++
+ .../query-F-full.stderr                            |    0
+ .../query-F-full.stdout.json                       | 8393 ++++++++++++++++++++
+ .../query-F01-P025.stderr                          |    0
+ .../query-F01-P025.stdout.json                     |  217 +
+ .../query-F08-P048.stderr                          |    0
+ .../query-F08-P048.stdout.json                     |  573 ++
+ .../query-F13-P030.stderr                          |    0
+ .../query-F13-P030.stdout.json                     |  209 +
+ .../query-LA035.stderr                             |    0
+ .../query-LA035.stdout.json                        |  270 +
+ .../reconcile_original35.py                        |  183 +
+ .../verify_original35_packet.py                    |  201 +
+ 55 files changed, 17751 insertions(+)
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/README.md
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/api-published-material-review.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F-failures30.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F-failures30.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F01-P025-fullcontext.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F01-P025-fullcontext.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F08-P048-fullcontext.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F08-P048-fullcontext.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F13-P030-fullcontext.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F13-P030-fullcontext.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-current-context.execution.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-import-check.execution.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-import-check.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-import-check.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-query-execution.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/bind_published_reviews.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/frozen-candidate-verifier.execution.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/frozen-candidate-verifier.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/frozen-candidate-verifier.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/full-implementation-diff.patch.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/full-output-manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-compact.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-compact.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-final-v2.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-final-v2.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-final-v3.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-final-v3.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-final.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-final.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/publication-binding.execution.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/publication-binding.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/publication-binding.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/publication-verifier.execution.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/publication-verifier.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/publication-verifier.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-B214.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-B214.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-B215.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-B215.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F-full.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F-full.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F01-P025.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F01-P025.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F08-P048.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F08-P048.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F13-P030.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F13-P030.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-LA035.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-LA035.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/reconcile_original35.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/verify_original35_packet.py

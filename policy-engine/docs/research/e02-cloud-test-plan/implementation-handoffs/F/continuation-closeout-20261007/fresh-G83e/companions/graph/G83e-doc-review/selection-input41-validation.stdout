@@ -1,0 +1,215 @@
+{
+  "check": "PASS",
+  "selected_files": 41,
+  "stored_bytes": 360597,
+  "decoded_bytes_encoded_only": 1148409,
+  "actual_merge_sha": "ea9a606f06dad1f94c0f841ec1ec7a53fc694f5c",
+  "scientific_execution": "UNRUN",
+  "results": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/identity.stdout",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/identity.stderr",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/paths.stdout",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/paths.stderr",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/diff-check.stdout",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/diff-check.stderr",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/commands.json",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/review_actual_G83e.initial.py",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/review_actual_G83e.py",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/independent-review.stdout",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/independent-review.stderr",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/independent-review.execution.json",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/independent-review-current.stdout",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/independent-review-current.stderr",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/independent-review-current.execution.json",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/D680-local-source-probe.stdout",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/D680-local-source-probe.stderr",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/actual-merge-name-status.stdout",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/actual-merge-name-status.stderr",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/actual-merge-diff-check.stdout",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/actual-merge-diff-check.stderr",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/extra-root-record-check.json",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/REVIEW.txt",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/actual-ea9a-review.json.gz",
+      "stored_check": "PASS",
+      "decoded_check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/full-diff.stdout.gz",
+      "stored_check": "PASS",
+      "decoded_check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/actual-merge-full-binary.patch.gz",
+      "stored_check": "PASS",
+      "decoded_check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/G83e-full-patch.stdout.gz",
+      "stored_check": "PASS",
+      "decoded_check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/ordinary-G83e-merge.json",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-identity.stdout",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-identity.stderr",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-full-patch.stderr",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-merge-tree.stdout",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-merge-tree.stderr",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-ordinary-merge.stdout",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-ordinary-merge.stderr",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/G-review.md",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/D-budget-review.md",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/D-budget-result.md",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/B120-original-scope.md",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/final-G-publication-review.md",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/validate_transfer_selection.py",
+      "stored_check": "PASS",
+      "decoded_check": "not_encoded"
+    }
+  ]
+}

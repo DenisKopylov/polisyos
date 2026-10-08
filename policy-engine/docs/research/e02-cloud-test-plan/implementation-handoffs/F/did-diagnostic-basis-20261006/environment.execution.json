@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/cau/environment.py"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+  "source_sha": "759c984f475d07c982c0f22f747588706ac752e8",
+  "source_tree": "c809bbf602705c045add1728bc31573447382d61",
+  "utc": "2026-10-06T15:03:57.705294+00:00",
+  "elapsed_s": 7.207770831009839,
+  "exit_code": 0,
+  "environment": {
+    "python": "3.14.7",
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "src:."
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/environment.stdout",
+    "bytes": 1140,
+    "sha256": "53c998bc9ad748b32d2738c78975e3dcd5f855a70c41b68c0dc6439c14cb1191"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/environment.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

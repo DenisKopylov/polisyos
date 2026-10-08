@@ -1,0 +1,72 @@
+{
+  "schema": "e02.F.narrow_installed_graph_qualification_plan.v1",
+  "state": "UNRUN_WAIT_ROOT_FINAL_SCIENTIFIC_REVIEW_GO",
+  "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "old_source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "old_source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+  "profile": "ONE freshly built candidate sourcewheel and fresh isolated Python-I site; no new sdist rebuild or91-suite",
+  "old_archives_existing_locator_bindings": [
+    {
+      "name": "wheel-archive",
+      "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/dist-source/policy_engine-0.1.0-py3-none-any.whl",
+      "bytes": 15146001,
+      "sha256": "ba048b292f6b22f5a0ae3afb98c1ce6bd3fc2bfe0429c63ed9181793945a13ac"
+    },
+    {
+      "name": "sdist-archive",
+      "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/dist-source/policy_engine-0.1.0.tar.gz",
+      "bytes": 121945591,
+      "sha256": "d6957fecf70c2815851c234d6d5242b37d70190249f8c84aac4fab75d88be873"
+    },
+    {
+      "name": "rebuilt_wheel-archive",
+      "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/dist-rebuilt/policy_engine-0.1.0-py3-none-any.whl",
+      "bytes": 15146001,
+      "sha256": "ba048b292f6b22f5a0ae3afb98c1ce6bd3fc2bfe0429c63ed9181793945a13ac"
+    }
+  ],
+  "old_neutral_sites": {
+    "wheel": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-env/bin/python",
+    "sdist": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-env/bin/python"
+  },
+  "old_immutable_reader_scripts": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/launch.py",
+      "bytes": 2774,
+      "sha256": "6496f1c6c95c377df5dc1307fdd31d3a5ffa32cb7bb36e560092decfb0d28f96"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/fresh_graph_bridge.py",
+      "bytes": 7583,
+      "sha256": "f3eb8abaa05c8155d4cacda69eb91c1f4a332b210e62def6c100f8e9d6fecbee"
+    }
+  ],
+  "build_strategy": "Actual uv/Hatch wheel build from root frozen tracked packaging inputs, full candidate Git/source/wheel/site byte binding. Existing root checkout may be used only under HEAD/product-byte freeze guards and no product/source writes. No copied cumulative source branch or mutation of prior519 archive/site. Reuse actual readonly app dependency site; install candidate wheel into a fresh dedicated site with one literal dependency-only .pth.",
+  "archive_inputs": "pyproject/Hatch actual force-includes enumerate all current product files+11resources; full set derived at freeze, no assumed historical count. All wheel files/source hashes + every actual polisyos/tools import origin checked before/after; no product PYTHONPATH or editable/source fallback.",
+  "selectors": [
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_mgraph_producer_and_node_refuse_without_retyping_or_publishing",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_same_admg_shape_has_real_producer_node_and_fresh_reader",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_other_semantic_profiles_refuse_direct_and_supplied_result",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_supplied_mgraph_result_and_selected_cache_apply_same_profile_boundary",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_genuine_producer_to_fresh_reader_preserves_known_relations",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_current_real_producer_direction_supersedes_cache",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_current_parameters_recompute_full_content",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_query_only_replay_reconciles_current_alignment_result"
+  ],
+  "expected_case_count": null,
+  "count_basis": "Actual pytest collection on copied exact frozen Git carriers; parametrization count derived, never guessed.",
+  "additional_real_consumer": "ONE actual registeredMethodJob/Node selected known staticADMG ref -> separatePID same candidate-installed Python-I FileSystemCAS reader, plus actualMGraph persistedsource refusal/missingness metadata preserved. Parent native fresh() sameprocess remains explicitly separate.",
+  "retained_marker_control": "After scientific review, reuse source-bound canonical producer/Node semantic-profile removal probe on fresh installed modules, preserving names/marker text; full expected assertion failure retained. No optional identification engine or authority issuer.",
+  "unchanged_carriers": "Resource11/worker3.12/lock/nativeownership carried only after complete Git blob equality vs519; old91PASS not promoted to newcandidate.",
+  "serialization": "Only actual fixedPrometheus9464 process lifetime serialized if conflict. No CPU/process/thread quota.",
+  "limits": [
+    "Candidate build/native still UNRUN; root both independent reviews GO and exact final frozen source required.",
+    "Old519 remains bounded original wheel91/sdist91 and ONEwheel child evidence, not newer package proof.",
+    "No wholeRuntime/EvalSafety/identification/value/B56 admitted-positive proof."
+  ],
+  "raw_preservation": "Oldsource/archives/sites/CAS/replayers/fullraw immutable and retained; no cleanup/deletion."
+}

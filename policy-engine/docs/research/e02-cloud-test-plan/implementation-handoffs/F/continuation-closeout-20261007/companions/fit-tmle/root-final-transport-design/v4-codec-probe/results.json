@@ -1,0 +1,42 @@
+{
+  "results": [
+    {
+      "mode": "files",
+      "outcome": "PASS",
+      "stored_bytes_exact_reused": true,
+      "same_complete_decoded_payload": true
+    },
+    {
+      "mode": "items",
+      "outcome": "PASS",
+      "stored_bytes_exact_reused": true,
+      "same_complete_decoded_payload": true
+    },
+    {
+      "mode": "selection",
+      "outcome": "PASS",
+      "stored_bytes_exact_reused": true,
+      "same_complete_decoded_payload": true
+    },
+    {
+      "mode": "bad-stored",
+      "outcome": "FAIL",
+      "expected_control_detected": true,
+      "marker_encoding_retained": "gzip"
+    },
+    {
+      "mode": "bad-decoded",
+      "outcome": "FAIL",
+      "expected_control_detected": true,
+      "marker_encoding_retained": "gzip"
+    },
+    {
+      "mode": "ambiguous",
+      "outcome": "FAIL",
+      "expected_control_detected": true
+    }
+  ],
+  "science_tests_run": false,
+  "source_Git_writes": false,
+  "synthetic_scope": "Only codec/schema/complete-byte custody; no fake catalog seed or authority fixture."
+}

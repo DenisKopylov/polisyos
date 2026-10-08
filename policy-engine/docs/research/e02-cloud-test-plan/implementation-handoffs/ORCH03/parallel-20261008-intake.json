@@ -1,0 +1,363 @@
+{
+  "schema": "policyos.e02.orchestrator_intake.v1",
+  "role": "ORCH03",
+  "scope": [
+    "C07",
+    "C08",
+    "C09"
+  ],
+  "coordination_only": true,
+  "base_sha": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+  "base_tree": "682b043138464c912dd728c12e80049dd44b47f1",
+  "fetched_G": {
+    "sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+    "prior_checkpoint": "2abc17f46a033a7879663486ff9946a95786601f"
+  },
+  "no_source_acceptance_inferred": true,
+  "formal_closure": "not_assigned",
+  "input_manifest": [
+    {
+      "ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b:policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/COMMON.md",
+      "git_blob": "116b74d20e0bb9a9e9421bc48a6d95b86a373a79",
+      "bytes": 14882,
+      "sha256": "b919e06683b70a3df5961dd0a7ef5cbde792874879265d433fcb7bcb15024685"
+    },
+    {
+      "ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b:policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json",
+      "git_blob": "f2e8d2096b86148fb93d4eb61520d22002228a1d",
+      "bytes": 41684,
+      "sha256": "6d9d894368a214c820ef88265e22c07a832294fe0681cde4eedce14998f512a6"
+    },
+    {
+      "ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b:policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C07.md",
+      "git_blob": "beed892f52825dc43832fbfdbc1071220669cd6a",
+      "bytes": 5792,
+      "sha256": "e0ffd2a8a86d3018bd03ea96688d703e6adcc15601b3a72eeabd0278a5c9ee62"
+    },
+    {
+      "ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b:policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C08.md",
+      "git_blob": "56eedf456988fa4dc7ff9fae54f713e246f6d668",
+      "bytes": 7648,
+      "sha256": "ec2af368b35a763af41ecceab616e2a84c53a9b5005d8bddc476c5a659ddeccb"
+    },
+    {
+      "ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b:policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C09.md",
+      "git_blob": "98054eef9a660c36bfd2788ae812e8054b93d527",
+      "bytes": 6717,
+      "sha256": "208271c18e6eeecd74578618c8da74381e675ad94108da1b46b82a314a3c9671"
+    },
+    {
+      "ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b:policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+      "git_blob": "a27cf7e78dc7c16df279a5136399ee0a5daeee9a",
+      "bytes": 7835,
+      "sha256": "488806f7ffa455a84e311e19b2cc1d207016b587625abf846ddd11753b21cd7d"
+    },
+    {
+      "ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b:policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+      "git_blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e",
+      "bytes": 114380,
+      "sha256": "590cb7631422175148022217a96fc1c234f8ba4f0d22e83bde46d9636bdd5ce0"
+    },
+    {
+      "ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b:policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json",
+      "git_blob": "749255cd37f93955b176c748d63b2a3a7b7ee214",
+      "bytes": 11686,
+      "sha256": "5c9068d134f391eeb26dbed01d59197b009bda01bef55646eb97dcf4a1079b28"
+    },
+    {
+      "ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b:policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/02-decisions.md",
+      "git_blob": "0723bc9d0292b6cf52f1656afe06afd5dcac98a0",
+      "bytes": 18958,
+      "sha256": "6c736256699df2d5283d4fca939a4d81f12a6af3a3a08c190eec08c2bc998701"
+    },
+    {
+      "ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b:policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/06-inputs-and-deferrals.md",
+      "git_blob": "2abfdab3559d6a3f7866785560b4531e8c715ee7",
+      "bytes": 11493,
+      "sha256": "afafcd97ebbc1e68abc1ed555853f269d566dc2a6e97389b414007f17394802c"
+    },
+    {
+      "ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b:policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/07-source-selection.md",
+      "git_blob": "f501af90dc634286f6948bfc77b6711c5b60cb73",
+      "bytes": 7389,
+      "sha256": "12b703e693b355ebb343c82e271781e860afaf307b374d6dfee65dd30e03ed71"
+    }
+  ],
+  "lanes": [
+    {
+      "role": "C07",
+      "original_source_unit": "E",
+      "finding_owner_rule": "full finding-owners.tsv/original card; B31 stays A/EMP-01, E relation supplier",
+      "branch": "codex/e02-E-c07-20261008",
+      "absolute_worktree_root": "/dev/shm/e02-orch03-20261008/c07",
+      "initial_source_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "initial_source_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+      "admissions": [
+        {
+          "mode": "create",
+          "requested": {
+            "branch": "codex/e02-E-c07-20261008",
+            "mode": "create",
+            "path": "/dev/shm/e02-orch03-20261008/c07"
+          },
+          "status": "admitted",
+          "full_json_local_path": "/dev/shm/e02-orch03-20261008/coordination/c07-create.json",
+          "bytes": 147849,
+          "sha256": "99435c62e397b68cea1df499fd33bd315356e924184f5573bf28ca2c77118f59",
+          "unresolved_inputs": [],
+          "full_output_custody": "preserved local; exact leaf handoff will carry required commissioning output reference"
+        },
+        {
+          "mode": "resume",
+          "requested": {
+            "branch": "codex/e02-E-c07-20261008",
+            "mode": "resume",
+            "path": "/dev/shm/e02-orch03-20261008/c07"
+          },
+          "status": "admitted",
+          "full_json_local_path": "/dev/shm/e02-orch03-20261008/coordination/c07-resume.json",
+          "bytes": 153610,
+          "sha256": "bb0e40fb0a887ce920ae42595839d104ffef7877ee43cfdf30873b26588cee7b",
+          "unresolved_inputs": [],
+          "full_output_custody": "preserved local; exact leaf handoff will carry required commissioning output reference"
+        }
+      ],
+      "dispatch_lease": {
+        "title": "IR uncertainty и B31 persisted subject/estimand/unit relation",
+        "environment": "cloud",
+        "original_units": [
+          "E"
+        ],
+        "input_pin_keys": [
+          "E_source",
+          "E",
+          "A",
+          "G"
+        ],
+        "task_parts": [
+          "S1:B31",
+          "S3:producer"
+        ],
+        "source_scopes": [
+          "policy-engine/src/polisyos/core/contracts/value_outer_set.py",
+          "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+          "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+          "policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py",
+          "policy-engine/src/polisyos/ir/analytics/estimand.py",
+          "policy-engine/src/polisyos/ir/registry/refs.py",
+          "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+          "policy-engine/src/polisyos/ir/__init__.py",
+          "policy-engine/src/polisyos/ir/api.py",
+          "policy-engine/src/polisyos/ir/analytics/__init__.py",
+          "policy-engine/src/polisyos/ir/migrations/schema_registry.py"
+        ],
+        "excluded_paths": [],
+        "test_start_paths": [
+          "policy-engine/tests/unit/core/contracts/test_value_outer_set.py",
+          "policy-engine/tests/unit/ir/test_uncertainty.py",
+          "policy-engine/tests/unit/foundry/methods/test_value_evidence.py"
+        ],
+        "mode": "candidate_source_writer",
+        "test_write_rule": "Only named mirrored tests of own mechanism after actual file lease; existing shared tests stay with canonical mechanism owner; otherwise submit a patch. Test-start paths are discovery/check selectors, not blanket write leases.",
+        "prompt": "C07.md",
+        "receipt_namespace": "parallel-20261008-c07",
+        "property_and_execution_source": "C07.md + original criterion refs in linked findings.json/tasks.json"
+      },
+      "source_writer": "/root/c07",
+      "root_source_writer": false,
+      "lease_reconciliation": "Actual mechanism/test/unique companion paths authorized through coordinator; shared/generated paths excluded."
+    },
+    {
+      "role": "C08",
+      "original_source_unit": "F",
+      "finding_owner_rule": "full finding-owners.tsv/original card; B31 stays A/EMP-01, E relation supplier",
+      "branch": "codex/e02-F-c08-20261008",
+      "absolute_worktree_root": "/dev/shm/e02-orch03-20261008/c08",
+      "initial_source_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "initial_source_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+      "admissions": [
+        {
+          "mode": "create",
+          "requested": {
+            "branch": "codex/e02-F-c08-20261008",
+            "mode": "create",
+            "path": "/dev/shm/e02-orch03-20261008/c08"
+          },
+          "status": "admitted",
+          "full_json_local_path": "/dev/shm/e02-orch03-20261008/coordination/c08-create.json",
+          "bytes": 153523,
+          "sha256": "085dc629bd52f5949a5d51409ae9ba66bc6eab897bcfbe40c74a2ab4a9a79d54",
+          "unresolved_inputs": [],
+          "full_output_custody": "preserved local; exact leaf handoff will carry required commissioning output reference"
+        },
+        {
+          "mode": "resume",
+          "requested": {
+            "branch": "codex/e02-F-c08-20261008",
+            "mode": "resume",
+            "path": "/dev/shm/e02-orch03-20261008/c08"
+          },
+          "status": "admitted",
+          "full_json_local_path": "/dev/shm/e02-orch03-20261008/coordination/c08-resume.json",
+          "bytes": 159284,
+          "sha256": "9eef5cdece5fb027a9af391f58d59a2640f14f23cfb7ff04320f20bc5e37a85e",
+          "unresolved_inputs": [],
+          "full_output_custody": "preserved local; exact leaf handoff will carry required commissioning output reference"
+        }
+      ],
+      "dispatch_lease": {
+        "title": "F graph/query profiles и TMLE competing-study admission",
+        "environment": "cloud",
+        "original_units": [
+          "F"
+        ],
+        "input_pin_keys": [
+          "F_source",
+          "F_receipt",
+          "G"
+        ],
+        "task_parts": [
+          "S1:B214",
+          "R4:TMLE"
+        ],
+        "source_scopes": [
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/",
+          "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+          "policy-engine/src/polisyos/ir/analytics/causal_graph_kuzu.py",
+          "policy-engine/src/polisyos/ir/analytics/mgraph.py",
+          "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+          "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+          "policy-engine/src/polisyos/ir/analytics/twin_network.py",
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/",
+          "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py"
+        ],
+        "excluded_paths": [],
+        "test_start_paths": [
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py",
+          "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+          "policy-engine/tests/unit/remediation/test_grf_03.py"
+        ],
+        "mode": "candidate_source_writer",
+        "test_write_rule": "Only named mirrored tests of own mechanism after actual file lease; existing shared tests stay with canonical mechanism owner; otherwise submit a patch. Test-start paths are discovery/check selectors, not blanket write leases.",
+        "prompt": "C08.md",
+        "companion_paths": [
+          "policy-engine/src/polisyos/foundry/methods/__init__.py",
+          "policy-engine/src/polisyos/foundry/methods/README.md"
+        ],
+        "receipt_namespace": "parallel-20261008-c08",
+        "property_and_execution_source": "C08.md + original criterion refs in linked findings.json/tasks.json"
+      },
+      "source_writer": "/root/c08",
+      "root_source_writer": false,
+      "lease_reconciliation": "Actual mechanism/test/unique companion paths authorized through coordinator; shared/generated paths excluded."
+    },
+    {
+      "role": "C09",
+      "original_source_unit": "E",
+      "finding_owner_rule": "full finding-owners.tsv/original card; B31 stays A/EMP-01, E relation supplier",
+      "branch": "codex/e02-E-c09-20261008",
+      "absolute_worktree_root": "/dev/shm/e02-orch03-20261008/c09",
+      "initial_source_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "initial_source_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+      "admissions": [
+        {
+          "mode": "create",
+          "requested": {
+            "branch": "codex/e02-E-c09-20261008",
+            "mode": "create",
+            "path": "/dev/shm/e02-orch03-20261008/c09"
+          },
+          "status": "admitted",
+          "full_json_local_path": "/dev/shm/e02-orch03-20261008/coordination/c09-create.json",
+          "bytes": 159197,
+          "sha256": "c9c345bbb9de07585d23017f4d5be86f459911e68ddaa67c101034274ef89e5f",
+          "unresolved_inputs": [],
+          "full_output_custody": "preserved local; exact leaf handoff will carry required commissioning output reference"
+        },
+        {
+          "mode": "resume",
+          "requested": {
+            "branch": "codex/e02-E-c09-20261008",
+            "mode": "resume",
+            "path": "/dev/shm/e02-orch03-20261008/c09"
+          },
+          "status": "admitted",
+          "full_json_local_path": "/dev/shm/e02-orch03-20261008/coordination/c09-resume.json",
+          "bytes": 164958,
+          "sha256": "6a2a61fb546416e8d65bdadadb9550c052279f6422ea025285c0ec4a01f551ef",
+          "unresolved_inputs": [],
+          "full_output_custody": "preserved local; exact leaf handoff will carry required commissioning output reference"
+        }
+      ],
+      "dispatch_lease": {
+        "title": "Calibration/UQ/DOE/Forecast: совместимые empirical producers",
+        "environment": "cloud",
+        "original_units": [
+          "E"
+        ],
+        "input_pin_keys": [
+          "E_source",
+          "E",
+          "G"
+        ],
+        "task_parts": [
+          "S2",
+          "V7:producer",
+          "V4:forecast supplier",
+          "S1:scoped residual input/research"
+        ],
+        "source_scopes": [
+          "policy-engine/src/polisyos/foundry/calibration/",
+          "policy-engine/src/polisyos/foundry/uncertainty/",
+          "policy-engine/src/polisyos/scientist/methods/doe/",
+          "policy-engine/src/polisyos/scientist/methods/backtesting/"
+        ],
+        "excluded_paths": [],
+        "test_start_paths": [
+          "policy-engine/tests/unit/foundry/calibration/",
+          "policy-engine/tests/unit/foundry/uncertainty/",
+          "policy-engine/tests/unit/scientist/methods/backtesting/"
+        ],
+        "mode": "candidate_source_writer",
+        "test_write_rule": "Only named mirrored tests of own mechanism after actual file lease; existing shared tests stay with canonical mechanism owner; otherwise submit a patch. Test-start paths are discovery/check selectors, not blanket write leases.",
+        "prompt": "C09.md",
+        "receipt_namespace": "parallel-20261008-c09",
+        "property_and_execution_source": "C09.md + original criterion refs in linked findings.json/tasks.json"
+      },
+      "source_writer": "/root/c09",
+      "root_source_writer": false,
+      "lease_reconciliation": "Actual mechanism/test/unique companion paths authorized through coordinator; shared/generated paths excluded."
+    }
+  ],
+  "partners": {
+    "C01": "Runtime worker/study admission; actual API required, no second scheduler",
+    "C02": "canonical CAS manifest/bytes/ownership intake",
+    "C10": "producer subject/refs and existing verifier/fresh ValuePort; no self-issued authority",
+    "G": "source composition and generated/global inventory/lockfile",
+    "L01": "minimal actual facts only; production remains local"
+  },
+  "result_import_check": {
+    "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+    "exit_code": 0,
+    "stdout": "{\"ok\":true,\"files\":[\"cells.tsv\",\"properties.tsv\",\"events.jsonl\",\"gates.json\",\"routes.tsv\",\"verification.json\"]}\n",
+    "baseline_grade": "transfer_and_navigation_only",
+    "raw_archives_received": 0,
+    "old_results_not_candidate_proof": true
+  },
+  "independent_reviewers": {
+    "C07": "/root/oracle_ir",
+    "C08": "/root/oracle_graph",
+    "C09": "/root/oracle_empirical"
+  },
+  "existing_roots_read_only_lease_check": {
+    "ORCH01": "latest user assignment C01-C04",
+    "ORCH02": "latest user assignment C05/C06/C12",
+    "ORCH04": "latest user assignment C10/C11/C13",
+    "duplicate_C07_C08_C09_roots_observed": false,
+    "messages_to_other_user_chats": false
+  },
+  "verification_policy": "author characterization; exact source freeze then non-author review then affected final checks; C13 broad only after G freeze",
+  "cleanup": "No cleanup performed. Preserve active lanes/environments/deciding outputs. Native Trash unavailable; retired candidates listed at final handoff only."
+}

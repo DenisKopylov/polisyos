@@ -1,0 +1,152 @@
+{
+  "schema": "e02.F.independent.narrow_source_criterion_review.v1",
+  "reviewer_role": "Independent read-only source/criterion/quality reviewer; no author, G or root mutations",
+  "G_review": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+  "baseline_F": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+  "graph_candidate": "36b18cc142aff77a5825126b4f07bafec09a5180",
+  "graph_candidate_tree": "28a104214fe96f1ccf572aeb64a7866c41776344",
+  "graph36_source_review": "GO_BOUNDED_SOURCE_ONLY",
+  "graph36_changed_paths": [
+    {
+      "git_ref": "36b18cc142aff77a5825126b4f07bafec09a5180",
+      "path": "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+      "bytes": 3865,
+      "sha256": "a9989b4216f1428923558add2cb56ce99e3a65b5687d2d70546311ada79c92fc",
+      "git_blob": "c466cd06a14c37736924709bc8ebae99f6174f37"
+    },
+    {
+      "git_ref": "36b18cc142aff77a5825126b4f07bafec09a5180",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+      "bytes": 2432,
+      "sha256": "aa5ce09f178044a7a3ef5519613f6d159abdbc19f9fda59850f74ffd46e44903",
+      "git_blob": "0d506b76554a16ff2c605a812d176ebe7d5560b7"
+    },
+    {
+      "git_ref": "36b18cc142aff77a5825126b4f07bafec09a5180",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "bytes": 62982,
+      "sha256": "087608c68bda58d1ae026006085665d04dce6d8f63c65849f200027fe4340855",
+      "git_blob": "3af0355c3f7e0dc4872f20c3b1d0223423785f55"
+    },
+    {
+      "git_ref": "36b18cc142aff77a5825126b4f07bafec09a5180",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "bytes": 48337,
+      "sha256": "1491b91aaeb57b30d32e34c8fa1b5ab3be5ed20b0907dc9765eb3d916597bcdc",
+      "git_blob": "411d98f8bc3d355a997a83653d2b551011ba35d9"
+    },
+    {
+      "git_ref": "36b18cc142aff77a5825126b4f07bafec09a5180",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+      "bytes": 45219,
+      "sha256": "37f7fc1dc7a3d4d840ba1c42472854dcf00a895a3dfae8213c6f2ef562e42712",
+      "git_blob": "072c10f4a75f32f2443e78cc6a8a55015a545bdc"
+    },
+    {
+      "git_ref": "36b18cc142aff77a5825126b4f07bafec09a5180",
+      "path": "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+      "bytes": 26534,
+      "sha256": "d1c11a3161cca0d7720e9d3c4a7ba46649a2e672f2202688c8f03206bbb99465",
+      "git_blob": "5bfcc1b7fc4241422cd1eb4b69cc6a36693fd13c"
+    }
+  ],
+  "graph36_full_diff": {
+    "path": "graph36-full.patch",
+    "bytes": 21432,
+    "sha256": "39c2eef884f92aab1c0339403069f7b45818b865fbf15408141b1c8fabf786e2"
+  },
+  "new_property": "Declared static DAG/ADMG family admission is checked before confidence filtering, merge/cycle rewriting and reconciled-graph persistence, not inferred from visible marks.",
+  "same_class_denominator": [
+    "ReconcileCausalGraph.pure_step current data graph",
+    "ComposeSCMFragments.pure_step each fragment graph, including typed model_copy bypass",
+    "Scientist _resolve_graph_ref selected cache and fragment source refs",
+    "Scientist query-only composed-graph replay",
+    "Scientist final reconciled graph validation before CAS persistence"
+  ],
+  "preserved_positive_profiles": [
+    "Ordinary declared DAG producer → Node → fresh CAS reader",
+    "Declared ADMG directed/bidirected relations including parallel pair",
+    "Reverse-stored known arrow in actual ADMG DTO",
+    "Original fully-known reverse PAG projection remains unchanged in its separate owner",
+    "MGraph original artifact and missingness extractor remain readable after reconciliation refusal"
+  ],
+  "required_native_evidence_after_candidate": [
+    "Scored actual build_mgraph before and after canonical admission, no new reconciled artifact",
+    "CPDAG/PAG/MGraph fully-oriented and empty forms refuse before filtering, direct/method/CAS/cache",
+    "Canonical producer and actual selected Node/CAS paths, not DTO-only reflection",
+    "A retained-marker admission removal causes the real numeric/semantic discriminator to fail",
+    "Declared DAG/ADMG positives and composition/temporal static-refusal contracts stay supported"
+  ],
+  "native_execution_by_this_reviewer": "NOT_RUN; code/claims only, independent author/other reviewer receipts separate",
+  "G_native_pre_fix": {
+    "receipt.json": {
+      "git_ref": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/receipt.json",
+      "bytes": 26957,
+      "sha256": "97cbc9aba2cd526966b12de34be1494a0477b01f1063fdc11c301d9fc2476bbc"
+    },
+    "deciding.stdout.txt": {
+      "git_ref": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/deciding.stdout.txt",
+      "bytes": 3050,
+      "sha256": "8160fecd4d7fa174c7a328b2970295a27d44c5e17ba830af72596c0417dd3197"
+    }
+  },
+  "B204_followup": "Repair only maintained benchmark pretrend fixture/expectation; leave insufficient-pre not_testable, zero-pre rejection and method numerical law unchanged. Qualify fresh exact selector and preserve historical2PASS1FAIL without inherited/P41 claim.",
+  "B212_B213_followup": "Focused actual changed test_dowhy_worker.py qualification in configured genuine3.12 DoWhy backend profile. Do not turn excluded in-process3.14 markers into a backend witness; no blanket backend repeat or shim.",
+  "LA037_docs_followup": "IR.kernel.slots is sole owner; primary Foundry facade and compiler compatibility alias are explicit direct identical bindings, not two algorithm hops. Align current state reference/autodoc and finite lifecycle classification without deleting supported paths.",
+  "LA035_carry": "Original equivalent GlobalState formula relocation remains closed. Future changed objective ranking/optimizer intent needs an independent version/decision, not reopening this original ID.",
+  "B214_broad_limit": {
+    "F_outcome": "limited",
+    "formal_G": "not_issued",
+    "trigger": "Tracked canonical C identification/graph-family/query decision with A projection contract and exact finite supported partial/conditional capability discriminator; genuine completions with different answers remain conditional or refuse, no arbitrary extension.",
+    "narrow_fix_not_broad_closure": true
+  },
+  "B56_limit": {
+    "F_outcome": "limited",
+    "check": "UNRUN",
+    "formal_G": "not_issued",
+    "trigger": "Actual shared Runtime/Scientist admission unit/cap on exact source/tree and runnable profile; full simultaneous-job/model/fold/repeat/seed/input roster, peak active/wait/wall/RSS and complete no-loss result/provenance/CAS comparison. Test-created pool is not canonical budget.",
+    "no_new_TMLEScheduler": true
+  },
+  "status_separation": {
+    "F_original_closed": 33,
+    "F_original_limited": 2,
+    "code_ready": "source/profile qualified independently",
+    "G_new_runtime_source_acceptance": 0,
+    "G_formal_findings_closed": 0,
+    "historical_Lex_source_acceptance_preserved": "00a6eda114b903bc5abe86902cd8372426f739a1",
+    "G_bounded_supported_criteria": 33
+  },
+  "global_quality_preserved": {
+    "source519_scanner": "ERROR/-9 twice; no fullJSON, no repeat",
+    "Ruff": "FAIL103",
+    "public_surface": "FAIL38",
+    "P41": "not_established; overlap, no inherited label",
+    "old_b5_completed_scanner": "FAIL/UNRESOLVED partial5954, not PASS",
+    "format19": "PASS exact519",
+    "five_fragments": "PASS exact519",
+    "new_graph_profile_full_source_quality": "not inferred from old519 scoped checks"
+  },
+  "prior_reviews_by_ref_no_171MB_reparse": [
+    {
+      "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/economics/root-quality-review/review.json",
+      "bytes": 21655,
+      "sha256": "c736a523adb2246a6a930457e55634f77ca5ce7a2302e93a203075e545e1bea6"
+    },
+    {
+      "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/economics/recovery-review-20261007/retry-review-delta.json",
+      "bytes": 4043,
+      "sha256": "03edce1216e8d5a5f42c99fc8b405129905880671a3904d319c861d5c900eb3c"
+    },
+    {
+      "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/economics/recovery-review-20261007/source-review.json",
+      "bytes": 45173,
+      "sha256": "22bf295994205792e1c76e68865e94f040e1c80115161a3a7fad6aecefb41a58"
+    }
+  ],
+  "review_scope_limit": "Proposed current ledger update requirements; final frozen ledger not yet received. No production/identification/legal authority, institutional adoption or installed-assembled readiness is inferred from source-only review."
+}

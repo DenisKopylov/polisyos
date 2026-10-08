@@ -1,0 +1,37 @@
+{
+  "schema": "e02.F.independent.appendix_transfer_selection.v1",
+  "frozen": true,
+  "scope": "Read-only exact precommit independent-review appendix; no scientific rerun/main transport decode/root mutations.",
+  "base_sha": "cbfc2647b63b7b43e608532abb2159d3785bab42",
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-appendix-review/verify_appendix.py",
+      "bytes": 9002,
+      "sha256": "af699a16f1af6a9892146dcc8449e6a3f05801a1b8a143ec7aa9da773d9903e8"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-appendix-review/capture_appendix.py",
+      "bytes": 1126,
+      "sha256": "bb3a530bfd86d377858b1a4036397331ccfdbd6d59c894db0350a895983211ff"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-appendix-review/execution.json",
+      "bytes": 993,
+      "sha256": "93f2d69c7d9c8c6a34cc49873bd3fd6c5bdd2507fd002f8cc6b65c06cdac60ec"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-appendix-review/stdout.json",
+      "bytes": 52030,
+      "sha256": "a0620d42582ba3dc778f58362399d0c0d88d24914ee5d8e70ff9485aa6059aab"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-appendix-review/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "counts": {
+    "files": 5,
+    "bytes": 63151
+  }
+}

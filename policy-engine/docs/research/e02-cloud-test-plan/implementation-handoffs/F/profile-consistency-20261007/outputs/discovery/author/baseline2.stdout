@@ -1,0 +1,269 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_requested_pag_reconciliation_limitation_survives_method_cas_reader[prior] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-287/test_requested_pag_reconciliat0')
+request_kind = 'prior'
+
+    @pytest.mark.parametrize("request_kind", ["prior", "hint"])
+    def test_requested_pag_reconciliation_limitation_survives_method_cas_reader(
+        tmp_path, request_kind: str
+    ) -> None:
+>       report = _persisted_report(tmp_path, _state(request_kind))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py:74: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py:48: in _persisted_report
+    job = run_job(
+policy-engine/src/polisyos/scientist/compute/runner.py:755: in run_job
+    return _run_method_job(
+policy-engine/src/polisyos/scientist/compute/runner.py:686: in _run_method_job
+    result = backend.run(
+policy-engine/src/polisyos/scientist/compute/runner.py:260: in run
+    method_result = dispatcher.dispatch(
+policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:594: in dispatch
+    raise last_exc
+policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:546: in dispatch
+    result = self._dispatch_with_candidates(
+policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:815: in _dispatch_with_candidates
+    result = self._execute_on_backend(
+policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:888: in _execute_on_backend
+    return breaker.call(_execute)
+           ^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/foundry/methods/backends/circuit_breaker.py:219: in call
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:880: in _execute
+    return runner.execute(
+policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py:113: in execute
+    slot_outputs = dematerialize_method_output(
+policy-engine/src/polisyos/foundry/methods/components/io.py:77: in dematerialize_method_output
+    result = _coerce_output_mapping(signature=signature, output=output)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _coerce_output_mapping(*, signature: MethodSignature, output: Any) -> dict[str, Any]:
+        expected_slots = sorted(signature.output_slots, key=lambda item: item.name)
+        if not expected_slots:
+            if output is None:
+                return {}
+            if isinstance(output, Mapping):
+                extras = {key: value for key, value in output.items() if key not in _META_OUTPUT_KEYS}
+                if extras:
+                    raise MethodContractError(
+                        signature.fqn,
+                        f"method declares no output slots but returned {sorted(extras)}",
+                    )
+            return {}
+    
+        if len(expected_slots) == 1 and not isinstance(output, Mapping):
+            return {expected_slots[0].name: output}
+    
+        if not isinstance(output, Mapping):
+            raise MethodContractError(
+                signature.fqn,
+                f"method must return a mapping for output slots {sorted(signature.output_slot_names)}",
+            )
+    
+        source = dict(output)
+        materialized: dict[str, Any] = {}
+        for slot in expected_slots:
+            aliases = _COMMON_OUTPUT_ALIASES.get(slot.name, ())
+            candidates = (slot.name,) + aliases
+            found = False
+            for candidate in candidates:
+                if candidate in source:
+                    materialized[slot.name] = source[candidate]
+                    found = True
+                    break
+            if not found:
+>               raise MethodContractError(
+                    signature.fqn,
+                    f"missing output for declared slot '{slot.name}'",
+                )
+E               polisyos.foundry.methods.exceptions.MethodContractError: Method contract error for causal.discovery.unified_causal_discovery@1.1.0: missing output for declared slot 'discovery_pipeline_report'
+
+policy-engine/src/polisyos/foundry/methods/components/io.py:164: MethodContractError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 19:26:22 [info     ] method_registered              backend=numpy fqn=causal.discovery.unified_causal_discovery@1.1.0 lazy=False namespace=causal.discovery override=True tags=['causal', 'discovery', 'pag', 'pipeline', 'structural', 'unified'] version=1.1.0
+2026-10-07 19:26:22 [debug    ] method_dispatch_start          backend=numpy fqn=causal.discovery.unified_causal_discovery@1.1.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 19:26:22 [error    ] method_dispatch_error          attempts=[('numpy', 'MethodContractError')] backend=numpy elapsed_ms=339.21 exc=MethodContractError fqn=causal.discovery.unified_causal_discovery@1.1.0 requested_backend=numpy
+_ test_requested_pag_reconciliation_limitation_survives_method_cas_reader[hint] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-287/test_requested_pag_reconciliat1')
+request_kind = 'hint'
+
+    @pytest.mark.parametrize("request_kind", ["prior", "hint"])
+    def test_requested_pag_reconciliation_limitation_survives_method_cas_reader(
+        tmp_path, request_kind: str
+    ) -> None:
+>       report = _persisted_report(tmp_path, _state(request_kind))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py:74: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py:48: in _persisted_report
+    job = run_job(
+policy-engine/src/polisyos/scientist/compute/runner.py:755: in run_job
+    return _run_method_job(
+policy-engine/src/polisyos/scientist/compute/runner.py:686: in _run_method_job
+    result = backend.run(
+policy-engine/src/polisyos/scientist/compute/runner.py:260: in run
+    method_result = dispatcher.dispatch(
+policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:594: in dispatch
+    raise last_exc
+policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:546: in dispatch
+    result = self._dispatch_with_candidates(
+policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:815: in _dispatch_with_candidates
+    result = self._execute_on_backend(
+policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:888: in _execute_on_backend
+    return breaker.call(_execute)
+           ^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/foundry/methods/backends/circuit_breaker.py:219: in call
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:880: in _execute
+    return runner.execute(
+policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py:113: in execute
+    slot_outputs = dematerialize_method_output(
+policy-engine/src/polisyos/foundry/methods/components/io.py:77: in dematerialize_method_output
+    result = _coerce_output_mapping(signature=signature, output=output)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _coerce_output_mapping(*, signature: MethodSignature, output: Any) -> dict[str, Any]:
+        expected_slots = sorted(signature.output_slots, key=lambda item: item.name)
+        if not expected_slots:
+            if output is None:
+                return {}
+            if isinstance(output, Mapping):
+                extras = {key: value for key, value in output.items() if key not in _META_OUTPUT_KEYS}
+                if extras:
+                    raise MethodContractError(
+                        signature.fqn,
+                        f"method declares no output slots but returned {sorted(extras)}",
+                    )
+            return {}
+    
+        if len(expected_slots) == 1 and not isinstance(output, Mapping):
+            return {expected_slots[0].name: output}
+    
+        if not isinstance(output, Mapping):
+            raise MethodContractError(
+                signature.fqn,
+                f"method must return a mapping for output slots {sorted(signature.output_slot_names)}",
+            )
+    
+        source = dict(output)
+        materialized: dict[str, Any] = {}
+        for slot in expected_slots:
+            aliases = _COMMON_OUTPUT_ALIASES.get(slot.name, ())
+            candidates = (slot.name,) + aliases
+            found = False
+            for candidate in candidates:
+                if candidate in source:
+                    materialized[slot.name] = source[candidate]
+                    found = True
+                    break
+            if not found:
+>               raise MethodContractError(
+                    signature.fqn,
+                    f"missing output for declared slot '{slot.name}'",
+                )
+E               polisyos.foundry.methods.exceptions.MethodContractError: Method contract error for causal.discovery.unified_causal_discovery@1.1.0: missing output for declared slot 'discovery_pipeline_report'
+
+policy-engine/src/polisyos/foundry/methods/components/io.py:164: MethodContractError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 19:26:22 [info     ] method_registered              backend=numpy fqn=causal.discovery.unified_causal_discovery@1.1.0 lazy=False namespace=causal.discovery override=True tags=['causal', 'discovery', 'pag', 'pipeline', 'structural', 'unified'] version=1.1.0
+2026-10-07 19:26:22 [debug    ] method_dispatch_start          backend=numpy fqn=causal.discovery.unified_causal_discovery@1.1.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 19:26:22 [error    ] method_dispatch_error          attempts=[('numpy', 'MethodContractError')] backend=numpy elapsed_ms=14.28 exc=MethodContractError fqn=causal.discovery.unified_causal_discovery@1.1.0 requested_backend=numpy
+__________ test_no_reconciliation_request_does_not_invent_limitation ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-287/test_no_reconciliation_request0')
+
+    def test_no_reconciliation_request_does_not_invent_limitation(tmp_path) -> None:
+>       report = _persisted_report(tmp_path, _state("none"))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py:91: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py:48: in _persisted_report
+    job = run_job(
+policy-engine/src/polisyos/scientist/compute/runner.py:755: in run_job
+    return _run_method_job(
+policy-engine/src/polisyos/scientist/compute/runner.py:686: in _run_method_job
+    result = backend.run(
+policy-engine/src/polisyos/scientist/compute/runner.py:260: in run
+    method_result = dispatcher.dispatch(
+policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:594: in dispatch
+    raise last_exc
+policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:546: in dispatch
+    result = self._dispatch_with_candidates(
+policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:815: in _dispatch_with_candidates
+    result = self._execute_on_backend(
+policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:888: in _execute_on_backend
+    return breaker.call(_execute)
+           ^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/foundry/methods/backends/circuit_breaker.py:219: in call
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:880: in _execute
+    return runner.execute(
+policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py:113: in execute
+    slot_outputs = dematerialize_method_output(
+policy-engine/src/polisyos/foundry/methods/components/io.py:77: in dematerialize_method_output
+    result = _coerce_output_mapping(signature=signature, output=output)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _coerce_output_mapping(*, signature: MethodSignature, output: Any) -> dict[str, Any]:
+        expected_slots = sorted(signature.output_slots, key=lambda item: item.name)
+        if not expected_slots:
+            if output is None:
+                return {}
+            if isinstance(output, Mapping):
+                extras = {key: value for key, value in output.items() if key not in _META_OUTPUT_KEYS}
+                if extras:
+                    raise MethodContractError(
+                        signature.fqn,
+                        f"method declares no output slots but returned {sorted(extras)}",
+                    )
+            return {}
+    
+        if len(expected_slots) == 1 and not isinstance(output, Mapping):
+            return {expected_slots[0].name: output}
+    
+        if not isinstance(output, Mapping):
+            raise MethodContractError(
+                signature.fqn,
+                f"method must return a mapping for output slots {sorted(signature.output_slot_names)}",
+            )
+    
+        source = dict(output)
+        materialized: dict[str, Any] = {}
+        for slot in expected_slots:
+            aliases = _COMMON_OUTPUT_ALIASES.get(slot.name, ())
+            candidates = (slot.name,) + aliases
+            found = False
+            for candidate in candidates:
+                if candidate in source:
+                    materialized[slot.name] = source[candidate]
+                    found = True
+                    break
+            if not found:
+>               raise MethodContractError(
+                    signature.fqn,
+                    f"missing output for declared slot '{slot.name}'",
+                )
+E               polisyos.foundry.methods.exceptions.MethodContractError: Method contract error for causal.discovery.unified_causal_discovery@1.1.0: missing output for declared slot 'discovery_pipeline_report'
+
+policy-engine/src/polisyos/foundry/methods/components/io.py:164: MethodContractError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 19:26:22 [info     ] method_registered              backend=numpy fqn=causal.discovery.unified_causal_discovery@1.1.0 lazy=False namespace=causal.discovery override=True tags=['causal', 'discovery', 'pag', 'pipeline', 'structural', 'unified'] version=1.1.0
+2026-10-07 19:26:22 [debug    ] method_dispatch_start          backend=numpy fqn=causal.discovery.unified_causal_discovery@1.1.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 19:26:22 [error    ] method_dispatch_error          attempts=[('numpy', 'MethodContractError')] backend=numpy elapsed_ms=13.89 exc=MethodContractError fqn=causal.discovery.unified_causal_discovery@1.1.0 requested_backend=numpy
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py::test_requested_pag_reconciliation_limitation_survives_method_cas_reader[prior]
+FAILED policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py::test_requested_pag_reconciliation_limitation_survives_method_cas_reader[hint]
+FAILED policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py::test_no_reconciliation_request_does_not_invent_limitation

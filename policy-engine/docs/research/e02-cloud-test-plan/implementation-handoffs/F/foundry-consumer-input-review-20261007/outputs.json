@@ -1,0 +1,451 @@
+{
+  "schema": "policyos.e02.unique_readonly_artifact_bindings.v1",
+  "slice_base_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+  "files": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/audit_intake.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/audit_intake.py",
+      "bytes": 5361,
+      "sha256": "64c66361163c38919e7b5bd4254b6bb2ad7c60391b8355e30a366dee72bf57cd",
+      "encoding": "verbatim",
+      "decoded_bytes": 5361,
+      "decoded_sha256": "64c66361163c38919e7b5bd4254b6bb2ad7c60391b8355e30a366dee72bf57cd"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/intake-audit.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/intake-audit.json",
+      "bytes": 48837,
+      "sha256": "41fe806e96497b00f09a4b6fd9746f249a73775b6f74c377afa0aeb164da8045",
+      "encoding": "verbatim",
+      "decoded_bytes": 48837,
+      "decoded_sha256": "41fe806e96497b00f09a4b6fd9746f249a73775b6f74c377afa0aeb164da8045"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/dependency-forward.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/dependency-forward.json.gz",
+      "bytes": 27100,
+      "sha256": "e7b3fa769c750550afaa3677fc40c53495886c0bd666c54e0483e06398ae4a01",
+      "encoding": "gzip",
+      "decoded_bytes": 380355,
+      "decoded_sha256": "b3fc5c3bb0744d1fc0db73442a453ffa56f40f9eefea762d406d3345f06647ac"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/prepare_packets.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/prepare_packets.py",
+      "bytes": 20301,
+      "sha256": "6c5caef7ccf4b7208c6dee5b92b601c8847f9a780b63b20a03d3ac45d368bc8c",
+      "encoding": "verbatim",
+      "decoded_bytes": 20301,
+      "decoded_sha256": "6c5caef7ccf4b7208c6dee5b92b601c8847f9a780b63b20a03d3ac45d368bc8c"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/prepare-packets.stdout.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/prepare-packets.stdout.json",
+      "bytes": 613,
+      "sha256": "8acb25f55060e7e0801440b64b7a4661837f3fd7a687deb94073a2a78d687a67",
+      "encoding": "verbatim",
+      "decoded_bytes": 613,
+      "decoded_sha256": "8acb25f55060e7e0801440b64b7a4661837f3fd7a687deb94073a2a78d687a67"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/existing-authority-input-packet.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/existing-authority-input-packet.json",
+      "bytes": 13162,
+      "sha256": "4c12c4a05d06a2142d423e985c4739b0b5f517d0db2601b559b0f37eac87d47b",
+      "encoding": "verbatim",
+      "decoded_bytes": 13162,
+      "decoded_sha256": "4c12c4a05d06a2142d423e985c4739b0b5f517d0db2601b559b0f37eac87d47b"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/retained-FRY-original-criteria.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/retained-FRY-original-criteria.json",
+      "bytes": 4028,
+      "sha256": "9f6700f7be4ac410f4ccdb0b433d65d688611731295920683564791495015a8f",
+      "encoding": "verbatim",
+      "decoded_bytes": 4028,
+      "decoded_sha256": "9f6700f7be4ac410f4ccdb0b433d65d688611731295920683564791495015a8f"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/installed-affected-selector-plan.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/installed-affected-selector-plan.json",
+      "bytes": 8594,
+      "sha256": "65b49e3b2493e9ed6b557f640ff7e069239d5c40b0c5e3b57692c7ba9cab0479",
+      "encoding": "verbatim",
+      "decoded_bytes": 8594,
+      "decoded_sha256": "65b49e3b2493e9ed6b557f640ff7e069239d5c40b0c5e3b57692c7ba9cab0479"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/capture_environment.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/capture_environment.py",
+      "bytes": 1754,
+      "sha256": "993556df094625498c2239b25ce7d149235e996a838273b70a58b111cecf292c",
+      "encoding": "verbatim",
+      "decoded_bytes": 1754,
+      "decoded_sha256": "993556df094625498c2239b25ce7d149235e996a838273b70a58b111cecf292c"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/environment.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/environment.json",
+      "bytes": 1481,
+      "sha256": "1e46ad88cd0e61fdaf8f313752d230ec1558440918b478109fccd105d02447c6",
+      "encoding": "verbatim",
+      "decoded_bytes": 1481,
+      "decoded_sha256": "1e46ad88cd0e61fdaf8f313752d230ec1558440918b478109fccd105d02447c6"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/environment.stdout.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/environment.stdout.json",
+      "bytes": 841,
+      "sha256": "e5140c18f08a721f90d0f8dfc8ae27ba1a4e81e39e3102f7a785099e2b2265ab",
+      "encoding": "verbatim",
+      "decoded_bytes": 841,
+      "decoded_sha256": "e5140c18f08a721f90d0f8dfc8ae27ba1a4e81e39e3102f7a785099e2b2265ab"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/environment.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/environment.stderr.txt.json",
+      "bytes": 158,
+      "sha256": "aba2822364356dd10611d5856caf105ed738e9664b2e6454c449c254ac22bb75",
+      "encoding": "lossless_utf8_json",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/auxiliary-navigation-errors.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/auxiliary-navigation-errors.json",
+      "bytes": 1748,
+      "sha256": "be28b3bb6052159cb0a4b6686fe7a6d4b115a5090d8ecc79b2678d9a8acfc01f",
+      "encoding": "verbatim",
+      "decoded_bytes": 1748,
+      "decoded_sha256": "be28b3bb6052159cb0a4b6686fe7a6d4b115a5090d8ecc79b2678d9a8acfc01f"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/verify_peer_transport.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/verify_peer_transport.py",
+      "bytes": 2704,
+      "sha256": "403df196a2a3298e45ceddaafcf75dbce88e72c52884252b0f88a18dd4a1ac02",
+      "encoding": "verbatim",
+      "decoded_bytes": 2704,
+      "decoded_sha256": "403df196a2a3298e45ceddaafcf75dbce88e72c52884252b0f88a18dd4a1ac02"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/peer-transport-witness.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/peer-transport-witness.json",
+      "bytes": 16906,
+      "sha256": "39841f2c542bfc8fc74e0c8c1a898ea8e8c1582a17cc86736435733b2ec1e9d4",
+      "encoding": "verbatim",
+      "decoded_bytes": 16906,
+      "decoded_sha256": "39841f2c542bfc8fc74e0c8c1a898ea8e8c1582a17cc86736435733b2ec1e9d4"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/peer-transport-witness.stdout.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/peer-transport-witness.stdout.json",
+      "bytes": 159,
+      "sha256": "d2ec368ca965a2969831d22db78e4b1a0e220f95bf66726693db494612a50810",
+      "encoding": "verbatim",
+      "decoded_bytes": 159,
+      "decoded_sha256": "d2ec368ca965a2969831d22db78e4b1a0e220f95bf66726693db494612a50810"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-B54.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/baseline-B54.json",
+      "bytes": 660,
+      "sha256": "0ab330acb52a4b07802ed4d1872517a8bfca3fbc365823f56236e70992e7bf49",
+      "encoding": "verbatim",
+      "decoded_bytes": 660,
+      "decoded_sha256": "0ab330acb52a4b07802ed4d1872517a8bfca3fbc365823f56236e70992e7bf49"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-B54.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/environment.stderr.txt.json",
+      "bytes": 158,
+      "sha256": "aba2822364356dd10611d5856caf105ed738e9664b2e6454c449c254ac22bb75",
+      "encoding": "lossless_utf8_json",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_complete_bytes_deduplicated": true
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-B54.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/baseline-B54.stdout.txt.json",
+      "bytes": 11859,
+      "sha256": "62e7e111dcee16edb14a8994528c2198ef0e982b7ae3d1999fe4a6358b0d94c0",
+      "encoding": "lossless_utf8_json",
+      "decoded_bytes": 10217,
+      "decoded_sha256": "2c345193b835948bf5391937e1f8173ba7897dc2bfe88810513250681ddfbc83"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-B56.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/baseline-B56.json",
+      "bytes": 660,
+      "sha256": "edab8488f0d0afd896249750f5ab7229832a90e2ab9ca364b7b39315bb6e38b1",
+      "encoding": "verbatim",
+      "decoded_bytes": 660,
+      "decoded_sha256": "edab8488f0d0afd896249750f5ab7229832a90e2ab9ca364b7b39315bb6e38b1"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-B56.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/environment.stderr.txt.json",
+      "bytes": 158,
+      "sha256": "aba2822364356dd10611d5856caf105ed738e9664b2e6454c449c254ac22bb75",
+      "encoding": "lossless_utf8_json",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_complete_bytes_deduplicated": true
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-B56.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/baseline-B56.stdout.txt.json",
+      "bytes": 11859,
+      "sha256": "da77ffce7968a560b09dd51f6bc4852d2ae367a6be85a66f9224efc30e441d2a",
+      "encoding": "lossless_utf8_json",
+      "decoded_bytes": 10217,
+      "decoded_sha256": "6520d99211ff0a6ded89f2406d27900375a05535ca4bd27261ddb0789e0f2bc2"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-F-failures.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/baseline-F-failures.json",
+      "bytes": 657,
+      "sha256": "a918eb2f1745844ce97669b3a4ab7cdd8fdc1307fd799f1b0fd53cb17ab4e2ec",
+      "encoding": "verbatim",
+      "decoded_bytes": 657,
+      "decoded_sha256": "a918eb2f1745844ce97669b3a4ab7cdd8fdc1307fd799f1b0fd53cb17ab4e2ec"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-F-failures.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/environment.stderr.txt.json",
+      "bytes": 158,
+      "sha256": "aba2822364356dd10611d5856caf105ed738e9664b2e6454c449c254ac22bb75",
+      "encoding": "lossless_utf8_json",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_complete_bytes_deduplicated": true
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-F-failures.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/baseline-F-failures.stdout.txt.json",
+      "bytes": 21847,
+      "sha256": "31ebf74635f09bee28cdf7ee1b8b37c42ff2612bb5b56d94d3116283fe57558d",
+      "encoding": "lossless_utf8_json",
+      "decoded_bytes": 19253,
+      "decoded_sha256": "23a1055d9986961c3130b79f72aa924bec7788f4f5c0670eb49caa1e3b139201"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-F01-P025.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/baseline-F01-P025.json",
+      "bytes": 688,
+      "sha256": "836215f38eb8d6ee102b387638f2bc51b3e24fcacf4a9e7bdd37ccbba41bb0c0",
+      "encoding": "verbatim",
+      "decoded_bytes": 688,
+      "decoded_sha256": "836215f38eb8d6ee102b387638f2bc51b3e24fcacf4a9e7bdd37ccbba41bb0c0"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-F01-P025.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/environment.stderr.txt.json",
+      "bytes": 158,
+      "sha256": "aba2822364356dd10611d5856caf105ed738e9664b2e6454c449c254ac22bb75",
+      "encoding": "lossless_utf8_json",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_complete_bytes_deduplicated": true
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-F01-P025.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/baseline-F01-P025.stdout.txt.json",
+      "bytes": 7134,
+      "sha256": "1d4a423f5e194433623d7a5222c85f52b6d98091f87019775d8c32ebf61344bb",
+      "encoding": "lossless_utf8_json",
+      "decoded_bytes": 6226,
+      "decoded_sha256": "a7f3c98d748c34558e632f68bd03a4663f98b43773faf8cbada7bac2ed845978"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-F08-P048.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/baseline-F08-P048.json",
+      "bytes": 689,
+      "sha256": "66922a85fe08860ccc1b2148246427ea347d324f026cd60e93191b06be2e15c4",
+      "encoding": "verbatim",
+      "decoded_bytes": 689,
+      "decoded_sha256": "66922a85fe08860ccc1b2148246427ea347d324f026cd60e93191b06be2e15c4"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-F08-P048.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/environment.stderr.txt.json",
+      "bytes": 158,
+      "sha256": "aba2822364356dd10611d5856caf105ed738e9664b2e6454c449c254ac22bb75",
+      "encoding": "lossless_utf8_json",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_complete_bytes_deduplicated": true
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-F08-P048.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/baseline-F08-P048.stdout.txt.json",
+      "bytes": 17661,
+      "sha256": "28012e5034f0be3dd473437643595e28201b2290a6b43c3fc15a76ce2ccb85ed",
+      "encoding": "lossless_utf8_json",
+      "decoded_bytes": 15620,
+      "decoded_sha256": "0aee8ea1b925bec8ec0670e41a0edde8ff11000b04d4c2b08b3b229f43cffc62"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-F13-P030.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/baseline-F13-P030.json",
+      "bytes": 688,
+      "sha256": "eb8dd3d67b358742b754998846fe744b5695ca049510508e591af858886b2038",
+      "encoding": "verbatim",
+      "decoded_bytes": 688,
+      "decoded_sha256": "eb8dd3d67b358742b754998846fe744b5695ca049510508e591af858886b2038"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-F13-P030.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/environment.stderr.txt.json",
+      "bytes": 158,
+      "sha256": "aba2822364356dd10611d5856caf105ed738e9664b2e6454c449c254ac22bb75",
+      "encoding": "lossless_utf8_json",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_complete_bytes_deduplicated": true
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-F13-P030.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/baseline-F13-P030.stdout.txt.json",
+      "bytes": 7043,
+      "sha256": "12f35d2936cf1513a29ff0624cc6c9333a6a874bfaa11bf08493c9c14ef4e01d",
+      "encoding": "lossless_utf8_json",
+      "decoded_bytes": 6157,
+      "decoded_sha256": "f3887d12e5a148f10ed5cd31da8f3bf36be7f6480789897e072dd69923ddc839"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-LA-001.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/baseline-LA-001.json",
+      "bytes": 669,
+      "sha256": "830047a69562a0c1f2ac1a59b9f4878237637f133566b115a724f6da1050b57e",
+      "encoding": "verbatim",
+      "decoded_bytes": 669,
+      "decoded_sha256": "830047a69562a0c1f2ac1a59b9f4878237637f133566b115a724f6da1050b57e"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-LA-001.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/environment.stderr.txt.json",
+      "bytes": 158,
+      "sha256": "aba2822364356dd10611d5856caf105ed738e9664b2e6454c449c254ac22bb75",
+      "encoding": "lossless_utf8_json",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_complete_bytes_deduplicated": true
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-LA-001.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/baseline-LA-001.stdout.txt.json",
+      "bytes": 24320,
+      "sha256": "e5ef108a25184115cbca9f46daa2f7fed9b5130d29578036750415708f9eca76",
+      "encoding": "lossless_utf8_json",
+      "decoded_bytes": 21036,
+      "decoded_sha256": "046936f3673b9a747f12c98002317e01467e61e758f9a6c5aef0819587abcf57"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-LA-002.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/baseline-LA-002.json",
+      "bytes": 669,
+      "sha256": "6151086d1d9f19518afac3552ef6dfa1268c5bc3c2b731a1aa8ce315d0d8e119",
+      "encoding": "verbatim",
+      "decoded_bytes": 669,
+      "decoded_sha256": "6151086d1d9f19518afac3552ef6dfa1268c5bc3c2b731a1aa8ce315d0d8e119"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-LA-002.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/environment.stderr.txt.json",
+      "bytes": 158,
+      "sha256": "aba2822364356dd10611d5856caf105ed738e9664b2e6454c449c254ac22bb75",
+      "encoding": "lossless_utf8_json",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_complete_bytes_deduplicated": true
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-LA-002.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/baseline-LA-002.stdout.txt.json",
+      "bytes": 24320,
+      "sha256": "bd6c92ee5265bc9adab8cebc3f867ff6fd2bf436aab4d8e87a0ffb828d530f81",
+      "encoding": "lossless_utf8_json",
+      "decoded_bytes": 21036,
+      "decoded_sha256": "ed748fbeaeafddc4fe09dbbf6f7cb5cc7b83738094e89a532c057831e0436aaa"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-LA-037.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/baseline-LA-037.json",
+      "bytes": 669,
+      "sha256": "e11aa7a0c3d801a983045839141c169ae47167ef00b47932a867b110ed208f22",
+      "encoding": "verbatim",
+      "decoded_bytes": 669,
+      "decoded_sha256": "e11aa7a0c3d801a983045839141c169ae47167ef00b47932a867b110ed208f22"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-LA-037.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/environment.stderr.txt.json",
+      "bytes": 158,
+      "sha256": "aba2822364356dd10611d5856caf105ed738e9664b2e6454c449c254ac22bb75",
+      "encoding": "lossless_utf8_json",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_complete_bytes_deduplicated": true
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-LA-037.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/baseline-LA-037.stdout.txt.json",
+      "bytes": 24320,
+      "sha256": "d9afedefa2538eb884769c68e58012f7b81b1f25baf4f52d30e77f254a95bb25",
+      "encoding": "lossless_utf8_json",
+      "decoded_bytes": 21036,
+      "decoded_sha256": "c0f9079fc5aa2864b23f34c95052f9b7db654ad7c7aef0facfd0ad9817d19bc8"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-import-check.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/baseline-import-check.json",
+      "bytes": 612,
+      "sha256": "f4af2770b39bc87a95f3198a896a2ec559ba4bcf283bf434392ad8eba5ab9484",
+      "encoding": "verbatim",
+      "decoded_bytes": 612,
+      "decoded_sha256": "f4af2770b39bc87a95f3198a896a2ec559ba4bcf283bf434392ad8eba5ab9484"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-import-check.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/environment.stderr.txt.json",
+      "bytes": 158,
+      "sha256": "aba2822364356dd10611d5856caf105ed738e9664b2e6454c449c254ac22bb75",
+      "encoding": "lossless_utf8_json",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_complete_bytes_deduplicated": true
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/baseline-import-check.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/baseline-import-check.stdout.txt.json",
+      "bytes": 289,
+      "sha256": "ba61ee5c350864e5d135b810cee4354da7b7039b4ba3ad31d73e9ced8523e790",
+      "encoding": "lossless_utf8_json",
+      "decoded_bytes": 112,
+      "decoded_sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/intake/admission/e02-F-fry-20261006.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/admission-resume.json.gz",
+      "bytes": 11979,
+      "sha256": "96d9264b6ed4134bfa5177bc6bb6dc8f038b3c6893e291c9772c11ccbac477c3",
+      "encoding": "gzip",
+      "decoded_bytes": 147928,
+      "decoded_sha256": "708e97e061efaa9882bd2606d3d037ed14ced03d30b4949c6ca486bf7ec88f1f"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/assemble_readonly_handoff.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/assemble_readonly_handoff.py",
+      "bytes": 15346,
+      "sha256": "cb8c470a080712dc065fa8dd14dc5bac7a42eb39925862cbed27a21d45fa5bae",
+      "encoding": "verbatim",
+      "decoded_bytes": 15346,
+      "decoded_sha256": "cb8c470a080712dc065fa8dd14dc5bac7a42eb39925862cbed27a21d45fa5bae"
+    }
+  ],
+  "unique_stored_files": 38,
+  "original_complete_records": 48,
+  "deduplication": "Only identical complete bytes; original command/input identities remain separate references. No tracked source body copied."
+}

@@ -1,0 +1,175 @@
+{
+  "schema": "e02-independent-review-transfer-selection-v1",
+  "candidate_sha": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d",
+  "candidate_tree": "e035bb5cdf9bde154fe08bcb72a0341cfeb2a970",
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/alias.execution.json",
+      "bytes": 4465,
+      "sha256": "d29fb784f2c83f9d84f85d881cd6997d629e92bdb71065bd8195fa4d1df93f49"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/alias.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/alias.stdout.txt",
+      "bytes": 359,
+      "sha256": "52bacb7b77f70a46f62df687f46abe2446768a174200ee3a6a2a5da0cd8e186d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/alias_review.py",
+      "bytes": 3113,
+      "sha256": "427b7fa52b0c6220a85cbfbc8b8b9e86118c865d937b862a57edccd141edc4d9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/artifact-audit.json",
+      "bytes": 11552,
+      "sha256": "eca46176e30d08a0ee92c80a9acbdb14626553fe3aefc8e041c0b41043576a38"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/environment.json",
+      "bytes": 16539,
+      "sha256": "70a23c8951bf22652fa06b486bd15dfcc6540e4aa02ee075f2a73b514065d6ec"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/native-corrected.execution.json",
+      "bytes": 5433,
+      "sha256": "2ae81ece1b8ab941f0e42a03614603e6abfe1baf0087446ae110e9dc7e05e8d6"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/native-corrected.stderr.txt",
+      "bytes": 1032,
+      "sha256": "3df2df5ce34f9389529ab0b33f49f439e01086d09427be6408b0010ed4b6bdab"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/native-corrected.stdout.txt",
+      "bytes": 130624,
+      "sha256": "89da523cd8c3c32705ed056ce9f16598692db3365832253cb020e350cfb78418"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/native.execution.json",
+      "bytes": 6152,
+      "sha256": "3df68aa8f20cc7542176409de9fc908958c7b1b144d0120375b2cafbc2912ae3"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/native.stderr.txt",
+      "bytes": 1032,
+      "sha256": "6bcc378f61360f056e9dd8e01121376e37c87201385d7a175682fe137b807306"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/native.stdout.txt",
+      "bytes": 950885,
+      "sha256": "5b4f7818d7a8901cea75e192cd132d04f835ef24e81a26f57e0a0c6bfbca1044"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/prepare-initial-zero-denominator.json",
+      "bytes": 2489,
+      "sha256": "475fa06eb7ee0d050bc3879a9cb94add9e48bb7b5f9f55dbda366620ccccd0c3"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/prepare.json",
+      "bytes": 13560,
+      "sha256": "9ef16e7baeaa55c07c035c6899a6f2fa84c30c3a06d5fec070875b18db5c32ba"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal-order-corrected.execution.json",
+      "bytes": 5494,
+      "sha256": "154a667e373c622683ccf146aa9682da711dc3c0fbdfa79dae4f10a08becd2f0"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal-order-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal-order-corrected.stdout.txt",
+      "bytes": 133033,
+      "sha256": "2b0168e32a3aa6560cec1eb37a3fe651ef39f7f77233987bcde704cf21e570ff"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal-order.execution.json",
+      "bytes": 5996,
+      "sha256": "46e9d9314a88eb0bca47fa9d5366b7baf075813d682a695775bbc88c5f788554"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal-order.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal-order.stdout.txt",
+      "bytes": 133033,
+      "sha256": "549a6253e8c1000fb28fb3007a8ab8c49a6dde98cae8bed8d617fd98e9e27e6b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal-se-corrected.execution.json",
+      "bytes": 5483,
+      "sha256": "690747686245d4a9037cd6576b78fec35d333282a2d80bb719643dce06a0105e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal-se-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal-se-corrected.stdout.txt",
+      "bytes": 130855,
+      "sha256": "44a34ce03a8627ed747f568e83bd013e5e4e9a497b2978eba82699dcc0e1a5fc"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal-se.execution.json",
+      "bytes": 5985,
+      "sha256": "7ca4f193abe5bf11a5c4f3338359db97812a6ad4d3da3b141f67ffb08fb287fe"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal-se.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal-se.stdout.txt",
+      "bytes": 130855,
+      "sha256": "8f35cc4e9aed38fccff7f1e6ec139508f33dbb4694c27a0c33bc399cd0cdc923"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal.py",
+      "bytes": 2337,
+      "sha256": "14a60651526e917d0c772b4ef8283d24cccbb56b4fa42acdd6742c6a49925465"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/review.json",
+      "bytes": 13538,
+      "sha256": "f89d5a7f56429d8e6cda8128167f4c68d65a7d4ebeedde94a6c080eda244270a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/run_review.py",
+      "bytes": 3628,
+      "sha256": "976cb5f31aaa65098868fa0b64aae21154f2ba69d535b0ee8af31bb76e0d62cf"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/run_review_initial.py",
+      "bytes": 3406,
+      "sha256": "ca617edc1cee9861be939d91e48cbae39ad8e1bbb3354532676031995de25fc0"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/static-scope.json",
+      "bytes": 653,
+      "sha256": "dc49efd25e8418c2b09323f9e75ac272d119d0d2f928bab1059cb310394efd21"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/test_independent_tmle_projection.py",
+      "bytes": 7652,
+      "sha256": "90afbbedd632c237e6d285fb2c62f8258a8dda4fda47e879112c9b3d0a95c1b0"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/test_independent_tmle_projection_initial.py",
+      "bytes": 7621,
+      "sha256": "ed160bf84992ee865f32870c708d486a10bdee02f91aa7ee4d9bdb44b59c5976"
+    }
+  ],
+  "total_bytes": 1736804,
+  "sanitation": "No credentials/signedqueries/productionobservations. Full synthetic/native outputs and actual executionenvironment versions preserved.",
+  "exclusions": []
+}

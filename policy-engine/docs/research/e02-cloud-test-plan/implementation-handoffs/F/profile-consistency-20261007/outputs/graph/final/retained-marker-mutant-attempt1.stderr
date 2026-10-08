@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/dev/shm/e02-F-profile-consistency-adversary/probe.py", line 161, in <module>
+    raise AssertionError(f"Known profile semantic intake expectations failed in {len(failed_expectations)} cases")
+AssertionError: Known profile semantic intake expectations failed in 12 cases

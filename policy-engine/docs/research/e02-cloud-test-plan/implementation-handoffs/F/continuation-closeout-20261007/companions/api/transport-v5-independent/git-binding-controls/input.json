@@ -1,0 +1,20 @@
+{
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/actual-git.gz",
+      "bytes": 90,
+      "sha256": "8aea3a1349f69e9136bbff2779f1c3dadb8d36f1c9ff1d37260691c2901d4361",
+      "encoding": "gzip",
+      "decoded_bytes": 73,
+      "decoded_sha256": "f125cbeb0fcd08cedb1a6e2e96c3ec724f526541693418e6c71ee3b7366dd8e9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/same-decoded-other-container.gz",
+      "bytes": 90,
+      "sha256": "68999c6b505584830d9e19d8c10fe1f1b0980ef115c8c5caea214f346cc96507",
+      "encoding": "gzip-lossless",
+      "decoded_bytes": 73,
+      "decoded_sha256": "f125cbeb0fcd08cedb1a6e2e96c3ec724f526541693418e6c71ee3b7366dd8e9"
+    }
+  ]
+}

@@ -1,0 +1,427 @@
+{
+  "cas_root": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native/cas",
+  "original_mgraph": {
+    "discovery_method": "independent-native-type-profile",
+    "edges": [
+      {
+        "combined_confidence": 0.9,
+        "data_confidence": 0.9,
+        "dst": "Y",
+        "evidence_refs": [],
+        "expert_confidence": null,
+        "lag": null,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "mark_dst": "arrow",
+        "mark_src": "tail",
+        "metadata": {},
+        "p_value": null,
+        "simulation_confidence": null,
+        "sources": [
+          "data"
+        ],
+        "src": "X",
+        "unsupported_by_evidence": false
+      },
+      {
+        "combined_confidence": 0.9,
+        "data_confidence": 0.9,
+        "dst": "Y",
+        "evidence_refs": [],
+        "expert_confidence": null,
+        "lag": null,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "mark_dst": "arrow",
+        "mark_src": "arrow",
+        "metadata": {},
+        "p_value": null,
+        "simulation_confidence": null,
+        "sources": [
+          "data"
+        ],
+        "src": "X",
+        "unsupported_by_evidence": false
+      },
+      {
+        "combined_confidence": 0.9,
+        "data_confidence": 0.9,
+        "dst": "X_star",
+        "evidence_refs": [],
+        "expert_confidence": null,
+        "lag": null,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "mark_dst": "arrow",
+        "mark_src": "tail",
+        "metadata": {},
+        "p_value": null,
+        "simulation_confidence": null,
+        "sources": [
+          "data"
+        ],
+        "src": "R_X",
+        "unsupported_by_evidence": false
+      }
+    ],
+    "graph_type": "mgraph",
+    "id_confidence_under_pag": null,
+    "metadata": {
+      "mgraph": {
+        "fully_observed_vars": [
+          "Y"
+        ],
+        "proxy_nodes": [
+          {
+            "proxy_name": "X_star",
+            "target_variable": "X"
+          }
+        ],
+        "r_nodes": [
+          {
+            "description": "",
+            "missingness_kind": "mcar",
+            "target_variable": "X"
+          }
+        ],
+        "schema_version": "1.0",
+        "substantive_vars": [
+          "X",
+          "Y"
+        ]
+      }
+    },
+    "nodes": [
+      "X",
+      "Y",
+      "R_X",
+      "X_star"
+    ],
+    "pag_identification_policy": "conservative",
+    "schema_version": "1.0",
+    "skg_version_id": null
+  },
+  "original_mgraph_ref": {
+    "artifact_id": "sha256:1d496668cfd81b9af9666e6f8c7bc5729f53a41e559b5299290d7c5ab7fbefd0",
+    "kind": "ir.causal_graph_model",
+    "media_type": "application/json"
+  },
+  "original_missingness_metadata": {
+    "fully_observed_vars": [
+      "Y"
+    ],
+    "proxy_nodes": [
+      {
+        "proxy_name": "X_star",
+        "target_variable": "X"
+      }
+    ],
+    "r_nodes": [
+      {
+        "description": "",
+        "missingness_kind": "mcar",
+        "target_variable": "X"
+      }
+    ],
+    "schema_version": "1.0",
+    "substantive_vars": [
+      "X",
+      "Y"
+    ]
+  },
+  "producer_pid": 1003858,
+  "product_root": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "reconciled_admg": {
+    "discovery_method": "reconciled_prior_graph",
+    "edges": [
+      {
+        "combined_confidence": 0.9,
+        "data_confidence": 0.9,
+        "dst": "X_star",
+        "evidence_refs": [],
+        "expert_confidence": null,
+        "lag": null,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "mark_dst": "arrow",
+        "mark_src": "tail",
+        "metadata": {},
+        "p_value": null,
+        "simulation_confidence": null,
+        "sources": [
+          "data"
+        ],
+        "src": "R_X",
+        "unsupported_by_evidence": false
+      },
+      {
+        "combined_confidence": 0.9,
+        "data_confidence": 0.9,
+        "dst": "Y",
+        "evidence_refs": [],
+        "expert_confidence": null,
+        "lag": null,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "mark_dst": "arrow",
+        "mark_src": "tail",
+        "metadata": {},
+        "p_value": null,
+        "simulation_confidence": null,
+        "sources": [
+          "data"
+        ],
+        "src": "X",
+        "unsupported_by_evidence": false
+      },
+      {
+        "combined_confidence": 0.9,
+        "data_confidence": 0.9,
+        "dst": "Y",
+        "evidence_refs": [],
+        "expert_confidence": null,
+        "lag": null,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "mark_dst": "arrow",
+        "mark_src": "arrow",
+        "metadata": {},
+        "p_value": null,
+        "simulation_confidence": null,
+        "sources": [
+          "data"
+        ],
+        "src": "X",
+        "unsupported_by_evidence": false
+      }
+    ],
+    "graph_type": "admg",
+    "id_confidence_under_pag": null,
+    "metadata": {
+      "llm_prior_constants": {
+        "LLM_OVERLAP_DISCOUNT": 0.5,
+        "LLM_PRIOR_CEILING": 0.3,
+        "LLM_REPLICATION_BONUS": 0.05
+      },
+      "mgraph": {
+        "fully_observed_vars": [
+          "Y"
+        ],
+        "proxy_nodes": [
+          {
+            "proxy_name": "X_star",
+            "target_variable": "X"
+          }
+        ],
+        "r_nodes": [
+          {
+            "description": "",
+            "missingness_kind": "mcar",
+            "target_variable": "X"
+          }
+        ],
+        "schema_version": "1.0",
+        "substantive_vars": [
+          "X",
+          "Y"
+        ]
+      },
+      "needs_expert_review": false,
+      "reconciliation_diagnostics": {
+        "curl_norm": 0.0,
+        "cyclic_inconsistency_norm": 0.0,
+        "d0_shape": [
+          3,
+          4
+        ],
+        "d1_shape": [
+          0,
+          3
+        ],
+        "delta0_shape": [
+          4,
+          3
+        ],
+        "delta1_shape": [
+          3,
+          0
+        ],
+        "diagnostics_truncated": false,
+        "gradient_norm": 0.9,
+        "harmonic_norm": 9.06493303673679e-17,
+        "irreducible_conflict_norm": 9.06493303673679e-17,
+        "n_components": 2,
+        "n_edges": 3,
+        "n_sources": 1,
+        "n_triangles": 0,
+        "operators": {
+          "D0": [
+            [
+              -1.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              -1.0,
+              0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -1.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "D1": [],
+          "delta^0": [
+            [
+              -1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              -1.0,
+              -1.0
+            ],
+            [
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "delta^1": []
+        },
+        "truncation_reason": null
+      },
+      "reconciliation_input_sha256": "a950ffe95c204aa062735e808029b1dd928953e45ff62d6f1a2f5541f9a63782",
+      "reconciliation_warnings": []
+    },
+    "nodes": [
+      "R_X",
+      "X",
+      "X_star",
+      "Y"
+    ],
+    "pag_identification_policy": "conservative",
+    "schema_version": "1.0",
+    "skg_version_id": null
+  },
+  "reconciled_admg_ref": {
+    "artifact_id": "sha256:05c7489e6606ef960a9889dee4d83eec5fd64f7f955923cad27dd36c11d92013",
+    "kind": "ir.causal_graph_model",
+    "media_type": "application/json"
+  },
+  "reverse_admg": {
+    "discovery_method": "reconciled_prior_graph",
+    "edges": [
+      {
+        "combined_confidence": 0.9,
+        "data_confidence": 0.9,
+        "dst": "Y",
+        "evidence_refs": [],
+        "expert_confidence": null,
+        "lag": null,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "mark_dst": "arrow",
+        "mark_src": "tail",
+        "metadata": {
+          "orientation_origin": {
+            "dst": "X",
+            "mark_dst": "tail",
+            "mark_src": "arrow",
+            "src": "Y"
+          }
+        },
+        "p_value": null,
+        "simulation_confidence": null,
+        "sources": [
+          "data"
+        ],
+        "src": "X",
+        "unsupported_by_evidence": false
+      }
+    ],
+    "graph_type": "dag",
+    "id_confidence_under_pag": null,
+    "metadata": {
+      "llm_prior_constants": {
+        "LLM_OVERLAP_DISCOUNT": 0.5,
+        "LLM_PRIOR_CEILING": 0.3,
+        "LLM_REPLICATION_BONUS": 0.05
+      },
+      "needs_expert_review": false,
+      "reconciliation_diagnostics": {
+        "curl_norm": 0.0,
+        "cyclic_inconsistency_norm": 0.0,
+        "d0_shape": [
+          1,
+          2
+        ],
+        "d1_shape": [
+          0,
+          1
+        ],
+        "delta0_shape": [
+          2,
+          1
+        ],
+        "delta1_shape": [
+          1,
+          0
+        ],
+        "diagnostics_truncated": false,
+        "gradient_norm": 0.9000000000000002,
+        "harmonic_norm": 2.220446049250313e-16,
+        "irreducible_conflict_norm": 2.220446049250313e-16,
+        "n_components": 1,
+        "n_edges": 1,
+        "n_sources": 1,
+        "n_triangles": 0,
+        "operators": {
+          "D0": [
+            [
+              -1.0,
+              1.0
+            ]
+          ],
+          "D1": [],
+          "delta^0": [
+            [
+              -1.0
+            ],
+            [
+              1.0
+            ]
+          ],
+          "delta^1": []
+        },
+        "truncation_reason": null
+      },
+      "reconciliation_input_sha256": "d3cda753b40a6cf58e293e670d3fe1735aeceb99b48a2a442c7f2df85b4169e7",
+      "reconciliation_warnings": []
+    },
+    "nodes": [
+      "X",
+      "Y"
+    ],
+    "pag_identification_policy": "conservative",
+    "schema_version": "1.0",
+    "skg_version_id": null
+  },
+  "reverse_admg_ref": {
+    "artifact_id": "sha256:5c656309bf2a096914007e484b34a5362e0a790e8795bb10a0beb4484583be16",
+    "kind": "ir.causal_graph_model",
+    "media_type": "application/json"
+  },
+  "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d"
+}

@@ -1,0 +1,21 @@
+commit d09e2b546f5ccf2ed1c297e9578661358270f92b
+Author:     Денис Копылов <skvidvard167m@gmail.com>
+AuthorDate: Tue Oct 6 16:46:03 2026 +0000
+Commit:     Денис Копылов <skvidvard167m@gmail.com>
+CommitDate: Tue Oct 6 16:46:03 2026 +0000
+
+    Use canonical report ABI for selected worker reconciliation
+
+diff --git a/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py b/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py
+index e3daf4187..6bd6d9ead 100644
+--- a/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py
++++ b/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py
+@@ -604,7 +604,7 @@ def _verify_dowhy_worker_projection(
+     expected = DoWhyIdentifyEstimate.report_from_worker_result(
+         data=observational_data, params=params, response=response
+     )
+-    if report != expected:
++    if report.model_dump(mode="json") != expected.model_dump(mode="json"):
+         raise ValueError("selected DoWhy report does not project its validated worker result")
+ 
+ 

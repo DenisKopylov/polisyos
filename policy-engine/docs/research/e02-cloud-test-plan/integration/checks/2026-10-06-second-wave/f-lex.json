@@ -1,0 +1,147 @@
+{
+  "schema": "policyos.e02.g_focused_check.v1",
+  "candidate_sha": "309a0be6630db3cfc8e410f7866f1ed4e95bb722",
+  "candidate_tree": "cda0e909441b1c2d6784f9735959c5e04d11d5ec",
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/lex/legal_evaluation/test_impact_diff.py",
+    "tests/unit/remediation/test_lex_01.py",
+    "tests/unit/lex/simulator",
+    "tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/current-f-lex.junit.xml",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/tmp-current-f-lex",
+    "-o",
+    "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/pytest-cache-current-f-lex"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-f-lex/policy-engine",
+  "environment": {
+    "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "versions": {
+      "duckdb": "1.4.3",
+      "jax": "0.8.2",
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "scipy": "1.16.3"
+    },
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-f-lex/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-f-lex/policy-engine",
+    "numeric_threads": 1,
+    "platform": "macOS arm64"
+  },
+  "timeout_seconds": 120,
+  "outcome": "PASS",
+  "counts": {
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "wall_seconds": 22.841,
+  "max_child_rss_bytes": 956186624,
+  "import_origins": [
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-f-lex/policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+      "module": "polisyos.lex.legal_evaluation.impact_diff",
+      "sha256": "144030072b61170d93ba387cb9f8977ff73e867f7ba2bb5b873a979a3c3e8230",
+      "under_candidate": true
+    },
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-f-lex/policy-engine/src/polisyos/ir/loading/norm_pack.py",
+      "module": "polisyos.ir.loading.norm_pack",
+      "sha256": "6613777ebe6fb355d537b39b9b4968dd9dcc866a2173696f95207d5a0e21686d",
+      "under_candidate": true
+    },
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-f-lex/policy-engine/src/polisyos/lex/simulator/cli.py",
+      "module": "polisyos.lex.simulator.cli",
+      "sha256": "5d627f7f97e05096748d75e45aea5548526301dfce33f2bb6a53e8cc1bf86a68",
+      "under_candidate": true
+    },
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-f-lex/policy-engine/src/polisyos/core/artifacts/store.py",
+      "module": "polisyos.core.artifacts.store",
+      "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+      "under_candidate": true
+    }
+  ],
+  "source_and_test_hashes_before_after_unchanged": {
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json": {
+      "bytes": 24195,
+      "sha256": "5590b4be65ae37c30bdaf6ecaeb34f889ff9b9dec3797499f4c1d68a86850e74"
+    },
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/fresh_reader.py": {
+      "bytes": 2048,
+      "sha256": "e666ba10f8d8d852b9d1bba4a1a0a6aa2683724d4ed58b0fff22105a9d00df4a"
+    },
+    "src/polisyos/core/artifacts/store.py": {
+      "bytes": 173575,
+      "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+    },
+    "src/polisyos/ir/loading/norm_pack.py": {
+      "bytes": 3985,
+      "sha256": "6613777ebe6fb355d537b39b9b4968dd9dcc866a2173696f95207d5a0e21686d"
+    },
+    "src/polisyos/lex/legal_evaluation/impact_diff.py": {
+      "bytes": 15975,
+      "sha256": "144030072b61170d93ba387cb9f8977ff73e867f7ba2bb5b873a979a3c3e8230"
+    },
+    "src/polisyos/lex/simulator/cli.py": {
+      "bytes": 2541,
+      "sha256": "5d627f7f97e05096748d75e45aea5548526301dfce33f2bb6a53e8cc1bf86a68"
+    },
+    "tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py": {
+      "bytes": 5240,
+      "sha256": "cdaa79d61a5d8907a2cc7181b729eae619540f2c63d21367f0e0e5e202565049"
+    },
+    "tests/unit/lex/legal_evaluation/test_impact_diff.py": {
+      "bytes": 9775,
+      "sha256": "f45085e041d7f9d9040b189ed156b3420f7e7dbfa7caa43765dcb98702d0a3b7"
+    },
+    "tests/unit/lex/simulator/test_diff.py": {
+      "bytes": 1490,
+      "sha256": "0f5ebae8904636a562ec492affe384f90c1c27b38b69f51fc4538dc1357d9b6b"
+    },
+    "tests/unit/lex/simulator/test_engine.py": {
+      "bytes": 1175,
+      "sha256": "4ea4c3b474bed08b30d6205782e9a3ae794badced6a30409fd1f54d14fe347d7"
+    },
+    "tests/unit/lex/simulator/test_mutator.py": {
+      "bytes": 1724,
+      "sha256": "62703705a881425574bd2ccd4a19fb373e1119484a783fe9bed15c9ae3ce2425"
+    },
+    "tests/unit/remediation/test_lex_01.py": {
+      "bytes": 7152,
+      "sha256": "d84a1fd719e43220d53c77bbc19b084b1353a9f66afe4a46c0ec840453fef2c1"
+    }
+  },
+  "production_data_used": false,
+  "dependencies_installed": false,
+  "outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-second-wave/f-lex.stdout",
+      "sha256": "fcc5ebeac9cf0a4fd4fa6688f6c8a92ba537ebad22b349d9cba165a9ad130f4a",
+      "bytes": 100
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-second-wave/f-lex.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-second-wave/f-lex.junit.xml",
+      "sha256": "455be764fea16d9512797ac7e6b27eec0ee4ad4bdd322f2351828013169f1abd",
+      "bytes": 3864
+    }
+  ],
+  "finding_closure": false,
+  "broad_replay": false,
+  "implementation_sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
+  "implementation_identity": "Runtime/test/direct consumer blobs unchanged between00a6 and309a; later topic is evidence only. G corrects release metadata separately."
+}

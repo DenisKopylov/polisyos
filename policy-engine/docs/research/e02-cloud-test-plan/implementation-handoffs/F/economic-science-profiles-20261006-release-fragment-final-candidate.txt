@@ -1,0 +1,1 @@
+{'fragment_count': 1, 'errors': [], 'findings': [], 'review': 'Existing Foundry facade exports and internal numerical owner paths reviewed against committed public-surface contract/inventory; no exports, signatures or layout changed.'}

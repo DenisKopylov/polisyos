@@ -1,0 +1,90 @@
+{
+  "schema": "policyos.e02.independent_source_review.v1",
+  "reviewer": "/root/graph_review",
+  "role": "non-author read-only reviewer of root graph consistency guard",
+  "slice_base_sha": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+  "candidate_sha": "ba5fc93aa687eea32973374418a44eae9503a7d0",
+  "candidate_tree_sha": "81294990ee16d7e09646a28fcf3804d6ee07b96a",
+  "canonical_writer": "/root",
+  "parent_sha": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+  "source_review_verdict": "GO_BOUNDED_KNOWN_PROFILE_CONSISTENCY",
+  "runtime_wave_verdict": "PENDING_FINAL_AFFECTED_EXECUTION",
+  "blockers": [],
+  "reviewed_complete_diff_footprint": [
+    "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+    "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+  ],
+  "candidate_blobs": {
+    "policy-engine/docs/reference/scientist/causal-graph-intake.md": "afb69055f2a78bdf73f5dc0df7fe5a55c27654f5",
+    "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml": "9153c96f3b955f563a5b49f18563ccb521eb4af0",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md": "b535c853c7bb45bc980d3adda061c327643691fb",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "5eda1db188d50495da7599f048501d64114aeb13",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py": "28be212da517d103518e043d94f45af2500a69ee",
+    "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py": "2ef2b90d48c24cfa4f2612a5079f282a8f4393d7"
+  },
+  "unchanged_contract_blobs": {
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py": {
+      "base": "b1de9ace7e2535100b94cec3efe55ca92af34b47",
+      "candidate": "b1de9ace7e2535100b94cec3efe55ca92af34b47"
+    },
+    "policy-engine/src/polisyos/ir/analytics/mgraph.py": {
+      "base": "9e7308b213ce90be5033bf8077c357c8e38617eb",
+      "candidate": "9e7308b213ce90be5033bf8077c357c8e38617eb"
+    },
+    "policy-engine/src/polisyos/ir/analytics/causal_graph.py": {
+      "base": "f2635665550259d20323d29a784faf11dc8896b7",
+      "candidate": "f2635665550259d20323d29a784faf11dc8896b7"
+    }
+  },
+  "specification": [
+    "Single existing reconciliation guard refuses unsupported declared families and supplied reserved MGraph contract before static endpoint validation, confidence filtering, cycle rewrites or persistence.",
+    "The reserved input presence test is a legitimate refusal predicate, not a positive validity/authority proxy: parsing valid vs malformed cannot make this unsupported semantic namespace fit the admitted static profile.",
+    "Actual builder-produced graph with only ADMG retag is independently validated via canonical MGraph extractor under its original type before refusal is asserted.",
+    "Real registered MethodJob, direct Node, supplied CAS method result, current selected CAS cache, and high filtering cutoff paths share the invariant.",
+    "Original MGraph and separately selected contradictory candidate remain byte/content readable by fresh FileSystemCAS readers; no new reconciled graph is published on refusal.",
+    "Clean ADMG retains the same names/relations plus opaque metadata, establishing that names and geometry are not classifiers.",
+    "Fragment composition has a genuine typed-DAG contradiction negative and uses the existing guard."
+  ],
+  "engineering_quality": [
+    "One small canonical-owner change; no new enum, schema, helper registry, graph engine or authority subsystem.",
+    "Shared ADMG, canonical MGraph schema/extractor and CausalGraphModel blobs are unchanged.",
+    "Existing current-CAS resolution/content binding and three Node guard sites remain unchanged.",
+    "Tests assert observable refusal/no publication and independent canonical profile validity; no mocked graph backend.",
+    "Full six-path diff and all six complete file bodies read at immutable candidate; Git diff --check PASS."
+  ],
+  "author_evidence_inspected": {
+    "stdout": "/tmp/e02-F-profile-consistency-20261007/root/author-graph.stdout",
+    "stderr": "/tmp/e02-F-profile-consistency-20261007/root/author-graph.stderr",
+    "junit": "/tmp/e02-F-profile-consistency-20261007/root/author-graph.junit.xml",
+    "cases": 14,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "attribution": "Read directly; author execution on development bytes subsequently committed to candidate. This reviewer did not rerun or claim independent native PASS."
+  },
+  "P40_disposition": {
+    "bucket": "same static semantic-profile class deeper; not a new finding ID",
+    "widening": "The existing canonical boundary now measures both declared family and conflicting supplied canonical MGraph contract, rather than enum alone.",
+    "bounded_residual": "Opaque/constructed/external/unknown metadata meanings and hidden missingness with no canonical MGraph contract remain uninterpreted; ordinary static intake is not scientific/causal authority.",
+    "falsifier": "Clean same-name/shape ADMG with no supplied reserved MGraph contract must continue to pass actual producer/Node/fresh-reader and preserve opaque metadata. Maintained positive is in author14 inspected evidence; final exact-source affected wave must retain it.",
+    "smallest_missing_capability": "An accountable typed contract for any additional graph semantic profile (or an actual real-world semantic classifier), with producer/content-bound consumer evidence. No such universal classifier is present in this boundary; do not infer it from node names."
+  },
+  "dependency_before_combined_publication": {
+    "discovery_companion": "Docs/README/release describe requested unsupported discovery reconciliation limitation. This implementation is being supplied separately; the six-path guard source alone does not implement or prove that new report behavior. Include/review companion in final freeze before whole-slice delivery.",
+    "remove_property_keep_markers": "UNRUN by this reviewer at source-review time; actual negative must FAIL with only the new runtime semantic guard removed and enum/diagnostic markers retained.",
+    "installed_scope": "Affected current graph/Node and discovery report consumers require exact final source installed evidence; unchanged old4ee/519 whole package results are not transferred."
+  },
+  "unaffected_limits": [
+    "B214 broad completion/identification/authority contract remains cross-owner deferred",
+    "B56 canonical shared workload/resource admission remains deferred",
+    "formal G closure and whole-head acceptance are not issued by this review",
+    "No numerical/full35/optional backend replay performed"
+  ],
+  "actual_command_receipt": "/tmp/e02-F-profile-consistency-20261007/graph-review/ba5-review/commands.json",
+  "repo_writes": [],
+  "reviewed_at_utc": "2026-10-07T19:32:48.357047+00:00"
+}

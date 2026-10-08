@@ -1,0 +1,21 @@
+{
+  "python": "3.14.7",
+  "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "versions": {
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "statsmodels": "0.14.6",
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5",
+    "ruff": "0.14.10"
+  },
+  "origins": {
+    "numpy": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+    "scipy": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/scipy/__init__.py",
+    "statsmodels": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/statsmodels/__init__.py",
+    "pytest": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+    "pydantic": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/__init__.py",
+    "ruff": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/ruff/__init__.py"
+  },
+  "producer_origin": "/workspace/e02-F-cau-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py"
+}

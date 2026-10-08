@@ -1,0 +1,66 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-profile-consistency-20261007/report-review/baseline_consumer.py", line 52, in <module>
+    main()
+    ~~~~^^
+  File "/tmp/e02-F-profile-consistency-20261007/report-review/baseline_consumer.py", line 38, in main
+    job = run_job(JobSpec(job_kind='method', method_fqn=UnifiedCausalDiscovery.signature.fqn, input_refs={'discovery_data': input_ref}, method_params={'force_algorithms':['pc'],'n_bootstrap':0,'timeout_seconds':60,'enable_regime_shift_discovery':False,'ci_backend':'numpy'}, seed=710),cas_root=store.root,method_state=state)
+  File "/tmp/e02-F-profile-consistency-20261007/report-review/base2c/policy-engine/src/polisyos/scientist/compute/runner.py", line 755, in run_job
+    return _run_method_job(
+        spec,
+    ...<5 lines>...
+        store_factory=store_factory,
+    )
+  File "/tmp/e02-F-profile-consistency-20261007/report-review/base2c/policy-engine/src/polisyos/scientist/compute/runner.py", line 686, in _run_method_job
+    result = backend.run(
+        cas_root=resolved_cas_root,
+    ...<5 lines>...
+        input_refs=spec.input_refs,
+    )
+  File "/tmp/e02-F-profile-consistency-20261007/report-review/base2c/policy-engine/src/polisyos/scientist/compute/runner.py", line 260, in run
+    method_result = dispatcher.dispatch(
+        method_class=method_class,
+    ...<3 lines>...
+        seed=seed,
+    )
+  File "/tmp/e02-F-profile-consistency-20261007/report-review/base2c/policy-engine/src/polisyos/foundry/methods/backends/dispatch.py", line 594, in dispatch
+    raise last_exc
+  File "/tmp/e02-F-profile-consistency-20261007/report-review/base2c/policy-engine/src/polisyos/foundry/methods/backends/dispatch.py", line 546, in dispatch
+    result = self._dispatch_with_candidates(
+        method_class=method_class,
+    ...<5 lines>...
+        attempts=attempts,
+    )
+  File "/tmp/e02-F-profile-consistency-20261007/report-review/base2c/policy-engine/src/polisyos/foundry/methods/backends/dispatch.py", line 815, in _dispatch_with_candidates
+    result = self._execute_on_backend(
+        backend=backend,
+    ...<4 lines>...
+        seed=seed,
+    )
+  File "/tmp/e02-F-profile-consistency-20261007/report-review/base2c/policy-engine/src/polisyos/foundry/methods/backends/dispatch.py", line 888, in _execute_on_backend
+    return breaker.call(_execute)
+           ~~~~~~~~~~~~^^^^^^^^^^
+  File "/tmp/e02-F-profile-consistency-20261007/report-review/base2c/policy-engine/src/polisyos/foundry/methods/backends/circuit_breaker.py", line 219, in call
+    result = fn(*args, **kwargs)
+  File "/tmp/e02-F-profile-consistency-20261007/report-review/base2c/policy-engine/src/polisyos/foundry/methods/backends/dispatch.py", line 880, in _execute
+    return runner.execute(
+           ~~~~~~~~~~~~~~^
+        method_class=method_class,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        seed=seed,
+        ^^^^^^^^^^
+    )
+    ^
+  File "/tmp/e02-F-profile-consistency-20261007/report-review/base2c/policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py", line 113, in execute
+    slot_outputs = dematerialize_method_output(
+        method_class=method_class,
+        signature=signature,
+        output=output,
+    )
+  File "/tmp/e02-F-profile-consistency-20261007/report-review/base2c/policy-engine/src/polisyos/foundry/methods/components/io.py", line 77, in dematerialize_method_output
+    result = _coerce_output_mapping(signature=signature, output=output)
+  File "/tmp/e02-F-profile-consistency-20261007/report-review/base2c/policy-engine/src/polisyos/foundry/methods/components/io.py", line 164, in _coerce_output_mapping
+    raise MethodContractError(
+    ...<2 lines>...
+    )
+polisyos.foundry.methods.exceptions.MethodContractError: Method contract error for causal.discovery.unified_causal_discovery@1.1.0: missing output for declared slot 'discovery_pipeline_report'

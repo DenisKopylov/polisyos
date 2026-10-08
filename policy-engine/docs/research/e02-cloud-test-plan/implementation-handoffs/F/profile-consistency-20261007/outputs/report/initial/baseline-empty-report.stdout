@@ -1,0 +1,59 @@
+{
+  "source_sha": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+  "input_profile": "requested prior, unknown configured algorithm => existing no-result branch",
+  "report": {
+    "unified_pag": {
+      "schema_version": "1.0",
+      "graph_type": "pag",
+      "nodes": [
+        "X",
+        "Y"
+      ],
+      "edges": [],
+      "discovery_method": "unified_consensus_pag_empty",
+      "skg_version_id": null,
+      "pag_identification_policy": "conservative",
+      "id_confidence_under_pag": null,
+      "metadata": {}
+    },
+    "individual_results": [],
+    "algorithm_weights": {},
+    "edge_agreements": [],
+    "skeleton_agreement": {},
+    "temporal_dag": null,
+    "regime_shift_certificate": null,
+    "pag_validity_violations": [],
+    "data_characteristics": {
+      "data_type": "cross_sectional",
+      "n_samples": 3,
+      "n_variables": 2,
+      "dimension_regime": "low_dim",
+      "estimated_density": 1.0,
+      "has_mixed_types": false,
+      "suspected_latent_confounders": false,
+      "is_stationary": null,
+      "max_lag": null
+    },
+    "n_algorithms_run": 0,
+    "warnings": [
+      "all_algorithms_failed"
+    ],
+    "computation_time_seconds": 0.0015820639964658767,
+    "metadata": {
+      "disputed_edges": [],
+      "disputed_edge_count": 0,
+      "disputed_edge_fraction": 0.0,
+      "algebraic_violation_summary": {
+        "reports_with_constraints": 0,
+        "blocker_reports": 0,
+        "violated_by_family": {},
+        "severity_by_method": {}
+      },
+      "families_with_blockers": [],
+      "regime_shift_discovery": {
+        "applied": false,
+        "constraints_applied": false
+      }
+    }
+  }
+}

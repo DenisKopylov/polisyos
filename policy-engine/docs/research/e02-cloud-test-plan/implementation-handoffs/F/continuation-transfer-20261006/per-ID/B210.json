@@ -1,0 +1,198 @@
+{
+  "schema": "F-original-finding-continuation-receipt/1",
+  "unit": "F",
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "formal_G_acceptance": "not_issued",
+  "check_scope": "Actual bounded measurement is separate from unresolved original/current authority inputs.",
+  "complete_original_bound_row": {
+    "finding_id": "B210",
+    "primary_bundle": "CAU-03",
+    "primary_tsv_owner": {
+      "finding_id": "B210",
+      "unit": "F",
+      "docx_analytical_package": "P33",
+      "source_closure_owner": "CAU-03",
+      "source_bundle_ids": "CAU-03",
+      "source_status": "partial"
+    },
+    "original_source_criterion_refs": [
+      {
+        "criterion_id": "B210",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines": [
+          5170,
+          5181
+        ],
+        "bytes": 3218,
+        "sha256": "3b72bb59c40ef347388195b3309dd81f188e96d3bb205b3e3be72c77b76ac010",
+        "title": "## B210. RDD сообщает включённую bias correction без её вычисления",
+        "byte_binding_check": "PASS",
+        "complete_original_block": "## B210. RDD сообщает включённую bias correction без её вычисления\n\n**Приоритет:** высокий для заявленного режима corrected inference; малый честный ограничитель плюс отдельный методологический ремонт. **Основание:** RegressionDiscontinuity.pure_step и его signature; RD01–RD03. [C20.R03, C20.E03]\n\n**Проблема.** Параметр bias_correction используется лишь при заполнении method_params. Численно вычисляются разность локальных intercept и её текущая стандартная ошибка; дополнительных производных, correction-term и соответствующей variance-адаптации нет. Внутренний комментарий о heuristic bandwidth уже честен — его не следует превращать в заявление о точном IK-selector.\n\n**Воспроизведение.** На 200 точках с истинным разрывом 3 и различной кривизной слева/справа оба значения флага дали estimate=2,793901410060 и CI=[2,754318328822;2,833484491298]. Флаг в metadata поменялся, вычисление — нет. Полином второй степени восстановил 3 в этом точном полиномиальном случае, но этот контроль не является реализацией robust bias correction (RBC). Неположительный bandwidth существующий метод правильно отвергает.\n\n**Рекомендуемое исправление.** Разделить реально поддержанный обычный local-polynomial результат и подтверждённую RBC-процедуру. До внедрения последней явно ограничить requested corrected mode либо предложить разрешённый uncorrected результат с его областью применения, а не переписывать флаг в True. Если подключается профиль rdrobust, сохранить фактические bandwidth, порядки аппроксимации, variance-настройки, version и данные, не создавая конкурирующий причинный facade.\n\n**Приёмка.** Настоящая curvature-проверка, известный скачок, контролируемая гетероскедастичность и finite-sample coverage. Численное включение correction должно изменять действительную вычислительную цепочку там, где поправка ненулевая. В этой работе rdrobust не установлен и не запускался. Обычную подгонку не следует блокировать полностью из-за неготовности более сильного inferential-профиля.\n\n"
+      }
+    ],
+    "criterion_short_ru": "Finite sharp RDD RBC/HC0 profile with real rdrobust oracle",
+    "actual_consumer": "RegressionDiscontinuity → MethodJob/CAS → canonical dematerializer/fresh reader",
+    "source_scope": "Sharp fixed-profile CCT robust bias correction and variance",
+    "oracle_and_negative": "Actual rdrobust2.1.0 dev parity36 + two2000-replicate coverage groups; repaired full removal4036 rejects",
+    "predicate_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Sharp fixed-profile CCT robust bias correction and variance. Independent oracle/retained-marker negative: Actual rdrobust2.1.0 dev parity36 + two2000-replicate coverage groups; repaired full removal4036 rejects. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check": "PASS",
+    "outcome": "closed",
+    "state_role": "Explicit F ROOT recommendation on original byte-bound criterion; separate technical profile and current continuation. G formal acceptance not issued.",
+    "technical_original_criterion_recommendation": "closed",
+    "technical_historical_baseline_profile_outcome": null,
+    "technical_check": "PASS",
+    "current_continuation_outcome_recommendation": "closed",
+    "check_interpretation": "Proposed original/current criterion measurement disposition. Component-native PASSs remain on their exact source; pending owner/authority measurements are not PASS.",
+    "original_criterion_remainder": "None for selected finite sharp HC0 profile.",
+    "separate_unavailable_inputs_or_authority": "No fuzzy/cluster/selector/real-design identification; no parallel shim.",
+    "limit_next_owner_short_ru": "None for selected finite sharp HC0 profile.",
+    "authority_check": "UNRUN",
+    "formal_G_accepted": false,
+    "formal_ledger_acceptance": "not_issued",
+    "receipt_ref": {
+      "head": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+      "branch": "refs/heads/codex/e02-F-rdd-20261006",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json",
+      "bytes": 68616,
+      "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60",
+      "table": "criterion_decisions",
+      "per_id": "B210"
+    },
+    "implementation_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+    "candidate_tree_sha": "bee112b9284e11b78c96d2f91660f330d68b26c7",
+    "historical_421_per_id_deciding_refs": [
+      {
+        "index": 0,
+        "check_id": "native-causal-profile",
+        "outcome": "PASS",
+        "target_sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/native-final.stdout"
+      },
+      {
+        "index": 1,
+        "check_id": "actual-external-reference-and-coverage",
+        "outcome": "PASS",
+        "target_sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-coverage.json"
+      },
+      {
+        "index": 2,
+        "check_id": "real-RBC-removal",
+        "outcome": "FAIL",
+        "target_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage-final.json"
+      },
+      {
+        "index": 3,
+        "check_id": "analytic-linear-control",
+        "outcome": "PASS",
+        "target_sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/linear-controls.json"
+      },
+      {
+        "index": 5,
+        "check_id": "independent-scientific-and-canonical-component-consumer",
+        "outcome": "PASS",
+        "target_sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-review.json"
+      }
+    ],
+    "historical_421_owner_decision": {
+      "id": "B210",
+      "original_criterion": [
+        {
+          "criterion_id": "B210",
+          "document": "B_r19",
+          "lines": [
+            5170,
+            5181
+          ],
+          "sha256": "3b72bb59c40ef347388195b3309dd81f188e96d3bb205b3e3be72c77b76ac010",
+          "card": "CAU-03"
+        }
+      ],
+      "criterion_acceptance": "RDD curvature correction must be applied with its declared local polynomial/bandwidth basis; test a known curved response against the uncorrected result and a linear control.",
+      "check_names": [
+        "native-causal-profile",
+        "actual-external-reference-and-coverage",
+        "real-RBC-removal",
+        "analytic-linear-control",
+        "independent-scientific-and-canonical-component-consumer"
+      ],
+      "outcome": "PASS",
+      "finding_state": "closed",
+      "predicate_basis": "recomputed",
+      "limits": "B210 finite sharp fixed HC0 synthetic/asymptotic implementation only; no real-design authority/fuzzy/selector/cluster claim; B211 O(np) weighted structures and conventional covariance compatibility only, no measuredwholemethodspeedup; G integration acceptance and fullgatepass not established",
+      "closure_scope": "Exact original CAU-03 acceptance and selected finite F-M6 sharp HC0 profile. Scientific/domain assumptions and broadproduction/gate readiness remain separate limitations."
+    },
+    "owner_proposals_complete": [],
+    "supplemental_receipt_registry_indices": [
+      10,
+      26
+    ],
+    "current_exact_consumer_receipts": [
+      {
+        "key": "rdd",
+        "git_ref": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json",
+        "bytes": 68616,
+        "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60",
+        "implementation_commits": [
+          "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+          "fb022aa12599ee1617f83d154cd9a8027b2a58b8"
+        ],
+        "candidate_tree_sha": "bee112b9284e11b78c96d2f91660f330d68b26c7"
+      }
+    ],
+    "canonical_owner_re_adjudication_required": "For unavailable semantic/institutional inputs only; source-bound ROOT decisions and independent reviews are carried separately.",
+    "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+    "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+    "historical_proposal_before_ROOT_adjudication": {
+      "original_criterion_remainder": "None for selected finite sharp HC0 profile.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+      "outcome": "closed",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "oracle_and_negative": "Actual rdrobust2.1.0 dev parity36 + two2000-replicate coverage groups; repaired full removal4036 rejects",
+      "source_scope": "Sharp fixed-profile CCT robust bias correction and variance",
+      "actual_consumer": "RegressionDiscontinuity → MethodJob/CAS → canonical dematerializer/fresh reader",
+      "check": "PASS",
+      "decision_basis": null,
+      "separate_unavailable_inputs_or_authority": "No fuzzy/cluster/selector/real-design identification; no parallel shim.",
+      "criterion_short_ru": "Finite sharp RDD RBC/HC0 profile with real rdrobust oracle",
+      "technical_original_criterion_recommendation": "closed",
+      "deciding_receipt_refs": null
+    },
+    "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Sharp fixed-profile CCT robust bias correction and variance. Independent oracle/retained-marker negative: Actual rdrobust2.1.0 dev parity36 + two2000-replicate coverage groups; repaired full removal4036 rejects. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check_scope": "Explicit source-bound ROOT original/current criterion adjudication; exact component outcomes remain separately preserved",
+    "ROOT_deciding_refs": [
+      {
+        "git_ref": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+        "head": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json",
+        "bytes": 68616,
+        "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60",
+        "git_blob": "460e5bda9602955fbf7084cca64edd63906724d1",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B210"
+        ]
+      }
+    ],
+    "ROOT_adjudication_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
+      "bytes": 130025,
+      "sha256": "0fc3e6440719fc3094bb13d82a809586cf05776bcf6a4dc3807e9cbfde44126f",
+      "head": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+      "git_ref": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+      "json_pointer": "/rows/6"
+    }
+  },
+  "independent_packet_review_resolution": {
+    "check": "UNRUN at this immutable packet seal",
+    "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+    "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+  }
+}

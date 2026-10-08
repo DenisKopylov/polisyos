@@ -1,0 +1,37 @@
+{
+  "source_sha": "63425f734946979cfc990e9cb91b00163f051898",
+  "source_tree": "dab61c3e7a161e00837f5a128fc2768a36e9b19a",
+  "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "tools/quality/validation/check_docs_gate.py",
+    "--base-ref",
+    "198076863e143dea9f89f02734b13d50dae3eed5",
+    "--head-ref",
+    "HEAD"
+  ],
+  "started_unix": 1791284557.7937343,
+  "exit_code": 1,
+  "wall_s": 216.79852604866028,
+  "child_peak_rss_kib": 907936,
+  "environment": {
+    "PYTHONPATH": "src:.:/workspace/e02-F-20261006-receipts/fry",
+    "UV_NO_SYNC": "1",
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-F-closeout-20261006/policy-engine/.venv",
+    "E02_REPORT_PATH": "/workspace/e02-F-20261006-receipts/fry/docs-gate-final.pytest.json"
+  },
+  "git_status_before": "",
+  "git_status_after": "",
+  "outputs": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/fry/docs-gate-final.stdout.txt",
+      "sha256": "adad015876d7b55daeb97f451629d864411e9753cb50cd8fe4fcfb5c6589b231",
+      "bytes": 118690
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/fry/docs-gate-final.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ]
+}

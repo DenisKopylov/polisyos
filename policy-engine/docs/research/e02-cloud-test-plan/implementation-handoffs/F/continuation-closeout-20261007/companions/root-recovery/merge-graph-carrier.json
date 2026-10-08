@@ -1,0 +1,16 @@
+{
+  "command": [
+    "git",
+    "merge",
+    "--no-ff",
+    "-m",
+    "E02 F: carry published merge-graph-carrier evidence without runtime changes",
+    "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634"
+  ],
+  "base": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "source_ref": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+  "returncode": 0,
+  "wall_seconds": 0.11716591299045831,
+  "head": "29ae62ae950b23365ea43ca14a4761e84358d506",
+  "tree": "6fd18015e4f7a9741c815b7f9433a64cb9f1de8d"
+}

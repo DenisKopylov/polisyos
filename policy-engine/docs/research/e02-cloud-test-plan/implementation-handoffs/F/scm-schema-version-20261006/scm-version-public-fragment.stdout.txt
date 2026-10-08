@@ -1,0 +1,77 @@
+{
+  "inputs_read": [
+    {
+      "path": "/workspace/e02-F-graph-20261006/policy-engine/architecture/public_surface/contract.toml",
+      "bytes": 19715,
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+    },
+    {
+      "path": "/workspace/e02-F-graph-20261006/policy-engine/architecture/public_surface/inventory.json",
+      "bytes": 221406,
+      "sha256": "ddcb1ae0f632c5e9e59aa55852a47d07b04034aac6a6cdeac8457e8ac4995ecb"
+    },
+    {
+      "path": "/workspace/e02-F-graph-20261006/policy-engine/release-fragments/unreleased/2026-10-06-scm-schema-catalog-version.toml",
+      "bytes": 2012,
+      "sha256": "2b1d40301679fd72433d8dd63333f0c9502b9fb5c39ddf1653e0b2d87c6a9d00"
+    },
+    {
+      "path": "/workspace/e02-F-graph-20261006/policy-engine/architecture/gates/compatibility_release.toml",
+      "bytes": 5278,
+      "sha256": "ad2c8d7940c7568d6feac37be1c76d3c0704abf859e29b8e61c958bdf8cd69a3"
+    }
+  ],
+  "inventory_interpretation_scope": "FullJSON parsed; existing SCM export name checked. Canonical root/analytics identity+classpickle+publicconstructor\u2192actualCASroundtrip measured; no newexport or wholeinventory-regeneration claim.",
+  "public_facade_check": "PASS",
+  "structured_records": [
+    {
+      "id": "structural-causal-model-default-version",
+      "change_class": "persisted-artifact-format",
+      "impact": "migration",
+      "surface": "public_stable: polisyos.ir.StructuralCausalModelSpec",
+      "owner": "team-ir",
+      "version_owner": "team-ir",
+      "deprecation_window": "2 minor releases",
+      "release_note": "StructuralCausalModelSpec defaults to 1.1; the current reader preserves explicit and historical missing-version CAS 1.0 without new backend authority.",
+      "generated_client_compatibility": "requires_regeneration",
+      "migration_docs": [
+        "docs/reference/ir/schema-catalog.md",
+        "src/polisyos/ir/analytics/README.md"
+      ],
+      "runbook_docs": [
+        "docs/reference/foundry/structural-causal-models.md"
+      ],
+      "fragment": "/workspace/e02-F-graph-20261006/policy-engine/release-fragments/unreleased/2026-10-06-scm-schema-catalog-version.toml"
+    }
+  ],
+  "errors": [
+    {
+      "check": "breaking-fragment",
+      "severity": "error",
+      "subject": "persisted-artifact-format",
+      "message": "breaking compatibility class has no structured release fragment",
+      "detail": ""
+    }
+  ],
+  "findings": []
+}
+## [unreleased-scm-version] - 2026-10-06
+
+### Fixed
+- `ir`: Align the structural model default and catalog with the selected producer: Advertise StructuralCausalModelSpec 1.1 consistently and retain historical CAS 1.0 payload versions without upgrading backend claims.
+
+## Compatibility Notes
+- The current 1.1 reader directly reads 1.0 and retains its original wire version. New constructors default to 1.1; selected gcm models require source-bound rows and observed worker provenance. No forward compatibility of old readers with new producers is declared.
+
+## Change Classes
+- persisted-artifact-format
+
+## Supported Surface Classification
+- public_stable: polisyos.ir.StructuralCausalModelSpec
+
+## Migration Notes
+- Set schema_version='1.0' explicitly in historical/manual replay fixtures. Use a genuine source-bound worker fit for the selected gcm profile; a version marker does not provide that authority.
+
+## Structured Compatibility Changes
+- `persisted-artifact-format` / `migration` / public_stable: polisyos.ir.StructuralCausalModelSpec: StructuralCausalModelSpec defaults to 1.1; the current reader preserves explicit and historical missing-version CAS 1.0 without new backend authority. (owner: team-ir; version owner: team-ir; deprecation: 2 minor releases)
+

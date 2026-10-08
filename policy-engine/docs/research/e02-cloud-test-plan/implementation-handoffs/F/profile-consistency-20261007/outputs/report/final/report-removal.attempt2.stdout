@@ -1,0 +1,50 @@
+FF.                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_requested_pag_reconciliation_limitation_survives_method_cas_reader[prior] _
+
+tmp_path = PosixPath('/dev/shm/e02-F-profile-consistency-report/report-removal-tmp/test_requested_pag_reconciliat0')
+request_kind = 'prior'
+
+    @pytest.mark.parametrize("request_kind", ["prior", "hint"])
+    def test_requested_pag_reconciliation_limitation_survives_method_cas_reader(
+        tmp_path, request_kind: str
+    ) -> None:
+        report = _persisted_report(tmp_path, _state(request_kind))
+>       limitation = report.metadata["reconciliation"]
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'reconciliation'
+
+tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py:82: KeyError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 19:46:36 [info     ] method_registered              backend=numpy fqn=causal.discovery.unified_causal_discovery@1.1.0 lazy=False namespace=causal.discovery override=True tags=['causal', 'discovery', 'pag', 'pipeline', 'structural', 'unified'] version=1.1.0
+2026-10-07 19:46:36 [debug    ] method_dispatch_start          backend=numpy fqn=causal.discovery.unified_causal_discovery@1.1.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 19:46:37 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=315.83 fqn=causal.discovery.unified_causal_discovery@1.1.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+_ test_requested_pag_reconciliation_limitation_survives_method_cas_reader[hint] _
+
+tmp_path = PosixPath('/dev/shm/e02-F-profile-consistency-report/report-removal-tmp/test_requested_pag_reconciliat1')
+request_kind = 'hint'
+
+    @pytest.mark.parametrize("request_kind", ["prior", "hint"])
+    def test_requested_pag_reconciliation_limitation_survives_method_cas_reader(
+        tmp_path, request_kind: str
+    ) -> None:
+        report = _persisted_report(tmp_path, _state(request_kind))
+>       limitation = report.metadata["reconciliation"]
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'reconciliation'
+
+tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py:82: KeyError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 19:46:37 [info     ] method_registered              backend=numpy fqn=causal.discovery.unified_causal_discovery@1.1.0 lazy=False namespace=causal.discovery override=True tags=['causal', 'discovery', 'pag', 'pipeline', 'structural', 'unified'] version=1.1.0
+2026-10-07 19:46:37 [debug    ] method_dispatch_start          backend=numpy fqn=causal.discovery.unified_causal_discovery@1.1.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 19:46:37 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=15.92 fqn=causal.discovery.unified_causal_discovery@1.1.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+=============================== warnings summary ===============================
+tests/conftest.py:215
+  /tmp/e02-F-profile-consistency-20261007/report-review/removal852/policy-engine/tests/conftest.py:215: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    item.add_marker(getattr(pytest.mark, primary_marker))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py::test_requested_pag_reconciliation_limitation_survives_method_cas_reader[prior]
+FAILED tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py::test_requested_pag_reconciliation_limitation_survives_method_cas_reader[hint]
+2 failed, 1 passed, 5 deselected, 1 warning in 7.56s

@@ -1,0 +1,221 @@
+{
+  "source_sha": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+  "cases": [
+    {
+      "case": "no_request",
+      "warnings": [],
+      "metadata": {
+        "disputed_edges": [],
+        "disputed_edge_count": 0,
+        "disputed_edge_fraction": 0.0,
+        "algebraic_violation_summary": {
+          "reports_with_constraints": 1,
+          "blocker_reports": 0,
+          "violated_by_family": {
+            "ci": 0
+          },
+          "severity_by_method": {
+            "pc": "info"
+          }
+        },
+        "families_with_blockers": [],
+        "regime_shift_discovery": {
+          "applied": false,
+          "constraints_applied": false
+        }
+      },
+      "output_keys": [
+        "report",
+        "__determinism_tier__"
+      ],
+      "graph": {
+        "schema_version": "1.0",
+        "graph_type": "pag",
+        "nodes": [
+          "X",
+          "Y"
+        ],
+        "edges": [
+          {
+            "src": "X",
+            "dst": "Y",
+            "mark_src": "circle",
+            "mark_dst": "circle",
+            "lag": null,
+            "sources": [
+              "data"
+            ],
+            "data_confidence": 1.0,
+            "literature_confidence": null,
+            "llm_confidence": null,
+            "expert_confidence": null,
+            "simulation_confidence": null,
+            "combined_confidence": 1.0,
+            "unsupported_by_evidence": false,
+            "evidence_refs": [],
+            "p_value": null,
+            "metadata": {
+              "presence_score": 1.0,
+              "orientation_confidence": 2.0,
+              "contributing_algorithms": [
+                "pc"
+              ]
+            }
+          }
+        ],
+        "discovery_method": "unified_consensus_pag",
+        "skg_version_id": null,
+        "pag_identification_policy": "conservative",
+        "id_confidence_under_pag": null,
+        "metadata": {
+          "n_algorithms": 1,
+          "min_presence_score": 0.3
+        }
+      }
+    },
+    {
+      "case": "literature_prior",
+      "warnings": [],
+      "metadata": {
+        "disputed_edges": [],
+        "disputed_edge_count": 0,
+        "disputed_edge_fraction": 0.0,
+        "algebraic_violation_summary": {
+          "reports_with_constraints": 1,
+          "blocker_reports": 0,
+          "violated_by_family": {
+            "ci": 0
+          },
+          "severity_by_method": {
+            "pc": "info"
+          }
+        },
+        "families_with_blockers": [],
+        "regime_shift_discovery": {
+          "applied": false,
+          "constraints_applied": false
+        }
+      },
+      "output_keys": [
+        "report",
+        "__determinism_tier__"
+      ],
+      "graph": {
+        "schema_version": "1.0",
+        "graph_type": "pag",
+        "nodes": [
+          "X",
+          "Y"
+        ],
+        "edges": [
+          {
+            "src": "X",
+            "dst": "Y",
+            "mark_src": "circle",
+            "mark_dst": "circle",
+            "lag": null,
+            "sources": [
+              "data"
+            ],
+            "data_confidence": 1.0,
+            "literature_confidence": null,
+            "llm_confidence": null,
+            "expert_confidence": null,
+            "simulation_confidence": null,
+            "combined_confidence": 1.0,
+            "unsupported_by_evidence": false,
+            "evidence_refs": [],
+            "p_value": null,
+            "metadata": {
+              "presence_score": 1.0,
+              "orientation_confidence": 2.0,
+              "contributing_algorithms": [
+                "pc"
+              ]
+            }
+          }
+        ],
+        "discovery_method": "unified_consensus_pag",
+        "skg_version_id": null,
+        "pag_identification_policy": "conservative",
+        "id_confidence_under_pag": null,
+        "metadata": {
+          "n_algorithms": 1,
+          "min_presence_score": 0.3
+        }
+      }
+    },
+    {
+      "case": "llm_hint",
+      "warnings": [],
+      "metadata": {
+        "disputed_edges": [],
+        "disputed_edge_count": 0,
+        "disputed_edge_fraction": 0.0,
+        "algebraic_violation_summary": {
+          "reports_with_constraints": 1,
+          "blocker_reports": 0,
+          "violated_by_family": {
+            "ci": 0
+          },
+          "severity_by_method": {
+            "pc": "info"
+          }
+        },
+        "families_with_blockers": [],
+        "regime_shift_discovery": {
+          "applied": false,
+          "constraints_applied": false
+        }
+      },
+      "output_keys": [
+        "report",
+        "__determinism_tier__"
+      ],
+      "graph": {
+        "schema_version": "1.0",
+        "graph_type": "pag",
+        "nodes": [
+          "X",
+          "Y"
+        ],
+        "edges": [
+          {
+            "src": "X",
+            "dst": "Y",
+            "mark_src": "circle",
+            "mark_dst": "circle",
+            "lag": null,
+            "sources": [
+              "data"
+            ],
+            "data_confidence": 1.0,
+            "literature_confidence": null,
+            "llm_confidence": null,
+            "expert_confidence": null,
+            "simulation_confidence": null,
+            "combined_confidence": 1.0,
+            "unsupported_by_evidence": false,
+            "evidence_refs": [],
+            "p_value": null,
+            "metadata": {
+              "presence_score": 1.0,
+              "orientation_confidence": 2.0,
+              "contributing_algorithms": [
+                "pc"
+              ]
+            }
+          }
+        ],
+        "discovery_method": "unified_consensus_pag",
+        "skg_version_id": null,
+        "pag_identification_policy": "conservative",
+        "id_confidence_under_pag": null,
+        "metadata": {
+          "n_algorithms": 1,
+          "min_presence_score": 0.3
+        }
+      }
+    }
+  ]
+}

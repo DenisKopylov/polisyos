@@ -1,0 +1,45 @@
+{
+  "source_root": "/workspace/e02-F-economics-20261006",
+  "target_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/foundry/mechanisms/test_fiscal.py::test_budget_accounting",
+    "-vv",
+    "--tb=long",
+    "-rA",
+    "--junitxml=/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-budget-e84.xml"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-budget-e84",
+  "artifact_paths": [
+    "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-budget-e84.xml"
+  ],
+  "tree_sha": "c5df6b6873b95006780f5b0ce78158c6a11a805c",
+  "source_status_before": "",
+  "elapsed_seconds": 9.411772012710571,
+  "exit_code": 0,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-budget-e84.stdout",
+    "bytes": 1481,
+    "sha256": "7b608188e9d18b91d54443ed63a8f67f52074e50204d09a0377f381cefb60642"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-budget-e84.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_status_after": "",
+  "artifacts": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-budget-e84.xml",
+      "bytes": 357,
+      "sha256": "74c5e293653f4aa3cca26195ad9be127e12393f67682ec7fcbb49826eca1316f"
+    }
+  ]
+}

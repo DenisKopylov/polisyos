@@ -1,0 +1,61 @@
+{
+  "review": {
+    "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/b204-independent-review.json",
+    "bytes": 9229,
+    "sha256": "7f330f3653414cacf04aa14547fe824dc3915380404b2a2db7edfc30aa8103e8"
+  },
+  "binding_rows": [
+    {
+      "candidate": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+        "bytes": 13981,
+        "sha256": "127abcfd0b2d39a115e5e93ccb537f58fdb018fc6813a935f13fec37a145dc4a",
+        "git_blob": "148595971cf96a656de47c390e6496ce8fa4acbf"
+      },
+      "component": {
+        "source_sha": "e1c4bb28c9d5ff936ae1c047619c56cf12ba5347",
+        "path": "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+        "bytes": 13981,
+        "sha256": "127abcfd0b2d39a115e5e93ccb537f58fdb018fc6813a935f13fec37a145dc4a",
+        "git_blob": "148595971cf96a656de47c390e6496ce8fa4acbf"
+      },
+      "base": {
+        "source_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+        "path": "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+        "bytes": 13365,
+        "sha256": "e58553495f2f83554196125999bfad0eabc7e70d6a8d5760e5b677616ae9d007",
+        "git_blob": "a19e12824078d3964f45c861be9cdb17714e0c42"
+      },
+      "candidate_equals_component": true,
+      "candidate_equals_base": false
+    },
+    {
+      "candidate": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+        "bytes": 52392,
+        "sha256": "0a352e6895e4683f07f8494b51508401fa98b7cb4d733d27365388de063c7919",
+        "git_blob": "5def0fef6e14fb17cf026d13ec517b97bd77d615"
+      },
+      "component": {
+        "source_sha": "e1c4bb28c9d5ff936ae1c047619c56cf12ba5347",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+        "bytes": 52392,
+        "sha256": "0a352e6895e4683f07f8494b51508401fa98b7cb4d733d27365388de063c7919",
+        "git_blob": "5def0fef6e14fb17cf026d13ec517b97bd77d615"
+      },
+      "base": {
+        "source_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+        "bytes": 52392,
+        "sha256": "0a352e6895e4683f07f8494b51508401fa98b7cb4d733d27365388de063c7919",
+        "git_blob": "5def0fef6e14fb17cf026d13ec517b97bd77d615"
+      },
+      "candidate_equals_component": true,
+      "candidate_equals_base": true
+    }
+  ],
+  "native_point": 1.997217038863679,
+  "controls": 10
+}

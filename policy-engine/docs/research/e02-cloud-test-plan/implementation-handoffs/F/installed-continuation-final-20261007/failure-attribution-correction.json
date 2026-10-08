@@ -1,0 +1,33 @@
+{
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "profiles": {
+    "wheel": {
+      "failed_cases": 32,
+      "direct_seed_absence_XML_messages": 26,
+      "six_common_cause_source_path_inferred_not_direct_XML": [
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node.test_reconcile_causal_graph_node_composes_fragments_and_persists_artifacts",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node.test_reconcile_causal_graph_node_updates_query_preservation_cache_without_recomposing",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node.test_reconcile_causal_graph_node_persists_latent_projection_certificate_artifacts",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node.test_reconcile_causal_graph_node_persists_negative_certificate_for_latent_hedge",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node.test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_composition",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node.test_reconcile_causal_graph_node_rejects_disconnected_fragment_topology"
+      ],
+      "scope": "Complete failure membership already retained in JUnit; six onlyfail!=ok assertions not relabelled directerror observations."
+    },
+    "sdist": {
+      "failed_cases": 32,
+      "direct_seed_absence_XML_messages": 26,
+      "six_common_cause_source_path_inferred_not_direct_XML": [
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node.test_reconcile_causal_graph_node_composes_fragments_and_persists_artifacts",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node.test_reconcile_causal_graph_node_updates_query_preservation_cache_without_recomposing",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node.test_reconcile_causal_graph_node_persists_latent_projection_certificate_artifacts",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node.test_reconcile_causal_graph_node_persists_negative_certificate_for_latent_hedge",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node.test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_composition",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node.test_reconcile_causal_graph_node_rejects_disconnected_fragment_topology"
+      ],
+      "scope": "Complete failure membership already retained in JUnit; six onlyfail!=ok assertions not relabelled directerror observations."
+    }
+  },
+  "outcome": "FAIL",
+  "correction": "Earlier shorthand attributed all32 directly to missingseed; preciseindependentreview26direct/6sourceinferred. Counts/nativeoutputs unchanged; no numericalrepeat."
+}

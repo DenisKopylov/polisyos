@@ -1,0 +1,1275 @@
+{
+  "schema": "e02.F.baseline-query-capture.v1",
+  "check": "PASS",
+  "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+  "finding_denominator": 35,
+  "total_full_source_owner_rows": 282,
+  "query_launches": 36,
+  "source_begin_end_unchanged": true,
+  "records": [
+    {
+      "label": "F-failures30",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--unit",
+        "F",
+        "--failures-only",
+        "--limit",
+        "30"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.23217368125915527,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/F-failures30.stdout.json",
+        "bytes": 19253,
+        "sha256": "23a1055d9986961c3130b79f72aa924bec7788f4f5c0670eb49caa1e3b139201"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/F-failures30.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B54",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B54",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.23256707191467285,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B54.stdout.json",
+        "bytes": 10217,
+        "sha256": "2c345193b835948bf5391937e1f8173ba7897dc2bfe88810513250681ddfbc83"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B54.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B56",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B56",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.3215489387512207,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B56.stdout.json",
+        "bytes": 10217,
+        "sha256": "6520d99211ff0a6ded89f2406d27900375a05535ca4bd27261ddb0789e0f2bc2"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B56.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B204",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B204",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.42127490043640137,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B204.stdout.json",
+        "bytes": 10332,
+        "sha256": "675cf0e0284038c54ec7334e4609845d6c81807ae9bb0cdd24b5cc38cfa8a4ff"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B204.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B205",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B205",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.42136120796203613,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B205.stdout.json",
+        "bytes": 10332,
+        "sha256": "8ad8480ebfdad6815f88ff0c0c3dff72b0db2cd9d6df6b0650a51784e2238770"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B205.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B206",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B206",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.4350166320800781,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B206.stdout.json",
+        "bytes": 10332,
+        "sha256": "138b1791fc4f53a1aea96fbc6e7b5ba13faa5bf22d7ebbe6c7121f7d56d7818c"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B206.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B207",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B207",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.45571351051330566,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B207.stdout.json",
+        "bytes": 10219,
+        "sha256": "ec822f82b9979b3a792a9da5cdb04322785173bdcf91ece85b95b405066e25e2"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B207.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B208",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B208",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.45189857482910156,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B208.stdout.json",
+        "bytes": 10219,
+        "sha256": "d19ca8c83a52cf56ca389a8fd062302e4a0465a89798a1e22ad5b7dc2e8ce0da"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B208.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B209",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B209",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.44817256927490234,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B209.stdout.json",
+        "bytes": 10219,
+        "sha256": "e9d960099427e2c62bc4eb8e812f572722040ce03e787e8487a473e79557f62c"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B209.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B210",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B210",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.4443490505218506,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B210.stdout.json",
+        "bytes": 5773,
+        "sha256": "72f9dfca90a4c4fc304998257e34888a0e707ecb1688f9c6118b88cbe273d122"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B210.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B211",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B211",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.4984900951385498,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B211.stdout.json",
+        "bytes": 5773,
+        "sha256": "7bb86a2c575d571e917f4290f244d766ab18cddbb4ca53c314420df3fba47b79"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B211.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B212",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B212",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.4909801483154297,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B212.stdout.json",
+        "bytes": 8526,
+        "sha256": "b8a3a95f2de79a631212b9639ee500261d1bc11c889b5dab3aa48dbb55ec96cf"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B212.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B213",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B213",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.49092650413513184,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B213.stdout.json",
+        "bytes": 8526,
+        "sha256": "a21454b9c354f9a3404e428f32832bf99b422861c80421adbc3e63b46bc48fb5"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B213.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B214",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B214",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.48345947265625,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B214.stdout.json",
+        "bytes": 21540,
+        "sha256": "7000d14820140c4e83bd1da7089b6f75fcad47d5cca41b883ca1c53bbd54b45f"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B214.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B215",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B215",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.4795522689819336,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B215.stdout.json",
+        "bytes": 16726,
+        "sha256": "393e7a5ce6e39b309411d9519a57c0b9b57ed0ada65138a4df0540eabebd5bd0"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B215.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B216",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B216",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.47190237045288086,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B216.stdout.json",
+        "bytes": 12498,
+        "sha256": "531353c75914404f32bee1b9320a0947a23942b1f31b45a1a88ff0de9a5241d7"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B216.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B217",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B217",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.5250422954559326,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B217.stdout.json",
+        "bytes": 12498,
+        "sha256": "c2f0ec7377688192457326b928c4ea4a0342c4b11db0025c4825b1e43a1222fe"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B217.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B218",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B218",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.5292928218841553,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B218.stdout.json",
+        "bytes": 21540,
+        "sha256": "fdf708464c00b055a9b2b1c4f9d65817dd1fe2d9f7ed7b7eb09a158a0139b506"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B218.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B219",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B219",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.5293755531311035,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B219.stdout.json",
+        "bytes": 17187,
+        "sha256": "e666d7a0069487e428b6f2079b2c7f59b20f0162b41502d0c1fc9c4774d6999f"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B219.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B220",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B220",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.5221590995788574,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B220.stdout.json",
+        "bytes": 17220,
+        "sha256": "3f6f863697a3e269a10a8dcd1f8db38cc081276082fcdf72754006176674c237"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B220.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B221",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B221",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.5145015716552734,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B221.stdout.json",
+        "bytes": 4612,
+        "sha256": "6d42aeeea4cc6e0f78e52903d09d1cc625d30e7ecc0c20c6fd7fb9cf88fa32fe"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B221.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B222",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B222",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.5125231742858887,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B222.stdout.json",
+        "bytes": 4612,
+        "sha256": "963fbd5d6550dbe3c2174ddc0661fce958df0a678bae77c40486ef012dec887d"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B222.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B223",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B223",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.5031211376190186,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B223.stdout.json",
+        "bytes": 16726,
+        "sha256": "279e6d9108f44876e27f51a703aadf648b5a0f111317e13d31f9f24fb6fa3682"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B223.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B224",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B224",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.4992811679840088,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B224.stdout.json",
+        "bytes": 13581,
+        "sha256": "22f6f6c7465cc07bf34f20ae7fba747f1386cb0fdb18e0de0489c0a65fd145f3"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B224.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "B225",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B225",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.49910497665405273,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B225.stdout.json",
+        "bytes": 13581,
+        "sha256": "aceb6afb021fe30dee597beff502dc9c380392da070da69ae55526ca3bac4d9d"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/B225.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "LA-001",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "LA-001",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.49996042251586914,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-001.stdout.json",
+        "bytes": 21036,
+        "sha256": "046936f3673b9a747f12c98002317e01467e61e758f9a6c5aef0819587abcf57"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-001.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "LA-002",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "LA-002",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.49996471405029297,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-002.stdout.json",
+        "bytes": 21036,
+        "sha256": "ed748fbeaeafddc4fe09dbbf6f7cb5cc7b83738094e89a532c057831e0436aaa"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-002.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "LA-003",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "LA-003",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.4887714385986328,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-003.stdout.json",
+        "bytes": 7971,
+        "sha256": "88d431394e80338d2df457c57d6f80afbbd44f4eecdc7139362a783818fa60ac"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-003.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "LA-004",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "LA-004",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.48097944259643555,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-004.stdout.json",
+        "bytes": 7855,
+        "sha256": "32b276ec2102ecfe9dd004ea69c58464d87a4c24d69d92016621edb8770ff4be"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-004.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "LA-007",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "LA-007",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.47318482398986816,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-007.stdout.json",
+        "bytes": 12544,
+        "sha256": "af718dcdca2140a35cac940511b84438dc62eba343c7f79e40a215377145fb60"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-007.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "LA-016",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "LA-016",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.4634830951690674,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-016.stdout.json",
+        "bytes": 15019,
+        "sha256": "f9f6f5e2cbdbb20ad9a1057c8fbee6a5e08a092e0a959acf5dae92d52b291867"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-016.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "LA-017",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "LA-017",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.42372584342956543,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-017.stdout.json",
+        "bytes": 12576,
+        "sha256": "508413df0aff7d7833b0e23690732b8296f5cfaafa762d1eee2953dd3f783ee1"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-017.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "LA-019",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "LA-019",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.41599202156066895,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-019.stdout.json",
+        "bytes": 12544,
+        "sha256": "e305ec2aa48b34b51b1de66fe84c2588674f9798d363f06bd975096afa387b43"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-019.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "LA-020",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "LA-020",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.4042816162109375,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-020.stdout.json",
+        "bytes": 6856,
+        "sha256": "a3d0e646509215c2082403aada653550f5afeb977bed22da9bbe5b6021b60ee1"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-020.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "LA-035",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "LA-035",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.3965301513671875,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-035.stdout.json",
+        "bytes": 7855,
+        "sha256": "13695d227995583379ff42701f1873f3f1de8ecc743c108c4cd30b3147efc09a"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-035.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    },
+    {
+      "label": "LA-037",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "LA-037",
+        "--details",
+        "--limit",
+        "10000",
+        "--block-limit",
+        "10000"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006",
+      "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "exit": 0,
+      "elapsed_s": 0.4112701416015625,
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "purpose": "stdlib source-reported metadata navigation; no product/backend test"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-037.stdout.json",
+        "bytes": 21036,
+        "sha256": "c0f9079fc5aa2864b23f34c95052f9b7db654ad7c7aef0facfd0ad9817d19bc8"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-queries/LA-037.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_PASS_inference": false
+    }
+  ],
+  "scope": "Complete requested query stdout/stderr, not deciding candidate behavior; failure30 is navigation only, per-ID full cells/source blocks are joined separately.",
+  "replayer": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/capture_baseline_queries.py",
+    "bytes": 3108,
+    "sha256": "7c1e9f1415495f4f3fcda73e444f0630f5f4c674371746cec07352db4f6c7e6a"
+  }
+}

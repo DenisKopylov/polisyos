@@ -1,0 +1,25 @@
+...............................                                          [100%]
+=============================== warnings summary ===============================
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_selected_scalar_job_persisted_target_fresh_reader
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_real_dowhy_primary_binding_and_canonical_consumer
+  /workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    result = backend.run(
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_real_dowhy_primary_binding_and_canonical_consumer
+  /workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] report: unexpected_key — Key 'report' not declared in output slots
+    result = backend.run(
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_real_dowhy_primary_binding_and_canonical_consumer
+  /workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    result = backend.run(
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_real_dowhy_primary_binding_and_canonical_consumer
+  /workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] warnings: unexpected_key — Key 'warnings' not declared in output slots
+    result = backend.run(
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_real_dowhy_primary_binding_and_canonical_consumer
+  /workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [ERROR] causal_effect_report: missing_key — Declared output slot 'causal_effect_report' missing from result
+    result = backend.run(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+31 passed, 6 warnings in 44.77s

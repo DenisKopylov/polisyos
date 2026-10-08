@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "gh",
+    "api",
+    "--method",
+    "POST",
+    "repos/DenisKopylov/polisyos/git/trees",
+    "--input",
+    "-"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006",
+  "stdin": {
+    "bytes": 13531,
+    "sha256": "584ee48cae777a6cd9aae9057f2d2202a6cf7000ae9e707ca3ce164a913ead62"
+  },
+  "request_reconstruction": "exact local immutable Git objects plus this tracked replayer",
+  "exit_code": 0,
+  "wall_seconds": 1.6326859699911438,
+  "stdout": {
+    "bytes": 1730,
+    "sha256": "277384203445b8e6a3c521736c8dc4cb5ecae708bfcf6f2cb7d58d3c87eadf1e"
+  },
+  "stderr": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

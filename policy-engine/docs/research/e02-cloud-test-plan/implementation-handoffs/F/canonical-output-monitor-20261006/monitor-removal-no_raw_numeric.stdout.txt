@@ -1,0 +1,53 @@
+....F.F....                                                              [100%]
+=================================== FAILURES ===================================
+_____________ test_raw_numeric_sidecar_remains_an_error_diagnostic _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f38bb1135c0>
+
+    def test_raw_numeric_sidecar_remains_an_error_diagnostic(monkeypatch: Any) -> None:
+        emissions: list[Any] = []
+        monkeypatch.setattr(
+            "polisyos.foundry.methods.backends.dispatch._emit_anomaly_metric",
+            lambda fqn, flags: emissions.append((fqn, flags)),
+        )
+        with warnings.catch_warnings(record=True) as observed:
+            warnings.simplefilter("always")
+            result = _dispatch_registered(
+                _AliasedVector,
+                {"report": np.array([2.0, 5.0]), "diagnostic_draw": np.array([np.nan, np.inf])},
+            )
+        np.testing.assert_array_equal(result.slot_outputs["result"], [2.0, 5.0])
+        messages = [str(w.message) for w in observed]
+>       assert len(messages) == 2
+E       assert 0 == 2
+E        +  where 0 = len([])
+
+tests/unit/foundry/methods/backends/test_dispatch_output_contract.py:127: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 15:08:20 [info     ] method_registered              backend=numpy fqn=tests.monitor.aliased_vector@1.0.0 lazy=False namespace=tests.monitor override=True tags=[] version=1.0.0
+2026-10-06 15:08:20 [debug    ] method_dispatch_start          backend=numpy fqn=tests.monitor.aliased_vector@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 15:08:20 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=44.6 fqn=tests.monitor.aliased_vector@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+___________ test_nonempty_numeric_sequences_keep_nan_inf_diagnostics ___________
+
+    def test_nonempty_numeric_sequences_keep_nan_inf_diagnostics() -> None:
+        flags = MethodOutputMonitor().check_output_contract(
+            slot_outputs={"result": np.array([2.0, 5.0])},
+            raw_output={"diagnostics": [np.nan, np.inf]},
+            expected_keys={"result"},
+        )
+>       assert {(f.key, f.reason, f.severity) for f in flags} == {
+            ("diagnostics", "nan_detected", "error"),
+            ("diagnostics", "inf_detected", "error"),
+        }
+E       AssertionError: assert set() == {('diagnostic...ed', 'error')}
+E         
+E         Extra items in the right set:
+E         ('diagnostics', 'inf_detected', 'error')
+E         ('diagnostics', 'nan_detected', 'error')
+E         Use -v to get more diff
+
+tests/unit/foundry/methods/backends/test_dispatch_output_contract.py:153: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/backends/test_dispatch_output_contract.py::test_raw_numeric_sidecar_remains_an_error_diagnostic
+FAILED tests/unit/foundry/methods/backends/test_dispatch_output_contract.py::test_nonempty_numeric_sequences_keep_nan_inf_diagnostics
+2 failed, 9 passed in 9.56s

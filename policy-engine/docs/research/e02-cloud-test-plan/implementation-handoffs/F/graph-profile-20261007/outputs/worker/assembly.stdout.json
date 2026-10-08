@@ -1,0 +1,17 @@
+{
+  "outcome": "PASS",
+  "files": 48,
+  "complete_bytes": 208897,
+  "synthetic_CAS_files": 36,
+  "review": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/focused-real-worker-review.json",
+    "bytes": 26431,
+    "sha256": "80e55aefd5794b55c494d3efcef0783cde9c7364e4fc545a168338b042f98f40"
+  },
+  "selection": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/focused-real-worker-transfer-selection.json",
+    "bytes": 13849,
+    "sha256": "95735572e0a47e65555c9b2395665b347cbd8e6d697576b029baed71451e6b6e"
+  },
+  "scope": "Receipt/body/archive verification only; no scientific test executed."
+}

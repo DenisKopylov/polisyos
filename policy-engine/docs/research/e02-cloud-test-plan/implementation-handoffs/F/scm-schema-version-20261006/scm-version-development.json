@@ -1,0 +1,37 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "--tb=short",
+    "tests/unit/ir/test_structural_causal_model_versions.py",
+    "tests/unit/ir/test_structural_causal_model_contract.py",
+    "tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+  "source_tree_sha": "1481e08664a271f12e77807f2468906efd7e40c5",
+  "exit_code": 1,
+  "wall_s": 32.467797975987196,
+  "rss_kib": 620696,
+  "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+  "outputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/scm-version-development.stdout.txt",
+      "bytes": 7457,
+      "sha256": "6313cbd4b46b15cce1c0c2d8074cb8275cf19040c9957fe7d448759475f3b2ba"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/scm-version-development.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "check": "FAIL"
+}

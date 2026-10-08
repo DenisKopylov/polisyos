@@ -5,7 +5,6 @@ from __future__ import annotations
 import hashlib
 import threading
 from collections.abc import Mapping
-from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 from dataclasses import asdict, dataclass, field
 from typing import Any
@@ -94,6 +93,8 @@ class ATENuisanceContract:
     max_parallel_folds: int = 0
     max_targeting_iter: int = 3
     targeting_step_limit: float = 5.0
+    outcome_family: str = "auto"
+    inference_profile: str = "regular_iid"
 
     @classmethod
     def from_params(cls, params: Mapping[str, Any] | None) -> ATENuisanceContract:
@@ -138,6 +139,8 @@ class ATENuisanceContract:
             max_parallel_folds=max(0, int(raw.get("max_parallel_folds", 0))),
             max_targeting_iter=max(1, int(raw.get("max_targeting_iter", 3))),
             targeting_step_limit=float(raw.get("targeting_step_limit", 5.0)),
+            outcome_family=str(raw.get("outcome_family", "auto")),
+            inference_profile=str(raw.get("inference_profile", "regular_iid")),
         )
 
     def as_legacy_config(self) -> dict[str, Any]:
@@ -192,6 +195,7 @@ class ATENuisanceBundle:
     propensity_backends: list[str] = field(default_factory=list)
     outcome_backends: list[str] = field(default_factory=list)
     selection_manifest: list[dict[str, Any]] = field(default_factory=list)
+    fit_identity: str | None = None
 
     def effect_signal(self) -> np.ndarray:
         return self.mu1 - self.mu0
@@ -247,6 +251,14 @@ class ATENuisanceBundle:
             "min_effective_sample_size": float(self.contract.min_effective_sample_size),
             "coverage_guard": self.contract.coverage_guard,
             "coverage_guard_triggered": coverage_guard_triggered,
+            "fit_identity": self.fit_identity,
+            "execution_policy": {
+                "effective_fold_workers": 1,
+                "requested_parallel_folds": self.contract.parallel_folds,
+                "requested_max_parallel_folds": self.contract.max_parallel_folds,
+                "policy": "serial_folds_within_admitted_job",
+                "aggregate_admission_owner": "Scientist worker pool",
+            },
         }
         return diagnostics
 
@@ -257,14 +269,15 @@ class ATEFitResult:
 
     ate: float
     standard_error: float
-    ci_lower: float
-    ci_upper: float
+    ci_lower: float | None
+    ci_upper: float | None
     interval_method: str
     eif_mean: float
     eif_standard_deviation: float
     eif_values: np.ndarray
     nuisance_bundle: ATENuisanceBundle
     targeting_summary: dict[str, Any] | None = None
+    inference_limitations: tuple[str, ...] = ()
 
     @property
     def effect_scale(self) -> float:
@@ -285,6 +298,7 @@ class _ATENuisanceFitCore:
     propensity_backends: list[str]
     outcome_backends: list[str]
     selection_manifest: list[dict[str, Any]]
+    fit_identity: str | None
 
     @classmethod
     def from_bundle(cls, bundle: ATENuisanceBundle) -> _ATENuisanceFitCore:
@@ -300,10 +314,14 @@ class _ATENuisanceFitCore:
             propensity_backends=deepcopy(bundle.propensity_backends),
             outcome_backends=deepcopy(bundle.outcome_backends),
             selection_manifest=deepcopy(bundle.selection_manifest),
+            fit_identity=bundle.fit_identity,
         )
 
     def materialize(self, contract: ATENuisanceContract) -> ATENuisanceBundle:
         """Return an isolated bundle bound to the caller's current contract."""
+        records = deepcopy(self.selection_manifest)
+        for record in records:
+            record["split_policy"] = contract.overlap_diagnostic_policy
         return ATENuisanceBundle(
             propensity=_readonly_array(self.propensity),
             mu1=_readonly_array(self.mu1),
@@ -315,15 +333,22 @@ class _ATENuisanceFitCore:
             calibration_modes=deepcopy(self.calibration_modes),
             propensity_backends=deepcopy(self.propensity_backends),
             outcome_backends=deepcopy(self.outcome_backends),
-            selection_manifest=deepcopy(self.selection_manifest),
+            selection_manifest=records,
+            fit_identity=self.fit_identity,
         )
 
 
 def _readonly_array(value: np.ndarray) -> np.ndarray:
-    """Copy an array and prevent mutation of the fitted artifact boundary."""
-    copied = np.array(value, copy=True)
-    copied.setflags(write=False)
-    return copied
+    """Share immutable bytes with independent reader shape and dtype metadata."""
+    array = np.asarray(value)
+    if array.dtype.hasobject:
+        raise TypeError("Nuisance fit arrays must have numeric or boolean dtype")
+    base: Any = array
+    while isinstance(base, np.ndarray):
+        base = base.base
+    if isinstance(base, bytes):
+        return array.view()
+    return np.frombuffer(array.tobytes(), dtype=array.dtype).reshape(array.shape)
 
 
 _SHARED_NUISANCE_CACHE: dict[str, _ATENuisanceFitCore] = {}
@@ -727,6 +752,7 @@ def _contract_fingerprint(contract: ATENuisanceContract) -> str:
             contract.outcome_backend,
             contract.outcome_backend_candidates,
             contract.selection_objective,
+            contract.backend_selection_policy,
             contract.calibration_mode,
             contract.crossfit_folds,
             contract.n_repeats,
@@ -751,16 +777,19 @@ def _shared_nuisance_cache_key(
     if params is not None and params.get("__disable_shared_nuisance_cache"):
         return None
     explicit = None if params is None else params.get("__shared_nuisance_key")
-    signature = _contract_fingerprint(contract)
-    if explicit is not None:
-        return f"explicit::{explicit!s}::{signature}"
+    return repr((None if explicit is None else str(explicit), _fit_identity(X, T, Y, contract)))
+
+
+def _fit_identity(
+    X: np.ndarray, T: np.ndarray, Y: np.ndarray, contract: ATENuisanceContract
+) -> str:
+    """Recompute the statistical fit basis independently of the caller namespace."""
     return "::".join(
         [
-            "auto",
             _hash_array(np.asarray(X, dtype=float)),
             _hash_array(np.asarray(T, dtype=float)),
             _hash_array(np.asarray(Y, dtype=float)),
-            signature,
+            _contract_fingerprint(contract),
         ]
     )
 
@@ -907,6 +936,14 @@ def _fit_crossfit_nuisance_bundle_uncached(
             if fit_idx.size < 4:
                 fit_idx = train_idx
                 calib_idx = np.array([], dtype=int)
+            split_manifest[repeat]["folds"][fold_id].update(
+                {
+                    "test_indices": test_idx.tolist(),
+                    "fit_indices_digest": _hash_array(fit_idx),
+                    "calibration_indices_digest": _hash_array(calib_idx),
+                    "test_indices_digest": _hash_array(test_idx),
+                }
+            )
             tasks.append(
                 {
                     "rep_seed": int(rep_seed),
@@ -917,47 +954,24 @@ def _fit_crossfit_nuisance_bundle_uncached(
                 }
             )
 
-    max_workers = 1
-    if contract.parallel_folds and len(tasks) > 1:
-        auto_workers = contract.max_parallel_folds or len(tasks)
-        max_workers = min(len(tasks), auto_workers)
-        max_workers = max(1, int(max_workers))
-
-    if max_workers > 1:
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            fold_results = list(
-                executor.map(
-                    lambda task: _fit_crossfit_fold(
-                        X=X,
-                        T=T,
-                        Y_scaled=Y_scaled,
-                        scaler=scaler,
-                        contract=contract,
-                        rep_seed=int(task["rep_seed"]),
-                        fold_id=int(task["fold_id"]),
-                        fit_idx=np.asarray(task["fit_idx"], dtype=int),
-                        calib_idx=np.asarray(task["calib_idx"], dtype=int),
-                        test_idx=np.asarray(task["test_idx"], dtype=int),
-                    ),
-                    tasks,
-                )
-            )
-    else:
-        fold_results = [
-            _fit_crossfit_fold(
-                X=X,
-                T=T,
-                Y_scaled=Y_scaled,
-                scaler=scaler,
-                contract=contract,
-                rep_seed=int(task["rep_seed"]),
-                fold_id=int(task["fold_id"]),
-                fit_idx=np.asarray(task["fit_idx"], dtype=int),
-                calib_idx=np.asarray(task["calib_idx"], dtype=int),
-                test_idx=np.asarray(task["test_idx"], dtype=int),
-            )
-            for task in tasks
-        ]
+    # The outer Scientist job holds its worker permit. There is no nested
+    # transferable permit carrier, so never create a second pool while holding
+    # that permit. Preserve every scientific task and its deterministic order.
+    fold_results = [
+        _fit_crossfit_fold(
+            X=X,
+            T=T,
+            Y_scaled=Y_scaled,
+            scaler=scaler,
+            contract=contract,
+            rep_seed=int(task["rep_seed"]),
+            fold_id=int(task["fold_id"]),
+            fit_idx=np.asarray(task["fit_idx"], dtype=int),
+            calib_idx=np.asarray(task["calib_idx"], dtype=int),
+            test_idx=np.asarray(task["test_idx"], dtype=int),
+        )
+        for task in tasks
+    ]
 
     for fold_result in fold_results:
         test_idx = np.asarray(fold_result["test_idx"], dtype=int)
@@ -1004,15 +1018,31 @@ def fit_crossfit_nuisance_bundle(
     contract: ATENuisanceContract,
     params: Mapping[str, Any] | None = None,
 ) -> ATENuisanceBundle:
-    """Fit crossfit nuisance bundle helper."""
+    """Reuse a content-bound fit through isolated current-policy readers."""
+    X = np.array(X, dtype=float, copy=True)
+    T = np.array(T, dtype=float, copy=True)
+    Y = np.array(Y, dtype=float, copy=True)
     precomputed = None if params is None else params.get("__shared_nuisance_bundle")
     if isinstance(precomputed, ATENuisanceBundle):
-        return precomputed
+        identity = _fit_identity(X, T, Y, contract)
+        if precomputed.fit_identity != identity:
+            raise ValueError("Precomputed nuisance fit identity does not match current inputs")
+        # Offered predictions/metadata are never evidence. Resolve the issued
+        # identity to our controlled core, then materialize a fresh reader.
+        with _SHARED_NUISANCE_LOCK:
+            issued = next(
+                (core for core in _SHARED_NUISANCE_CACHE.values() if core.fit_identity == identity),
+                None,
+            )
+        if issued is None:
+            raise ValueError("Precomputed nuisance fit identity is not in the controlled cache")
+        return issued.materialize(contract)
     cache_key = _shared_nuisance_cache_key(X, T, Y, contract, params)
     cached = _cache_get(cache_key)
     if cached is not None:
         return cached.materialize(contract)
     bundle = _fit_crossfit_nuisance_bundle_uncached(X, T, Y, contract)
+    bundle.fit_identity = _fit_identity(X, T, Y, contract)
     core = _ATENuisanceFitCore.from_bundle(bundle)
     _cache_put(cache_key, core)
     return core.materialize(contract)
@@ -1206,15 +1236,54 @@ def fit_tmle_ate(
     Y: np.ndarray,
     params: Mapping[str, Any] | None = None,
 ) -> tuple[ATEFitResult, ATENuisanceBundle]:
-    """Fit tmle ate helper."""
+    """Target the binary-treatment ATE with a family-specific fluctuation.
+
+    Logit targeting supports outcomes bounded in [0, 1]; identity targeting
+    supports a declared continuous-outcome profile. EIF intervals are
+    asymptotic under regular iid units, positivity and appropriate nuisance
+    convergence. Declaring the profile does not verify those assumptions.
+    """
+    X = np.asarray(X, dtype=float)
+    T = np.asarray(T, dtype=float).reshape(-1)
+    Y = np.asarray(Y, dtype=float).reshape(-1)
+    if X.ndim != 2 or X.shape[0] != Y.size or T.size != Y.size or Y.size < 2:
+        raise ValueError("TMLE requires aligned nonempty X/T/Y arrays")
+    if not all(np.all(np.isfinite(value)) for value in (X, T, Y)):
+        raise ValueError("TMLE requires finite X/T/Y values")
+    if not np.all((T == 0) | (T == 1)) or np.unique(T).size != 2:
+        raise ValueError("TMLE requires both binary treatment arms")
     contract = ATENuisanceContract.from_params(params)
+    family = contract.outcome_family.strip().lower()
+    bounded_observations = bool(np.all((Y >= 0) & (Y <= 1)))
+    if family == "auto":
+        family = "bounded" if bounded_observations else "continuous"
+    if family not in {"binary", "bounded", "continuous"}:
+        raise ValueError("Unsupported TMLE outcome family")
+    if family in {"binary", "bounded"} and not bounded_observations:
+        raise ValueError("Bounded TMLE requires outcome in [0, 1]")
+    if family == "binary" and not np.all((Y == 0) | (Y == 1)):
+        raise ValueError("Binary TMLE requires outcome in {0, 1}")
     nuisance = fit_crossfit_nuisance_bundle(X, T, Y, contract, params)
     e = nuisance.propensity
     q1 = np.asarray(nuisance.mu1, dtype=float)
     q0 = np.asarray(nuisance.mu0, dtype=float)
+    if not all(np.all(np.isfinite(value)) for value in (e, q1, q0)):
+        raise ValueError("TMLE requires finite nuisance predictions")
+    if np.any(e <= 0) or np.any(e >= 1):
+        raise ValueError("TMLE nuisance propensity must lie strictly within (0, 1)")
     valid = _point_estimation_mask(nuisance, contract)
+    if np.count_nonzero(valid) < 2:
+        raise ValueError("TMLE target requires at least two supported observations")
     q1_star = q1.copy()
     q0_star = q0.copy()
+    bounded = family in {"binary", "bounded"}
+    if bounded:
+        # Bound the INITIAL regression offset; subsequent updates use a
+        # genuine logistic submodel, never a clipped identity-link update.
+        q1_star = np.clip(q1_star, 1e-8, 1.0 - 1e-8)
+        q0_star = np.clip(q0_star, 1e-8, 1.0 - 1e-8)
+        logits1 = np.log(q1_star) - np.log1p(-q1_star)
+        logits0 = np.log(q0_star) - np.log1p(-q0_star)
     history: list[dict[str, Any]] = []
     step_limit = _targeting_step_limit(contract, nuisance, Y, valid)
 
@@ -1222,11 +1291,20 @@ def fit_tmle_ate(
         q_a_star = np.where(T > 0.5, q1_star, q0_star)
         clever = T / e - (1.0 - T) / (1.0 - e)
         residual = Y - q_a_star
-        denom = max(float(np.sum((clever[valid]) ** 2)), 1e-12)
-        raw_step = float(np.sum(clever[valid] * residual[valid]) / denom)
-        step = float(np.clip(raw_step, -step_limit, step_limit))
-        q1_star = q1_star + step / e
-        q0_star = q0_star - step / (1.0 - e)
+        if bounded:
+            offset = np.where(T[valid] > 0.5, logits1[valid], logits0[valid])
+            raw_step = _logistic_fluctuation_epsilon(offset, clever[valid], Y[valid])
+            step = float(np.clip(raw_step, -step_limit, step_limit))
+            logits1 = logits1 + step / e
+            logits0 = logits0 - step / (1.0 - e)
+            q1_star = _expit(logits1)
+            q0_star = _expit(logits0)
+        else:
+            denom = max(float(np.sum((clever[valid]) ** 2)), 1e-12)
+            raw_step = float(np.sum(clever[valid] * residual[valid]) / denom)
+            step = float(np.clip(raw_step, -step_limit, step_limit))
+            q1_star = q1_star + step / e
+            q0_star = q0_star - step / (1.0 - e)
         residual_mse = (
             float(np.mean((residual[valid]) ** 2)) if np.any(valid) else float(np.mean(residual**2))
         )
@@ -1250,13 +1328,30 @@ def fit_tmle_ate(
     q_a_star = np.where(T > 0.5, q1_star, q0_star)
     clever = T / e - (1.0 - T) / (1.0 - e)
     eif_values = targeted_diff[valid] + clever[valid] * (Y[valid] - q_a_star[valid]) - ate
-    ate, se, ci_lower, ci_upper, interval_method = _interval_from_eif(
-        ate,
-        eif_values,
-        contract,
-        seed_offset=53,
-        nuisance=nuisance,
-    )
+    targeting_score = float(np.mean(clever[valid] * (Y[valid] - q_a_star[valid])))
+    converged = bool(abs(targeting_score) < 1e-8)
+    limitations: list[str] = []
+    if contract.inference_profile != "regular_iid":
+        limitations.append("unsupported_inference_profile")
+    if not np.all(valid):
+        limitations.append("trimmed_target_not_population_ate")
+    if (
+        not np.all(np.isfinite(e))
+        or np.any(e <= contract.propensity_clipping)
+        or np.any(e >= 1.0 - contract.propensity_clipping)
+        or not np.all(nuisance.trim_mask)
+    ):
+        limitations.append("observed_positivity_failure")
+    if not converged:
+        limitations.append("targeting_score_not_converged")
+    se = float(np.std(eif_values, ddof=1) / np.sqrt(eif_values.size))
+    ci_lower: float | None = None
+    ci_upper: float | None = None
+    interval_method = "unavailable_eif"
+    if not limitations:
+        z = 1.959963984540054
+        ci_lower, ci_upper = ate - z * se, ate + z * se
+        interval_method = "wald_eif_regular_iid"
     result = ATEFitResult(
         ate=ate,
         standard_error=se,
@@ -1267,14 +1362,62 @@ def fit_tmle_ate(
         eif_standard_deviation=float(np.std(eif_values, ddof=1)) if eif_values.size > 1 else 0.0,
         eif_values=eif_values,
         nuisance_bundle=nuisance,
+        inference_limitations=tuple(limitations),
         targeting_summary={
             "n_iterations": len(history),
-            "converged": bool(history and abs(history[-1]["epsilon"]) < 1e-8),
+            "converged": converged,
+            "outcome_family": family,
+            "fluctuation_link": "logit" if bounded else "identity",
+            "targeting_score": targeting_score,
+            "targeted_q_min": float(min(np.min(q0_star), np.min(q1_star))),
+            "targeted_q_max": float(max(np.max(q0_star), np.max(q1_star))),
+            "inference_profile": contract.inference_profile,
+            "inference_assumptions": [
+                "iid_independent_units",
+                "positivity",
+                "regular_nuisance_convergence",
+                "identified_binary_treatment_population_ate",
+            ],
+            "assumption_basis": "consumer_asserted",
             "history": history,
             "final_residual_mse": history[-1]["residual_mse"] if history else float("nan"),
         },
     )
     return result, nuisance
+
+
+def _expit(logits: np.ndarray) -> np.ndarray:
+    """Evaluate logistic probabilities without overflow."""
+    logits = np.asarray(logits, dtype=float)
+    exp_abs = np.exp(-np.abs(logits))
+    return np.where(logits >= 0, 1.0 / (1.0 + exp_abs), exp_abs / (1.0 + exp_abs))
+
+
+def _logistic_fluctuation_epsilon(
+    offset: np.ndarray, clever: np.ndarray, outcome: np.ndarray
+) -> float:
+    """Solve the monotone Bernoulli-loss score for the logistic submodel."""
+
+    def score(epsilon: float) -> float:
+        return float(np.mean(clever * (outcome - _expit(offset + epsilon * clever))))
+
+    if abs(score(0.0)) < 1e-12:
+        return 0.0
+    lower, upper = -1.0, 1.0
+    for _ in range(40):
+        if score(lower) >= 0 and score(upper) <= 0:
+            break
+        lower, upper = lower * 2.0, upper * 2.0
+    for _ in range(100):
+        midpoint = 0.5 * (lower + upper)
+        value = score(midpoint)
+        if abs(value) < 1e-12:
+            return midpoint
+        if value > 0:
+            lower = midpoint
+        else:
+            upper = midpoint
+    return 0.5 * (lower + upper)
 
 
 def result_payload(
@@ -1316,6 +1459,11 @@ def result_payload(
     }
     if result.targeting_summary is not None:
         payload["targeting_summary"] = result.targeting_summary
+        payload["status"] = "limited" if result.inference_limitations else "candidate"
+        payload["gate_eligible"] = False
+        payload["inference_limitations"] = list(result.inference_limitations)
+        payload["inference_profile"] = contract.inference_profile
+        payload["assumption_basis"] = "consumer_asserted"
     return payload
 
 

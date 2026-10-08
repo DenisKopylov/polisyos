@@ -1,0 +1,1125 @@
+{
+  "schema": "policyos.e02.orch03.coordination_handoff.v1",
+  "role": "ORCH03",
+  "coordination_only": true,
+  "root_topic": "codex/e02-F-closeout-20261006",
+  "delivery_PR": "https://github.com/DenisKopylov/polisyos/pull/65",
+  "root_entry_base": {
+    "sha": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+    "tree": "682b043138464c912dd728c12e80049dd44b47f1"
+  },
+  "root_receipt_parent": {
+    "sha": "27ad60afe4cfedea9a9c0ff71d9abd22c30836d9",
+    "tree": "dc70173844ad04b290662a036dba283f7375b4c9"
+  },
+  "intake_commit": "386c50cdf9306a76816ea30110c8595f9e46c312",
+  "admission_custody_commits": [
+    "de7b08ebbac72232c98d96ea74c3c0410864a7ba",
+    "9a2cc9dbe0fc2c50ed2371f56cbdde79c05656ff",
+    "8077016f144712b00a05f0b3b6701c51852f1d21",
+    "27ad60afe4cfedea9a9c0ff71d9abd22c30836d9"
+  ],
+  "leaf_sources": [
+    {
+      "role": "C07",
+      "mechanism": "persisted subject/estimand/unit relation",
+      "original_owner": "A",
+      "implementation_unit": "E",
+      "topic": "codex/e02-E-c07-20261008",
+      "source": "741af2a08a8dc5fa36340bf700c092c7fb51f651",
+      "tree": "bfae04d141187c30e4f6bc14dbbbae00f6ee116c",
+      "receipt": {
+        "commit": "dce5b253bd3f2d8f05c008a5128b1532e44b3837",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/implementation.json",
+        "blob": "becc30a823eb70d9a27c6803563bdacf94dcf6e9",
+        "bytes": 48990,
+        "sha256": "3b42ad68688218309c632228040ef6689af2c757e0580dca0beb2ad722d46fe5"
+      },
+      "original_output_carrier": "6bdd8b66b5773032fefdf6fa2d55a0c9b4bf9281",
+      "current_exact_check": "18 PASS at741; historical62 PASS and9 expected removal FAIL plus1 positive at804; spacing delta AST-identical; no whole-head relabel",
+      "scope": "content/manifest/subject consistency, separate identification/native uncertainty channels and real unit conversion; production_value_eligible false",
+      "outcome": "bounded mechanical code_ready; B31 original criterion limited",
+      "next": "C06 automatic selected-manifest preservation; C10 actual producer/ValuePort and genuine scientific basis; G selected Profile2/schema/facade/generated composition",
+      "source_acceptance_G": "bounded library GO; actual source acceptance pending G composition",
+      "formal_closure_G": "not_issued",
+      "slice_base": {
+        "sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767"
+      },
+      "source_parent": "804a6aba31125372b0b57a10041c6d6aad375ad5",
+      "topic_head": {
+        "sha": "dce5b253bd3f2d8f05c008a5128b1532e44b3837",
+        "tree": "631dcaddc62c447ba84f2be891ed4de7d06e8bc6",
+        "meaning": "publication carrier, not a whole-head product verdict"
+      },
+      "G_independent_check": {
+        "checkpoint": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+        "source": "741af2a08a8dc5fa36340bf700c092c7fb51f651",
+        "result": "62 PASS exact741;832loadedmodules0bytemismatch; noC10/ValuePort bridge",
+        "qualification": "distinct G run, not retroactive relabel of author80462"
+      },
+      "G_original_finding_state": "B31 historical held; new adjudication not issued"
+    },
+    {
+      "role": "C08",
+      "mechanism": "finite graph/query original-source binding and native DAG marginalization",
+      "original_owner": "F",
+      "implementation_unit": "F",
+      "topic": "codex/e02-F-c08-20261008",
+      "source": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+      "tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+      "receipt": {
+        "commit": "222d0867d47428bdb1835c6e6a68c2787bc05be9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff.json",
+        "blob": "c894c11776db5263b5218ffd45125030922a44e8",
+        "bytes": 63183,
+        "sha256": "5f9b59d89b8f961d26cae6fa53f8e8b2d6fb174b000238c2ad565b5a21313b0c"
+      },
+      "current_exact_check": "Independent runtime5e3GO:12Fractionqueries/2actualauditgraphproof→freshchild/10defaultviewlineagehashrefnegatives,767origins. Author exacta5wave:5legacyPASS,2expectednativeguardremovalFAIL; fourSIGKILL/-9ERROR/incomplete scopes. No26main/6characterizationPASS orgraphhashremovalresult.",
+      "scope": "Originaltypedgraph→CAS→contentboundproof→freshdefaultreader; narrow completeobservedstaticDAG originalinterventionalquery retained. ExistingfiniteCPDAG<=4profile carried unchanged; noselectedcurrentness/PAG/latent/temporal/universalID/authority.",
+      "outcome": "boundedsourcefrozen/reviewed readyforG review; finalauthorverificationincomplete; B214limited/B56UNRUN",
+      "next": "Functionalexecutor exactfourinterrupted scopes; C06selectedmanifestadapter, C11Level2adoption, A/C/Fauthoritycontract; B56C01actualsharedadmission bridge/workload",
+      "source_acceptance_G": "HOLD/notissued forforwardsource; independentboundedGO distinct",
+      "formal_closure_G": "not_issued",
+      "slice_base": {
+        "sha": "ab48c152514b025618cd6e3fc9acc70a1ed773ee",
+        "tree": "c8de2a22c30ecfdafaee4da753d1958d4f947af4"
+      },
+      "source_parent": "96258000e70847dcd1ec54607664e81c92bfa3d6",
+      "topic_head": {
+        "sha": "ed50e8ee50afc6f345ce804b1d7d26a2edeb4061",
+        "tree": "2b867defe3b84962484dc32ca80f0d1c47da5b77",
+        "meaning": "passive readbackcarrier, runtime5e3 andH222d unchanged"
+      },
+      "original_output_carrier": "a38d6e79eb08a516ccabd298984d9cb7a660030a",
+      "B56_qualification_receipt": {
+        "commit": "ab48c152514b025618cd6e3fc9acc70a1ed773ee",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/B56-profile-qualification.json",
+        "bytes": 7013,
+        "sha256": "82761e1c535e5b273076599fc2e5abfa4e23587aa2c7806d837004af3521ef94",
+        "qualification": "6c384b441262041dedcd508adaccfbfd96e2fef8",
+        "qualification_tree": "467fa9a602194c6ccc46e77b824a3678052f5417",
+        "deciding_independent_review": "85e49333b66595cdaf795d954c964e8dd945ffb67b793f067065e5413201f2f7"
+      },
+      "historical_source": {
+        "source": "2dd8339c210caf973586f7ddec69b6b0a48f1df7",
+        "tree": "72c482aa7d731f1adfaf703dcd6708fcccff40cd",
+        "receipt": {
+          "commit": "ab48c152514b025618cd6e3fc9acc70a1ed773ee",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/partial-query-handoff.json",
+          "blob": "9eab60b36bc2074b6b743707da63e8dd64bcb410",
+          "bytes": 28923,
+          "sha256": "e54b7e6c1ccd8e7f2d9e392f6f72d10a8ff221ab21377528dda45f7345c01a84"
+        },
+        "slice_base": {
+          "sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767"
+        },
+        "source_parent": "3a7355e684f2916f22bafe58afe8ec0ffbdb9e34",
+        "current_exact_check": "18 PASS; independent4165 profiles,781 empty families, exact Fraction query controls;3 pytest and1 persisted-proof-child expected removal FAIL",
+        "source_acceptance_G": "bounded mathematical GO; source acceptance pending graph-bound readback"
+      },
+      "runtime_source": {
+        "sha": "5e3f2cdfe700186bec621d8b7e6ed48f8af6098d",
+        "tree": "4065489cce119da0c7623464edbba37799d7550a"
+      }
+    },
+    {
+      "role": "C09",
+      "mechanism": "empirical interval admission",
+      "original_owner": "E",
+      "implementation_unit": "E",
+      "topic": "codex/e02-E-c09-20261008",
+      "source": "b3df9b6d84c67b48e91ea9227cadb89f5010b2a2",
+      "tree": "9d6577fe7dfc4e238f106e2f0bd22815e1d57e4e",
+      "receipt": {
+        "commit": "8ea1f703f8ed6cd9294f9e9cce7f9aa96cf9d8b2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis.json",
+        "blob": "36fb843345a8872a23f676bb53fdaedf336ec7de",
+        "bytes": 25817,
+        "sha256": "8a804ec83443f7c9b2b9c1779948131c8024f92fd5852b3da23829681c97da00"
+      },
+      "current_exact_check": "ADB final affected56:54PASS/2FAIL/0ERROR/0SKIP preserved; independently reviewed b3 test-only exact2 retry2PASS. Independent66118native observations+4expectedremovalFAIL+14childrefs;ADB3summarycontrols+1expectedremovalFAIL+4childrefs. No56wholeb3PASS.",
+      "scope": "One numerical interval-basis invariant across temporal/report/forecast/matrix/validation/leaderboard; actual CAS/kind/schema/scenario/full roster before promotion; point-only/predictive retained; reserved summary recomputed. Authentic ordered source rows and authority UNRUN.",
+      "outcome": "bounded consumer-consistency code_ready; missing genuine source/Runtime admission remains limited",
+      "next": "C10 actual ordered observedDataSnapshot/split/horizon/prediction/report roster and genuine Runtime/S10/scientific basis; G selected source/installed composition and C13 portable replay",
+      "source_acceptance_G": "not_issued; historical HOLD preserved; forward source independently GO within stated mechanics",
+      "formal_closure_G": "not_issued",
+      "slice_base": {
+        "sha": "6d470eb884c31a8b19ee06058881cf0deaa492f5",
+        "tree": "99f904d38e56fc5709a78a3a20c980b6e6fba9d4"
+      },
+      "source_parent": "adb66080e3ac64d73b3faa85d693a47c6c284427",
+      "topic_head": {
+        "sha": "02a75f2b7a4846bcf5b6a8f301d2d4d20b9a99b2",
+        "tree": "2432fcdc1ecade9b88fdf1f0d76175d4fbf678a5",
+        "meaning": "passive publication readback carrier; H8ea runtime/test scope unchanged"
+      },
+      "historical_source": {
+        "source": "ee0b2c85289d8c5537ba4e01713d9be71e2f557e",
+        "tree": "072e8906ac69f5b3589550a8bd9d57b4cb41b4a3",
+        "receipt": {
+          "commit": "514f90058104f7dd8ada1c83b8bf5f62bfc33b88",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission.json",
+          "blob": "93d544989a30ba262e764038b5dfcca141cdec3f",
+          "bytes": 16525,
+          "sha256": "1031ca2e6a1da65a0fe1ca0cb95006f24edd71ab76f90936f6bef7d3053d1a48"
+        },
+        "slice_base": {
+          "sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767"
+        },
+        "source_parent": "d095dbd5527ae8462f85c382a40877f16574c58a",
+        "current_exact_check": "77 affected PASS plus2 real NumPy ETS predictive/CAS PASS;4 expected removal FAIL; same CI/different holdout changes measured coverage3/3 to1/3",
+        "source_acceptance_G": "HOLD at71ec; actual same-class downstream consumer escape"
+      },
+      "runtime_source": {
+        "sha": "adb66080e3ac64d73b3faa85d693a47c6c284427",
+        "tree": "f2c1f993052c25586420d07c766b868f632fbf39"
+      }
+    },
+    {
+      "role": "C09",
+      "mechanism": "conditional sample-mean numerical error",
+      "original_owner": "A",
+      "implementation_unit": "E",
+      "topic": "codex/e02-E-c09-20261008",
+      "source": "66134569f999951e8eefef737424f12aeba24616",
+      "tree": "a1d408e8c9ead9573a9ad846b6672d9c6dc7506e",
+      "receipt": {
+        "commit": "8ea1f703f8ed6cd9294f9e9cce7f9aa96cf9d8b2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/mean-law-label.json",
+        "blob": "349f24fb9f244f134bca24c5293e24333d7bb9cd",
+        "bytes": 22105,
+        "sha256": "84edfd657fe2869a2806b4ce2c9c0144eb054cb9cee6b14b9b14b7d75a0d3dbb"
+      },
+      "current_exact_check": "Actual recipe label controls PASS within new ADB54passing affected cases and independent661controls; original1b8 37PASS retained historical arithmetic scope, not newwhole-head37. All4label blobs unchanged661→ADB→b3.",
+      "scope": "nongating s/sqrt(n) only complete fixed internal random typed-Normal input draws, conditional on unverified fixed deterministic response and finite response variance; incomplete/empirical/posterior/QMC unsupported unavailable",
+      "outcome": "bounded nongating arithmetic/refusal and honest actual sampling-law label code_ready; original A repetition/scientific interpretation limited",
+      "next": "A/C10 actual admitted repetition/source-law/evaluator adapter; genuine deterministic response/finite-variance facts when scientific inference required; no metadata self-issuance",
+      "source_acceptance_G": "not_issued; historical HOLD preserved; forward source independently GO within stated mechanics",
+      "formal_closure_G": "not_issued",
+      "slice_base": {
+        "sha": "aa2d87945c2fc385418188086165927a2fa66cb7",
+        "tree": "25d4ece36d455705c780da3c9e669c8f590aee09"
+      },
+      "source_parent": "aa2d87945c2fc385418188086165927a2fa66cb7",
+      "topic_head": {
+        "sha": "02a75f2b7a4846bcf5b6a8f301d2d4d20b9a99b2",
+        "tree": "2432fcdc1ecade9b88fdf1f0d76175d4fbf678a5",
+        "meaning": "passive publication readback carrier; H8ea runtime/test scope unchanged"
+      },
+      "historical_source": {
+        "source": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+        "tree": "7a4ee9e71c793827abef998540dcd12ab129c4ba",
+        "receipt": {
+          "commit": "0c3c1ed6a40823f56fef6e8e565d8990df7b3942",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/mean-error.json",
+          "blob": "ce96d22e1739cf80e131f92212deab7892bb6cb7",
+          "bytes": 12320,
+          "sha256": "85ab55a0c81505ddd8ee7c7a408f5b446ff9b48cc2c3c7dc6e8469c64bc90631"
+        },
+        "slice_base": {
+          "sha": "514f90058104f7dd8ada1c83b8bf5f62bfc33b88",
+          "tree": "5b178089910f581c76a4e2557e61458ba88369d1"
+        },
+        "source_parent": "514f90058104f7dd8ada1c83b8bf5f62bfc33b88",
+        "current_exact_check": "37 PASS; Fraction oracle from actual reopened corpus,11 fresh-child refs;3 independent eligibility controls plus1 author arithmetic control expected FAIL",
+        "source_acceptance_G": "HOLD at d23 on weighted-bootstrap law-label mismatch; SEMnull/noneligible correctly refused"
+      }
+    }
+  ],
+  "additional_native_sensitivity": {
+    "role": "C09",
+    "original_owner": "E",
+    "implementation_unit": "E",
+    "canonical_writer": "/root/producer_packets",
+    "topic": "codex/e02-E-c09-sensitivity-20261008",
+    "slice_base": {
+      "sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767"
+    },
+    "runtime_source": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+    "runtime_tree": "707e9dbb08dc69d465f87867e51766406aff4fb7",
+    "passive_companion": "f2c102fa2ee588b91b2baaa8c9d1c393699838c0",
+    "passive_tree": "ded11abdc70d4c91bf19cdf6f4a203acb83a3a46",
+    "receipt": {
+      "commit": "32bfa995ab6208067cfed27359fe8674a54c90cf",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09-sensitivity/handoff.json",
+      "bytes": 13102,
+      "sha256": "2b7a45da07396310197ef7c02d06acf43447275418a288ee86434c2f5bb96f2c",
+      "blob": "7c98dadd2745feefe51b082792524f0311dd82f7"
+    },
+    "topic_head": {
+      "sha": "32bfa995ab6208067cfed27359fe8674a54c90cf",
+      "tree": "f1be1d5bf3e3c70d3ce325a4c9ec7241d9c0f726",
+      "meaning": "publication carrier;49 tests belong to c912, not whole head"
+    },
+    "current_exact_check": "49 PASS at c912; native income_tax rate→persistedExecute/State→selected output→finite difference→Fraction zero-mean variance→fresh child. Retained-marker unit guard removal:1 positive PASS/1 expected FAIL. f2 companion fragment check PASS, no new native wave.",
+    "independent_review": "c912 GO after previous nested-StateSnapshot NPZ escape was fixed; complete earlier withheld reviews and harness attempts retained; f2 passive/internal surface companion GO",
+    "scope": "existing real executor, opt-in registered global scalar response slots, content/NPZ/config/result-state basis and independent arithmetic; no operational Metrics-as-state",
+    "outcome": "bounded native supplier code_ready; B190 actual Scientist Node adoption limited",
+    "next": "Existing canonical producer_packets now has exactGgrant foractualNodebridge andmixedknown/unknownpreservation; forward immutableNodefreeze/review/affectedchecks pending",
+    "source_acceptance_G": "acceptedboundedf2supplier via5dfc1c32; currentNodeforwarddelta separate/unaccepted",
+    "formal_closure_G": "not_issued",
+    "G_acceptance": {
+      "checkpoint": "a139e9d076231e2762477f7ac7a1f0d7b0a57dba",
+      "accepted_source": "f2c102fa2ee588b91b2baaa8c9d1c393699838c0",
+      "merge": "5dfc1c3229dbc98f487113c1e2f051d549519914",
+      "runtime_source": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+      "check": "G49PASS/0FAIL/ERROR/SKIP;941exactmodules0mismatch, distinctfromauthor49",
+      "finding_B190": "limited; canonicalNodeadoption/mixedknownunknown partialpreservation needed",
+      "formal_closure": "not_issued",
+      "authority": "none; gateeligiblefalse"
+    }
+  },
+  "formal_closure_G": "not_issued; global E02 remains open",
+  "no_assembled_product_candidate": true,
+  "publication_policy": "Own original-history topic leaves only; G chooses composition; no reset/rebase/force/cherry-pick/squash/main/integration writes.",
+  "commissioning_G_dependency": {
+    "sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767"
+  },
+  "review_before_final_wave": {
+    "policy": "Actual immutable non-author GO received before author final-wave dispatch; final JSON packaging/mtime may occur afterward. All author wave outputs retain exact source identity.",
+    "C07_804_timestamp_only_chronology": "not_established from Git bytes; no invented timestamp; coordinator records actual GO-before-wave message/order",
+    "C07_741": "explicit delta-only GO then exact18 defining/import/CAS checks",
+    "MC_1b8": "explicit immutable GO and native/child/removal outputs before final37, final hashed review before handoff",
+    "B190_c912": "Explicit independent frozen GO followed by49 affected tests; f2 passive2docs review then fragment check only; all previously withheld nested NPZ escape attempts preserved.",
+    "C09_661_ADB": "Independent immutableGO for661 consumer scope followedADBsummary forwardGO, author56affectedrun54/2; b3test-onlyindependentGO then2selectorretryPASS; no unchanged54repeat",
+    "C08_5e3_a5": "Independent12Fraction/2child/10negativeGO beforeauthorfinalwave; completed5legacyPASS/2expectednativeguardFAIL andfourSIGKILL-9ERROR scopes separate"
+  },
+  "remaining_boundaries": [
+    {
+      "id": "C06-C07-selected-view",
+      "state": "confirmed content-view selector-loss dependency; producer currentness not established",
+      "owner": "C06 canonical IR/Core adapter with C07 refs",
+      "packet": {
+        "commit": "dce5b253bd3f2d8f05c008a5128b1532e44b3837",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/C06-selected-view-producer-loss.json"
+      },
+      "minimal_next": "Preserve automatic Core-returned manifest_profile_sha256 and explicit selected views through IR returned refs and persisted lineage; affected actual current-producer readback."
+    },
+    {
+      "id": "B31-C10-scientific-consumer",
+      "state": "UNRUN actual ValuePort; original B31 G historical held, no new adjudication",
+      "owner": "C10 actual generation/ValuePort plus appointed scientific source/identification admission owner",
+      "packet": {
+        "commit": "dce5b253bd3f2d8f05c008a5128b1532e44b3837",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/C10-subject-join-input.json"
+      },
+      "minimal_next": "Actual canonical identification payload parser+native report, independently reconciled complete/current source/estimand/contrast/population/unit/scale/time/model basis and exact returned manifest view (including automatic selectors), genuine existing scientific purpose/provenance verifier; fresh ValuePort keeps point4 and asymmetric[1,10], foreign/missing/corrupt/removal negatives. No generic production prerequisite."
+    },
+    {
+      "id": "B214-authority",
+      "state": "limited",
+      "owner": "A/C/F graph-query contract and C10 protected consumer",
+      "packet": {
+        "commit": "ab48c152514b025618cd6e3fc9acc70a1ed773ee",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/scoped-supplier-requirements.json"
+      },
+      "minimal_next": "Named graph family/query/conditional output/authority projection; distinguishing query differs across completions; finite mathematical agreement is not institutional/source authority."
+    },
+    {
+      "id": "B56-admitted-shared-workload",
+      "state": "UNRUN",
+      "owner": "C01 Runtime/Scientist actual admission bridge; C08 configured portable workload; G measurement; L01 only protected-input profile",
+      "packet": {
+        "commit": "ab48c152514b025618cd6e3fc9acc70a1ed773ee",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/B56-runtime-workload-packet.json"
+      },
+      "minimal_next": "Actual chosen Runtime/MethodJob shared owner/API/cap bridge, complete configured synthetic/non-secret competing job/fold/repeat/seed/split/result roster under two admitted settings; active/wait/wall/RSS/all-fold/fresh-CAS/provenance comparison. CurrentLocalWorkerPool4/24 is a custom fixture, not the actual workflow bridge. No production roster mandatory or second scheduler."
+    },
+    {
+      "id": "C09-predictive-served",
+      "state": "boundedactualnativeconsumermechanicsPASS; authenticorderedsource/currentness andservedRuntimeadmissionUNRUN",
+      "owner": "G source composition and appointed polisyos.calibration bridge owner; C10 actual served predictive consumer",
+      "packet": {
+        "commit": "8ea1f703f8ed6cd9294f9e9cce7f9aa96cf9d8b2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/minimum-row-roster-packet.json"
+      },
+      "minimal_next": "Select existing E ForecastOwner/native_replay and compatible typed measurement bridge/facade companions; exact predictive method/estimand/design/time/purpose with paired predictions/observations and complete attempted denominator. No predictive coverage→causal authority."
+    },
+    {
+      "id": "LA-036-observed-feature-law",
+      "state": "minimum contract selection/input packet; composed positive UNRUN",
+      "original_owner": "C",
+      "owner": "Appointed observed-feature law/model source custodian, C09 producer/C08 model/C07 IR, canonical BERL adapter/C10/C11 consumers",
+      "packet": {
+        "commit": "8ea1f703f8ed6cd9294f9e9cce7f9aa96cf9d8b2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/supplier-requirements.json"
+      },
+      "minimal_next": "Existing finite weighted observed-feature strata or supported Gaussian conditional projection; exact feature order/units, resolved source/model/manifest/bytes, population/epoch/support/conditioning/purpose/verifier and bound. Posterior parameter/noise rows and global Var(E[Y|coalition]) are not per-instance conditional feature law."
+    },
+    {
+      "id": "B194-B197-B200-S2",
+      "state": "configured source/law/noise/relationship inputs unavailable; compatibility source selection explicit",
+      "owner": "Foundry/Scientist configured evaluator/domain and actual measurement/noise/replicate relationship issuers; L01 custody facts",
+      "packet": {
+        "commit": "8ea1f703f8ed6cd9294f9e9cce7f9aa96cf9d8b2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/supplier-requirements.json"
+      },
+      "minimal_next": "B194 exact joint law/evaluator/draw IDs/complete terminal ledger and global-vs-transient failure policy; B197 actual CalibratorInputs/source rows/train-validation/noise/trainable axes; B200 information-unit/overlap/replicate/covariance roles and genuine issuer. No metadata independence string creates admission."
+    },
+    {
+      "id": "C07-generated-Profile2-composition",
+      "state": "UNRUN",
+      "owner": "G selected source composition; canonical generated schema/public inventory family writer and C06 adapter",
+      "packet": {
+        "commit": "dce5b253bd3f2d8f05c008a5128b1532e44b3837",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/G-composition-companions.json"
+      },
+      "minimal_next": "Preserve already chosen E Profile2 functional/weighted summary decisions and original E history, reconcile IR/facade/registry, regenerate canonical schema/inventory/reference family on selected freeze and corrupt-field drift. No renewed normative approval for unchanged chosen decisions."
+    },
+    {
+      "id": "native-ID-bounded-query",
+      "state": "Owned narrow source correction independentlyGO; finalwave native removal2expectedFAIL, wideridentification notestablished",
+      "owner": "C08 canonical existing native-ID writer",
+      "packet": {
+        "commit": "5e3f2cdfe700186bec621d8b7e6ed48f8af6098d",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py"
+      },
+      "minimal_next": "G selects source5e3 with exact companions; C13 affected finalwave interrupted scopes afterfunctionalexecutor. Complete observed staticDAG top-level query preservation only; latent/PAG/generalID excluded."
+    },
+    {
+      "id": "B190-native-Node-adoption",
+      "state": "Gacceptedboundedsupplier; NodebridgeexplicitGgranted andauthoring; currentverificationUNRUN",
+      "owner": "ExistingE/C09producer_packets canonicalNodebridge writer; C11registration/C10served remainseparate",
+      "packet": {
+        "commit": "32bfa995ab6208067cfed27359fe8674a54c90cf",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09-sensitivity/minimum-node-adoption-packet.json"
+      },
+      "minimal_next": "GrantedcanonicalNode resolvesacceptedresponsematrix againstexactsource/target/axes/unit/config/currentviews; preservesknownprojections+addressedunknowns; typedactualNodeCAS/freshreader controls afterfreeze/review. NoFisher-rank→noiseorautomaticcoupling."
+    },
+    {
+      "id": "C08-C06-C11-proof-composition",
+      "state": "UNRUN selectedcurrentness andactualLevel2adoption",
+      "owner": "C06 canonicalIR/Coreselected-manifestadapter; C11 Level2CausalPlausibility canonicalfunnelwriter",
+      "packet": {
+        "commit": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/C11-proof-graph-source-requirement.json"
+      },
+      "minimal_next": "Persist originaltypedgraph, bind graph_ref/exactvisiblemanifest input and existingtypedproof writer/reader. Preserve current selectedlineage automatically; defaultview positive is not currentproducer authority. No parallelLevel2 writer."
+    }
+  ],
+  "quality_and_verification": {
+    "C07": "Scoped RuffPASS; whole-file formatFAIL2; P41not_established, no inherited-red claim",
+    "C08": "Scoped full identification-file RuffFAIL355; original earlier357 retained;3newfileformatPASS; scanner child-9/wrapper137 ERROR/incomplete on exact configured G base, full5962/5959 roster and outputs in leaf; no completed scanner product verdict or retry; G full maintained-file format FAIL identification.py, no inherited attribution",
+    "global": "Prior scannerERROR/-9,RuffFAIL103,public-surfaceFAIL38 retained at original source identities; not rerun or erased; P41not_established",
+    "installed_optional_and_broad": "ORCH03 installed/wheel/sdist/currentoptionalDoWhyEconML and portable broad integrated/C13 replay UNRUN; no transfer of older91/199method outcomes to new leaves",
+    "broad_next": "G selected integration freeze/allreviews, then C13 one portable broad replay; only exact local production-dependent profiles L01/L02 read-only",
+    "C08_new_delta": "Scoped7changedPythonRuffPASS; formatFAIL2auditowner/characterizationhelper,5formatted, no massformat/P41claim. New finalwave4SIGKILL/-9ERROR/incomplete separatefrom historical fullidentification355/scanner−9.",
+    "C09_new_delta": "14changedPython scopedRuff/format/exact2fragments/same-objectABI PASS; broadnonenforcedcyclewarning1/unattributed remains; ADB54/2 andb3separate2PASS, nowhole56green."
+  },
+  "coordination_policy": {
+    "direct_helpers_only": true,
+    "children_created": false,
+    "root_source_writes": false,
+    "one_actual_writer_per_exact_mechanism": true,
+    "source_check_companion_leases": "Intake and full admitted doctor outputs; leaf exact footprints and independent metadata audit verify disjoint paths",
+    "cloud_quotas_added": false,
+    "serial_mutable_only": "Per-lane source index/files, isolated scratch/CAS; no process/thread/CPU/testcount caps",
+    "production_uploaded": false,
+    "other_user_chats_messages_sent": false,
+    "integration_main_publication": false,
+    "cleanup_performed": false,
+    "cleanup_candidates": [],
+    "retained": "All source/docs/unique inputs/deciding outputs and currently used lanes/environments; no native Trash in cloud, no deletion.",
+    "cleanup_candidates_source": {
+      "commit": "32bfa995ab6208067cfed27359fe8674a54c90cf",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09-sensitivity/handoff.json",
+      "pointer": "cleanup.candidates_for_later_inactive_review",
+      "qualification": "candidate list only; none removed; current environments/unique CAS/output custody preserved"
+    },
+    "one_affected_wave_per_new_delta": "C09andC08completed/qualified; freshGNodegrant is distinct forwarddelta, no repetitionofacceptedsupplier49"
+  },
+  "fetched_G": {
+    "sha": "a139e9d076231e2762477f7ac7a1f0d7b0a57dba",
+    "tree": "dbeadaeefd8f34097a097a7faadd78a897d680c9",
+    "previous": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+    "relationship": "d23ancestor; normalB190c912/f2 andL02metadata merges plus exactleaseGdocs",
+    "complete_delta_paths": 90,
+    "source_test_companion_delta": [
+      "policy-engine/release-fragments/unreleased/2026-10-08-c09-sensitivity-response-basis.toml",
+      "policy-engine/src/polisyos/foundry/calibration/README.md",
+      "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+      "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py"
+    ],
+    "source_selection": "Only acceptedB190boundedf2supplier productdelta; C07/C08/C09 sourcecomposition pending"
+  },
+  "source_acceptance_G": "Only B190 boundedinternalf2supplier accepted via5dfc1c3229dbc98f487113c1e2f051d549519914. Othernewleaves sourceacceptance notissued. G B190findinglimited; allformalclosures0.",
+  "previous_F35_ledger": {
+    "commit": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/profile-consistency-20261007.json",
+    "unchanged_in_ORCH03": true,
+    "recommendations": "33 bounded original closed recommendations /2limited;34PASS/1UNRUN; formal Gclosures0, no promotion to universal authority",
+    "scope": "Historical F full35 source-bound ledger remains independent; ORCH03 supply leaves do not replace original card bindings or issue closure.",
+    "readonly_carry_check": {
+      "reviewer": "/root/c09",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-delivery/historical-F35-carry-verification.json",
+      "bytes": 27565,
+      "sha256": "65e8ea4e932e850093a55f1f8ec3184feb3dcb55a47e9e2e24f7b7e07d358584",
+      "check": "PASS",
+      "scope": "40metadata blobs unchanged atroot27 vs3a9;35IDs/17bundles/36originalbindings against198bytes;35componenttrees/per-IDhashes. No new methods or closure. Overstrictwholeobjectharness attempt preserved inreview."
+    }
+  },
+  "historical_G_feedback": [
+    {
+      "sha": "71ec2e0758cd7cd93423d3a91afe1a07cef61401",
+      "tree": "cede297dae4ab3a5a8b46dfeaaeb606ce6e8217e",
+      "relation_to_commissioning_G": "descendant;24 documentation/evidence additions only, no product/lock/test source delta",
+      "actual_diff_paths": [
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/C10-subject-join-input.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/B56-runtime-workload-packet.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/README.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/checks/C09-affected.execution.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/checks/C09-affected.junit.xml",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/checks/C09-affected.stderr",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/checks/C09-affected.stdout.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/checks/C09-consumer-probe.execution.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/checks/C09-consumer-probe.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/checks/C09-consumer-probe.result.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/checks/C09-consumer-probe.stderr",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/checks/C09-consumer-probe.stdout",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/checks/G-environment.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/checks/run_exact_pytest.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/reviews/C07-packet.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/reviews/C08-packet.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/reviews/C09-G-verdict-review.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/reviews/C09-consumers.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/reviews/C09-criteria.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/reviews/C09-evidence.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/reviews/C09-identity.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/reviews/C09-runtime.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/reviews/ORCH03-intake.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/verdict.json"
+      ],
+      "feedback": "New independent G consumer review holds C09ee0 on temporal/matrix/forecast interval projection escape; original77 scope remains valid; new expanded C09 propagation lease/review/checks underway."
+    },
+    {
+      "sha": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+      "tree": "2239b2c97f840ab28ee4b921e964618548dd2c25",
+      "relation_to_commissioning_G": "descendant; docs/evidence-only, no product/test/lock delta",
+      "delta_from": "71ec2e0758cd7cd93423d3a91afe1a07cef61401",
+      "delta_paths": [
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/parallel-20261008-l01-inputs.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/parallel-20261008-l01-inputs.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/parallel-20261008-l01-inputs.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/parallel-20261008-l01-inputs.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-l01-inputs.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-l01-inputs.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/README.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/api-census.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/delivery.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/F-light-selector.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-fresh-stderr.txt",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-fresh-stdout.txt",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-junit.xml",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-recipe.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-removal-junit.xml",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-removal-stderr.txt",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-removal-stdout.txt",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-source-inputs.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-stderr.txt",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-stdout.txt",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/environment.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/independent-disclosure-review.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/independent-handoff-review.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/independent-packet-review.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/independent-runtime-review.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/la032-stderr.txt",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/la032-stdout.txt",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/la036-junit.xml",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/la036-stderr.txt",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/la036-stdout.txt",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/native-trash-fixture.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/packet-validation.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/published-be6-remote-readback.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/s1-discriminator-recipes.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/host-inventory.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/inventory.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/A.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/B.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/C.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/D.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/E.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/F.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/s1-source-facts.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/admission-create-immediate.stderr",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/admission-create-immediate.stdout",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/admission-create.command.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/admission-create.stderr",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/admission-create.stdout",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/admission-resume.stderr",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/admission-resume.stdout",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/attachment.stderr",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/attachment.stdout",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/commission-commands.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/identities.stderr",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/identities.stdout",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/worktree-create.stderr",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/worktree-create.stdout",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/hooks-bootstrap/install.command.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/hooks-bootstrap/install.stderr",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/hooks-bootstrap/install.stdout",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/command.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/fake-point-control.command.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/fake-point-control.stderr",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/fake-point-control.stdout",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/junit.xml",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/stderr.txt",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/stdout.txt.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/manifest.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/observations/G-env-metadata.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/observations/baseline-commands.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/observations/latest-source-input-and-disk.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/observations/mac-stdout-lossless-format.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/observations/primary-env-metadata.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/observations/results-import-check.stderr",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/observations/results-import-check.stdout",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_forecast_empirical.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_generation.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_ingestion.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_input_packets.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_law_intake.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_mac_a.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_mac_c.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_mac_independent_review.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_mac_numeric.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_protected_ab.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_protected_d.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_protected_e.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_reissue.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_serving.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_source_admission.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_source_rights.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_udf_inventory.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/README.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C07-execution.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C07-format.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C07-format.stderr.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C07-format.stdout.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C07-junit.xml.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C07-ruff.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C07-ruff.stderr.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C07-ruff.stdout.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C07-stderr.txt.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C07-stdout.txt.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C08-execution.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C08-format.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C08-format.stderr.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C08-format.stdout.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C08-junit.xml.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C08-ruff.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C08-ruff.stderr.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C08-ruff.stdout.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C08-stderr.txt.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C08-stdout.txt.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C09mean-execution.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C09mean-format.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C09mean-format.stderr.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C09mean-format.stdout.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C09mean-junit.xml.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C09mean-law-execution.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C09mean-law-observation.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C09mean-law-stderr.txt.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C09mean-law-stdout.txt.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C09mean-ruff.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C09mean-ruff.stderr.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C09mean-ruff.stdout.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C09mean-stderr.txt.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/C09mean-stdout.txt.gz",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/exact_pytest.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/lint-harness-custody.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/mean_law_probe.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/results-import-check.json",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/checks/results-import-check.stdout",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/reviews/C07-source-review.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/reviews/C08-source-review.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/reviews/C09-mean-source-review.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/reviews/C09-sensitivity-review.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/reviews/G-verdict-consumer-review.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/reviews/G-verdict-input-review.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/reviews/L01-input-review.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/reviews/L02-evidence-review.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/reviews/new-source-consumers.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/reviews/source-identity-evidence.md",
+        "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/verdict.json"
+      ],
+      "feedback": "Sourcequalified bounded C07/finite C08 GO is not source acceptance/formal closure. C08 original graph→proof fresh equality gap, C09 MC law-label HOLD and existing interval consumer HOLD are routed narrow owned repairs. Sensitivity G reviewed historical665 source only; completedc912/f2/32bf receipt now fetchable for G review."
+    }
+  ],
+  "new_G_review_input_refs": [
+    {
+      "commit": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/README.md",
+      "bytes": 8210,
+      "sha256": "0da993b2b53619149722849514022891ccfc387b7483c1a093a58cb8a51f401d",
+      "meaning": "committed review input, not new root product test or retrospective source acceptance"
+    },
+    {
+      "commit": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/verdict.json",
+      "bytes": 6879,
+      "sha256": "7658f92dcbe466b9cbe7cd404415f86a7a22e81bf6de82e7b00f7a9df8a2d811",
+      "meaning": "committed review input, not new root product test or retrospective source acceptance"
+    },
+    {
+      "commit": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/reviews/C07-source-review.md",
+      "bytes": 8615,
+      "sha256": "ce5923ce4be31b474d6dea4746b68c7054869f0ca4bd3e0304908c427c95d6a2",
+      "meaning": "committed review input, not new root product test or retrospective source acceptance"
+    },
+    {
+      "commit": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/reviews/C08-source-review.md",
+      "bytes": 9309,
+      "sha256": "b13921140e0504ce4662496883103da3f1ab17ec8ce0c84f7ff0318e4469c595",
+      "meaning": "committed review input, not new root product test or retrospective source acceptance"
+    },
+    {
+      "commit": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/reviews/C09-mean-source-review.md",
+      "bytes": 7354,
+      "sha256": "3e3ebc2db709cefa0044a1151195e4196496e57cf54097f51186baeac11790e4",
+      "meaning": "committed review input, not new root product test or retrospective source acceptance"
+    },
+    {
+      "commit": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/reviews/C09-sensitivity-review.md",
+      "bytes": 5226,
+      "sha256": "ecef0df35bd48bc007ec81fab64e24d2aa7b66f41a824c5bad6787be544bec7b",
+      "meaning": "committed review input, not new root product test or retrospective source acceptance"
+    },
+    {
+      "commit": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/reviews/new-source-consumers.md",
+      "bytes": 7199,
+      "sha256": "07dab33288e949d4bb616f88edcfd126fd133649778bce590bfe23bec46b1aa3",
+      "meaning": "committed review input, not new root product test or retrospective source acceptance"
+    },
+    {
+      "commit": "a139e9d076231e2762477f7ac7a1f0d7b0a57dba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1052/README.md",
+      "bytes": 8002,
+      "sha256": "7afdba8c0777364a761ceb5a0196b19946fdf764a71e9916953d09d36bf0ebb5"
+    },
+    {
+      "commit": "a139e9d076231e2762477f7ac7a1f0d7b0a57dba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1052/verdict.json",
+      "bytes": 5167,
+      "sha256": "80edcaedcdfd09ae115fe793bebd0b548feaf882dad4c53c5f25613e8050b739"
+    },
+    {
+      "commit": "a139e9d076231e2762477f7ac7a1f0d7b0a57dba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1052/continuation-leases.json",
+      "bytes": 7076,
+      "sha256": "ac8b522a5aba001085432a21bd5521b4927a7365cbdc9c215ebac202ec5ea047"
+    },
+    {
+      "commit": "a139e9d076231e2762477f7ac7a1f0d7b0a57dba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1052/reviews/B190-source-review.md",
+      "bytes": 6150,
+      "sha256": "7dbcc8466792a1507b5008b705bd1fa2cbab74815d23314d13d19613eb10b6fc"
+    },
+    {
+      "commit": "a139e9d076231e2762477f7ac7a1f0d7b0a57dba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1052/reviews/B190-criterion-consumer.md",
+      "bytes": 8126,
+      "sha256": "487365162386ca2366def4b24d8da390ff617275bb807d04ba14a2c3c1dace70"
+    },
+    {
+      "commit": "a139e9d076231e2762477f7ac7a1f0d7b0a57dba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1052/reviews/C08-profile-delta-review.md",
+      "bytes": 4538,
+      "sha256": "c11bf357d30065d712932faf43cc8e1c4bb7d4a6843a83eb3e2b8b2d107bccd8"
+    },
+    {
+      "commit": "a139e9d076231e2762477f7ac7a1f0d7b0a57dba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1120/README.md",
+      "bytes": 5671,
+      "sha256": "b9bd2c9365736bb9833f12b7debe85d92e344739379821cd659d1bff2d4bca7e"
+    },
+    {
+      "commit": "a139e9d076231e2762477f7ac7a1f0d7b0a57dba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1120/verdict.json",
+      "bytes": 4780,
+      "sha256": "bf95a0c74676dfb4dba0ee864f0f7e525f2897bd262f19ee42a086da7e573706"
+    },
+    {
+      "commit": "a139e9d076231e2762477f7ac7a1f0d7b0a57dba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1120/continuation-leases.json",
+      "bytes": 5180,
+      "sha256": "df443131d334fed8398952448f7241b117e90d786e874fb6d9f1c5db1d42492d"
+    },
+    {
+      "commit": "a139e9d076231e2762477f7ac7a1f0d7b0a57dba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1120/reviews/ORCH03-followup-lease-review.md",
+      "bytes": 4129,
+      "sha256": "6ad016141f7c87f350b016f0e70f39a6611e71621041f1d394bbb061b9a9df39"
+    }
+  ],
+  "additional_owner_lease": "27ad60afe4cfedea9a9c0ff71d9abd22c30836d9:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-owned-followups-lease.json",
+  "minimum_packet_map_metadata": {
+    "preparation_only": true,
+    "author": "/root/producer_packets",
+    "path": "/dev/shm/e02-orch03-20261008/producer-packets/root-packet-map-concise.json",
+    "bytes": 20772,
+    "sha256": "fa43babd372a63625b820c825dfe3d07725e1601740dcf088603d4771fd0682b",
+    "meaning": "readonly source qualified5row requirement map; not new product/test/authority evidence",
+    "next_publish": "rootcommittedreferencepacketmetadata, no trackedsource/rawdumps copied",
+    "historical_pin": "Gd23; B190suppliernotaccepted atpreparationtime",
+    "supersession": "CurrentGa139acceptedboundedsupplier andgrantedNodebridge; thismap supplies remaininglaw/noise/relationship requirements only; no blanketinput/production barrier",
+    "committed_reference_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-delivery/minimum-packet-map.json"
+  },
+  "additional_metadata_namespace_qualification": {
+    "writer": "/root/c09",
+    "role": "C09",
+    "lease": "8077016f144712b00a05f0b3b6701c51852f1d21",
+    "owned_namespace": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/",
+    "actual_component_paths": [
+      "interval-consumer-basis/",
+      "interval-consumer-basis.json",
+      "mean-law-label.json"
+    ],
+    "qualification": "These own-doc/output names supersede the initial local phase2-interval-consumers scratch/custody naming; no runtime/test/schema/source change or competing writer, no post-review source rename needed."
+  },
+  "fresh_root_admission": {
+    "mode": "resume",
+    "requested": {
+      "branch": "codex/e02-F-closeout-20261006",
+      "mode": "resume",
+      "path": "/workspace/e02-F-closeout-20261006"
+    },
+    "status": "admitted",
+    "returncode": 0,
+    "decoded_bytes": 171138,
+    "decoded_sha256": "0e7b0c5f7bec9b182df63443c277af7c203914935392e7122483e1c939427f3d",
+    "full_json_commit_next": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-delivery/root-final-resume.json.gz",
+    "stderr_bytes": 0,
+    "stored_bytes": 13893,
+    "stored_sha256": "67ece7b3cab5fe1d30f6612c27923b827b69dea633d9161791dfafe76b4b479d",
+    "relative_custody_path": "root-final-resume.json.gz"
+  },
+  "owned_forward_deltas": {
+    "role": "C09",
+    "state": "C09andC08source/handoffs published+verified; C08fourfinalscopesERROR/incomplete underactualhostpressure. NewGgrantedB190Nodebridge authoring separately.",
+    "lease_receipt": "8077016f144712b00a05f0b3b6701c51852f1d21",
+    "base": "6d470eb884c31a8b19ee06058881cf0deaa492f5",
+    "base_tree": "99f904d38e56fc5709a78a3a20c980b6e6fba9d4",
+    "mechanism": "one existing interval-basis invariant across temporal/report/forecast and matrix/validation/leaderboard actual CAS readback",
+    "independent_baseline": "Actual15requested/5evaluated promotes in complete Matrix→Validation→Leaderboard→persistBundle→fresh reader. Baseline source ee0 product FAIL; first missing-architecture harness setup ERROR separate. Genuine Runtime/S10 authority UNRUN.",
+    "additional_followups": {
+      "C08": "Original CPDAG graph persist/resolve/content equality for common and conditional proofs; Level2 C11 packet only, no competing source writer",
+      "C09_MC": "Observed carrier-specific sampling-law label and refusal/denominator retained; no numeric estimator change"
+    },
+    "C09_interval_freeze": {
+      "sha": "aa2d87945c2fc385418188086165927a2fa66cb7",
+      "tree": "25d4ece36d455705c780da3c9e669c8f590aee09",
+      "parent": "6d470eb884c31a8b19ee06058881cf0deaa492f5",
+      "state": "historical freeze followed reviewed MC and temporal summary corrections; current exact source b3/runtimeADB, separate committed8ea H",
+      "footprint": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/REPORT.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/minimum-row-roster-packet.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/preparation.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/supplier-requirements.json",
+        "policy-engine/release-fragments/unreleased/2026-10-08-c09-interval-consumer-basis.toml",
+        "policy-engine/src/polisyos/calibration/README.md",
+        "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+        "policy-engine/src/polisyos/calibration/interval_basis.py",
+        "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+        "policy-engine/src/polisyos/scientist/governance/calibration_leaderboard.py",
+        "policy-engine/src/polisyos/scientist/governance/calibration_validation.py",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/temporal.py",
+        "policy-engine/tests/unit/calibration/test_forecast_interval_basis.py",
+        "policy-engine/tests/unit/scientist/governance/test_calibration_leaderboard.py",
+        "policy-engine/tests/unit/scientist/governance/test_interval_basis_promotion.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_interval_basis.py"
+      ]
+    },
+    "C08_lease": {
+      "root_commit": "27ad60afe4cfedea9a9c0ff71d9abd22c30836d9",
+      "base": "ab48c152514b025618cd6e3fc9acc70a1ed773ee",
+      "state": "source frozen5e3+passivea5; independentGO; exact finalwave hostinterruption qualified separately",
+      "reviewer": "/root/oracle_ir"
+    },
+    "C09_MC_freeze": {
+      "sha": "66134569f999951e8eefef737424f12aeba24616",
+      "tree": "a1d408e8c9ead9573a9ad846b6672d9c6dc7506e",
+      "parent": "aa2d87945c2fc385418188086165927a2fa66cb7",
+      "state": "independentGO and actual sampling-law controls PASS; committed8ea law H; no new37whole-head claim",
+      "footprint": [
+        "policy-engine/release-fragments/unreleased/2026-10-08-c09-mc-mean-error.toml",
+        "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+        "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py"
+      ],
+      "preserved": "s/sqrt(n) arithmetic/eligibility/refusal/denominator; only actual sampling recipe metadata label and mirrorcontrols/companions"
+    },
+    "C09_summary_freeze": {
+      "sha": "adb66080e3ac64d73b3faa85d693a47c6c284427",
+      "tree": "f2c1f993052c25586420d07c766b868f632fbf39",
+      "parent": "66134569f999951e8eefef737424f12aeba24616",
+      "state": "independentGO; sourceADB54PASS/2FAIL retained, test-onlyb3 exact2retry2PASS; no broadrepeat"
+    },
+    "C08_freeze": {
+      "sha": "5e3f2cdfe700186bec621d8b7e6ed48f8af6098d",
+      "tree": "4065489cce119da0c7623464edbba37799d7550a",
+      "base": "ab48c152514b025618cd6e3fc9acc70a1ed773ee",
+      "implementation_commits": [
+        "1e955a2c00872d3f0dccfd52b0fc66fd0c84a5a1",
+        "5e3f2cdfe700186bec621d8b7e6ed48f8af6098d"
+      ],
+      "state": "independentGO runtime5e3+passivea5;5legacyPASS and2expectednative-removalFAIL; fourSIGKILL/-9 scopesERROR/incomplete, no26/6PASS",
+      "lease_qualification": "One approved maintained IDC characterization snapshot companion test included; actual Fraction conditional-law assertion, no unrelated snapshots or generalIDrewrite",
+      "current_quality": "Seven changed Python code/test paths scopedRuffPASS; formatFAIL2auditowner/characterizationhelper,5formatted; no massformat/P41inheritedclaim. Historical identification355/scannerERROR unchanged source-bound.",
+      "published_H": "222d0867d47428bdb1835c6e6a68c2787bc05be9"
+    },
+    "C09_independent_checks": {
+      "source661": "18 ordinary native consumer observations PASS;4 retained-marker EXPECTED_FAIL;14refs distinctchild;988exactloadedorigins0mismatch",
+      "sourceADB": "3 forwarded summary limited/complete/pointcontrols PASS;1summaryguard removal EXPECTED_FAIL;4refs distinctchild;862loadedorigins0mismatch",
+      "scope": "source-qualified independent consumer mechanics, fixture governance/role-profile contexts; no authentic Runtime/S10/actualorderedobserved-row admission"
+    },
+    "C09_final_wave_attempt": {
+      "source": "adb66080e3ac64d73b3faa85d693a47c6c284427",
+      "state": "FAIL affected56cases due2realCAS-candidate fixture setup negatives beforejob;54PASS/2FAIL/0ERROR/0SKIP",
+      "cause": "Two maintained calibration_validation.py fixtures supply nonexistent shapedsha256:a/brefs; canonicalCASresolver correctlyrefuses. No runtime propertyfailure or inherited attribution inferred.",
+      "approved_forward_test_path": "policy-engine/tests/unit/scientist/governance/test_calibration_validation.py",
+      "retry_scope": "Completed only2forwardselectors b3 afterindependentGO:2PASS; original54/2retained",
+      "source_carry": "ADB runtime unchanged; prior test bodies andunexpectedFAIL outputs retained separately."
+    },
+    "C09_independent_review": {
+      "source": "adb66080e3ac64d73b3faa85d693a47c6c284427",
+      "bytes": 38758,
+      "sha256": "774390f75f2b7707c1b8a55756cc622cff59ebbf099a90fc979830b5330fa27c",
+      "result": "GO boundedempiricalmechanics; full23paths/19+4+forward4difffootprint,18+3observations,5expectedremovalFAIL,18freshchildrefs",
+      "own_H_next": "published8ea1f703; rootverified24artifacts/8archives/2075members"
+    },
+    "C09_fixture_forward": {
+      "sha": "b3df9b6d84c67b48e91ea9227cadb89f5010b2a2",
+      "tree": "9d6577fe7dfc4e238f106e2f0bd22815e1d57e4e",
+      "parent": "adb66080e3ac64d73b3faa85d693a47c6c284427",
+      "footprint": [
+        "policy-engine/tests/unit/scientist/governance/test_calibration_validation.py"
+      ],
+      "state": "Independenttest-onlyGO and exact2case retry2PASS/0FAIL/ERROR/SKIP verified; runtime/schema/architecture unchangedADB; no54repeat/no56wholeheadlabel",
+      "independent_review_sha256": "6c603af13e63ca4d1e34edc22b0ee8798683d487ccd54c9b810914d3acaea4aa",
+      "no_total_relabel": "ADB54PASS/2FAIL retained; not56wholeheadPASS",
+      "independent_retry_sha256": "827ed6c6a9278262261999e63cfeda0ddb3da2ac58ed804474185c9c9a278c96"
+    },
+    "C08_passive_forward": {
+      "sha": "f5f1c4b6c1096032892f2433decafd55b589f4c5",
+      "tree": "15d8d4bed0da00e38396ee9423ae9bde6f7e974e",
+      "parent": "5e3f2cdfe700186bec621d8b7e6ed48f8af6098d",
+      "footprint": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/C11-proof-graph-source-requirement.json"
+      ],
+      "state": "one-line actualLevel2CausalPlausibilitycaption; onlypassive; runtime5e3 independentlyGO"
+    },
+    "C08_independent_GO": {
+      "source": "5e3f2cdfe700186bec621d8b7e6ed48f8af6098d",
+      "tree": "4065489cce119da0c7623464edbba37799d7550a",
+      "result": "12Fraction querylawsPASS;2actualaudit originalgraph/proof distinctchild positives;10unique-payload defaultview lineage/hash/ref negativesPASS;767Pythonorigins exactGit",
+      "structured_companions": "f5f1c4b6c1096032892f2433decafd55b589f4c5 caption and96258000e70847dcd1ec54607664e81c92bfa3d6 fragments GO;2structuredrows/0errors/findings",
+      "selected_view_limit": "Original samebytes repersistno_input attempt resolves validolddefaultmanifest; retained entireattempt, notcurrentproducer/selected-view admission. Newunique-payload actualvisiblemanifest negatives distinguishcorrectproperty. C06 remains canonical adapter/selector dependency."
+    },
+    "C08_passive_companions": [
+      {
+        "sha": "96258000e70847dcd1ec54607664e81c92bfa3d6",
+        "tree": "f03d6323f337515432ebb5e89ba0c9d1befba08e",
+        "footprint": "two unique releasefragments structuredpersistedartifact readwindow/nativeinternalASTcompatibility only; allruntime/testsbyteidentical5e3"
+      },
+      {
+        "sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+        "tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+        "footprint": "README+ownedC11packet explicitdefaultview/C06 limitation only; allruntime/testsbyteidentical5e3"
+      }
+    ],
+    "C08_final_wave": {
+      "source": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+      "state": "partlycompleted/ERROR-incomplete",
+      "legacy_proof_consumer": "5PASS/rc0/644seconds/RSS417224KiB",
+      "native_guard_removal": "2EXPECTED_FAIL/rc1/644seconds/RSS421420KiB",
+      "interrupted": [
+        "main26 duringcollection",
+        "characterization6 after3 observedPASS (not6PASS)",
+        "additionalchildprobe beforeoutput",
+        "graphhashremoval duringcollection"
+      ],
+      "interruption": "SIGKILL/-9 with actual cgroupmemory max17,179,869,184; hostoom counters observed, no causal attribution beyond actualpressure",
+      "retry": "UNRUN while executor unavailable; exactfourselector recipe in ownC08Hnext; unrelatedcompletedchecks retained",
+      "tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+      "runtime_test_blobs": "unchanged5e3f2cdfe700186bec621d8b7e6ed48f8af6098d"
+    },
+    "C08_exact_G_grant": {
+      "commit": "a139e9d076231e2762477f7ac7a1f0d7b0a57dba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1120/continuation-leases.json",
+      "qualifier": "GlatepublishedexactIRpaths; initialroot27lease/d23sourcepin retainedhistorical, not backdatedGacceptance"
+    }
+  },
+  "C09_forward_byte_custody": {
+    "schema": "policyos.e02.orch03.Git-byte-custody.v1",
+    "commit": "8ea1f703f8ed6cd9294f9e9cce7f9aa96cf9d8b2",
+    "tree": "86d3ddc7c37a54ec6f9430cc09a6e167ef521971",
+    "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/artifact-manifest.json",
+    "manifest_sha256": "8a5ca20a7b38dea2ce828e02499b32f27bfea5267130de8ad8bcb161c3c46347",
+    "direct_artifacts": 24,
+    "stored_bytes": 1529691,
+    "archive_index_sha256": "fbd7eabb862fa0849d44177afd5cee5b0c7f72967f62be0b5650fd614603233d",
+    "archives": [
+      {
+        "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/author-interval.tar.gz",
+        "member_count": 553,
+        "member_payload_bytes": 825037,
+        "stored_sha256": "44024522494c2da3a0d62e2a6bd02ab0fbfda2fd63dbe92380cc9ca0b4863a05",
+        "decoded_tar_sha256": "381d7e02f29f80d733120e704baee1b00244266468709eaa6c432bc1b46534d7"
+      },
+      {
+        "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/author-final.tar.gz",
+        "member_count": 767,
+        "member_payload_bytes": 1288508,
+        "stored_sha256": "4d14f973f8047e6c82f3e19367b9fb4c2289438e3c56271f3651d2fb370818a6",
+        "decoded_tar_sha256": "9cc1dd1cf44bf293ba320a83b400ed453d950b5e71dc3a5a0b37f254688a1455"
+      },
+      {
+        "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/author-law.tar.gz",
+        "member_count": 9,
+        "member_payload_bytes": 9383,
+        "stored_sha256": "d6fa05f10a008e7ff1d82257206ae7e040c5d306b08273112aa0ac5a403491c1",
+        "decoded_tar_sha256": "213888221fc90f6473239d69878b210eddbbe46cf065b69d098e4e122e977917"
+      },
+      {
+        "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/publication.tar.gz",
+        "member_count": 8,
+        "member_payload_bytes": 825,
+        "stored_sha256": "911c41d4b794f50ff7c3b471771f7fd132a8125f324506283b1c6959f12a5abf",
+        "decoded_tar_sha256": "1ad11e7c595316a172a04e45184d6d120d7a59bee5a9ba8518edce774c8dc8ae"
+      },
+      {
+        "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/review-baseline.tar.gz",
+        "member_count": 187,
+        "member_payload_bytes": 845018,
+        "stored_sha256": "6e4b257849cfcce0c7589cce991eca543b8bd26ddbf0c1026d2f65a77a3c6f33",
+        "decoded_tar_sha256": "f75dbe8b8f2770d6e805452e0e673dc701f856113ee088fd0df5e9f77c81c0db"
+      },
+      {
+        "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/review-661.tar.gz",
+        "member_count": 514,
+        "member_payload_bytes": 2459335,
+        "stored_sha256": "d54f145ca9116e41f4d71741afa144bd7d77cdf3810d14df9601f690332b1a00",
+        "decoded_tar_sha256": "21e80aa71f8f256fe136ebdf0ebe2c5cae59e4ffa40d0be32aff7bde8b1b95ca"
+      },
+      {
+        "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/review-adb.tar.gz",
+        "member_count": 33,
+        "member_payload_bytes": 760629,
+        "stored_sha256": "ede788e51e6a2a5f2eb8f42d6aa0d2dfcf5c7cd0608ea57e97bd81549414b8a5",
+        "decoded_tar_sha256": "b02571f74f0e976a9420e5f83aa49d8ae26e724273a82b17f242547dfa699494"
+      },
+      {
+        "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/review-b3.tar.gz",
+        "member_count": 4,
+        "member_payload_bytes": 20265,
+        "stored_sha256": "2ff93e9e9441db858ac7bffd0f0b102cad8c60cdbddbef0683a046f4c2fc0fb3",
+        "decoded_tar_sha256": "1e4ff43440ec011fed050b82eee669bbbf05de64344506c8c93e3cb07de49f9b"
+      }
+    ],
+    "member_count": 2075,
+    "member_payload_bytes": 6209000,
+    "check": "PASS",
+    "scope": "Root independent byte custody from fetched Git; no new product test, whole-head PASS or G acceptance"
+  },
+  "C09_forward_publication": {
+    "commit": "02a75f2b7a4846bcf5b6a8f301d2d4d20b9a99b2",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-publication.json",
+    "bytes": 3529,
+    "sha256": "454ee932357293113d45546f204d11364520dfaf3ecf4bf5f5bc53b74778a3cb",
+    "additional_artifacts_verified": 10,
+    "source_footprint_verified": 24,
+    "check": "PASS",
+    "scope": "Fetched Git byte custody only; no new runtime test"
+  },
+  "B190_node_bridge_continuation": {
+    "state": "authoring explicitGgrant; no check/closure inferred",
+    "canonical_writer": "/root/producer_packets",
+    "independent_reviewer": "/root/oracle_empirical",
+    "topic": "codex/e02-E-c09-sensitivity-20261008",
+    "existing_path": "/dev/shm/e02-orch03-20261008/c09-sensitivity",
+    "base": "32bfa995ab6208067cfed27359fe8674a54c90cf",
+    "grant": {
+      "commit": "a139e9d076231e2762477f7ac7a1f0d7b0a57dba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1052/continuation-leases.json"
+    },
+    "constraints": "Actualhostfreshresume required; onecanonicalNode only; reuseacceptedreader/falsegate; knownprojection+addressedunknown; noC07schema/C10served/C11registrationwrites; runtimechecks pendingfunctionalhost notartificialquota"
+  },
+  "coordination_byte_custody": {
+    "earlier_leaf_manifests": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-delivery/leaf-custody-verified-1.json",
+      "entries": 411,
+      "scope": "earlier5leafGitstoredhashcustody; no summedproducttestcount"
+    },
+    "B56_metadata_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-delivery/B56-qualification-custody.json",
+      "entries": 10,
+      "scope": "passive qualification bytes only"
+    },
+    "C09_forward": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-delivery/C09-forward-custody.json",
+      "entries": 24,
+      "archives": 8,
+      "members": 2075,
+      "decoded_payload_bytes": 6209000
+    },
+    "C09_publication": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-delivery/C09-forward-publication-custody.json",
+      "additional_entries": 10,
+      "source_blobs": 24
+    },
+    "validator": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-delivery/verify-new-leaf-custody.py",
+      "scope": "recomputes all archive member bytehashes without extraction/sourcejobs"
+    },
+    "not_product_verdict": true,
+    "C08_forward": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-delivery/C08-forward-custody.json",
+      "entries": 177,
+      "decoded_bytes": 811039,
+      "source_paths": 11
+    }
+  },
+  "C08_forward_byte_custody": {
+    "commit": "222d0867d47428bdb1835c6e6a68c2787bc05be9",
+    "tree": "e4f5ddfa5cd9f7cb6638a235defe5992d91057cf",
+    "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff/manifest.json",
+    "manifest_sha256": "065f0ca83cabb9201ecdd8ae4bc81a7891f124739be51525d91a5078e02e77ac",
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-handoff.json",
+    "receipt_bytes": 63183,
+    "receipt_sha256": "5f9b59d89b8f961d26cae6fa53f8e8b2d6fb174b000238c2ad565b5a21313b0c",
+    "entries": 177,
+    "stored_bytes": 197606,
+    "decoded_bytes": 811039,
+    "check": "PASS",
+    "scope": "FetchedGitcomplete stored/decoded bytecustody only; no newruntimepass/Gacceptance",
+    "source_footprint_verified": 11
+  },
+  "C08_forward_publication": {
+    "commit": "ed50e8ee50afc6f345ce804b1d7d26a2edeb4061",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-publication-readback.json",
+    "bytes": 83670,
+    "sha256": "b42bfe622ae34d3bd04e3d94583ce9b175290d27e0b03360372b3635ff8b48d2",
+    "passive_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-publication-readback-attempt1.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-publication-readback.json"
+    ],
+    "scope": "Publicationcarrier identity only;H222d/runtime5e3 unchanged",
+    "check": "PASS",
+    "entries_verified": 177,
+    "receipt_and_output_tree_unchanged": true,
+    "first_stale_ref_setup_ERROR_retained": true
+  },
+  "delivery_stage": "finishedC07/C08/C09 supplierandconsumerleaves; B190Nodeforwardgrantauthoring notincludedascode"
+}

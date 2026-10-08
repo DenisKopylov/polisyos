@@ -1,0 +1,295 @@
+{
+  "outcome": "PASS",
+  "commands": [
+    [
+      "git",
+      "ls-remote",
+      "origin",
+      "refs/heads/codex/e02-F-tmle-20261006"
+    ],
+    [
+      "git",
+      "show",
+      "e04ddf884071b17ffb1d021c9a6b23f826d76774:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/outputs.json"
+    ],
+    "git show exactHead:path per23 declared original refs; gzip-decode where declared; compare every complete raw byte to independent original"
+  ],
+  "cwd": "/workspace/e02-F-fry-20261006",
+  "environment": "host stdlib read-only Git/gzip/sha256; no product import or backend claim",
+  "peer_head": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+  "remote_readback": "e04ddf884071b17ffb1d021c9a6b23f826d76774\trefs/heads/codex/e02-F-tmle-20261006\n",
+  "scientific_source": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+  "metadata_candidate": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+  "primary": {
+    "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007.json",
+    "blob": "e29544e99ffbab0bb6e6b40f9d061d690a4e1d6c",
+    "bytes": 98035,
+    "sha256": "1b1b6cdb6af5b8c5e314ddc30eb6025f4e349a219c3cc7d165826c596678ab63"
+  },
+  "output_index": {
+    "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/outputs.json",
+    "blob": "02082738c591979e3c5642562b50bacb8b466955",
+    "bytes": 59678,
+    "sha256": "1e47ffc839769853cde18ef16219a1d74a3c1d026104f48a01e87678dc382a2f"
+  },
+  "verified_unique_independent_artifacts": [
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/capture_native.py",
+      "blob": "0260a26ad1bf2a7cd02b6e71c096e44da6d6756f",
+      "bytes": 2247,
+      "sha256": "c460e5a23a9f2ac0e9667c0752d3eb8982828d773cf06bbf873890868fb8c393",
+      "encoding": "verbatim",
+      "decoded_bytes": 2247,
+      "decoded_sha256": "c460e5a23a9f2ac0e9667c0752d3eb8982828d773cf06bbf873890868fb8c393",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/capture_native.py"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native-command.json",
+      "blob": "c05619efe44a530604503ddf147a0bef0038ef6f",
+      "bytes": 1843,
+      "sha256": "344eb68db07ad844f3fd10d7175855d9ad6df9841dd2a2d8f45e73d5ee942dcd",
+      "encoding": "verbatim",
+      "decoded_bytes": 1843,
+      "decoded_sha256": "344eb68db07ad844f3fd10d7175855d9ad6df9841dd2a2d8f45e73d5ee942dcd",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-command.json"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native-result.json",
+      "blob": "dd4103c0cb6b0a59b5b865c0457f8ad22b2f9bd0",
+      "bytes": 2367,
+      "sha256": "addcdc4997608b6efc04438b77d4d520a5d97d0400d931935533e121e3f7fe2e",
+      "encoding": "verbatim",
+      "decoded_bytes": 2367,
+      "decoded_sha256": "addcdc4997608b6efc04438b77d4d520a5d97d0400d931935533e121e3f7fe2e",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-result.json"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native.stdout.txt.gz",
+      "blob": "2dbc63acdc06c583cb49f7dadcb2129b9d845024",
+      "bytes": 15244,
+      "sha256": "68028b932c161c9b36d191fe78c234f9f8dc3be8faf178e07e658cb805d8a4f1",
+      "encoding": "gzip",
+      "decoded_bytes": 275541,
+      "decoded_sha256": "533a0c9d0d456bb3b64506a16f3253a4d95b4263b6ae3eb5e83e77e7c566c7c0",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native.stdout.txt"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native.stderr.txt",
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "verbatim",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native.stderr.txt"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native.xml",
+      "blob": "b10ead04f767d40de86d7a9846de3f20652b6966",
+      "bytes": 11339,
+      "sha256": "0bb63be55c0a708e5630da393784f43f01b16a4cebf7e2aed72e613a133a60e0",
+      "encoding": "verbatim",
+      "decoded_bytes": 11339,
+      "decoded_sha256": "0bb63be55c0a708e5630da393784f43f01b16a4cebf7e2aed72e613a133a60e0",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native.xml"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/capture_mixed.py",
+      "blob": "fc4db43ea1da04b63efc6406bd0c6112290a58b4",
+      "bytes": 2912,
+      "sha256": "b16ee889c3de70dcba70de8219c0291d353c7a5772dc272dbfe7b21237bc585a",
+      "encoding": "verbatim",
+      "decoded_bytes": 2912,
+      "decoded_sha256": "b16ee889c3de70dcba70de8219c0291d353c7a5772dc272dbfe7b21237bc585a",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/capture_mixed.py"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/check_mixed_native_consumer.py",
+      "blob": "30e839a32d5d416d3fbe01e6d3606c92df2293c5",
+      "bytes": 4898,
+      "sha256": "4cb29ba8caff118c77a4c951d3c62d4757fd96460698788656168b96f4a9d941",
+      "encoding": "verbatim",
+      "decoded_bytes": 4898,
+      "decoded_sha256": "4cb29ba8caff118c77a4c951d3c62d4757fd96460698788656168b96f4a9d941",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/check_mixed_native_consumer.py"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/mixed-controls.json",
+      "blob": "8b5d88a6fb774c06ffc28d1e9e83532db9dfa6eb",
+      "bytes": 7492,
+      "sha256": "83cf84bffbf33593397fc855de9f0914601e389c19d2c9710b239482ad208d7d",
+      "encoding": "verbatim",
+      "decoded_bytes": 7492,
+      "decoded_sha256": "83cf84bffbf33593397fc855de9f0914601e389c19d2c9710b239482ad208d7d",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/mixed-controls.json"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/cas-input-manifest.json",
+      "blob": "0437017cb8499f409a9a3d8c5a6978330fa63e8c",
+      "bytes": 18281,
+      "sha256": "9dc8030ade92919154ed5638b36e190306e5c13699f9a9398431f1a24924f022",
+      "encoding": "verbatim",
+      "decoded_bytes": 18281,
+      "decoded_sha256": "9dc8030ade92919154ed5638b36e190306e5c13699f9a9398431f1a24924f022",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/cas-input-manifest.json"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native-cas-input.tar.gz",
+      "blob": "431649ddb12daabb56f1238cd284aacefed19845",
+      "bytes": 18922,
+      "sha256": "88b506fe8bf8ee767032b9e879c66bb608c6de989d1713c3ff3b8666690a069b",
+      "encoding": "verbatim",
+      "decoded_bytes": 18922,
+      "decoded_sha256": "88b506fe8bf8ee767032b9e879c66bb608c6de989d1713c3ff3b8666690a069b",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-cas-input.tar.gz"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/review.json",
+      "blob": "3e64bddd86036f501988fb9c0a0f6f11be646498",
+      "bytes": 13199,
+      "sha256": "ae3e0d37552c0d9a7f14c0565d23211705e32d0c04607a9d380846bd864e2150",
+      "encoding": "verbatim",
+      "decoded_bytes": 13199,
+      "decoded_sha256": "ae3e0d37552c0d9a7f14c0565d23211705e32d0c04607a9d380846bd864e2150",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/review.json"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/finish_review.py",
+      "blob": "2585e03afa67a913ab55f1d77614985270558eb9",
+      "bytes": 8280,
+      "sha256": "a39a373aa6229710e3589ee9c6fb3a38bc567a099db77f53651cfaa6fdabbc73",
+      "encoding": "verbatim",
+      "decoded_bytes": 8280,
+      "decoded_sha256": "a39a373aa6229710e3589ee9c6fb3a38bc567a099db77f53651cfaa6fdabbc73",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/finish_review.py"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/mixed_priority.json",
+      "blob": "ab4be9142d3504bebdb95bc6df3f62a7d9b6171b",
+      "bytes": 2212,
+      "sha256": "9898e269b972c6bfe01c63ae9c0cb970ced7212519f3ea28404ebdf08a7b3a16",
+      "encoding": "verbatim",
+      "decoded_bytes": 2212,
+      "decoded_sha256": "9898e269b972c6bfe01c63ae9c0cb970ced7212519f3ea28404ebdf08a7b3a16",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/mixed_priority.json"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/mixed_priority.stdout.txt",
+      "blob": "d4491b143ce9962f38efb0fdf0f9669e1fa1deb3",
+      "bytes": 2314,
+      "sha256": "c42e74a155fda84df4e75d8bc20877c424943fc3210da0acd49973b86ecc2efb",
+      "encoding": "verbatim",
+      "decoded_bytes": 2314,
+      "decoded_sha256": "c42e74a155fda84df4e75d8bc20877c424943fc3210da0acd49973b86ecc2efb",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/mixed_priority.stdout.txt"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/mixed_priority.stderr.txt",
+      "blob": "58167495319b18721167d51fd3b77af4ad1ae83c",
+      "bytes": 716,
+      "sha256": "0469400ed660ce7320d9d7c4f6be6e53689b9f00ce5eef5bd57d338b9d9a8b86",
+      "encoding": "verbatim",
+      "decoded_bytes": 716,
+      "decoded_sha256": "0469400ed660ce7320d9d7c4f6be6e53689b9f00ce5eef5bd57d338b9d9a8b86",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/mixed_priority.stderr.txt"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/malformed_top.json",
+      "blob": "a7b8f38e677ab75a109f7bacaee0a57afb25095b",
+      "bytes": 2208,
+      "sha256": "966bd98af313f80900932a5556015379ace89c5110fe8da7ddfdd3b8316e454e",
+      "encoding": "verbatim",
+      "decoded_bytes": 2208,
+      "decoded_sha256": "966bd98af313f80900932a5556015379ace89c5110fe8da7ddfdd3b8316e454e",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/malformed_top.json"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/malformed_top.stdout.txt",
+      "blob": "465d655ff318b7f23973fd967756336a3772e7db",
+      "bytes": 1686,
+      "sha256": "c0e2e41feae41f88d2cfab8f7b747e3646b298a08d507a5036751ed57ab867ac",
+      "encoding": "verbatim",
+      "decoded_bytes": 1686,
+      "decoded_sha256": "c0e2e41feae41f88d2cfab8f7b747e3646b298a08d507a5036751ed57ab867ac",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/malformed_top.stdout.txt"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/malformed_top.stderr.txt",
+      "blob": "ef16ac98bb5d610d99daa005d4dee9c06cc8a047",
+      "bytes": 848,
+      "sha256": "56b8dd844cac73bf5ba7311b8a72dac7436897854514b2f647c36ddbff8a2cb2",
+      "encoding": "verbatim",
+      "decoded_bytes": 848,
+      "decoded_sha256": "56b8dd844cac73bf5ba7311b8a72dac7436897854514b2f647c36ddbff8a2cb2",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/malformed_top.stderr.txt"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/remove_role_issue.json",
+      "blob": "8dd82d447c2aa85239f88f0d5bd3e383d32f301d",
+      "bytes": 2253,
+      "sha256": "6bae19200c515151601468191cd1285ed1c079b81025e88b4a9864b990810c19",
+      "encoding": "verbatim",
+      "decoded_bytes": 2253,
+      "decoded_sha256": "6bae19200c515151601468191cd1285ed1c079b81025e88b4a9864b990810c19",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/remove_role_issue.json"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/remove_role_issue.stdout.txt",
+      "blob": "75f4854fb720abfe367243901c37f6ec349d1e04",
+      "bytes": 1850,
+      "sha256": "9f0f87cad057b7ee8159bbebbdd4b287ad48654529bd8077cd847bc39bd584aa",
+      "encoding": "verbatim",
+      "decoded_bytes": 1850,
+      "decoded_sha256": "9f0f87cad057b7ee8159bbebbdd4b287ad48654529bd8077cd847bc39bd584aa",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/remove_role_issue.stdout.txt"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/remove_role_issue.stderr.txt",
+      "blob": "06c62b7649589f83d7d1c881508fab612f3658ba",
+      "bytes": 1792,
+      "sha256": "2d879bff517ef7d5555c152b583403dfef8471f0318c0d3da52d24a02443b3d3",
+      "encoding": "verbatim",
+      "decoded_bytes": 1792,
+      "decoded_sha256": "2d879bff517ef7d5555c152b583403dfef8471f0318c0d3da52d24a02443b3d3",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/remove_role_issue.stderr.txt"
+    },
+    {
+      "git_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native-tmp/tmle-consumers0/producer-packet.json",
+      "blob": "11dee8030e761a3fb40d437d7e8590fcafcc843d",
+      "bytes": 2488,
+      "sha256": "17c25ebb61d81592d7d60f90fa0095afaca21aef11922f9eed740c031792d5cd",
+      "encoding": "verbatim",
+      "decoded_bytes": 2488,
+      "decoded_sha256": "17c25ebb61d81592d7d60f90fa0095afaca21aef11922f9eed740c031792d5cd",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/producer-packet.json"
+    }
+  ],
+  "count": 23,
+  "G_acceptance": "not_assumed",
+  "copies_of_tracked_bodies": false
+}

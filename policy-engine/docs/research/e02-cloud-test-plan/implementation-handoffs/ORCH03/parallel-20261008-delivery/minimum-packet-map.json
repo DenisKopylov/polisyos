@@ -1,0 +1,327 @@
+{
+  "schema": "policyos.e02.orch03.readonly_supplier_packet_map.concise.v1",
+  "status": "Read-only preparation complete; no source edits or runtime/oracle wave",
+  "G": {
+    "sha": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+    "tree": "2239b2c97f840ab28ee4b921e964618548dd2c25"
+  },
+  "B190_runtime": {
+    "sha": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+    "tree": "707e9dbb08dc69d465f87867e51766406aff4fb7"
+  },
+  "B190_handoff": {
+    "topic": "codex/e02-E-c09-sensitivity-20261008",
+    "sha": "32bfa995ab6208067cfed27359fe8674a54c90cf",
+    "tree": "f1be1d5bf3e3c70d3ce325a4c9ec7241d9c0f726"
+  },
+  "packet_registry": {
+    "preparation": {
+      "commit": "32bfa995ab6208067cfed27359fe8674a54c90cf",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09-sensitivity/producer-preparation.json",
+      "blob": "14a21c4204c9314b85e9a8f431de72e8ed0854ec",
+      "sha256": "179c689ffa3517deff722c05a2f8d87b8e620a481c8e48e2fd92ded1b140bad6"
+    },
+    "adjudication": {
+      "commit": "32bfa995ab6208067cfed27359fe8674a54c90cf",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09-sensitivity/supplier-packet-adjudication.json",
+      "blob": "d7e192eb5d5773146e33fcbacb4af361068baa90",
+      "sha256": "f7c7c3fb8fa59105e42187a811640dcc75cd67d06c2998f77cab82300d72ab09"
+    },
+    "math_only": {
+      "commit": "32bfa995ab6208067cfed27359fe8674a54c90cf",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09-sensitivity/independent-oracles.json",
+      "blob": "702a4db3330dcf1c9a3f4c3cc57ee4baf3bcd126",
+      "sha256": "aacb511302c61f734a9c4eff2780c57d1769fb8e2be6d938cb2286dc360bf97e"
+    },
+    "handoff": {
+      "commit": "32bfa995ab6208067cfed27359fe8674a54c90cf",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09-sensitivity/handoff.json",
+      "blob": "7c98dadd2745feefe51b082792524f0311dd82f7",
+      "sha256": "2b7a45da07396310197ef7c02d06acf43447275418a288ee86434c2f5bb96f2c"
+    },
+    "B190_active": {
+      "commit": "32bfa995ab6208067cfed27359fe8674a54c90cf",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09-sensitivity/minimum-node-adoption-packet.json",
+      "blob": "a8ce767b4e7ba721667817c4c5e66471821009fe",
+      "sha256": "54f11686e3d302dd4fa6f0dae0f7327dffc6774135044c51e51702dac86d8211"
+    },
+    "L01_delivery": {
+      "commit": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/delivery.json",
+      "blob": "ac2c2ac95f06da4049e1b95cb7734707523c36f9",
+      "sha256": "25debd15d8d6519f4d677fa59d8c378570f53d2f0e688a3a73cd8edf5cd8be7a"
+    },
+    "L01_E": {
+      "commit": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/E.json",
+      "blob": "f231760f768124688854f904c69ab0fe434b61e5",
+      "sha256": "33cd59170e758302c4ae11317a3f24ee30047d7db0abfed97a786e4f40274ed8"
+    },
+    "L01_C": {
+      "commit": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/C.json",
+      "blob": "ef0a4f87fac08b9b0d58044176a9e79274a1a9de",
+      "sha256": "17f80b522b01e0c25385c250bb0411af98d033fed1972e07d238015d483a5f77"
+    },
+    "L01_C_leaf": {
+      "commit": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/parallel-20261008-l01-inputs.json",
+      "blob": "55a578306a1e1ece80ad8c454da0de196dab1d8e",
+      "sha256": "e3222240a2500ab7775d14a7f9cf6b5fd762c467cda3f9c1331797695cc09873"
+    }
+  },
+  "L01_delivery": {
+    "source_commit_reported": "72b9a568fc53dfb89c364749d94b1519648c55af",
+    "source_tree_reported": "e916c747c3599a45ba2ab83e907c8a4f72637c59",
+    "product_source_measured": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "topic": "codex/e02-L01-custody-20261008",
+    "assessment": "L01 completed non-secret source-qualified facts/requirements delivery; production_input_admission=not_established and input_bytes_digest=withheld_no_disclosure_admission. These packets supply requirements/owner routes and bounded controls, not authenticated current source/law/noise/relationship data. Generic mechanisms continue."
+  },
+  "current_paths": {
+    "identifiability": {
+      "path": "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+      "G_blob": "aad1abdd89ac8dda43918981bc21f4a9755601a2",
+      "c912_blob": "d0b90fd348a2556b5e23ae8e20409950ad9e712b",
+      "same_G71ec": true
+    },
+    "node": {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "G_blob": "ef85325624efa365cd716b9633dc7ed6f1fe4e56",
+      "c912_blob": "ef85325624efa365cd716b9633dc7ed6f1fe4e56",
+      "same_G71ec": true
+    },
+    "dispatcher": {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py",
+      "G_blob": "3241bbb148396b8be6a0a474a2b1ac5bfe66ee1a",
+      "c912_blob": "3241bbb148396b8be6a0a474a2b1ac5bfe66ee1a",
+      "same_G71ec": true
+    },
+    "monte_carlo": {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "G_blob": "7bd39d2e9e437a4b98a292a8da7b3744f7f3182c",
+      "c912_blob": "7bd39d2e9e437a4b98a292a8da7b3744f7f3182c",
+      "same_G71ec": true
+    },
+    "calibrator": {
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "G_blob": "f64ce5319b4fd88c98ba6cd5bab7af9e8f880c37",
+      "c912_blob": "f64ce5319b4fd88c98ba6cd5bab7af9e8f880c37",
+      "same_G71ec": true
+    },
+    "calibration_report": {
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "G_blob": "d82d467af1e8eb11155a251e233a728d2097decc",
+      "c912_blob": "d82d467af1e8eb11155a251e233a728d2097decc",
+      "same_G71ec": true
+    },
+    "calibration_adapter": {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "G_blob": "00ede8ba8383e7531bfbfcb05a5dc17e09cd9d0a",
+      "c912_blob": "00ede8ba8383e7531bfbfcb05a5dc17e09cd9d0a",
+      "same_G71ec": true
+    },
+    "aggregator": {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+      "G_blob": "3e463d16d93f4a51e4b19ffca7b46ba310d96905",
+      "c912_blob": "3e463d16d93f4a51e4b19ffca7b46ba310d96905",
+      "same_G71ec": true
+    },
+    "berl_service": {
+      "path": "policy-engine/src/polisyos/berl/service.py",
+      "G_blob": "6c73971f16f63e7aaa5e60a07a706d2cefe82491",
+      "c912_blob": "6c73971f16f63e7aaa5e60a07a706d2cefe82491",
+      "same_G71ec": true
+    },
+    "berl_adapter": {
+      "path": "policy-engine/src/polisyos/berl/adapters/shap_kernel.py",
+      "G_blob": "d2a598b5a03f6f2ea24f67a024ae7d056e2ba6d2",
+      "c912_blob": "d2a598b5a03f6f2ea24f67a024ae7d056e2ba6d2",
+      "same_G71ec": true
+    },
+    "berl_runtime": {
+      "path": "policy-engine/src/polisyos/runtime/quality/explanation_reliability.py",
+      "G_blob": "c4fc6e3eef609ce714c25e0bc81a66d3a58142b5",
+      "c912_blob": "c4fc6e3eef609ce714c25e0bc81a66d3a58142b5",
+      "same_G71ec": true
+    },
+    "phase5": {
+      "path": "policy-engine/src/polisyos/scientist/validation/phase5_preflight.py",
+      "G_blob": "b652a7ffe889df79f9ab34c0e87995e1844cb760",
+      "c912_blob": "b652a7ffe889df79f9ab34c0e87995e1844cb760",
+      "same_G71ec": true
+    }
+  },
+  "rows": [
+    {
+      "id": "B190",
+      "original_owner": "E",
+      "bundle": "UQP-01",
+      "original_binding": {
+        "source": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          4752,
+          4761
+        ],
+        "sha256": "bb28f0e65d6317465c37bae99ed3a0bd89a03a3194f111e0f3faf24553724d53"
+      },
+      "packet_pointer": "B190_active#/partner_requirements/0",
+      "current_path_keys": [
+        "identifiability",
+        "node",
+        "dispatcher"
+      ],
+      "next_owner": "Canonical E uncertainty/Scientist Node adapter owner; G appoints sole lease, not G as scientific owner.",
+      "minimum_next_result": "Adopt exact source-qualified reader in PropagateUncertaintyNode for declared scientific state-response slots, recompute J from persisted source, preserve unknown/partial outputs and non-gating semantics; actual Node -> propagation report/envelopes -> CAS -> fresh reader positive + forged/source/axes/unit/partial negatives. Keep operational Metrics separate. Node adoption currently UNRUN.",
+      "missing_specific_facts": [
+        "No production or authority input is needed to implement generic Node adoption mechanics.",
+        "Input error law and ordered covariance/dependence facts are required only for the chosen downstream uncertainty interpretation; current supplier establishes J, not that law.",
+        "Actual scientific/Runtime admission facts are separate, only if selected canonical consumer requires them."
+      ],
+      "L01_pointer": "L01_E#/facts/rows/B190",
+      "mechanical_control": "c912 exact native compile/execute -> persisted state -> recomputing matrix reader -> fresh child;49PASS+1positive/1expected retained-property FAIL. Local J[4,0], always non-gating; no Node adoption.",
+      "L01_delta": "L01 historical producer/artifact_missing superseded by c912/32bf; untouched currentG Node operational Metrics/manual sensitivity bridge remains UNRUN. No actual law/authority supplied.",
+      "decision_scope": "No new runtime verdict or whole finding closure; actual Node/served/source-admitted composition UNRUN as applicable."
+    },
+    {
+      "id": "B194",
+      "original_owner": "E",
+      "bundle": "UQP-03",
+      "original_binding": {
+        "source": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          4792,
+          4801
+        ],
+        "sha256": "47058d366d7ff7e11ed2348e96b2f56659a999f1f0839a02edc92804b295711e"
+      },
+      "packet_pointer": "adjudication#/rows/0/minimum_packet",
+      "current_path_keys": [
+        "monte_carlo",
+        "dispatcher",
+        "node"
+      ],
+      "next_owner": "E/UQP-03 Monte Carlo owner (C09 holds separate mechanism lease) plus appointed actual evaluator/domain and source-law supplier.",
+      "minimum_next_result": "Use C09 source-qualified complete draw-ledger leaf; compose one named evaluator and declared joint law through existing Dispatcher/Node report, preserve all attempted/refused/failed/successful draws and exact source/model identities; do not reconstruct complete outcomes from old failure counts. Exact L01 packet adds PropagateWelfare draw-outcome readers as an E source capability; root already routes C09 metadata-owner forward repair, so do not start a duplicate Monte Carlo writer.",
+      "missing_specific_facts": [
+        "Named actual evaluator/source law with support and ordered variables",
+        "Sampling design/draw IDs/seeds/requested budget; complete terminal draw/output ledger",
+        "Exact retry-same-draw vs independent replicate and global access/contract-failure semantics for selected execution profile"
+      ],
+      "L01_pointer": "L01_E#/facts/rows/B194",
+      "mechanical_control": "Current G callable/Dispatcher/Node report paths and attempted sampling diagnostics exist. Complete terminal ledger is separate E/C09 source, not inferred from counters. Preexisting complete-vs-success-only arithmetic discriminator is mathematical only.",
+      "L01_delta": "L01 names served evaluator/domain + law/draw-output profile requirement, supplies no actual evaluator/law. E8d sampling_admission.reconcile_draw_outcomes and Welfare draw persistence exist only on that selected component source, not currentG/c912 APIs. Root routes C09 forward metadata-owner repair; no duplicate writer.",
+      "decision_scope": "No new runtime verdict or whole finding closure; actual Node/served/source-admitted composition UNRUN as applicable."
+    },
+    {
+      "id": "B197",
+      "original_owner": "E",
+      "bundle": "CAL-06",
+      "original_binding": {
+        "source": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          4922,
+          4935
+        ],
+        "sha256": "2f5e64ff7238ff5a340224382fa2875b57ea9e960e0e50bfea7f349c6a83ff3d"
+      },
+      "packet_pointer": "adjudication#/rows/1/minimum_packet",
+      "current_path_keys": [
+        "calibrator",
+        "calibration_report",
+        "calibration_adapter",
+        "node"
+      ],
+      "next_owner": "E/CAL-06 configured Calibrator owner plus actual target/noise issuer; canonical Scientist consumer owner for composition.",
+      "minimum_next_result": "One actual configured known-noise fit with exact target/config/model/state lineage -> reportv2 CAS -> fresh envelope/Node consumer; independent projected covariance oracle plus stale noise/source/order and tied-coordinate controls. Do not promote heuristic Hessian carrier to estimator CI or verified noise law.",
+      "missing_specific_facts": [
+        "Exact configured CalibratorInputs config/program/ExecPlan/base-state/registry/parameter references",
+        "Raw target-source refs, row IDs and train/validation masks",
+        "Known-noise scales/profile and independent-observation premise when selected Gaussian uncertainty claim needs them",
+        "Trainable addresses/ties/bounds/projection ordering"
+      ],
+      "L01_pointer": "L01_E#/facts/rows/B197",
+      "mechanical_control": "CurrentG Calibrator/projection/put-report/adapter/Node collection paths exist; local Hessian envelopes explicitly HEURISTIC_RANGE/non-gating. Typed strict load_calibration_report is E8d API, absent currentG/c912 report module. Tied covariance math prep is not actual source/noise PASS.",
+      "L01_delta": "L01 supplies exact configured-fit/noise/split/tie requirements and source-qualified E API refs, no actual source-fit/noise input. Preserve selected source identity and non-gating interpretation.",
+      "decision_scope": "No new runtime verdict or whole finding closure; actual Node/served/source-admitted composition UNRUN as applicable."
+    },
+    {
+      "id": "B200",
+      "original_owner": "E",
+      "bundle": "UQS-01",
+      "original_binding": {
+        "source": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          4964,
+          4977
+        ],
+        "sha256": "721775dd6bad0fdd3c7392ef5030fcba3032c7f31094b189d99dce422ecc7b2d"
+      },
+      "packet_pointer": "adjudication#/rows/2/minimum_packet",
+      "current_path_keys": [
+        "aggregator"
+      ],
+      "next_owner": "E/UQS-01 aggregator owner plus Foundry/Scientist measurement relationship issuer; G routes concrete lease/consumer.",
+      "minimum_next_result": "Resolve one real source relationship roster before aggregation, distinguish duplicate copied evidence from independent measurement units, persist relationship/input refs and replay through existing aggregate_envelopes; unknown relationship stays non-gating widest/typed limited. Do not create a new aggregator or bless metadata strings.",
+      "missing_specific_facts": [
+        "Appointed actual measurement/replicate relationship producer and named served aggregation call if requested",
+        "Information-unit IDs bound to exact refs; shared observation IDs/versions and replicate groups",
+        "Ordered joint covariance or scoped independence basis",
+        "Prior/likelihood/posterior roles and overlap exclusions"
+      ],
+      "L01_pointer": "L01_E#/facts/rows/B200",
+      "mechanical_control": "CurrentG aggregate_envelopes/_prepare_inputs callable exists, dedups origin strings and refuses conflicts; metadata independence does not verify relationship. No served aggregation call established by literal census; unknown/external remain disclosed.",
+      "L01_delta": "L01 explicitly identifies source-relationship P38 proxy and information/replicate/covariance/prior overlap requirements, supplies no actual relationship artifact/verification input.",
+      "decision_scope": "No new runtime verdict or whole finding closure; actual Node/served/source-admitted composition UNRUN as applicable."
+    },
+    {
+      "id": "LA-036",
+      "original_owner": "C",
+      "bundle": "BER-01",
+      "original_binding": {
+        "source": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "lines": [
+          2103,
+          2145
+        ],
+        "sha256": "ebc61d92552c6dfbf538aed17c8a7ed476ee4322fc9df09f7ed3b89e8c530a2a"
+      },
+      "packet_pointer": "adjudication#/rows/3/minimum_packet",
+      "current_path_keys": [
+        "berl_service",
+        "berl_adapter",
+        "berl_runtime",
+        "phase5"
+      ],
+      "next_owner": "Original C/BER-01 adapter/service owner; C09 scoped law supplier, C08 model projection owner and C07 IR companion only by explicit lease. Served Runtime/C10 reliability and Scientist/C11 preflight remain their own owners.",
+      "minimum_next_result": "Appoint scoped existing CAS observed-feature law intake and one canonical BERL conditional adapter; finite synthetic law exercises conditional vs marginal/off-support discriminator -> actual ExplanationBundle -> Runtime reliability/Phase5 consumer; retain refusal until required law/profile is supported. No global engine or label-only conversion. Carry the committed L01 alias control unchanged; the needed positive is a law-bound conditional adapter, not another alias census.",
+      "missing_specific_facts": [
+        "Canonical C/BERL owner selects finite observed-feature law/weighted conditional strata or actual supported C08 Gaussian SCM projection with typed binding",
+        "Exact ordered observed-feature variables, finite rows/weights/support or declared conditional parameters",
+        "Population/cohort/source selection and law/model epoch",
+        "Conditioning-event support/coalition bounds; MC error/tolerance only if selected nonlinear MC profile",
+        "Law schema/intake and actual source/custody/verifier facts only as required by selected consumer contract"
+      ],
+      "L01_pointer": "L01_C#/original_criteria/7",
+      "mechanical_control": "L01 C leaf checks/3 PASS on Gf00: maintained alias identity/shared calculation, not conditional law. CurrentG BERL alias routes share empirical interventional row-replacement adapter; actual Runtime reliability and Phase5 consumers exist.",
+      "L01_delta": "C packet header preserves LA036 original binding, but detailed facts cover otherC tasks and supply no conditional observed-feature law. C09/C08 law/model + C07 IR route is named; canonical C/BER01 conditional adapter and its admitted profile still required.",
+      "decision_scope": "No new runtime verdict or whole finding closure; actual Node/served/source-admitted composition UNRUN as applicable."
+    }
+  ],
+  "limits": [
+    "Original E ownership B190/B194/B197/B200 and C/BER01 LA036 preserved; no F35 changes, G acceptance or formal closure.",
+    "Gd23 adds docs/evidence; all12named runtime blobs verified equal G71ec. No new implementation or duplicate oracle/test wave.",
+    "L01 E/C packet bytes match exact delivery source72b9; production_input_admission not_established and input_bytes_digest withheld_no_disclosure_admission. No raw production facts copied.",
+    "Generic mechanisms/refusals do not require production inputs. Law/noise/relationship facts and scientific/custody/verifier admission required only for selected actual downstream claims.",
+    "L01 capability headlines source-qualified/historical: B190 supplier gap superseded; remaining consumer bridge and original law/authority criteria distinct.",
+    "Full metadata/path-entrypoint checks retained separately; no external/constructed caller zero inferred."
+  ],
+  "full_detail": {
+    "path": "/dev/shm/e02-orch03-20261008/producer-packets/root-packet-map.json",
+    "sha256": "e1c61d7120affed7e91fec658283f016ddc4e6836efd79aeb414a7e0c3d2f3c1"
+  }
+}

@@ -1,0 +1,617 @@
+{
+  "schema": "F-original-finding-continuation-receipt/1",
+  "unit": "F",
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "formal_G_acceptance": "not_issued",
+  "check_scope": "Actual bounded measurement is separate from unresolved original/current authority inputs.",
+  "complete_original_bound_row": {
+    "finding_id": "LA-007",
+    "primary_bundle": "GRF-01",
+    "primary_tsv_owner": {
+      "finding_id": "LA-007",
+      "unit": "F",
+      "docx_analytical_package": "P34",
+      "source_closure_owner": "GRF-01",
+      "source_bundle_ids": "GRF-01",
+      "source_status": "partial"
+    },
+    "original_source_criterion_refs": [
+      {
+        "criterion_id": "LA-007",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "lines": [
+          254,
+          280
+        ],
+        "bytes": 2383,
+        "sha256": "f0b3ae2a0552d0b28a06b02d50dad0aaefb418a5cf7bcd52d6a1664edd9c90e0",
+        "title": "## LA-007. id_engine.py рядом с id_engine/: пустая тень, не адаптер",
+        "byte_binding_check": "PASS",
+        "complete_original_block": "## LA-007. id_engine.py рядом с id_engine/: пустая тень, не адаптер\n\n**Прямая очистка: перенос логики не нужен**\n\n**Статус.** Сильнейший локальный кандидат без функционального переноса.\n\n**Точная область:**\n\n`src/polisyos/foundry/methods/catalog/causal/id_engine.py`\n\n**Что установлено и почему это legacy-кандидат.** Файл содержит только пояснение и пустой __all__. Настоящая реализация и reexports находятся в одноимённом package. Этот .py не перенаправляет API и не сохраняет самостоятельную бизнес-функцию, хотя назван compatibility shim.\n\n**Что сохранить.** Package id_engine/ целиком, его экспортную поверхность, core/transport/counterfactual/api и тесты причинного вывода. Удаление касается только одноимённого соседнего .py.\n\n**Куда перенести / с чем объединить.** Переноса нет: реализация уже в src/polisyos/foundry/methods/catalog/causal/id_engine/.\n\n**Порядок миграции.** Проверить прямые загрузки по filename, списки generated sources и packaging. В локальном CPython 3.13.5 probe обычное разрешение имени выбрало package и не изменилось после удаления соседнего файла. Это не тест самого PolicyOS.\n\n**Приёмочная проверка.** В реальном окружении сравнить find_spec и public imports до/после; собрать wheel/sdist и выполнить ID-engine tests. Не очищать одноимённую директорию.\n\n**Приоритет.** Низкая цена; первая волна очистки.\n\n**Граница вывода.** Файловый loader по точному пути — отдельный механизм, не покрытый обычным import. Полная distribution-проверка не запускалась.\n\n**Основания:** E11, E12.\n\n<!-- PAGEBREAK -->\n"
+      }
+    ],
+    "criterion_short_ru": "Exact id_engine.py sibling already absent at base198; bounded maintained package/loader/docs/install migration",
+    "actual_consumer": "Declared facade loaders/direct/star/private historical windows → actual native algorithms/FQN/pickle/pydoc/patch consumers → isolated source-wheel and rebuilt-sdist sites, canonical dispatcher/CAS/fresh reader",
+    "source_scope": "Exact EMPTY id_engine.py sibling absent; preserved package/algorithms and finite loader/install consumers; exact source8236 site profile, finite supported manifest; computed/external unknown clients remain unestablished",
+    "oracle_and_negative": "Published actual source8236 API census16819tracked/6815parsed,243literalimports;225dynamicAST candidates(155unresolved/36finite/13other/21literal); 753filename lexical matches/73ASTloader calls with4runtime computed unresolved. Computed candidates are not established clients. Final actual wheel/sdist each199PASS,5source-census deselections,0SKIP/ERROR,90LGBM feature-name warnings; eight installed marker-preserving removals actualFAIL and complete3459resource files/site postguardsPASS. Both immutable primary receipts and all115author+53independent complete bodies are Git-bound. ROOT recommendation is adopted in this exact current decision input; unresolved computed/external clients stay outside the supported manifest. Old5cd/ab56 native results remain historical.",
+    "predicate_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Exact EMPTY id_engine.py sibling absent; preserved package/algorithms and finite loader/install consumers; exact source8236 site profile, finite supported manifest; computed/external unknown clients remain unestablished. Independent oracle/retained-marker negative: Published actual source8236 API census16819tracked/6815parsed,243literalimports;225dynamicAST candidates(155unresolved/36finite/13other/21literal); 753filename lexical matches/73ASTloader calls with4runtime computed unresolved. Computed candidates are not established clients. Final actual wheel/sdist each199PASS,5source-census deselections,0SKIP/ERROR,90LGBM feature-name warnings; eight installed marker-preserving removals actualFAIL and complete3459resource files/site postguardsPASS. Both immutable primary receipts and all115author+53independent complete bodies are Git-bound. ROOT recommendation is adopted in this exact current decision input; unresolved computed/external clients stay outside the supported manifest. Old5cd/ab56 native results remain historical.. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check": "PASS",
+    "outcome": "closed",
+    "state_role": "Explicit F ROOT recommendation on original byte-bound criterion; separate technical profile and current continuation. G formal acceptance not issued.",
+    "technical_original_criterion_recommendation": "closed",
+    "technical_historical_baseline_profile_outcome": null,
+    "technical_check": "PASS",
+    "current_continuation_outcome_recommendation": "closed",
+    "check_interpretation": "Proposed original/current criterion measurement disposition. Component-native PASSs remain on their exact source; pending owner/authority measurements are not PASS.",
+    "original_criterion_remainder": "None for the bounded maintained filename/package/facade/loader/docs/install window. Exact source8236 full census and both installed profiles are published and independently read; unresolved computed/external consumers remain explicit outside that supported window.",
+    "separate_unavailable_inputs_or_authority": "38 finite UNKNOWN/incomplete export candidates and arbitrary computed/external clients are not established supported consumers. Whole Runtime authority, distinct PDC semantic ingress and G formal finding closure remain separate unissued/unmeasured inputs.",
+    "limit_next_owner_short_ru": "None for the bounded maintained filename/package/facade/loader/docs/install window. Exact source8236 full census and both installed profiles are published and independently read; unresolved computed/external consumers remain explicit outside that supported window.",
+    "authority_check": "UNRUN",
+    "formal_G_accepted": false,
+    "formal_ledger_acceptance": "not_issued",
+    "receipt_ref": {
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "branch": "refs/heads/codex/e02-F-graph-20261006",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+      "bytes": 150139,
+      "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+      "table": "per_id",
+      "per_id": "LA-007"
+    },
+    "implementation_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+    "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+    "historical_421_per_id_deciding_refs": [
+      {
+        "index": 0,
+        "check_id": "scm-frozen/docs-gate",
+        "outcome": "FAIL",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/docs-gate.stdout.txt"
+      },
+      {
+        "index": 1,
+        "check_id": "scm-frozen/emp01",
+        "outcome": "FAIL",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/emp01.stdout.txt"
+      },
+      {
+        "index": 2,
+        "check_id": "scm-frozen/gcm-parent",
+        "outcome": "PASS",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/gcm-parent.stdout.txt"
+      },
+      {
+        "index": 3,
+        "check_id": "scm-frozen/public-abi",
+        "outcome": "PASS",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/public-abi.stdout.txt"
+      },
+      {
+        "index": 4,
+        "check_id": "scm-frozen/schema-full",
+        "outcome": "FAIL",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/schema-full.stdout.txt"
+      },
+      {
+        "index": 5,
+        "check_id": "scm-frozen/semantics",
+        "outcome": "PASS",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/semantics.stdout.txt"
+      },
+      {
+        "index": 6,
+        "check_id": "scm-frozen/worker-gcm",
+        "outcome": "PASS",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/worker-gcm.stdout.txt"
+      },
+      {
+        "index": 7,
+        "check_id": "scm-frozen/worker-removal",
+        "outcome": "FAIL",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/worker-removal.stdout.txt"
+      },
+      {
+        "index": 8,
+        "check_id": "scm-final1e/docs-gate",
+        "outcome": "FAIL",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/docs-gate.stdout.txt"
+      },
+      {
+        "index": 9,
+        "check_id": "scm-final1e/gcm-parent-and-custody",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/gcm-parent-and-custody.stdout.txt"
+      },
+      {
+        "index": 10,
+        "check_id": "scm-final1e/original-scm-cards",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/original-scm-cards.stdout.txt"
+      },
+      {
+        "index": 11,
+        "check_id": "scm-final1e/public-abi",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/public-abi.stdout.txt"
+      },
+      {
+        "index": 12,
+        "check_id": "scm-final1e/schema-full",
+        "outcome": "FAIL",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/schema-full.stdout.txt"
+      },
+      {
+        "index": 13,
+        "check_id": "scm-final1e/semantics",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/semantics.stdout.txt"
+      },
+      {
+        "index": 14,
+        "check_id": "scm-final1e/worker-gcm",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/worker-gcm.stdout.txt"
+      },
+      {
+        "index": 15,
+        "check_id": "scm-final1e/worker-removal",
+        "outcome": "FAIL",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/worker-removal.stdout.txt"
+      },
+      {
+        "index": 16,
+        "check_id": "scm-final0b/docs-gate",
+        "outcome": "FAIL",
+        "target_sha": "0b6d2f779dbf8b0c2abe53448906f32d719696b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/docs-gate.stdout.txt"
+      },
+      {
+        "index": 17,
+        "check_id": "scm-final0b/gcm-root-public-custody",
+        "outcome": "PASS",
+        "target_sha": "0b6d2f779dbf8b0c2abe53448906f32d719696b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/gcm-root-public-custody.stdout.txt"
+      },
+      {
+        "index": 18,
+        "check_id": "scm-final0b/public-abi",
+        "outcome": "PASS",
+        "target_sha": "0b6d2f779dbf8b0c2abe53448906f32d719696b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/public-abi.stdout.txt"
+      },
+      {
+        "index": 19,
+        "check_id": "scm-final6d/docs-gate",
+        "outcome": "FAIL",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/docs-gate.stdout.txt"
+      },
+      {
+        "index": 20,
+        "check_id": "scm-final6d/gcm-root-public-custody",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/gcm-root-public-custody.stdout.txt"
+      },
+      {
+        "index": 21,
+        "check_id": "scm-final6d/public-abi",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/public-abi.stdout.txt"
+      },
+      {
+        "index": 22,
+        "check_id": "scm-final6d/worker-helper-projection",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/worker-helper-projection.stdout.txt"
+      },
+      {
+        "index": 23,
+        "check_id": "owned-import-denominator",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/owned-import-denominator.json"
+      },
+      {
+        "index": 24,
+        "check_id": "docs-plan",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/docs-plan.json"
+      },
+      {
+        "index": 25,
+        "check_id": "own-generated-schemas",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/own-generated-schemas.json"
+      },
+      {
+        "index": 26,
+        "check_id": "public-generated-companions",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/public-generated-companions.json"
+      },
+      {
+        "index": 27,
+        "check_id": "public-consumer-census",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/public-consumer-census.json"
+      },
+      {
+        "index": 28,
+        "check_id": "worker-math-profile-equivalence",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/worker-math-profile-equivalence.json"
+      },
+      {
+        "index": 29,
+        "check_id": "independent-d88-native",
+        "outcome": "PASS",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-native.stdout.txt"
+      },
+      {
+        "index": 30,
+        "check_id": "independent-d88-peer-custody",
+        "outcome": "FAIL",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding.stdout.txt"
+      },
+      {
+        "index": 31,
+        "check_id": "independent-1e-native",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-corrected-native.stdout.txt"
+      },
+      {
+        "index": 32,
+        "check_id": "independent-1e-custody-correction",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding-corrected.stdout.txt"
+      },
+      {
+        "index": 33,
+        "check_id": "independent-facade-import-delta",
+        "outcome": "PASS",
+        "target_sha": "b69208e65b9dcfa4c7de690ace071abdc9c1fed6",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-final-facade-import-delta-review.json"
+      },
+      {
+        "index": 34,
+        "check_id": "baseline-production-invocation",
+        "outcome": "ERROR",
+        "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "output": "prior graph handoff records empty stdout and absent requested receipt; completed diagnostic UNRUN"
+      },
+      {
+        "index": 35,
+        "check_id": "inprocess-optional-backends",
+        "outcome": "UNRUN",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "Marker omissions are not a positive backend witness; actual supported subprocess profile has separate defining receipt"
+      },
+      {
+        "index": 36,
+        "check_id": "schema_docs-docs_accuracy-strict_docs_build",
+        "outcome": "UNRUN",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/docs-gate.stdout.txt"
+      }
+    ],
+    "historical_421_owner_decision": {
+      "finding_id": "LA-007",
+      "bundle_id": "GRF-01",
+      "criterion": "Only exact empty id_engine.py sibling retirement, package/find_spec/publicAPI/sourceinventory/loader/wheel/sdist acceptance",
+      "check": "UNRUN",
+      "outcome": "limited",
+      "oracle_and_deciding_checks": "Source sibling absent atbase198; source facade native ABI tested, full retirement-specific installed acceptance UNRUN here",
+      "negative_or_removal": "Preserved id_engine package implementation; no assumed absence of external dynamic filename loaders.",
+      "limit_and_next_owner": "API/C/G installed finite loader/resource/retired-package criterion on final composed source remains separate. No deletion/package rewrite in this slice.",
+      "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+      "recorded_ledger_state": "partial",
+      "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-01.md",
+      "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/LA-007.json"
+    },
+    "owner_proposals_complete": [
+      {
+        "registry_index": 7,
+        "receipt_ref": {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17"
+        },
+        "json_pointer": "/per_id/11",
+        "complete_owner_entry": {
+          "finding_id": "LA-007",
+          "bundle_id": "GRF-01",
+          "criterion": "Only exact empty id_engine.py sibling retirement, package/find_spec/publicAPI/sourceinventory/loader/wheel/sdist acceptance",
+          "check": "UNRUN",
+          "outcome": "limited",
+          "oracle_and_deciding_checks": "Source sibling absent atbase198; source facade native ABI tested, full retirement-specific installed acceptance UNRUN here",
+          "negative_or_removal": "Preserved id_engine package implementation; no assumed absence of external dynamic filename loaders.",
+          "limit_and_next_owner": "API/C/G installed finite loader/resource/retired-package criterion on final composed source remains separate. No deletion/package rewrite in this slice.",
+          "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+          "recorded_ledger_state": "partial",
+          "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-01.md",
+          "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/LA-007.json"
+        }
+      },
+      {
+        "registry_index": 28,
+        "receipt_ref": {
+          "head": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json",
+          "bytes": 36426,
+          "sha256": "78b60c417b9c8ebbdb4abc64c616f7296168bfb290d2169e4a3bd7a0322babc1"
+        },
+        "json_pointer": "/per_id/1",
+        "complete_owner_entry": {
+          "id": "LA-007",
+          "state": "limited/related owner evidence",
+          "criterion": "id_engine.py shadow sibling already absent at accepted base; preserve supported package and canonical owners. Internal loader/file/spec/archive characterization is source-specific; external filenames/config clients unresolved. No new deletion delivered."
+        }
+      },
+      {
+        "registry_index": 36,
+        "receipt_ref": {
+          "head": "90c72b51155321684c788cd5a03fbb70fc001d53",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006.json",
+          "bytes": 50455,
+          "sha256": "b01b2dd3d1083298b700beab9f4b97d7837f5172eeae4758bd902bdadaf5fa29"
+        },
+        "json_pointer": "/per_id/0",
+        "complete_owner_entry": {
+          "id": "LA-007",
+          "state": "limited_pending_root_adjudication",
+          "criterion": "Original id_engine.py emptyshadow already absent at base198; real maintained nonempty package identity, source/config/loader census, actual related ID tests and wheel/sdist both consumer windows measured. No new deletion or externalcaller absence claimed."
+        }
+      }
+    ],
+    "supplemental_receipt_registry_indices": [
+      6,
+      7,
+      26,
+      28,
+      36
+    ],
+    "current_exact_consumer_receipts": {
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "installed_receipt": {
+        "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+        "bytes": 60843,
+        "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+      },
+      "scope": "Only actual selected MethodJob, CAS/fresh reader and supported finite installed cases; not whole Runtime Node authority or common competing-workload admission."
+    },
+    "canonical_owner_re_adjudication_required": "For unavailable semantic/institutional inputs only; source-bound ROOT decisions and independent reviews are carried separately.",
+    "latest_owner_packet": [
+      {
+        "head": "90c72b51155321684c788cd5a03fbb70fc001d53",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006.json",
+        "bytes": 50455,
+        "sha256": "b01b2dd3d1083298b700beab9f4b97d7837f5172eeae4758bd902bdadaf5fa29"
+      },
+      {
+        "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+        "bytes": 60843,
+        "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+      }
+    ],
+    "next_owner": "No original finite technical migration remainder. API owner retains declared compatibility window; external/computed unknown consumers require their actual configuration/source packet before extension.",
+    "base198_retirement_facts": [
+      {
+        "exact_file": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine.py",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "exact_file_exists": false,
+        "retained_nonempty_package": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/__init__.py",
+          "git_blob": "f32a2661656ed6ee8b48b4c36e3d9afbcb3e3397",
+          "bytes": 757,
+          "sha256": "d64b67cc3ef38feb2df07b1fc6937825da7d716de27dd1d568a081d55a5b5bb3"
+        },
+        "check": "PASS",
+        "new_deletion_claim": false
+      },
+      {
+        "exact_file": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine.py",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "exact_file_exists": false,
+        "retained_nonempty_package": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/__init__.py",
+          "git_blob": "b4fd2b96ff1a3f1ad6389ba00cf9bd8bbddf21a9",
+          "bytes": 1166,
+          "sha256": "bee3c5d4996e31f9d3808d489a6dbecf26cff686e06c5e42e9ff8a944c6a2feb"
+        },
+        "check": "PASS",
+        "new_deletion_claim": false
+      },
+      {
+        "exact_file": "policy-engine/src/polisyos/foundry/methods/catalog/causal/interference.py",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "exact_file_exists": false,
+        "retained_nonempty_package": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/interference/__init__.py",
+          "git_blob": "cb28869da6d3695e65c771fc20b8c8bae695484c",
+          "bytes": 2004,
+          "sha256": "2fe2af3d15064c0aeb03b1a8d0f37e82ebf9aeb20b5e77f3dddc1490c1583f85"
+        },
+        "check": "PASS",
+        "new_deletion_claim": false
+      }
+    ],
+    "latest_published_receipt_refs": [
+      {
+        "head": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json",
+        "bytes": 36426,
+        "sha256": "78b60c417b9c8ebbdb4abc64c616f7296168bfb290d2169e4a3bd7a0322babc1",
+        "implementation_sha": "0c522b88cff658aa4cdf4990ada70dd363989e0d",
+        "candidate_tree_sha": "0b308e5f5993121db26e1b3d0a3347817ef371c5"
+      }
+    ],
+    "historical_proposal_before_ROOT_adjudication": {
+      "original_criterion_remainder": "Need exact latest owner finite filename/loader/sourceinventory/docs/install per-original-card packet; do not require all hypothetical external users.",
+      "latest_owner_packet": "Published exact API owner evidence c4ba643d8c4775ec92b4e47e6c1622c50f14a676:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json; current assembled install/explicit ROOT decision remain separate. Finite UNKNOWN candidates are not established clients.",
+      "outcome": "limited",
+      "next_owner": "F API owner / root then G",
+      "oracle_and_negative": "Base198 exact sibling absence; API729 real nonempty package/ID algorithm and installed13compat each; direct facade bindings",
+      "source_scope": "Exact EMPTY id_engine.py sibling absent; preserved package/algorithms and finite loader/install consumers",
+      "actual_consumer": "Actual id_engine package/find_spec/imports/native identify → installed wheel/sdist → CAS fresh evidence",
+      "check": "UNRUN",
+      "decision_basis": null,
+      "separate_unavailable_inputs_or_authority": "External computed unknown inputs recorded separately; no new deletion performed here.",
+      "criterion_short_ru": "Exact id_engine.py sibling already absent at base198; maintained package/caller/window migration",
+      "technical_original_criterion_recommendation": "limited",
+      "deciding_receipt_refs": null
+    },
+    "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Exact EMPTY id_engine.py sibling absent; preserved package/algorithms and finite loader/install consumers; exact source8236 site profile, finite supported manifest; computed/external unknown clients remain unestablished. Independent oracle/retained-marker negative: Published actual source8236 API census16819tracked/6815parsed,243literalimports;225dynamicAST candidates(155unresolved/36finite/13other/21literal); 753filename lexical matches/73ASTloader calls with4runtime computed unresolved. Computed candidates are not established clients. Final actual wheel/sdist each199PASS,5source-census deselections,0SKIP/ERROR,90LGBM feature-name warnings; eight installed marker-preserving removals actualFAIL and complete3459resource files/site postguardsPASS. Both immutable primary receipts and all115author+53independent complete bodies are Git-bound. ROOT recommendation is adopted in this exact current decision input; unresolved computed/external clients stay outside the supported manifest. Old5cd/ab56 native results remain historical.. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check_scope": "Explicit source-bound ROOT original/current criterion adjudication; exact component outcomes remain separately preserved",
+    "ROOT_deciding_refs": [
+      {
+        "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/LA-007"
+        ]
+      },
+      {
+        "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/LA-007"
+        ],
+        "json_pointer": "/per_id/11",
+        "complete_deciding_entry": {
+          "finding_id": "LA-007",
+          "bundle_id": "GRF-01",
+          "criterion": "Only exact empty id_engine.py sibling retirement, package/find_spec/publicAPI/sourceinventory/loader/wheel/sdist acceptance",
+          "check": "UNRUN",
+          "outcome": "limited",
+          "oracle_and_deciding_checks": "Source sibling absent atbase198; source facade native ABI tested, full retirement-specific installed acceptance UNRUN here",
+          "negative_or_removal": "Preserved id_engine package implementation; no assumed absence of external dynamic filename loaders.",
+          "limit_and_next_owner": "API/C/G installed finite loader/resource/retired-package criterion on final composed source remains separate. No deletion/package rewrite in this slice.",
+          "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+          "recorded_ledger_state": "partial",
+          "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-01.md",
+          "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/LA-007.json"
+        }
+      },
+      {
+        "git_ref": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+        "head": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json",
+        "bytes": 36426,
+        "sha256": "78b60c417b9c8ebbdb4abc64c616f7296168bfb290d2169e4a3bd7a0322babc1",
+        "git_blob": "11aa040f5fb257f9f61c76c4b340cc2f15541b2e",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/LA-007"
+        ],
+        "json_pointer": "/per_id/1",
+        "complete_deciding_entry": {
+          "id": "LA-007",
+          "state": "limited/related owner evidence",
+          "criterion": "id_engine.py shadow sibling already absent at accepted base; preserve supported package and canonical owners. Internal loader/file/spec/archive characterization is source-specific; external filenames/config clients unresolved. No new deletion delivered."
+        }
+      },
+      {
+        "git_ref": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+        "head": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json",
+        "bytes": 36426,
+        "sha256": "78b60c417b9c8ebbdb4abc64c616f7296168bfb290d2169e4a3bd7a0322babc1",
+        "git_blob": "11aa040f5fb257f9f61c76c4b340cc2f15541b2e",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/LA-007"
+        ]
+      },
+      {
+        "git_ref": "90c72b51155321684c788cd5a03fbb70fc001d53",
+        "head": "90c72b51155321684c788cd5a03fbb70fc001d53",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006.json",
+        "bytes": 50455,
+        "sha256": "b01b2dd3d1083298b700beab9f4b97d7837f5172eeae4758bd902bdadaf5fa29",
+        "git_blob": "18726ae24dc24a3c9af77684c672f7277bc6fe61",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/LA-007"
+        ],
+        "json_pointer": "/per_id/0",
+        "complete_deciding_entry": {
+          "id": "LA-007",
+          "state": "limited_pending_root_adjudication",
+          "criterion": "Original id_engine.py emptyshadow already absent at base198; real maintained nonempty package identity, source/config/loader census, actual related ID tests and wheel/sdist both consumer windows measured. No new deletion or externalcaller absence claimed."
+        }
+      },
+      {
+        "git_ref": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+        "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+        "bytes": 60843,
+        "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8",
+        "git_blob": "0ebf3b625085f6521f7430b3d919e8e11848fc21",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/LA-007"
+        ]
+      }
+    ],
+    "ROOT_adjudication_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
+      "bytes": 130025,
+      "sha256": "0fc3e6440719fc3094bb13d82a809586cf05776bcf6a4dc3807e9cbfde44126f",
+      "head": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+      "git_ref": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+      "json_pointer": "/rows/28"
+    }
+  },
+  "independent_packet_review_resolution": {
+    "check": "UNRUN at this immutable packet seal",
+    "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+    "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+  }
+}

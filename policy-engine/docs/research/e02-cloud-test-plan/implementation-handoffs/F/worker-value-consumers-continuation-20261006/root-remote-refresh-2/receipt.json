@@ -1,0 +1,34 @@
+{
+  "command": [
+    "git",
+    "fetch",
+    "origin",
+    "+refs/heads/main:refs/remotes/origin/main",
+    "+refs/heads/codex/e02-integration:refs/remotes/origin/codex/e02-integration"
+  ],
+  "exit_code": 0,
+  "root_sha": "8f69812ec28098385b2063db89f7e04d354c18cb",
+  "root_tree": "edc02a2f45f299ab1e379b4a28d24be8abd0b3b4",
+  "main_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "main_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "G_sha": "53b309019913b938909d6dc0fc13f8edb409f368",
+  "G_tree": "747b718b03ab93e1dea03c50338ef8514a962cc4",
+  "anchor_ancestor_main": true,
+  "G_delta_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope-admission-attempt1.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope-child.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope-child.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope-child.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope-main.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope-main.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope-probe.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/cleanup-native-trash.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-fifth-wave.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-fourth-wave-intake.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/B-current-owner-actions-2026-10-06.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/E-r2-owner-actions-2026-10-06.md"
+  ]
+}

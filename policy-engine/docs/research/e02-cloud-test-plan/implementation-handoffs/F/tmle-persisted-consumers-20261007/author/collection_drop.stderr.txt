@@ -1,0 +1,9 @@
+2026-10-07 07:39:22.386 | WARNING  | polisyos.common.logger:_call:120 - Degraded path component=governance.confidence_pass operation=load_simulation_result reason=artifact_load_failed envelope={'component': 'governance.confidence_pass', 'operation': 'load_simulation_result', 'reason': 'artifact_load_failed', 'error_type': 'JSONDecodeError', 'message': 'Expecting property name enclosed in double quotes: line 1 column 2 (char 1)', 'retryable': False, 'degraded': True, 'details': {'simulation_result_id': 'sha256:021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96', 'exception_type': 'JSONDecodeError'}}
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261007/tmle/removal_replay.py", line 47, in <module>
+    read(spec)
+    ~~~~^^^^^^
+  File "/workspace/e02-F-tmle-20261006/policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py", line 247, in _read
+    assert len(causal_blockers) == 1, issue_payload
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [{'pass_id': 'confidence', 'path': ['artifacts_index', 'simulation_result_ref'], 'message': 'Failed to load SimulationResult: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)', 'severity': 'warning', 'code': 'CONFIDENCE_SIM_RESULT_LOAD_FAILED', 'suggestion': None, 'input_value': None}]

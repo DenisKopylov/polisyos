@@ -1,0 +1,53 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-profile-consistency-20261007/report-review/final_report_consumer.py", line 89, in <module>
+    main()
+    ~~~~^^
+  File "/tmp/e02-F-profile-consistency-20261007/report-review/final_report_consumer.py", line 52, in main
+    report = DiscoveryPipelineReport.model_validate(payload['discovery_pipeline_report'])
+  File "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py", line 716, in model_validate
+    return cls.__pydantic_validator__.validate_python(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        obj,
+        ^^^^
+    ...<5 lines>...
+        by_name=by_name,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+pydantic_core._pydantic_core.ValidationError: 12 validation errors for DiscoveryPipelineReport
+unified_pag.edges.0.data_confidence
+  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/float_type
+unified_pag.edges.0.combined_confidence
+  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/float_type
+individual_results.0.graph.edges.0.combined_confidence
+  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/float_type
+individual_results.0.significance_level
+  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.050000000000000003'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/float_type
+individual_results.0.computation_time_seconds
+  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '7.2644718009978533'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/float_type
+individual_results.0.algebraic_constraints.graph_ranking_penalty
+  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/float_type
+algorithm_weights.pc
+  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/float_type
+edge_agreements.0.presence_score
+  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/float_type
+edge_agreements.0.orientation_confidence
+  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '2'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/float_type
+skeleton_agreement.X|Y
+  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/float_type
+data_characteristics.estimated_density
+  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/float_type
+computation_time_seconds
+  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '7.2693115269939881'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/float_type

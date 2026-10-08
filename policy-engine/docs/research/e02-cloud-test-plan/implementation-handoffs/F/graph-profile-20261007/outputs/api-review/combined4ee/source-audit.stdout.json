@@ -1,0 +1,35 @@
+{
+  "source_audit": {
+    "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/source-audit.json",
+    "bytes": 37449,
+    "sha256": "cdaa5b52a594ed51ab389104bef6afee62a1f77a2a783609db4c0e3be5e99d43"
+  },
+  "outcome": "PASS",
+  "paths": 10,
+  "graph_untouched": {
+    "tests": 7,
+    "PASS": 7,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "graph_removed": {
+    "tests": 7,
+    "PASS": 5,
+    "FAIL": 2,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "docs_author_anchors": [
+    "polisyos.ir.kernel.slots.SlotLayout",
+    "polisyos.ir.kernel.slots.SlotFamily",
+    "polisyos.ir.kernel.slots.SlotFamilyManifest",
+    "polisyos.ir.kernel.slots.build_slot_layout",
+    "polisyos.ir.kernel.slots.build_slot_family_manifest"
+  ],
+  "B204": {
+    "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/b204-independent-review.json",
+    "bytes": 9229,
+    "sha256": "7f330f3653414cacf04aa14547fe824dc3915380404b2a2db7edfc30aa8103e8"
+  }
+}

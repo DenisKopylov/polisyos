@@ -1,0 +1,391 @@
+{
+  "schema": "policyos.e02.transfer_selection.v1",
+  "source_candidate": "df5057dd3816885fc5bfacd9a9f1ee772df9ac51",
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/immutable-red.json",
+      "bytes": 2909,
+      "sha256": "295f7641cc8d174021a3bb024fc13a9b52122093293927940e7353b68df32b76",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/immutable-red.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/immutable-red.stdout.txt",
+      "bytes": 38403,
+      "sha256": "ca47959f6d0aef194cbae27858dae3f5f01736c133730618cf8bd182be4dca60",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/immutable-red.stdout.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/immutable-red.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/immutable-red.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/admission-resume.json",
+      "bytes": 2765,
+      "sha256": "e8f0d30020a54b5bcbee7beadfd8d184de2245ea32245d7585fade56b55edad6",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/admission-resume.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/admission-resume.stdout.txt",
+      "bytes": 147911,
+      "sha256": "790c20ddb2d00f7ffcf11ceb8a5188185704d31577a5bead663f31bb4c02e25e",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/admission-resume.stdout.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/admission-resume.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/admission-resume.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/native-frozen.json",
+      "bytes": 3226,
+      "sha256": "f8f3bd974541013a2a34288240659567473886a8ab6d68d9d3d285c7fce99ca3",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/native-frozen.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/native-frozen.stdout.txt",
+      "bytes": 615,
+      "sha256": "b195f0ea8cb38699cbf1cb1a134cb28e8b2efb2f7de356d9cc13061421f617ef",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/native-frozen.stdout.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/native-frozen.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/native-frozen.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/removal-frozen.json",
+      "bytes": 2950,
+      "sha256": "89a33296db13cf8e0caf0e8e244293f26b11e5aa67e4b10722855d9ddcb6b04f",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/removal-frozen.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/removal-frozen.stdout.txt",
+      "bytes": 2784,
+      "sha256": "b10537fb094be3a8206ebcd462c2745c3c49e278ac49661dc96100948332d9b4",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/removal-frozen.stdout.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/removal-frozen.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/removal-frozen.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/lint-frozen.json",
+      "bytes": 3021,
+      "sha256": "df521cde7c3ab63d0cdff9c7a8a3a07ade711370295088e220f42fe3822468e8",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/lint-frozen.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/lint-frozen.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/lint-frozen.stdout.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/lint-frozen.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/lint-frozen.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/format-frozen.json",
+      "bytes": 3042,
+      "sha256": "3c9af92ca0a80cf880de17e9a798f7b77f8133d81ca19bf240c90deab773cc40",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/format-frozen.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/format-frozen.stdout.txt",
+      "bytes": 26,
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/format-frozen.stdout.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/format-frozen.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/format-frozen.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/fragment-frozen.json",
+      "bytes": 2941,
+      "sha256": "63f4b949d93bce523d071b095aa54972da9bea1af4318d8c3639bd247940836e",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/fragment-frozen.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/fragment-frozen.stdout.txt",
+      "bytes": 1862,
+      "sha256": "a69fc5f65f2ba9f59de3ce534ad52cfac1d07635456eed65ce7f9595bb80aebc",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/fragment-frozen.stdout.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/fragment-frozen.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/fragment-frozen.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/scope-frozen.json",
+      "bytes": 2939,
+      "sha256": "11241d04062f2d3e81d0b2de30dbf6c3bc952b0653c1195bcc07d43918fbbb63",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/scope-frozen.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/scope-frozen.stdout.txt",
+      "bytes": 3181,
+      "sha256": "7580d0825c165f3af900611a466c516263b2884132fc824d665fa4606a575049",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/scope-frozen.stdout.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/scope-frozen.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/scope-frozen.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/forward-merge.json",
+      "bytes": 733,
+      "sha256": "7cf9c681cd93eb9f8ee606b9f3aa2b5fc0b50bd6cdee3b8d6c587eab9474c3fb",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/forward-merge.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/forward-merge.stdout.txt",
+      "bytes": 75928,
+      "sha256": "ad3c4485217ba3fbe5abf3a1f37845c69182996aa5c51d68b34e92f1294efc06",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/forward-merge.stdout.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/forward-merge.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/forward-merge.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/implementation.json",
+      "bytes": 643,
+      "sha256": "691c705fa73d0748c260cc5318de71ed7f269851662788a1f8e6c74a1cd59faf",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/implementation.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/implementation-commit.stdout.txt",
+      "bytes": 481,
+      "sha256": "52d36ee70f2890e4c73cff3aef0e168e0a744122b105a9b4df5da4f8ed25a4f9",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/implementation-commit.stdout.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/run_check.py",
+      "bytes": 3192,
+      "sha256": "1d0cab02097d9985572e808de05b732e9d8fc53be94121d84ae0c5166430ea9f",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/run_check.py"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/run_check_initial.py",
+      "bytes": 2953,
+      "sha256": "b6a68aa19a7ce4f0f2894e5f095dac926a1b6113af6f029bd4877e37228502c0",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/run_check_initial.py"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/remove_issue_accumulation.py",
+      "bytes": 2292,
+      "sha256": "c8428fab1ff36913c0e85cb3d68218d4def3e7284baf8e7710e318fafc5ff160",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/remove_issue_accumulation.py"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/check_fragment.py",
+      "bytes": 1211,
+      "sha256": "c25633dace7450117e151679e268e27a8d3edb3c159c0796128356a9dfb0e09c",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/check_fragment.py"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/check_source_scope.py",
+      "bytes": 3864,
+      "sha256": "baa5e49c4ec33ec46eaa5a7c08ea2520ec127c6ff1c17166b085222fca005558",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/check_source_scope.py"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/assemble_handoff.py",
+      "bytes": 16583,
+      "sha256": "f958db853fa86e909634a8cb425e20909eae6047414ec9e0e9e9a605d2a1757e",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/assemble_handoff.py"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/review.json",
+      "bytes": 9383,
+      "sha256": "9dda520eaf4cfa12b1e263160aac9413980574ba5a657ad563dc09a6e395582b",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/independent/review.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/finish_review.py",
+      "bytes": 5319,
+      "sha256": "1b9973f2a8542a32f35680897b8e7fd73438710c91967003a75741c7583954c1",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/independent/finish_review.py"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/capture_review.py",
+      "bytes": 2715,
+      "sha256": "c8ed626fefba0e9f6f6b669681e788c742cd9923527b8d3187604bcc236acdc6",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/independent/capture_review.py"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/test_mixed_refs.py",
+      "bytes": 4339,
+      "sha256": "3dcfc0962b154e1c656d7e60797b07ba22de8a825fd14553f7dfdcbfaec422b4",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/independent/test_mixed_refs.py"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/remove_retention.py",
+      "bytes": 1890,
+      "sha256": "b265eaa66a94ac6145af5e5e8d9b70ba20e5b7e97c299f779f467b3281334037",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/independent/remove_retention.py"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/native.json",
+      "bytes": 1821,
+      "sha256": "6385c49af3179ef6c9755f693dba4c438fd35328288be2a8a2a0a8bdafbf43af",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/independent/native.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/native.stdout.txt",
+      "bytes": 615,
+      "sha256": "d1b5ef9453784a53b87928abad5f8daacace9b082374a5d4247518d449bb9659",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/independent/native.stdout.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/independent/native.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/mixed-initial.json",
+      "bytes": 1707,
+      "sha256": "4f008b23137ec61fa662b89a260a2c0ee3ccc9414f75553166348e5f8d7e1c00",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/independent/mixed-initial.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/mixed-initial.stdout.txt",
+      "bytes": 3821,
+      "sha256": "564b27b76465e4a06678ca74ab2d04b416d5833ad790f6ca4829700973b22301",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/independent/mixed-initial.stdout.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/mixed-initial.stderr.txt",
+      "bytes": 633,
+      "sha256": "70a4d774191f7a4e2a9ae9a306a9f87b938938bb33ea3a3e2ab993880778c4d6",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/independent/mixed-initial.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/mixed-corrected.json",
+      "bytes": 1748,
+      "sha256": "730386d89e4156d6931889edb6876caabfce73404357a78153883b0fc13dfbe4",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/independent/mixed-corrected.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/mixed-corrected.stdout.txt",
+      "bytes": 3231,
+      "sha256": "bc60b8b13eaf33fef31eca5e083498fd93abfa0c32f84bdd6ca24155a6d659fd",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/independent/mixed-corrected.stdout.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/mixed-corrected.stderr.txt",
+      "bytes": 2828,
+      "sha256": "48721eb5cca777fd3a9206cdbe3ff4defee20b65cbcb2dcc7ddc6be569508902",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/independent/mixed-corrected.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/removal.json",
+      "bytes": 1439,
+      "sha256": "700feb4c058c2ef553a03b7e44ba57b4e1b27c05c4bf85460fd32412d7305001",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/independent/removal.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/independent-removal.stdout.text.json",
+      "bytes": 2045,
+      "sha256": "ec6ec4350b6e98780dd774468869ee244171cc9f3c2fd306befeaa0c744f11e9",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/independent/removal.stdout.text.json",
+      "storage_encoding": "utf-8 JSON string; decode text then encode UTF-8",
+      "decoded_bytes": 1774,
+      "decoded_sha256": "125e4047bea89130599632bdd5fe8b2ea6616bf41e983e127cb064520b9fbd6b",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/removal.stdout.txt",
+      "original_committed_request": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/independent/removal.stdout.txt",
+      "justification": "Full actual pytest traceback contains intentional trailing spaces on its E line; lossless JSON escaping preserves every deciding byte while meeting staged source whitespace checks."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/removal.stderr.txt",
+      "bytes": 786,
+      "sha256": "ea3f816ae4377b95d27e900f6ed5f51a8def547ace624c77055350f6fbbba61b",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/independent/removal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/transfer-selection.json",
+      "bytes": 3873,
+      "sha256": "dd5caf24e61139582df348196da4e24f68ca167020199c662464d9e9479ad0e3",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/independent/transfer-selection.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/staged-raw-diff-check.json",
+      "bytes": 335,
+      "sha256": "d4f666582546292cb1130cbd4e581eb7703f3063ff99d7f1e9219c50f9b9f58c",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/staged-raw-diff-check.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/staged-raw-diff-check.stdout.text.json",
+      "bytes": 394,
+      "sha256": "e6799a3df0ccec57ea82087f54e2ad003ea98e5a8d1adc39401e495106a27556",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/staged-raw-diff-check.stdout.text.json",
+      "storage_encoding": "utf-8 JSON string; decode text then encode UTF-8",
+      "decoded_bytes": 183,
+      "decoded_sha256": "f6a3009d5e582448ea8cb7543d9af41fc50cc747181a9a879a38a4f21b89d67e",
+      "original_path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/staged-raw-diff-check.stdout.txt",
+      "original_committed_request": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/staged-raw-diff-check.stdout.txt",
+      "justification": "Complete whitespace diagnostic is itself preserved losslessly without reintroducing its intentional traceback whitespace."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/staged-raw-diff-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/staged-raw-diff-check.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/staged-encoded-diff-check.stdout.text.json",
+      "bytes": 397,
+      "sha256": "fb0a30c2926e7827c95ad1f087ae551e6435e5b6c3b7ea2ae8f7aaed8ec08db2",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/staged-encoded-diff-check.stdout.text.json",
+      "storage_encoding": "utf-8 JSON string; decode text then encode UTF-8",
+      "decoded_bytes": 186,
+      "decoded_sha256": "1086b86bf2a7ddef72180edac0958c260018f42634a189e076514731a7561f6a",
+      "original_path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/staged-encoded-diff-check.stdout.txt",
+      "original_committed_request": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/staged-encoded-diff-check.stdout.txt",
+      "justification": "Complete whitespace diagnostic is itself preserved losslessly without reintroducing its intentional traceback whitespace."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/staged-final-diff-check.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/staged-final-diff-check.stdout.txt"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/staged-final-diff-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006/staged-final-diff-check.stderr.txt"
+    }
+  ],
+  "existing_git_files": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/confidence-issue-preservation/test_confidence_issue_accumulation.py",
+      "git_ref": "df5057dd3816885fc5bfacd9a9f1ee772df9ac51",
+      "path": "policy-engine/tests/unit/scientist/governance/test_confidence_issue_accumulation.py",
+      "bytes": 7371,
+      "sha256": "6935a69fafdc97285f47cc3839cd13592731afe7e9a7a3f6d8bcf3f9b0170175",
+      "purpose": "Exact authored test input used by the pre-repair baseline; already tracked in the implementation, so its bytes are not copied into evidence."
+    }
+  ],
+  "total_selected_bytes": 375793,
+  "storage_policy": "Full unique deciding outputs/replayers, no copied tracked source or fully Git-derived views. No loss or summary substitution.",
+  "sanitation": "No sanitation performed: known synthetic envelopes/artifact IDs, public code paths and selected environment fields; no credentials or production inputs included."
+}

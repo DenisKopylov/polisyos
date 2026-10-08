@@ -1,0 +1,139 @@
+{
+  "schema": "policyos.e02.explicit_transport_selection.v1",
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-quality-final/checks.json",
+      "bytes": 9442,
+      "sha256": "826cbd0647c0985abbfef6b45e9f0a9feb8e3f5e2b87e79389d1881cc03b539f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-quality-final/format.execution.json",
+      "bytes": 3360,
+      "sha256": "45ba1bc2c4110fb3b4047cc1b9e31ee8bc613b9edbece1045996268b26ac0c74"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-quality-final/format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-quality-final/format.stdout",
+      "bytes": 27,
+      "sha256": "a0a0f191878d553ae2b88299d5ead34d7a6367937ff1bd9e304fb73059c83f8a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-quality-final/fragment-full.json",
+      "bytes": 552,
+      "sha256": "f3a6b5c1d66a472c14e2dbde6bc52cbdb3db471d2006438a8a1796457afee127"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-quality-final/fragments.execution.json",
+      "bytes": 1403,
+      "sha256": "17fa55f0ca74e0fa83f57d3fbb75be8c71c7896ccc82eabbcf02443bc22c130b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-quality-final/fragments.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-quality-final/fragments.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-quality-final/invocation.execution.json",
+      "bytes": 1008,
+      "sha256": "ca44965877cdaf7c0e9a437bc34d35ede31024835de9d75bf1c8c0488e314371"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-quality-final/invocation.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-quality-final/invocation.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-quality-final/ruff.execution.json",
+      "bytes": 3338,
+      "sha256": "64b738983efb74542ac20c724af8aba3d4a6ad7ea6eef43f16bab213020d5d82"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-quality-final/ruff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-quality-final/ruff.stdout",
+      "bytes": 49534,
+      "sha256": "5b969d0ab6d9aee533efeead01af5f7bfd9e7de079a9d36d2b03bc12cbf99290"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-quality-final-retry/before-memory.json",
+      "bytes": 196,
+      "sha256": "59c683cd2f3d5c4e3ab92bb0b5eb7c3ec77ce94f0edcebcb0334a4c6b70d5df8"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-quality-final-retry/invocation.execution.json",
+      "bytes": 1564,
+      "sha256": "b787eb145d2585bcc35cc950d5686922e78d7581494544bfe659b5edc2717d54"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-quality-final-retry/invocation.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-quality-final-retry/invocation.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "excluded_tracked_inputs": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/root-quality-final/fragments/2026-10-07-catalog-default-resources.toml",
+      "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-catalog-default-resources.toml",
+      "bytes": 2119,
+      "sha256": "8f7a53c9e1f75fd69d5e223854764d1e26d59ba29d3c74a62ee88e597cc2c13c",
+      "reason": "Tracked source input, exactly reproducible from published source; no duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/root-quality-final/fragments/2026-10-07-causal-graph-intake.toml",
+      "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+      "bytes": 2072,
+      "sha256": "925e4b3cd2a3842b8169926757c0aca866f7128de1e7c541d206be20dbec7dac",
+      "reason": "Tracked source input, exactly reproducible from published source; no duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/root-quality-final/fragments/2026-10-07-economic-baseline-consumer-proof.toml",
+      "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-economic-baseline-consumer-proof.toml",
+      "bytes": 1453,
+      "sha256": "6032dc792dbafa93d538ca74db4d29f36969cf02c6fb6da6b1bb83b40cd6b0a6",
+      "reason": "Tracked source input, exactly reproducible from published source; no duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/root-quality-final/fragments/2026-10-07-installed-graph-contract-reconciliation.toml",
+      "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-installed-graph-contract-reconciliation.toml",
+      "bytes": 1738,
+      "sha256": "850307f46070a9b3b1efc3acd24d9d2283738838f9df8e0dc53c791c6e280902",
+      "reason": "Tracked source input, exactly reproducible from published source; no duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/root-quality-final/fragments/2026-10-07-tmle-persisted-consumers.toml",
+      "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml",
+      "bytes": 1890,
+      "sha256": "9798ce1fac3ee3f201dff83a17119582953ddf8eb235338574c421c063c3431e",
+      "reason": "Tracked source input, exactly reproducible from published source; no duplicate body."
+    }
+  ],
+  "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "meaning": "Complete actual ROOT quality stdout/stderr/execution files, including both SIGKILL ERROR attempts. Original first runner FAIL classification stays historical and corrected by final-scanner-termination-correction; no complete scanner JSON exists. Independent economic delta review is pending, no implied scientific PASS."
+}

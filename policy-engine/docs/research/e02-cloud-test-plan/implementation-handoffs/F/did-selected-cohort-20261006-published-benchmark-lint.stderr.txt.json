@@ -1,0 +1,6 @@
+{
+  "encoding": "utf8-json-string",
+  "decoded_bytes": 1065,
+  "decoded_sha256": "6107cd0e0409887d0513b15997014463a1a89c3e3e48ae5e1200e7553abaecc1",
+  "text": "Traceback (most recent call last):\n  File \"/workspace/e02-F-20261006-receipts/cau/benchmark-lint-diagnostic.py\", line 15, in <module>\n    assert d(before)==d(after),(rel,d(before),d(after))\n           ^^^^^^^^^^^^^^^^^^^\nAssertionError: ('policy-engine/benchmarks/interference/policy_did_interference.py', [('E402', {'column': 1, 'row': 43}, 'Module level import not at top of file'), ('RUF100', {'column': 36, 'row': 44}, 'Unused `noqa` directive (unused: `E402`)'), ('E501', {'column': 101, 'row': 207}, 'Line too long (106 > 100)'), ('T201', {'column': 9, 'row': 398}, '`print` found'), ('T201', {'column': 9, 'row': 402}, '`print` found')], [('I001', {'column': 1, 'row': 30}, 'Import block is un-sorted or un-formatted'), ('E402', {'column': 1, 'row': 43}, 'Module level import not at top of file'), ('RUF100', {'column': 36, 'row': 44}, 'Unused `noqa` directive (unused: `E402`)'), ('E501', {'column': 101, 'row': 207}, 'Line too long (106 > 100)'), ('T201', {'column': 9, 'row': 398}, '`print` found'), ('T201', {'column': 9, 'row': 402}, '`print` found')])\n"
+}

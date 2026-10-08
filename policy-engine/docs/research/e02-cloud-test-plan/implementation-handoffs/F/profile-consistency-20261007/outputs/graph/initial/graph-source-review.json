@@ -1,0 +1,26 @@
+{
+  "P40_bucket": "Same static-profile semantic projection class deeper. Widened invariant to all supplied known MGraph contracts at one canonical boundary; unknown metadata remains explicitly uninterpreted.",
+  "base_sha": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+  "blocking_findings": [],
+  "bounded_residual": "This is no universal profile classifier, causal identification, empirical missingness or graph authority. Shape-compatible input with no reserved typed profile remains plain supported ADMG. Broader B214 conditional completion and B56 shared admission unchanged.",
+  "candidate_sha": "ba5fc93aa687eea32973374418a44eae9503a7d0",
+  "candidate_tree": "81294990ee16d7e09646a28fcf3804d6ee07b96a",
+  "companion_dependency": "README/release/intake docs also describe discovery report limitations; require pending discovery implementation and actual report consumer in combined freeze before whole delivery. ba5 alone is not discovery runtime proof.",
+  "mechanism": "One existing shared _validate_reconciliation_profile called by prior reconciliation, fragment composition and Scientist selected/current intake; static endpoint helper unchanged.",
+  "paths_read": [
+    "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+    "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+  ],
+  "planned_discriminator": "Isolated exact source registered job/Node/CAS/fresh-store probe; restore only pre-repair known-profile predicate while retaining all source markers and static-family/endpoint semantics; repaired consumer assertions must fail on this mutant.",
+  "property": "Declared static DAG/ADMG reconciliation refuses a supplied reserved MGraph contract before filtering/transforms/publication; malformed supplied payload cannot turn into absence. Known typed profile only, no classification from arbitrary metadata/names.",
+  "proxy_divergence": "Declared graph_type ADMG alone accepts a genuine schema-valid MGraphMetadata payload; baseline actual paths admitted and preserved this contradiction. New boundary checks the supplied reserved typed contract, not an extractor failure on clean ADMG.",
+  "review_kind": "source review only; independent deciding runtime wave deferred until all reviews GO",
+  "reviewer": "F direct adversary helper; no author/source writes",
+  "schema": "policyos.e02.independent_review.v1",
+  "test_scope": "Real builder dict/JSON-only retag; actual registered jobs and direct/supplied/current selected refs, retained original CAS/fresh reader, high confidence filtering cutoff, clean same shape ADMG+opaque metadata, reserved malformed/null inputs, fragment composition sibling.",
+  "verdict": "GO_BOUNDED_GRAPH_CONSISTENCY_SOURCE"
+}

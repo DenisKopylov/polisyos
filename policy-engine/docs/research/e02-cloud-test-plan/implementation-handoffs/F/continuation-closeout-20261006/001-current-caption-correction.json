@@ -1,0 +1,20 @@
+{
+  "check": "PASS",
+  "decision_head": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+  "affected_ids": [
+    "LA-007",
+    "LA-019",
+    "LA-020",
+    "LA-035"
+  ],
+  "all35_decision_refs_rebound": true,
+  "original_outcomes_unchanged": true,
+  "material_records_updated": 35,
+  "full_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/full-audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/source-order.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/artifact-transports.json"
+  ]
+}

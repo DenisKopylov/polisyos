@@ -1,0 +1,24 @@
+{
+  "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "git_root": "/workspace/e02-F-closeout-20261006",
+  "source_root": "/workspace/e02-F-closeout-20261006",
+  "scratch": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee",
+  "site": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-env/lib/python3.14/site-packages",
+  "python": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-env/bin/python",
+  "wheel": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/dist/policy_engine-0.1.0-py3-none-any.whl",
+  "dependency_site": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages",
+  "carrier": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer",
+  "carrier_manifest": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/carrier-manifest.json",
+  "metrics_port": "9466",
+  "selectors": [
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_mgraph_producer_and_node_refuse_without_retyping_or_publishing",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_same_admg_shape_has_real_producer_node_and_fresh_reader",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_other_semantic_profiles_refuse_direct_and_supplied_result",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_supplied_mgraph_result_and_selected_cache_apply_same_profile_boundary",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_genuine_producer_to_fresh_reader_preserves_known_relations",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_current_real_producer_direction_supersedes_cache",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_current_parameters_recompute_full_content",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_query_only_replay_reconciles_current_alignment_result"
+  ]
+}

@@ -1,0 +1,724 @@
+{
+  "schema": "policyos.e02.historical_f35_readonly_metadata_verification.v1",
+  "task": "historical exact-source metadata carry only; no method/source/test rerun or new finding closure",
+  "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+  "carrier_tree": "682b043138464c912dd728c12e80049dd44b47f1",
+  "slice_base": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+  "status": "PASS",
+  "mismatches": [],
+  "denominator": {
+    "IDs": 35,
+    "bundles": 17,
+    "original_bindings": 36,
+    "unique_original_blocks": 35,
+    "LA016": "2 identical same-card bindings; one ID"
+  },
+  "row_check_states": {
+    "PASS": 34,
+    "UNRUN": 1
+  },
+  "F_original_recommendations": {
+    "closed": 33,
+    "limited": 2
+  },
+  "F_bounded_technical_recommendations": {
+    "closed": 33,
+    "limited": 2
+  },
+  "limited_IDs": [
+    "B214",
+    "B56"
+  ],
+  "UNRUN_IDs": [
+    "B56"
+  ],
+  "formal_G_closures": 0,
+  "G_new_source_acceptance": "not_issued",
+  "per_ID_full_objects_verified": 35,
+  "per_ID_shared_fields_exactly_equal_index_rows": true,
+  "intentional_per_ID_extra_fields": [
+    "bundle_owner_from_full_TSV",
+    "complete_raw_receipt_checks_refs",
+    "deciding_receipt_refs",
+    "existing_author_or_reviewer_conflict",
+    "historical_ROOT072",
+    "independent_original_criterion_recommendation",
+    "original_text",
+    "primary_owner_from_full_TSV"
+  ],
+  "harness_attempt": "Initial whole-object equality comparison was overstrict because per-ID records intentionally contain eight additional fields; preserved first comparison result in scratch. Corrected only comparison to exact index projection, no tracked mutation/method job.",
+  "unchanged_per_ID_from_slice_base": 34,
+  "only_changed_per_ID": [
+    "B214"
+  ],
+  "component_tree_bindings_verified": 35,
+  "objects": [
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/profile-consistency-20261007.json",
+      "blob": "d2a318eaf66a9bcf6cbe1bfe6486282e2ab20ca4",
+      "bytes": 114007,
+      "sha256": "d6f5c55354de3abb98786305ec070ed4e28e74cbb46d09a86a3fdafb1d6ea900"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/index.json",
+      "blob": "4894becd45f6abc7cf7c17f5652560e3b3aef706",
+      "bytes": 325763,
+      "sha256": "398fdd96ce8c4ba5dc14fd2f3afad11f67ed2b87ff0a266e2e6c0feac4893890"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+      "bytes": 550854,
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/profile-consistency-20261007/README.md",
+      "blob": "6dd0e04d4bc399419284159509923aa66d33e3fe",
+      "bytes": 4504,
+      "sha256": "4857a73d318a1ddcaac8e2443b2270336c1ea304e81bea956eceff27d1620746"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/REPORT.md",
+      "blob": "8fb036ab38d5b52d7275aa0d8aed9015d307af7a",
+      "bytes": 33465,
+      "sha256": "69aa6f7ceb91f93c4922f8bc7918586ac5b3f90cc487f523ce9c3f8545d4f5b9"
+    },
+    {
+      "carrier": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "bytes": 1336380,
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+    },
+    {
+      "carrier": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+      "bytes": 648034,
+      "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B204.json",
+      "blob": "1ab617b2dafb618e9ecd4a78410f9237c749f72d",
+      "bytes": 21395,
+      "sha256": "49d952ff282ca56c146574a3b80d83deeb59a0c17c14becd55a08558ef205d24"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B205.json",
+      "blob": "91258a781d9bd94479cee54e66d82f736c368cf9",
+      "bytes": 18259,
+      "sha256": "3904b9fa07cdcaf45c110ac56e3e168b1883409eb1e493764ec368dbdda7e533"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B206.json",
+      "blob": "4fae0a6d6978340c188bac2603f5a6731ae119ca",
+      "bytes": 16603,
+      "sha256": "dba374b65670d1a01995e6198c3ae5badea7a077446dc22e9124e6a79718e6c8"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B207.json",
+      "blob": "79d0254eab612ef9b5bdf233924e2b343dd1c222",
+      "bytes": 18357,
+      "sha256": "cd200de7a081a02a128f6d34e7b85db16d991a16c9c8595300a5249e7ed29421"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B208.json",
+      "blob": "32311de6aa8af542bed49a41de58696b2c30c77a",
+      "bytes": 16634,
+      "sha256": "bf8e6214bcf280b7b9496379e1eb14dc44de060f4e98528bea6c68de9f3bb297"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B209.json",
+      "blob": "02671dec2989b06ff32ceca201db4b702db56342",
+      "bytes": 16920,
+      "sha256": "c47f1abb627ac5a74747bbc29fec75daef42cfabe265a40cbadb729d29d1f09f"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B210.json",
+      "blob": "86307222940b1d452563bd0e74d4d383e0b9f03b",
+      "bytes": 11808,
+      "sha256": "16c824d78233c0b925b49b8342f55d336ed12d492740f381018c38d07facbd36"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B211.json",
+      "blob": "01b40682658a027d4ab5a11ec24e9f41ef4c7d43",
+      "bytes": 11038,
+      "sha256": "bc8330d624e8c8bc2dec0a6e1dec0270f53b132769502aca5e1d5c9bfa5a4f1f"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B212.json",
+      "blob": "c7f1a149baabe482e03fc08b2b572b3480ec12dc",
+      "bytes": 28424,
+      "sha256": "9969b11e29991c33241a31497e5fd810f43194e1734abf12e9b83c8d6d2cb519"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B213.json",
+      "blob": "7d412ea2a0ee748511694c97144d0e3bfed0b9ac",
+      "bytes": 28266,
+      "sha256": "88572573efc8ff4ac2863ff36d6c243c679f62a7c40e0090b5657f2bc8d4d4a7"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B214.json",
+      "blob": "d87d9fc2c57c1371404f377c219c495f9c3c241c",
+      "bytes": 36885,
+      "sha256": "622885d4771de1c37f4564451b1e0d675c8b9a113bb93faf5e5b7a09380496d1"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B215.json",
+      "blob": "808be285cda127d2df1c1c658f90258b6ac0498e",
+      "bytes": 16686,
+      "sha256": "5f8383b875a5edaea7df362da1c2db489423a4dc3ed093a5a544d51abd17351e"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B216.json",
+      "blob": "446b7b6f569ef3dc7cca38053694984f94fcdb33",
+      "bytes": 25745,
+      "sha256": "b31cd18f45f774c591de1cdddbf5aa63d6981f90e2fc1390aa011375824914d8"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B217.json",
+      "blob": "1ac5483ac3a451def775eb43ffaa03367230a0fa",
+      "bytes": 21673,
+      "sha256": "dff03b247c5d0de559767e5198f284fecbbeb12ba9b8ec79bdae4aa365ff00cc"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B218.json",
+      "blob": "7f8809187919f8addc0e0e413fbf94b15573379c",
+      "bytes": 32071,
+      "sha256": "c8fe3348ec1e2013704fd006ca603fe97397ff6b352f604604552289901a5450"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B219.json",
+      "blob": "54c4aebb3db7118201e98338307ac4eab426a361",
+      "bytes": 19781,
+      "sha256": "d276a6a11a40f682da4b88062ca79a6d387ed856cc8f9f900e5e94c8da73119c"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B220.json",
+      "blob": "26df5b7a450ef97c35eef5342350a6d5e954b2f1",
+      "bytes": 24036,
+      "sha256": "09a8595ce3af9117aa5fd76cc2ec5c9f2fd31494e87092158907781be9b713bf"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B221.json",
+      "blob": "96f33aa6b2b26e23cb25e88527b04c1e2f84f907",
+      "bytes": 32675,
+      "sha256": "56e667f19770395f96773524e30e81be86e527892dca81f3b3fa2ce1bbcb81e4"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B222.json",
+      "blob": "a17e998053d659ef9adf146bab4d689310dc6348",
+      "bytes": 23556,
+      "sha256": "fc6e9d4d95cd198403f94d5bf0709942749d8b5344c3de0570c350f53b91d812"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B223.json",
+      "blob": "a28892ace2130d62795c903f99c2478ce5c27434",
+      "bytes": 29643,
+      "sha256": "caab7a3869fd395a8df3b12534087b5d4dae59b5a375a44b5fa4fb1f0b12233d"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B224.json",
+      "blob": "33fac4e55a1712e5175b59761303c84ae3fc00a5",
+      "bytes": 21302,
+      "sha256": "8efbacf523367a3d3feabaf69b14065f14662765e3bd4b8f8d01f6ee1a5f4e7d"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B225.json",
+      "blob": "c1ed0a38b7e07ae32d21b9ed26f7ea93586946db",
+      "bytes": 21025,
+      "sha256": "4c0e9894adcb5f94c86df9e856429488823bcbb33666507a7253eac16de643ca"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B54.json",
+      "blob": "4d5227e7ac8dde6ef75ae8e44a2d88d3da20fd4a",
+      "bytes": 31078,
+      "sha256": "e352fb79456ebd91020f5091f5ab481b00ac92a268345dad13e872601f616fcf"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B56.json",
+      "blob": "54ae503a1a4d18b704c0f5a7bf37fa73f65a7af4",
+      "bytes": 33159,
+      "sha256": "330997ae0be27e86a00e15d5a2c4b41d32f46b52ac290b8effdc3e284fb72611"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-001.json",
+      "blob": "d9016480b0c09320e42e9b48a4e46e3598329939",
+      "bytes": 11889,
+      "sha256": "5bb776d6f2df4870aa947d9d740404fae6dfa25fe0d7f4ab787902e50dff0e42"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-002.json",
+      "blob": "6dffe7c70d979ac678e6b55b883e2e6fe7bd1016",
+      "bytes": 11904,
+      "sha256": "f17811c55ea202438a0a688bf76b2a72e9a0d0cb769dc383bf6c47669c58f0c3"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-003.json",
+      "blob": "b468c474140eeb4fb49d0c3615a3224e183906b0",
+      "bytes": 21583,
+      "sha256": "979e1ead6c89e439b29ec5f227be0c296b7745f0b49327617a95dde02da8bd5a"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-004.json",
+      "blob": "1f290e7cc86ffb7a591c72550dcb250f22c29586",
+      "bytes": 19988,
+      "sha256": "a9a7fbdaa28edbcd104a74841363b8ca79870804b710e432f48bd6855cf9faed"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-007.json",
+      "blob": "72d2ab67a61a6c89f48e2efa4e0376b294924fb9",
+      "bytes": 32972,
+      "sha256": "a6588f4f06b6fde53a81ae3aaa678fa7d7a01e0363bebbe12eb39f9973e2b515"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-016.json",
+      "blob": "391a4cc9bf3f580a7f327755b2ceca622122d99a",
+      "bytes": 18192,
+      "sha256": "e929fdb392817ee6a634982159bdc4363dbc477f7e4f2eb1bb98fbc1220f862a"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-017.json",
+      "blob": "b983c2f8bee382794d8f829024243b55dc1d4a85",
+      "bytes": 13955,
+      "sha256": "19cdcc326551fc8c747a19b2f0353f5a68f2ef4ca5f72ac8da471e98479ac4fb"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-019.json",
+      "blob": "e1bb410b490fb67f894ff63e9c64051007c4ce63",
+      "bytes": 34245,
+      "sha256": "95175e83b4e60ae75a14425a1df4d009a5359bcb88e4e6db293a8cb182232d3c"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-020.json",
+      "blob": "fc58b1380becee48f9101daabf23970476f8a14a",
+      "bytes": 40000,
+      "sha256": "f36336cf329dbf2a9a308427befc838ce98d682d9789d781506c56f7ac72f6a9"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-035.json",
+      "blob": "5de0de9f923b4dae2850fdfb2abaac0ed9dd0285",
+      "bytes": 25436,
+      "sha256": "51c1461b87060265cc207c4a053ca51b3cabd4e620c6191b160ec0579fb20a55"
+    },
+    {
+      "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-037.json",
+      "blob": "4a56176528abe5b7e03a63be4f9961d9d6edd9ca",
+      "bytes": 18199,
+      "sha256": "0ad65b23b5821aa4d04eb44f9650740568a1a16240adadb32537efc6583eaa1b"
+    }
+  ],
+  "original_binding_checks": [
+    {
+      "id": "B204",
+      "lines": [
+        5094,
+        5105
+      ],
+      "sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a",
+      "bytes": 3579,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B205",
+      "lines": [
+        5106,
+        5119
+      ],
+      "sha256": "ac0680b5d70af76383c9aac15ab1c58437abd9118b0c7dba427dfe837ba3d5dc",
+      "bytes": 4088,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B206",
+      "lines": [
+        5120,
+        5131
+      ],
+      "sha256": "f405d3e2327c1cc0d64e6de308412c81eebe210af6ae5968af830b7e032fa0a1",
+      "bytes": 2372,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B207",
+      "lines": [
+        5132,
+        5145
+      ],
+      "sha256": "5b23dffbebbbaafe40934fedd710b77b0143fffb0073bbf58d1c5ca57d6ad6ca",
+      "bytes": 3913,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B208",
+      "lines": [
+        5146,
+        5157
+      ],
+      "sha256": "2df281351c22b1e79c6b0400c5ca6ccb312fc43666fd3ebc9e4e66031381d78d",
+      "bytes": 2624,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B209",
+      "lines": [
+        5158,
+        5169
+      ],
+      "sha256": "b774fd7cd4f1653c0771ee5e20e7d3ee990c14bb47cc698b284e581ac75cc44f",
+      "bytes": 2656,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B210",
+      "lines": [
+        5170,
+        5181
+      ],
+      "sha256": "3b72bb59c40ef347388195b3309dd81f188e96d3bb205b3e3be72c77b76ac010",
+      "bytes": 3218,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B211",
+      "lines": [
+        5182,
+        5193
+      ],
+      "sha256": "cf651667294eca28d2feef026f185292e15f443e1d3f4e8d515b40b67835b674",
+      "bytes": 2695,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B212",
+      "lines": [
+        5194,
+        5205
+      ],
+      "sha256": "dd369570f1235d66729b8c5526f88a5968905343594089f5a4c00da90631238f",
+      "bytes": 2849,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B213",
+      "lines": [
+        5206,
+        5217
+      ],
+      "sha256": "6684013f61227644563e3dd6ac181b2546b5797168cd0b93fef3ef1bf75fe243",
+      "bytes": 2615,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B214",
+      "lines": [
+        5218,
+        5229
+      ],
+      "sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+      "bytes": 3537,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B215",
+      "lines": [
+        5230,
+        5243
+      ],
+      "sha256": "285a9f3f9267aaf97e7844c252fffd271febbc5cfb5212bcbbdefd7252f119a9",
+      "bytes": 3763,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B216",
+      "lines": [
+        5333,
+        5346
+      ],
+      "sha256": "5da65926eb9350c67aa4c305de165e0919a8ab5eff319562d1fa3d3b499bdcd2",
+      "bytes": 5017,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B217",
+      "lines": [
+        5347,
+        5360
+      ],
+      "sha256": "347b041bb8cdd642f730dda6caa9fb11367ebb047cfe11abf095166f8730c443",
+      "bytes": 3662,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B218",
+      "lines": [
+        5361,
+        5374
+      ],
+      "sha256": "8ce1868ddb2663580547f475288d03502e03ae6a4bc38923313bc069efb0a40a",
+      "bytes": 3861,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B219",
+      "lines": [
+        5375,
+        5388
+      ],
+      "sha256": "c3c2613bd397c8dd5d252ccb15562a6aa2f4bee46e36fa86eff1b12bf7c30009",
+      "bytes": 3117,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B220",
+      "lines": [
+        5389,
+        5402
+      ],
+      "sha256": "d0c39288b089bc7e1a85c4eec40ffd1c4fa3273293734b758729b4bb7dc54b71",
+      "bytes": 3831,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B221",
+      "lines": [
+        5403,
+        5416
+      ],
+      "sha256": "e22ca23d5d49e736162b73f80d43ae77719ada061f0898f1ba083a31e54943e4",
+      "bytes": 3594,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B222",
+      "lines": [
+        5417,
+        5430
+      ],
+      "sha256": "b13339d3c9e2d80995027a0f1acbaf09ccad855a643deb0b283c065bc4232aa5",
+      "bytes": 3359,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B223",
+      "lines": [
+        5431,
+        5444
+      ],
+      "sha256": "2f7406d0704ebafed25947c6ebdc6e7e910da062e19fc8b62aed081343ffefcf",
+      "bytes": 3092,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B224",
+      "lines": [
+        5445,
+        5458
+      ],
+      "sha256": "854f9eab140c71438e188c91ef3d9792895b0402ab22c5866de3584683596ca1",
+      "bytes": 3959,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B225",
+      "lines": [
+        5459,
+        5472
+      ],
+      "sha256": "9fc38772c0cd77e8bb8da7abd1d8423345cf151f598107387b177b4900860879",
+      "bytes": 3659,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B54",
+      "lines": [
+        1379,
+        1394
+      ],
+      "sha256": "ea5c3023d7b4bec4ee7a1a32b5a258dcceb5c67e3e4f47d28dac84b84f149c9d",
+      "bytes": 5315,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "B56",
+      "lines": [
+        1409,
+        1424
+      ],
+      "sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b",
+      "bytes": 4524,
+      "document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "id": "LA-001",
+      "lines": [
+        82,
+        108
+      ],
+      "sha256": "35f63e8bacf3c27cd4148db8119837ff30df91a5de9f73d52ead6e4fc73d9dd0",
+      "bytes": 3007,
+      "document_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+    },
+    {
+      "id": "LA-002",
+      "lines": [
+        109,
+        135
+      ],
+      "sha256": "3acebb36bff2fda1f1ec71e0afc3f42f8aa1b2c160bc41ab564f03004893a336",
+      "bytes": 2982,
+      "document_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+    },
+    {
+      "id": "LA-003",
+      "lines": [
+        136,
+        166
+      ],
+      "sha256": "8e52a4ec93513e106070221058490c2c1c1d337ff27ddd7c453bb655e44710d5",
+      "bytes": 3450,
+      "document_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+    },
+    {
+      "id": "LA-004",
+      "lines": [
+        167,
+        197
+      ],
+      "sha256": "6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a",
+      "bytes": 3498,
+      "document_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+    },
+    {
+      "id": "LA-007",
+      "lines": [
+        254,
+        280
+      ],
+      "sha256": "f0b3ae2a0552d0b28a06b02d50dad0aaefb418a5cf7bcd52d6a1664edd9c90e0",
+      "bytes": 2383,
+      "document_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+    },
+    {
+      "id": "LA-016",
+      "lines": [
+        513,
+        539
+      ],
+      "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+      "bytes": 3048,
+      "document_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+    },
+    {
+      "id": "LA-016",
+      "lines": [
+        513,
+        539
+      ],
+      "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+      "bytes": 3048,
+      "document_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+    },
+    {
+      "id": "LA-017",
+      "lines": [
+        540,
+        570
+      ],
+      "sha256": "6d9ba04eca544917e9fce398fa9fce7a17ef81b1ae7f44216d74892c35ed072c",
+      "bytes": 3335,
+      "document_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+    },
+    {
+      "id": "LA-019",
+      "lines": [
+        930,
+        959
+      ],
+      "sha256": "cbc1ce3fc94f7590d343300b41db34e53ac4b87e2a9c242ff20859423665c3aa",
+      "bytes": 3647,
+      "document_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+    },
+    {
+      "id": "LA-020",
+      "lines": [
+        960,
+        989
+      ],
+      "sha256": "f87876bc9a834d23256c57f6aee11b5a6483cd8d159d816081db9404110ef3d5",
+      "bytes": 4138,
+      "document_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+    },
+    {
+      "id": "LA-035",
+      "lines": [
+        2066,
+        2102
+      ],
+      "sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69",
+      "bytes": 7176,
+      "document_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+    },
+    {
+      "id": "LA-037",
+      "lines": [
+        2146,
+        2178
+      ],
+      "sha256": "79dc9efe37fc67c6b481db97f51d50a38d4aea4cff051ce0ffcf864ce049589c",
+      "bytes": 5602,
+      "document_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+    }
+  ],
+  "scope_limit": "This checks byte custody, denominator and source-qualified recorded captions only; PASS rows remain historical component checks, 33 closed values remain bounded F recommendations. ORCH03 new leaves are not replacement F35/findings and supply no G acceptance or new formal closure.",
+  "root_current_carry": {
+    "checkout": "/workspace/e02-F-closeout-20261006",
+    "branch": "codex/e02-F-closeout-20261006",
+    "sha": "27ad60afe4cfedea9a9c0ff71d9abd22c30836d9",
+    "tree": "dc70173844ad04b290662a036dba283f7375b4c9",
+    "checked_immutable_snapshot": true,
+    "equal_tracked_metadata_objects": 40,
+    "different": [],
+    "qualified": "Read-only historical F35 metadata carry; ORCH03 leaves do not replace findings or create new acceptance."
+  }
+}

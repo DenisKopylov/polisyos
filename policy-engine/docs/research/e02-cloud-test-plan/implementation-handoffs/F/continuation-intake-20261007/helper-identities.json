@@ -1,0 +1,38 @@
+[
+  {
+    "path": "/workspace/e02-F-graph-20261006",
+    "branch": "codex/e02-F-graph-20261006",
+    "sha": "46bbfa53adc8da775a08b66b80d02109cc5b2db8",
+    "status": ""
+  },
+  {
+    "path": "/workspace/e02-F-api-20261006",
+    "branch": "codex/e02-F-api-20261006",
+    "sha": "90c72b51155321684c788cd5a03fbb70fc001d53",
+    "status": ""
+  },
+  {
+    "path": "/workspace/e02-F-economics-20261006",
+    "branch": "codex/e02-F-economics-20261006",
+    "sha": "3912782bfd55cc87f76757310c32603ecbe58cc3",
+    "status": ""
+  },
+  {
+    "path": "/workspace/e02-F-tmle-20261006",
+    "branch": "codex/e02-F-tmle-20261006",
+    "sha": "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a",
+    "status": ""
+  },
+  {
+    "path": "/workspace/e02-F-fry-20261006",
+    "branch": "codex/e02-F-fry-20261006",
+    "sha": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+    "status": ""
+  },
+  {
+    "path": "/workspace/e02-F-cau-20261006",
+    "branch": "codex/e02-F-cau-20261006",
+    "sha": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+    "status": ""
+  }
+]

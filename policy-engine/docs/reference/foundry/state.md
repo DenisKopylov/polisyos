@@ -6,10 +6,10 @@ Foundry runtime state is expressed as JAX-compatible dataclasses and persisted
 through CAS snapshots. This page documents the boundary between compile-time
 slot layout, execute-time state snapshots, and agent-simulation runtime state.
 
-Freshness: 2026-04-17
+Freshness: 2026-10-07
 Owner: `@foundry-owners`
 Source plan: `docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: `src/polisyos/foundry/contracts/state.py`, `src/polisyos/foundry/methods/layout.py`, `src/polisyos/foundry/execute/_internal/snapshots/__init__.py`, `src/polisyos/foundry/execute/executor.py`
+Source of truth: `src/polisyos/foundry/contracts/state.py`, `src/polisyos/ir/kernel/slots.py`, `src/polisyos/foundry/execute/_internal/snapshots/__init__.py`, `src/polisyos/foundry/execute/executor.py`
 
 This page documents `polisyos.foundry.contracts.state.GlobalState`, the
 compile/execute and release-acceptance state contract. The standalone
@@ -32,7 +32,7 @@ directly.
 - Read `polisyos.foundry.contracts.state` for what compiled programs can read
   or patch at runtime.
 
-- Read `polisyos.foundry.methods.compiler.layout` for `slot_id -> state_path` materialization and
+- Read `polisyos.ir.kernel.slots` for `slot_id -> state_path` materialization and
   family manifests.
 
 - Read `polisyos.foundry.execute.executor` for state snapshot, state delta, and
@@ -55,6 +55,21 @@ directly.
 | `GlobalState`           | Top-level execution state.                        |
 
 ## Common Usage Flow
+
+First-party callers import layout types and builders directly from
+`polisyos.ir.kernel.slots`. The existing `polisyos.foundry.methods.layout` and
+`polisyos.foundry.methods.compiler.layout` addresses retain direct bindings to
+the same five IR objects for compatible callers: the former is the Foundry
+compatibility facade and the latter is the legacy alias. Both nested paths
+are internal under the
+[public-surface policy](../public-surface.md), whose source is
+`architecture/public_surface/contract.toml`.
+Foundry owners maintain both bindings; removing either requires a separate
+compatibility lifecycle decision with caller/reference migration, identity
+checks, and release notes. The compiler package's
+`src/polisyos/foundry/methods/compiler/README.md` records these compatibility
+roles and the removal prerequisites.
+Changing an import address does not change persisted slot IDs or manifests.
 
 1. Define or inspect slot specs in the slot registry.
 2. Run `build_slot_layout()` to materialize the exact `slot_id -> state_path`
@@ -84,7 +99,7 @@ directly.
 
 ## Reference
 
-::: polisyos.foundry.methods.compiler.layout
+::: polisyos.ir.kernel.slots
 
 ::: polisyos.foundry.contracts.state
 

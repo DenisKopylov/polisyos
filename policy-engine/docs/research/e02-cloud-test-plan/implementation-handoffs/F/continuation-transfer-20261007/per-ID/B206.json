@@ -1,0 +1,188 @@
+{
+  "finding_id": "B206",
+  "primary_owner_from_full_TSV": {
+    "finding_id": "B206",
+    "unit": "F",
+    "docx_analytical_package": "P33",
+    "source_closure_owner": "CAU-01",
+    "source_bundle_ids": "CAU-01",
+    "source_status": "partial"
+  },
+  "bundle_owner_from_full_TSV": {
+    "bundle_id": "CAU-01",
+    "unit": "F",
+    "initial_writer_family": "F-W02",
+    "title": "Standard DiD: допустимый дизайн, covariance и уровни CI"
+  },
+  "original_card_refs": [
+    {
+      "criterion_id": "B206",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        5120,
+        5131
+      ],
+      "bytes": 2372,
+      "sha256": "f405d3e2327c1cc0d64e6de308412c81eebe210af6ae5968af830b7e032fa0a1",
+      "title": "## B206. В DiD и RDD уровень интервала меняет подпись, но не границы",
+      "byte_binding_check": "PASS"
+    }
+  ],
+  "original_text": "## B206. В DiD и RDD уровень интервала меняет подпись, но не границы\n\n**Приоритет:** высокий и локальный. **Основание:** _run_standard_did и RegressionDiscontinuity.pure_step; CL01–CL03. [C20.R02–R03]\n\n**Проблема.** Обе функции читают confidence_level, но используют константу z_critical=1,959963984540054. Новое значение уровня передаётся в report без изменения границ.\n\n**Воспроизведение.** Standard DiD при 0,80 и 0,99 вернул один интервал [1,959352206441; 4,755286161700]. RDD также сохранил одинаковые границы для двух уровней. Для того же DiD-SE контроль с NormalDist дал ширину 1,828162948802 для 80% и 3,674480076956 для 99%, тогда как исходный путь использует 95%-квантиль.\n\n**Рекомендуемое исправление.** Один раз разрешать критическое значение из фактического уровня и распределения выбранной процедуры. Для оправданной нормальной асимптотики достаточно соответствующего NormalDist; кластерные/маловыборочные процедуры могут требовать иных степеней свободы или bootstrap. Валидация уровня должна предшествовать дорогому вычислению, а результат хранить одновременно запрошенную и эффективную процедуру.\n\n**Приёмка и граница.** 95% сохраняет прежний результат; повышение уровня при том же положительном SE расширяет интервал; недопустимый уровень отвергается адресно. Эта правка не исправляет неправильный SE из B205 или отсутствие bias correction из B210. Её нельзя представить как доказательство покрытия всей семейной реализации.\n\n",
+  "primary_acceptance_scope": "Requested confidence level for BOTH standard DiD and RDD: old95 compatibility, higher-level widening at positive SE, invalid-level refusal.",
+  "source_chain": {
+    "producer": "StandardDifferenceInDifferences AND RegressionDiscontinuity.pure_step",
+    "artifact": "both actual requested-level CausalEffectReports/envelopes",
+    "bridge": "their real MethodJobs/CAS and canonical declared-slot dematerialization",
+    "consumer": "both native/fresh report readers"
+  },
+  "actual_recorded_consumer": "StandardDifferenceInDifferences AND RegressionDiscontinuity → native report → MethodJob/CAS/canonical dematerializer/fresh reader",
+  "surface": "Declared Standard/Staggered DiD or RDD method parameters and typed CausalEffectReport/envelope consumer ABI",
+  "deciding_receipt_refs": [
+    {
+      "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+      "bytes": 216928,
+      "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+      "git_blob": "0ec1597eb6f77d833cb10103513c1d16aa6d682a",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B206"
+      ]
+    },
+    {
+      "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+      "bytes": 216928,
+      "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+      "git_blob": "0ec1597eb6f77d833cb10103513c1d16aa6d682a",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B206"
+      ],
+      "json_pointer": "/per_finding/B206"
+    },
+    {
+      "git_ref": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+      "head": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+      "bytes": 162688,
+      "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+      "git_blob": "52e8ce5c1ad6f4fc5d43f01d47f46f48ca4890f9",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B206"
+      ],
+      "json_pointer": "/per_finding/B206"
+    }
+  ],
+  "deciding_per_ID_carrier_ref": {
+    "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B206.json",
+    "bytes": 40734,
+    "sha256": "10f79a3111e25422b8bc86c8ab0a5a5d650013741e9a1dee8306cda13f2345c3",
+    "git_blob": "e28d0e66f938741acfeb7b455ce3c23c2fafd763"
+  },
+  "scientific_implementation": {
+    "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+    "tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+    "not_receipt_carrier": true
+  },
+  "recorded_independent_oracle_and_negative": "80/95/99 quantiles, point preservation/invalid levels; hardcoded95 removal FAIL; RBC current source supplement",
+  "complete_raw_receipt_checks_refs": [
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/0",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/1",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/2",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/3",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/4",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/5",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/6",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/7",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/8",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/9",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/10",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/11",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/12",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/13",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/14",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/15",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/16",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/17",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/18",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/19",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/20",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/0",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/1",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/2",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/3",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/4",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/5",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/6",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/7",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/8",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/9",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/10",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/11",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/12",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/13",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/14",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/15",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/16",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/17"
+  ],
+  "historical_ROOT072": {
+    "check": "PASS",
+    "outcome": "closed",
+    "technical_original_criterion_recommendation": "closed",
+    "current_continuation_outcome_recommendation": "closed",
+    "original_criterion_remainder": "None in requested-level interval construction.",
+    "actual_consumer": "StandardDifferenceInDifferences AND RegressionDiscontinuity → native report → MethodJob/CAS/canonical dematerializer/fresh reader",
+    "oracle_and_negative": "80/95/99 quantiles, point preservation/invalid levels; hardcoded95 removal FAIL; RBC current source supplement",
+    "separate_unavailable_inputs_or_authority": "This does not prove B205 covariance or B210 RBC coverage."
+  },
+  "independent_original_criterion_recommendation": {
+    "check": "PASS",
+    "outcome": "closed",
+    "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+    "scientific_rerun": false,
+    "review_scope": "independent criterion/evidence reconciliation; not an independently rerun estimator measurement",
+    "missing_actual_original_criterion": null,
+    "new_owner_review_pending": false,
+    "not_formal_G_closure": true
+  },
+  "separate_unavailable_inputs_or_authority": "This does not prove B205 covariance or B210 RBC coverage.",
+  "existing_author_or_reviewer_conflict": "Reviewer previously authored CAU and graph-intake provider; current independent role is ROOT original-criterion reconciliation. Prior scientific validation uses source-bound independent economics/graph/API receipts, not self-claimed fresh independent math.",
+  "schema": "e02.F.original-finding.v3",
+  "primary_bundle": "CAU-01",
+  "criterion_short": "Requested confidence level for BOTH standard DiD and RDD: old95 compatibility, higher-level widening at positive SE, invalid-level refusal.",
+  "check_result": "PASS",
+  "F_finding_outcome": "closed",
+  "F_technical_recommendation": "closed",
+  "F_rationale": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+  "code_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+  "code_tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+  "consumer": "StandardDifferenceInDifferences AND RegressionDiscontinuity → native report → MethodJob/CAS/canonical dematerializer/fresh reader",
+  "oracle_and_negative": "80/95/99 quantiles, point preservation/invalid levels; hardcoded95 removal FAIL; RBC current source supplement",
+  "G_finding_acceptance": {
+    "status": "not_issued",
+    "formal_G_closed": false
+  },
+  "G_code_acceptance": {
+    "status": "not_inferred",
+    "source_sha": null,
+    "basis": "Independent F GO/code-ready is not G code acceptance"
+  },
+  "original_missing_input": null,
+  "original_next_owner": null,
+  "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+  "root_assembled_source": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "not_new_numerical_proof": true
+  },
+  "new_property_followups_not_automatically_original_reopen": []
+}

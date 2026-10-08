@@ -1,0 +1,676 @@
+{
+  "schema": "policyos.e02.original_criterion_recommendation.v1",
+  "unit": "F",
+  "source_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+  "source_tree": "81c2e3e636bec4c5d81b8f918bb61cca6a49309b",
+  "runtime_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "controlling_common": {
+    "git_ref": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/COMMON.md",
+    "local_exact_input": "/tmp/e02-F-continuation-20261007/intake/COMMON.md",
+    "bytes": 8565,
+    "sha256": "f408d34394bab5f708df7afb6f59195588b5fc394b8304434c9e2fbe2238be79"
+  },
+  "rows": [
+    {
+      "finding_id": "LA-035",
+      "primary_bundle": "ECO-01",
+      "original_criterion": {
+        "git_ref": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "bytes": 648034,
+        "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+        "lines": [
+          2066,
+          2102
+        ],
+        "block_bytes": 7176,
+        "block_sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69",
+        "original_full_criterion": "## LA-035. policy_loss_fn: ранний экономический baseline у общего method-владельца\n\n**R — перемещение по смысловой роли с отдельной идентичностью objective**\n\n**Точная область:**\n\n`src/polisyos/foundry/methods/_internal/loss.py`\n\n`src/polisyos/foundry/methods/loss.py`\n\n**Статус.** Конкретная экономическая функция и её legacy facade подтверждены; найден consumer-test. Готовая эквивалентная замена современным economic objective не установлена.\n\n**Что установлено.** За общим именем `policy_loss_fn` находится критерий по `GlobalState.agents.income` и `government_balance`, с default `min_balance=-1000` и коэффициентом штрафа `10`. Это не функция потерь arbitrary method и не общий интерфейс политического предпочтения. Физическое помещение в `methods/_internal` сохранило старую предметную обязанность. Старый публичный `methods/loss.py` только открывает её через reexport-helper. [E106–E109]\n\nCharacterization уточняет смысл самого критерия. До бюджетного штрафа он равен `-mean(income) / max(mean(abs(income)), 1)`. При неотрицательных доходах и среднем не меньше единицы это `-1`, независимо от абсолютного уровня дохода. На `[1000,2000,3000]`, десятикратном наборе и `[2,2,2]` получен тот же результат; локальный градиент в первом случае нулевой в пределах float32 tolerance. Это **математическое свойство нормализации**, не доказательство, что любой пользователь хотел максимизировать ненормированный доход. Но оно не позволяет безоговорочно называть функцию общим доходным optimization objective.\n\nБюджетный штраф и invalid-input checks действительно работают в проверенных локальных случаях: при balance `-2000` и min `-1000` итог `9`, при NaN-входе — infinity. Существующий repository-test проверяет finiteness и non-finite case, не сохранение ранжирования положительных доходов.\n\n**Что сохранить.** Определённый baseline-критерий, его sign/scale regimes, бюджетный штраф, numeric guardrails, поддержанные callers. Сохранить тесты численной защиты: переезд предметного loss не означает удаление общего `finite_loss_or_inf` или его публичного runtime facade.\n\n**Куда перенести / с чем объединить.** Семантический адрес — действующий economic objective-владелец `foundry/plugins/economics`. Предлагаемый `baselines.py` с явно названным GlobalState-profile — новый файл, не существующая готовая замена. При малом объёме допустим отдельный явно типизированный baseline в существующем `objectives.py`, если это не смешивает ABI и не утяжеляет импорт. Не переносить функцию в глобальный Common.\n\nПрочитанные `GDPObjective`, `SocialWelfareObjective`, `UtilitarianWelfare` и другие работают по **EconomicState** и выражают другие критерии. Они не drop-in successor старого normalized-income/budget loss. LA-004 сохраняет силу: соседство экономических моделей не доказывает их равенство. [E110]\n\n**Порядок миграции.** Сначала назвать и зафиксировать текущую формулу как baseline, затем найти все source/config/FQN consumers и перенести тело без изменения численного поведения. Для подтверждённого требования максимизировать доход ввести отдельный objective/version; исправление ранжирования не маскировать под переименование файла. Если полный census покажет, что функция нужна исключительно numeric fixtures, поместить соответствующий пример у тестов или benchmark-владельца, сохранив проверяемую numeric обязанность. Сам факт двух тестов не разрешает уже сейчас удалить функцию.\n\n**Фактическая проверка.** r04-P18–P22 исполняют точный loss-blob с настоящим JAX 0.9.0.1; state — простая fixture с нужными полями, `finite_loss_or_inf` — явно обозначенный identity helper. Поэтому проверены собственная формула и invalid-ветка loss, **не native GlobalState, JIT workflow или реальная реализация numeric guardrail**. Нативный autodiff использован только для выбранного локального input.\n\n**Приёмка.** Положительные/нулевые/отрицательные и смешанные доходы, размер популяции, scales, min_balance, breach, NaN/Inf; native State и guardrail, JIT/grad там, где это обещано. Различать equivalent relocation и новый критерий выбора политик. Проверить import side effects выбранного economic package.\n\n**Приоритет.** Умеренная цена, высокая семантическая ясность. Уточнение профиля и устранение misleading generic address можно отделить от содержательной переработки цели.\n\n**Граница вывода.** Не установлен production optimizer, фактически использующий этот loss, и не доказана потеря дохода в реальном решении. Полный caller census не выполнялся. Нормализация не удаляется лишь потому, что найден более богатый objective API.\n\n**Основания:** E106–E110. Локальные проверки: r04-P18–P22.\n\n<!-- PAGEBREAK -->\n"
+      },
+      "check": "PASS",
+      "original_technical_recommendation": "closed",
+      "old_root_row": {
+        "finding_id": "LA-035",
+        "primary_bundle": "ECO-01",
+        "primary_tsv_owner": {
+          "finding_id": "LA-035",
+          "unit": "F",
+          "docx_analytical_package": "P36",
+          "source_closure_owner": "ECO-01",
+          "source_bundle_ids": "ECO-01",
+          "source_status": "partial"
+        },
+        "original_source_criterion_refs": [
+          {
+            "criterion_id": "LA-035",
+            "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+            "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+            "lines": [
+              2066,
+              2102
+            ],
+            "bytes": 7176,
+            "sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69",
+            "title": "## LA-035. policy_loss_fn: ранний экономический baseline у общего method-владельца",
+            "byte_binding_check": "PASS"
+          }
+        ],
+        "criterion_short_ru": "Historical normalized-income loss replay is measured; actual optimizer and normative intent packet held",
+        "actual_consumer": "economics.baselines.normalized_income_budget_loss → two legacy aliases → nativeGlobalState/real guardrail/JIT/grad; actual maintained optimizer caller not supplied",
+        "source_scope": "Named GlobalState normalized-income/budget baseline relocation preserves ORIGINAL formula and guards; current requested optimizer/intent basis remains separate",
+        "oracle_and_negative": "Historical normalized-income/budget formula, aliases, native/JIT/gradient/replay/guards observed on published ECO412. Actual optimizer and normative unit/population/time/sign intent remain missing; whole current finding is held and authority UNRUN.",
+        "check": "UNRUN",
+        "outcome": "held",
+        "technical_original_criterion_recommendation": "held",
+        "technical_check": "PASS",
+        "implementation_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+        "candidate_tree_sha": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+        "ROOT_adjudication_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
+          "bytes": 130025,
+          "sha256": "0fc3e6440719fc3094bb13d82a809586cf05776bcf6a4dc3807e9cbfde44126f",
+          "head": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+          "git_ref": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+          "json_pointer": "/rows/33"
+        },
+        "complete_audit_row_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/full-audit.json",
+          "bytes": 3473039,
+          "sha256": "7a0c7881e26f9b9275fd8dc7d602098ddebe13a6cc9a33947463516d8a9b5af1",
+          "json_pointer": "/rows/33"
+        },
+        "current_per_ID_receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/LA-035.json",
+          "bytes": 41512,
+          "sha256": "95f1987436e76c05448adfa87cf9ad7883ef0c30e2fe41851b5cc7c836b3741f"
+        },
+        "original_criterion_remainder": "Technical historical baseline/replay/aliases profile is measured, but latest user continuation requires actual optimizer and semantic intent packet. Missing unit/population/time/sign intent and named optimizer keep whole LA035 held per economics owner.",
+        "separate_unavailable_inputs_or_authority": "No actual production optimizer, normative unit/population/time/sign intent owner packet, policy objective or full external retirement established.",
+        "next_owner": "@foundry-owners objective intent + named optimizer consumer"
+      },
+      "old_hold_reason_obsolete": true,
+      "reason": "COMMON9a F-M14 makes equivalent unchanged relocation independently reviewable. An absent production optimizer or new welfare intent is not an original relocation criterion. Every original finite numeric/guard/native/alias/JIT-grad/import requirement has deciding native evidence; no new policy objective is introduced.",
+      "actual_consumers": [
+        "economics.baselines.normalized_income_budget_loss",
+        "methods._internal.loss.policy_loss_fn (same callable)",
+        "methods.loss.policy_loss_fn (same callable)",
+        "native contracts.state.GlobalState",
+        "runtime.numeric.finite_loss_or_inf → execute._internal.numeric",
+        "maintained test_loss_numeric/ECO01/economic_profiles/economic_profile_consumers plus unique original-criterion test"
+      ],
+      "criterion_to_evidence": {
+        "named_economic_owner_and_alias_identity": [
+          "src/polisyos/foundry/plugins/economics/baselines.py",
+          "tests/unit/foundry/plugins/test_historical_income_baseline.py::test_aliases_and_real_public_numeric_guard_keep_their_identity",
+          "tests/unit/foundry/plugins/test_economic_profile_consumers.py::test_historical_baseline_preserves_all_entry_population_and_aliases"
+        ],
+        "sign_scale_population_minimum_breach": [
+          "test_original_sign_scale_population_and_budget_oracles (18 independent Fraction cases, eager/JIT)",
+          "test_historical_population_includes_supplied_inactive_entries",
+          "existing test_economic_profiles and test_eco_01 preserved numerical cases"
+        ],
+        "nonfinite_and_computed_guard": [
+          "existing test_named_historical_score_nonfinite_inputs_fail_closed",
+          "test_aliases_and_real_public_numeric_guard_keep_their_identity (finite overflow reaches real guard; guard removal FAIL)"
+        ],
+        "JIT_grad": [
+          "existing test_named_historical_score_gradients_preserve_the_selected_normalized_law",
+          "existing test_legacy_policy_loss_fn_is_jittable_and_differentiable"
+        ],
+        "full_caller_config_FQN_census": [
+          "baseline-consumer-census.json:9007 complete bound tracked files/10matchingfiles; dynamic/external boundary explicit"
+        ],
+        "import_side_effects": [
+          "test_fresh_economic_owner_import_has_no_registration_io_or_execution_side_effects (fresh process, IO/process/network/thread/registry guards)"
+        ]
+      },
+      "separate_limits": [
+        "No newly selected welfare objective, normative preference, optimizer efficacy, production economic decisions or dynamic/external caller completeness is claimed. These do not block original equivalent relocation.",
+        "ROOT owns current35 decision/captions; G acceptance is separate."
+      ]
+    },
+    {
+      "finding_id": "LA-004",
+      "primary_bundle": "ECO-01",
+      "original_criterion": {
+        "git_ref": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "bytes": 648034,
+        "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+        "lines": [
+          167,
+          197
+        ],
+        "block_bytes": 3498,
+        "block_sha256": "6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a",
+        "original_full_criterion": "## LA-004. Две экономические реализации: согласовать, но не подменять\n\n**Слияние / разделение ответственности**\n\n**Статус.** Пересечение предмета подтверждено; эквивалентность опровергается кодом.\n\n**Точная область:**\n\n`src/polisyos/foundry/mechanisms/fiscal.py`\n\n`src/polisyos/foundry/mechanisms/labor.py`\n\n`src/polisyos/foundry/plugins/economics/mechanisms.py`\n\n**Что установлено и почему это legacy-кандидат.** Одинаковый класс LaborMarketMechanism означает разные модели: threshold-пересэмплирование с фирмами против find/separation transitions, wage shocks и EconomicState. Налоговая реализация plugin прогрессивная и меняет wealth; IncomeTax использует reported_income, меняет income и government.balance. Более богатая модель не является drop-in replacement.\n\n**Что сохранить.** Обе явно определённые модельные гипотезы, полезные численные операции и проверки законов сохранения. Уникальные fields и state contracts должны сохраниться до доказанной миграции.\n\n**Куда перенести / с чем объединить.** Общий доменный владелец может оставаться foundry/plugins/economics; shared pure kernels размещать там или в нижнем execution-слое только после выявления действительно одинаковой операции. Два adapter-слоя сохраняют PatchMap и EconomicState. Имена моделей/профилей следует развести.\n\n**Порядок миграции.** Сначала таблица соответствия состояния, единиц, временного шага, tax base, RNG и учета бюджета. Извлекать общий алгоритм лишь там, где контракты совпали. Остальные отличия оформить версиями модели. Старый профиль выводить после миграции сценариев, а не после механического переименования импортов.\n\n**Приёмочная проверка.** Сравнить специально заданные одинаковые regimes; отдельно проверить, что различающиеся regimes не стали считаться эквивалентными. Проверить бухгалтерские равенства, использование seed и сохранение наблюдаемых выходов.\n\n**Приоритет.** Средняя/высокая цена; полезнее локального объединения имён.\n\n**Граница вывода.** Не доказано, что plugin лучше откалиброван или подходит всем пользователям базового ABI. Полная миграция двух исполнителей в этом проходе не проектировалась.\n\n**Основания:** E04, E05, E07.\n\n<!-- PAGEBREAK -->\n"
+      },
+      "check": "PASS",
+      "original_technical_recommendation": "closed",
+      "old_root_row": {
+        "finding_id": "LA-004",
+        "primary_bundle": "ECO-01",
+        "primary_tsv_owner": {
+          "finding_id": "LA-004",
+          "unit": "F",
+          "docx_analytical_package": "P36",
+          "source_closure_owner": "ECO-01",
+          "source_bundle_ids": "ECO-01",
+          "source_status": "partial"
+        },
+        "original_source_criterion_refs": [
+          {
+            "criterion_id": "LA-004",
+            "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+            "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+            "lines": [
+              167,
+              197
+            ],
+            "bytes": 3498,
+            "sha256": "6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a",
+            "title": "## LA-004. Две экономические реализации: согласовать, но не подменять",
+            "byte_binding_check": "PASS"
+          }
+        ],
+        "criterion_short_ru": "Actual matched and deliberately distinct fiscal/labor versus CompositeExecutor model profiles, not Gini",
+        "actual_consumer": "Registry-created native fiscal/labor → PatchMap/apply_patch_map/GlobalState versus EconomicsPlugin.get_mechanisms → CompositeExecutor/EconomicState; actual matched and deliberately distinct finite laws.",
+        "source_scope": "Two DISTINCT economic profiles: matched regimes, deliberate divergence, accounting, seeds and observables",
+        "oracle_and_negative": "532matchedtax/subsidy + distinctunits/means-test/laborseed; latest412 realComposite tax/labor states and zero-employment match/diverge",
+        "check": "PASS",
+        "outcome": "closed",
+        "technical_original_criterion_recommendation": "closed",
+        "technical_check": "PASS",
+        "implementation_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+        "candidate_tree_sha": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+        "ROOT_adjudication_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
+          "bytes": 130025,
+          "sha256": "0fc3e6440719fc3094bb13d82a809586cf05776bcf6a4dc3807e9cbfde44126f",
+          "head": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+          "git_ref": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+          "json_pointer": "/rows/27"
+        },
+        "complete_audit_row_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/full-audit.json",
+          "bytes": 3473039,
+          "sha256": "7a0c7881e26f9b9275fd8dc7d602098ddebe13a6cc9a33947463516d8a9b5af1",
+          "json_pointer": "/rows/27"
+        },
+        "current_per_ID_receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/LA-004.json",
+          "bytes": 29614,
+          "sha256": "1c3148a4461d9c07660a892f34ba68b87eecf671c26856f037d3f80d42478304"
+        },
+        "original_criterion_remainder": "None for original finite matched/deliberately distinct model profile. Universal replacement/calibration/real authority not claimed.",
+        "separate_unavailable_inputs_or_authority": "No fullmodel calibration/replacement/migration or externaleconomicnorm implied.",
+        "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance"
+      },
+      "current_caption_proposal": "Distinct native threshold/firm/PatchMap versus plugin transition/wealth profiles: matched regimes and deliberate divergence, state/units/timestep/tax base/accounting/RNG/observables retained.",
+      "actual_consumers": [
+        "registered native fiscal/labor producer → PatchMap/apply_patch_map → nativeGlobalState",
+        "EconomicsPlugin.get_mechanisms → real CompositeExecutor → EconomicState"
+      ],
+      "criterion_to_evidence": {
+        "state_units_timestep_taxbase_budget_RNG_table": "Existing economic profile documentation and complete author historical receipts retained; same canonical source/profile tests freshly replayed.",
+        "matched_regimes": "test_economic_profiles native/plugin matched tax debit and transfer subsidy finite fixtures; actual Composite consumer tests in fresh83",
+        "deliberate_law_divergence": "reported_income versus income tax bases; stock wealth versus flow income/governmentbalance; means-tested transfer; threshold/firm resampling versus find/separation/wage-shock labor profiles; all preserved",
+        "accounting_seed_observables": "Full patch/state tree comparators, mask/employer/laborcount/government balance checks, real plugin CompositeExecutor seeded replay/perturbation and explicit non-equivalence profiles in same fresh83"
+      },
+      "historical_deciding_refs": [
+        {
+          "receipt": {
+            "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json",
+            "bytes": 109240,
+            "sha256": "cd005af9bf2e45edcd88f54b4bb223636351abefc991a52828167f2070aead1e"
+          },
+          "source_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+          "source_tree": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+          "check_indices": [
+            0,
+            1,
+            12,
+            13
+          ],
+          "complete_checks": [
+            {
+              "command": [
+                "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+                "-m",
+                "pytest",
+                "tests/unit/foundry/agent_sim/test_gini_science.py",
+                "tests/unit/foundry/plugins/test_economic_profiles.py",
+                "tests/unit/foundry/plugins/test_economics_dtype.py",
+                "tests/unit/foundry/mechanisms/test_fiscal.py",
+                "tests/unit/foundry/mechanisms/test_labor.py",
+                "tests/unit/remediation/test_eco_01.py",
+                "tests/unit/remediation/test_fry_03.py",
+                "-o",
+                "addopts=",
+                "-v",
+                "--tb=short",
+                "--junitxml=/workspace/e02-F-20261006-receipts/economics/economic-native-final-candidate.xml"
+              ],
+              "target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+              "target_tree_sha": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+              "environment": "environment field; readonly frozen Python3.14.7/JAX0.8.2 CPU; PYTHONPATH=src:tools:.",
+              "input_closure": "244 native tests: science118, profiles32, accepted dtype60, fiscal9, labor5, ECO14, FRY6; no skips/errors. Known fixtures, eager/JIT, actual factory/objective/aggregate/PatchMap consumers.",
+              "outcome": "PASS",
+              "returncode": 0,
+              "wall_seconds": 62.20736050605774,
+              "maximum_child_rss_kib": 1935568,
+              "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-native-final-candidate.txt",
+              "output_ref": {
+                "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-native-final-candidate.txt",
+                "bytes": 36108,
+                "sha256": "6ec3837d5fd47180c8aad45fcdca24d87dbb37827e08fb49f4d356004b32be9d"
+              },
+              "measurement_ref": {
+                "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-native-final-candidate.json",
+                "bytes": 2440,
+                "sha256": "ddd8b2cbe422691580858c62cf98b50e8ea8750889168f085235ceb474535ff9"
+              },
+              "source_diff_bytes": 0,
+              "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "input_hashes_before": {
+                "src/polisyos/foundry/agent_sim/distributions.py": "d70bf04939c6227326ce37212693a7d39b6c8a9515ac39f987e908d2cb3bcfc3",
+                "src/polisyos/foundry/agent_sim/state.py": "5984b26f6ecda6f1449c78d879dc57cfd13e61ce0d53f58dff8a1302f9ad5be0",
+                "tests/unit/foundry/agent_sim/test_gini_science.py": "dd9a30ae48f61f88464a0aaa8b9536e3f90ac36df4f91a9cb04d35298294d49f",
+                "tests/unit/foundry/plugins/test_economic_profiles.py": "02eda95ab8abe859f08e44aa5c56417b992f6985199417480ef621fd64c03b5b"
+              },
+              "input_hashes_after": {
+                "src/polisyos/foundry/agent_sim/distributions.py": "d70bf04939c6227326ce37212693a7d39b6c8a9515ac39f987e908d2cb3bcfc3",
+                "src/polisyos/foundry/agent_sim/state.py": "5984b26f6ecda6f1449c78d879dc57cfd13e61ce0d53f58dff8a1302f9ad5be0",
+                "tests/unit/foundry/agent_sim/test_gini_science.py": "dd9a30ae48f61f88464a0aaa8b9536e3f90ac36df4f91a9cb04d35298294d49f",
+                "tests/unit/foundry/plugins/test_economic_profiles.py": "02eda95ab8abe859f08e44aa5c56417b992f6985199417480ef621fd64c03b5b"
+              },
+              "input_bytes_stable": true
+            },
+            {
+              "command": [
+                "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+                "-m",
+                "pytest",
+                "tests/unit/foundry/agent_sim/test_distributions.py",
+                "tests/unit/foundry/agent_sim/test_agent_simulation_step3.py",
+                "tests/unit/foundry/agent_sim/test_executor.py",
+                "tests/unit/foundry/agent_sim/test_agent_simulation_step2.py",
+                "tests/unit/foundry/agent_sim/test_agent_simulation_step4.py",
+                "tests/unit/foundry/agent_sim/test_wiring.py",
+                "tests/unit/foundry/plugins/test_plugin_system.py",
+                "tests/unit/foundry/plugins/test_economics_social_weights.py",
+                "tests/unit/foundry/analysis/test_loss_numeric.py",
+                "tests/unit/foundry/compile/test_randomization.py",
+                "tests/unit/foundry/methods/catalog/mechanism/test_runtime.py",
+                "-o",
+                "addopts=",
+                "-v",
+                "--tb=short",
+                "--junitxml=/workspace/e02-F-20261006-receipts/economics/economic-importer-final-candidate.xml"
+              ],
+              "target_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+              "target_tree_sha": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+              "environment": "environment field; readonly frozen Python3.14.7/JAX0.8.2 CPU; PYTHONPATH=src:tools:.",
+              "input_closure": "70 actual importer/executor/compiler/catalog/plugin/numeric consumers; no skips/errors. Seven Equinox deprecation warnings retained.",
+              "outcome": "PASS",
+              "returncode": 0,
+              "wall_seconds": 140.95686721801758,
+              "maximum_child_rss_kib": 2370252,
+              "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-importer-final-candidate.txt",
+              "output_ref": {
+                "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-importer-final-candidate.txt",
+                "bytes": 10330,
+                "sha256": "86c8a81a61a6d6f7c09015e2c5cb5210eadaf2df7222b8d4ec7b6bb7ed405cbe"
+              },
+              "measurement_ref": {
+                "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-importer-final-candidate.json",
+                "bytes": 2744,
+                "sha256": "29cd5f1923c9fe4d7ff430797424bd97ffcc72fad03f13f89491c02425be5e0b"
+              },
+              "source_diff_bytes": 0,
+              "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "input_hashes_before": {
+                "src/polisyos/foundry/agent_sim/distributions.py": "d70bf04939c6227326ce37212693a7d39b6c8a9515ac39f987e908d2cb3bcfc3",
+                "src/polisyos/foundry/agent_sim/state.py": "5984b26f6ecda6f1449c78d879dc57cfd13e61ce0d53f58dff8a1302f9ad5be0",
+                "tests/unit/foundry/agent_sim/test_gini_science.py": "dd9a30ae48f61f88464a0aaa8b9536e3f90ac36df4f91a9cb04d35298294d49f",
+                "tests/unit/foundry/plugins/test_economic_profiles.py": "02eda95ab8abe859f08e44aa5c56417b992f6985199417480ef621fd64c03b5b"
+              },
+              "input_hashes_after": {
+                "src/polisyos/foundry/agent_sim/distributions.py": "d70bf04939c6227326ce37212693a7d39b6c8a9515ac39f987e908d2cb3bcfc3",
+                "src/polisyos/foundry/agent_sim/state.py": "5984b26f6ecda6f1449c78d879dc57cfd13e61ce0d53f58dff8a1302f9ad5be0",
+                "tests/unit/foundry/agent_sim/test_gini_science.py": "dd9a30ae48f61f88464a0aaa8b9536e3f90ac36df4f91a9cb04d35298294d49f",
+                "tests/unit/foundry/plugins/test_economic_profiles.py": "02eda95ab8abe859f08e44aa5c56417b992f6985199417480ef621fd64c03b5b"
+              },
+              "input_bytes_stable": true
+            },
+            {
+              "command": [
+                "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+                "-m",
+                "pytest",
+                "-o",
+                "addopts=",
+                "-q",
+                "tests/unit/foundry/agent_sim/test_gini_science.py",
+                "tests/unit/foundry/plugins/test_economic_profiles.py"
+              ],
+              "target_sha": "3f4ebe5641f68535ce5dbdf57db859bffc241bb3",
+              "target_tree_sha": "14959cdd4fa5802ade6c68befc2f05a748bb2e94",
+              "environment": "F root independent process; readonly frozen interpreter; measured candidate PYTHONPATH=/workspace/e02-F-economics-20261006/policy-engine/src:/workspace/e02-F-economics-20261006/policy-engine",
+              "input_closure": "150 native scientific/profile tests, or68 independent pairwise/mask/extreme-scale/eager/JIT/padding/zero/signed-zero checks. Full stdout+stderr and replay committed.",
+              "outcome": "PASS",
+              "returncode": 0,
+              "wall_seconds": 83.5333934740047,
+              "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-independent-economics-native.stdout",
+              "output_ref": {
+                "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-independent-economics-native.stdout",
+                "bytes": 271,
+                "sha256": "cc4c8c6751c1c9ec698c8bbd4247c0b6373f8001b7dfbf5b253b4967d9dbbd51"
+              }
+            },
+            {
+              "command": [
+                "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+                "/workspace/e02-F-20261006-receipts/root-review/economics_controls.py"
+              ],
+              "target_sha": "3f4ebe5641f68535ce5dbdf57db859bffc241bb3",
+              "target_tree_sha": "14959cdd4fa5802ade6c68befc2f05a748bb2e94",
+              "environment": "F root independent process; readonly frozen interpreter; measured candidate PYTHONPATH=/workspace/e02-F-economics-20261006/policy-engine/src:/workspace/e02-F-economics-20261006/policy-engine",
+              "input_closure": "150 native scientific/profile tests, or68 independent pairwise/mask/extreme-scale/eager/JIT/padding/zero/signed-zero checks. Full stdout+stderr and replay committed.",
+              "outcome": "PASS",
+              "returncode": 0,
+              "wall_seconds": 26.6610564970033,
+              "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-independent-economics-controls.stdout",
+              "output_ref": {
+                "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-independent-economics-controls.stdout",
+                "bytes": 237,
+                "sha256": "da7aad4584fc3c69f49dd3bb66fda735048337ac9f29225ed1b96e9452adf863"
+              }
+            }
+          ]
+        },
+        {
+          "receipt": {
+            "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json",
+            "bytes": 127652,
+            "sha256": "ced279a2a9ce169c271c4dedbb2ac18a27193de75dd7cd2cf80375fb633c4162"
+          },
+          "source_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+          "source_tree": "134aca5ad6bac87da8d2f3d18a4be0ab20652251",
+          "check_indices": [
+            0,
+            6,
+            8,
+            9,
+            10
+          ],
+          "complete_checks": [
+            {
+              "command": [
+                "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+                "-m",
+                "pytest",
+                "tests/unit/foundry/agent_sim/test_gini_domain.py",
+                "tests/unit/foundry/agent_sim/test_gini_consumers.py",
+                "tests/unit/foundry/agent_sim/test_gini_science.py",
+                "tests/unit/foundry/plugins/test_economic_profile_consumers.py",
+                "tests/unit/foundry/plugins/test_economic_profiles.py",
+                "tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py",
+                "tests/unit/foundry/agent_sim/test_distributions.py",
+                "tests/unit/foundry/agent_sim/test_agent_simulation_step3.py",
+                "tests/unit/remediation/test_eco_01.py",
+                "tests/unit/remediation/test_fry_03.py",
+                "-q",
+                "-ra",
+                "--tb=short"
+              ],
+              "target_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+              "environment": "Readonly Python3.14.7; native JAX0.8.2 CPU; PYTHONPATH=src:tools:. See author/environment-frozen.json. No DoWhy/EconML or admitted real data witness.",
+              "input_closure": "315 native finite tests; canonical admission/current readers; original economic laws and real spec/compiler/CAS consumer.",
+              "outcome": "PASS",
+              "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-frozen-native.stdout.txt",
+              "output_ref": {
+                "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-frozen-native.stdout.txt",
+                "bytes": 400,
+                "sha256": "bcd6f65b59021aa58b201549958787393061d0f74e50b6f66be9ca47bcd981c5",
+                "raw_bytes": 400,
+                "raw_sha256": "bcd6f65b59021aa58b201549958787393061d0f74e50b6f66be9ca47bcd981c5",
+                "encoding": "raw"
+              },
+              "counts": {
+                "tests": 315,
+                "failures": 0,
+                "errors": 0,
+                "skipped": 0,
+                "pytest_seconds": 130.205
+              },
+              "junit_ref": {
+                "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-frozen-native.xml",
+                "bytes": 55241,
+                "sha256": "3da259dea83defc17b1d431293b286b80f2c5e206be823ab1a808336b82d642a",
+                "raw_bytes": 55241,
+                "raw_sha256": "3da259dea83defc17b1d431293b286b80f2c5e206be823ab1a808336b82d642a",
+                "encoding": "raw"
+              },
+              "command_provenance": "Replay argv reconstructed from the complete retained JUnit module census; original shell flag order is not retained. Results and all cases are bound to complete original stdout/XML and exact source. Do not treat reconstructed argv as a new execution."
+            },
+            {
+              "command": [
+                "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+                "-m",
+                "pytest",
+                "tests/unit/foundry/agent_sim/test_gini_domain.py",
+                "tests/unit/foundry/agent_sim/test_gini_consumers.py",
+                "tests/unit/foundry/agent_sim/test_gini_science.py",
+                "tests/unit/foundry/plugins/test_economic_profile_consumers.py",
+                "tests/unit/foundry/plugins/test_economic_profiles.py",
+                "tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py",
+                "tests/unit/foundry/agent_sim/test_distributions.py",
+                "tests/unit/foundry/agent_sim/test_agent_simulation_step3.py",
+                "tests/unit/remediation/test_eco_01.py",
+                "tests/unit/remediation/test_fry_03.py",
+                "-q",
+                "-ra",
+                "--tb=short"
+              ],
+              "target_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+              "environment": "Readonly Python3.14.7; native JAX0.8.2 CPU; PYTHONPATH=src:tools:. See author/environment-frozen.json. No DoWhy/EconML or admitted real data witness.",
+              "input_closure": "399 native finite cases; actual active population readers, mixed consumer dtype, reward/welfare scans, profiles and CAS replay; no skips/errors.",
+              "outcome": "PASS",
+              "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-412-native.stdout.txt",
+              "output_ref": {
+                "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-412-native.stdout.txt",
+                "bytes": 480,
+                "sha256": "69352274abf5e639614fbba73f2496c9b16c1daf31b406ddf5c6103c865ef2d6",
+                "raw_bytes": 480,
+                "raw_sha256": "69352274abf5e639614fbba73f2496c9b16c1daf31b406ddf5c6103c865ef2d6",
+                "encoding": "raw"
+              },
+              "counts": {
+                "tests": 399,
+                "failures": 0,
+                "errors": 0,
+                "skipped": 0,
+                "pytest_seconds": 112.2
+              },
+              "junit_ref": {
+                "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-412-native.xml",
+                "bytes": 71341,
+                "sha256": "132162b1d5c852ed58ce1cf98336052c216ab543188d64a0f260b8e6467fca46",
+                "raw_bytes": 71341,
+                "raw_sha256": "132162b1d5c852ed58ce1cf98336052c216ab543188d64a0f260b8e6467fca46",
+                "encoding": "raw"
+              },
+              "command_provenance": "Replay argv reconstructed from the complete retained JUnit module census; original shell flag order is not retained. Results and all cases are bound to complete original stdout/XML and exact source. Do not treat reconstructed argv as a new execution."
+            },
+            {
+              "command": "Independent API native/oracle/restored/removal commands recorded verbatim in independent-api/*-spec.json",
+              "target_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+              "environment": "Readonly Python3.14.7; native JAX0.8.2 CPU; PYTHONPATH=src:tools:. See author/environment-frozen.json. No DoWhy/EconML or admitted real data witness.",
+              "input_closure": "Independent full source read: native79PASS, independent3PASS, restored7PASS, marker-kept cache removal7FAIL. Initial harness2FAIL1PASS retained and corrected seeded snapshot premise; no source edit.",
+              "outcome": "PASS",
+              "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/review.json",
+              "output_ref": {
+                "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/review.json",
+                "bytes": 20226,
+                "sha256": "cb6c8a87abe0a9391e6b3bd6e9aae22abf4cedf52bfca1777f730fbd8cfe6c23",
+                "raw_bytes": 20226,
+                "raw_sha256": "cb6c8a87abe0a9391e6b3bd6e9aae22abf4cedf52bfca1777f730fbd8cfe6c23",
+                "encoding": "raw"
+              }
+            },
+            {
+              "command": [
+                "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+                "-m",
+                "pytest",
+                "tests/unit/foundry/agent_sim/test_gini_consumers.py::test_current_population_gini_preserves_existing_consumer_dtype_abi",
+                "tests/unit/foundry/agent_sim/test_gini_consumers.py::test_actual_executor_reward_and_welfare_scan_preserves_prior_carry_dtype",
+                "-q",
+                "-o",
+                "addopts=",
+                "--import-mode=importlib",
+                "-p",
+                "no:cacheprovider"
+              ],
+              "target_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+              "environment": "Readonly Python3.14.7; native JAX0.8.2 CPU; PYTHONPATH=src:tools:. See author/environment-frozen.json. No DoWhy/EconML or admitted real data witness.",
+              "input_closure": "Independent exact412 native84PASS, zero skip/error, 20.08s; all8diffpaths reviewed.",
+              "outcome": "PASS",
+              "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/dtype-delta-native.stdout",
+              "output_ref": {
+                "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/dtype-delta-native.stdout",
+                "bytes": 700,
+                "sha256": "01f0e1ae544f42ff20c72814bf97508c92b732c0be05d841fadb27b8a860fc1f",
+                "raw_bytes": 700,
+                "raw_sha256": "01f0e1ae544f42ff20c72814bf97508c92b732c0be05d841fadb27b8a860fc1f",
+                "encoding": "raw"
+              },
+              "review_ref": {
+                "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/dtype-delta-review.json",
+                "bytes": 5443,
+                "sha256": "4f049c1f4fee0eaf2370863c463830763acc36c1c82c9a9c0d721095a00c2276",
+                "raw_bytes": 5443,
+                "raw_sha256": "4f049c1f4fee0eaf2370863c463830763acc36c1c82c9a9c0d721095a00c2276",
+                "encoding": "raw"
+              },
+              "stderr_ref": {
+                "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/independent-api/dtype-delta-native.stderr",
+                "bytes": 0,
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "raw_bytes": 0,
+                "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "encoding": "raw"
+              }
+            },
+            {
+              "command": "Recorded broader97 native importer suite; complete source case set in JUnit companion",
+              "target_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+              "environment": "Readonly Python3.14.7; native JAX0.8.2 CPU; PYTHONPATH=src:tools:. See author/environment-frozen.json. No DoWhy/EconML or admitted real data witness.",
+              "input_closure": "93PASS3FAIL1SKIP. Fiscal .10 exact-budget precision, actual temporal JIT trainer and ES carry mismatch. Plotly unavailable is SKIP, not PASS.",
+              "outcome": "FAIL",
+              "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-frozen-consumer-corrected.stdout.txt",
+              "output_ref": {
+                "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-frozen-consumer-corrected.stdout.txt",
+                "bytes": 5780,
+                "sha256": "fe166f98399bfd8f715b98796f4a5c987a3e02f7c87d2d5f2622cfa72406d1c5",
+                "raw_bytes": 5780,
+                "raw_sha256": "fe166f98399bfd8f715b98796f4a5c987a3e02f7c87d2d5f2622cfa72406d1c5",
+                "encoding": "raw"
+              },
+              "counts": {
+                "tests": 97,
+                "failures": 3,
+                "errors": 0,
+                "skipped": 1,
+                "pytest_seconds": 194.345
+              },
+              "junit_ref": {
+                "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006/author/economics-frozen-consumer-corrected.xml",
+                "bytes": 22535,
+                "sha256": "272f4ee5f4de8749f44e716ec7aefbd2b91f382401df7bdd1a6b6612bcacd10c",
+                "raw_bytes": 22535,
+                "raw_sha256": "272f4ee5f4de8749f44e716ec7aefbd2b91f382401df7bdd1a6b6612bcacd10c",
+                "encoding": "raw"
+              },
+              "inherited_red": "not_established: complete overall changed-input intersection is not zero."
+            }
+          ]
+        }
+      ],
+      "separate_limits": [
+        "No drop-in plugin substitution, retirement of native models, Gini norm, richer welfare superiority or production calibration is inferred.",
+        "ROOT fixes common current captions; immutable historical receipts/cards remain literal."
+      ]
+    }
+  ],
+  "signed_route": {
+    "producer_source_identity": [
+      {
+        "G_published": {
+          "git_ref": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+          "path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+          "bytes": 24397,
+          "sha256": "aaaa6e65f0cd6f845a0b9b8b989e5d19b2e5e35f497d2c4704e29dd7c5594715"
+        },
+        "F_candidate": {
+          "git_ref": "193b3582a72c640c1d06a131f93502654a77a36a",
+          "path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+          "bytes": 24397,
+          "sha256": "aaaa6e65f0cd6f845a0b9b8b989e5d19b2e5e35f497d2c4704e29dd7c5594715"
+        },
+        "complete_byte_identity": "PASS"
+      },
+      {
+        "G_published": {
+          "git_ref": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+          "path": "policy-engine/src/polisyos/foundry/plugins/composite.py",
+          "bytes": 9613,
+          "sha256": "113cc5803c0f54bc9920364d0a88c147ba9e816299641578770dbf9a2c2a5f27"
+        },
+        "F_candidate": {
+          "git_ref": "193b3582a72c640c1d06a131f93502654a77a36a",
+          "path": "policy-engine/src/polisyos/foundry/plugins/composite.py",
+          "bytes": 9613,
+          "sha256": "113cc5803c0f54bc9920364d0a88c147ba9e816299641578770dbf9a2c2a5f27"
+        },
+        "complete_byte_identity": "PASS"
+      },
+      {
+        "G_published": {
+          "git_ref": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+          "bytes": 5729,
+          "sha256": "7068670282d94e4708fa2e5a5bffaa7d902fc2aed8cdce4e173b20d287d792a8"
+        },
+        "F_candidate": {
+          "git_ref": "193b3582a72c640c1d06a131f93502654a77a36a",
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+          "bytes": 5729,
+          "sha256": "7068670282d94e4708fa2e5a5bffaa7d902fc2aed8cdce4e173b20d287d792a8"
+        },
+        "complete_byte_identity": "PASS"
+      }
+    ],
+    "actual_path": [
+      "EconomicsTrainingAdapter.make_executor",
+      "real ActorCritic/TemporalConsumptionMechanism",
+      "registered plugin labor_market/taxation/transfers/savings",
+      "real CompositeExecutor distribution refresh / metrics.standard_training_metrics / create_jit_trainer_with_metrics"
+    ],
+    "synthetic_profile": "10 active agents, initialwealth0, initialincome0, wage30, skill2, employedtrue; policytransfer/unemployment/minwage/interest0; existingtax .25 and seededwage shocks; real actor and PRNG splits",
+    "result": "Existing law generates negativeactivewealth: taxwealth=-0.1*positivegeneratedincome, not a signed fixture injected at the seam. Requested classical Gini explicitly refuses before metric/history return. PlainPPO without requested Gini can keep signed wealth. Positiveactivewealth and inactive-invalidpadding profiles pass.",
+    "no_new_finding_id": true,
+    "no_product_source_delta": true,
+    "limitation": "Domain refusal is a metric limitation, not a clamp or new signed coefficient. Synthetic route does not establish real-data admission/calibration."
+  },
+  "historical_fidelity": "All former held JSON and baseline outputs remain byte-identical; this packet adds a current original-criterion recommendation, not a retrospective rewrite.",
+  "dependent_reference_locators": "dependent-reference-locators.json",
+  "author_role": "Original-card recommendation by author, not independent review of own code. Independent CAU review recorded separately.",
+  "G_acceptance": "pending_separate_exact_candidate_acceptance"
+}

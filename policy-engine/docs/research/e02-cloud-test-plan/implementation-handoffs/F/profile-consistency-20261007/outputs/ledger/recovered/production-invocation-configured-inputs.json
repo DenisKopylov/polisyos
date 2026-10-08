@@ -1,0 +1,103 @@
+{
+  "schema": "e02.F.production_invocation_configured_inputs.v1",
+  "role": "separate complete immutable Git selection enumeration after interrupted diagnostic; NOT a completed production_invocation receipt",
+  "configured_selector": "all tracked .py files beneath product src/, tools/, tests/ plus pyproject project.scripts entries",
+  "mechanism": "policy-engine/src/polisyos/runtime/quality/production_invocation.py@852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "records": [
+    {
+      "ref": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+      "selection_command": [
+        "git",
+        "-C",
+        "/workspace/e02-F-closeout-20261006/policy-engine",
+        "ls-tree",
+        "-rz",
+        "--name-only",
+        "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+        "--",
+        "src",
+        "tools",
+        "tests"
+      ],
+      "selected_files": 5958,
+      "counts_by_root": {
+        "src": 2700,
+        "tests": 2813,
+        "tools": 445
+      },
+      "selected_path_list_sha256": "fa343467a4f2813aa5724e8669afde0ae5463b231e7be4df2f6848ee6dad3781",
+      "project_script_roots": {
+        "polisy": "polisyos.foundry.plugins.cli:main",
+        "polisyos": "tools.ops_runners.runtime_cli:main",
+        "polisyos-causal-capabilities": "polisyos.foundry.methods.catalog.causal.capabilities:main",
+        "polisyos-foundry": "tools.ops_runners.runtime_cli:foundry_main",
+        "polisyos-tools": "tools.cli:main",
+        "ukraine-data": "polisyos.data_forge.domains.ukraine.cli:main"
+      }
+    },
+    {
+      "ref": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "selection_command": [
+        "git",
+        "-C",
+        "/workspace/e02-F-closeout-20261006/policy-engine",
+        "ls-tree",
+        "-rz",
+        "--name-only",
+        "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+        "--",
+        "src",
+        "tools",
+        "tests"
+      ],
+      "selected_files": 5959,
+      "counts_by_root": {
+        "src": 2700,
+        "tests": 2814,
+        "tools": 445
+      },
+      "selected_path_list_sha256": "95e2bc54a50abe45f07e03cbab0230dbdb6fda88a6bffd998b45bf2915a327e3",
+      "project_script_roots": {
+        "polisy": "polisyos.foundry.plugins.cli:main",
+        "polisyos": "tools.ops_runners.runtime_cli:main",
+        "polisyos-causal-capabilities": "polisyos.foundry.methods.catalog.causal.capabilities:main",
+        "polisyos-foundry": "tools.ops_runners.runtime_cli:foundry_main",
+        "polisyos-tools": "tools.cli:main",
+        "ukraine-data": "polisyos.data_forge.domains.ukraine.cli:main"
+      }
+    }
+  ],
+  "environment_command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-c",
+    "import sys,platform,json; print(json.dumps({\"sys_version\":sys.version,\"executable\":sys.executable,\"platform\":platform.platform()}))"
+  ],
+  "environment_output": "{\"sys_version\": \"3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]\", \"executable\": \"/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python\", \"platform\": \"Linux-6.18.44-x86_64-with-glibc2.41\"}\n",
+  "excluded": [
+    "untracked files",
+    "non-Python files beneath selected roots",
+    "tracked files outside src/tools/tests except pyproject entry-point metadata"
+  ],
+  "unknown": [
+    "Actual kill reason",
+    "progress/coverage of interrupted production_invocation execution",
+    "runtime HTTP/DI/event/registered callback/deferred/dynamic execution",
+    "full completed invocation regressions/new-unresolved verdict"
+  ],
+  "check_state": "ERROR/incomplete",
+  "diagnostic_returncode": -9,
+  "runtime_invocation_established": false,
+  "configured_input_write_attempts": [
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/ledger/production-invocation-configured-inputs.json",
+      "outcome": "ERROR",
+      "exception": "OSError: [Errno 28] No space left on device",
+      "persisted_bytes": 0
+    },
+    {
+      "path": "/dev/shm/e02-F-profile-consistency-20261007/ledger/production-invocation-configured-inputs.json",
+      "outcome": "PASS",
+      "storage": "volatile /dev/shm; must transfer deciding bytes to Git before closeout"
+    }
+  ]
+}

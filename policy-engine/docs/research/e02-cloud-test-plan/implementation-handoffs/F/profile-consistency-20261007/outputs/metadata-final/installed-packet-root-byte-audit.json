@@ -1,0 +1,7 @@
+{
+  "carrier_sha": "5bce2ea7066d5dc57c0a454de1580d71c79104af",
+  "candidate_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "decoded_transport_files": 256,
+  "errors": [],
+  "role": "Root independent committed-byte custody check, not independent product source author review"
+}

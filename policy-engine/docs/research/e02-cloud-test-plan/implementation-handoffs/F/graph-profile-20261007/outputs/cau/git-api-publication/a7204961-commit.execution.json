@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "gh",
+    "api",
+    "--method",
+    "POST",
+    "repos/DenisKopylov/polisyos/git/commits",
+    "--input",
+    "-"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006",
+  "stdin": {
+    "bytes": 437,
+    "sha256": "8855cc7e0417bc72e49b2fdda70c44fd5856ba1b0069aceaebfe7ab784254e3a"
+  },
+  "request_reconstruction": "exact local immutable Git objects plus this tracked replayer",
+  "exit_code": 0,
+  "wall_seconds": 0.7660029680118896,
+  "stdout": {
+    "bytes": 1196,
+    "sha256": "c9b58e92166268ca7d50801fd203d628c25096f30eabb295617729ef1c6a9b57"
+  },
+  "stderr": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

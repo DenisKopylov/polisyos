@@ -1,0 +1,11 @@
+{
+  "base": "46cc03546f2572986962555ddf04d858163c1cf6",
+  "sha": "cdf61b4500e355a27db14260e80ce673ddf8869e",
+  "tree": "a08083a193d4621a5d5c59bf31a94916e8323a0a",
+  "paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/REPORT.md"
+  ],
+  "diff_bytes": 2215,
+  "diff_sha256": "2117fcacdaad3e6c744f2ed6feb81500c3b2f3f9b43e7519064c9316af2c9ea6",
+  "scope": "One report caption correction, source519 and all35originalcriterion/registry bytes unchanged; prior46cc independent review retained."
+}

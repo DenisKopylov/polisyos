@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "benchmarks.natural_experiments.policy_natural_experiments",
+    "--mode",
+    "smoke",
+    "--quiet",
+    "--json",
+    "/tmp/e02-F-graph-profile-20261007/root/final-wave/natural-experiments.json"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_METRICS_PORT": "9467"
+  },
+  "returncode": 0,
+  "wall_seconds": 6.6007339929929,
+  "stdout_sha256": "602d680429f0b843f429908b5f4d5be2d43b3c236e10e40a6fa3a7a073b75421",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

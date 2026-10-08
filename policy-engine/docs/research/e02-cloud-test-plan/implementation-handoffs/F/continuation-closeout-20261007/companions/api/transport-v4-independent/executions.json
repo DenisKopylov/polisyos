@@ -1,0 +1,648 @@
+[
+  {
+    "label": "valid-files-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-files.selected.json",
+      "--include-selection",
+      "valid-files=/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-files.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.07408314698841423,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-files-refresh.stdout.txt",
+      "bytes": 523,
+      "sha256": "d3bc967d8929237d323d96e556adc3d645482881c3e006f02f79840af5c7b2b0"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-files-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "valid-files-publish",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v3.py",
+      "--selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-files.selected.json",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--materialize",
+      "--destination",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/materialized-files"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.06549129201448523,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-files-publish.stdout.txt",
+      "bytes": 760,
+      "sha256": "6845320d129ad2a107cc35f7adc1e76faf8e11a8ab9f937211042e06797e721e"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-files-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "valid-items-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-items.selected.json",
+      "--include-selection",
+      "valid-items=/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-items.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.06578122099745087,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-items-refresh.stdout.txt",
+      "bytes": 523,
+      "sha256": "9702ba37519eef79a398b175b1a923116093bb232e3b012eae71b9b92700317d"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-items-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "valid-items-publish",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v3.py",
+      "--selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-items.selected.json",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--materialize",
+      "--destination",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/materialized-items"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.05986984301125631,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-items-publish.stdout.txt",
+      "bytes": 760,
+      "sha256": "74b75591811030aeff5c74264f05506a815d3ab1356ab4a4ad1781cf33fb4a48"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-items-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "valid-selection-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-selection.selected.json",
+      "--include-selection",
+      "valid-selection=/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-selection.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.06170209200354293,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-selection-refresh.stdout.txt",
+      "bytes": 527,
+      "sha256": "69aaa5773170463a6d69486fdae001286f0697dd457af8b0d6ebad5d84a370db"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-selection-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "valid-selection-publish",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v3.py",
+      "--selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-selection.selected.json",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--materialize",
+      "--destination",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/materialized-selection"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.06841599300969392,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-selection-publish.stdout.txt",
+      "bytes": 768,
+      "sha256": "38d37cbfd7eee850ef84f6cf4bf7c31de91b17b76c09fe5395ebec7319250150"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-selection-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "bad-stored-sha-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/bad-stored-sha.selected.json",
+      "--include-selection",
+      "bad-stored-sha=/tmp/e02-F-continuation-20261007/api/transport-v4-independent/bad-stored-sha.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.06341356597840786,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/bad-stored-sha-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/bad-stored-sha-refresh.stderr.txt",
+      "bytes": 623,
+      "sha256": "57117ad8b47b5161c43c0522ec963afbc1e13623e052ff5aab58cf46f8460ffa"
+    }
+  },
+  {
+    "label": "bad-stored-size-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/bad-stored-size.selected.json",
+      "--include-selection",
+      "bad-stored-size=/tmp/e02-F-continuation-20261007/api/transport-v4-independent/bad-stored-size.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.06347002199618146,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/bad-stored-size-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/bad-stored-size-refresh.stderr.txt",
+      "bytes": 623,
+      "sha256": "57117ad8b47b5161c43c0522ec963afbc1e13623e052ff5aab58cf46f8460ffa"
+    }
+  },
+  {
+    "label": "bad-decoded-sha-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/bad-decoded-sha.selected.json",
+      "--include-selection",
+      "bad-decoded-sha=/tmp/e02-F-continuation-20261007/api/transport-v4-independent/bad-decoded-sha.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.0737497299851384,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/bad-decoded-sha-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/bad-decoded-sha-refresh.stderr.txt",
+      "bytes": 669,
+      "sha256": "fc13960f58892afcb46448e3fecab127f29c247d7dbd89a254d4c79197f2a8fb"
+    }
+  },
+  {
+    "label": "bad-decoded-size-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/bad-decoded-size.selected.json",
+      "--include-selection",
+      "bad-decoded-size=/tmp/e02-F-continuation-20261007/api/transport-v4-independent/bad-decoded-size.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.06580713999574073,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/bad-decoded-size-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/bad-decoded-size-refresh.stderr.txt",
+      "bytes": 669,
+      "sha256": "fc13960f58892afcb46448e3fecab127f29c247d7dbd89a254d4c79197f2a8fb"
+    }
+  },
+  {
+    "label": "missing-decoded-identity-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/missing-decoded-identity.selected.json",
+      "--include-selection",
+      "missing-decoded-identity=/tmp/e02-F-continuation-20261007/api/transport-v4-independent/missing-decoded-identity.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.09464234998449683,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/missing-decoded-identity-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/missing-decoded-identity-refresh.stderr.txt",
+      "bytes": 691,
+      "sha256": "474b2f56dc17dffe9bea883b828800115bfd1a64b2210f7abe4cade5b50ce06e"
+    }
+  },
+  {
+    "label": "unknown-encoding-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/unknown-encoding.selected.json",
+      "--include-selection",
+      "unknown-encoding=/tmp/e02-F-continuation-20261007/api/transport-v4-independent/unknown-encoding.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.07006687499233522,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/unknown-encoding-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/unknown-encoding-refresh.stderr.txt",
+      "bytes": 519,
+      "sha256": "09e00c2cea18f7ecccaff477f67186ec8c4b7b5f1113988adb8394b923d8504c"
+    }
+  },
+  {
+    "label": "ambiguous-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/ambiguous.selected.json",
+      "--include-selection",
+      "ambiguous=/tmp/e02-F-continuation-20261007/api/transport-v4-independent/ambiguous.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.061951545998454094,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/ambiguous-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/ambiguous-refresh.stderr.txt",
+      "bytes": 650,
+      "sha256": "fac16ce36621a65540904efc17e26faaeb9e8edc87ef22d55125a960f31cb57b"
+    }
+  },
+  {
+    "label": "different-stored-same-decoded-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/different-stored-same-decoded.selected.json",
+      "--include-selection",
+      "different-stored-same-decoded=/tmp/e02-F-continuation-20261007/api/transport-v4-independent/different-stored-same-decoded.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.06858082098187879,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/different-stored-same-decoded-refresh.stdout.txt",
+      "bytes": 541,
+      "sha256": "0773375dd85e7da4bcc7c23efd2c87b4c9cfebb0392dd9f7387e9c6a852b370f"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/different-stored-same-decoded-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "different-container-publish",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v3.py",
+      "--selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/different-stored-same-decoded.selected.json",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--materialize",
+      "--destination",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/materialized-different-container"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.06509650699445046,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/different-container-publish.stdout.txt",
+      "bytes": 788,
+      "sha256": "bae3cd2718789560c5b84b8c917c15049529fade0274d4b8e729944d3ade02a6"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/different-container-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "codec-only-wrong-decoded-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/codec-only-wrong-decoded.selected.json",
+      "--include-selection",
+      "codec-only-wrong-decoded=/tmp/e02-F-continuation-20261007/api/transport-v4-independent/codec-only-wrong-decoded.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.08121428600861691,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/codec-only-wrong-decoded-refresh.stdout.txt",
+      "bytes": 536,
+      "sha256": "528d2d839bc4cd516df7d956519314675723b8d0cffccee01996b85f8c9c05f7"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/codec-only-wrong-decoded-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "bad-alias-validate",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v3.py",
+      "--selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/bad-alias.selected.json",
+      "--repository",
+      "/workspace/e02-F-api-20261006"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.07047528499970213,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/bad-alias-validate.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/bad-alias-validate.stderr.txt",
+      "bytes": 479,
+      "sha256": "94cf9bf7b69b0195ad3143b5fb6ed465641fd220e54657d0ca8c5531ac9d2098"
+    }
+  },
+  {
+    "label": "future-git-refusal",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/future-git.selected.json",
+      "--existing-git-spec",
+      "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/future-git-spec.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.06420864598476328,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/future-git-refusal.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/future-git-refusal.stderr.txt",
+      "bytes": 883,
+      "sha256": "1207da05d420300235cd042265d1e9036484e2d9df27dfd51ca477386a5f0de2"
+    }
+  }
+]

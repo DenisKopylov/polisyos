@@ -1,0 +1,194 @@
+{
+  "schema": "policyos.e02.orch03.independent_stage1_coordination_metadata_review.v1",
+  "reviewer": "/root/c07",
+  "coordination_author": "/root",
+  "review_scope": "Final stage1 coordination metadata, Git byte custody, original ownership, source-qualified count and limitation reconciliation only; no independent review of own C07 source behavior.",
+  "independence": {
+    "non_author_of_coordination_metadata": true,
+    "C07_component_author": true,
+    "own_source_independently_reviewed_here": false,
+    "own_source_prior_independent_reviews": "oracle_ir804/741 and Gd23 exact741 remain separate"
+  },
+  "inputs": [
+    {
+      "path": "/dev/shm/e02-orch03-20261008/coordination/coordination-stage1.json",
+      "bytes": 86355,
+      "sha256": "592e0ee7cd648c1248950996cd2c0f63d4e0a3e2f5d87af3c41e1e40da7cbe73",
+      "read_full_report_and_all_semantic_metadata_fields": true
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/coordination/REPORT-stage1.md",
+      "bytes": 14466,
+      "sha256": "9696fbdd1bd82a9687846c4474b37ba359a458f3845143ad0370f17b14149ec6",
+      "read_full_report_and_all_semantic_metadata_fields": true
+    }
+  ],
+  "verdict": "GO_FOR_STAGE1_COORDINATION_METADATA_DELIVERY_ONLY",
+  "mismatches": [],
+  "mechanical_checks": {
+    "exact_commit_tree_parent_and_receipt_blob_size_hash_observations": 123,
+    "mismatches": 0,
+    "full_custody_observations": 5063,
+    "full_custody_mismatches": 0
+  },
+  "verified_identity_and_custody": {
+    "C07": {
+      "runtime": "741af2a08a8dc5fa36340bf700c092c7fb51f651",
+      "tree": "bfae04d141187c30e4f6bc14dbbbae00f6ee116c",
+      "passive_H": "dce5b253bd3f2d8f05c008a5128b1532e44b3837",
+      "passive_only_paths": 3,
+      "runtime_test_unchanged_from6bdd": true,
+      "review_behavior": "not reviewed here"
+    },
+    "C08": {
+      "commit": "222d0867d47428bdb1835c6e6a68c2787bc05be9",
+      "entries": 177,
+      "stored_bytes": 197606,
+      "decoded_bytes": 811039,
+      "source_paths": 11,
+      "runtime": "5e3f2cdfe700186bec621d8b7e6ed48f8af6098d",
+      "candidate_with_passive_companions": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+      "H": "222d0867d47428bdb1835c6e6a68c2787bc05be9",
+      "passive_publication": "ed50e8ee50afc6f345ce804b1d7d26a2edeb4061",
+      "publication_only_paths": 2,
+      "receipt/runtime/tests/output_tree_unchanged": true
+    },
+    "C09": {
+      "commit": "8ea1f703f8ed6cd9294f9e9cce7f9aa96cf9d8b2",
+      "direct_artifacts": 24,
+      "archives": 8,
+      "members": 2075,
+      "member_payload_bytes": 6209000,
+      "source_paths": 24,
+      "runtime": "adb66080e3ac64d73b3faa85d693a47c6c284427",
+      "test_only_forward": "b3df9b6d84c67b48e91ea9227cadb89f5010b2a2",
+      "H": "8ea1f703f8ed6cd9294f9e9cce7f9aa96cf9d8b2",
+      "passive_publication": "02a75f2b7a4846bcf5b6a8f301d2d4d20b9a99b2",
+      "publication_only_paths": 11,
+      "runtime_test_unchanged_fromH": true
+    },
+    "ordinary_remote_ls_remote": {
+      "check": "PASS",
+      "returncode": 0,
+      "C07": "dce5b253bd3f2d8f05c008a5128b1532e44b3837",
+      "C08": "ed50e8ee50afc6f345ce804b1d7d26a2edeb4061",
+      "C09": "02a75f2b7a4846bcf5b6a8f301d2d4d20b9a99b2",
+      "no_auth_setup_or_workaround": true
+    },
+    "G": {
+      "latest": "a139e9d076231e2762477f7ac7a1f0d7b0a57dba",
+      "tree": "dbeadaeefd8f34097a097a7faadd78a897d680c9",
+      "previous": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+      "previous_is_ancestor": true,
+      "full_delta_paths": 90,
+      "product_test_companion_paths": 4,
+      "supplier_blobs_equal_c912_runtime_and_f2_fragment": true,
+      "f2_is_ancestor_G": true,
+      "normal_merge": "5dfc1c3229dbc98f487113c1e2f051d549519914",
+      "d23_historical_delta_from71ec": {
+        "paths": 143,
+        "all_docs_evidence": true,
+        "complete_recorded_roster_equal_git": true
+      }
+    },
+    "fresh_root_admission": {
+      "branch": "codex/e02-F-closeout-20261006",
+      "path": "/workspace/e02-F-closeout-20261006",
+      "mode": "resume",
+      "returncode": 0,
+      "stored_bytes": 13893,
+      "decoded_bytes": 171138,
+      "stored_and_decoded_hashes_equal_declared": true,
+      "full_json_contains_real_pair": true
+    }
+  },
+  "source_scoped_counts": {
+    "C07": "Source741 author18PASS; source804 historical62PASS/9expectedFAIL+1positive, AST-identical spacing carry. Gexact74162 is a distinct G run. No whole-head relabel; own behavior not reviewed here.",
+    "C08": "H222d complete5legacyPASS and2expectednative-removalFAIL confirmed actual decoded stdout/JUnit. Four sourcea5 scopes return-9 remainERROR/incomplete: main26 collection, characterization6 with3 observedPASS, child beforeoutput, graphhashremoval collection. No26PASS/6PASS/removalPASS; retryUNRUN. Independent12Fraction/2child/10negative source5e3 qualified separately.",
+    "C09": "Actual archived affected.junit.xml sourceADB confirms54PASS/2FAIL/0ERROR/0SKIP/denominator56; actual fixture-retry.junit.xml sourceb3 confirms2PASS/0FAIL/ERROR/SKIP/denominator2. Independent66118observations+4expectedFAIL/14refs andADB3controls+1expectedFAIL/4refs source-qualified. No56wholeb3PASS.",
+    "B190": "Author49 and G49 are distinct bounded-supplier runs. G source selection accepted only c912/f2; finding limited. No Node check included."
+  },
+  "original_ownership": {
+    "B31": "A/EMP-01",
+    "B21": "A/SIM-03",
+    "LA-036": "C/BER-01",
+    "B56": "F/FIT-01",
+    "B214": "F/GRF-03",
+    "B190": "E/UQP-01",
+    "source": "full finding-owners.tsv@a139, independently read targeted records; execution supplier does not change finding owner"
+  },
+  "historical_F35_carry": {
+    "carrier": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+    "root_entry": "27ad60afe4cfedea9a9c0ff71d9abd22c30836d9",
+    "C09_carry_receipt_sha256": "65e8ea4e932e850093a55f1f8ec3184feb3dcb55a47e9e2e24f7b7e07d358584",
+    "objects_rehashed": 42,
+    "root_metadata_objects_equal": 40,
+    "IDs": 35,
+    "bundles": 17,
+    "original_bindings_rehashed_from198_cards": 36,
+    "row_checks": {
+      "PASS": 34,
+      "UNRUN": 1
+    },
+    "bounded_F_recommendations": {
+      "closed": 33,
+      "limited": 2
+    },
+    "mismatches": 0,
+    "scope": "Read-only historical binding/metadata carry, not another method wave, not ORCH03 finding adjudication; LA-016 two bindings/oneID."
+  },
+  "limits_checked": [
+    "No assembled product candidate; G composition/source selection remains distinct from leaf mechanical code-ready and metadata custody.",
+    "Only bounded B190 f2 supplier has G code acceptance; B190 finding limited, B31 historical held, formalGclosures0.",
+    "B190 Node bridge grant/authoring is explicitly separate stage2; no source/check/result is inferred or included as code.",
+    "C06 automatic producer-returned nondefault manifest selector loss, including callers not explicitly selecting a view, remains real dependency; default-view proofs do not establish current producer/admission. Explicit views also covered.",
+    "C07 generic identification ref/content join is nongating and not identification-law authority; actual C10 fresh ValuePort/genuine scientific basis UNRUN; EProfile2/generated composition UNRUN.",
+    "B214 finite static supported CPDAG/query is not PAG/latent/temporal/generalID/institutional authority; actual C11Level2 and selected currentness UNRUN.",
+    "B56 full configured synthetic/nonsecret workload permitted; actual C01owner/API/cap+MethodJob bridge missing, no mandatory production roster, money-asCPUpermit, secondTMLEscheduler or cloudquota.",
+    "C09 empirical mechanics preserve predictive-vs-causal, complete attempted denominator and nongating unavailableMC; authentic ordered rows/currentness, Runtime/S10/scientific response-law provenance unestablished.",
+    "LA-036 per-instance observed-feature law remains originalC partner input; parameter/noise posterior and globalvariance functional cannot substitute.",
+    "Installed wheel/sdist/current optional backends/portable integration/C13/authentic served positives UNRUN; old91/199 or older79/37/18 are not new whole-head passes.",
+    "All source-owned quality FAIL/ERROR and global scanner-9/Ruff/publicsurface red remain source-qualified; P41not_established, no inherited/globalgreen assertion.",
+    "Root remains coordinator and wrote no helper product source. Exact leaf footprints are disjoint; no integration/main publication, foreign chat, production upload or cleanup is claimed."
+  ],
+  "review_actions": {
+    "product_imports": false,
+    "product_tests": false,
+    "children": false,
+    "other_user_chats": false,
+    "integration_main_writes": false,
+    "source_behavior_or_authority_acceptance": false,
+    "product_repository_source_writes": false
+  },
+  "reviewer_harness_qualification": [
+    "Initial read-only presentation requested obsolete delta_paths key after stage1 renamed latestG shape; KeyError was a reviewer presentation error only. Exact complete90/4 delta independently recomputed afterward.",
+    "An overbroad archive-index presentation was truncated; complete archived member hashes and denominator independently recomputed from fetchedGit without extraction. No deciding claim relies on truncated text."
+  ],
+  "review_artifacts": [
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-coordination-review/check_metadata.py",
+      "bytes": 6445,
+      "sha256": "93514fe3cab509ba821cc6b3f6c8460d64b08b36aca87ad5d8272ead4c9ef6e9",
+      "purpose": "read-only metadata/Git byte custody; no product imports/test/replay"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-coordination-review/verify_stage1_custody.py",
+      "bytes": 5337,
+      "sha256": "9ed57d80f59d8728bb190bf3f7383093a57b9c4d5286ec2fd5881af3360511fa",
+      "purpose": "read-only metadata/Git byte custody; no product imports/test/replay"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-coordination-review/stage1-mechanical.json",
+      "bytes": 27345,
+      "sha256": "a40f24549e304028f6d42b3bdc2e6cf249876667214912d234da33bbb94bebc5",
+      "purpose": "read-only metadata/Git byte custody; no product imports/test/replay"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/c07-coordination-review/stage1-custody.json",
+      "bytes": 2728160,
+      "sha256": "4c86e08b627c9e1f1445c3e6edace03cfeb4add8d073e181e9bac84882132d29",
+      "purpose": "read-only metadata/Git byte custody; no product imports/test/replay"
+    }
+  ],
+  "next": "Root may publish this exact finished stage1 metadata on its own append-only topic. B190 Node leaf later requires exact new freeze/non-author review/checks and delta-only root metadata review; no broad replay implied."
+}

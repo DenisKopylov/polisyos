@@ -1,0 +1,6 @@
+{
+  "encoding": "utf8-json-string",
+  "raw_stdout_or_stderr": "/workspace/e02-F-cau-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] diagnostics: unexpected_key — Key 'diagnostics' not declared in output slots\n  result = backend.run(\n/workspace/e02-F-cau-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] needs_expert_review: unexpected_key — Key 'needs_expert_review' not declared in output slots\n  result = backend.run(\n/workspace/e02-F-cau-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] warnings: unexpected_key — Key 'warnings' not declared in output slots\n  result = backend.run(\n/workspace/e02-F-cau-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array\n  result = backend.run(\n",
+  "raw_sha256": "cefbc1d6b133d4a28a80a105e163ec341b797572821e4ed3fd08a8e0be09dc42",
+  "raw_bytes": 857
+}

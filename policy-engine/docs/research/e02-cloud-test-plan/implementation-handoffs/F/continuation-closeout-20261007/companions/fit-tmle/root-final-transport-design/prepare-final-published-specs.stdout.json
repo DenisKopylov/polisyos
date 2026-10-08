@@ -1,0 +1,28 @@
+{
+  "prepared_specs_and_audit": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/published-installed-de197-final-cdf-spec.json",
+      "bytes": 70635,
+      "sha256": "1b6fc1836dfc6c82b8fe295e87605d63ed5c00ae71a636d840a3d35832768b28"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/economic-quality-pure-git-final-cdf-spec.json",
+      "bytes": 13833,
+      "sha256": "8732a3d172455fcdbc7e0388118d6ead3bfb5eaa19c4a3d47c13e5f84da744f2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/published-installed-c4dd-final-cdf-spec.json",
+      "bytes": 27927,
+      "sha256": "f924875dbc41ec324400ca0e488592906eedf2d03407b23a924ebf829e8c6866"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-published-byte-readback.json",
+      "bytes": 90773,
+      "sha256": "3a16390b9f6a0eca88dbf1873af9a4520df7e88a0699bc20bcd86a766e2af5ae"
+    }
+  ],
+  "c4dd_logical_output_rows": 44,
+  "c4dd_distinct_stored_outputs": 36,
+  "root_source_writes": false,
+  "Git_writes": false
+}

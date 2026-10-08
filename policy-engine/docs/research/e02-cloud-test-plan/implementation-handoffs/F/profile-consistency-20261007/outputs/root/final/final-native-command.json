@@ -1,0 +1,43 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_same_admg_shape_has_real_producer_node_and_fresh_reader",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_retagged_mgraph_refuses_all_current_intakes_without_publication",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_supplied_reserved_profile_never_becomes_absence",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_genuine_producer_to_fresh_reader_preserves_known_relations",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_unsupported_static_profile_refuses_before_real_producer_and_node",
+    "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_refuses_retagged_known_profile",
+    "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_preserves_exact_observed_interface",
+    "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_promotes_output_to_admg_when_any_fragment_is_admg",
+    "tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py",
+    "tests/unit/foundry/methods/catalog/causal/test_discovery_pipeline.py",
+    "-q",
+    "--junitxml=/dev/shm/e02-F-profile-consistency-root/final-native.junit.xml",
+    "--basetemp=/dev/shm/e02-F-profile-consistency-root/pytest-native-attempt3"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "environment": {
+    "POLISYOS_METRICS_PORT": "9845",
+    "TMPDIR": "/dev/shm/e02-F-profile-consistency-root/temp"
+  },
+  "prior_attempts": [
+    {
+      "outcome": "ERROR",
+      "returncode": 127,
+      "test_execution": "none; /usr/bin/time unavailable",
+      "outputs": "/tmp/e02-F-profile-consistency-20261007/root/final-native-attempt1.*"
+    },
+    {
+      "outcome": "ERROR",
+      "test_execution": "none; ENOSPC on command-plan write, then empty-plan JSONDecodeError before subprocess",
+      "outputs": "/tmp/e02-F-profile-consistency-20261007/root/final-native-plan.json (0B), tool output retained"
+    }
+  ],
+  "returncode": 0,
+  "wall_seconds": 14.81302394499653,
+  "peak_rss_kib": 1265436
+}

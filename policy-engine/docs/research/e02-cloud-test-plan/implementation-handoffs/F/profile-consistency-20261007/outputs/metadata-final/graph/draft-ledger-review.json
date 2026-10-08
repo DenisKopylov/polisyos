@@ -1,0 +1,176 @@
+{
+  "schema": "policyos.e02.independent_ledger_review.v1",
+  "reviewer": "/root/graph_review",
+  "role": "draft metadata/original-binding review only; no scientific or runtime replay",
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "comparison_base": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+  "IDs": 35,
+  "bundles": 17,
+  "original_bindings": 36,
+  "original_card_sources_resolved": 2,
+  "summary_recomputed": {
+    "F_original_finding_recommendation": {
+      "closed": 33,
+      "limited": 2
+    },
+    "F_bounded_technical_recommendation": {
+      "closed": 33,
+      "limited": 2
+    },
+    "check_results": {
+      "PASS": 34,
+      "UNRUN": 1
+    }
+  },
+  "changed_per_ID": [
+    "B214"
+  ],
+  "unchanged_per_ID_count": 34,
+  "B214_changed_existing_keys": [
+    "next_concrete_result"
+  ],
+  "errors": [
+    {
+      "error": "index complete row mismatch",
+      "ID": "B204"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B205"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B206"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B207"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B208"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B209"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B210"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B211"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B212"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B213"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B214"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B215"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B216"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B217"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B218"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B219"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B220"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B221"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B222"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B223"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B224"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B225"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B54"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "B56"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "LA-001"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "LA-002"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "LA-003"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "LA-004"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "LA-007"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "LA-016"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "LA-017"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "LA-019"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "LA-020"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "LA-035"
+    },
+    {
+      "error": "index complete row mismatch",
+      "ID": "LA-037"
+    }
+  ],
+  "checked_at": "2026-10-07T20:05:05.079091+00:00"
+}

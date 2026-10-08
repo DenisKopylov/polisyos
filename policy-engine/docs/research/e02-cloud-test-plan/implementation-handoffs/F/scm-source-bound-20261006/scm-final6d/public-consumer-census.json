@@ -1,0 +1,697 @@
+{
+  "source_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "source_tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+  "check": "PASS",
+  "tracked_python_denominator": 5942,
+  "searched_roots": [
+    "src",
+    "tests",
+    "tools",
+    "workers",
+    "examples"
+  ],
+  "literal_name_hits": [
+    {
+      "path": "src/polisyos/foundry/__init__.py",
+      "line": 73,
+      "names": [
+        "causal_worker_execution_context",
+        "worker_execution_context"
+      ],
+      "text": "    \"causal_worker_execution_context\","
+    },
+    {
+      "path": "src/polisyos/foundry/__init__.py",
+      "line": 84,
+      "names": [
+        "validate_source_bound_causal_estimator_interval"
+      ],
+      "text": "    \"validate_source_bound_causal_estimator_interval\","
+    },
+    {
+      "path": "src/polisyos/foundry/__init__.py",
+      "line": 85,
+      "names": [
+        "validate_source_bound_causal_worker_response"
+      ],
+      "text": "    \"validate_source_bound_causal_worker_response\","
+    },
+    {
+      "path": "src/polisyos/foundry/__init__.py",
+      "line": 86,
+      "names": [
+        "validate_source_bound_gcm_spec"
+      ],
+      "text": "    \"validate_source_bound_gcm_spec\","
+    },
+    {
+      "path": "src/polisyos/foundry/__init__.py",
+      "line": 90,
+      "names": [
+        "causal_worker_execution_context",
+        "worker_execution_context"
+      ],
+      "text": "    \"causal_worker_execution_context\": ("
+    },
+    {
+      "path": "src/polisyos/foundry/__init__.py",
+      "line": 92,
+      "names": [
+        "worker_execution_context"
+      ],
+      "text": "        \"worker_execution_context\","
+    },
+    {
+      "path": "src/polisyos/foundry/__init__.py",
+      "line": 94,
+      "names": [
+        "validate_source_bound_causal_estimator_interval"
+      ],
+      "text": "    \"validate_source_bound_causal_estimator_interval\": ("
+    },
+    {
+      "path": "src/polisyos/foundry/__init__.py",
+      "line": 96,
+      "names": [
+        "validate_persisted_estimator_interval"
+      ],
+      "text": "        \"validate_persisted_estimator_interval\","
+    },
+    {
+      "path": "src/polisyos/foundry/__init__.py",
+      "line": 98,
+      "names": [
+        "validate_source_bound_causal_worker_response"
+      ],
+      "text": "    \"validate_source_bound_causal_worker_response\": ("
+    },
+    {
+      "path": "src/polisyos/foundry/__init__.py",
+      "line": 100,
+      "names": [
+        "validate_persisted_worker_response"
+      ],
+      "text": "        \"validate_persisted_worker_response\","
+    },
+    {
+      "path": "src/polisyos/foundry/__init__.py",
+      "line": 102,
+      "names": [
+        "validate_source_bound_gcm_spec"
+      ],
+      "text": "    \"validate_source_bound_gcm_spec\": ("
+    },
+    {
+      "path": "src/polisyos/foundry/__init__.py",
+      "line": 104,
+      "names": [
+        "validate_persisted_gcm_spec"
+      ],
+      "text": "        \"validate_persisted_gcm_spec\","
+    },
+    {
+      "path": "src/polisyos/foundry/methods/api.py",
+      "line": 15,
+      "names": [
+        "causal_worker_execution_context",
+        "worker_execution_context"
+      ],
+      "text": "    \"causal_worker_execution_context\": ("
+    },
+    {
+      "path": "src/polisyos/foundry/methods/api.py",
+      "line": 17,
+      "names": [
+        "worker_execution_context"
+      ],
+      "text": "        \"worker_execution_context\","
+    },
+    {
+      "path": "src/polisyos/foundry/methods/api.py",
+      "line": 19,
+      "names": [
+        "validate_source_bound_gcm_spec"
+      ],
+      "text": "    \"validate_source_bound_gcm_spec\": ("
+    },
+    {
+      "path": "src/polisyos/foundry/methods/api.py",
+      "line": 21,
+      "names": [
+        "validate_persisted_gcm_spec"
+      ],
+      "text": "        \"validate_persisted_gcm_spec\","
+    },
+    {
+      "path": "src/polisyos/foundry/methods/api.py",
+      "line": 23,
+      "names": [
+        "validate_source_bound_causal_estimator_interval"
+      ],
+      "text": "    \"validate_source_bound_causal_estimator_interval\": ("
+    },
+    {
+      "path": "src/polisyos/foundry/methods/api.py",
+      "line": 25,
+      "names": [
+        "validate_persisted_estimator_interval"
+      ],
+      "text": "        \"validate_persisted_estimator_interval\","
+    },
+    {
+      "path": "src/polisyos/foundry/methods/api.py",
+      "line": 27,
+      "names": [
+        "validate_source_bound_causal_worker_response"
+      ],
+      "text": "    \"validate_source_bound_causal_worker_response\": ("
+    },
+    {
+      "path": "src/polisyos/foundry/methods/api.py",
+      "line": 29,
+      "names": [
+        "validate_persisted_worker_response"
+      ],
+      "text": "        \"validate_persisted_worker_response\","
+    },
+    {
+      "path": "src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+      "line": 61,
+      "names": [
+        "worker_execution_context"
+      ],
+      "text": "def worker_execution_context(*, store: Any, source_ref: artifacts.ArtifactRef) -> Iterator[None]:"
+    },
+    {
+      "path": "src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+      "line": 379,
+      "names": [
+        "validate_persisted_worker_response"
+      ],
+      "text": "def validate_persisted_worker_response("
+    },
+    {
+      "path": "src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+      "line": 404,
+      "names": [
+        "worker_execution_context"
+      ],
+      "text": "    with worker_execution_context(store=store, source_ref=source_ref):"
+    },
+    {
+      "path": "src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "line": 486,
+      "names": [
+        "validate_persisted_gcm_spec"
+      ],
+      "text": "def validate_persisted_gcm_spec(scm_spec: StructuralCausalModelSpec, store: Any) -> None:"
+    },
+    {
+      "path": "src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "line": 497,
+      "names": [
+        "validate_persisted_worker_response"
+      ],
+      "text": "        validate_persisted_worker_response,"
+    },
+    {
+      "path": "src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "line": 504,
+      "names": [
+        "validate_persisted_worker_response"
+      ],
+      "text": "    validate_persisted_worker_response("
+    },
+    {
+      "path": "src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "line": 1165,
+      "names": [
+        "validate_persisted_estimator_interval"
+      ],
+      "text": "def validate_persisted_estimator_interval("
+    },
+    {
+      "path": "src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "line": 1174,
+      "names": [
+        "validate_persisted_worker_response"
+      ],
+      "text": "        validate_persisted_worker_response,"
+    },
+    {
+      "path": "src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "line": 1194,
+      "names": [
+        "validate_persisted_worker_response"
+      ],
+      "text": "    validate_persisted_worker_response("
+    },
+    {
+      "path": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+      "line": 18,
+      "names": [
+        "causal_worker_execution_context",
+        "worker_execution_context"
+      ],
+      "text": "    causal_worker_execution_context,"
+    },
+    {
+      "path": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+      "line": 19,
+      "names": [
+        "validate_source_bound_causal_estimator_interval"
+      ],
+      "text": "    validate_source_bound_causal_estimator_interval,"
+    },
+    {
+      "path": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+      "line": 20,
+      "names": [
+        "validate_source_bound_gcm_spec"
+      ],
+      "text": "    validate_source_bound_gcm_spec,"
+    },
+    {
+      "path": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+      "line": 255,
+      "names": [
+        "validate_source_bound_gcm_spec"
+      ],
+      "text": "            validate_source_bound_gcm_spec(scm_spec, ctx.store)"
+    },
+    {
+      "path": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+      "line": 283,
+      "names": [
+        "causal_worker_execution_context",
+        "worker_execution_context"
+      ],
+      "text": "            execution_context = causal_worker_execution_context("
+    },
+    {
+      "path": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+      "line": 325,
+      "names": [
+        "validate_source_bound_causal_estimator_interval"
+      ],
+      "text": "                validate_source_bound_causal_estimator_interval("
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "line": 105,
+      "names": [
+        "worker_execution_context"
+      ],
+      "text": "    with bridge.worker_execution_context(store=store, source_ref=source):"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "line": 138,
+      "names": [
+        "worker_execution_context"
+      ],
+      "text": "    with bridge.worker_execution_context(store=store, source_ref=source):"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "line": 161,
+      "names": [
+        "validate_persisted_worker_response"
+      ],
+      "text": "from polisyos.foundry.methods.catalog.causal._dowhy_worker import validate_persisted_worker_response"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "line": 170,
+      "names": [
+        "validate_persisted_worker_response"
+      ],
+      "text": "validate_persisted_worker_response(response=worker,state=state,store=store,source_ref=source)"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "line": 200,
+      "names": [
+        "validate_persisted_worker_response"
+      ],
+      "text": "        bridge.validate_persisted_worker_response("
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "line": 210,
+      "names": [
+        "worker_execution_context"
+      ],
+      "text": "    with bridge.worker_execution_context(store=store, source_ref=source):"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "line": 222,
+      "names": [
+        "worker_execution_context"
+      ],
+      "text": "    with bridge.worker_execution_context(store=store, source_ref=source):"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "line": 243,
+      "names": [
+        "validate_persisted_worker_response"
+      ],
+      "text": "            bridge.validate_persisted_worker_response("
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "line": 250,
+      "names": [
+        "validate_persisted_worker_response"
+      ],
+      "text": "            bridge.validate_persisted_worker_response("
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "line": 253,
+      "names": [
+        "worker_execution_context"
+      ],
+      "text": "    with bridge.worker_execution_context(store=store, source_ref=source):"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "line": 280,
+      "names": [
+        "validate_persisted_worker_response"
+      ],
+      "text": "                bridge.validate_persisted_worker_response("
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "line": 349,
+      "names": [
+        "worker_execution_context"
+      ],
+      "text": "    with bridge.worker_execution_context(store=store, source_ref=source):"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "line": 359,
+      "names": [
+        "validate_persisted_worker_response"
+      ],
+      "text": "    bridge.validate_persisted_worker_response("
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "line": 384,
+      "names": [
+        "worker_execution_context"
+      ],
+      "text": "    with bridge.worker_execution_context(store=store, source_ref=source):"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 48,
+      "names": [
+        "validate_persisted_gcm_spec"
+      ],
+      "text": "from polisyos.foundry.methods.catalog.causal.gcm_fit import validate_persisted_gcm_spec"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 51,
+      "names": [
+        "validate_persisted_estimator_interval"
+      ],
+      "text": "    validate_persisted_estimator_interval,"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 93,
+      "names": [
+        "causal_worker_execution_context",
+        "worker_execution_context"
+      ],
+      "text": "    from polisyos.foundry import causal_worker_execution_context"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 95,
+      "names": [
+        "causal_worker_execution_context",
+        "worker_execution_context"
+      ],
+      "text": "    with causal_worker_execution_context(store=store, source_ref=source):"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 148,
+      "names": [
+        "validate_source_bound_gcm_spec"
+      ],
+      "text": "    methods.validate_source_bound_gcm_spec(model, store)"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 149,
+      "names": [
+        "validate_source_bound_causal_worker_response"
+      ],
+      "text": "    methods.validate_source_bound_causal_worker_response("
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 174,
+      "names": [
+        "validate_persisted_gcm_spec"
+      ],
+      "text": "from polisyos.foundry.methods.catalog.causal.gcm_fit import validate_persisted_gcm_spec"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 178,
+      "names": [
+        "validate_persisted_gcm_spec"
+      ],
+      "text": "model=load_structural_causal_model_spec(store,ref);validate_persisted_gcm_spec(model,store)"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 246,
+      "names": [
+        "validate_persisted_estimator_interval"
+      ],
+      "text": "    validate_persisted_estimator_interval("
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 249,
+      "names": [
+        "validate_source_bound_causal_estimator_interval"
+      ],
+      "text": "    methods.validate_source_bound_causal_estimator_interval("
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 256,
+      "names": [
+        "validate_persisted_estimator_interval"
+      ],
+      "text": "        validate_persisted_estimator_interval(corrupted, model, persisted.query, store)"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 266,
+      "names": [
+        "worker_execution_context"
+      ],
+      "text": "        bridge.worker_execution_context(store=store, source_ref=source),"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 273,
+      "names": [
+        "validate_persisted_gcm_spec"
+      ],
+      "text": "        validate_persisted_gcm_spec(altered, store)"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 291,
+      "names": [
+        "validate_persisted_gcm_spec"
+      ],
+      "text": "        validate_persisted_gcm_spec(forged, store)"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 323,
+      "names": [
+        "validate_persisted_gcm_spec"
+      ],
+      "text": "        validate_persisted_gcm_spec(model, missing)"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 401,
+      "names": [
+        "causal_worker_execution_context",
+        "worker_execution_context"
+      ],
+      "text": "        \"causal_worker_execution_context\": bridge.worker_execution_context,"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 402,
+      "names": [
+        "validate_persisted_gcm_spec",
+        "validate_source_bound_gcm_spec"
+      ],
+      "text": "        \"validate_source_bound_gcm_spec\": validate_persisted_gcm_spec,"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 403,
+      "names": [
+        "validate_persisted_estimator_interval",
+        "validate_source_bound_causal_estimator_interval"
+      ],
+      "text": "        \"validate_source_bound_causal_estimator_interval\": validate_persisted_estimator_interval,"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 404,
+      "names": [
+        "validate_persisted_worker_response",
+        "validate_source_bound_causal_worker_response"
+      ],
+      "text": "        \"validate_source_bound_causal_worker_response\": bridge.validate_persisted_worker_response,"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 421,
+      "names": [
+        "causal_worker_execution_context",
+        "worker_execution_context"
+      ],
+      "text": "        methods.causal_worker_execution_context()"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 423,
+      "names": [
+        "validate_source_bound_gcm_spec"
+      ],
+      "text": "        methods.validate_source_bound_gcm_spec()"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 425,
+      "names": [
+        "validate_source_bound_causal_estimator_interval"
+      ],
+      "text": "        methods.validate_source_bound_causal_estimator_interval()"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 427,
+      "names": [
+        "validate_source_bound_causal_worker_response"
+      ],
+      "text": "        methods.validate_source_bound_causal_worker_response()"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 444,
+      "names": [
+        "worker_execution_context"
+      ],
+      "text": "        with bridge.worker_execution_context(store=store, source_ref=source):"
+    },
+    {
+      "path": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "line": 450,
+      "names": [
+        "validate_persisted_estimator_interval"
+      ],
+      "text": "        validate_persisted_estimator_interval(interval, model, query, store)"
+    },
+    {
+      "path": "tests/unit/scientist/nodes/builtins/causal/test_run_causal_queries.py",
+      "line": 147,
+      "names": [
+        "validate_source_bound_gcm_spec"
+      ],
+      "text": "            \"polisyos.scientist.nodes.builtins.causal.run_causal_queries.validate_source_bound_gcm_spec\","
+    }
+  ],
+  "providers": [
+    {
+      "alias": "causal_worker_execution_context",
+      "provider_fqn": "polisyos.foundry.methods.catalog.causal._dowhy_worker.worker_execution_context",
+      "signature": "(*, store: 'Any', source_ref: 'artifacts.ArtifactRef') -> 'Iterator[None]'",
+      "callable_code_source": {
+        "path": "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/contextlib.py",
+        "bytes": 27801,
+        "sha256": "c1e0d67b2007de11ae93cd36cf6faf38d9ab32656a832d592a49325eec579f96"
+      },
+      "canonical_provider_source": {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+        "bytes": 16599,
+        "sha256": "582ad243fec5406d577154b7bc1f97e03664cf01843e1fa6f23c3ea28746db56"
+      },
+      "root_and_method_identity": true
+    },
+    {
+      "alias": "validate_source_bound_causal_worker_response",
+      "provider_fqn": "polisyos.foundry.methods.catalog.causal._dowhy_worker.validate_persisted_worker_response",
+      "signature": "(*, response: 'Mapping[str, Any]', state: 'Any', store: 'Any', source_ref: 'artifacts.ArtifactRef') -> 'None'",
+      "callable_code_source": {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+        "bytes": 16599,
+        "sha256": "582ad243fec5406d577154b7bc1f97e03664cf01843e1fa6f23c3ea28746db56"
+      },
+      "canonical_provider_source": {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+        "bytes": 16599,
+        "sha256": "582ad243fec5406d577154b7bc1f97e03664cf01843e1fa6f23c3ea28746db56"
+      },
+      "root_and_method_identity": true
+    },
+    {
+      "alias": "validate_source_bound_gcm_spec",
+      "provider_fqn": "polisyos.foundry.methods.catalog.causal.gcm_fit.validate_persisted_gcm_spec",
+      "signature": "(scm_spec: 'StructuralCausalModelSpec', store: 'Any') -> 'None'",
+      "callable_code_source": {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+        "bytes": 32094,
+        "sha256": "cb6dfd9197b0f93fde517e96b6dcaf6eda1a2bcba82b83c3be7f43a6d3773568"
+      },
+      "canonical_provider_source": {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+        "bytes": 32094,
+        "sha256": "cb6dfd9197b0f93fde517e96b6dcaf6eda1a2bcba82b83c3be7f43a6d3773568"
+      },
+      "root_and_method_identity": true
+    },
+    {
+      "alias": "validate_source_bound_causal_estimator_interval",
+      "provider_fqn": "polisyos.foundry.methods.catalog.causal.gcm_query.validate_persisted_estimator_interval",
+      "signature": "(interval: 'CausalEstimatorInterval', scm_spec: 'StructuralCausalModelSpec', query: 'CausalQuery', store: 'Any') -> 'None'",
+      "callable_code_source": {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+        "bytes": 74551,
+        "sha256": "f9a826aa9659d261153aaa577b417041cb14748afd888d500935d0d39bc87a87"
+      },
+      "canonical_provider_source": {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+        "bytes": 74551,
+        "sha256": "f9a826aa9659d261153aaa577b417041cb14748afd888d500935d0d39bc87a87"
+      },
+      "root_and_method_identity": true
+    }
+  ],
+  "consumer_override": "process-local marker-kept job wrapper exercises actual canonical registered producer before mutating full peer; original source/backend artifact retained",
+  "boundary": "finite repository literal-name/FQN/provider census; dynamic external filename/pickle/loader absence not established, separate installed-package acceptance remains with API/C/G"
+}

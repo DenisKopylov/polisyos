@@ -1,0 +1,6 @@
+{
+  "schema": "policyos.e02.lossless_utf8_text.v1",
+  "decoded_bytes": 724,
+  "decoded_sha256": "2f3a2f2976a0c87512aa88013b265af72fd62bb80f908cb81c024f9d6056f331",
+  "text": "{\"python\": \"3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]\", \"isolated\": 1, \"function_module\": \"polisyos.data_forge.domains.catalog.knowledge.variable_alignment\", \"owner\": \"/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/site-packages/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py\", \"owner_sha256\": \"6dbfbb04cddff8d1af11ed226e68092a2763a8d007b73f911f4ed9eaa5e54cd9\", \"path_type\": \"PosixPath\", \"default_path\": \"/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/data/dataset_catalog/seed_variable_alignments.yaml\", \"exists\": false, \"scope\": \"PathABI/resource absence only, no seed injection/native rerun\"}\n"
+}

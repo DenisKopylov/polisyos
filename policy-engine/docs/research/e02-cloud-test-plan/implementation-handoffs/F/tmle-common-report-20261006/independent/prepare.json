@@ -1,0 +1,369 @@
+{
+  "schema": "e02-tmle-independent-preparation-v1",
+  "candidate_sha": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d",
+  "candidate_tree": "e035bb5cdf9bde154fe08bcb72a0341cfeb2a970",
+  "packet_manifest": {
+    "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/transfer-selection.json",
+    "bytes": 7914,
+    "sha256": "99f611e54b29821dc716eecce588f80878b2e0552f3c5ebeea4fe8429008416d"
+  },
+  "packet_files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/probe.py",
+      "bytes": 6435,
+      "sha256": "c96e700c8dbc6399ff4e1aa3c250a2a98d886a89f8003e40631b665f657c3f55",
+      "actual": {
+        "bytes": 6435,
+        "sha256": "c96e700c8dbc6399ff4e1aa3c250a2a98d886a89f8003e40631b665f657c3f55"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/replay.py",
+      "bytes": 3152,
+      "sha256": "73d370e8bc9be1d49a02a0022ed2237ad69f709eb7378963ff0197b6a966f7da",
+      "actual": {
+        "bytes": 3152,
+        "sha256": "73d370e8bc9be1d49a02a0022ed2237ad69f709eb7378963ff0197b6a966f7da"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/probe-v2.py",
+      "bytes": 6939,
+      "sha256": "d47650447811ef83095166cfa7f16edae991fdd0b1b439b4891e855fc9e15024",
+      "actual": {
+        "bytes": 6939,
+        "sha256": "d47650447811ef83095166cfa7f16edae991fdd0b1b439b4891e855fc9e15024"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/replay-v2.py",
+      "bytes": 3170,
+      "sha256": "f350d87bbde0ae7ea9a90c3f8b4d344840ad29862a68fe51ef6a2bb40ef1aca3",
+      "actual": {
+        "bytes": 3170,
+        "sha256": "f350d87bbde0ae7ea9a90c3f8b4d344840ad29862a68fe51ef6a2bb40ef1aca3"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/probe-v3.py",
+      "bytes": 7027,
+      "sha256": "84dc5dccdecff69bc7ffd1cecb644fb2d3d2378dbf6b0cd304d5dd1c1e1d72d7",
+      "actual": {
+        "bytes": 7027,
+        "sha256": "84dc5dccdecff69bc7ffd1cecb644fb2d3d2378dbf6b0cd304d5dd1c1e1d72d7"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/replay-v3.py",
+      "bytes": 3170,
+      "sha256": "c13c9c10f70595ceb4ab2bb142a0cae52e6af0ecc49276af87151ce307901d78",
+      "actual": {
+        "bytes": 3170,
+        "sha256": "c13c9c10f70595ceb4ab2bb142a0cae52e6af0ecc49276af87151ce307901d78"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/assemble_packet.py",
+      "bytes": 14462,
+      "sha256": "fa4ce1e4d1a4e7a2cca56cb2a4dd3843e16ffca21482d15566efcad4c46b51fc",
+      "actual": {
+        "bytes": 14462,
+        "sha256": "fa4ce1e4d1a4e7a2cca56cb2a4dd3843e16ffca21482d15566efcad4c46b51fc"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/feasibility-packet.json",
+      "bytes": 28980,
+      "sha256": "1e483edb81f4afe6e7adb31a89269bd7d391de32b7c7b8c89fdb3e222f30e443",
+      "actual": {
+        "bytes": 28980,
+        "sha256": "1e483edb81f4afe6e7adb31a89269bd7d391de32b7c7b8c89fdb3e222f30e443"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/pool-construction-census.json",
+      "bytes": 1345,
+      "sha256": "1e0905880bcdb94cf0777722bd3facd30da36e9a863bfe18c4c4af1d9087bdb7",
+      "actual": {
+        "bytes": 1345,
+        "sha256": "1e0905880bcdb94cf0777722bd3facd30da36e9a863bfe18c4c4af1d9087bdb7"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/pool-construction-census.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/pool-construction-census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/job.json",
+      "bytes": 5807,
+      "sha256": "52634f316ac58262e67d1cf0b3e20495637055d2aa4fe6a3d0b83e48a087b59d",
+      "actual": {
+        "bytes": 5807,
+        "sha256": "52634f316ac58262e67d1cf0b3e20495637055d2aa4fe6a3d0b83e48a087b59d"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/job.stdout.txt",
+      "bytes": 129109,
+      "sha256": "9eed938d388330d3ca9e76560937f0286b9d73e5ec2bb44c5fc22e19c9c58ec9",
+      "actual": {
+        "bytes": 129109,
+        "sha256": "9eed938d388330d3ca9e76560937f0286b9d73e5ec2bb44c5fc22e19c9c58ec9"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/job.stderr.txt",
+      "bytes": 759,
+      "sha256": "e0beeb3013a6355104f9e9a62bf1846a86c3be622ab5144b2b3dabe3e0f91072",
+      "actual": {
+        "bytes": 759,
+        "sha256": "e0beeb3013a6355104f9e9a62bf1846a86c3be622ab5144b2b3dabe3e0f91072"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/input.json",
+      "bytes": 5810,
+      "sha256": "a47c1539f8408546a3dd7de70b9caf7e687339625f281d511f6e3f6ab531e3cd",
+      "actual": {
+        "bytes": 5810,
+        "sha256": "a47c1539f8408546a3dd7de70b9caf7e687339625f281d511f6e3f6ab531e3cd"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/input.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/input.stderr.txt",
+      "bytes": 363,
+      "sha256": "7b128e5c8fdd6bc6c9c37709f6c101d5d61268dad7416a7243417d9f79a79f06",
+      "actual": {
+        "bytes": 363,
+        "sha256": "7b128e5c8fdd6bc6c9c37709f6c101d5d61268dad7416a7243417d9f79a79f06"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/pool.json",
+      "bytes": 5807,
+      "sha256": "a57fdfde8690566109280c4716616464b35a10cca0eb9757ffc34953b0a40618",
+      "actual": {
+        "bytes": 5807,
+        "sha256": "a57fdfde8690566109280c4716616464b35a10cca0eb9757ffc34953b0a40618"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/pool.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/pool.stderr.txt",
+      "bytes": 1301,
+      "sha256": "335992cf7a76dc328a84afa0a06df42a4904a2f3a8538fc7ef4bdeb57a68f6f0",
+      "actual": {
+        "bytes": 1301,
+        "sha256": "335992cf7a76dc328a84afa0a06df42a4904a2f3a8538fc7ef4bdeb57a68f6f0"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/job-v2.json",
+      "bytes": 5820,
+      "sha256": "770a64fbb943c612db5c528bf493a3788a91553f0657d65ea5988effc3de904a",
+      "actual": {
+        "bytes": 5820,
+        "sha256": "770a64fbb943c612db5c528bf493a3788a91553f0657d65ea5988effc3de904a"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/job-v2.stdout.txt",
+      "bytes": 129773,
+      "sha256": "a075e325a3a3b0630ec320ebeaf8b3f0e03376cd77bfc4d437c712397cccfa02",
+      "actual": {
+        "bytes": 129773,
+        "sha256": "a075e325a3a3b0630ec320ebeaf8b3f0e03376cd77bfc4d437c712397cccfa02"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/job-v2.stderr.txt",
+      "bytes": 96,
+      "sha256": "f5e58b820e7b616439ac86d8f5cfd31eaab3c3ba88865be354e5dceb83ddd55a",
+      "actual": {
+        "bytes": 96,
+        "sha256": "f5e58b820e7b616439ac86d8f5cfd31eaab3c3ba88865be354e5dceb83ddd55a"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/input-v2.json",
+      "bytes": 5825,
+      "sha256": "9cc4182103fa1daf215803dd5b99c3ede3cbbd594fab105f8ca7b279bdc9e701",
+      "actual": {
+        "bytes": 5825,
+        "sha256": "9cc4182103fa1daf215803dd5b99c3ede3cbbd594fab105f8ca7b279bdc9e701"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/input-v2.stdout.txt",
+      "bytes": 1532,
+      "sha256": "09a12d0398720852e8e5051043e8d9189fe66bd3f8d2ea6580585557f3bbc508",
+      "actual": {
+        "bytes": 1532,
+        "sha256": "09a12d0398720852e8e5051043e8d9189fe66bd3f8d2ea6580585557f3bbc508"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/input-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/pool-v2.json",
+      "bytes": 5820,
+      "sha256": "82542ef2f8bd25ebabe9b31339ed6b3fcf6057c5e2b2481e61688f8b560afead",
+      "actual": {
+        "bytes": 5820,
+        "sha256": "82542ef2f8bd25ebabe9b31339ed6b3fcf6057c5e2b2481e61688f8b560afead"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/pool-v2.stdout.txt",
+      "bytes": 944,
+      "sha256": "b58310faacaf7d54f0727e6f23eb77ca1e33882c8d56cc4bf1e63044e91d530e",
+      "actual": {
+        "bytes": 944,
+        "sha256": "b58310faacaf7d54f0727e6f23eb77ca1e33882c8d56cc4bf1e63044e91d530e"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/pool-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/jobdefault-v2.json",
+      "bytes": 5852,
+      "sha256": "5486de5f9c715a24942ff1c0b8f8022c11d70f4c557940ab3892229958f19361",
+      "actual": {
+        "bytes": 5852,
+        "sha256": "5486de5f9c715a24942ff1c0b8f8022c11d70f4c557940ab3892229958f19361"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/jobdefault-v2.stdout.txt",
+      "bytes": 752490,
+      "sha256": "56f673e80b48425f5170c7b6537df512a7f997a66aadcf0a9ba2b660b4c68a08",
+      "actual": {
+        "bytes": 752490,
+        "sha256": "56f673e80b48425f5170c7b6537df512a7f997a66aadcf0a9ba2b660b4c68a08"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/jobdefault-v2.stderr.txt",
+      "bytes": 21226,
+      "sha256": "2729fb00dbd2e152c29c2e584154084fc8d37426e871110b42268f2ab412f827",
+      "actual": {
+        "bytes": 21226,
+        "sha256": "2729fb00dbd2e152c29c2e584154084fc8d37426e871110b42268f2ab412f827"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/jobdefault-v3.json",
+      "bytes": 5849,
+      "sha256": "e9c613b9a2489d32080a8a046d9590cda7148fbec7f99004dfd102511a7d089b",
+      "actual": {
+        "bytes": 5849,
+        "sha256": "e9c613b9a2489d32080a8a046d9590cda7148fbec7f99004dfd102511a7d089b"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/jobdefault-v3.stdout.txt",
+      "bytes": 753624,
+      "sha256": "1179d399e9bf4546beaa60433cfda28148d801cfcfdd30d511b51eef6f03fc39",
+      "actual": {
+        "bytes": 753624,
+        "sha256": "1179d399e9bf4546beaa60433cfda28148d801cfcfdd30d511b51eef6f03fc39"
+      },
+      "check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/jobdefault-v3.stderr.txt",
+      "bytes": 21000,
+      "sha256": "7414ac40bc6487189af7a32833d4ec0ed136cd94827292e334e01e6b26f3301f",
+      "actual": {
+        "bytes": 21000,
+        "sha256": "7414ac40bc6487189af7a32833d4ec0ed136cd94827292e334e01e6b26f3301f"
+      },
+      "check": "PASS"
+    }
+  ],
+  "count": 35,
+  "total_bytes": 1933487,
+  "issues": [],
+  "check": "PASS",
+  "initial_harness_error": "prepare-initial-zero-denominator.json",
+  "identified_admission": "not_established",
+  "shared_all_study_runtime_budget": "UNRUN"
+}

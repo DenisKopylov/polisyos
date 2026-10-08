@@ -1,0 +1,43 @@
+{
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-C-berl-falsifier/probe.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-C-berl-falsifier",
+  "interpreter": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+  "interpreter_version": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+  "interpreter_prefix": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv",
+  "environment": {
+    "PATH": "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0IKaEzY:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-C-berl-falsifier/selected-source",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1",
+    "LANG": "C",
+    "LC_ALL": "C"
+  },
+  "start_utc": "2026-10-06T16:10:52.627310+00:00",
+  "end_utc": "2026-10-06T16:10:52.706250+00:00",
+  "timeout_seconds": 15.0,
+  "timed_out": false,
+  "wall_seconds": 0.07880379201378673,
+  "child_pid": 29157,
+  "exit_code": 0,
+  "peak_rss_raw": 36814848,
+  "peak_rss_units": "bytes",
+  "peak_rss_mib": 35.109,
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-C-berl-falsifier/stdout.txt",
+  "stdout_bytes": 3175,
+  "stdout_sha256": "861f0763cbc8822d15ab7e81c6f027a873e0c3245694261f30c6448de3566d39",
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-C-berl-falsifier/stderr.txt",
+  "stderr_bytes": 0,
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "resource_scope": "one child probe only; runner performed no child command before the probe",
+  "raw_execution_sha256": "21bd869abe9196b2f2eca94d6be8c3998bfc60d578e0f039c6c7707259a5a1b3",
+  "format_note": "Raw JSON has literal backslash-n suffix; parsed object retained without duplicated stdout payload; no product rerun",
+  "probe_script_sha256": "15f4bc124b5279a405dd403c2a7808951a22bc34213b58227916df25e501b097",
+  "runner_script_sha256": "90ddd1129f941e3de7612ca569bb242418f7c4695d26631bf2a65bb0a0033ec4"
+}

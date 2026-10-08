@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261006/cau/root-selected-views-independent.py", line 36, in <module>
+    loaded=owner._load_observational_data(ctx,state,"causal.inference.did.standard@1.0.0")
+  File "<selected-view-canonical-removal>", line 38, in _load_observational_data
+ValueError: observational_envelope_artifact_identity_mismatch

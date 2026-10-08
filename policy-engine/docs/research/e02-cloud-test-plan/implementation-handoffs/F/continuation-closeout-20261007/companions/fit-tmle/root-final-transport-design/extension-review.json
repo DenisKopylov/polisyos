@@ -1,0 +1,101 @@
+{
+  "scope": "Read-only metadata transport utility extension; no ROOT/product/Git writes or scientific wave",
+  "verdict": "GO_BOUNDED utility behavior, no final new source acceptance",
+  "frozen_helpers": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection.py",
+      "bytes": 13769,
+      "sha256": "6138ed98addff08997b823c2d5d5341d1e403cf6b7a6835b95fb8106cc4ec247"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v2.py",
+      "bytes": 10833,
+      "sha256": "a02b2b74f47a3baa0d7a9b5ae867f679e7e890a4ede4e28d75c4efe8e06d86aa"
+    }
+  ],
+  "frozen_v1_preserved": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-draft.json",
+    "bytes": 304062,
+    "sha256": "5b502dc4136bd9ea962e6daa9a6feed3dd39bedf89ba4b17b5a353eab2cd0546"
+  },
+  "prior_staging_manifest": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/staged-draft/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+    "bytes": 325734,
+    "sha256": "5c9ded97c345a87d3f9ac0d6b2a262d2c414bc14cf9d5af2f8c3d6b60abfd683"
+  },
+  "actual_current_demo": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-refreshed-current-v2.json",
+    "bytes": 238527,
+    "sha256": "39ce17acf2dbf2edd022910e454da84d74fd401adfa2aeb1ad6941e9810c47a7"
+  },
+  "complete_outputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh-current-v2.stdout.json",
+      "bytes": 1453,
+      "sha256": "307bde4b79cc4a4c3eeb04abaa9e7d549f8aac38db8a2295eaff2d0cc7492722"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh-current-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v2-final-validation.stdout.json",
+      "bytes": 1066,
+      "sha256": "ec8a2c9394f202b285cbcc8f12fcd899cc5c0ccc0181a058cb239e57e941a7fd"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v2-final-validation.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe.stdout.json",
+      "bytes": 2996,
+      "sha256": "1e2e6aca15c1855355cc11ff23eda6f25981948b390921d9f07282693a736e74"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "metadata_control": {
+    "replayer": {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/probe_refresh_custody.py",
+      "bytes": 3832,
+      "sha256": "b8944a9f93adefd952e0e506d13e8843430a3f0273728f7582b8ea199c221a88"
+    },
+    "result": "PASS",
+    "meaning": "Own synthetic alpha/beta text inputs exercise changed prior gzip retention and alias regrouping; no DataForge default fixture, product/input law or backend witness substituted."
+  },
+  "CLI": {
+    "required": "--seed-selection PATH --prior-manifest PATH --prior-staging-root PATH --repository PATH --final-source-sha ACTUAL40HEX --output NEW_ADDITIVE_PATH",
+    "extensions": [
+      "--refresh-directory ROOT_INTEGRATION_DIR",
+      "--include-directory ID=EXPLICIT_FINALQUALITY_DIR",
+      "--include-selection ID=EXPLICIT_FINALCAUREVIEW_SELECTION",
+      "--include-file EXPLICIT_UNIQUE_PATH",
+      "--existing-git-spec EXPLICIT_JSON_FILE",
+      "--resolve-pending EXISTING_PENDING_ID"
+    ],
+    "existing_git_spec": "JSON list (or object.files) of {git_ref:actual40hex,path:actualGitpath,bytes,sha256,remote_ref:refs/remotes/origin/topic,remote_head:actualObservedTip,extension_id:knownPendingID,role}. Every exact file bytes/hash verified through Git; ref must be ancestor of actual observed origin tracking tip. No fresh network/readback inferred from tracking ref; ROOT supplies its recorded publication/readback.",
+    "pending_ids": [
+      "new-final-root-quality",
+      "new-final-installed-composition",
+      "packaged-resource-owner-receipt"
+    ],
+    "publisher": "python3 publish_transport_v2.py --selection REFRESHED_JSON --repository ROOT_REPO (validation only). Add --materialize --destination EXPLICIT_PATH for ROOT-authorized artifact writes. Add --primary-template ROOT_REVIEWED_JSON only after pending resolved; ROOT scientific decisions remain external."
+  },
+  "invariants": [
+    "Every seed logical file rehashed independently, including old aliases. Changed old existing Git disposition discarded unless current exact bytes match. Newly supplied published ref can dedupe actual exact bytes, never basename/source resemblance.",
+    "Changed prior bytes retained from original immutable staged-draft identity/gzip or immutable Git. Prior compressed streams copied without recompression and full decoded SHA verified. No raw deletion, truncation, overwrite of old draft or partial carriers.",
+    "Aliases regrouped by complete decoded bytes/SHA. All paths scoped, publication script bytes included. Final input selection itself added only to OUTPUT artifact-transports manifest, avoiding self-hash recursion.",
+    "Explicit final sourceSHA resolves actual Git tree. Original b5 quality FAIL and d833 original35 GO remain historical evidence, not final source/consumer scientific PASS.",
+    "Extensions only explicitly named complete files/directories, hashchecked owner selections or verified Git refs. Missing final carriers remain pending/UNRUN/null."
+  ],
+  "prototype_limit": "First intermediate refreshed-current-demonstration selection/validation is historical metadata prototype; helper bodies were amended afterward for new existing-ref/declared-ref validation and exact initial prototype bodies were not separately retained. Do not claim that prototype as final replay input. Retained final v2 scripts/current-v2 selection and own metadata-control inputs are exact bytes.",
+  "no_future_SHA": true,
+  "no_new_tests_of_science": true,
+  "root_writes": false
+}

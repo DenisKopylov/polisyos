@@ -1,0 +1,575 @@
+{
+  "owner_receipt_ref": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007.json",
+  "receipt_bytes": 89153,
+  "receipt_sha256": "f3cbaadef8f0fb163150356bfa3a46edbd343bbd3934b0b86a919be7d629688b",
+  "candidate_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+  "candidate_tree": "6b699cac11fb1fe5b317ed0ccfc76940e5958906",
+  "checks": [
+    {
+      "check_id": "immutable-base072-semantic-reproduction",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261007/graph/intake-base072-probe.py",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/graph/intake-base072-probe.py"
+      ],
+      "target_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "target_tree_sha": "f2b9b2d4bcc24a2feeae6f4873b61845a07cc090",
+      "environment": "CPython3.14.7/Numpy2.3.5/SciPy1.16.3/Pydantic2.12.5/pytest9.0.2; readonly shared environment; own candidate source via exact PYTHONPATH. DoWhy/EconML marker-excluded, not a backend witness.",
+      "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine"
+      },
+      "input_closure": "Actual typed synthetic graph artifacts → registered Numpy MethodJob → canonical node → CAS → fresh reader; all53 synthetic CAS blob/manifest/view/trace bytes are transported",
+      "outcome": "FAIL",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/intake-base072.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/intake-base072.stderr.txt",
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/intake-base072.json",
+      "meaning": "Unsafe graph admission characterized by assertions: stale current direction, missingref, circle collapse, compact lag accepted. rc0 only means characterization completed; semantic property FAIL."
+    },
+    {
+      "check_id": "frozen-native",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/scientist/methods/causal/test_graph_intake_current_content.py tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py -q -o addopts= --import-mode=importlib -p no:cacheprovider --junitxml /tmp/e02-F-continuation-20261007/graph/frozen-native.xml",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+        "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+        "tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+        "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+        "-q",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--junitxml",
+        "/tmp/e02-F-continuation-20261007/graph/frozen-native.xml"
+      ],
+      "target_sha": "3e6b47e88e0f25474df8cffa213a5e09e7b7affa",
+      "target_tree_sha": "8e06d6ff04e060f3e759708344a2071e82780ca0",
+      "environment": "CPython3.14.7/Numpy2.3.5/SciPy1.16.3/Pydantic2.12.5/pytest9.0.2; readonly shared environment; own candidate source via exact PYTHONPATH. DoWhy/EconML marker-excluded, not a backend witness.",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/environment.json",
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine"
+      },
+      "input_closure": "Actual synthetic typed graphs and registered Numpy method producer; isolated pytest CAS roots; no empirical causal authority, no optional backend witness",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-native.stdout.txt.gz",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-native.stderr.txt",
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-native.json",
+      "source_unchanged": true,
+      "meaning": "complete exact-source native or scoped canonical engineering measurement"
+    },
+    {
+      "check_id": "frozen-ruff",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m ruff check policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+        "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py"
+      ],
+      "target_sha": "3e6b47e88e0f25474df8cffa213a5e09e7b7affa",
+      "target_tree_sha": "8e06d6ff04e060f3e759708344a2071e82780ca0",
+      "environment": "CPython3.14.7/Numpy2.3.5/SciPy1.16.3/Pydantic2.12.5/pytest9.0.2; readonly shared environment; own candidate source via exact PYTHONPATH. DoWhy/EconML marker-excluded, not a backend witness.",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/environment.json",
+      "cwd": "/workspace/e02-F-graph-20261006",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine"
+      },
+      "input_closure": "Actual synthetic typed graphs and registered Numpy method producer; isolated pytest CAS roots; no empirical causal authority, no optional backend witness",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-ruff.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-ruff.stderr.txt",
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-ruff.json",
+      "source_unchanged": true,
+      "meaning": "complete exact-source native or scoped canonical engineering measurement"
+    },
+    {
+      "check_id": "frozen-ruff-format",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m ruff format --check policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+        "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py"
+      ],
+      "target_sha": "3e6b47e88e0f25474df8cffa213a5e09e7b7affa",
+      "target_tree_sha": "8e06d6ff04e060f3e759708344a2071e82780ca0",
+      "environment": "CPython3.14.7/Numpy2.3.5/SciPy1.16.3/Pydantic2.12.5/pytest9.0.2; readonly shared environment; own candidate source via exact PYTHONPATH. DoWhy/EconML marker-excluded, not a backend witness.",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/environment.json",
+      "cwd": "/workspace/e02-F-graph-20261006",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine"
+      },
+      "input_closure": "Actual synthetic typed graphs and registered Numpy method producer; isolated pytest CAS roots; no empirical causal authority, no optional backend witness",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-ruff-format.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-ruff-format.stderr.txt",
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-ruff-format.json",
+      "source_unchanged": true,
+      "meaning": "complete exact-source native or scoped canonical engineering measurement"
+    },
+    {
+      "check_id": "frozen-fragment",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261007/graph/check_fragment.py",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/graph/check_fragment.py"
+      ],
+      "target_sha": "3e6b47e88e0f25474df8cffa213a5e09e7b7affa",
+      "target_tree_sha": "8e06d6ff04e060f3e759708344a2071e82780ca0",
+      "environment": "CPython3.14.7/Numpy2.3.5/SciPy1.16.3/Pydantic2.12.5/pytest9.0.2; readonly shared environment; own candidate source via exact PYTHONPATH. DoWhy/EconML marker-excluded, not a backend witness.",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/environment.json",
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine:/workspace/e02-F-graph-20261006/policy-engine/tools"
+      },
+      "input_closure": "Actual synthetic typed graphs and registered Numpy method producer; isolated pytest CAS roots; no empirical causal authority, no optional backend witness",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-fragment.stdout.txt.gz",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-fragment.stderr.txt",
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-fragment.json",
+      "source_unchanged": true,
+      "meaning": "complete exact-source native or scoped canonical engineering measurement"
+    },
+    {
+      "check_id": "removal-current-content",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261007/graph/remove_property.py current-content",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/graph/remove_property.py",
+        "current-content"
+      ],
+      "target_sha": "3e6b47e88e0f25474df8cffa213a5e09e7b7affa",
+      "target_tree_sha": "8e06d6ff04e060f3e759708344a2071e82780ca0",
+      "environment": "CPython3.14.7/Numpy2.3.5/SciPy1.16.3/Pydantic2.12.5/pytest9.0.2; readonly shared environment; own candidate source via exact PYTHONPATH. DoWhy/EconML marker-excluded, not a backend witness.",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/environment.json",
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine"
+      },
+      "input_closure": "Actual synthetic typed graphs and registered Numpy method producer; isolated pytest CAS roots; no empirical causal authority, no optional backend witness",
+      "outcome": "FAIL",
+      "exit": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-current-content.stdout.txt.gz",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-current-content.stderr.txt",
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-current-content.json",
+      "source_unchanged": true,
+      "meaning": "expected property-removal failure; not scientific/runtime suite PASS"
+    },
+    {
+      "check_id": "removal-endpoint-identity",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261007/graph/remove_property.py endpoint-identity",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/graph/remove_property.py",
+        "endpoint-identity"
+      ],
+      "target_sha": "3e6b47e88e0f25474df8cffa213a5e09e7b7affa",
+      "target_tree_sha": "8e06d6ff04e060f3e759708344a2071e82780ca0",
+      "environment": "CPython3.14.7/Numpy2.3.5/SciPy1.16.3/Pydantic2.12.5/pytest9.0.2; readonly shared environment; own candidate source via exact PYTHONPATH. DoWhy/EconML marker-excluded, not a backend witness.",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/environment.json",
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine"
+      },
+      "input_closure": "Actual synthetic typed graphs and registered Numpy method producer; isolated pytest CAS roots; no empirical causal authority, no optional backend witness",
+      "outcome": "FAIL",
+      "exit": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-endpoint-identity.stdout.txt.gz",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-endpoint-identity.stderr.txt",
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-endpoint-identity.json",
+      "source_unchanged": true,
+      "meaning": "expected property-removal failure; not scientific/runtime suite PASS"
+    },
+    {
+      "check_id": "removal-early-profile",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261007/graph/remove_property.py early-profile",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/graph/remove_property.py",
+        "early-profile"
+      ],
+      "target_sha": "3e6b47e88e0f25474df8cffa213a5e09e7b7affa",
+      "target_tree_sha": "8e06d6ff04e060f3e759708344a2071e82780ca0",
+      "environment": "CPython3.14.7/Numpy2.3.5/SciPy1.16.3/Pydantic2.12.5/pytest9.0.2; readonly shared environment; own candidate source via exact PYTHONPATH. DoWhy/EconML marker-excluded, not a backend witness.",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/environment.json",
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine"
+      },
+      "input_closure": "Actual synthetic typed graphs and registered Numpy method producer; isolated pytest CAS roots; no empirical causal authority, no optional backend witness",
+      "outcome": "FAIL",
+      "exit": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-early-profile.stdout.txt.gz",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-early-profile.stderr.txt",
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-early-profile.json",
+      "source_unchanged": true,
+      "meaning": "expected property-removal failure; not scientific/runtime suite PASS"
+    },
+    {
+      "check_id": "corrected-frozen-native",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/scientist/methods/causal/test_graph_intake_current_content.py tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py -q -o addopts= --import-mode=importlib -p no:cacheprovider --junitxml /tmp/e02-F-continuation-20261007/graph/corrected-frozen-native.xml",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+        "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+        "tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+        "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+        "-q",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--junitxml",
+        "/tmp/e02-F-continuation-20261007/graph/corrected-frozen-native.xml"
+      ],
+      "target_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+      "target_tree_sha": "6b699cac11fb1fe5b317ed0ccfc76940e5958906",
+      "environment": "CPython3.14.7/Numpy2.3.5/SciPy1.16.3/Pydantic2.12.5/pytest9.0.2; readonly shared environment; own candidate source via exact PYTHONPATH. DoWhy/EconML marker-excluded, not a backend witness.",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/environment.json",
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine"
+      },
+      "input_closure": "Actual synthetic typed graphs and registered Numpy method producer; isolated pytest CAS roots; no empirical causal authority, no optional backend witness",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-native.stdout.txt.gz",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-native.stderr.txt",
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-native.json",
+      "source_unchanged": true,
+      "meaning": "complete exact-source native or scoped canonical engineering measurement"
+    },
+    {
+      "check_id": "corrected-frozen-ruff",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m ruff check policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+        "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py"
+      ],
+      "target_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+      "target_tree_sha": "6b699cac11fb1fe5b317ed0ccfc76940e5958906",
+      "environment": "CPython3.14.7/Numpy2.3.5/SciPy1.16.3/Pydantic2.12.5/pytest9.0.2; readonly shared environment; own candidate source via exact PYTHONPATH. DoWhy/EconML marker-excluded, not a backend witness.",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/environment.json",
+      "cwd": "/workspace/e02-F-graph-20261006",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine"
+      },
+      "input_closure": "Actual synthetic typed graphs and registered Numpy method producer; isolated pytest CAS roots; no empirical causal authority, no optional backend witness",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-ruff.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-ruff.stderr.txt",
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-ruff.json",
+      "source_unchanged": true,
+      "meaning": "complete exact-source native or scoped canonical engineering measurement"
+    },
+    {
+      "check_id": "corrected-frozen-ruff-format",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m ruff format --check policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+        "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py"
+      ],
+      "target_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+      "target_tree_sha": "6b699cac11fb1fe5b317ed0ccfc76940e5958906",
+      "environment": "CPython3.14.7/Numpy2.3.5/SciPy1.16.3/Pydantic2.12.5/pytest9.0.2; readonly shared environment; own candidate source via exact PYTHONPATH. DoWhy/EconML marker-excluded, not a backend witness.",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/environment.json",
+      "cwd": "/workspace/e02-F-graph-20261006",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine"
+      },
+      "input_closure": "Actual synthetic typed graphs and registered Numpy method producer; isolated pytest CAS roots; no empirical causal authority, no optional backend witness",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-ruff-format.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-ruff-format.stderr.txt",
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-ruff-format.json",
+      "source_unchanged": true,
+      "meaning": "complete exact-source native or scoped canonical engineering measurement"
+    },
+    {
+      "check_id": "corrected-frozen-fragment",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261007/graph/check_fragment.py",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/graph/check_fragment.py"
+      ],
+      "target_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+      "target_tree_sha": "6b699cac11fb1fe5b317ed0ccfc76940e5958906",
+      "environment": "CPython3.14.7/Numpy2.3.5/SciPy1.16.3/Pydantic2.12.5/pytest9.0.2; readonly shared environment; own candidate source via exact PYTHONPATH. DoWhy/EconML marker-excluded, not a backend witness.",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/environment.json",
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine:/workspace/e02-F-graph-20261006/policy-engine/tools"
+      },
+      "input_closure": "Actual synthetic typed graphs and registered Numpy method producer; isolated pytest CAS roots; no empirical causal authority, no optional backend witness",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-fragment.stdout.txt.gz",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-fragment.stderr.txt",
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-fragment.json",
+      "source_unchanged": true,
+      "meaning": "complete exact-source native or scoped canonical engineering measurement"
+    },
+    {
+      "check_id": "removal-composition-result",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261007/graph/remove_composition_basis.py",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/graph/remove_composition_basis.py"
+      ],
+      "target_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+      "target_tree_sha": "6b699cac11fb1fe5b317ed0ccfc76940e5958906",
+      "environment": "CPython3.14.7/Numpy2.3.5/SciPy1.16.3/Pydantic2.12.5/pytest9.0.2; readonly shared environment; own candidate source via exact PYTHONPATH. DoWhy/EconML marker-excluded, not a backend witness.",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/environment.json",
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine"
+      },
+      "input_closure": "Real persisted synthetic composition, source manifests, producer and query consumer retained; only complete producer certificate comparison removed in memory",
+      "outcome": "FAIL",
+      "exit": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-composition-result.stdout.txt.gz",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-composition-result.stderr.txt",
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-composition-result.json",
+      "source_unchanged": true,
+      "meaning": "expected property-removal failure; not scientific/runtime suite PASS"
+    },
+    {
+      "check_id": "current-composed-production-invocation-and-global-gates",
+      "command": "Root central final composed-source diagnostic after independently reviewed merges; no duplicate leaf full scanner",
+      "target_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+      "environment": "CPython3.14.7/Numpy2.3.5/SciPy1.16.3/Pydantic2.12.5/pytest9.0.2; readonly shared environment; own candidate source via exact PYTHONPATH. DoWhy/EconML marker-excluded, not a backend witness.",
+      "input_closure": "Full composed root source and exact prior quality input denominator; new two internal graph providers/7-path slice are not a repository-wide green verdict",
+      "outcome": "UNRUN",
+      "output": "Delegated to F root final frozen architecture/production_invocation wave; prior8236 globalFAIL retained, P41 not_established."
+    },
+    {
+      "check_id": "independent647/selected-native",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/scientist/methods/causal/test_graph_intake_current_content.py tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py -q -o addopts= --import-mode=importlib -p no:cacheprovider --basetemp=/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/native-temp",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+        "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+        "tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+        "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+        "-q",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/native-temp"
+      ],
+      "target_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+      "target_tree_sha": "6b699cac11fb1fe5b317ed0ccfc76940e5958906",
+      "environment": "CPython3.14.7/Numpy2.3.5/SciPy1.16.3/Pydantic2.12.5/pytest9.0.2; readonly shared environment; own candidate source via exact PYTHONPATH. DoWhy/EconML marker-excluded, not a backend witness.",
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "79PASS, zero skip/error, one PytestConfigWarning unknown cache_dir; complete raw warning retained",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/native.stdout.gz",
+      "result": "79PASS, zero skip/error, one PytestConfigWarning unknown cache_dir; complete raw warning retained",
+      "source_unchanged": true
+    },
+    {
+      "check_id": "independent647/original-deciding-discriminators",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest /tmp/e02-F-continuation-20261007/api/graph-intake-review-647/test_current_source_guards.py -q -s -o addopts= --import-mode=importlib -p no:cacheprovider --basetemp=/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/original-controls-temp",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/test_current_source_guards.py",
+        "-q",
+        "-s",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/original-controls-temp"
+      ],
+      "target_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+      "target_tree_sha": "6b699cac11fb1fe5b317ed0ccfc76940e5958906",
+      "environment": "CPython3.14.7/Numpy2.3.5/SciPy1.16.3/Pydantic2.12.5/pytest9.0.2; readonly shared environment; own candidate source via exact PYTHONPATH. DoWhy/EconML marker-excluded, not a backend witness.",
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "3PASS; actual query-only positive, unchanged graph/current incompatible alignment typed refusal, unique wrong-kind fragment actual CAS refusal",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/original-controls.stdout",
+      "result": "3PASS; actual query-only positive, unchanged graph/current incompatible alignment typed refusal, unique wrong-kind fragment actual CAS refusal",
+      "source_unchanged": true
+    },
+    {
+      "check_id": "independent647/complete-field-and-operational-cache-controls",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest /tmp/e02-F-continuation-20261007/api/graph-intake-review-647/test_complete_projection.py -q -s -o addopts= --import-mode=importlib -p no:cacheprovider --basetemp=/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/complete-projection-temp",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/test_complete_projection.py",
+        "-q",
+        "-s",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/complete-projection-temp"
+      ],
+      "target_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+      "target_tree_sha": "6b699cac11fb1fe5b317ed0ccfc76940e5958906",
+      "environment": "CPython3.14.7/Numpy2.3.5/SciPy1.16.3/Pydantic2.12.5/pytest9.0.2; readonly shared environment; own candidate source via exact PYTHONPATH. DoWhy/EconML marker-excluded, not a backend witness.",
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "17PASS: exact18-field model denominator, all15 nonoperational field changes refused, orphan and altered operational cache removed with whole fresh certificate equal",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/complete-projection.stdout",
+      "result": "17PASS: exact18-field model denominator, all15 nonoperational field changes refused, orphan and altered operational cache removed with whole fresh certificate equal",
+      "source_unchanged": true
+    },
+    {
+      "check_id": "independent647/fresh-profile-and-origins",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -c 'import sys,json,importlib,importlib.util,importlib.metadata\nmods=['\"'\"'polisyos.ir.analytics.causal_graph'\"'\"','\"'\"'polisyos.ir.analytics.cross_graph'\"'\"','\"'\"'polisyos.ir.analytics.alignment_certification'\"'\"','\"'\"'polisyos.foundry.methods.catalog.causal.graph_reconciliation'\"'\"','\"'\"'polisyos.foundry.methods.catalog.causal.query_preservation'\"'\"','\"'\"'polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph'\"'\"']\nprint(json.dumps({'\"'\"'python'\"'\"':sys.version,'\"'\"'executable'\"'\"':sys.executable,'\"'\"'origins'\"'\"':{m:importlib.import_module(m).__file__ for m in mods},'\"'\"'backend_presence'\"'\"':{m:importlib.util.find_spec(m) is not None for m in ['\"'\"'dowhy'\"'\"','\"'\"'econml'\"'\"']},'\"'\"'packages'\"'\"':{m:importlib.metadata.version(m) for m in ['\"'\"'pytest'\"'\"','\"'\"'numpy'\"'\"','\"'\"'networkx'\"'\"','\"'\"'pydantic'\"'\"']}},indent=2))\n'",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-c",
+        "import sys,json,importlib,importlib.util,importlib.metadata\nmods=['polisyos.ir.analytics.causal_graph','polisyos.ir.analytics.cross_graph','polisyos.ir.analytics.alignment_certification','polisyos.foundry.methods.catalog.causal.graph_reconciliation','polisyos.foundry.methods.catalog.causal.query_preservation','polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph']\nprint(json.dumps({'python':sys.version,'executable':sys.executable,'origins':{m:importlib.import_module(m).__file__ for m in mods},'backend_presence':{m:importlib.util.find_spec(m) is not None for m in ['dowhy','econml']},'packages':{m:importlib.metadata.version(m) for m in ['pytest','numpy','networkx','pydantic']}},indent=2))\n"
+      ],
+      "target_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+      "target_tree_sha": "6b699cac11fb1fe5b317ed0ccfc76940e5958906",
+      "environment": "CPython3.14.7/Numpy2.3.5/SciPy1.16.3/Pydantic2.12.5/pytest9.0.2; readonly shared environment; own candidate source via exact PYTHONPATH. DoWhy/EconML marker-excluded, not a backend witness.",
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "Actual Python3.14.7 and six product module origins bind candidate source. App DoWhy/EconML absent; this native graph witness is not backend success",
+      "outcome": "PASS",
+      "exit": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/profile.stdout",
+      "result": "Actual Python3.14.7 and six product module origins bind candidate source. App DoWhy/EconML absent; this native graph witness is not backend success",
+      "source_unchanged": true
+    },
+    {
+      "check_id": "independent647/first-observer-metadata-error",
+      "command": "python3 /tmp/e02-F-continuation-20261007/api/graph-intake-review-647/finish_review.py",
+      "argv": [
+        "python3",
+        "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/finish_review.py"
+      ],
+      "target_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+      "environment": "Python3 scratch metadata observer; no scientific/source rerun",
+      "cwd": "/workspace",
+      "input_closure": "Observer-only metadata matcher rejects legitimate typed refusal diagnostics containing word failed; no test/source rerun",
+      "outcome": "ERROR",
+      "exit": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/finish-first-observer-error.stderr",
+      "meaning": "Literal observer matcher rejected legitimate typed-refusal diagnostics; corrected metadata only, all99 scientific checks retained exactoriginal outputs."
+    },
+    {
+      "check_id": "independent3e/deciding-content-BLOCK",
+      "command": "Independent corrected realCAS source discriminator archived in independent-3e/test_current_source_guards.py; exact original corrected CLI flags not captured in the old review",
+      "target_sha": "3e6b47e88e0f25474df8cffa213a5e09e7b7affa",
+      "environment": "CPython3.14.7/Numpy2.3.5/SciPy1.16.3/Pydantic2.12.5/pytest9.0.2; readonly shared environment; own candidate source via exact PYTHONPATH. DoWhy/EconML marker-excluded, not a backend witness.",
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "input_closure": "Genuine composed graph/source bundle, actual changed incompatible alignment report, canonical producer broken certificate while graph same; full raw corrected1FAIL2PASS preserved",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/adversarial-corrected.stdout.gz",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/adversarial-corrected.stderr",
+      "replayer": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/test_current_source_guards.py",
+      "meaning": "Actual historical blocking counterexample, not setup-error or current647 FAIL. Current647 uses exact copied source and records fullliteral CLI."
+    }
+  ],
+  "independent_review": {
+    "check": "PASS",
+    "outcome": "limited",
+    "scope": "Independent boundedGO exact647:79native+3original+17projection/cachePASS; exact18typedcertificatefield denominator15semanticfields+2operationalcaches+separatelyvalidatedpointer",
+    "reviewer": "F causal_api independent read-only",
+    "target_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+    "full_review_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/review.json",
+      "bytes": 23034,
+      "sha256": "b16355ee8e6401b80a62dec280605d43f066fbee6d074087ca8fc150e05431bc",
+      "original_execution_path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/review.json",
+      "role": "independent647boundedGO"
+    },
+    "full_selection_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/transfer-selection.json",
+      "bytes": 6142,
+      "sha256": "bb10beecb6d2abf267c2cc7f92f6f51aa2eca75948fcc9d645bc28d6f7fae32e",
+      "original_execution_path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/transfer-selection.json",
+      "role": "complete independent transport selection"
+    },
+    "historical3eBLOCK_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/review.json",
+      "bytes": 8254,
+      "sha256": "707a6575b8f70a6b5fda8b5b9f26134425138af90bd0cbfde2f4c274903214ec",
+      "original_execution_path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review/review.json",
+      "role": "historical3eBLOCK"
+    },
+    "historical3e_additive_warning_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/review-with-warning.json",
+      "bytes": 8394,
+      "sha256": "fb57b54593513c0d5f2233a723867255e544b651da334bd64420a40fbc6ef2a8",
+      "original_execution_path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review/review-with-warning.json",
+      "role": "historical3eBLOCK"
+    },
+    "observer_ERROR_preserved": true
+  },
+  "scope": "Existing genuine native source-bound producer→persist→current CAS/Scientist chain; not a repeat here, not a rewrite of staticglobalUNRESOLVED. No identification/EMPserved authority inferred."
+}

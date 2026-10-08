@@ -1,0 +1,173 @@
+{
+  "schema": "e02.readonly_diagnosis.v1",
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+  "own_lane_head": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+  "source_writes": false,
+  "P40_class": "NEW installed default-resource/root-selection boundary; finite four curated catalog defaults. Correct once across every existingdefault owner rather than seed-only ladder. Not a causal Node defect.",
+  "property_check": "FAIL",
+  "why": "Actual wheel and rebuilt-sdist lack four curated YAML resources and source-depth root arithmetic points outsideinstalledpackage. Real fragment alignment score raises FileNotFoundError. Proxy/WVS silently empty with corresponding originalfallbacklaw.",
+  "source_py_denominator": 2699,
+  "lexical_reference_files": 18,
+  "static_curated_resources": [
+    {
+      "path": "policy-engine/data/dataset_catalog/metrics_map.yaml",
+      "bytes": 2163,
+      "sha256": "0877e6521e4dd66dbc2c08010367c79f672c37a8b6b30e68f47b10135f680266"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/proxy_metric_alignments.yaml",
+      "bytes": 293,
+      "sha256": "4c6c04bb99ea566b061c7b2d23540d22f8eb7c043067585a7e9b93ccaf87388b"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/seed_variable_alignments.yaml",
+      "bytes": 1309,
+      "sha256": "cb1daa3237ff58d8c875571ff2459a55c5182c3a4f13a076497a517f9a8740d8"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/wvs_indicator_registry.yaml",
+      "bytes": 160329,
+      "sha256": "dabbadf04fdbf6c4658a720a6af5b63a60c69727b2350c0424368691399e413d"
+    }
+  ],
+  "six_default_provider_source_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+      "git_blob": "306849ff45191eac4d8fa7dadab86e4c21ee3057",
+      "bytes": 18675,
+      "sha256": "6dbfbb04cddff8d1af11ed226e68092a2763a8d007b73f911f4ed9eaa5e54cd9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "git_blob": "6051df0d52dfa67ccfedf6eb39f85fdc5e7ae930",
+      "bytes": 5953,
+      "sha256": "8ccfc12e02dfc6d702afdc42de2e8608627b67250cd42084bd82e1ef2ea094bc"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "git_blob": "1a2e73df2ac53900879cb17bafb21aad6f4f8138",
+      "bytes": 65426,
+      "sha256": "c017bc57b9d7759b3f549b23969ec6f2668f87de1ef1c0509e3fa4c0a43ff8a3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "git_blob": "0b375b95086671bbcdeb17921b8037888d449816",
+      "bytes": 80796,
+      "sha256": "0687c432467ae8a6b0a2d18ee777e93014bd2a61ade24033097d3877f6e03b0c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "git_blob": "c93fccac5bca91f011a440c1d91cad99c2367257",
+      "bytes": 9332,
+      "sha256": "36766ba06198fbeae9ad94a52cc1ab78aed7b17459e38b66b310734a8155fa0f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+      "git_blob": "ee52d903a12774491bcedfc43786bde647809e1f",
+      "bytes": 18213,
+      "sha256": "f5cdb1fa17c92ed55f1c22af5ec8531a3afc77d3aaeceaff47f3662e0e550362"
+    }
+  ],
+  "runtime_path": [
+    "genuine persisted SCM fragments",
+    "ReconcileCausalGraphNode composition source reconstruction",
+    "verify_fragment_alignment_certificate",
+    "DataForge score_variable_pair",
+    "default_seed_alignments_path",
+    "FileNotFoundError before native composition completion"
+  ],
+  "existing_loader_policy_boundary": "Curated packaging/root selection only. Preserve explicit customPath semantics and original WVS malformed/missing fallback policy; rawWVS/CSV/XLSX/productioninputs not included. Any new resolver-level missingdefault refusal needs explicitrootlease.",
+  "proposed_mechanism_paths": [
+    "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+    "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+    "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+    "policy-engine/hatch.toml"
+  ],
+  "proposed_test_paths": [
+    "policy-engine/tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py",
+    "policy-engine/tests/repo_quality/tools/test_catalog_default_resources_packaging.py"
+  ],
+  "proposed_companion_paths": [
+    "policy-engine/src/polisyos/data_forge/domains/README.md",
+    "policy-engine/docs/reference/data-forge/catalog-default-resources.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-catalog-default-resources.toml"
+  ],
+  "packaging_projection": "Each existing original YAML\u2192one package-private catalog/_resources file and originalfile includedin sdist. Do not addsecondcatalogsource or fake seed fixture.",
+  "public_boundary_decision_pending": "FabricWVS must reuse canonical runtime DataForge read boundary without private deepimport; proposed ONE canonical alias to internaldomainresolver via existingread_api.catalog, awaiting rootlease.",
+  "historical_evidence": "647scientificsource+370handoff remain immutable. Current162caseinstalled wave preserved; thisnarrowreadonly characterization not a replacement wave.",
+  "planned_oracles_not_yet_executed": [
+    "CurrentnativeHatch wheel/sdist4exactbytes and rebuilt-wheel equality",
+    "Sourceprofile originalPath and unmapped neighborrepo/missingasset controls",
+    "Installedisolated durablePath and actualseed/proxy/WVS/metrics laws",
+    "Real composition_query_state no providedseedpath and candidateCAS/freshreader",
+    "Marker-kept resourceprojection/selection removal discriminator"
+  ],
+  "deciding_files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/capture_consumer_denominator.py",
+      "bytes": 3926,
+      "sha256": "cba37eded531e7cebde6da6081c4f4fade1828660d1a11dab115acea43e4796f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/curated-consumer-capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/curated-consumer-capture.stdout.json",
+      "bytes": 1706,
+      "sha256": "f975041e4ac903673d91fa6f140e56a8262d6797b03eab0002fdc19645e69d69"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/curated-resource-consumer-denominator.json",
+      "bytes": 727099,
+      "sha256": "a4931aea7621ef9b4386a1dbb730812fd71c389b66b46a08884a2ee23f74aaa9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/probe_installed_defaults.py",
+      "bytes": 2762,
+      "sha256": "c26fae457023bfe36405e39d0e7607bfaf0c3c670ebcde27e7c2d6198579c485"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/sdist-defaults.json",
+      "bytes": 921,
+      "sha256": "55511a8d3e6776d5d2ae4778f46e53fd4ba11833aac2920e533134d8fc9e87c9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/sdist-defaults.stderr.txt",
+      "bytes": 2148,
+      "sha256": "7c807acb6b6aed4aa3716547002d709f47f64089b83d2f88bdc422cb441957c9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/sdist-defaults.stdout.json",
+      "bytes": 78329,
+      "sha256": "3abc06eb3c34abd729b6adaed1c4180de5e222ee5824cbfd7c662763355c0fc1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/source-consumer-denominator.json",
+      "bytes": 14061,
+      "sha256": "52172d90baf328767dfa0d66a7bd345f244dd5a88f1cec262d40934a2f713848"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/wheel-defaults.json",
+      "bytes": 921,
+      "sha256": "cd42ae633c3396a8762055d5369e7c54e74d1fcf836d7f5120361bdc9a29505d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/wheel-defaults.stderr.txt",
+      "bytes": 2148,
+      "sha256": "c16e26774c3edbde5bc943e79d497018bec1d477f7fb6b35eaf8e1511ce28ba7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/wheel-defaults.stdout.json",
+      "bytes": 78329,
+      "sha256": "7b8594ba5ae407652c7dbf9ea8238d3d8f00870aff87e73913fd1f085526039f"
+    }
+  ]
+}

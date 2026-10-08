@@ -1,0 +1,213 @@
+{
+  "unified_pag": {
+    "schema_version": "1.0",
+    "graph_type": "pag",
+    "nodes": [
+      "X",
+      "Y"
+    ],
+    "edges": [
+      {
+        "src": "X",
+        "dst": "Y",
+        "mark_src": "tail",
+        "mark_dst": "arrow",
+        "lag": null,
+        "sources": [
+          "data"
+        ],
+        "data_confidence": 1.0,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "expert_confidence": null,
+        "simulation_confidence": null,
+        "combined_confidence": 1.0,
+        "unsupported_by_evidence": false,
+        "evidence_refs": [],
+        "p_value": null,
+        "metadata": {
+          "presence_score": 1.0,
+          "orientation_confidence": 1.0,
+          "contributing_algorithms": [
+            "pc"
+          ]
+        }
+      }
+    ],
+    "discovery_method": "unified_consensus_pag",
+    "skg_version_id": null,
+    "pag_identification_policy": "conservative",
+    "id_confidence_under_pag": null,
+    "metadata": {
+      "n_algorithms": 1,
+      "min_presence_score": 0.3
+    }
+  },
+  "individual_results": [
+    {
+      "schema_version": "1.0",
+      "method": "pc",
+      "graph": {
+        "schema_version": "1.0",
+        "graph_type": "cpdag",
+        "nodes": [
+          "X",
+          "Y"
+        ],
+        "edges": [
+          {
+            "src": "X",
+            "dst": "Y",
+            "mark_src": "tail",
+            "mark_dst": "arrow",
+            "lag": null,
+            "sources": [
+              "data"
+            ],
+            "data_confidence": null,
+            "literature_confidence": null,
+            "llm_confidence": null,
+            "expert_confidence": null,
+            "simulation_confidence": null,
+            "combined_confidence": 0.0,
+            "unsupported_by_evidence": false,
+            "evidence_refs": [],
+            "p_value": null,
+            "metadata": {}
+          }
+        ],
+        "discovery_method": "pc",
+        "skg_version_id": null,
+        "pag_identification_policy": "conservative",
+        "id_confidence_under_pag": null,
+        "metadata": {
+          "ci_runtime": "jax_partial_corr",
+          "ci_threshold": 0.05,
+          "ci_mean_strength": 0.9096992611885071,
+          "ci_max_strength": 0.9096992611885071
+        }
+      },
+      "resolved_graph": null,
+      "bootstrap_stability": {},
+      "n_bootstrap": 0,
+      "significance_level": 0.05,
+      "computation_time_seconds": 0.2546289000019897,
+      "warnings": [],
+      "algebraic_constraints": {
+        "implied_constraints_ref": null,
+        "violated_constraints_ref": null,
+        "severity": "info",
+        "suggested_repairs": [],
+        "families_run": [
+          "ci"
+        ],
+        "n_implied_constraints": 0,
+        "n_violated_constraints": 0,
+        "tested_by_family": {
+          "ci": 0
+        },
+        "violated_by_family": {
+          "ci": 0
+        },
+        "blocker_conditions_met_by_family": {
+          "ci": false
+        },
+        "graph_ranking_penalty": 0.0,
+        "warnings": [],
+        "implied_constraints_preview": [],
+        "violated_constraints_preview": []
+      },
+      "latent_discovery": null,
+      "metadata": {
+        "ci_runtime": "jax_partial_corr",
+        "ci_threshold": 0.05,
+        "ci_mean_strength": 0.9096992611885071,
+        "ci_max_strength": 0.9096992611885071,
+        "requested_n_bootstrap": 0,
+        "timeout_seconds": 120.0,
+        "ci_backend_requested": "jax",
+        "ci_backend_used": "jax",
+        "ci_backend_fallback_reason": null,
+        "ci_backend_runtime": "jax_partial_corr",
+        "scale_backend_requested": "classic",
+        "scale_backend_used": "classic",
+        "scale_backend_fallback_reason": null,
+        "algebraic_constraints_summary": {
+          "n_implied_constraints": 0,
+          "n_violated_constraints": 0,
+          "tested_by_family": {
+            "ci": 0
+          },
+          "violated_by_family": {
+            "ci": 0
+          },
+          "blocker_conditions_met_by_family": {
+            "ci": false
+          },
+          "graph_ranking_penalty": 0.0,
+          "warnings": []
+        },
+        "algebraic_constraint_severity": "info",
+        "algebraic_constraint_families_run": [
+          "ci"
+        ]
+      }
+    }
+  ],
+  "algorithm_weights": {
+    "pc": 1.0
+  },
+  "edge_agreements": [
+    {
+      "edge_key": "X|tail>arrow|Y",
+      "presence_score": 1.0,
+      "orientation_confidence": 1.0,
+      "mark_src": "tail",
+      "mark_dst": "arrow",
+      "contributing_algorithms": [
+        "pc"
+      ]
+    }
+  ],
+  "skeleton_agreement": {
+    "X|Y": 1.0
+  },
+  "temporal_dag": null,
+  "regime_shift_certificate": null,
+  "pag_validity_violations": [],
+  "data_characteristics": {
+    "data_type": "cross_sectional",
+    "n_samples": 160,
+    "n_variables": 2,
+    "dimension_regime": "low_dim",
+    "estimated_density": 1.0,
+    "has_mixed_types": false,
+    "suspected_latent_confounders": false,
+    "is_stationary": null,
+    "max_lag": null
+  },
+  "n_algorithms_run": 1,
+  "warnings": [],
+  "computation_time_seconds": 0.2568763029994443,
+  "metadata": {
+    "disputed_edges": [],
+    "disputed_edge_count": 0,
+    "disputed_edge_fraction": 0.0,
+    "algebraic_violation_summary": {
+      "reports_with_constraints": 1,
+      "blocker_reports": 0,
+      "violated_by_family": {
+        "ci": 0
+      },
+      "severity_by_method": {
+        "pc": "info"
+      }
+    },
+    "families_with_blockers": [],
+    "regime_shift_discovery": {
+      "applied": false,
+      "constraints_applied": false
+    }
+  }
+}
+runtime_output_keys ['__determinism_tier__', 'report']

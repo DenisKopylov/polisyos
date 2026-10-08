@@ -1,0 +1,444 @@
+{
+  "check": "PASS",
+  "decoded_gzip_bytes": 507857,
+  "implementation_sha": "36b18cc142aff77a5825126b4f07bafec09a5180",
+  "items": [
+    {
+      "bytes": 31262,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/source-review36.json",
+      "relative_path": "source-review36.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "e5a36ec6574921a4048e4b4531514bbf892958c36fad96b99b1f043a1f79448b"
+    },
+    {
+      "bytes": 341,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/source-review36.txt",
+      "relative_path": "source-review36.txt",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "c32e03184906b6e4118669173bb2719a8638b33d5a7a63da4f4d9bf4b6db5340"
+    },
+    {
+      "bytes": 54998,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/profile-review-preparation.initial.json",
+      "relative_path": "profile-review-preparation.initial.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "b44d46588ae09dd5f1c9190aae9ab5c5524ba65aebc9a25ab90e708043f99cf1"
+    },
+    {
+      "bytes": 56684,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/profile-review-preparation.json",
+      "relative_path": "profile-review-preparation.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "c0f449c0b48e74306d67113987963431a0d76aa4aae97322b5b0d6e00ceedb13"
+    },
+    {
+      "bytes": 27832,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/source-commands.json",
+      "relative_path": "source-commands.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "449721b0a6770b6c9d822e2bf4919119c589c8a910de476b02fd2bbb5c82e0f2"
+    },
+    {
+      "bytes": 21804,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/frozen36-full.patch",
+      "relative_path": "frozen36-full.patch",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "0c189e169c4dbb5cf0b250cdbace10e32fd3abdfef90d921588549bf64e7923f"
+    },
+    {
+      "byte_identical_alias_paths": [
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/frozen36-paths.stderr",
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected.stderr.txt",
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native/fresh-reader.stdout.txt",
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/fresh-reader.stderr.txt"
+      ],
+      "bytes": 0,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/frozen36-full.stderr",
+      "relative_path": "frozen36-full.stderr",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 492,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/frozen36-paths.stdout",
+      "relative_path": "frozen36-paths.stdout",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "b00322df16f5742c88ac29510910709abd0595cb30f44a327c03c3f0e1c5029e"
+    },
+    {
+      "byte_identical_alias_paths": [
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-first-attempt/freshpid_producer.py"
+      ],
+      "bytes": 14143,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid_producer.py",
+      "relative_path": "freshpid_producer.py",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "d28987d9d9ae2007f89c7a67cc4135640c3bb7c5f7cd0e5b5c0c8896357e1651"
+    },
+    {
+      "bytes": 3717,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid_reader.py",
+      "relative_path": "freshpid_reader.py",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "acd1abd1ca2d85fea9c0b257ff025b852779df9ee351a12f0a90e2126ea56819"
+    },
+    {
+      "bytes": 1737,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/execute_freshpid_witness.py",
+      "relative_path": "execute_freshpid_witness.py",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "6e5dcd4fd9e7bda328cd403571da4e5c4c8236b34f7ea5e02912b0e19e350ca6"
+    },
+    {
+      "bytes": 2851,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/export_witness_cas.py",
+      "relative_path": "export_witness_cas.py",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "675848af66c3364c10c68d54cd30ee935c17e18479b0b817bd3daf7ca08947bc"
+    },
+    {
+      "bytes": 1165,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-corrected-execution.json",
+      "relative_path": "freshpid-corrected-execution.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "010477d85ab865e6b3fd89d39b81a62202685634a8d82d7b0d253cc0ad232914"
+    },
+    {
+      "bytes": 3015,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected.stdout.txt",
+      "relative_path": "freshpid-native-corrected.stdout.txt",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "5a7127c28351a0224bc4e2f812dae283b26ce012d2c765abf4bffafe1a3c21a4"
+    },
+    {
+      "bytes": 798,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-first-attempt/classification.json",
+      "relative_path": "freshpid-first-attempt/classification.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "39dc93bca79b8df601ffb3bd31de314918b9d5c808270ba2d415cd99689a126c"
+    },
+    {
+      "bytes": 3671,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-first-attempt/freshpid_reader.py",
+      "relative_path": "freshpid-first-attempt/freshpid_reader.py",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "fab396c9999f4597700a1d21c0898e703a16132e3ce17e1ae8df2862a2b78728"
+    },
+    {
+      "bytes": 1677,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-first-attempt/execute_freshpid_witness.py",
+      "relative_path": "freshpid-first-attempt/execute_freshpid_witness.py",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "986145edf122a3a30c1c49b27afdae1ab2cffcc89effa6568849f315a8d0a754"
+    },
+    {
+      "bytes": 1136,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-first-attempt/freshpid-execution.json",
+      "relative_path": "freshpid-first-attempt/freshpid-execution.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "6c4c766ef243b63b141e16b0cf068e33bcacdd453f4a8f18ef786473abe6e84e"
+    },
+    {
+      "bytes": 2742,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-first-attempt/freshpid-native.stdout.txt",
+      "relative_path": "freshpid-first-attempt/freshpid-native.stdout.txt",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "7ed550078906a4bedb4107a772c857fce344bf8a0c0978d05c986fc32412042e"
+    },
+    {
+      "bytes": 749,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-first-attempt/freshpid-native.stderr.txt",
+      "relative_path": "freshpid-first-attempt/freshpid-native.stderr.txt",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "6580c3c32c691dbf81699a4a6c3a324186dd67b0adaa4f868e232d70b0aae876"
+    },
+    {
+      "bytes": 10184,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native/fresh-reader-inputs.json",
+      "relative_path": "freshpid-native/fresh-reader-inputs.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "3328846f0008dd94f89c8eb4af6ae98467bf0939c7c3728a0ddcf3e89164107d"
+    },
+    {
+      "bytes": 364,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native/fresh-reader.stderr.txt",
+      "relative_path": "freshpid-native/fresh-reader.stderr.txt",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "3289fb26199145396111820e7fd58fedc1ab751ccb5285de358cd7360ff9f8f6"
+    },
+    {
+      "bytes": 10194,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/fresh-reader-inputs.json",
+      "relative_path": "freshpid-native-corrected/fresh-reader-inputs.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "3f32d55193e5a5a6de6f3ac18b85a08b6d29bc27552daacf9df4cebfe39aecb7"
+    },
+    {
+      "bytes": 24101,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/fresh-reader.stdout.txt",
+      "relative_path": "freshpid-native-corrected/fresh-reader.stdout.txt",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "4f7c941197fe24f28d05234b6e4def1dec2ecdc8a649ca6ff8027e7dd372d0ec"
+    },
+    {
+      "bytes": 75630,
+      "decoded_bytes": 507857,
+      "decoded_media_type": "application/json",
+      "decoded_path_original": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json",
+      "decoded_sha256": "ab5158126e7079bc05a3f901f3b75868bd21e9f956d31f906f86add8822954f5",
+      "encoding": "gzip",
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json.gz",
+      "relative_path": "freshpid-native-corrected/native-witness.json.gz",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "5e6c43436923dd9c83786048203d42c16e6b5259f796661b06c6037871ce1911",
+      "uncompressed_duplicate_transferred": false
+    },
+    {
+      "bytes": 644,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/native-witness-lossless-transport.json",
+      "relative_path": "native-witness-lossless-transport.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "b0753956a1a20590581b0ec3ce371f93e1a6d6c8af517c3b52a7d440b96dd5e8"
+    },
+    {
+      "bytes": 19524,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-export-index.json",
+      "relative_path": "selected-cas-export-index.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "deee3acbca6f6005010e81d361a48951916ac465476be692047c4ddd8a91528f"
+    },
+    {
+      "bytes": 11148,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/independent-review.json",
+      "relative_path": "independent-review.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "9f8659f75e0ba1560309682ba8cd1e6c537731771557119fa9b9f1ac269b0c68"
+    },
+    {
+      "bytes": 717,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-05c7489e6606ef960a9889dee4d83eec5fd64f7f955923cad27dd36c11d92013.manifest.json",
+      "relative_path": "selected-cas-exports/freshpid-native-05c7489e6606ef960a9889dee4d83eec5fd64f7f955923cad27dd36c11d92013.manifest.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "298b130c9d436654549de228d59ea0d0284573fb4bc5a3fb578dbe0d5126d5d4"
+    },
+    {
+      "byte_identical_alias_paths": [
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-05c7489e6606ef960a9889dee4d83eec5fd64f7f955923cad27dd36c11d92013.payload.json"
+      ],
+      "bytes": 3371,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-05c7489e6606ef960a9889dee4d83eec5fd64f7f955923cad27dd36c11d92013.payload.json",
+      "relative_path": "selected-cas-exports/freshpid-native-05c7489e6606ef960a9889dee4d83eec5fd64f7f955923cad27dd36c11d92013.payload.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "05c7489e6606ef960a9889dee4d83eec5fd64f7f955923cad27dd36c11d92013"
+    },
+    {
+      "bytes": 608,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-1d496668cfd81b9af9666e6f8c7bc5729f53a41e559b5299290d7c5ab7fbefd0.manifest.json",
+      "relative_path": "selected-cas-exports/freshpid-native-1d496668cfd81b9af9666e6f8c7bc5729f53a41e559b5299290d7c5ab7fbefd0.manifest.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "8e21bb4c57726c9e28611fe9dd1849d27fd09f5ca5e07fb149b066e16324eee7"
+    },
+    {
+      "byte_identical_alias_paths": [
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-1d496668cfd81b9af9666e6f8c7bc5729f53a41e559b5299290d7c5ab7fbefd0.payload.json"
+      ],
+      "bytes": 1715,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-1d496668cfd81b9af9666e6f8c7bc5729f53a41e559b5299290d7c5ab7fbefd0.payload.json",
+      "relative_path": "selected-cas-exports/freshpid-native-1d496668cfd81b9af9666e6f8c7bc5729f53a41e559b5299290d7c5ab7fbefd0.payload.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "1d496668cfd81b9af9666e6f8c7bc5729f53a41e559b5299290d7c5ab7fbefd0"
+    },
+    {
+      "bytes": 717,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-5c656309bf2a096914007e484b34a5362e0a790e8795bb10a0beb4484583be16.manifest.json",
+      "relative_path": "selected-cas-exports/freshpid-native-5c656309bf2a096914007e484b34a5362e0a790e8795bb10a0beb4484583be16.manifest.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "de7f7e776cc798b1f2c7f4a53abcfc8313d9d88abcc4712caaf703b6b028f228"
+    },
+    {
+      "byte_identical_alias_paths": [
+        "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-5c656309bf2a096914007e484b34a5362e0a790e8795bb10a0beb4484583be16.payload.json"
+      ],
+      "bytes": 1786,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-5c656309bf2a096914007e484b34a5362e0a790e8795bb10a0beb4484583be16.payload.json",
+      "relative_path": "selected-cas-exports/freshpid-native-5c656309bf2a096914007e484b34a5362e0a790e8795bb10a0beb4484583be16.payload.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "5c656309bf2a096914007e484b34a5362e0a790e8795bb10a0beb4484583be16"
+    },
+    {
+      "bytes": 717,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-05c7489e6606ef960a9889dee4d83eec5fd64f7f955923cad27dd36c11d92013.manifest.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-05c7489e6606ef960a9889dee4d83eec5fd64f7f955923cad27dd36c11d92013.manifest.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "85a81541d69974c3d5872900f957b58f567408a81f5b14687d719e59283d8bc7"
+    },
+    {
+      "bytes": 635,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-163117cc1a72fb87d6d3a403fd5d426b1a0c9f6a9b50aa3d8bc4a37188eaf398.manifest.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-163117cc1a72fb87d6d3a403fd5d426b1a0c9f6a9b50aa3d8bc4a37188eaf398.manifest.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "cd2320e67d1906dfb569a26e9b464895122ba149b5833fb139ad6beece42cde6"
+    },
+    {
+      "bytes": 812,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-163117cc1a72fb87d6d3a403fd5d426b1a0c9f6a9b50aa3d8bc4a37188eaf398.payload.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-163117cc1a72fb87d6d3a403fd5d426b1a0c9f6a9b50aa3d8bc4a37188eaf398.payload.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "163117cc1a72fb87d6d3a403fd5d426b1a0c9f6a9b50aa3d8bc4a37188eaf398"
+    },
+    {
+      "bytes": 608,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-1d496668cfd81b9af9666e6f8c7bc5729f53a41e559b5299290d7c5ab7fbefd0.manifest.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-1d496668cfd81b9af9666e6f8c7bc5729f53a41e559b5299290d7c5ab7fbefd0.manifest.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "e06f35eaa08640884347f7f394e18b1ed188f585739ff7dba94a9581a6229e20"
+    },
+    {
+      "bytes": 765,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-2ade1c9f9d292b888cb6643c83156d80a841d00bd2aff09f9b15b338d7871538.manifest.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-2ade1c9f9d292b888cb6643c83156d80a841d00bd2aff09f9b15b338d7871538.manifest.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "16e1b0492b942bf178e722cde34bb5590a38ab779470aebd7b49c67ce1613f48"
+    },
+    {
+      "bytes": 4618,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-2ade1c9f9d292b888cb6643c83156d80a841d00bd2aff09f9b15b338d7871538.payload.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-2ade1c9f9d292b888cb6643c83156d80a841d00bd2aff09f9b15b338d7871538.payload.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "2ade1c9f9d292b888cb6643c83156d80a841d00bd2aff09f9b15b338d7871538"
+    },
+    {
+      "bytes": 635,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-39a10e3946cebb526c969186bd5189691a95595e594f9dafc85b9e144bd3a70e.manifest.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-39a10e3946cebb526c969186bd5189691a95595e594f9dafc85b9e144bd3a70e.manifest.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "120ee807fa39e8140db909d35605ebb7ce9b2262233b76a85159911a9cea5d6d"
+    },
+    {
+      "bytes": 817,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-39a10e3946cebb526c969186bd5189691a95595e594f9dafc85b9e144bd3a70e.payload.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-39a10e3946cebb526c969186bd5189691a95595e594f9dafc85b9e144bd3a70e.payload.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "39a10e3946cebb526c969186bd5189691a95595e594f9dafc85b9e144bd3a70e"
+    },
+    {
+      "bytes": 747,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-431ac07e741dc44d2bdd0453886593575e12008fa9cca764ca291bb0253da9cc.manifest.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-431ac07e741dc44d2bdd0453886593575e12008fa9cca764ca291bb0253da9cc.manifest.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "8dd539002d6291059c60eb1ac441d9fb6edc735d99e94ba481e327260c23adeb"
+    },
+    {
+      "bytes": 7727,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-431ac07e741dc44d2bdd0453886593575e12008fa9cca764ca291bb0253da9cc.payload.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-431ac07e741dc44d2bdd0453886593575e12008fa9cca764ca291bb0253da9cc.payload.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "431ac07e741dc44d2bdd0453886593575e12008fa9cca764ca291bb0253da9cc"
+    },
+    {
+      "bytes": 747,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-44ad6d6798b4dffa9d6e4fa0e721bf3f2ac9a5999225d3d52801178c0f50b4fa.manifest.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-44ad6d6798b4dffa9d6e4fa0e721bf3f2ac9a5999225d3d52801178c0f50b4fa.manifest.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "2dd3ec324179ebace05995c425521186f48cdbbac2ad980c8ee8a6cdd14e37b0"
+    },
+    {
+      "bytes": 7729,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-44ad6d6798b4dffa9d6e4fa0e721bf3f2ac9a5999225d3d52801178c0f50b4fa.payload.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-44ad6d6798b4dffa9d6e4fa0e721bf3f2ac9a5999225d3d52801178c0f50b4fa.payload.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "44ad6d6798b4dffa9d6e4fa0e721bf3f2ac9a5999225d3d52801178c0f50b4fa"
+    },
+    {
+      "bytes": 717,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-5c656309bf2a096914007e484b34a5362e0a790e8795bb10a0beb4484583be16.manifest.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-5c656309bf2a096914007e484b34a5362e0a790e8795bb10a0beb4484583be16.manifest.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "ced7647985f147dd9ebe4f5262e2072a9c58900fb04f34c2daa012a888ea9a3d"
+    },
+    {
+      "bytes": 636,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-6af8646ec1ab413311dc299ed352e1325f7b8f63e92724b4930a47cda635124b.manifest.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-6af8646ec1ab413311dc299ed352e1325f7b8f63e92724b4930a47cda635124b.manifest.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "96190d3263d1f04b544ee963474c5c4a70b81afc881c48ef653aba39d7f81497"
+    },
+    {
+      "bytes": 1916,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-6af8646ec1ab413311dc299ed352e1325f7b8f63e92724b4930a47cda635124b.payload.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-6af8646ec1ab413311dc299ed352e1325f7b8f63e92724b4930a47cda635124b.payload.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "6af8646ec1ab413311dc299ed352e1325f7b8f63e92724b4930a47cda635124b"
+    },
+    {
+      "bytes": 635,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-c27b170595172ddaa354da23b7e0707308372cdb1a7d0a3297ab9dbeaed5722e.manifest.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-c27b170595172ddaa354da23b7e0707308372cdb1a7d0a3297ab9dbeaed5722e.manifest.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "824d35fd8dc35af903f1c5a0aec697cddcaa6632e51f80c890fd50d568dbf988"
+    },
+    {
+      "bytes": 814,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-c27b170595172ddaa354da23b7e0707308372cdb1a7d0a3297ab9dbeaed5722e.payload.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-c27b170595172ddaa354da23b7e0707308372cdb1a7d0a3297ab9dbeaed5722e.payload.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "c27b170595172ddaa354da23b7e0707308372cdb1a7d0a3297ab9dbeaed5722e"
+    },
+    {
+      "bytes": 636,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-cbc14eb81f46f68da4e92f523717a12cd7d344f2910958f5dd843c1a2b07e497.manifest.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-cbc14eb81f46f68da4e92f523717a12cd7d344f2910958f5dd843c1a2b07e497.manifest.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "5f874ddd06c16e7f2608aba249edd68a649de3aa80bab3907f565c9e674cd22c"
+    },
+    {
+      "bytes": 1918,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-cbc14eb81f46f68da4e92f523717a12cd7d344f2910958f5dd843c1a2b07e497.payload.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-cbc14eb81f46f68da4e92f523717a12cd7d344f2910958f5dd843c1a2b07e497.payload.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "cbc14eb81f46f68da4e92f523717a12cd7d344f2910958f5dd843c1a2b07e497"
+    },
+    {
+      "bytes": 765,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-ea9bfafe1eb32ea4da4d30305f38d7f9c50c9153d724b379f1d837384ce674a0.manifest.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-ea9bfafe1eb32ea4da4d30305f38d7f9c50c9153d724b379f1d837384ce674a0.manifest.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "522bd5ff0c973988a7a808913da692cbb91f00ba359a8d6f8d71bb80f7010e07"
+    },
+    {
+      "bytes": 2441,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-ea9bfafe1eb32ea4da4d30305f38d7f9c50c9153d724b379f1d837384ce674a0.payload.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-ea9bfafe1eb32ea4da4d30305f38d7f9c50c9153d724b379f1d837384ce674a0.payload.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "ea9bfafe1eb32ea4da4d30305f38d7f9c50c9153d724b379f1d837384ce674a0"
+    },
+    {
+      "bytes": 635,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-fba274e017515af817aae7a0a6f2db08c61e17eca98591d7c2ddb948ce175d66.manifest.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-fba274e017515af817aae7a0a6f2db08c61e17eca98591d7c2ddb948ce175d66.manifest.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "ca46e5aa0a2b5e3546b67326ff6858f3f1cfb5f2b652ed14e82bb010d979f573"
+    },
+    {
+      "bytes": 815,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-exports/freshpid-native-corrected-fba274e017515af817aae7a0a6f2db08c61e17eca98591d7c2ddb948ce175d66.payload.json",
+      "relative_path": "selected-cas-exports/freshpid-native-corrected-fba274e017515af817aae7a0a6f2db08c61e17eca98591d7c2ddb948ce175d66.payload.json",
+      "role": "complete_original_scratch_input_or_deciding_output",
+      "sha256": "fba274e017515af817aae7a0a6f2db08c61e17eca98591d7c2ddb948ce175d66"
+    },
+    {
+      "bytes": 1319,
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/verify_transfer_selection.py",
+      "relative_path": "verify_transfer_selection.py",
+      "role": "read_only_transfer_decoder_replayer",
+      "sha256": "953bea4032e082dbf58db50f23ef8f464ded51dbc8773076755b838042cb26a5"
+    }
+  ],
+  "reviewer": "graph_scm",
+  "root": "/tmp/e02-F-graph-profile-20261007/graph-review-prep",
+  "schema": "independent_review_full_transfer_selection/1.0",
+  "selection_law": "Complete full outputs and input scripts, initial analysis/orchestration/harness ERRORs, exact selected CAS manifests and bodies. Deduplicated only exact equal stored bytes; all original alias locators remain explicit. One gzip copy of full507857B witness, raw original remains scratch. Source product blobs are referenced by exact Git SHA, not duplicated.",
+  "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "stored_bytes": 431321,
+  "unique_file_count": 58
+}

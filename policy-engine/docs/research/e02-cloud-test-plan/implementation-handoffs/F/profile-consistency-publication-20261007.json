@@ -1,0 +1,125 @@
+{
+  "schema": "policyos.e02.publication_readback.v1",
+  "unit": "F",
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "receipt_carrier_sha": "5ba2f337919756d4131e90eb29ff2dc07184212f",
+  "receipt_carrier_tree": "7f42945dad2b95d640f713f0ad4b4d5cf8dafa73",
+  "branch": "codex/e02-F-closeout-20261006",
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/profile-consistency-20261007.json",
+  "receipt_bytes": 114007,
+  "receipt_sha256": "d6f5c55354de3abb98786305ec070ed4e28e74cbb46d09a86a3fdafb1d6ea900",
+  "transport_files_reopened_from_committed_remote_ref": 329,
+  "transport_errors": [],
+  "code_test_build_delta_from_frozen_source": [],
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "origin",
+        "refs/heads/codex/e02-F-closeout-20261006:refs/remotes/origin/codex/e02-F-closeout-20261006"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "From https://github.com/DenisKopylov/polisyos\n   2c09571eb..5ba2f3379  codex/e02-F-closeout-20261006 -> origin/codex/e02-F-closeout-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/codex/e02-F-closeout-20261006",
+        "origin/codex/e02-F-closeout-20261006^{tree}"
+      ],
+      "returncode": 0,
+      "stdout": "5ba2f337919756d4131e90eb29ff2dc07184212f\n7f42945dad2b95d640f713f0ad4b4d5cf8dafa73\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+        "5ba2f337919756d4131e90eb29ff2dc07184212f"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "initial_ordinary_push_and_ls_remote": [
+    {
+      "argv": [
+        "git",
+        "status",
+        "--short",
+        "--branch"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "returncode": 0,
+      "stdout": "## codex/e02-F-closeout-20261006\n?? policy-engine/workers/dowhy-014/.venv\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "returncode": 0,
+      "stdout": "5ba2f337919756d4131e90eb29ff2dc07184212f\n7f42945dad2b95d640f713f0ad4b4d5cf8dafa73\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+        "HEAD",
+        "--",
+        "policy-engine/src",
+        "policy-engine/tests",
+        "policy-engine/benchmarks",
+        "policy-engine/workers",
+        "policy-engine/pyproject.toml",
+        "policy-engine/uv.lock",
+        "policy-engine/hatch.toml"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "push",
+        "origin",
+        "HEAD:refs/heads/codex/e02-F-closeout-20261006"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "To https://github.com/DenisKopylov/polisyos.git\n   2c09571eb..5ba2f3379  HEAD -> codex/e02-F-closeout-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "ls-remote",
+        "origin",
+        "refs/heads/codex/e02-F-closeout-20261006"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "returncode": 0,
+      "stdout": "5ba2f337919756d4131e90eb29ff2dc07184212f\trefs/heads/codex/e02-F-closeout-20261006\n",
+      "stderr": ""
+    }
+  ],
+  "G_acceptance": "not_issued",
+  "formal_G_closures": 0,
+  "role": "Publication custody only; no new runtime/source property and no own future carrier SHA"
+}

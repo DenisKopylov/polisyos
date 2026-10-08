@@ -1,0 +1,23 @@
+{
+  "outcome": "PASS",
+  "exit_code": 0,
+  "actual_shell_command": "python3 assemble_focused_review.py > assembly.stdout.json 2> assembly.stderr.txt",
+  "cwd": "/tmp/e02-F-graph-profile-20261007/worker",
+  "stdout": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/assembly.stdout.json",
+    "bytes": 610,
+    "sha256": "8fa18163e6a62c56bafcc68e8116a23832fd2068884c0ef20d2a2ea582f161d8"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/assembly.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "assembler": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/assemble_focused_review.py",
+    "bytes": 18386,
+    "sha256": "7dea6df87030c472f11e81e6f8a34a5edb7f3f68c5142f4ee49aeeea9e298c8b"
+  },
+  "timing": "No separate structured assembly wall/RSS measurement was recorded. Actual native timing is in frozen-native.receipt.json/time.txt.",
+  "scope": "Receipt/Git-body/CAS archive verification only; no native/backend test executed. --verify uses the recorded checkout path; pinned Git refs and reconstructed program identities are transferable independently of that local path."
+}

@@ -1,0 +1,34 @@
+EEEEE
+==================================== ERRORS ====================================
+_ ERROR at setup of test_one_canonical_warning_and_metric_for_consumed_source[nan_inf_vector-report] _
+/tmp/e02-F-continuation-20261006/foundry/anomaly-count/test_output_anomaly_count.py:51: in observed_dispatch
+    assert observability._OTEL_AVAILABLE is True
+E   assert False is True
+E    +  where False = observability._OTEL_AVAILABLE
+_ ERROR at setup of test_one_canonical_warning_and_metric_for_consumed_source[nan_inf_vector-result] _
+/tmp/e02-F-continuation-20261006/foundry/anomaly-count/test_output_anomaly_count.py:51: in observed_dispatch
+    assert observability._OTEL_AVAILABLE is True
+E   assert False is True
+E    +  where False = observability._OTEL_AVAILABLE
+_ ERROR at setup of test_one_canonical_warning_and_metric_for_consumed_source[nan_inf_vector-bare] _
+/tmp/e02-F-continuation-20261006/foundry/anomaly-count/test_output_anomaly_count.py:51: in observed_dispatch
+    assert observability._OTEL_AVAILABLE is True
+E   assert False is True
+E    +  where False = observability._OTEL_AVAILABLE
+_ ERROR at setup of test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[nan_inf_vector-False] _
+/tmp/e02-F-continuation-20261006/foundry/anomaly-count/test_output_anomaly_count.py:51: in observed_dispatch
+    assert observability._OTEL_AVAILABLE is True
+E   assert False is True
+E    +  where False = observability._OTEL_AVAILABLE
+_ ERROR at setup of test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[nan_inf_vector-True] _
+/tmp/e02-F-continuation-20261006/foundry/anomaly-count/test_output_anomaly_count.py:51: in observed_dispatch
+    assert observability._OTEL_AVAILABLE is True
+E   assert False is True
+E    +  where False = observability._OTEL_AVAILABLE
+=========================== short test summary info ============================
+ERROR ../../../tmp/e02-F-continuation-20261006/foundry/anomaly-count/test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[nan_inf_vector-report]
+ERROR ../../../tmp/e02-F-continuation-20261006/foundry/anomaly-count/test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[nan_inf_vector-result]
+ERROR ../../../tmp/e02-F-continuation-20261006/foundry/anomaly-count/test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[nan_inf_vector-bare]
+ERROR ../../../tmp/e02-F-continuation-20261006/foundry/anomaly-count/test_output_anomaly_count.py::test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[nan_inf_vector-False]
+ERROR ../../../tmp/e02-F-continuation-20261006/foundry/anomaly-count/test_output_anomaly_count.py::test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[nan_inf_vector-True]
+15 deselected, 5 errors in 1.10s

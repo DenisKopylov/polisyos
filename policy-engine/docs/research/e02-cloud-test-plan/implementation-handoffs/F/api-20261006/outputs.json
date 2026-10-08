@@ -1,0 +1,756 @@
+{
+  "schema": "policyos.e02.deciding_output_manifest.v1",
+  "source_sha": "729d137279b7d6334230045e420255762fe55f08",
+  "files": [
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/F-failures-baseline.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/F-failures-baseline.json",
+      "raw_bytes": 19253,
+      "raw_sha256": "23a1055d9986961c3130b79f72aa924bec7788f4f5c0670eb49caa1e3b139201",
+      "stored_bytes": 19253,
+      "stored_sha256": "23a1055d9986961c3130b79f72aa924bec7788f4f5c0670eb49caa1e3b139201",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/LA-020-baseline.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/LA-020-baseline.json",
+      "raw_bytes": 6856,
+      "raw_sha256": "a3d0e646509215c2082403aada653550f5afeb977bed22da9bbe5b6021b60ee1",
+      "stored_bytes": 6856,
+      "stored_sha256": "a3d0e646509215c2082403aada653550f5afeb977bed22da9bbe5b6021b60ee1",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/census-candidate.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/census-candidate.json.gz",
+      "raw_bytes": 1270378,
+      "raw_sha256": "acdcb1e9937ab0307ee18772d2e66957d8bc2fcc7eff09f749510d0fbc28ecad",
+      "stored_bytes": 55602,
+      "stored_sha256": "a6758a95a616bec9bbb8aa45f96beb97e86d90eddc68ac74c58a38cc6b8362ab",
+      "encoding": "gzip lossless"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/artifact-bindings.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/artifact-bindings.json.gz",
+      "raw_bytes": 763813,
+      "raw_sha256": "0462df6b1ba0b28ff56ae0575aa672d4f26677e60265012e04f67bb3428d6ab3",
+      "stored_bytes": 230763,
+      "stored_sha256": "8118c3127bcf37ff9b8620a7640bbb5d713aa8a6b76371ec0ad0c9cfe6a0940c",
+      "encoding": "gzip lossless"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/installed-bindings.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/installed-bindings.json",
+      "raw_bytes": 2914,
+      "raw_sha256": "92159ab3913a6e8c1f073403b10cd01d3a095e0fb335624b619c3b5cd67821d3",
+      "stored_bytes": 2914,
+      "stored_sha256": "92159ab3913a6e8c1f073403b10cd01d3a095e0fb335624b619c3b5cd67821d3",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/wheel-installed-proof.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-installed-proof.json.gz",
+      "raw_bytes": 184777,
+      "raw_sha256": "91b466d226dd4de6cdb1f9be7e0b124ba964139784440af6653b21cb79b69aef",
+      "stored_bytes": 13126,
+      "stored_sha256": "67fb8cac31ce18f41eeabd67325337334a221b2249c270434157a7abcbeed486",
+      "encoding": "gzip lossless"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/sdist-installed-proof.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/sdist-installed-proof.json.gz",
+      "raw_bytes": 184777,
+      "raw_sha256": "a59c8916fe2d3c86af63f2235cd129f21868dfb021bb35a0749e4315de1dd1ae",
+      "stored_bytes": 13123,
+      "stored_sha256": "443f7d95b6778733b776f4efffd0b55fa5ad764e3b4e836766f760c12b1d05ce",
+      "encoding": "gzip lossless"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/commands.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/commands.json",
+      "raw_bytes": 2027,
+      "raw_sha256": "72e339b5659389814a8aff919fb729b8a625d3950504777b9f7a6df5a0679087",
+      "stored_bytes": 2027,
+      "stored_sha256": "72e339b5659389814a8aff919fb729b8a625d3950504777b9f7a6df5a0679087",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/run_check.py",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/run_check.py",
+      "raw_bytes": 1107,
+      "raw_sha256": "8946618b603d95cc07d2dc7a1fd70220d293b06f0bb1f85701b52882a53a67d5",
+      "stored_bytes": 1107,
+      "stored_sha256": "8946618b603d95cc07d2dc7a1fd70220d293b06f0bb1f85701b52882a53a67d5",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/installed_launch.py",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/installed_launch.py",
+      "raw_bytes": 2378,
+      "raw_sha256": "320b9d510d31449daee68d0610a8299064c5799c025d9f18728a3ac91c510939",
+      "stored_bytes": 2378,
+      "stored_sha256": "320b9d510d31449daee68d0610a8299064c5799c025d9f18728a3ac91c510939",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/removal_replayer.py",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/removal_replayer.py",
+      "raw_bytes": 909,
+      "raw_sha256": "5bdeadec1fe25ad425859458358e6c1a5bcc490a926a7f6d00edd313347a0e5a",
+      "stored_bytes": 909,
+      "stored_sha256": "5bdeadec1fe25ad425859458358e6c1a5bcc490a926a7f6d00edd313347a0e5a",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/installed_binding_replayer.py",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/installed_binding_replayer.py",
+      "raw_bytes": 2946,
+      "raw_sha256": "8b9174559079c560168aae5b9fbb49048a50fc87fbf06ca6e2e132716dba594c",
+      "stored_bytes": 2946,
+      "stored_sha256": "8b9174559079c560168aae5b9fbb49048a50fc87fbf06ca6e2e132716dba594c",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/archive_binding_replayer.py",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/archive_binding_replayer.py",
+      "raw_bytes": 4011,
+      "raw_sha256": "d0882ec620bc17a6f8bd8df07cf4e937ca33dea28a71e0d4e34f20aad8a05eb5",
+      "stored_bytes": 4011,
+      "stored_sha256": "d0882ec620bc17a6f8bd8df07cf4e937ca33dea28a71e0d4e34f20aad8a05eb5",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/environment_replayer.py",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment_replayer.py",
+      "raw_bytes": 1915,
+      "raw_sha256": "4c5d109cc23036314904f88388729cdc8fd45c07b67fa799445124b0882341ee",
+      "stored_bytes": 1915,
+      "stored_sha256": "4c5d109cc23036314904f88388729cdc8fd45c07b67fa799445124b0882341ee",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/environment.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment.json",
+      "raw_bytes": 2665,
+      "raw_sha256": "a055555ce8bd3ebdb514495ffe99321901e929f3ade6917d4641298ad0572808",
+      "stored_bytes": 2665,
+      "stored_sha256": "a055555ce8bd3ebdb514495ffe99321901e929f3ade6917d4641298ad0572808",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/architecture.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/architecture.stdout.txt.gz",
+      "raw_bytes": 118097,
+      "raw_sha256": "119868018cc0aa8259b6afccfed4abdfa4561565be0543e2e17e710dec14b6da",
+      "stored_bytes": 9156,
+      "stored_sha256": "d67022ec0941896c65e77172829e2734d3968dc0ec1feead6e34f44aa9a807f2",
+      "encoding": "gzip lossless"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/artifact-bindings-run.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/artifact-bindings-run.stdout.txt",
+      "raw_bytes": 172,
+      "raw_sha256": "4924562ce3a09c4e7fde97d76b76b283aa738e2d9cc6a0d88b6be663a30cad92",
+      "stored_bytes": 172,
+      "stored_sha256": "4924562ce3a09c4e7fde97d76b76b283aa738e2d9cc6a0d88b6be663a30cad92",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/bridge-removal.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/bridge-removal.stdout.txt",
+      "raw_bytes": 5624,
+      "raw_sha256": "df1174d7d1f5013959b5fe65d233fbb6332f57d22303235051e8a449b576837c",
+      "stored_bytes": 5624,
+      "stored_sha256": "df1174d7d1f5013959b5fe65d233fbb6332f57d22303235051e8a449b576837c",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/build.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/build.stdout.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/census.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/census.stdout.txt",
+      "raw_bytes": 1489,
+      "raw_sha256": "755abb293b642ffd6d784793837354822fedd7a75cbc5cefec8d401f1c6abca2",
+      "stored_bytes": 1489,
+      "stored_sha256": "755abb293b642ffd6d784793837354822fedd7a75cbc5cefec8d401f1c6abca2",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/clone-removal.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/clone-removal.stdout.txt",
+      "raw_bytes": 2538,
+      "raw_sha256": "7e3a81bcb67fde56a248b0fa38bd3a0bb4aa650460b62ee31c0aa9a3c1b7f845",
+      "stored_bytes": 2538,
+      "stored_sha256": "7e3a81bcb67fde56a248b0fa38bd3a0bb4aa650460b62ee31c0aa9a3c1b7f845",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/environment-run.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment-run.stdout.txt",
+      "raw_bytes": 2665,
+      "raw_sha256": "a055555ce8bd3ebdb514495ffe99321901e929f3ade6917d4641298ad0572808",
+      "stored_bytes": 2665,
+      "stored_sha256": "a055555ce8bd3ebdb514495ffe99321901e929f3ade6917d4641298ad0572808",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/installed-bindings-run.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/installed-bindings-run.stdout.txt",
+      "raw_bytes": 79,
+      "raw_sha256": "7331dbd34ee4de07d40fd0872fe975bd6168800a0cefe18917ee43aec300aba6",
+      "stored_bytes": 79,
+      "stored_sha256": "7331dbd34ee4de07d40fd0872fe975bd6168800a0cefe18917ee43aec300aba6",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/native-draft.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/native-draft.stdout.txt",
+      "raw_bytes": 7249,
+      "raw_sha256": "1ab8727c9d1727483bdc75645d5b5517f752898dfd96c63ede57b9923de5bc88",
+      "stored_bytes": 7249,
+      "stored_sha256": "1ab8727c9d1727483bdc75645d5b5517f752898dfd96c63ede57b9923de5bc88",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/native-draft2.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/native-draft2.stdout.txt",
+      "raw_bytes": 3210,
+      "raw_sha256": "e195ed522c691684ab2c5d5a25efd68a34c6394922fde28a136e59f1d6bc5fb6",
+      "stored_bytes": 3210,
+      "stored_sha256": "e195ed522c691684ab2c5d5a25efd68a34c6394922fde28a136e59f1d6bc5fb6",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/native-draft3.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/native-draft3.stdout.txt",
+      "raw_bytes": 2296,
+      "raw_sha256": "4c5ec28242f90ec5a62351071be373e51b906db1fed8b597b0207a62d919212e",
+      "stored_bytes": 2296,
+      "stored_sha256": "4c5ec28242f90ec5a62351071be373e51b906db1fed8b597b0207a62d919212e",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/native.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/native.stdout.txt",
+      "raw_bytes": 100,
+      "raw_sha256": "35ce70e5e850d3e07258b77092c0d901b2875923da506d47a3e42bef8966034b",
+      "stored_bytes": 100,
+      "stored_sha256": "35ce70e5e850d3e07258b77092c0d901b2875923da506d47a3e42bef8966034b",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/readback-draft.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/readback-draft.stdout.txt",
+      "raw_bytes": 113,
+      "raw_sha256": "9481a2cd4a1930e42e717dc6c8326a215d77a61f8383520bfcbaa6a2e08dd183",
+      "stored_bytes": 113,
+      "stored_sha256": "9481a2cd4a1930e42e717dc6c8326a215d77a61f8383520bfcbaa6a2e08dd183",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/ruff-check.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/ruff-check.stdout.txt",
+      "raw_bytes": 19,
+      "raw_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "stored_bytes": 19,
+      "stored_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/ruff-format.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/ruff-format.stdout.txt",
+      "raw_bytes": 26,
+      "raw_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "stored_bytes": 26,
+      "stored_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/sdist-env-create.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/sdist-env-create.stdout.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/sdist-install.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/sdist-install.stdout.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/sdist-installed.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/sdist-installed.stdout.txt",
+      "raw_bytes": 806,
+      "raw_sha256": "5b3d73fadbcf20fcde9a71096bf3ff762786ad11cf9b08bbf4ffdaea7016ad16",
+      "stored_bytes": 806,
+      "stored_sha256": "5b3d73fadbcf20fcde9a71096bf3ff762786ad11cf9b08bbf4ffdaea7016ad16",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/wheel-base-install.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-base-install.stdout.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/wheel-env-create.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-env-create.stdout.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/wheel-install.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-install.stdout.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/wheel-installed.stdout.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-installed.stdout.txt",
+      "raw_bytes": 806,
+      "raw_sha256": "d430a39b68f3b10c05164658e389fc73d72a8c37a37b7a37e455c44eabc6f348",
+      "stored_bytes": 806,
+      "stored_sha256": "d430a39b68f3b10c05164658e389fc73d72a8c37a37b7a37e455c44eabc6f348",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/architecture.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/architecture.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/artifact-bindings-run.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/artifact-bindings-run.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/bridge-removal.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/bridge-removal.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/build.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/build.stderr.txt",
+      "raw_bytes": 379,
+      "raw_sha256": "ec415c2a7e341a8b40296ed4efd20e37011d921c18e037130fd37f947b62c641",
+      "stored_bytes": 379,
+      "stored_sha256": "ec415c2a7e341a8b40296ed4efd20e37011d921c18e037130fd37f947b62c641",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/census.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/census.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/clone-removal.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/clone-removal.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/environment-run.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment-run.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/installed-bindings-run.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/installed-bindings-run.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/native-draft.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/native-draft.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/native-draft2.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/native-draft2.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/native-draft3.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/native-draft3.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/native.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/native.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/readback-draft.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/readback-draft.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/ruff-check.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/ruff-check.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/ruff-format.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/ruff-format.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/sdist-env-create.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/sdist-env-create.stderr.txt",
+      "raw_bytes": 236,
+      "raw_sha256": "77d1d17af75a3070b7ba237fd50a2817d62661cdb9f6380ac82a3e05cf52f8f8",
+      "stored_bytes": 236,
+      "stored_sha256": "77d1d17af75a3070b7ba237fd50a2817d62661cdb9f6380ac82a3e05cf52f8f8",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/sdist-install.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/sdist-install.stderr.txt",
+      "raw_bytes": 509,
+      "raw_sha256": "73816a955bfbf648c8ff46ae79c1a86f416fd50b3da0fd8b35b5c4371d5f2bae",
+      "stored_bytes": 509,
+      "stored_sha256": "73816a955bfbf648c8ff46ae79c1a86f416fd50b3da0fd8b35b5c4371d5f2bae",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/sdist-installed.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/sdist-installed.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/wheel-base-install.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-base-install.stderr.txt",
+      "raw_bytes": 275,
+      "raw_sha256": "0618a210b99dd527041a4b9a811c4953c5c3da803d55140d66671968a34df6d1",
+      "stored_bytes": 275,
+      "stored_sha256": "0618a210b99dd527041a4b9a811c4953c5c3da803d55140d66671968a34df6d1",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/wheel-env-create.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-env-create.stderr.txt",
+      "raw_bytes": 236,
+      "raw_sha256": "35296f22c808aef76e0379fb21dfd275dad77d4cbd485e2c09679a44c2d7ea0b",
+      "stored_bytes": 236,
+      "stored_sha256": "35296f22c808aef76e0379fb21dfd275dad77d4cbd485e2c09679a44c2d7ea0b",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/wheel-install.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-install.stderr.txt",
+      "raw_bytes": 434,
+      "raw_sha256": "377562191a28ea1767ee205ff0d86e69487b0511c8c4c758e9da8c87d921d2d2",
+      "stored_bytes": 434,
+      "stored_sha256": "377562191a28ea1767ee205ff0d86e69487b0511c8c4c758e9da8c87d921d2d2",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/wheel-installed.stderr.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-installed.stderr.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/native.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/native.json",
+      "raw_bytes": 940,
+      "raw_sha256": "90995f091f025129027c150ab045a347c4386202d867a76f080f5841ab68a13e",
+      "stored_bytes": 940,
+      "stored_sha256": "90995f091f025129027c150ab045a347c4386202d867a76f080f5841ab68a13e",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/build.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/build.json",
+      "raw_bytes": 451,
+      "raw_sha256": "ff9ffa738509cb6df49224592c7bddc5e58dc93f0db293ac543a74750abe037d",
+      "stored_bytes": 451,
+      "stored_sha256": "ff9ffa738509cb6df49224592c7bddc5e58dc93f0db293ac543a74750abe037d",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/census.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/census.json",
+      "raw_bytes": 636,
+      "raw_sha256": "5e2d0e9738b6a11a83b66fbdff00eada27d85737da385c717d9dbb180262b557",
+      "stored_bytes": 636,
+      "stored_sha256": "5e2d0e9738b6a11a83b66fbdff00eada27d85737da385c717d9dbb180262b557",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/architecture.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/architecture.json",
+      "raw_bytes": 472,
+      "raw_sha256": "d2581682dc19fe8542c40b6d7250c6e0faf9fcb318e23b155662b4f6170b5818",
+      "stored_bytes": 472,
+      "stored_sha256": "d2581682dc19fe8542c40b6d7250c6e0faf9fcb318e23b155662b4f6170b5818",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/wheel-installed.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/wheel-installed.json",
+      "raw_bytes": 488,
+      "raw_sha256": "6bdfabd1e266186029e5205cc11f3d6b782feb964f674d784b411e1293babdf4",
+      "stored_bytes": 488,
+      "stored_sha256": "6bdfabd1e266186029e5205cc11f3d6b782feb964f674d784b411e1293babdf4",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/sdist-installed.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/sdist-installed.json",
+      "raw_bytes": 488,
+      "raw_sha256": "74eb349740fca08507b9853150dbbc14341287e95b91395711305a3edc2c809d",
+      "stored_bytes": 488,
+      "stored_sha256": "74eb349740fca08507b9853150dbbc14341287e95b91395711305a3edc2c809d",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/clone-removal.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/clone-removal.json",
+      "raw_bytes": 487,
+      "raw_sha256": "b500f3c2384ed6c62e5c66d7e026c2e2bcf5e39e984726bf1f867a45db816596",
+      "stored_bytes": 487,
+      "stored_sha256": "b500f3c2384ed6c62e5c66d7e026c2e2bcf5e39e984726bf1f867a45db816596",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/bridge-removal.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/bridge-removal.json",
+      "raw_bytes": 488,
+      "raw_sha256": "b0ad2140618198c3368ee6142cfbfaf632c40dd92a19ccf4a91fe4d1778d4c14",
+      "stored_bytes": 488,
+      "stored_sha256": "b0ad2140618198c3368ee6142cfbfaf632c40dd92a19ccf4a91fe4d1778d4c14",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/installed-bindings-run.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/installed-bindings-run.json",
+      "raw_bytes": 483,
+      "raw_sha256": "8656ca04f184d436a2185a2392241913a9fec663ba1f2d6a38a0e4c3e78927fd",
+      "stored_bytes": 483,
+      "stored_sha256": "8656ca04f184d436a2185a2392241913a9fec663ba1f2d6a38a0e4c3e78927fd",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/artifact-bindings-run.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/artifact-bindings-run.json",
+      "raw_bytes": 454,
+      "raw_sha256": "2157609ec51237b6c3e823c879aaa284ba195cb7dec806797f5fb2d732a1b84b",
+      "stored_bytes": 454,
+      "stored_sha256": "2157609ec51237b6c3e823c879aaa284ba195cb7dec806797f5fb2d732a1b84b",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/ruff-check.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/ruff-check.json",
+      "raw_bytes": 590,
+      "raw_sha256": "91517523a742d3c14d3c84020748bee6afdc6b6dd5c5b307ac77cd567d83d4bf",
+      "stored_bytes": 590,
+      "stored_sha256": "91517523a742d3c14d3c84020748bee6afdc6b6dd5c5b307ac77cd567d83d4bf",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/ruff-format.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/ruff-format.json",
+      "raw_bytes": 607,
+      "raw_sha256": "ffc86873b3da895b8a00dc21b672542d9684dfa3890431ca0ec0c897b19260d9",
+      "stored_bytes": 607,
+      "stored_sha256": "ffc86873b3da895b8a00dc21b672542d9684dfa3890431ca0ec0c897b19260d9",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/api/environment-run.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/environment-run.json",
+      "raw_bytes": 463,
+      "raw_sha256": "2da943c7bc0c4225df742a530a49a10cd814d2eb91f0a66665a8ff6397d7d703",
+      "stored_bytes": 463,
+      "stored_sha256": "2da943c7bc0c4225df742a530a49a10cd814d2eb91f0a66665a8ff6397d7d703",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/api-review/api-independent-review.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/api-independent-review.json",
+      "raw_bytes": 8860,
+      "raw_sha256": "cc21461628947b8497f38b717a22176036ad07c1bf81501fb324b178e7980924",
+      "stored_bytes": 8860,
+      "stored_sha256": "cc21461628947b8497f38b717a22176036ad07c1bf81501fb324b178e7980924",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/api-review/byte_census_review.py",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/byte_census_review.py",
+      "raw_bytes": 5865,
+      "raw_sha256": "4fbeddec63705625e8b40fb5bbbed40e955aa108af535153da102b2e002b69c0",
+      "stored_bytes": 5865,
+      "stored_sha256": "4fbeddec63705625e8b40fb5bbbed40e955aa108af535153da102b2e002b69c0",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/api-review/independent-byte-census.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/independent-byte-census.json",
+      "raw_bytes": 2039,
+      "raw_sha256": "b9f47262432fca2b7b98550a675b3003aa4218146455b70cfbb3757b10bb8214",
+      "stored_bytes": 2039,
+      "stored_sha256": "b9f47262432fca2b7b98550a675b3003aa4218146455b70cfbb3757b10bb8214",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/api-review/independent-byte-census.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/independent-byte-census.txt",
+      "raw_bytes": 2039,
+      "raw_sha256": "b9f47262432fca2b7b98550a675b3003aa4218146455b70cfbb3757b10bb8214",
+      "stored_bytes": 2039,
+      "stored_sha256": "b9f47262432fca2b7b98550a675b3003aa4218146455b70cfbb3757b10bb8214",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/api-review/launch.py",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/launch.py",
+      "raw_bytes": 1395,
+      "raw_sha256": "723e940942e4be2d17fcc17404cf412ea905c5ead9b0efa48c93a9c004192d92",
+      "stored_bytes": 1395,
+      "stored_sha256": "723e940942e4be2d17fcc17404cf412ea905c5ead9b0efa48c93a9c004192d92",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/api-review/sdist-independent.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/sdist-independent.txt",
+      "raw_bytes": 3847,
+      "raw_sha256": "f02a1685943b997b713a48ce7c3ba6c4e761e88c3edd1c0c4727a5b78d904555",
+      "stored_bytes": 3847,
+      "stored_sha256": "f02a1685943b997b713a48ce7c3ba6c4e761e88c3edd1c0c4727a5b78d904555",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/api-review/sdist-proof.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/sdist-proof.json",
+      "raw_bytes": 1154,
+      "raw_sha256": "c7d87d895d0f30535846fd83cc5c8ad6fcf3b12b36b7ae9c0f34ccad4481d873",
+      "stored_bytes": 1154,
+      "stored_sha256": "c7d87d895d0f30535846fd83cc5c8ad6fcf3b12b36b7ae9c0f34ccad4481d873",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/api-review/wheel-independent.txt",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/wheel-independent.txt",
+      "raw_bytes": 3847,
+      "raw_sha256": "a1c57e78e83c34efaa679a5d44a5ae324a1acaf19a39c653201bbcd49c751017",
+      "stored_bytes": 3847,
+      "stored_sha256": "a1c57e78e83c34efaa679a5d44a5ae324a1acaf19a39c653201bbcd49c751017",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/economics/api-review/wheel-proof.json",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006/independent/wheel-proof.json",
+      "raw_bytes": 1154,
+      "raw_sha256": "c2d1475400ac118265b890324adf08f9305cd14de34c0b31d69929293863afce",
+      "stored_bytes": 1154,
+      "stored_sha256": "c2d1475400ac118265b890324adf08f9305cd14de34c0b31d69929293863afce",
+      "encoding": "identity"
+    }
+  ],
+  "sanitation": {
+    "performed": "Whitelisted export files only; high-confidence credential/signed-query pattern checks plus deciding-log review.",
+    "matches": 0,
+    "bytes_changed": 0,
+    "limits": "This scope check is not a general repository secret audit."
+  },
+  "uncommitted_large_artifacts": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/api/candidate-dist/policy_engine-0.1.0-py3-none-any.whl",
+      "sha256": "fcf6fdcba77630799a2dbdacab1ac9c2ce6286605675992f0c44da74635c2231",
+      "bytes": 15018575,
+      "source_sha": "729d137279b7d6334230045e420255762fe55f08"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/api/candidate-dist/policy_engine-0.1.0.tar.gz",
+      "sha256": "ead9321cb8e7521a5b472736d3d6826bf4633cb9fcde9d3828496059d177d9d4",
+      "bytes": 65001824,
+      "source_sha": "729d137279b7d6334230045e420255762fe55f08"
+    }
+  ],
+  "exploratory_omitted": "census-base.json and old-base distribution smoke are not deciding current-source evidence; old-base install logs explicitly diagnostic."
+}

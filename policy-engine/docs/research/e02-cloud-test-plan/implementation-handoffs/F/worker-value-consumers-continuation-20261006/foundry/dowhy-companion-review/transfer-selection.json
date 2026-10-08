@@ -1,0 +1,90 @@
+{
+  "schema": "policyos.e02.transfer-selection.v1",
+  "source_sha": "386b361865fb22d6da241716481d919b6ebd8249",
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/dowhy-companion-review/review.json",
+      "bytes": 17471,
+      "sha256": "39b54a997720070aa1f20cd689a3226fa161996e089c85bfa9223e7e74ca4d40"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/audit_dowhy_companion.py",
+      "bytes": 6091,
+      "sha256": "63095536c34cdd8b888405c101ae6792e1a0b1bac45f82cedaf052acc7c0a14c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/dowhy-companion-audit.stdout.txt",
+      "bytes": 12223,
+      "sha256": "eaa93d915e8ed3fea00a7ee70d6474d5ebbd0679911d6d4a9b7c2b3e2a804866"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/dowhy-companion-audit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "external_author_files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-boundaries/receipt.json",
+      "bytes": 1905,
+      "sha256": "059a187ddba4f04fe93bd6b80f99821132e346a05bdfb2047899e93a16944df9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-boundaries/stdout",
+      "bytes": 5879,
+      "sha256": "127a2f5ded1db5fdc8db0228ffa16eb1d301ca996c4e4c9ca9ef1715e43a7ddd"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-boundaries/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/receipt.json",
+      "bytes": 1217,
+      "sha256": "3ee42a9f62839cbffa3c2544a5603049912d5dc5cda63bcd01805fafc4d67bad"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/stdout",
+      "bytes": 6347,
+      "sha256": "a5679ad9bd15e21727c1dec9ddbbb4f3c9c80c6b7da3d7150aaf0d57a53a3f9c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/receipt.json",
+      "bytes": 1392,
+      "sha256": "b811f2b810bd84ca7b3621add647b96a1071cc63d44096dce5c9064b9a49bfce"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/stdout",
+      "bytes": 6134,
+      "sha256": "f5ae61e5c9d7d0daa9e41193997abc001a4adb93477e826a4f32ee27f31b1a27"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/receipt.json",
+      "bytes": 1378,
+      "sha256": "fe41f552de42b7e307ca5c73aa993159c45ff70d465d039d3f9d6e8726555aca"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/stdout",
+      "bytes": 99,
+      "sha256": "99c0ab52b603515602dfc1ee4946e6a859c1e7f6ee04df01903a95e2e018848f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "excluded": "No copied tracked source/test bodies or generated/CAS views; duplicate source-audit JSON view omitted because complete actual stdout is retained; full deciding author originals referenced for single root publication.",
+  "total_reviewer_unique_bytes": 35785
+}

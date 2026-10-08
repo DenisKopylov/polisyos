@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261006/active-environment-relocation/preserve_active_environment.py", line 51, in <module>
+    source.symlink_to(destination, target_is_directory=True)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1386, in symlink_to
+    os.symlink(target, self, target_is_directory)
+OSError: [Errno 28] No space left on device: '/tmp/e02-F-continuation-20261006/active-environment-relocation/cudnn-environment' -> '/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/nvidia/cudnn'

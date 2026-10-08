@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+    "-B",
+    "-I",
+    "-c",
+    "import importlib.metadata as m,inspect,json,platform,sys\nimport dowhy,numpy,scipy,statsmodels\nfrom dowhy import CausalModel\nprint(json.dumps({'python':sys.version,'executable':sys.executable,'platform':platform.platform(),'modules':{n:{'version':m.version(n),'origin':str(__import__(n).__file__)} for n in ('dowhy','numpy','scipy','statsmodels')},'CausalModel_constructor_signature':str(inspect.signature(CausalModel)), 'identify_effect_signature':str(inspect.signature(CausalModel.identify_effect)),'estimate_effect_signature':str(inspect.signature(CausalModel.estimate_effect))},sort_keys=True,indent=2))\n"
+  ],
+  "cwd": "/tmp/e02-F-graph-profile-20261007/worker",
+  "wall_seconds": 4.865752554003848,
+  "environment_overrides": {
+    "MPLCONFIGDIR": "/tmp/e02-F-graph-profile-20261007/worker/mpl-readonly-preflight",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "inherited_environment": true,
+  "no_CPU_thread_process_quota_added": true,
+  "interpreter_declared_path": "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+  "interpreter_resolved_path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "interpreter_exists": true,
+  "stdout": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/worker-backend.stdout.json",
+    "bytes": 1709,
+    "sha256": "8f66774310d667eddbe6befcda8e4fe0a34d4c623126d359ca53e23098e50ac5"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/worker-backend.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "exit_code": 0,
+  "outcome": "PASS",
+  "scope": "Genuine installed backend import/API and baseline identity only; no estimator tests/authority claim."
+}

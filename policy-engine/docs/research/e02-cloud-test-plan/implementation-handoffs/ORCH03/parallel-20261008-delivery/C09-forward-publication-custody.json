@@ -1,0 +1,10 @@
+{
+  "commit": "02a75f2b7a4846bcf5b6a8f301d2d4d20b9a99b2",
+  "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-publication.json",
+  "bytes": 3529,
+  "sha256": "454ee932357293113d45546f204d11364520dfaf3ecf4bf5f5bc53b74778a3cb",
+  "additional_artifacts_verified": 10,
+  "source_footprint_verified": 24,
+  "check": "PASS",
+  "scope": "Fetched Git byte custody only; no new runtime test"
+}

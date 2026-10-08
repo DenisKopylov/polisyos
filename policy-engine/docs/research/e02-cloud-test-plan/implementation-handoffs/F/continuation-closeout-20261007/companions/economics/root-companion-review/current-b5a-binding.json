@@ -1,0 +1,151 @@
+{
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+  "six_owned_new_paths_plus_twelve_provider_paths": [
+    {
+      "path": "policy-engine/docs/reference/foundry/causal-installed-source-reconciliation.md",
+      "bytes": 3267,
+      "sha256": "861e0fc37295187894e7f29102947763f297dbc6ee3f85bb371b6de69f7f67a3",
+      "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "current_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/docs/reference/foundry/tmle-persisted-consumers.md",
+      "bytes": 5649,
+      "sha256": "66fe2054b47d264fae28d6b2aa239b01d9f6ecb44dfd45894aa8c5afbf5b4a84",
+      "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "current_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-installed-graph-contract-reconciliation.toml",
+      "bytes": 1738,
+      "sha256": "850307f46070a9b3b1efc3acd24d9d2283738838f9df8e0dc53c791c6e280902",
+      "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "current_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml",
+      "bytes": 1890,
+      "sha256": "9798ce1fac3ee3f201dff83a17119582953ddf8eb235338574c421c063c3431e",
+      "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "current_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+      "bytes": 22295,
+      "sha256": "92fb3ac07d2363197d3bd642562985a59386562e7798272dfd6cd9987a6ad86d",
+      "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "current_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+      "bytes": 59964,
+      "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+      "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "current_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+      "bytes": 31650,
+      "sha256": "778e4cd01700c3f96e1d5480ef8e2f17a2e85c3febc5f418b18440859610d828",
+      "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "current_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+      "bytes": 18448,
+      "sha256": "183f8b40599955fdb790632b1fa3c5d3b7004bf5eef421c27a00a9ec67e19b40",
+      "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "current_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "bytes": 76407,
+      "sha256": "0c94715bbf1e0b04a6076a770acce717d55ee60dee53a561a99a8e63448398b8",
+      "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "current_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "bytes": 84428,
+      "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7",
+      "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "current_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/pdc/_impl/evaluation_safety.py",
+      "bytes": 9436,
+      "sha256": "87831ae9b6b4b1ec331d97ae3ed8ac85d7bc013f3103804202d8a6297267e031",
+      "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "current_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/evaluation_safety.py",
+      "bytes": 85385,
+      "sha256": "bc12bb95f5381d4f2b0235ce3cdb8705a27051a8bb33cf628ca10ab402af36cd",
+      "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "current_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "bytes": 347497,
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "current_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/compute/job_spec.py",
+      "bytes": 2662,
+      "sha256": "c409c976c98b57247d9469a9f33a295e099188d15abf5dbc6a0edb72422ce2f4",
+      "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "current_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+      "bytes": 29575,
+      "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd",
+      "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "current_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+      "bytes": 10787,
+      "sha256": "8859ef8c96a2db6b7ed99af5524815ff2027753a24a6b7e482367a14a8470f74",
+      "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "current_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_graph_contract_reconciliation.py",
+      "bytes": 7224,
+      "sha256": "65625b4786535bd2864b0a7726bed69cde7b0b0975efd364c8aa7ec292d0c27b",
+      "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "current_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py",
+      "bytes": 15094,
+      "sha256": "fb7b806dd6f97e9eb2ecf7196eaf58441ab26e2af6b497d3d635d7d6602e2c25",
+      "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "current_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "byte_equal": true
+    }
+  ],
+  "reconciliation_scope": "Graph647 owned delta not reviewed here; its review delegated separately. API/FIT assigned18 source providers/footprint unchanged from5609."
+}

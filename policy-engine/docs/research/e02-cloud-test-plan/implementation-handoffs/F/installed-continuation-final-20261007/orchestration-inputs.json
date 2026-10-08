@@ -1,0 +1,51 @@
+{
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "files": {
+    "prepare.py": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/prepare.py",
+      "bytes": 6568,
+      "sha256": "c45a78ecb5133b4d442fb017fbd434bd85bfd1d0ca9fd10e6f341ffa3c800f17"
+    },
+    "setup.py": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/setup.py",
+      "bytes": 6691,
+      "sha256": "fd4cedb61743ffd1ce3a46ac5b14169e201177176332ca2e803588d2365a443d"
+    },
+    "bind.py": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/bind.py",
+      "bytes": 4492,
+      "sha256": "f78b51f6a775bc3f10f49fc6bb617592e7e19af2bab80ccc8f2c110473cd9f58"
+    },
+    "environment.py": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/environment.py",
+      "bytes": 1084,
+      "sha256": "cd488d3cb918950457b9145c09308ddd3fda98f78911cf9761a4e2744abf587d"
+    },
+    "launch.py": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/launch.py",
+      "bytes": 3938,
+      "sha256": "158aee870a46b5b46c5b287dbef55a7ccba202a8a5f35d41c58004e99cf73a14"
+    },
+    "installed_tmle_reader.py": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/installed_tmle_reader.py",
+      "bytes": 1683,
+      "sha256": "8f9dd8c0ba55552d14687405664bd2b42b9143cb923877999ff1c740a372ddc6"
+    },
+    "capture_native.py": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/capture_native.py",
+      "bytes": 2811,
+      "sha256": "85c8f84045c2957f2f4e7d23de61cef9dd0fafece8ee00f781b2d2549b67b044"
+    },
+    "capture_native_v2.py": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/capture_native_v2.py",
+      "bytes": 3207,
+      "sha256": "aab6268cbc2bb55ba775896cdd012b9e5aee50c208944188f202ffa37ad99241"
+    },
+    "postguard.py": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/postguard.py",
+      "bytes": 3099,
+      "sha256": "58aa62add01ff0deee76647131af7763df4791d926fb35d95cc21093c098f8fe"
+    }
+  },
+  "scope": "Unique actual observer/build orchestration; copied tracked product/test bodies are cited via exact Git carrier manifest, not stored again."
+}

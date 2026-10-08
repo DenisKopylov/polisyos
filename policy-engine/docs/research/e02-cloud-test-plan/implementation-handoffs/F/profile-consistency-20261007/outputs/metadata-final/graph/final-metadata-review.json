@@ -1,0 +1,130 @@
+{
+  "schema": "policyos.e02.independent_final_metadata_review.v1",
+  "reviewer": "/root/graph_review",
+  "role": "non-author source/property/ledger/transport review; no runtime rerun",
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "source_base": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+  "verdict": "GO_BOUNDED_CANONICAL_DRAFT_AND35_LEDGER",
+  "errors": [],
+  "handoff": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/profile-consistency-20261007.json",
+    "bytes": 112882,
+    "sha256": "c25d8546f3ff1d52ad5d4f6eaffccb4a543fba75ec566b853cb6e403dedb07e3"
+  },
+  "transport": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/profile-consistency-20261007/artifact-transports.json",
+    "bytes": 205679,
+    "sha256": "f9f7cfe6bc3370f7fd93b480f38a72e6548ef8723a4e231d982f8d7a04e54fa9",
+    "records": 323,
+    "decoded_bytes": 2891702,
+    "stored_bytes": 1039349,
+    "local_equal": 323
+  },
+  "ledger_and_packet_doc_bindings": {
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/index.json": {
+      "bytes": 325763,
+      "sha256": "398fdd96ce8c4ba5dc14fd2f3afad11f67ed2b87ff0a266e2e6c0feac4893890",
+      "git_blob_if_committed": "4894becd45f6abc7cf7c17f5652560e3b3aef706"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/full-audit.json": {
+      "bytes": 91357,
+      "sha256": "d6c44c054f9cd0937d1baa69db9e2beef10c3590e70263131608d7716d24b9cc",
+      "git_blob_if_committed": "677ed2c837f7b4654071cf5ce8cdcd436ddfdc87"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/REPORT.md": {
+      "bytes": 33465,
+      "sha256": "69aa6f7ceb91f93c4922f8bc7918586ac5b3f90cc487f523ce9c3f8545d4f5b9",
+      "git_blob_if_committed": "8fb036ab38d5b52d7275aa0d8aed9015d307af7a"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B214.json": {
+      "bytes": 36885,
+      "sha256": "622885d4771de1c37f4564451b1e0d675c8b9a113bb93faf5e5b7a09380496d1",
+      "git_blob_if_committed": "d87d9fc2c57c1371404f377c219c495f9c3c241c"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md": {
+      "bytes": 34338,
+      "sha256": "e9711c390efd7ca45ab4a27e67e5a9d40934493f8ac3c8b93d62445441760e8f",
+      "git_blob_if_committed": "c3ab0bc90aff79420bfd8913e7a04db6b4f9675f"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/profile-consistency-20261007/README.md": {
+      "bytes": 4504,
+      "sha256": "4857a73d318a1ddcaac8e2443b2270336c1ea304e81bea956eceff27d1620746",
+      "git_blob_if_committed": "6dd0e04d4bc399419284159509923aa66d33e3fe"
+    }
+  },
+  "full_denominator": {
+    "IDs": 35,
+    "bundles": 17,
+    "original_bindings": 36,
+    "per_ID_changed": [
+      "B214"
+    ],
+    "other_per_ID_unchanged": 34
+  },
+  "recommendations": {
+    "F_original": "33closed/2limited",
+    "F_technical_original": "33closed/2limited",
+    "checks": "34PASS/1UNRUN",
+    "G_new_source_acceptance": "not_issued",
+    "G_formal_closures": 0
+  },
+  "metadata_corruptions": [
+    {
+      "mutation": "source_tree",
+      "rejected": true,
+      "actual_reasons": [
+        "source identity differs"
+      ]
+    },
+    {
+      "mutation": "transport_count",
+      "rejected": true,
+      "actual_reasons": [
+        "transport denominator differs"
+      ]
+    },
+    {
+      "mutation": "minimum",
+      "rejected": true,
+      "actual_reasons": [
+        "check minimum missing"
+      ]
+    },
+    {
+      "mutation": "closure",
+      "rejected": true,
+      "actual_reasons": [
+        "unissued acceptance inflated"
+      ]
+    },
+    {
+      "mutation": "summary",
+      "rejected": true,
+      "actual_reasons": [
+        "row summary differs"
+      ]
+    }
+  ],
+  "actual_check_scope": {
+    "native": 38,
+    "graph": "2actualjobrefusals/10Node refusal+cleanpositive; removal2job admissions/8publications+2diagnostic-only selected cases",
+    "report": "3actualMethodJob/CAS+3distinctreader; removal2expectedFAIL/1positivePASS",
+    "installed": "external852 exact5bce carrier;17wheel+distinctchild and1expectedremovalFAIL; source/site/wheel origins qualified"
+  },
+  "preserved_limits": [
+    "No scientific or institutional authority from enum/CI/marker/worker/readback",
+    "Old4ee retag control superseded as semantics proof, historical bytes preserved",
+    "Unknown metadata/name conventions bounded and actual clean-name/control is falsifier; sameP40class deeper",
+    "B214 broad A/C/F completion query and B56 Runtime/Scientist roster admission remain deferred",
+    "Current rebuilt-sdist/optional3.14backends UNRUN",
+    "Source852 scanner-invocation−9 ERROR/incomplete; unknown kill/no receipt; historical519−9/Ruff103FAIL/publicsurface38FAIL/P41not_established retained",
+    "All initial harness/setup/interruption attempts and isolated warnings remain distinct from completed native/installed evidence",
+    "No cleanup/deletion; active source/unique inputs/environments retained"
+  ],
+  "caption_correction": "Actual retagged ADMG MethodJob/Node versus valid retagged DAG Compose sibling and malformed DAG Node cases now separated.",
+  "initial_verifier_attempt": "Draft ledger verifier incorrectly compared projected index to full custody object; baseline2c proves intentional8 custody-only exclusions. Corrected all-common-field plus full-byte/card binding verification passes; initial output retained.",
+  "publication_qualification": "Filesystem DRAFT bytes reviewed. Root must commit, ordinary-push own F topic and read back exact remote before claiming delivery; this review does not issue G acceptance. Final Git receipt readback is a separate step.",
+  "runtime_reruns": 0,
+  "reviewed_at": "2026-10-07T20:11:30.528779+00:00"
+}

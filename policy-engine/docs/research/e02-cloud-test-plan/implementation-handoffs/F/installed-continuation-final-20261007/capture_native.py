@@ -1,0 +1,34 @@
+"""Capture the two parallel affected installed profiles without numerical quotas."""
+import concurrent.futures
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import time
+scratch=Path(__file__).resolve().parent
+config=json.loads((scratch/'installed-config.json').read_text())
+manifest=json.loads((scratch/'archive-installed-source-bindings.json').read_text())
+assert manifest['outcome']=='PASS' and manifest['source_sha']==config['source_sha']
+env=os.environ.copy();env.pop('PYTHONPATH',None);env['PYTHONDONTWRITEBYTECODE']='1'
+keys=['PYTHONPATH','PYTHONDONTWRITEBYTECODE','OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','XLA_FLAGS','XLA_PYTHON_CLIENT_PREALLOCATE','JAX_PLATFORM_NAME','JAX_PLATFORMS','POLISYOS_DOWHY_WORKER_PYTHON']
+def run(kind):
+    argv=[config['installed_pythons'][kind],'-I',str(scratch/'launch.py'),str(scratch/'installed-config.json'),kind]
+    cwd=scratch/(kind+'-consumer');started=time.monotonic()
+    timepath=scratch/(kind+'-resources.txt')
+    measured=['/usr/bin/time','-v','-o',str(timepath),*argv]
+    record={'source_sha':config['source_sha'],'source_tree':config['source_tree'],'kind':kind,'argv':argv,'measured_argv':measured,'cwd':str(cwd),'environment':{key:env.get(key,'absent') for key in keys},'new_quota':False,'parallel_profiles':2,'status':'RUNNING'}
+    recordpath=scratch/(kind+'-native.json');recordpath.write_text(json.dumps(record,indent=2)+'\n')
+    with (scratch/(kind+'-native.stdout.txt')).open('wb') as out,(scratch/(kind+'-native.stderr.txt')).open('wb') as err:
+        process=subprocess.Popen(measured,cwd=cwd,env=env,stdout=out,stderr=err)
+        record['pid']=process.pid;recordpath.write_text(json.dumps(record,indent=2)+'\n')
+        code=process.wait()
+    record.update(exit_code=code,wall_seconds=time.monotonic()-started,status='PASS' if code==0 else 'FAIL')
+    for stream in ('stdout','stderr'):
+        path=scratch/(kind+'-native.'+stream+'.txt');raw=path.read_bytes();record[stream]={'path':str(path),'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+    record['resources']={'path':str(timepath),'bytes':timepath.stat().st_size,'sha256':hashlib.sha256(timepath.read_bytes()).hexdigest()}
+    recordpath.write_text(json.dumps(record,indent=2)+'\n');print(json.dumps({key:record[key] for key in ('kind','exit_code','wall_seconds','status')}),flush=True)
+    return record
+with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+    records=list(executor.map(run,('wheel','sdist')))
+(scratch/'native-wave.json').write_text(json.dumps({'source_sha':config['source_sha'],'profiles':records,'outcome':'PASS' if all(r['exit_code']==0 for r in records) else 'FAIL','scope':'162 selected affected cases/profile; no global/admission closure'},indent=2)+'\n')

@@ -1,0 +1,73 @@
+{
+  "sha": "0b522ed173730b4ec744253bb75b6ee260bfcebb",
+  "all_tracked_code_config_files": 11201,
+  "named_root_files": 6507,
+  "outside_named_roots": 4694,
+  "outside_nonhistorical_hit_files": [
+    {
+      "path": "policy-engine/architecture/baselines/structure_remediation/public_surface_pre_decomp.json",
+      "sha256": "4d8b67ee939c769b8cd52b9cdae49597d040b9680304e63356b1c449b0eef589",
+      "hits": [
+        {
+          "line": 47583,
+          "text": "            \"DifferenceInDifferences\","
+        },
+        {
+          "line": 47590,
+          "text": "              \"name\": \"DifferenceInDifferences\","
+        },
+        {
+          "line": 47591,
+          "text": "              \"fqn\": \"polisyos.foundry.methods.catalog.causal.did.DifferenceInDifferences\","
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g2_foundry_method_registry_search.json",
+      "sha256": "11def6516f675ecdba3fa9595afd883fc44c74b0ec13ba274b2c4620a800a494",
+      "hits": [
+        {
+          "line": 302,
+          "text": "          \"outcome_panel\","
+        },
+        {
+          "line": 303,
+          "text": "          \"treatment_indicator\""
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_did_request_route.py",
+      "sha256": "fa089bd015a49ad7071b8e134f48b12df4aa878d16ee19c02c644b83055ee6d7",
+      "hits": [
+        {
+          "line": 11,
+          "text": "    DifferenceInDifferences,"
+        },
+        {
+          "line": 54,
+          "text": "        \"causal.did.difference_in_differences@1.0.0\","
+        },
+        {
+          "line": 55,
+          "text": "        DifferenceInDifferences.signature.fqn,"
+        },
+        {
+          "line": 63,
+          "text": "    monkeypatch.setattr(DifferenceInDifferences, \"pure_step\", legacy_poison)"
+        }
+      ]
+    }
+  ],
+  "excluded_historical_or_documentation_roots": [
+    "policy-engine/docs",
+    "E02",
+    "policy-engine/release-fragments"
+  ],
+  "outside_paths_sha256": "568ffa5154039bc9514cf9082c36ce0e93cc0f7e8364828411d9182e19c58d78",
+  "disposition": {
+    "policy-engine/architecture/baselines/structure_remediation/public_surface_pre_decomp.json": "Historical predecomposition public-surface baseline, not active registry planning. Preserve under its separate architecture owner.",
+    "policy-engine/architecture/policy_design_case/layer3_g2_foundry_method_registry_search.json": "Actual lines302\u2013303 belong to causal.inference.structural_time_series@1.0.0, not DiD. Its older input slots must not be migrated by DiD owner.",
+    "policy-engine/tests/unit/runtime/quality/test_did_request_route.py": "New candidate-only test outside immutable base census; explicit retired-route negative and poisoned historical adapter, not maintained old planner."
+  }
+}

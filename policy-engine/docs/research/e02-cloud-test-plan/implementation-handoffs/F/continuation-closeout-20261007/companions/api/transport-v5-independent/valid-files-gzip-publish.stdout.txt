@@ -1,0 +1,20 @@
+{
+  "mode": "materialized_exact_bytes",
+  "destination": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-files-gzip",
+  "artifact_transports": {
+    "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-files-gzip/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+    "bytes": 5960,
+    "sha256": "0255bb2563b26a07642234fd905c64098357214d3233831355786aee1ea9d087"
+  },
+  "counts": {
+    "logical_files": 6,
+    "transported_files": 6,
+    "aliases": 0,
+    "existing_git_files": 0,
+    "stored_bytes": 36592,
+    "decoded_unique_bytes": 36572
+  },
+  "primary_written": false,
+  "git_writes": false,
+  "science_tests_run": false
+}

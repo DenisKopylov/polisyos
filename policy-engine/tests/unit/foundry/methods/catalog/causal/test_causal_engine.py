@@ -4,6 +4,7 @@ import dataclasses
 
 import numpy as np
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.causal_engine import (
     CausalEngine,
@@ -1225,7 +1226,7 @@ class TestCausalEngineAudit:
         engine = CausalEngine(registry=None, artifact_store=FileSystemCAS(tmp_path / "cas"))
         result = self._get_result(engine)
         if isinstance(result, NegativeCertificate):
-            from polisyos.foundry.methods.catalog.causal.causal_engine import (
+            from polisyos.foundry.methods.catalog.causal.causal_engine.artifacts import (
                 _make_dummy_identification_result,
             )
 
@@ -1237,7 +1238,7 @@ class TestCausalEngineAudit:
         engine = CausalEngine(registry=None, artifact_store=FileSystemCAS(tmp_path / "cas"))
         result = self._get_result(engine)
         if isinstance(result, NegativeCertificate):
-            from polisyos.foundry.methods.catalog.causal.causal_engine import (
+            from polisyos.foundry.methods.catalog.causal.causal_engine.artifacts import (
                 _make_dummy_identification_result,
             )
 
@@ -1249,7 +1250,7 @@ class TestCausalEngineAudit:
         engine = CausalEngine(registry=None, artifact_store=FileSystemCAS(tmp_path / "cas"))
         result = self._get_result(engine)
         if isinstance(result, NegativeCertificate):
-            from polisyos.foundry.methods.catalog.causal.causal_engine import (
+            from polisyos.foundry.methods.catalog.causal.causal_engine.artifacts import (
                 _make_dummy_identification_result,
             )
 
@@ -1263,7 +1264,7 @@ class TestCausalEngineAudit:
         engine = CausalEngine(registry=None, artifact_store=store)
         result = self._get_result(engine)
         if isinstance(result, NegativeCertificate):
-            from polisyos.foundry.methods.catalog.causal.causal_engine import (
+            from polisyos.foundry.methods.catalog.causal.causal_engine.artifacts import (
                 _make_dummy_identification_result,
             )
 
@@ -1280,7 +1281,7 @@ class TestCausalEngineAudit:
         engine = CausalEngine(registry=None, artifact_store=FileSystemCAS(tmp_path / "cas"))
         result = self._get_result(engine)
         if isinstance(result, NegativeCertificate):
-            from polisyos.foundry.methods.catalog.causal.causal_engine import (
+            from polisyos.foundry.methods.catalog.causal.causal_engine.artifacts import (
                 _make_dummy_identification_result,
             )
 

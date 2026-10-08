@@ -1,0 +1,41 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "tools/ops_runners/release/check_compatibility_release_gates.py",
+    "--repo-root",
+    ".",
+    "--fail-on-contract-errors",
+    "--breaking-class",
+    "python-public-api"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+  "source_before": {
+    "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+    "tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_after": {
+    "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "exit": 1,
+  "duration_seconds": 0.17867517471313477,
+  "maxrss_kib": 208684,
+  "environment": {
+    "PYTHONPATH": "src:.:tools",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "thread_cpu_quotas": "none"
+  },
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/cau/head-release-gate.stdout.txt",
+      "bytes": 1280,
+      "sha256": "0a685f431454f4fb6ac606933d8fa4718a88cbbf0a2d1f951854198a1f659018"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/cau/head-release-gate.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "check": "PASS",
+  "basis": "ALL25Git primary refs and all11 current installed inputs read and decoded from immutable Git only; no/tmp source packet reads",
+  "git_only_replayer": {
+    "path": "/tmp/e02-F-continuation-20261006/fit-final35-review/bind_inputs.py",
+    "bytes": 8589,
+    "sha256": "46f3ae7515e65d8d0827e8ddb105896e0e04bf80a0c7844fe3b1e33e89bd9217"
+  },
+  "reconstructed_bytes": 418258,
+  "reconstructed_sha256": "23246162782cbef3b130747f3c507128a446f227915c1d677285f46afa7a496f",
+  "expected_sha256": "23246162782cbef3b130747f3c507128a446f227915c1d677285f46afa7a496f"
+}

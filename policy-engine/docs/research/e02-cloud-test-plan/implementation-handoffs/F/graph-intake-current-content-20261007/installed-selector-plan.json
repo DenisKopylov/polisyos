@@ -1,0 +1,80 @@
+{
+  "check": "PASS",
+  "target_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+  "scope": "exact four selectors plus pytest ancestor conftest files; installed neutral carrier must retain source bodies but resolve product from installed site, not worktree",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+    "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+    "tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+    "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+    "-q",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--junitxml",
+    "/tmp/e02-F-continuation-20261007/graph/corrected-frozen-native.xml"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+  "files": [
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "bytes": 9664,
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "git_ref": "647f5d35362c2a5d7ad32283b804a5b03ea56e83"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/conftest.py",
+      "bytes": 969,
+      "sha256": "53c808c34be3ea5d31db2c8e5172c0c75235a0ea1f11846416dacc2501b5ec40",
+      "git_ref": "647f5d35362c2a5d7ad32283b804a5b03ea56e83"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+      "bytes": 43886,
+      "sha256": "0b5248df1126345364f780cf134f2a6716bb6a380643b9a82606c47b11d98539",
+      "git_ref": "647f5d35362c2a5d7ad32283b804a5b03ea56e83"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/conftest.py",
+      "bytes": 11773,
+      "sha256": "d4cc421ea080fd04e04c93345f066c9f2993020a1e95219e325319d0fb987d11",
+      "git_ref": "647f5d35362c2a5d7ad32283b804a5b03ea56e83"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/conftest.py",
+      "bytes": 103,
+      "sha256": "9d711f8d627e1aec1d9baa959b5cac44971a4383aa44a449b348a085495d6fcd",
+      "git_ref": "647f5d35362c2a5d7ad32283b804a5b03ea56e83"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+      "bytes": 20756,
+      "sha256": "250584c3c31cae1192cfcbf20ffe6610fec49668da2a4f2cb2a86daeae0f6df7",
+      "git_ref": "647f5d35362c2a5d7ad32283b804a5b03ea56e83"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+      "bytes": 33920,
+      "sha256": "190bbb495f923e9e3cab420e89781d393b0ed60c5b53a69c4585fad7495d8e89",
+      "git_ref": "647f5d35362c2a5d7ad32283b804a5b03ea56e83"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+      "bytes": 8593,
+      "sha256": "37df9399ff0acc0d0fa845af9f9eaa81614163ae74a88c23a14ea49b1bfd4dfc",
+      "git_ref": "647f5d35362c2a5d7ad32283b804a5b03ea56e83"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/conftest.py",
+      "bytes": 1556,
+      "sha256": "5efe0ef0510816c884b4ae09930fadeabd058eb8dfb16b1f3e281fdd5096d9b7",
+      "git_ref": "647f5d35362c2a5d7ad32283b804a5b03ea56e83"
+    }
+  ]
+}

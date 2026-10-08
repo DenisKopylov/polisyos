@@ -1,0 +1,1 @@
+{"outcome": "PASS", "reader_pid": 1006168, "parent_pid": 1006146, "isolated": 1, "owned_origins": 83}

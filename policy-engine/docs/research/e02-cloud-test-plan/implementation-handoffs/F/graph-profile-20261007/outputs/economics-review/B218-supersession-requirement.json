@@ -1,0 +1,128 @@
+{
+  "current_bound_original_decision": {
+    "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B218.json",
+    "bytes": 26151,
+    "sha256": "6b546ab6d3561ab4257ab7277a5a2fae7e767425dcc7875ebed202ad173ea46d"
+  },
+  "current_original_card_refs": [
+    {
+      "criterion_id": "B218",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        5361,
+        5374
+      ],
+      "bytes": 3861,
+      "sha256": "8ce1868ddb2663580547f475288d03502e03ae6a4bc38923313bc069efb0a40a",
+      "title": "## B218. Временной граф теряет лаги при экспорте, а лаговая самозависимость отвергается как обычный self-loop",
+      "byte_binding_check": "PASS"
+    }
+  ],
+  "historical_limited_rows": [
+    {
+      "receipt": {
+        "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17"
+      },
+      "json_pointer": "/per_id/4",
+      "literal_row": {
+        "finding_id": "B218",
+        "bundle_id": "GRF-03",
+        "criterion": "Lag1/lag2/self-lag roundtrip retains causal time; static consumer must refuse absent explicit temporal conversion",
+        "check": "PASS",
+        "outcome": "limited",
+        "oracle_and_deciding_checks": "actualNX lossless lag/self-lag roundtrip PASS and staticGCM lag refusal PASS",
+        "negative_or_removal": "Zero-lag self-loop remains invalid; bidirectional lag feedback remains serialized, staticGCM rejects; finite expandedgraph sanity.",
+        "limit_and_next_owner": "Full graph-intake-to-protected-readiness temporal route UNRUN in current slice; separate intake owner/root integration. Static runtime law remains safe-refusal, no temporal method capability claim.",
+        "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+        "recorded_ledger_state": "partial",
+        "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-03.md",
+        "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B218.json",
+        "downstream_companion": {
+          "sha": "fe7a8354bab24678fa9c8361fe80acb8cddae2fe",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006.json",
+          "bytes": 47474,
+          "sha256": "a1fe644a1ba0f8f54897c626bd86a76062a3ddfca8e55cb5fa03e326f230499d",
+          "endpoint_check": "FAIL",
+          "temporal_protected_route_check": "UNRUN",
+          "repair_branch": "codex/e02-F-graph-intake-20261006",
+          "next_owner": "F/cau separate canonical reconciliation intake author; root final integration index",
+          "scope": "Historical endpoint FAIL from the original e6 publication is preserved by this corrected transport-only CAU review; current bounded graph-intake receipt2044260c39dc4988b37d5a1568b65a1cdb1e3d31 records its own exact implementation profile separately. B214/B218 primary outcomes remain limited and protected temporal route remains UNRUN.",
+          "previous_ref_history": {
+            "sha": "e6cb0949e58399b0a8f0e3086aecdac70503c138",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006.json",
+            "bytes": 34553,
+            "sha256": "eea70a5e18fb463309efb98d531f2d911e2eaf1090c81119a2f25035a1f94a82",
+            "classification": "historical_non_deciding",
+            "historical_endpoint_check": "FAIL",
+            "historical_transport_metadata_check": "FAIL",
+            "scope": "Exact old sealed receipt retained as history; ten scratch_artifacts_original fields used encoded paths with original raw hashes. Corrected current metadata is the new parent reference; old nested scratch fields are not current deciding evidence."
+          }
+        }
+      }
+    },
+    {
+      "receipt": {
+        "git_ref": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json",
+        "bytes": 150755,
+        "sha256": "78b07ba01cf9b483ff23d08c8144fc55b9ab678412b46fa8f170c775a3f1f05e"
+      },
+      "json_pointer": "/per_finding/1",
+      "literal_row": {
+        "finding_id": "B218",
+        "role": "existing primary GRF-03 companion; no duplicate primary closure decision",
+        "original_criterion_ref": {
+          "criterion_id": "B218",
+          "document": "B_r19",
+          "lines": [
+            5361,
+            5374
+          ],
+          "sha256": "8ce1868ddb2663580547f475288d03502e03ae6a4bc38923313bc069efb0a40a",
+          "card": "GRF-03",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "verified_block_bytes": 3861
+        },
+        "check": "PASS",
+        "outcome": "limited",
+        "native_scope": "Actual existing reconciliation intake/current-request/static boundary only, independently verified39+26 and author63; primary whole projection/export criterion remains owned by original GRF primary receipt.",
+        "negative_controls": [
+          "Cached current-request behavioral5FAIL; actual snapshot seed mismatchFAIL",
+          "Endpoint/static7FAIL and independent endpoint4FAIL/CAS1FAIL"
+        ],
+        "limits": [
+          "No new primary finding ID, arbitrary PAG extension, full temporal consumer, all graphwriter census or protected policy gate witness."
+        ]
+      }
+    }
+  ],
+  "required_current_supersession": {
+    "recommendation": "closed in original finite compact-temporal export/static-consumer criterion",
+    "basis": "Lag1/lag2/self-lag serialization and expanded finite sanity, static consumer typed refusal, unchanged static DAG path; original criterion does not demand universal temporal ID.",
+    "explicitly_supersedes": [
+      {
+        "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "json_pointer": "/per_id/4"
+      },
+      {
+        "git_ref": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json",
+        "bytes": 150755,
+        "sha256": "78b07ba01cf9b483ff23d08c8144fc55b9ab678412b46fa8f170c775a3f1f05e",
+        "json_pointer": "/per_finding/1"
+      }
+    ],
+    "preserve_historical_literals": true,
+    "retained_limits": "Temporal protected-readiness/full identification route remains UNRUN and separate from the original bounded criterion; no new numerical replay."
+  }
+}

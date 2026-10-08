@@ -1,0 +1,17 @@
+{
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "operation": "lossless reversible active-export relocation to independent writable mount; no retired cleanup/data deletion",
+  "old_path": "/workspace/e02-F-report-export-852",
+  "new_path": "/dev/shm/e02-F-report-export-852",
+  "old_path_retained_symlink": true,
+  "entries": 8623,
+  "file_count": 7751,
+  "bytes": 165781398,
+  "before_tree_sha256": "227b02a1b73b87639dd2b2fd750fd0b78b7bf9a5c60cc9ecf4ac8154e15dc6db",
+  "after_tree_sha256": "227b02a1b73b87639dd2b2fd750fd0b78b7bf9a5c60cc9ecf4ac8154e15dc6db",
+  "full_walk_equal": true,
+  "original_tmp_alias": "/tmp/e02-F-profile-consistency-20261007/report-review/final852",
+  "source_alias_resolves": "/dev/shm/e02-F-report-export-852",
+  "new_src_origin_root": "/dev/shm/e02-F-report-export-852/policy-engine/src"
+}

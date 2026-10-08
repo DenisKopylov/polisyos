@@ -1,0 +1,52 @@
+{
+  "mode": "remove_role_issue",
+  "source_guard": {
+    "sha": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+    "tree": "00dcef92dcf711833750e842dec19188df69b74b",
+    "status": "clean"
+  },
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/check_mixed_native_consumer.py",
+    "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/producer-packet.json",
+    "remove_role_issue"
+  ],
+  "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+  "environment": {
+    "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+    "new_quota": false,
+    "worker_required": false,
+    "backend": "actual native NumPy/scikit-learn TMLE persisted producer and actual Confidence/value consumers"
+  },
+  "packet": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/producer-packet.json",
+    "bytes": 2488,
+    "sha256": "17c25ebb61d81592d7d60f90fa0095afaca21aef11922f9eed740c031792d5cd"
+  },
+  "replayer": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/check_mixed_native_consumer.py",
+    "bytes": 4898,
+    "sha256": "4cb29ba8caff118c77a4c951d3c62d4757fd96460698788656168b96f4a9d941"
+  },
+  "exit_code": 1,
+  "expected_exit_code": 1,
+  "wall_until_wait_seconds": 8.349323972011916,
+  "outcome": "PASS",
+  "observed_runtime_result": "expected_assertion_failure_after_actual_consumer",
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/remove_role_issue.stdout.txt",
+    "bytes": 1850,
+    "sha256": "9f0f87cad057b7ee8159bbebbdd4b287ad48654529bd8077cd847bc39bd584aa"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/remove_role_issue.stderr.txt",
+    "bytes": 1792,
+    "sha256": "2d879bff517ef7d5555c152b583403dfef8471f0318c0d3da52d24a02443b3d3"
+  },
+  "source_guard_after": {
+    "sha": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+    "tree": "00dcef92dcf711833750e842dec19188df69b74b",
+    "status": "clean"
+  }
+}

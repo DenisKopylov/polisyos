@@ -1,0 +1,61 @@
+{
+  "schema": "e02.cleanup-candidates.v2",
+  "nativeTrash": "unavailable",
+  "actions_performed": [],
+  "no_automatic_prune_or_delete": true,
+  "protected": [
+    "/tmp/e02-F-continuation-20261006/active-git-objects",
+    "/tmp/e02-F-continuation-20261006/active-environment-relocation",
+    "All7activeFtopiccheckouts/currentGitrefs",
+    "ExistingpinnedDoWhyworker .venv links",
+    "Allsource/docs/uniqueinputs/decidingoutputs"
+  ],
+  "candidates": [
+    {
+      "absolute_path": "/tmp/e02-F-continuation-20261007/root-quality",
+      "exists": true,
+      "category": "active decidingoutputs/verification scratch; notcurrentlyeligible",
+      "potential_reproducible_subset": "Only explicitly retired archive/fixture/env replicas AFTER Git fullcustody/remote readback and inactive-user/process confirmation; preserve unique CAS/raw/source/docs",
+      "safe_now": false,
+      "nativeTrash": "unavailable",
+      "permanent_delete": "forbidden"
+    },
+    {
+      "absolute_path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent",
+      "exists": true,
+      "category": "active decidingoutputs/verification scratch; notcurrentlyeligible",
+      "potential_reproducible_subset": "Only explicitly retired archive/fixture/env replicas AFTER Git fullcustody/remote readback and inactive-user/process confirmation; preserve unique CAS/raw/source/docs",
+      "safe_now": false,
+      "nativeTrash": "unavailable",
+      "permanent_delete": "forbidden"
+    },
+    {
+      "absolute_path": "/tmp/e02-F-continuation-20261007/economics/root-companion-review",
+      "exists": true,
+      "category": "active decidingoutputs/verification scratch; notcurrentlyeligible",
+      "potential_reproducible_subset": "Only explicitly retired archive/fixture/env replicas AFTER Git fullcustody/remote readback and inactive-user/process confirmation; preserve unique CAS/raw/source/docs",
+      "safe_now": false,
+      "nativeTrash": "unavailable",
+      "permanent_delete": "forbidden"
+    },
+    {
+      "absolute_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review",
+      "exists": true,
+      "category": "active decidingoutputs/verification scratch; notcurrentlyeligible",
+      "potential_reproducible_subset": "Only explicitly retired archive/fixture/env replicas AFTER Git fullcustody/remote readback and inactive-user/process confirmation; preserve unique CAS/raw/source/docs",
+      "safe_now": false,
+      "nativeTrash": "unavailable",
+      "permanent_delete": "forbidden"
+    },
+    {
+      "absolute_path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review",
+      "exists": true,
+      "category": "active decidingoutputs/verification scratch; notcurrentlyeligible",
+      "potential_reproducible_subset": "Only explicitly retired archive/fixture/env replicas AFTER Git fullcustody/remote readback and inactive-user/process confirmation; preserve unique CAS/raw/source/docs",
+      "safe_now": false,
+      "nativeTrash": "unavailable",
+      "permanent_delete": "forbidden"
+    }
+  ],
+  "prior63candidate_records": "Immutable fullrecord in f17b9a52784d9484ef65563dc6695240629bdfc6 continuation-transfer-20261006 transport; no retirement/inactivity/cleanup inferred"
+}

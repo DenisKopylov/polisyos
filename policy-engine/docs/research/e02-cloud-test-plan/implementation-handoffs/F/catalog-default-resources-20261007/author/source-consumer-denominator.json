@@ -1,0 +1,497 @@
+{
+  "scope": "complete source Python lexical AST references for explicit existing loader/default symbols; not universal dynamic callgraph",
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+  "parsed_python_files": 2699,
+  "referencing_files": 16,
+  "symbols": [
+    "_load_wvs_indicator_registry",
+    "_load_wvs_registry",
+    "_seed_alignments_path",
+    "_wvs_registry_path",
+    "default_metrics_map_path",
+    "default_proxy_metric_alignments_path",
+    "default_seed_alignments_path",
+    "load_proxy_metric_alignments",
+    "load_seed_alignments",
+    "metric_proxy_alignments",
+    "resolve_proxy_penalty",
+    "resolved_metrics_map_path",
+    "score_variable_pair"
+  ],
+  "files": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "bytes": 9332,
+      "sha256": "36766ba06198fbeae9ad94a52cc1ab78aed7b17459e38b66b310734a8155fa0f",
+      "references": [
+        {
+          "line": 168,
+          "role": "definition",
+          "name": "default_metrics_map_path"
+        },
+        {
+          "line": 172,
+          "role": "definition",
+          "name": "resolved_metrics_map_path"
+        },
+        {
+          "line": 173,
+          "role": "attribute",
+          "name": "default_metrics_map_path"
+        },
+        {
+          "line": 236,
+          "role": "attribute",
+          "name": "default_metrics_map_path"
+        },
+        {
+          "line": 237,
+          "role": "attribute",
+          "name": "resolved_metrics_map_path"
+        },
+        {
+          "line": 238,
+          "role": "attribute",
+          "name": "resolved_metrics_map_path"
+        },
+        {
+          "line": 241,
+          "role": "attribute",
+          "name": "resolved_metrics_map_path"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+      "bytes": 105436,
+      "sha256": "940537333d94be6f9831dc41fe0576996fab94b2c9140dec92f5f5cf86214a20",
+      "references": [
+        {
+          "line": 59,
+          "role": "import",
+          "name": "metric_proxy_alignments",
+          "module": "polisyos.data_forge.domains.catalog.knowledge.proxy_penalties",
+          "alias": null
+        },
+        {
+          "line": 60,
+          "role": "import",
+          "name": "load_seed_alignments",
+          "module": "polisyos.data_forge.domains.catalog.knowledge.variable_alignment",
+          "alias": null
+        },
+        {
+          "line": 357,
+          "role": "Load",
+          "name": "_seed_alignments_path"
+        },
+        {
+          "line": 364,
+          "role": "Load",
+          "name": "_seed_alignments_path"
+        },
+        {
+          "line": 365,
+          "role": "Load",
+          "name": "_seed_alignments_path"
+        },
+        {
+          "line": 365,
+          "role": "Load",
+          "name": "load_seed_alignments"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "bytes": 65426,
+      "sha256": "c017bc57b9d7759b3f549b23969ec6f2668f87de1ef1c0509e3fa4c0a43ff8a3",
+      "references": [
+        {
+          "line": 54,
+          "role": "import",
+          "name": "metric_proxy_alignments",
+          "module": "polisyos.data_forge.domains.catalog.knowledge.proxy_penalties",
+          "alias": null
+        },
+        {
+          "line": 55,
+          "role": "import",
+          "name": "load_seed_alignments",
+          "module": "polisyos.data_forge.domains.catalog.knowledge.variable_alignment",
+          "alias": null
+        },
+        {
+          "line": 263,
+          "role": "definition",
+          "name": "_seed_alignments_path"
+        },
+        {
+          "line": 280,
+          "role": "definition",
+          "name": "_wvs_registry_path"
+        },
+        {
+          "line": 292,
+          "role": "definition",
+          "name": "_load_wvs_registry"
+        },
+        {
+          "line": 297,
+          "role": "Load",
+          "name": "_wvs_registry_path"
+        },
+        {
+          "line": 317,
+          "role": "Load",
+          "name": "_load_wvs_registry"
+        },
+        {
+          "line": 332,
+          "role": "Load",
+          "name": "_load_wvs_registry"
+        },
+        {
+          "line": 341,
+          "role": "Load",
+          "name": "_load_wvs_registry"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+      "bytes": 50722,
+      "sha256": "8b43378cefd42017d1bde268792d1bc759db4df77e11dd35040e2f4737467357",
+      "references": [
+        {
+          "line": 54,
+          "role": "import",
+          "name": "metric_proxy_alignments",
+          "module": "polisyos.data_forge.domains.catalog.knowledge.proxy_penalties",
+          "alias": null
+        },
+        {
+          "line": 55,
+          "role": "import",
+          "name": "load_seed_alignments",
+          "module": "polisyos.data_forge.domains.catalog.knowledge.variable_alignment",
+          "alias": null
+        },
+        {
+          "line": 608,
+          "role": "Load",
+          "name": "load_seed_alignments"
+        },
+        {
+          "line": 652,
+          "role": "Load",
+          "name": "metric_proxy_alignments"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+      "bytes": 23614,
+      "sha256": "303ffe1af3c52258dbe448bb115a08475ecc646bd7da78a7dea6f2f39bc6af60",
+      "references": [
+        {
+          "line": 54,
+          "role": "import",
+          "name": "metric_proxy_alignments",
+          "module": "polisyos.data_forge.domains.catalog.knowledge.proxy_penalties",
+          "alias": null
+        },
+        {
+          "line": 55,
+          "role": "import",
+          "name": "load_seed_alignments",
+          "module": "polisyos.data_forge.domains.catalog.knowledge.variable_alignment",
+          "alias": null
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+      "bytes": 57765,
+      "sha256": "1a6aa8206b4769dc17ef9093a85987e7e5b51caf547b0edfc6301a22e0d88e92",
+      "references": [
+        {
+          "line": 54,
+          "role": "import",
+          "name": "metric_proxy_alignments",
+          "module": "polisyos.data_forge.domains.catalog.knowledge.proxy_penalties",
+          "alias": null
+        },
+        {
+          "line": 55,
+          "role": "import",
+          "name": "load_seed_alignments",
+          "module": "polisyos.data_forge.domains.catalog.knowledge.variable_alignment",
+          "alias": null
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+      "bytes": 46135,
+      "sha256": "1776006e01e7c15548748a9e10024f5f3c635770d3890f9cc657216255af0fa6",
+      "references": [
+        {
+          "line": 54,
+          "role": "import",
+          "name": "metric_proxy_alignments",
+          "module": "polisyos.data_forge.domains.catalog.knowledge.proxy_penalties",
+          "alias": null
+        },
+        {
+          "line": 55,
+          "role": "import",
+          "name": "load_seed_alignments",
+          "module": "polisyos.data_forge.domains.catalog.knowledge.variable_alignment",
+          "alias": null
+        },
+        {
+          "line": 1151,
+          "role": "Load",
+          "name": "load_seed_alignments"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "bytes": 80796,
+      "sha256": "0687c432467ae8a6b0a2d18ee777e93014bd2a61ade24033097d3877f6e03b0c",
+      "references": [
+        {
+          "line": 854,
+          "role": "definition",
+          "name": "_wvs_registry_path"
+        },
+        {
+          "line": 871,
+          "role": "definition",
+          "name": "_load_wvs_indicator_registry"
+        },
+        {
+          "line": 873,
+          "role": "Load",
+          "name": "_wvs_registry_path"
+        },
+        {
+          "line": 892,
+          "role": "Load",
+          "name": "_load_wvs_indicator_registry"
+        },
+        {
+          "line": 1059,
+          "role": "attribute",
+          "name": "resolved_metrics_map_path"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/normalizer.py",
+      "bytes": 57499,
+      "sha256": "529e0b6e914e9d9e9bd275aa0791c422e1a88f8572cdada9d59a3a5fc87932fe",
+      "references": [
+        {
+          "line": 1211,
+          "role": "attribute",
+          "name": "resolved_metrics_map_path"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+      "bytes": 19099,
+      "sha256": "b23dfd1e909a0201bb7a03e6f647b36a3a6148ae9b6a2f4300c55968d61ead88",
+      "references": [
+        {
+          "line": 82,
+          "role": "attribute",
+          "name": "resolved_metrics_map_path"
+        },
+        {
+          "line": 98,
+          "role": "attribute",
+          "name": "resolved_metrics_map_path"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/acquisition_authority.py",
+      "bytes": 103308,
+      "sha256": "984953283f027fd2fbda70ca5f1c04c2c7670a5bf7916b011c0b872cc4d00155",
+      "references": [
+        {
+          "line": 36,
+          "role": "import",
+          "name": "score_variable_pair",
+          "module": "variable_alignment",
+          "alias": null
+        },
+        {
+          "line": 1753,
+          "role": "Load",
+          "name": "score_variable_pair"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/derivation_catalog_selection.py",
+      "bytes": 20704,
+      "sha256": "488e4d317fea727c2a2ccf586f57e5a3621e9d97c3f8b79b45d5fdee36797d52",
+      "references": [
+        {
+          "line": 23,
+          "role": "import",
+          "name": "score_variable_pair",
+          "module": "variable_alignment",
+          "alias": null
+        },
+        {
+          "line": 425,
+          "role": "Load",
+          "name": "score_variable_pair"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "bytes": 5953,
+      "sha256": "8ccfc12e02dfc6d702afdc42de2e8608627b67250cd42084bd82e1ef2ea094bc",
+      "references": [
+        {
+          "line": 37,
+          "role": "definition",
+          "name": "default_proxy_metric_alignments_path"
+        },
+        {
+          "line": 48,
+          "role": "definition",
+          "name": "load_proxy_metric_alignments"
+        },
+        {
+          "line": 52,
+          "role": "Load",
+          "name": "default_proxy_metric_alignments_path"
+        },
+        {
+          "line": 113,
+          "role": "definition",
+          "name": "metric_proxy_alignments"
+        },
+        {
+          "line": 117,
+          "role": "Load",
+          "name": "load_proxy_metric_alignments"
+        },
+        {
+          "line": 121,
+          "role": "definition",
+          "name": "resolve_proxy_penalty"
+        },
+        {
+          "line": 135,
+          "role": "Load",
+          "name": "metric_proxy_alignments"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/registry.py",
+      "bytes": 30244,
+      "sha256": "9fcb650b31d2638489f9a4536e430587700326081e4311f17f44e38e741ce4bb",
+      "references": [
+        {
+          "line": 11,
+          "role": "import",
+          "name": "resolve_proxy_penalty",
+          "module": "polisyos.data_forge.domains.catalog.knowledge.proxy_penalties",
+          "alias": null
+        },
+        {
+          "line": 245,
+          "role": "Load",
+          "name": "resolve_proxy_penalty"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+      "bytes": 18675,
+      "sha256": "6dbfbb04cddff8d1af11ed226e68092a2763a8d007b73f911f4ed9eaa5e54cd9",
+      "references": [
+        {
+          "line": 58,
+          "role": "definition",
+          "name": "default_seed_alignments_path"
+        },
+        {
+          "line": 141,
+          "role": "definition",
+          "name": "load_seed_alignments"
+        },
+        {
+          "line": 173,
+          "role": "definition",
+          "name": "score_variable_pair"
+        },
+        {
+          "line": 461,
+          "role": "Load",
+          "name": "default_seed_alignments_path"
+        },
+        {
+          "line": 461,
+          "role": "Load",
+          "name": "load_seed_alignments"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/alignment_certification.py",
+      "bytes": 99348,
+      "sha256": "c9f3ebfd78cd6283014bef6dc26dfbcf7038a718e7aa8e2596a6e0dfaa79171c",
+      "references": [
+        {
+          "line": 17,
+          "role": "import",
+          "name": "default_seed_alignments_path",
+          "module": "polisyos.data_forge.read_api.catalog",
+          "alias": null
+        },
+        {
+          "line": 17,
+          "role": "import",
+          "name": "load_seed_alignments",
+          "module": "polisyos.data_forge.read_api.catalog",
+          "alias": null
+        },
+        {
+          "line": 17,
+          "role": "import",
+          "name": "score_variable_pair",
+          "module": "polisyos.data_forge.read_api.catalog",
+          "alias": null
+        },
+        {
+          "line": 580,
+          "role": "Load",
+          "name": "default_seed_alignments_path"
+        },
+        {
+          "line": 582,
+          "role": "Load",
+          "name": "load_seed_alignments"
+        },
+        {
+          "line": 1206,
+          "role": "Load",
+          "name": "score_variable_pair"
+        }
+      ]
+    }
+  ]
+}

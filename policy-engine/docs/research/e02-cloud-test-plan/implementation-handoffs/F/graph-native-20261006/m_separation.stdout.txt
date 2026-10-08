@@ -1,0 +1,29 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________ test_b216_complete_three_node_domain_matches_latent_dag_oracle ________
+
+    def test_b216_complete_three_node_domain_matches_latent_dag_oracle() -> None:
+        """All 2400 ordered separation queries match independent moralization."""
+        graphs = _three_node_admgs()
+        assert len(graphs) == 200
+        query_count = 0
+        for graph in graphs:
+            for x, y in permutations(graph.nodes, 2):
+                remaining = frozenset(graph.nodes) - {x, y}
+                for conditioned in (frozenset(), remaining):
+                    expected = _dag_separator(_latent_edges(graph), x, y, conditioned)
+                    actual = m_separation(graph, frozenset({x}), frozenset({y}), conditioned)
+>                   assert actual == expected, (graph.model_dump(), x, y, conditioned)
+E                   AssertionError: ({'discovery_method': '', 'edges': [{'combined_confidence': None, 'data_confidence': None, 'dst': 'C', 'evidence_refs'...refs': [], ...}], 'graph_type': <GraphType.ADMG: 'admg'>, 'id_confidence_under_pag': None, ...}, 'A', 'B', frozenset())
+E                   assert False == True
+
+tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py:102: AssertionError
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py::test_b216_complete_three_node_domain_matches_latent_dag_oracle
+1 failed, 1 warning in 0.17s

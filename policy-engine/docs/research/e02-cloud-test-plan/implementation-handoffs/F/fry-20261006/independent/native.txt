@@ -1,0 +1,59 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-F-fry-20261006/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-F-fry-20261006/policy-engine
+configfile: pytest.ini
+plugins: langsmith-0.6.0, jaxtyping-0.3.4, xdist-3.8.0, anyio-4.12.0, asyncio-1.3.0, benchmark-5.2.3, hypothesis-6.151.2
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 45 items
+
+tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[None] PASSED [  2%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[0] PASSED [  4%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[17] PASSED [  6%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[2147483655] PASSED [  8%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_unmarked_historical_plan_keeps_sequential_default_and_override[None] PASSED [ 11%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_unmarked_historical_plan_keeps_sequential_default_and_override[0] PASSED [ 13%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_unmarked_historical_plan_keeps_sequential_default_and_override[17] PASSED [ 15%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[unknown_profile-unsupported_randomization_profile] PASSED [ 17%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[duplicate_profile-unsupported_randomization_profile] PASSED [ 20%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[missing_treasury-treasury_requires_one_treasury_plan_input] PASSED [ 22%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[duplicate_treasury-treasury_requires_one_treasury_plan_input] PASSED [ 24%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_plan_program-treasury_exec_program_mismatch] PASSED [ 26%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_program_input-treasury_program_input_mismatch] PASSED [ 28%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_treasury_program-treasury_source_program_mismatch] PASSED [ 31%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_root-treasury_seed_or_salts_mismatch] PASSED [ 33%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_node_salt-treasury_seed_or_salts_mismatch] PASSED [ 35%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[missing_node-treasury_seed_or_salts_mismatch] PASSED [ 37%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[extra_node-treasury_seed_or_salts_mismatch] PASSED [ 40%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_stream-treasury_seed_or_salts_mismatch] PASSED [ 42%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_kind-Artifact reference type does not match selected manifest] PASSED [ 44%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel[wrong_schema-treasury_manifest_schema_or_kind] PASSED [ 46%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_actual_rng_bridge_removal_is_detected_while_profile_and_cas_remain[all_salts] PASSED [ 48%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_actual_rng_bridge_removal_is_detected_while_profile_and_cas_remain[high_word] PASSED [ 51%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_actual_rng_bridge_removal_is_detected_while_profile_and_cas_remain[stream_salt] PASSED [ 53%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_public_execute_cas_snapshot_consumer_uses_bound_profile[None] PASSED [ 55%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_public_execute_cas_snapshot_consumer_uses_bound_profile[0] PASSED [ 57%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_public_execute_cas_snapshot_consumer_uses_bound_profile[101] PASSED [ 60%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_versioned_legacy_mechanism_node_and_graph_storage_permutation PASSED [ 62%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_actual_registered_dispatcher_consumes_versioned_node_seed PASSED [ 64%]
+tests/unit/foundry/compile/test_treasury_execution.py::test_native_skipped_prior_draw_cannot_move_versioned_node_stream PASSED [ 66%]
+tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_native_compile_artifacts_survive_scientist_consumer_and_cas_reopen PASSED [ 68%]
+tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_compiler_artifact_contract_rejects_same_shape_missing_property[treasury] PASSED [ 71%]
+tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_compiler_artifact_contract_rejects_same_shape_missing_property[layout] PASSED [ 73%]
+tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_compile_consumer_retains_persisted_failure_for_malformed_trinity PASSED [ 75%]
+tests/unit/foundry/compile/test_randomization.py::test_randomization_owner_preserves_treasury_plan_bytes_and_seed_laws PASSED [ 77%]
+tests/unit/foundry/compile/test_randomization.py::test_randomization_salts_match_historical_hash_oracle_and_round_trip[0] PASSED [ 80%]
+tests/unit/foundry/compile/test_randomization.py::test_randomization_salts_match_historical_hash_oracle_and_round_trip[17] PASSED [ 82%]
+tests/unit/foundry/compile/test_randomization.py::test_randomization_salts_match_historical_hash_oracle_and_round_trip[-3] PASSED [ 84%]
+tests/unit/foundry/compile/test_randomization.py::test_v1_plan_bytes_remain_readable PASSED [ 86%]
+tests/unit/foundry/facade/test_compile_facade.py::test_compile_auto_facade PASSED [ 88%]
+tests/unit/foundry/facade/test_compile_facade.py::test_compile_trinity_facade PASSED [ 91%]
+tests/unit/foundry/facade/test_compile_facade.py::test_compile_trinity_lowers_bindings_and_fidelity PASSED [ 93%]
+tests/unit/foundry/facade/test_compile_facade.py::test_compile_trinity_fails_on_binding_kind_mismatch PASSED [ 95%]
+tests/unit/foundry/facade/test_compile_facade.py::test_compile_trinity_fails_fast_when_mechanism_has_no_runtime_support PASSED [ 97%]
+tests/unit/foundry/facade/test_execute_facade_smoke.py::test_execute_facade_smoke PASSED [100%]
+
+============================= 45 passed in 19.47s ==============================

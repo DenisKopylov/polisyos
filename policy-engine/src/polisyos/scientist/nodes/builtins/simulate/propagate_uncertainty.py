@@ -10,6 +10,7 @@ from typing import Any, Protocol, cast
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     InputRef,
@@ -272,7 +273,7 @@ class PropagateUncertaintyNode:
             ),
         )
         updated_ref = SimulationResultRef.model_validate(
-            updated_ref_payload.model_dump(mode="python")
+            _selected_written_ref(ctx, updated_ref_payload).model_dump(mode="python")
         )
 
         new_state = branch_state(state, write_paths=("artifacts_index",)).state
@@ -326,6 +327,12 @@ def _native_response_results(
         requested.get(k) != v for k, v in request.response_slots.items()
     ):
         raise ValueError("requested slots contradict or omit the verified matrix roster")
+    refs = state.params.get("propagation_input_envelope_refs", {})
+    if not isinstance(refs, dict) or not set(refs).issubset(request.parameter_center):
+        raise ValueError("input law roster differs from the native parameter axes")
+    law_refs = {name: ArtifactRef.model_validate(raw_ref) for name, raw_ref in refs.items()}
+    if any(ref.manifest_profile_sha256 is None for ref in law_refs.values()):
+        raise ValueError("native supplied input laws require exact selected manifest views")
     # Resolve the real current SimulationResult and exact selected matrix view.
     matrix_manifest = ctx.store.get_manifest(request.matrix_ref)
     if matrix_manifest.kind != "foundry.identifiability_sensitivity_matrix":
@@ -341,16 +348,14 @@ def _native_response_results(
     basis = payload["response_basis"]
     if request.response_units != basis["moment_units"]:
         raise ValueError("requested response units differ from the registered state slots")
-    refs = state.params.get("propagation_input_envelope_refs", {})
-    if not isinstance(refs, dict) or not set(refs).issubset(basis["parameter_names"]):
+    if not set(law_refs).issubset(basis["parameter_names"]):
         raise ValueError("input law roster differs from the native parameter axes")
     envelopes = {}
     inputs = [
         input_ref_from_artifact_ref(source_ref, role="base_simulation_result"),
         input_ref_from_artifact_ref(request.matrix_ref, role="response_matrix"),
     ]
-    for name, raw_ref in refs.items():
-        ref = ArtifactRef.model_validate(raw_ref)
+    for name, ref in law_refs.items():
         manifest = ctx.store.get_manifest(ref)
         if manifest.kind != "ir.uncertainty_envelope":
             raise ValueError("native input law has the wrong artifact kind")
@@ -501,11 +506,21 @@ def _mark_response_scope(
     )
 
 
+def _selected_written_ref(ctx: ExecutionContext, ref: ArtifactRef) -> ArtifactRef:
+    """Pin the actual just-published view using the maintained CAS profile law."""
+    manifest = ctx.store.get_manifest(ref)
+    selected = ref.model_copy(
+        update={"manifest_profile_sha256": ManifestLifecycle.profile_sha256(manifest)}
+    )
+    ctx.store.get_manifest(selected)
+    return selected
+
+
 def _persist_node_envelope(
     ctx: ExecutionContext, envelope: UncertaintyEnvelope, *, inputs: list[InputRef]
 ) -> ArtifactRef:
     """Retain the actual CAS view without changing the historical IR ref DTO."""
-    return ctx.store.put_json(
+    ref = ctx.store.put_json(
         envelope.model_dump(mode="python", round_trip=True),
         PutOptions(
             kind="ir.uncertainty_envelope",
@@ -515,6 +530,7 @@ def _persist_node_envelope(
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
+    return _selected_written_ref(ctx, ref)
 
 
 def _load_propagated_envelopes(
@@ -542,7 +558,11 @@ def _load_propagated_envelopes(
     refs = {}
     for name, payload_ref in payload_refs.items():
         matches = [item for item in edges if item.role == f"metric_envelope.{name}"]
-        if len(matches) != 1 or str(matches[0].artifact_id) != str(payload_ref.artifact_id):
+        if (
+            len(matches) != 1
+            or str(matches[0].artifact_id) != str(payload_ref.artifact_id)
+            or matches[0].manifest_profile_sha256 is None
+        ):
             raise ValueError("propagated envelope has missing/duplicate/contradictory owned view")
         ref = ArtifactRef(
             artifact_id=matches[0].artifact_id,
@@ -744,7 +764,7 @@ def _load_config(state: ExperimentState) -> PropagationConfig:
 
 
 def _persist_config(ctx: ExecutionContext, config: PropagationConfig) -> ArtifactRef:
-    return ctx.store.put_json(
+    ref = ctx.store.put_json(
         config,
         PutOptions(
             kind="foundry.propagation_config",
@@ -753,6 +773,7 @@ def _persist_config(ctx: ExecutionContext, config: PropagationConfig) -> Artifac
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
+    return _selected_written_ref(ctx, ref)
 
 
 def _persist_report(
@@ -814,7 +835,7 @@ def _persist_report(
     }
     if shared_provenance is not None:
         payload["draw_outcome_provenance"] = shared_provenance
-    return ctx.store.put_json(
+    ref = ctx.store.put_json(
         payload,
         PutOptions(
             kind="foundry.propagation_report",
@@ -824,6 +845,7 @@ def _persist_report(
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
+    return _selected_written_ref(ctx, ref)
 
 
 __all__ = ["PropagateUncertaintyNode"]

@@ -157,7 +157,10 @@ both rosters and refuses to claim a complete mapping when an output is unresolve
 No operational `Metrics` count or latency is used as a scientific state response.
 
 `params.propagation_input_envelope_refs` binds parameter axes to exact persisted
-IR envelopes. Each supplied envelope's `metadata.param_name`, registered
+IR envelopes using mandatory selected Core CAS view references. A supplied
+selector-free law is refused; an absent optional law remains an addressed gap.
+The historical IR persistence helper returns a selector-free three-field DTO and
+does not establish this native input profile. Each supplied envelope's `metadata.param_name`, registered
 `metadata.unit` and point must match the verified axis/unit/center. Missing laws
 hold rows with nonzero coefficients; verified zero-Jacobian local rows retain
 the actual center singleton of the local first-order map without inventing a law. A zero local Jacobian does not establish global natural-model constancy. Covariance/law inputs are
@@ -169,7 +172,7 @@ The projection is the dimensioned **local** response
 nonzero baseline and does not prove a global affine law. Output intervals are
 non-gating heuristic local-linearization ranges, not estimator confidence
 intervals or scientific/Runtime admission. Exact source/matrix/input-law views
-remain in envelope/report manifests and the updated SimulationResult. The exact propagation-config view binds every output and report. The existing strict three-field IR payload refs are preserved; a finite Node output reader resolves the complete alias-owned SimulationResult manifest edges, refusing missing, duplicate, extra or contradictory edges before loading envelope bytes. It admits no default-latest selector substitution. Bare
+remain in envelope/report manifests and the updated SimulationResult. The exact propagation-config view binds every output and report. The existing strict three-field IR payload refs are preserved; a finite Node output reader resolves the complete alias-owned SimulationResult manifest edges with mandatory selected profile selectors, refusing missing, duplicate, extra or contradictory edges before loading envelope bytes. It admits no default-latest selector substitution. Bare
 legacy `propagation_sensitivity` keeps its historical relative/additive numerics
 as an explicitly non-gating, consumer-asserted hypothesis; it does not establish
 a registered dimensional map or a full native mapping. Unmapped legacy siblings also use the addressed UNKNOWN/missing-output profile; they are not emitted as zero-variance Normal constants.
@@ -179,3 +182,5 @@ The native synthetic income-tax witness gives balance `4 * rate - 2`, while
 standard deviation `0.25` gives local balance variance `1`; this fixture is not
 empirical calibration, a production law, or authority. Protected production
 facts and C11 assembly/admission remain separate owner inputs.
+
+Every newly written Node output/config/report is pinned using the existing CAS manifest-profile derivation and verified against its actual published view. Stripping a selector while retaining output IDs, roles and metadata is a typed refusal; it does not select a default view.

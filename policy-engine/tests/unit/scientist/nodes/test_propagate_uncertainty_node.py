@@ -262,6 +262,29 @@ def _native_fixture(tmp_path, *, reported_income=(2.0, 2.0), initial_balance=-2.
     return store, result.simulation_result_ref, f"{tax_node.node_id}.rate"
 
 
+def _persist_test_law(store, envelope, *, inputs=None):
+    from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
+    from polisyos.core.canon import CanonSpec
+
+    ref = store.put_json(
+        envelope.model_dump(mode="python", round_trip=True),
+        PutOptions(
+            kind="ir.uncertainty_envelope",
+            media_type="application/json",
+            schema=SchemaInfo(name="ir.uncertainty_envelope", version="1.1"),
+            inputs=inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    selected = ref.model_copy(
+        update={
+            "manifest_profile_sha256": ManifestLifecycle.profile_sha256(store.get_manifest(ref))
+        }
+    )
+    store.get_manifest(selected)
+    return selected
+
+
 @pytest.fixture(scope="module")
 def native_cases(tmp_path_factory):
     from polisyos.foundry.calibration.identifiability import (
@@ -313,17 +336,7 @@ def native_cases(tmp_path_factory):
                 "law_scope": "declared_synthetic_normal",
             },
         )
-        from polisyos.core.canon import CanonSpec
-
-        law = store.put_json(
-            env.model_dump(mode="python", round_trip=True),
-            PutOptions(
-                kind="ir.uncertainty_envelope",
-                media_type="application/json",
-                schema=SchemaInfo(name="ir.uncertainty_envelope", version="1.1"),
-            ),
-            canon_spec=CanonSpec(forbid_floats=False),
-        )
+        law = _persist_test_law(store, env)
         params = {
             "propagation_response_basis": {
                 "matrix_ref": matrix.model_dump(mode="json"),
@@ -491,7 +504,7 @@ def test_native_node_refuses_new_valid_cas_wrong_law(native_cases, fault):
         payload["metadata"]["param_name"] = "invented.axis"
     else:
         payload["point_estimate"] = 0.25
-    forged = persist_uncertainty_envelope(store, UncertaintyEnvelope.model_validate(payload))
+    forged = _persist_test_law(store, UncertaintyEnvelope.model_validate(payload))
     params["propagation_input_envelope_refs"][case[3]] = forged.model_dump(mode="json")
     with pytest.raises(ValueError, match="parameter/unit/center"):
         _node(case, params=params)
@@ -565,17 +578,10 @@ def test_native_node_preserves_selected_law_view(native_cases):
     store = case[1]
     original = ArtifactRef.model_validate(params["propagation_input_envelope_refs"][case[3]])
     law = UncertaintyEnvelope.model_validate(from_canonical_bytes(store.get_bytes(original)))
-    from polisyos.core.canon import CanonSpec
-
-    selected = store.put_json(
-        law.model_dump(mode="python", round_trip=True),
-        PutOptions(
-            kind="ir.uncertainty_envelope",
-            media_type="application/json",
-            schema=SchemaInfo(name="ir.uncertainty_envelope", version="1.1"),
-            inputs=[input_ref_from_artifact_ref(case[2], role="declared_synthetic_fixture_source")],
-        ),
-        canon_spec=CanonSpec(forbid_floats=False),
+    selected = _persist_test_law(
+        store,
+        law,
+        inputs=[input_ref_from_artifact_ref(case[2], role="declared_synthetic_fixture_source")],
     )
     assert selected.artifact_id == original.artifact_id
     assert selected.manifest_profile_sha256 != original.manifest_profile_sha256
@@ -605,7 +611,7 @@ def test_native_node_preserves_selected_law_view(native_cases):
         assert matches == [input_ref_from_artifact_ref(selected, role=f"input_envelope.{case[3]}")]
 
 
-@pytest.mark.parametrize("fault", ["missing", "duplicate", "extra", "foreign"])
+@pytest.mark.parametrize("fault", ["missing", "duplicate", "extra", "foreign", "strip_selector"])
 def test_native_output_reader_refuses_incomplete_manifest_roster(native_cases, fault, monkeypatch):
     from polisyos.core.artifacts.manifest import InputRef
 
@@ -623,6 +629,9 @@ def test_native_output_reader_refuses_incomplete_manifest_roster(native_cases, f
         inputs.append(edge)
     elif fault == "extra":
         inputs.append(edge.model_copy(update={"role": "metric_envelope.invented"}))
+    elif fault == "strip_selector":
+        assert edge.manifest_profile_sha256 is not None
+        inputs[inputs.index(edge)] = edge.model_copy(update={"manifest_profile_sha256": None})
     else:
         inputs[inputs.index(edge)] = InputRef(artifact_id=case[2].artifact_id, role=edge.role)
     selected = store.put_json(
@@ -701,3 +710,19 @@ def test_finite_output_reader_allows_equal_ids_on_distinct_owned_aliases(native_
     envelopes = _load_propagated_envelopes(store, selected)
     assert set(envelopes) == {"constant_a", "constant_b"}
     assert all(env.confidence_interval == (0.125, 0.125) for env in envelopes.values())
+
+
+def test_native_node_refuses_supplied_law_without_selected_view(native_cases, monkeypatch):
+    case = native_cases["zero"]
+    params = copy.deepcopy(case[4])
+    params["propagation_input_envelope_refs"][case[3]].pop("manifest_profile_sha256")
+
+    def no_matrix_interpretation(*args, **kwargs):
+        raise AssertionError("incomplete input-law view must refuse before matrix interpretation")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty._load_execute_response_matrix",
+        no_matrix_interpretation,
+    )
+    with pytest.raises(ValueError, match="exact selected manifest"):
+        _node(case, params=params)

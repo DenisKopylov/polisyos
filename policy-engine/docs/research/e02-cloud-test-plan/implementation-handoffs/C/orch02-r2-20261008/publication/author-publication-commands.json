@@ -1,0 +1,44 @@
+[
+  {
+    "name": "commit",
+    "argv": [
+      "git",
+      "commit",
+      "-m",
+      "docs(e02): deliver ORCH02 r2 typed repairs and owner packets"
+    ],
+    "cwd": "/workspace/orch02-coordination",
+    "returncode": 0,
+    "wall_seconds": 0.077687112003332,
+    "stdout_sha256": "e1a83f578cc9db14f2dbb06d5135615bdafc8bba599443b2e3e7466a8b0caf4d",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "push",
+    "argv": [
+      "git",
+      "push",
+      "origin",
+      "codex/e02-C-orch02-recovery-coordination"
+    ],
+    "cwd": "/workspace/orch02-coordination",
+    "returncode": 0,
+    "wall_seconds": 2.596507918999123,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "f902861f169086a62e356b999fd35cf722c7a23a2b621a4d2914427b21ec1433"
+  },
+  {
+    "name": "fetch-readback",
+    "argv": [
+      "git",
+      "fetch",
+      "origin",
+      "refs/heads/codex/e02-C-orch02-recovery-coordination:refs/readback/orch02-r2-final/coordinator"
+    ],
+    "cwd": "/workspace/orch02-coordination",
+    "returncode": 0,
+    "wall_seconds": 0.6471280210025725,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "0d4af3fe267193ecc1260993b171fc4d5aa48ea6e4f2f3842a5b1d2d4ac99f84"
+  }
+]

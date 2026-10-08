@@ -1,0 +1,35 @@
+[codex/e02-C-orch02-recovery-coordination 50feba754] docs(e02): deliver ORCH02 r2 typed repairs and owner packets
+ 33 files changed, 46196 insertions(+)
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/G-owner-decisions.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/README.md
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/C10-catalog-caller-requirement.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/G-final-remote-readback.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/G-product-reconciliation.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/auditor-execution-profile.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/c05-G-proposal-publication-patch-custody-audit.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/c05-full-architecture-final-for-coordinator.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/c05-publication-source-custody-audit.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/c06-can-publication-source-custody-audit.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/c06-dfk-publication-source-custody-audit.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/c06-dfk-source-parent-mutant-byte-custody-supplement.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/c12-publication-source-custody-audit.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/completed-publication-audits-four-writers-common-and-G-proposal.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/coordinator-inputs-publication-source-custody-audit.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/late-remote-source-check.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/final-handoff.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c05-independent-G-owner-requirements-delta-review-ab1aa6a9.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c05-independent-G-owner-requirements-delta-review-ab1aa6a9.md
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c05-independent-G-owner-requirements-review-clarification-ab1aa6a9.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c05-independent-G-proposal-review-0e7a4658.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c05-independent-G-proposal-review-0e7a4658.md
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c05-independent-final-native-review-5ccbfa15.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c05-independent-final-native-review-5ccbfa15.md
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c05-independent-final-quality-handoff-review-4a9af506.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c05-independent-final-quality-handoff-review-4a9af506.md
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c06-can-independent-final-quality-handoff-review-2762cec3.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c06-can-independent-final-quality-handoff-review-2762cec3.md
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c06-dfk-independent-final-native-handoff-review-3a0d5549.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c06-dfk-independent-final-native-handoff-review-3a0d5549.md
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c12-independent-final-quality-handoff-review-a47ec396.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c12-independent-final-quality-handoff-review-a47ec396.md

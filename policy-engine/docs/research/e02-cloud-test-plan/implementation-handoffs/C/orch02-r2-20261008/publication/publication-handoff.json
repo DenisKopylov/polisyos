@@ -1,0 +1,96 @@
+{
+  "schema": "policyos.ORCH02.r2.coordinator_source_qualified_publication_capsule.v1",
+  "unit": "C",
+  "role": "ORCH02 coordinator",
+  "source_handoff_commit": "50feba754bf1232244130916d32a7d7a7be476c4",
+  "source_handoff_tree": "74a0e063c3bf80911ef0a076863b49f7febd4697",
+  "source_handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/final-handoff.json",
+  "source_handoff_SHA256": "4ebd1485c7e47dd62d98b04771734807988d61fd3ff0446947a1180fbfbc229a",
+  "topic": "codex/e02-C-orch02-recovery-coordination",
+  "independent_root_docs_GO": {
+    "path": "coordinator-independent-final-docs-review-74a0e063.json",
+    "sha256": "e15254a6a201adda82a44f943f3d8fdef89de426fe31239c58336526bb0cd296",
+    "target_tree": "74a0e063c3bf80911ef0a076863b49f7febd4697"
+  },
+  "independent_normal_remote_publication_audit": {
+    "path": "coordinator-final-publication-source-custody-audit.json",
+    "sha256": "714022af20ff4764efa1006200d3f335970cc382e2c7de3051eece6255c81fe4",
+    "verdict": "PASS_DOCS_ONLY_PUBLICATION_SOURCE_CUSTODY"
+  },
+  "as_of_field_qualification": "Exact author-publication-readback.json was captured before independent final audit; its pending audit field is superseded by the signed immutable audit above, not rewritten.",
+  "original_delivery_bytes_unchanged": true,
+  "source_products_unchanged": true,
+  "main_integration_publication": false,
+  "source_acceptance_issued": false,
+  "formal_closure_ids": [],
+  "integrated_PASS": false,
+  "production_authority_established": false,
+  "original_byte_copies": [
+    {
+      "source_path": "/workspace/orch02-r2/reviews/coordinator-independent-final-docs-review-74a0e063.json",
+      "tracked_copy": "coordinator-independent-final-docs-review-74a0e063.json",
+      "bytes": 38436,
+      "sha256": "e15254a6a201adda82a44f943f3d8fdef89de426fe31239c58336526bb0cd296"
+    },
+    {
+      "source_path": "/workspace/orch02-r2/reviews/coordinator-independent-final-docs-review-74a0e063.md",
+      "tracked_copy": "coordinator-independent-final-docs-review-74a0e063.md",
+      "bytes": 1424,
+      "sha256": "3d770499ef54bfdf7940a3b203b5faadd58671372d05a4e094d508805e233f6b"
+    },
+    {
+      "source_path": "/workspace/orch02-r2/publication-audit/coordinator-final-publication-source-custody-audit.json",
+      "tracked_copy": "coordinator-final-publication-source-custody-audit.json",
+      "bytes": 82658,
+      "sha256": "714022af20ff4764efa1006200d3f335970cc382e2c7de3051eece6255c81fe4"
+    },
+    {
+      "source_path": "/workspace/orch02-r2/coordination-final-publication/fetch-readback.stdout.txt",
+      "tracked_copy": "author-publication-fetch-readback.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/orch02-r2/coordination-final-publication/commit.stderr.txt",
+      "tracked_copy": "author-publication-commit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/orch02-r2/coordination-final-publication/push.stdout.txt",
+      "tracked_copy": "author-publication-push.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/orch02-r2/coordination-final-publication/push.stderr.txt",
+      "tracked_copy": "author-publication-push.stderr.txt",
+      "bytes": 158,
+      "sha256": "f902861f169086a62e356b999fd35cf722c7a23a2b621a4d2914427b21ec1433"
+    },
+    {
+      "source_path": "/workspace/orch02-r2/coordination-final-publication/commit.stdout.txt",
+      "tracked_copy": "author-publication-commit.stdout.txt",
+      "bytes": 5962,
+      "sha256": "e1a83f578cc9db14f2dbb06d5135615bdafc8bba599443b2e3e7466a8b0caf4d"
+    },
+    {
+      "source_path": "/workspace/orch02-r2/coordination-final-publication/commands.json",
+      "tracked_copy": "author-publication-commands.json",
+      "bytes": 1360,
+      "sha256": "2c4c5a0fa197730bc858672f1b247dcc82b0cc5239255aa3cce349dc7dc84e26"
+    },
+    {
+      "source_path": "/workspace/orch02-r2/coordination-final-publication/readback.json",
+      "tracked_copy": "author-publication-readback.json",
+      "bytes": 14030,
+      "sha256": "dd984fa61f3b431004a6ba26afad2f359ab2673545845fa22e901059c83c12b6"
+    },
+    {
+      "source_path": "/workspace/orch02-r2/coordination-final-publication/fetch-readback.stderr.txt",
+      "tracked_copy": "author-publication-fetch-readback.stderr.txt",
+      "bytes": 157,
+      "sha256": "0d4af3fe267193ecc1260993b171fc4d5aa48ea6e4f2f3842a5b1d2d4ac99f84"
+    }
+  ]
+}

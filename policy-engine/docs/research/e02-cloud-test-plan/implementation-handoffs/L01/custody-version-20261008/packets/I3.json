@@ -13,7 +13,7 @@
     "B80",
     "B83"
   ],
-  "prior_packet": "../restart-20261008-bindings/packets/C-i3.json@621e9e7aec1af78da72b0c4b47a8cb8b79daa5fd",
+  "prior_packet": "../../restart-20261008-bindings/packets/C-i3.json@621e9e7aec1af78da72b0c4b47a8cb8b79daa5fd",
   "minimum_metadata_tuple": {
     "catalog_alias": "L01_I3_DATASET_CATALOG_01",
     "version_alias": "L01_I3_DATASET_CATALOG_VERSION_01",

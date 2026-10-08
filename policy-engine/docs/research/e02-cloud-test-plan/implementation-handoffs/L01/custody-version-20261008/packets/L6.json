@@ -13,7 +13,7 @@
     "B02",
     "B03"
   ],
-  "prior_packet": "../restart-20261008-bindings/packets/A-l6.json@621e9e7aec1af78da72b0c4b47a8cb8b79daa5fd",
+  "prior_packet": "../../restart-20261008-bindings/packets/A-l6.json@621e9e7aec1af78da72b0c4b47a8cb8b79daa5fd",
   "minimum_tuple": {
     "source_alias": "LOCAL_DATA_ROOT_01",
     "manifest_alias": "L01_ROOT_MANIFEST_20261008",

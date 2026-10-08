@@ -1,0 +1,44 @@
+{
+  "schema": "policyos.e02.native_harness_custody.v1",
+  "author": "/root/native_c05_c12",
+  "publisher": "/root coordinator",
+  "purpose": "Retain exact independent fixture/native/removal harnesses once for C05/C12 source-qualified receipts",
+  "files": [
+    {
+      "file": "run_gate.py",
+      "bytes": 4580,
+      "sha256": "1acd0bcf556e3a2f46a3f6ee54a36416660090cdc3c112991d3432b9e22ce8e7",
+      "git_blob": "b45dcc618e6862c2fe017dbe1d4c576e13192766",
+      "author": "/root/native_c05_c12"
+    },
+    {
+      "file": "orch02_capture.py",
+      "bytes": 2644,
+      "sha256": "ed201e8fca7a985b282b9f659dea8da9b6607b6dbe12eb98501c736a1823e51c",
+      "git_blob": "088cc0b7f323f06ada02100b9cbd48cc478f8317",
+      "author": "/root/native_c05_c12"
+    },
+    {
+      "file": "semantic_collect.py",
+      "bytes": 10251,
+      "sha256": "4628cd39a969cc3b7d9dab47187453d709884f9dbe630df2279a8d5376286f79",
+      "git_blob": "bbc6ff02a55a49a080c058e2ba3e66f8dd112770",
+      "author": "/root/native_c05_c12"
+    },
+    {
+      "file": "encoder_residual.py",
+      "bytes": 3229,
+      "sha256": "2610c94ca646ca2c961f4e585b7fb85ed173f518ff17dacbdff7d310e7468b71",
+      "git_blob": "471a4da63e25795e2779f49d5dde3fad06267498",
+      "author": "/root/native_c05_c12"
+    },
+    {
+      "file": "verification-contract.json",
+      "bytes": 4159,
+      "sha256": "7fcca83a8ed2d9d429f66c1fc43171b43795232381ef5d2af3761101fa288c7f",
+      "git_blob": "ec55dbfbf83a31fe8521bd5ad5e7865bacf0497e",
+      "author": "/root/native_c05_c12"
+    }
+  ],
+  "scope": "Frozen candidate inputs provided as arguments, isolated external outputs. No venv/assets/source snapshots published. Native outputs belong to per-role handoffs; this preservation commit does not assert new runtime verdict."
+}

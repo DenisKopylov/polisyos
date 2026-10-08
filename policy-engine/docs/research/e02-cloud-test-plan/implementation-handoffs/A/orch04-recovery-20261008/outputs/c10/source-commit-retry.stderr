@@ -1,0 +1,55 @@
+(node:10903) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+╭───────────────────────────────────╮
+│ lefthook v2.1.6  hook: pre-commit │
+╰───────────────────────────────────╯
+┃  check-contrast ❯ 
+
+(node:10983) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Contrast checks passed.
+
+┃  check-reduced-motion ❯ 
+
+(node:10985) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Reduced-motion checks passed.
+
+┃  prettier ❯ 
+
+(node:10982) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11024) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+src/features/runs/routes/tabs/OverviewTab.test.tsx 149ms (unchanged)
+src/features/runs/routes/tabs/OverviewTab.tsx 213ms (unchanged)
+
+┃  eslint ❯ 
+
+(node:10984) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11029) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+/workspace/ORCH04-C10/policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx
+  365:11  error  Hardcoded user-facing string "Conditional simulation" is not allowed in JSX. Move it into the i18n catalog and render it via t("...")                                                  local/no-hardcoded-strings
+  366:41  error  Hardcoded user-facing string "Candidate scenario evidence. Publication authority is not established." is not allowed in JSX. Move it into the i18n catalog and render it via t("...")  local/no-hardcoded-strings
+  374:70  error  Hardcoded user-facing string "Simulation observation is unavailable for this run." is not allowed in JSX. Move it into the i18n catalog and render it via t("...")                     local/no-hardcoded-strings
+  403:48  error  Hardcoded user-facing string "World model:" is not allowed in JSX. Move it into the i18n catalog and render it via t("...")                                                            local/no-hardcoded-strings
+  417:15  error  Hardcoded user-facing string "Recursive computation checkpoint" is not allowed in JSX. Move it into the i18n catalog and render it via t("...")                                        local/no-hardcoded-strings
+  418:14  error  Hardcoded user-facing string "Partial computation. Root outcome remains pending." is not allowed in JSX. Move it into the i18n catalog and render it via t("...")                      local/no-hardcoded-strings
+  419:14  error  Hardcoded user-facing string "Pending frontier:" is not allowed in JSX. Move it into the i18n catalog and render it via t("...")                                                       local/no-hardcoded-strings
+  422:14  error  Hardcoded user-facing string "Completed child computations:" is not allowed in JSX. Move it into the i18n catalog and render it via t("...")                                           local/no-hardcoded-strings
+  426:14  error  Hardcoded user-facing string "Root N9:" is not allowed in JSX. Move it into the i18n catalog and render it via t("...")                                                                local/no-hardcoded-strings
+  436:54  error  Hardcoded user-facing string "Recursive checkpoint is unavailable." is not allowed in JSX. Move it into the i18n catalog and render it via t("...")                                    local/no-hardcoded-strings
+
+✖ 10 problems (10 errors, 0 warnings)
+
+
+exit status 1                                      
+  ────────────────────────────────────
+summary: (done in 30.87 seconds)      
+✓ check-contrast (0.24 seconds)
+✓ check-reduced-motion (0.32 seconds)
+✓ prettier (1.35 seconds)
+✗ eslint (30.63 seconds)

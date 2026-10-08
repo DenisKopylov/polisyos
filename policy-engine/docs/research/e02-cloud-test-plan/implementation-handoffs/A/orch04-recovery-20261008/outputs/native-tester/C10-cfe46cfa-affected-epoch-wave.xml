@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="37" time="68.242" timestamp="2026-10-08T16:57:29.631092+00:00" hostname="9065c0936350"><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_empty_eval_safety_map_is_rejected_before_n4_dispatch" time="0.112" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_production_recursive_owner_rejects_substrate_without_execution_intent" time="0.106" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_non_simulation_context_without_admission_is_not_candidate_fallback" time="0.716" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_protected_intent_cannot_route_through_context_free_custom_factory" time="0.002" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_implicit_contract_testing_candidate_rejects_subclassed_n9_dispatch[controller]" time="0.002" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_implicit_contract_testing_candidate_rejects_subclassed_n9_dispatch[promotion_port]" time="0.002" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_candidate_or_simulation_intent_preserves_context_free_n4_dispatch[candidate_only]" time="0.032" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_candidate_or_simulation_intent_preserves_context_free_n4_dispatch[simulate_only]" time="0.029" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_data_trust_modes_report_their_missing_owner_separately_from_eval_safety[retrospective]" time="0.018" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_data_trust_modes_report_their_missing_owner_separately_from_eval_safety[measurement_audit]" time="0.019" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[missing-sandbox_pilot]" time="0.028" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[missing-field_pilot]" time="0.020" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[missing-deployment]" time="0.021" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[extra-sandbox_pilot]" time="0.021" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[extra-field_pilot]" time="0.023" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[extra-deployment]" time="0.022" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[wrong_key-sandbox_pilot]" time="0.020" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[wrong_key-field_pilot]" time="0.021" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[wrong_key-deployment]" time="0.029" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_default_recursive_generation_factory_binds_subject_authority_and_gate" time="0.018" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_direct_recursive_controller_rejects_foreign_epoch_dependencies" time="0.034" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_production_recursive_owner_requires_explicit_eval_safety_context_mapping" time="0.018" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_non_simulation_leaf_requires_current_eval_safety_head" time="3.667"><failure message="assert None is &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f3cdf9b9950&gt;&#10; +  where &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f3cdf9b9950&gt; = &lt;polisyos.runtime.quality.open_world_risk.PromotionRuntime object at 0x7f3ce2446c30&gt;.store">tmp_path = PosixPath('/workspace/ORCH04-evidence/native-tester/C10-cfe46cfa-affected-epoch-temp/test_non_simulation_leaf_requi0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f3ce2068130&gt;
+
+    @pytest.mark.asyncio
+    async def test_non_simulation_leaf_requires_current_eval_safety_head(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        from polisyos.runtime.http.services.control import evaluation_safety as c02
+        from polisyos.runtime.quality import evaluation_safety as es
+        from polisyos.runtime.quality import generation_cycle as generation_cycle_owner
+        from polisyos.runtime.quality import recursive_generation_cycle as recursive_cycle_owner
+        from polisyos.runtime.quality.generation_cycle import (
+            JointSimulationPort,
+            RealValueOwnerGateway,
+            ValueOwnerAccessError,
+            currentness_for_generation_cycle_run,
+            validate_generation_cycle_candidate_run,
+            validate_generation_cycle_run,
+        )
+        from tests.unit.runtime.http.services import test_evaluation_safety as c02_test
+        from tests.unit.runtime.quality.test_generation_cycle import (
+            REPO_ROOT,
+            _Atom,
+            _budget,
+            _Candidate,
+            _CgfGenerationPort,
+            _problem,
+        )
+        from tests.unit.runtime.quality.test_value_gate import (
+            _non_simulation_execution_context,
+            _simulation,
+            _world_record,
+        )
+    
+        runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas"))
+        problem = _problem(f"recursive_eval_safety_{uuid4().hex}")
+        problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+        root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+        graph = derive_recursive_design_graph(
+            design_ref=root_ref,
+            module_refs=(),
+            parent_child_edges=(),
+            rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+        )
+        recursive_budget = RecursiveCycleBudget(
+            max_depth=0,
+            max_nodes=1,
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=1,
+        )
+        candidate = _Candidate(
+            candidate_id="candidate_cgf_shadow",
+            atom=_Atom(
+                "candidate_cgf_shadow",
+                "sha256:" + "4" * 64,
+                target_world_slots=("firm_survival",),
+            ),
+            diversity_key=("grant", "firms", "cgf_shadow", "baseline"),
+        )
+        world = _world_record("7")
+        simulation = _simulation(world, candidate_id=candidate.candidate_id)
+        bound_context = _non_simulation_execution_context(
+            mode="field_pilot",
+            candidate=candidate,
+            world=world,
+            problem=problem,
+        )
+        original_intake = c02_test.EvaluationAttemptIntake
+    
+        def bound_intake(**values: object) -&gt; es.EvaluationAttemptIntake:
+            values.update(
+                {
+                    "candidate_ref": bound_context.candidate_ref,
+                    "world_model_record_ref": bound_context.world_model_record_ref,
+                }
+            )
+            return original_intake(**values)
+    
+        monkeypatch.setattr(c02_test, "EvaluationAttemptIntake", bound_intake)
+        fixture = c02_test._passing_fixture(  # noqa: SLF001
+            tmp_path / "eval-safety",
+            design_problem_ref=problem_ref,
+        )
+    
+        def actual_n5_input_ref(
+            observation: object,
+            *,
+            artifact_store: ArtifactStore | None = None,
+        ) -&gt; object:
+            assert observation is simulation
+            assert artifact_store is runtime.store
+            return fixture.execution_context.evaluation_input_refs[0]
+    
+        monkeypatch.setattr(
+            generation_cycle_owner,
+            "simulation_evaluation_input_ref",
+            actual_n5_input_ref,
+        )
+    
+        class CurrentStateResolver:
+            def resolve(
+                self,
+                context: es.EvaluationExecutionContext,
+            ) -&gt; c02.EvaluationSafetyReplayMaterial:
+                del context
+                return fixture.replay_material
+    
+        concrete_verifier = c02.EvaluationSafetyAdmissionVerifier(
+            persistence_service=fixture.service,
+            current_state_resolver=CurrentStateResolver(),
+            authority_resolver=fixture.authority_resolver,
+            appointment_resolver=fixture.appointment_resolver,
+            verifier_registry=fixture.verifier_registry,
+        )
+    
+        class ReplayFirstPositive:
+            def __init__(self) -&gt; None:
+                self.first: es.EvalSafetyConsumerAdmissionReceipt | None = None
+    
+            def require_admission(
+                self,
+                context: es.EvaluationExecutionContext,
+                challenge: es.EvalSafetyAdmissionChallenge,
+            ) -&gt; es.EvalSafetyConsumerAdmissionReceipt:
+                if self.first is None:
+                    self.first = concrete_verifier.require_admission(context, challenge)
+                return self.first
+    
+        owner_calls: list[str] = []
+        n4_calls = 0
+        n5_calls = 0
+    
+        def actual_n5(
+            self: JointSimulationPort,
+            *,
+            candidate: object,
+            problem: object,
+            cycle_index: int,
+        ) -&gt; object:
+            nonlocal n5_calls
+            del self, problem, cycle_index
+            n5_calls += 1
+            assert candidate.candidate_id == simulation.candidate_id  # type: ignore[attr-defined]
+            return simulation
+    
+        def value_owner_spy(
+            self: RealValueOwnerGateway,
+            **values: object,
+        ) -&gt; object:
+            del self, values
+            owner_calls.append("load_value_data_profile")
+            raise ValueOwnerAccessError("value_owner_data_profile_invalid")
+    
+        monkeypatch.setattr(JointSimulationPort, "__call__", actual_n5)
+        monkeypatch.setattr(RealValueOwnerGateway, "load_value_data_profile", value_owner_spy)
+    
+        class _CanonicalFixtureN4Port(N4GenerationPort):
+            def __init__(self) -&gt; None:
+                super().__init__(model_id="fixture-model")
+                self._delegate = _CgfGenerationPort()
+    
+            async def __call__(self, problem, *, cycle_index):
+                nonlocal n4_calls
+                n4_calls += 1
+                return await self._delegate(problem, cycle_index=cycle_index)
+    
+        async def run_leaf(
+            *,
+            context: es.EvaluationExecutionContext,
+            verifier: object,
+            context_bindings: dict[str, es.EvaluationExecutionContext] | None = None,
+        ):
+            controller = build_default_recursive_generation_cycle_controller(
+                repo_root=REPO_ROOT,
+                promotion_runtime=runtime,
+                eval_safety_verifier=verifier,
+            )
+            return await controller.run(
+                graph,
+                problems_by_node={root_ref: problem},
+                budget_state=_budget(),
+                recursive_budget=recursive_budget,
+                n4_generation_ports_by_node={root_ref: _CanonicalFixtureN4Port()},
+                evaluation_contexts_by_node=(
+                    {root_ref: context} if context_bindings is None else context_bindings
+                ),
+                execution_intents_by_node={root_ref: "field_pilot"},
+            )
+    
+&gt;       current = await run_leaf(
+            context=fixture.execution_context,
+            verifier=concrete_verifier,
+        )
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:1375: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:1363: in run_leaf
+    return await controller.run(
+src/polisyos/runtime/quality/recursive_generation_cycle.py:1916: in run
+    root = await route(recursive_graph.root_design_ref)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/recursive_generation_cycle.py:1734: in route
+    cycle_run = await controller.run(
+src/polisyos/runtime/quality/generation_cycle.py:5662: in run
+    cycle, cycle_summaries = await self._run_cycle(
+src/polisyos/runtime/quality/generation_cycle.py:6380: in _run_cycle
+    finished = await self._engine.run_async(state)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/workflows/engine_simple.py:51: in run_async
+    next_state = fn(state)
+                 ^^^^^^^^^
+src/polisyos/runtime/quality/generation_cycle.py:8182: in _joint_value_node
+    value = value_port(
+src/polisyos/runtime/quality/generation_cycle.py:4623: in __call__
+    actual_input_ref = simulation_evaluation_input_ref(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+observation = SimulationPortObservation(candidate_id='candidate_cgf_shadow', status='joint_simulated', simulation_ref='sha256:333333...ncident_refs=(), posterior_update_refs=()), artifact_views=None), k_world_update_mode='read_only_no_k_world_narrowing')
+
+    def actual_n5_input_ref(
+        observation: object,
+        *,
+        artifact_store: ArtifactStore | None = None,
+    ) -&gt; object:
+        assert observation is simulation
+&gt;       assert artifact_store is runtime.store
+E       assert None is &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f3cdf9b9950&gt;
+E        +  where &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f3cdf9b9950&gt; = &lt;polisyos.runtime.quality.open_world_risk.PromotionRuntime object at 0x7f3ce2446c30&gt;.store
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:1276: AssertionError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_http_contextless_explicit_n4_refuses_before_n4" time="0.023" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_http_recursive_route_carries_one_cycle_context_without_manual_context" time="0.140" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_http_recursive_route_carries_one_context_to_n5_owner_block" time="0.162" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_http_recursive_route_without_owner_context_fails_closed_before_boundary_wmr" time="0.044" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_http_protected_explicit_n4_without_owner_context_fails_closed_before_boundary_wmr" time="0.031" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_recursive_leaf_preserves_history_and_current_problem_binding" time="0.053" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_recursive_constructor_census_scans_executable_source_families" time="3.031" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_recursive_constructor_denominator_has_no_unwrapped_n9_call" time="32.338"><failure message="AssertionError: assert {('polisyos.r...repo_root'}))} == {('polisyos.r...repo_root'}))}&#10;  &#10;  Extra items in the left set:&#10;  ('polisyos.runtime.quality.acquisition_world_growth', 'src/polisyos/runtime/quality/acquisition_world_growth.py', 'Acq...runtime.quality.generation_cycle.GenerationCycleController', frozenset({'model_id', 'promotion_runtime', 'repo_root'}))&#10;  Use -v to get more diff">def test_recursive_constructor_denominator_has_no_unwrapped_n9_call() -&gt; None:
+        repo_root = Path(__file__).resolve().parents[4]
+        git_paths, filesystem_paths = _production_python_paths(repo_root)
+        assert git_paths == filesystem_paths
+    
+        constructors: list[_CallSite] = []
+        promotion_calls: list[_CallSite] = []
+        ambiguous: list[str] = []
+        for relative_path in sorted(git_paths):
+            source_path = repo_root / relative_path
+            found_constructors, found_ports, found_ambiguous = _scan_python_source(
+                source=source_path.read_text(encoding="utf-8"),
+                module=_module_name(repo_root, source_path),
+                source_path=relative_path,
+            )
+            constructors.extend(found_constructors)
+            promotion_calls.extend(found_ports)
+            ambiguous.extend(found_ambiguous)
+&gt;       _assert_constructor_contract(tuple(constructors), tuple(promotion_calls), tuple(ambiguous))
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:2126: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+constructors = (_CallSite(module='docs.superpowers.journals.gy-phase5-evidence.pr1.runtime_snapshot', source_path='docs/superpowers/j...omotion_runtime', 'repo_root', 'epoch_n9_evidence_resolver'}), has_keyword_expansion=False, authority_scope=None), ...)
+promotion_calls = (_CallSite(module='polisyos.runtime.quality.generation_cycle', source_path='src/polisyos/runtime/quality/generation_cy...tion_port', keyword_names=frozenset({'problem', 'admitted_batch'}), has_keyword_expansion=False, authority_scope=None))
+ambiguous = ()
+
+    def _assert_constructor_contract(
+        constructors: tuple[_CallSite, ...],
+        promotion_calls: tuple[_CallSite, ...],
+        ambiguous: tuple[str, ...],
+    ) -&gt; None:
+        assert ambiguous == ()
+        expected_production = {
+            (
+                "polisyos.runtime.http.services.control.generation_cycle",
+                "src/polisyos/runtime/http/services/control/generation_cycle.py",
+                "compile_and_run_recursive_generation_cycle",
+                "polisyos.runtime.quality.recursive_generation_cycle."
+                "build_default_recursive_generation_cycle_controller",
+                frozenset(
+                    {"repo_root", "model_id", "promotion_runtime", "eval_safety_verifier"}
+                ),
+            ),
+            (
+                "polisyos.runtime.quality.recursive_generation_cycle",
+                "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+                "build_default_recursive_generation_cycle_controller",
+                "polisyos.runtime.quality.recursive_generation_cycle."
+                "RecursiveGenerationCycleController",
+                frozenset(
+                    {"repo_root", "model_id", "promotion_runtime", "eval_safety_verifier"}
+                ),
+            ),
+            (
+                "polisyos.runtime.quality.recursive_generation_cycle",
+                "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+                "RecursiveGenerationCycleController.run.route",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset(
+                    {
+                        "generation_port",
+                        "repo_root",
+                        "model_id",
+                        "cycle_substrate_context",
+                        "promotion_runtime",
+                        "value_port",
+                        "eval_safety_verifier",
+                        "artifact_store",
+                        "candidate_simulation_handoff",
+                        "candidate_simulation_currentness_resolver",
+                    }
+                ),
+            ),
+            (
+                "polisyos.runtime.quality.generation_cycle",
+                "src/polisyos/runtime/quality/generation_cycle.py",
+                "GenerationCycleController.__init__",
+                "polisyos.runtime.quality.promotion_sequence.CanonicalN9PromotionPort",
+                frozenset(
+                    {
+                        "repo_root", "promotion_runtime", "epoch_n9_evidence_resolver",
+                        "context_provider", "measurement_catalog", "measurement_providers",
+                    }
+                ),
+            ),
+        }
+        observed_production = {
+            (row.module, row.source_path, row.enclosing, row.target, row.keyword_names)
+            for row in constructors
+            if row.source_path.startswith("src/")
+        }
+&gt;       assert observed_production == expected_production
+E       AssertionError: assert {('polisyos.r...repo_root'}))} == {('polisyos.r...repo_root'}))}
+E         
+E         Extra items in the left set:
+E         ('polisyos.runtime.quality.acquisition_world_growth', 'src/polisyos/runtime/quality/acquisition_world_growth.py', 'Acq...runtime.quality.generation_cycle.GenerationCycleController', frozenset({'model_id', 'promotion_runtime', 'repo_root'}))
+E         Use -v to get more diff
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:881: AssertionError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_task_44_public_export_denominator_is_exact" time="0.001"><failure message="AssertionError: assert {'DecisionBas...JobKind', ...} == {'DecisionBas...JobKind', ...}&#10;  &#10;  Extra items in the left set:&#10;  'DecisionValidityEpochImpactTarget'&#10;  'DecisionValidityEpochImpactSnapshot'&#10;  'EpochTransitionDenominatorReconciliationHandle'&#10;  'DecisionValidityEpochImpactOwnerRow'&#10;  'DecisionValidityEpochImpactSnapshotHandle'...&#10;  &#10;  ...Full output truncated (7 lines hidden), use '-vv' to show">def test_task_44_public_export_denominator_is_exact() -&gt; None:
+        import polisyos.core.contracts as core_contracts
+        import polisyos.scientist.validation as scientist_validation
+        from polisyos.core.contracts import control, decision_validity
+        from polisyos.scientist.validation import decision_validity as scientist_decision_validity
+    
+        base_decision_names = (
+            "DecisionBasisSection",
+            "DecisionDependencyEvent",
+            "DecisionDependencyKind",
+            "DecisionDependencyRef",
+            "DecisionLifecycleJob",
+            "DecisionLifecycleJobKind",
+            "DecisionLifecycleJobState",
+            "DecisionTriggerRecord",
+            "DecisionTriggerSpec",
+            "DecisionTriggerType",
+            "DecisionValidityEnvelope",
+            "DecisionValidityEvaluation",
+            "DecisionValidityStatus",
+            "DecisionValidityTransition",
+        )
+        epoch_decision_names = (
+            "EpochTransitionVerificationReceipt",
+            "EpochTransitionVerifier",
+            "EpochValidityAuthorityGate",
+            "EpochValidityBatchCompletionStatement",
+            "EpochValidityBatchReceipt",
+            "EpochValidityBatchTarget",
+            "EpochValidityCompletedBatchEvidenceDenominator",
+            "EpochValidityCompletedBatchEvidenceResolver",
+            "EpochValidityGateNonReceipt",
+            "EpochValidityGateReceipt",
+            "EpochValidityN9EvidenceResolver",
+            "EpochValidityN9Projection",
+            "EpochValidityPendingBatch",
+            "EpochValidityPreN9SubjectAuthority",
+            "PersistedEpochValidityBatchEvidence",
+            "PersistedEpochValidityGateEvidence",
+            "PersistedPreN9AdmittedCandidateBatch",
+            "PersistedPreN9EpochValiditySubject",
+            "PreN9AdmittedCandidate",
+            "PreN9EpochValiditySubjectStatement",
+        )
+        expected_decision_names = base_decision_names + epoch_decision_names
+        control_epoch_names = ("EpochValidityBatchRequest", "EpochValidityBatchResponse")
+        contract = {
+            "expected_decision_names": expected_decision_names,
+            "decision_owner_names": set(decision_validity.__all__),
+            "decision_facade_names": set(core_contracts._MODULE_SYMBOLS[".decision_validity"]),
+            "control_owner_names": set(control.__all__),
+            "control_facade_names": set(core_contracts._MODULE_SYMBOLS[".control"]),
+            "scientist_names": set(scientist_validation.__all__),
+            "scientist_lazy_names": set(scientist_validation._LAZY_IMPORTS),
+            "facade_lazy_imports": dict(core_contracts._LAZY_IMPORTS),
+        }
+&gt;       _assert_task_44_export_contract(**contract)
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:2302: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _assert_task_44_export_contract(
+        *,
+        expected_decision_names: tuple[str, ...],
+        decision_owner_names: set[str],
+        decision_facade_names: set[str],
+        control_owner_names: set[str],
+        control_facade_names: set[str],
+        scientist_names: set[str],
+        scientist_lazy_names: set[str],
+        facade_lazy_imports: dict[str, str],
+    ) -&gt; None:
+        expected_decision = set(expected_decision_names)
+&gt;       assert decision_owner_names == expected_decision
+E       AssertionError: assert {'DecisionBas...JobKind', ...} == {'DecisionBas...JobKind', ...}
+E         
+E         Extra items in the left set:
+E         'DecisionValidityEpochImpactTarget'
+E         'DecisionValidityEpochImpactSnapshot'
+E         'EpochTransitionDenominatorReconciliationHandle'
+E         'DecisionValidityEpochImpactOwnerRow'
+E         'DecisionValidityEpochImpactSnapshotHandle'...
+E         
+E         ...Full output truncated (7 lines hidden), use '-vv' to show
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:1096: AssertionError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_implicit_contract_testing_candidate_rejects_instance_shadowed_n9_methods[run]" time="0.008" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_implicit_contract_testing_candidate_rejects_instance_shadowed_n9_methods[_promote_completed_generation]" time="0.003" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_implicit_contract_testing_candidate_rejects_instance_shadowed_n9_methods[deployment_identity_refusal]" time="0.002" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_implicit_contract_testing_candidate_completes_without_n9_authority" time="0.063" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_recursive_child_capsule_resolves_complete_owned_inputs_and_refuses_transplants" time="0.165" /></testsuite></testsuites>

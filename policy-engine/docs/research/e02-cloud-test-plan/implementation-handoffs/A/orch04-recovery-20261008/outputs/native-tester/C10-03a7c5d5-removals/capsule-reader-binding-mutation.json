@@ -1,0 +1,13 @@
+{
+  "baseline": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source",
+  "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+  "preimage_sha256": "8fc4063cd126e8c05317b7da642f81fed75ae27ec600c2106adebfcf1fbb951b",
+  "postimage_sha256": "35cf5dc7aee0cb47c0d0e4fb4a90e8793d766e254b21588b0ac4efa664377881",
+  "replacements": [
+    [
+      "        if (capsule.node_ref, capsule.parent_ref, capsule.problem) != (",
+      "        if False and (capsule.node_ref, capsule.parent_ref, capsule.problem) != ("
+    ]
+  ],
+  "purpose": "remove runtime property while keeping named markers/refs/testing inputs intact"
+}

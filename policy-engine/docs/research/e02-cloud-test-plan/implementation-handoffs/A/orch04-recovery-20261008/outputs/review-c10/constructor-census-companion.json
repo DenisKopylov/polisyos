@@ -1,0 +1,52 @@
+{
+  "schema": "policyos.orch04.C10.constructor-census-companion.v1",
+  "source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+  "status": "diagnostic_FAIL; no authority escape or guard PASS inferred",
+  "complete_path_census": "author proposed classifier diagnostic3497 Git/filesystem paths equals; independent exact mismatch set comparison retained",
+  "C10_owned_test_repair": "include previously unknown known docs/dev-oracles/workers families conservatively; preserve unresolved family refusal and scanner alias coverage, no production source changes",
+  "actual_companion_sites": [
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/runtime_snapshot.py",
+      "git_blob": "b563ae62b1517a4a9564b04d361f5776c1a494aa",
+      "sha256": "b250993921c5d425a71f86706d738f211768c6827efdd65ff471027450e57514",
+      "source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+      "C10_lease": false
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/scope_audit.py",
+      "git_blob": "8a7fac87bfa572d854efe532885ed42f04cde7e7",
+      "sha256": "91a1eb407f639702c099b67940258c92d99d6f1e7293bae59fcd66315acaa004",
+      "source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+      "C10_lease": false
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/skg_real_replay.py",
+      "git_blob": "349501141cf5d4a5eb0bb7ebaabc34e3cb25b78c",
+      "sha256": "628056f3d20a2aa0986975b42e66797ed9416a9b0f9252c90feffe7b3c0b224c",
+      "source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+      "C10_lease": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py",
+      "git_blob": "4fb8915d22f669a1a11c7202341b6a2f494792f7",
+      "sha256": "04e5c70d450b297a50ad8936f72d5bf526b5a2520ee6de60fc92bbb1a1fd8bcf",
+      "source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+      "C10_lease": false
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/check_layer3_gy_generation_cycle_contract.py",
+      "git_blob": "9a4b94a4db6ba3a4d72390c9a3192206cbed7003",
+      "sha256": "2cc1d57226afed9987007d789c0691bca88a3a9d187e960ee7ec5ada0c1218fb",
+      "source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+      "C10_lease": false
+    }
+  ],
+  "minimal_G_requirements": [
+    "Three docs bare GenerationCycleController(repo_root=...) calls need canonical purpose/owner audit; preserve their actual diagnostic inventory. C10 must neither exclude them by path nor add passing allowed authority rows.",
+    "AcquisitionWorldGrowthBridge.resume includes **kwargs. Its canonical owner must resolve complete forwarded constructor parameter/currentness bindings before exact guard reconciliation; no unreviewed expansion waiver.",
+    "Tools generation-cycle contract verification uses confidence_ledger_session_factory rather than stale expected session. Canonical supplier/reviewer must reconcile precise verification namespace/owner semantics before table update.",
+    "Own generation/recursive constructor and deployment_identity promotion call table differences are separately listed in complete-scanner-mismatch-census-03a7.json. Exact mirrored own row reconciliation is bounded guard work, not a new Core API or authority rule."
+  ],
+  "global_Task44_companion": "see test-companion-ownership.json; remains shared Core API census outside C10",
+  "test_evidence_qualification": "new family classification/alias component checks are bounded; actual complete guard remains diagnostic FAIL until all complete canonical inputs and owned/shared table rows are reconciled"
+}

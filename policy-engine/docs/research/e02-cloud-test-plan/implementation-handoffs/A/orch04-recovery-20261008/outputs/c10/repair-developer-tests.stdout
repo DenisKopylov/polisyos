@@ -1,0 +1,39 @@
+...F                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_complete_uncomposed_parent_refuses_rehashed_positive_or_budget_terminal _
+
+    @pytest.mark.asyncio
+    async def test_complete_uncomposed_parent_refuses_rehashed_positive_or_budget_terminal() -> None:
+        """Original independent b6c3201 falsifier, applied to complete history.
+    
+        A content hash is integrity evidence; it cannot establish N5/composition
+        authority absent from the artifact. Both complete and partial histories
+        share the same conservative no-evidence parent invariant.
+        """
+        run, *_ = await _run_recursive_fixture(
+            budget_state=BudgetState(limits={
+                "run": BudgetLimit(key="run", max_usd=Decimal("5")),
+            }),
+        )
+        assert type(run) is RecursiveGenerationCycleRun
+        ordinary = run.model_dump(mode="json")
+        root = next(row for row in ordinary["nodes"] if row["node_ref"] == run.root_node_ref)
+        assert root["child_refs"]
+        assert root["joint_simulation"] is None
+        assert root["composition_certificate"] is None
+        assert root["terminal"]["kind"] == SearchTerminalKind.RECURSIVE_BLOCKED.value
+>       assert RecursiveGenerationCycleRun.model_validate(ordinary) == run
+E       AssertionError: assert RecursiveGene...81674ab8c178') == RecursiveGene...81674ab8c178')
+E         
+E         Use -v to get more diff
+
+tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py:661: AssertionError
+=============================== warnings summary ===============================
+../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py::test_complete_uncomposed_parent_refuses_rehashed_positive_or_budget_terminal

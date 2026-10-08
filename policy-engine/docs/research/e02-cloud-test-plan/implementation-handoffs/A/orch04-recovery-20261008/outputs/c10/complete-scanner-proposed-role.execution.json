@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "python",
+    "/workspace/ORCH04-evidence/c10/diagnose-complete-scanner.py"
+  ],
+  "cwd": "/workspace/ORCH04-C10/policy-engine",
+  "started_utc": "2026-10-08T16:48:47.909179+00:00",
+  "python_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+  "profile_env": {
+    "PYTHONPATH": null,
+    "NODE_USE_ENV_PROXY": null,
+    "COREPACK_HOME": null,
+    "npm_config_store_dir": null
+  },
+  "pid": 20186,
+  "finished_utc": "2026-10-08T16:49:27.079610+00:00",
+  "elapsed_seconds": 39.17056717600008,
+  "returncode": 0,
+  "outputs": {
+    ".stdout": {
+      "bytes": 1179,
+      "sha256": "1e5399dca86aea8b254a8424a5228c1b1b39e20914a4b519789aaeddde7deb33"
+    },
+    ".stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

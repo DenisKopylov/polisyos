@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "git",
+    "commit",
+    "-m",
+    "test(runtime): reconcile C10 callback and executable source census"
+  ],
+  "cwd": "/workspace/ORCH04-C10",
+  "started_utc": "2026-10-08T16:51:30.798662+00:00",
+  "python_executable": "/workspace/.polisyos-environment/bin/python",
+  "profile_env": {
+    "PYTHONPATH": null,
+    "NODE_USE_ENV_PROXY": "1",
+    "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+    "npm_config_store_dir": "/workspace/.polisyos-environment/cache/pnpm"
+  },
+  "pid": 20453,
+  "finished_utc": "2026-10-08T16:51:31.552441+00:00",
+  "elapsed_seconds": 0.7537258510001266,
+  "returncode": 0,
+  "outputs": {
+    ".stdout": {
+      "bytes": 163,
+      "sha256": "e11a36eafaff7196e114dc81c72126a0dabd1fda2fd8a94d6701cddc2e762b48"
+    },
+    ".stderr": {
+      "bytes": 831,
+      "sha256": "637107d302ce4afe47054fddb372142b3c3657af3d3eeb94bbedce023e4d055d"
+    }
+  }
+}

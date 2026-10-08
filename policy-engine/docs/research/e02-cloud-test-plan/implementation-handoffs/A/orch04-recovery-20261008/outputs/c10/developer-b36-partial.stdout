@@ -1,0 +1,23 @@
+
+==================================== ERRORS ====================================
+_ ERROR collecting tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py _
+ImportError while importing test module '/workspace/ORCH04-C10/policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py:36: in <module>
+    from tests.unit.runtime.quality.recursive_generation_cycle_fixtures import (
+E   ModuleNotFoundError: No module named 'tests.unit.runtime.quality.recursive_generation_cycle_fixtures'
+=============================== warnings summary ===============================
+../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+../../ORCH04-environments/app/lib/python3.14/site-packages/pyro/ops/stats.py:527
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/pyro/ops/stats.py:527: SyntaxWarning: "\g" is an invalid escape sequence. Such sequences will not work in the future. Did you mean "\\g"? A raw string is also an option.
+    we have :math:`ES^{*}(P,Q) \ge ES^{*}(Q,Q)` with equality holding if and only if :math:`P=Q`, i.e.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!

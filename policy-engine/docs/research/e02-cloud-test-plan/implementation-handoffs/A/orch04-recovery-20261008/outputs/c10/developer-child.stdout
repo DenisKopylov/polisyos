@@ -1,0 +1,43 @@
+.F                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_n4_candidate_child_producer_deduplicates_names_and_refuses_foreign_subject _
+
+    def test_n4_candidate_child_producer_deduplicates_names_and_refuses_foreign_subject():
+        from polisyos.runtime.quality.design_generation import (
+            DesignGenerationError,
+            derive_n4_candidate_child_problems,
+        )
+    
+        problem, result = _controlled_declared_n4_child_inputs()
+        one = result.model_copy(update={"candidates": (result.candidates[0],)})
+        # Keep the owner denominator valid while changing only the external name.
+        payload = one.model_dump(mode="python")
+        first = result.candidates[0]
+        alternate = first.model_copy(update={"candidate_id": "candidate_" + "f" * 16})
+        payload["candidates"] = [first.model_dump(mode="python"), alternate.model_dump(mode="python")]
+        dispositions = [
+            row for row in result.grounding_dispositions if row.candidate_id == first.candidate_id
+        ]
+        assert len(dispositions) == 1
+        payload["grounding_dispositions"] = [
+            dispositions[0].model_dump(mode="python"),
+            dispositions[0]
+            .model_copy(update={"candidate_id": alternate.candidate_id})
+            .model_dump(mode="python"),
+        ]
+>       duplicate = type(result).model_validate(payload)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for GenerationUnderAResult
+E         Value error, grounding_disposition_summary_denominator_mismatch [type=value_error, input_value={'schema_version': 'polic...generation_contract']})}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+tests/unit/runtime/quality/test_generation_cycle.py:10109: ValidationError
+=============================== warnings summary ===============================
+../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_generation_cycle.py::test_n4_candidate_child_producer_deduplicates_names_and_refuses_foreign_subject

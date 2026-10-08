@@ -1,0 +1,119 @@
+{
+  "sha": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+  "tree": "46aab0ec802b239da47d4fab5ee1d7e1f616045a",
+  "parents": [
+    "b6c3201aca6f8a94f05479269e13cde2dd3e7119"
+  ],
+  "base": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "repair_delta_paths": [
+    "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+    "policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py"
+  ],
+  "changed_paths": [
+    "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx",
+    "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+    "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+    "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+    "policy-engine/release-fragments/unreleased/2026-10-08-orch04-c10-candidate-recovery.toml",
+    "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+    "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+    "policy-engine/src/polisyos/runtime/quality/README.md",
+    "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+    "policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+    "policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+    "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+    "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py"
+  ],
+  "archive": {
+    "path": "/workspace/ORCH04-evidence/review-c10/03a7c5d/probe-source.tar",
+    "bytes": 138496000,
+    "sha256": "95cd232fa378e9dd81c032761d854cdea3021cc280b3ecc9bf240e2a1c96ac20"
+  },
+  "probe_script": {
+    "path": "/workspace/ORCH04-evidence/review-c10/03a7c5d/probe_full_parent.py",
+    "sha256": "198fe88a0ccb1d29ae20ed8ae218f1fd4d269ae0e1293c1768842b5a0c7438dc",
+    "change_from_original": "source_sha metadata only; original falsifier unchanged"
+  },
+  "author_manifest_sha256": "376340102de1876f7a50e8460e6e0c034dbb5d49433eb5678d0b44791376064e",
+  "manifest_paths_equal_diff": true,
+  "manifest_identity_matches": true,
+  "checks": [
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx",
+      "postimage_matches": true,
+      "preimage_matches": true
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+      "postimage_matches": true,
+      "preimage_matches": true
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+      "postimage_matches": true,
+      "preimage_matches": true
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+      "postimage_matches": true,
+      "preimage_matches": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-orch04-c10-candidate-recovery.toml",
+      "postimage_matches": true,
+      "preimage_matches": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "postimage_matches": true,
+      "preimage_matches": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "postimage_matches": true,
+      "preimage_matches": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+      "postimage_matches": true,
+      "preimage_matches": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+      "postimage_matches": true,
+      "preimage_matches": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "postimage_matches": true,
+      "preimage_matches": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "postimage_matches": true,
+      "preimage_matches": true
+    },
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+      "postimage_matches": true,
+      "preimage_matches": true
+    },
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+      "postimage_matches": true,
+      "preimage_matches": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "postimage_matches": true,
+      "preimage_matches": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+      "postimage_matches": true,
+      "preimage_matches": true
+    }
+  ]
+}

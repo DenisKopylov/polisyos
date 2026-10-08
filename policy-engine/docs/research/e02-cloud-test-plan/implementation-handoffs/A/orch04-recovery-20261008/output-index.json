@@ -1,0 +1,2121 @@
+{
+  "schema": "policyos.e02.c10.portable-deciding-outputs.v1",
+  "source": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+  "source_tree": "6506a68152d7a957fc7762e9846a72e7ab98d557",
+  "records": [
+    {
+      "original_path": "/workspace/ORCH04-evidence/admission/C10-create.json",
+      "portable_path": "outputs/admission/C10-create.json",
+      "bytes": 13334,
+      "sha256": "3b9cb8713d3ae443d04327df9cea1b460fadc57f961d27e6eb716f3e41acf347"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/admission/C10-resume.json",
+      "portable_path": "outputs/admission/C10-resume.json",
+      "bytes": 19037,
+      "sha256": "58c5b4bed921d2a7ca47230dc209aacbca66b47a26fb2c80694aede2d21f8fe1"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/A-partial-adoption.patch",
+      "portable_path": "outputs/c10/A-partial-adoption.patch",
+      "bytes": 32651,
+      "sha256": "a5a058b0c24e229a8a45030d302c0dc1592fa089570c48cb0c843ef98ae34377"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/A-recursion-input.diff",
+      "portable_path": "outputs/c10/A-recursion-input.diff",
+      "bytes": 21514,
+      "sha256": "883e87a29efe132b6f9fe06d8243ace791575257c926a131f42de4442265ffc4"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/apply-ui-i18n.py",
+      "portable_path": "outputs/c10/apply-ui-i18n.py",
+      "bytes": 6254,
+      "sha256": "3ba628a96fb3b9d6119ac7035dcef57a5f4354f6911daa11b5fdc26fa94ae0a9"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/baseline-frontend-ui-parity.execution.json",
+      "portable_path": "outputs/c10/baseline-frontend-ui-parity.execution.json",
+      "bytes": 1070,
+      "sha256": "dfcbc85fbb91a293ef6846fb925c5a5497395196b9310392af78e21cb0665bbe"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/baseline-frontend-ui-parity.stderr",
+      "portable_path": "outputs/c10/baseline-frontend-ui-parity.stderr",
+      "bytes": 3851,
+      "sha256": "4d84a2cc9e5a84e8f32b2e64a616e48a9caae015d887b110c6acdc0098253cad"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/baseline-frontend-ui-parity.stdout",
+      "portable_path": "outputs/c10/baseline-frontend-ui-parity.stdout",
+      "bytes": 431,
+      "sha256": "9db6408ac7786068a6abd4b77f5c93bf2c85874845a826960e33ef2be23d5f99"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/baseline-frozen-install-supported.execution.json",
+      "portable_path": "outputs/c10/baseline-frozen-install-supported.execution.json",
+      "bytes": 911,
+      "sha256": "f0d7bdf2de356ef0e578f7edfd8af0e36efb7c6a53168c9a9b720388c9f38d85"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/baseline-frozen-install-supported.stderr",
+      "portable_path": "outputs/c10/baseline-frozen-install-supported.stderr",
+      "bytes": 712,
+      "sha256": "a9267ff6cca816504d3d3f9205a71e5ad835d3809c37507eabd70fea5df36091"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/baseline-frozen-install-supported.stdout",
+      "portable_path": "outputs/c10/baseline-frozen-install-supported.stdout",
+      "bytes": 2899,
+      "sha256": "e36a091b39646f078881316803736eb6b72e2a1ee40005353d3bf76636f8e32f"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/baseline-frozen-install.execution.json",
+      "portable_path": "outputs/c10/baseline-frozen-install.execution.json",
+      "bytes": 952,
+      "sha256": "8c15c81c99d4773496a6e62a6d55ee49d33b09e49d2fae38fa6ca47e172b0d6f"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/baseline-frozen-install.stderr",
+      "portable_path": "outputs/c10/baseline-frozen-install.stderr",
+      "bytes": 864,
+      "sha256": "8a266ca4d94110aa1919e16f3008100eb08a73f3ff91b7b4f6a40c06522250f3"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/baseline-frozen-install.stdout",
+      "portable_path": "outputs/c10/baseline-frozen-install.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/companion-final-ruff.execution.json",
+      "portable_path": "outputs/c10/companion-final-ruff.execution.json",
+      "bytes": 927,
+      "sha256": "e687969677aabefa7397929b870d4906f5f3e066b1584a096fe270f67e797fd9"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/companion-final-ruff.stderr",
+      "portable_path": "outputs/c10/companion-final-ruff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/companion-final-ruff.stdout",
+      "portable_path": "outputs/c10/companion-final-ruff.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/companion-repair-format.execution.json",
+      "portable_path": "outputs/c10/companion-repair-format.execution.json",
+      "bytes": 929,
+      "sha256": "f83abfd0a2ac2c37165316597d62e73bfcb827640becc4d2f7310d1a5ce2e326"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/companion-repair-format.stderr",
+      "portable_path": "outputs/c10/companion-repair-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/companion-repair-format.stdout",
+      "portable_path": "outputs/c10/companion-repair-format.stdout",
+      "bytes": 19,
+      "sha256": "413a709001976657cb743636fd34e48fc41d8d302d665460d3f874b3313da127"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/companion-repair-ruff.execution.json",
+      "portable_path": "outputs/c10/companion-repair-ruff.execution.json",
+      "bytes": 928,
+      "sha256": "120374a9fdb0304c9253df3f9d6e3e0eb07707eccac6f78d9735847129415e7a"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/companion-repair-ruff.stderr",
+      "portable_path": "outputs/c10/companion-repair-ruff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/companion-repair-ruff.stdout",
+      "portable_path": "outputs/c10/companion-repair-ruff.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/companion-requirements.json",
+      "portable_path": "outputs/c10/companion-requirements.json",
+      "bytes": 14395,
+      "sha256": "2f31d391003ec220208f903e2031f0d30fae9660179482032b68d3a04725b7b4"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/complete-scanner-proposed-role-diagnostic.json",
+      "portable_path": "outputs/c10/complete-scanner-proposed-role-diagnostic.json",
+      "bytes": 228432,
+      "sha256": "65624947e11f8e7561385ef2b8aa073f1dce99ada038924352e6ceba06942ba3"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/complete-scanner-proposed-role.execution.json",
+      "portable_path": "outputs/c10/complete-scanner-proposed-role.execution.json",
+      "bytes": 841,
+      "sha256": "e8eb689a026adedab7683037dc7a07c8ccdaf62a83bcb5d4279c901d5dec04b8"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/complete-scanner-proposed-role.stderr",
+      "portable_path": "outputs/c10/complete-scanner-proposed-role.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/complete-scanner-proposed-role.stdout",
+      "portable_path": "outputs/c10/complete-scanner-proposed-role.stdout",
+      "bytes": 1179,
+      "sha256": "1e5399dca86aea8b254a8424a5228c1b1b39e20914a4b519789aaeddde7deb33"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-b36-partial.stderr",
+      "portable_path": "outputs/c10/developer-b36-partial.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-b36-partial.stdout",
+      "portable_path": "outputs/c10/developer-b36-partial.stdout",
+      "bytes": 1916,
+      "sha256": "a098cc171e3da6c87a656c19fd3586cfd4e755488907d2f7823ebf861511ea9b"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-b36.stderr",
+      "portable_path": "outputs/c10/developer-b36.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-b36.stdout",
+      "portable_path": "outputs/c10/developer-b36.stdout",
+      "bytes": 655,
+      "sha256": "2cd43297ceafdd42ecdddeb3febada38867a20557b5af06fea31a97a18f41814"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-capsule-retry.stderr",
+      "portable_path": "outputs/c10/developer-capsule-retry.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-capsule-retry.stdout",
+      "portable_path": "outputs/c10/developer-capsule-retry.stdout",
+      "bytes": 614,
+      "sha256": "a7a12edcd4894f28fa8f7a05ae87b9ed5046cfbaf1b33a891d15b1b7330e466a"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-capsule.stderr",
+      "portable_path": "outputs/c10/developer-capsule.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-capsule.stdout",
+      "portable_path": "outputs/c10/developer-capsule.stdout",
+      "bytes": 8681,
+      "sha256": "e23a1d511cc06bf77f391212972e02f97a922ca592f167494b16a8d7cf60871b"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-child-format.stdout",
+      "portable_path": "outputs/c10/developer-child-format.stdout",
+      "bytes": 20,
+      "sha256": "878d50bf4ab752ab41ae942ac518b87e744d994b21bb15dca142ed7a470b3b3a"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-child-retry.stderr",
+      "portable_path": "outputs/c10/developer-child-retry.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-child-retry.stdout",
+      "portable_path": "outputs/c10/developer-child-retry.stdout",
+      "bytes": 655,
+      "sha256": "d737293cd28ec66a1788fd4696a14599c0093f4bbbc14b0ff4ec9e0cd0c0337a"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-child-ruff.stderr",
+      "portable_path": "outputs/c10/developer-child-ruff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-child-ruff.stdout",
+      "portable_path": "outputs/c10/developer-child-ruff.stdout",
+      "bytes": 3505,
+      "sha256": "d59522176ce672f65bf470a78b2ee562c994abf7407c00414c6b84912e49a9c0"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-child-ruff2.stderr",
+      "portable_path": "outputs/c10/developer-child-ruff2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-child-ruff2.stdout",
+      "portable_path": "outputs/c10/developer-child-ruff2.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-child.stderr",
+      "portable_path": "outputs/c10/developer-child.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-child.stdout",
+      "portable_path": "outputs/c10/developer-child.stdout",
+      "bytes": 2777,
+      "sha256": "05bbb0a687a0e20df96e8f1c47f24b987fa7f2a566edd579dcb270ca2dbc87f2"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-final-child-ruff.stderr",
+      "portable_path": "outputs/c10/developer-final-child-ruff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-final-child-ruff.stdout",
+      "portable_path": "outputs/c10/developer-final-child-ruff.stdout",
+      "bytes": 39,
+      "sha256": "20c69faf01790c30f3b22a2d3b8a36933a5ba2768533f92eeac66ddec80aba5c"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-final-intake-ruff.stderr",
+      "portable_path": "outputs/c10/developer-final-intake-ruff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-final-intake-ruff.stdout",
+      "portable_path": "outputs/c10/developer-final-intake-ruff.stdout",
+      "bytes": 38,
+      "sha256": "aac3a0503d8b95052cc85fb9f1717dc82b74aa55853a5aa9749b41e30275d472"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-full-owned-ruff.stdout",
+      "portable_path": "outputs/c10/developer-full-owned-ruff.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-intake-format.stdout",
+      "portable_path": "outputs/c10/developer-intake-format.stdout",
+      "bytes": 20,
+      "sha256": "96a977f329ec3c59092d40e041a019b49dcf03ca04055e177aa0ccb8c27234df"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-intake-ruff.stderr",
+      "portable_path": "outputs/c10/developer-intake-ruff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-intake-ruff.stdout",
+      "portable_path": "outputs/c10/developer-intake-ruff.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-intake.stderr",
+      "portable_path": "outputs/c10/developer-intake.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-intake.stdout",
+      "portable_path": "outputs/c10/developer-intake.stdout",
+      "bytes": 4226,
+      "sha256": "3a03dd02cd5309f44d00d0e44f6c8a53a377a0be1465b5e53e1480293b558b1e"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-partial-final-helper.stderr",
+      "portable_path": "outputs/c10/developer-partial-final-helper.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-partial-final-helper.stdout",
+      "portable_path": "outputs/c10/developer-partial-final-helper.stdout",
+      "bytes": 16142,
+      "sha256": "8d22b8e05d6e68522d4a489516b43ed9999925a6ed0a9094facbafb6fbcac609"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-partial-reconciled.stderr",
+      "portable_path": "outputs/c10/developer-partial-reconciled.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-partial-reconciled.stdout",
+      "portable_path": "outputs/c10/developer-partial-reconciled.stdout",
+      "bytes": 614,
+      "sha256": "c9e1b406455163151ad177e7b1985007a73b7029b657acc3ede7d432cf011ddf"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-partial-retry.stderr",
+      "portable_path": "outputs/c10/developer-partial-retry.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-partial-retry.stdout",
+      "portable_path": "outputs/c10/developer-partial-retry.stdout",
+      "bytes": 1802,
+      "sha256": "3349cb0f7a0855520292b469d9a20e2cd7466a89e5e74f158c61a078050905a6"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-partial.stderr",
+      "portable_path": "outputs/c10/developer-partial.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-partial.stdout",
+      "portable_path": "outputs/c10/developer-partial.stdout",
+      "bytes": 2280,
+      "sha256": "7bad976456cce9505ddcb13f7987348b2394db982659f44fd0e886845e4ec1c5"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-prettier-final.stderr",
+      "portable_path": "outputs/c10/developer-prettier-final.stderr",
+      "bytes": 354,
+      "sha256": "9829ebc454f7d9a9f6fadaa3871007c048c584e17a6e9661a784170083ab2805"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-prettier-final.stdout",
+      "portable_path": "outputs/c10/developer-prettier-final.stdout",
+      "bytes": 132,
+      "sha256": "2a60ed77637e9ee24eac418462607ec95b231805f8c4ff2153aa5283aef0c788"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-prettier.stderr",
+      "portable_path": "outputs/c10/developer-prettier.stderr",
+      "bytes": 354,
+      "sha256": "57ac41f423e82e7d550450f6b680451a6e17a469278e28e477e61a1aee2f2df1"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-prettier.stdout",
+      "portable_path": "outputs/c10/developer-prettier.stdout",
+      "bytes": 108,
+      "sha256": "5ab3d61c7852e92227e3927a05aa8f5fdd5688cff89faab0f088eb4090022360"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-ruff.stderr",
+      "portable_path": "outputs/c10/developer-ruff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-ruff.stdout",
+      "portable_path": "outputs/c10/developer-ruff.stdout",
+      "bytes": 568,
+      "sha256": "1d82c4414bd07d0114cf0c8560d8e8d89f147db6326f8968bbbb3f342d804587"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-ruff2.stdout",
+      "portable_path": "outputs/c10/developer-ruff2.stdout",
+      "bytes": 39,
+      "sha256": "6f4e3c8cb6a43f32a8b47add0b65207f17bd814c84308623b3720ad789c0d769"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-source-final-ruff.stderr",
+      "portable_path": "outputs/c10/developer-source-final-ruff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-source-final-ruff.stdout",
+      "portable_path": "outputs/c10/developer-source-final-ruff.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-surgical-ruff.stderr",
+      "portable_path": "outputs/c10/developer-surgical-ruff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-surgical-ruff.stdout",
+      "portable_path": "outputs/c10/developer-surgical-ruff.stdout",
+      "bytes": 1695,
+      "sha256": "b920c662a013f0a74dc0da8ad1c2498d22141ffba254ef2369de0d9856e4494d"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-ui-i18n-final-prettier.stderr",
+      "portable_path": "outputs/c10/developer-ui-i18n-final-prettier.stderr",
+      "bytes": 356,
+      "sha256": "55b44a0818c84660d9242495af6429de1d27e0abde06c35bbfe1393aa8c5393e"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-ui-i18n-final-prettier.stdout",
+      "portable_path": "outputs/c10/developer-ui-i18n-final-prettier.stdout",
+      "bytes": 151,
+      "sha256": "abcdd6ca7dc36d4a2a69beda089a9217e07c417abb2def2c0f53a299b3c9a109"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-ui-i18n-prettier.stderr",
+      "portable_path": "outputs/c10/developer-ui-i18n-prettier.stderr",
+      "bytes": 356,
+      "sha256": "7a1142748e3a8f448a42789d21d770accb40ee64066918e234a52405bd02b2c2"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-ui-i18n-prettier.stdout",
+      "portable_path": "outputs/c10/developer-ui-i18n-prettier.stdout",
+      "bytes": 200,
+      "sha256": "5de2762ad718ebed65367a42c247f0f448d640d3fc12c24ef7bfbefdc9b8ff6c"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-ui-i18n.stderr",
+      "portable_path": "outputs/c10/developer-ui-i18n.stderr",
+      "bytes": 5010,
+      "sha256": "aae8e90ed1d04a353c33dfb25cf59d9ca098de9d3abe8c51cd947e72510227db"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-ui-i18n.stdout",
+      "portable_path": "outputs/c10/developer-ui-i18n.stdout",
+      "bytes": 692,
+      "sha256": "9396a5e85222914d39e0a3a379b05a3a45d4828813f875b89a0cd5af9083f90b"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-ui.stderr",
+      "portable_path": "outputs/c10/developer-ui.stderr",
+      "bytes": 708,
+      "sha256": "04c3e3b426470f3d49abcf828a952ab5d5f8bcea6f10cc2abb0fd252514b1608"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/developer-ui.stdout",
+      "portable_path": "outputs/c10/developer-ui.stdout",
+      "bytes": 246,
+      "sha256": "aab06956a1b9ff4337654671226612cd05814c42e34d88e5a9922ad5d79513ef"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/diagnose-complete-scanner.py",
+      "portable_path": "outputs/c10/diagnose-complete-scanner.py",
+      "bytes": 2627,
+      "sha256": "cbfec6b432c0d56aabc8c7d9dde63bdabd212c6dc4c6d4ff15b4a0786ab7c950"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/final-source-uncommitted.patch",
+      "portable_path": "outputs/c10/final-source-uncommitted.patch",
+      "bytes": 153303,
+      "sha256": "321d4f950fd92643b4fefb6e52f4ee0acd7bf4caee1e6467b11affa1d889feb0"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/final-test-companion-repair.patch",
+      "portable_path": "outputs/c10/final-test-companion-repair.patch",
+      "bytes": 5502,
+      "sha256": "180ec249b2ac9996bd5e0a4c85ce6596301727bb3fa0a5cd3dec86f0802804c4"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/freeze-test-companion-manifest.py",
+      "portable_path": "outputs/c10/freeze-test-companion-manifest.py",
+      "bytes": 7318,
+      "sha256": "d14e9550b77ca9d075ca66296a1eb36c5b4ac627ad10c7ffbe8d7d8019f146c1"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/freeze-value-store-repair.py",
+      "portable_path": "outputs/c10/freeze-value-store-repair.py",
+      "bytes": 3194,
+      "sha256": "a72c57b4ed6a77379fddc729729cb4a4aeb06198cd1a8da31de95d9edd0f86bd"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/frontend-build.execution.json",
+      "portable_path": "outputs/c10/frontend-build.execution.json",
+      "bytes": 918,
+      "sha256": "1d6d03ff77e19788f7d460a31b87d95d2700d3b29d21469c29aae13dceddd291"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/frontend-build.stderr",
+      "portable_path": "outputs/c10/frontend-build.stderr",
+      "bytes": 1400,
+      "sha256": "4414be83179e0b4d893faef069186a4aa28c597794f9c20e888cb8a72a7ccc17"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/frontend-build.stdout",
+      "portable_path": "outputs/c10/frontend-build.stdout",
+      "bytes": 16193,
+      "sha256": "3b338a931a3a3713739145e80b53418f3dc40143ecfdf383c9404172bbbdc2dd"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/frontend-typecheck.execution.json",
+      "portable_path": "outputs/c10/frontend-typecheck.execution.json",
+      "bytes": 918,
+      "sha256": "e72c07b6a14949a2b86e51d76db5e687e81691d75a5144977d66c6480cb9c059"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/frontend-typecheck.stderr",
+      "portable_path": "outputs/c10/frontend-typecheck.stderr",
+      "bytes": 178,
+      "sha256": "3881b631a48bba359a5d90dc126e1f6c7239db96820911304dc870769de58171"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/frontend-typecheck.stdout",
+      "portable_path": "outputs/c10/frontend-typecheck.stdout",
+      "bytes": 220,
+      "sha256": "63be3fff08e1279f3ab509c96b7fe42b71c1c36d886be153f84edf803c276e26"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/frontend-ui-parity.execution.json",
+      "portable_path": "outputs/c10/frontend-ui-parity.execution.json",
+      "bytes": 1024,
+      "sha256": "a52bc21eb9fa5ef0be8ec30fc557870861af52aa1c6ef9cfa8132ffa6bdf9c4d"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/frontend-ui-parity.stderr",
+      "portable_path": "outputs/c10/frontend-ui-parity.stderr",
+      "bytes": 1723,
+      "sha256": "2d71b87c3f33b61c4cfc415f2faa4a3df308f5babbc0cec1516bd03b435a57fa"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/frontend-ui-parity.stdout",
+      "portable_path": "outputs/c10/frontend-ui-parity.stdout",
+      "bytes": 408,
+      "sha256": "8b300ec321f1386adfb92890edb942d544c7794e6977865502b840d2cdad13dd"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/implement-child-intake.py",
+      "portable_path": "outputs/c10/implement-child-intake.py",
+      "bytes": 5892,
+      "sha256": "fe4523a590652d684e6bf3f647162907c270ba4466a8df9bb2104bfc6bc1c5a3"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/implement-child-producer.py",
+      "portable_path": "outputs/c10/implement-child-producer.py",
+      "bytes": 5538,
+      "sha256": "9f9098f9e164e5cd071c20024b2e99de29dd4f1b9b037a9535fcbaf054c35df3"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/normalize-test-companion-repair.py",
+      "portable_path": "outputs/c10/normalize-test-companion-repair.py",
+      "bytes": 4105,
+      "sha256": "155f5b6190b38f94398f698d36d09e0932423af136e302ad125eb105189f6011"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/pnpm-install-proxy.stderr",
+      "portable_path": "outputs/c10/pnpm-install-proxy.stderr",
+      "bytes": 708,
+      "sha256": "a307cc0dc520bf439a12cd24c7a74443bf5aefe8c982fe472b616b0358459508"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/pnpm-install-proxy.stdout",
+      "portable_path": "outputs/c10/pnpm-install-proxy.stdout",
+      "bytes": 1728,
+      "sha256": "2128d43b035b2f3888c4de11f8bd2cf315d408c3afd656dae6df120b27c6a777"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/pnpm-install.stderr",
+      "portable_path": "outputs/c10/pnpm-install.stderr",
+      "bytes": 8343,
+      "sha256": "08d5cac00058a7d6d267a96bd1c0c45318a2b111b1ca4638de066b864f3e0446"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/pnpm-install.stdout",
+      "portable_path": "outputs/c10/pnpm-install.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/prepare-leaf-receipt.py",
+      "portable_path": "outputs/c10/prepare-leaf-receipt.py",
+      "bytes": 8856,
+      "sha256": "c74811b65bb68d47c9c8553ffd39bca83c9632d1ebd492081d69cce722d9919b"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/repair-developer-tests-retry.execution.json",
+      "portable_path": "outputs/c10/repair-developer-tests-retry.execution.json",
+      "bytes": 906,
+      "sha256": "ef50d55f470cc8744e22dd464d05974da61818ca46f79a13a26c2b7e1ae5233b"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/repair-developer-tests-retry.stderr",
+      "portable_path": "outputs/c10/repair-developer-tests-retry.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/repair-developer-tests-retry.stdout",
+      "portable_path": "outputs/c10/repair-developer-tests-retry.stdout",
+      "bytes": 655,
+      "sha256": "8adc04c5d81fa20b5a20292fc21958daad183e036fa3a4531826f9d6bb71a9e9"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/repair-developer-tests.execution.json",
+      "portable_path": "outputs/c10/repair-developer-tests.execution.json",
+      "bytes": 906,
+      "sha256": "2d8d9106b89c029672857dd3ceb45e5738c8f777ce60ac44b8af4caf4b182d43"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/repair-developer-tests.stderr",
+      "portable_path": "outputs/c10/repair-developer-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/repair-developer-tests.stdout",
+      "portable_path": "outputs/c10/repair-developer-tests.stdout",
+      "bytes": 2425,
+      "sha256": "a5570207845c73cba57c8bbb5dce03cbdad04bcd974d72e08a73343fc44c4f1b"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/repair-ruff.stderr",
+      "portable_path": "outputs/c10/repair-ruff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/repair-ruff.stdout",
+      "portable_path": "outputs/c10/repair-ruff.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/required-transfer.json",
+      "portable_path": "outputs/c10/required-transfer.json",
+      "bytes": 30820,
+      "sha256": "a6f63c6736a2fedda1ad2eed56532f5dd83284c1643184d1e31c382d1c264349"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/resume-before-source.json",
+      "portable_path": "outputs/c10/resume-before-source.json",
+      "bytes": 30273,
+      "sha256": "b9a8372538c76d43037ede7def3ef2f14efd26549b99a6dbd420d38815dcdcef"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/run_logged.py",
+      "portable_path": "outputs/c10/run_logged.py",
+      "bytes": 1097,
+      "sha256": "8ee37c91f0d386190a152bdfbc7d043a84c4366234e689fcdf5ce10cd93ad04f"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/source-commit-final.execution.json",
+      "portable_path": "outputs/c10/source-commit-final.execution.json",
+      "bytes": 922,
+      "sha256": "b561040c84b28835e09316264fd4ca21b1ae4fc47b35ddf38bec4f1badd6a2cc"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/source-commit-final.stderr",
+      "portable_path": "outputs/c10/source-commit-final.stderr",
+      "bytes": 2216,
+      "sha256": "41f0fe4d87357ac8f97f076a66daee4270b6f43a87a9d99ac9ecb2b4d10a287a"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/source-commit-final.stdout",
+      "portable_path": "outputs/c10/source-commit-final.stdout",
+      "bytes": 389,
+      "sha256": "176da399698a7ab7b4b8b43c782c9d78fcfbdbe1979f9209ecbdbb3244f19fb4"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/source-commit-retry.stderr",
+      "portable_path": "outputs/c10/source-commit-retry.stderr",
+      "bytes": 4548,
+      "sha256": "137e3e93657fd3ebcbac0983abfb4763723f38c3ae39955cc9198290339c7dc0"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/source-commit-retry.stdout",
+      "portable_path": "outputs/c10/source-commit-retry.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/source-commit.stderr",
+      "portable_path": "outputs/c10/source-commit.stderr",
+      "bytes": 2977,
+      "sha256": "e8e9527e14bb31c5c7afc3e2ece539583a2b07cbf0f36ffe56fa85291d995a37"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/source-commit.stdout",
+      "portable_path": "outputs/c10/source-commit.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/source-input-manifest-03a7c5d5.json",
+      "portable_path": "outputs/c10/source-input-manifest-03a7c5d5.json",
+      "bytes": 9403,
+      "sha256": "376340102de1876f7a50e8460e6e0c034dbb5d49433eb5678d0b44791376064e"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/source-input-manifest-b6c3201.json",
+      "portable_path": "outputs/c10/source-input-manifest-b6c3201.json",
+      "bytes": 8067,
+      "sha256": "f4cbfa9fb2bbd583d95eafc3f09d1ab9107155362936154ec52a69f41f7851d9"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/source-input-manifest-cfe46cfa.json",
+      "portable_path": "outputs/c10/source-input-manifest-cfe46cfa.json",
+      "bytes": 10475,
+      "sha256": "fff3c762b09d84447dfd1fadf11e714926be87b54b7a832f67ac549b82a021b0"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/source-input-manifest.json",
+      "portable_path": "outputs/c10/source-input-manifest.json",
+      "bytes": 11927,
+      "sha256": "3e105030b7b007e910422a5fa313c40740604ae72fa890a48026d5a828565af7"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/source-repair-commit.execution.json",
+      "portable_path": "outputs/c10/source-repair-commit.execution.json",
+      "bytes": 910,
+      "sha256": "e20b0843f0ea22510e896a470b118f231756322e1162a7672f01bc6ee97bb13a"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/source-repair-commit.stderr",
+      "portable_path": "outputs/c10/source-repair-commit.stderr",
+      "bytes": 831,
+      "sha256": "2889399711de3e599b4dbef844eec564438c4d31946a488d49ff8e2bdf3335a0"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/source-repair-commit.stdout",
+      "portable_path": "outputs/c10/source-repair-commit.stdout",
+      "bytes": 158,
+      "sha256": "13fba15c3074844d1b343eb7a100e1604725202f461010016e0ef53268d3a17c"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/source-repair.patch",
+      "portable_path": "outputs/c10/source-repair.patch",
+      "bytes": 7074,
+      "sha256": "38d065f5883ff4163f847cf2e33efeb7420100785c9d7bd4c2bc1d4c817e5f79"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/surgical-source-normalization.py",
+      "portable_path": "outputs/c10/surgical-source-normalization.py",
+      "bytes": 3010,
+      "sha256": "f63a500055ae6b40b3261fd56bfd549b000004493ba426ddd01efa41d2dcf3fa"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/test-companion-final-commit.execution.json",
+      "portable_path": "outputs/c10/test-companion-final-commit.execution.json",
+      "bytes": 919,
+      "sha256": "827c1cd852ec21bbb941e9bd2364a3cb9f834e5a37bcc40277cb337216f9e27b"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/test-companion-final-commit.stderr",
+      "portable_path": "outputs/c10/test-companion-final-commit.stderr",
+      "bytes": 831,
+      "sha256": "880a81a2c38c51cc04240765a4b77c55a0aba014683f7cdb76f9fc371716a7d3"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/test-companion-final-commit.stdout",
+      "portable_path": "outputs/c10/test-companion-final-commit.stdout",
+      "bytes": 169,
+      "sha256": "9e99c367472e51436f151221ab98533da9e283e60ee86dae6b67bd91e41e5cc3"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/test-companion-normalization.patch",
+      "portable_path": "outputs/c10/test-companion-normalization.patch",
+      "bytes": 20560,
+      "sha256": "1d3565b11a856ccaa90b79623b0d86c244e2b848f76eafde35986390daf14b4c"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/test-companion-repair-commit.execution.json",
+      "portable_path": "outputs/c10/test-companion-repair-commit.execution.json",
+      "bytes": 913,
+      "sha256": "99a80a67b2d0c574684f27098d6cb1d4ea5192d93e50785e4d404cc7d2f0340e"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/test-companion-repair-commit.stderr",
+      "portable_path": "outputs/c10/test-companion-repair-commit.stderr",
+      "bytes": 831,
+      "sha256": "637107d302ce4afe47054fddb372142b3c3657af3d3eeb94bbedce023e4d055d"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/test-companion-repair-commit.stdout",
+      "portable_path": "outputs/c10/test-companion-repair-commit.stdout",
+      "bytes": 163,
+      "sha256": "e11a36eafaff7196e114dc81c72126a0dabd1fda2fd8a94d6701cddc2e762b48"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/test-companion-repair.patch",
+      "portable_path": "outputs/c10/test-companion-repair.patch",
+      "bytes": 19694,
+      "sha256": "4b999b15472a93c53c240dec7af22ef2ebcf930a0649a60a5d32ad32e4542f8f"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/value-owner-store-repair-commit.execution.json",
+      "portable_path": "outputs/c10/value-owner-store-repair-commit.execution.json",
+      "bytes": 913,
+      "sha256": "8b5a4c4f685fb6df17420ae0fac86ac0a9630adab38c645cf4317fc3676c68ae"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/value-owner-store-repair-commit.stderr",
+      "portable_path": "outputs/c10/value-owner-store-repair-commit.stderr",
+      "bytes": 831,
+      "sha256": "7975f232ce29713ffcaab7cf68bf9c8be0bb5caaef95134daa146a043ab70d8f"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/value-owner-store-repair-commit.stdout",
+      "portable_path": "outputs/c10/value-owner-store-repair-commit.stdout",
+      "bytes": 144,
+      "sha256": "6c857077928bf68e41668bd25b0226f5e710ebbaf52072eb528066baaa3fcf97"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/value-owner-store-repair-ruff.execution.json",
+      "portable_path": "outputs/c10/value-owner-store-repair-ruff.execution.json",
+      "bytes": 913,
+      "sha256": "40bb3e955dd6973d2b9c2880708d955970e48b5bf4a31021d20a6480ce9632f0"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/value-owner-store-repair-ruff.stderr",
+      "portable_path": "outputs/c10/value-owner-store-repair-ruff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/value-owner-store-repair-ruff.stdout",
+      "portable_path": "outputs/c10/value-owner-store-repair-ruff.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/c10/value-owner-store-repair.patch",
+      "portable_path": "outputs/c10/value-owner-store-repair.patch",
+      "bytes": 800,
+      "sha256": "7c28bdcf011cabd43e8034e60f988ca8117ba2af4dbecda4aa0b97632a756b76"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/host/existing-app-origins.json",
+      "portable_path": "outputs/host/existing-app-origins.json",
+      "bytes": 38586,
+      "sha256": "4cbedce07b0478fc2f77092cd76d88b5e4b20bed3c92fa525efc2bcb3801d0db"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/host/host.json",
+      "portable_path": "outputs/host/host.json",
+      "bytes": 6570,
+      "sha256": "159f1cc2c075f92b023e01a09dea21703bcb393efcc4c705036fc91ca88e1777"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/host/provision-app.log",
+      "portable_path": "outputs/host/provision-app.log.txt",
+      "bytes": 6785,
+      "sha256": "ced6379adff4aa01d3c7b5a29c5a6c05812f0a84228b3e8197e6745bfc0435cc"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/host/provision-node.json",
+      "portable_path": "outputs/host/provision-node.json",
+      "bytes": 1878,
+      "sha256": "88d2ecb4fb062fa5c5fa6bfcb8f76f235370cdd281154b995dcad27e63f5226e"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/host/provision-resource-samples.json",
+      "portable_path": "outputs/host/provision-resource-samples.json",
+      "bytes": 60081,
+      "sha256": "c4a7d1d8fff2a3cdcef87de67497ac7eb738b32e7ce9492347b164fc1bcc714f"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/l6-input-research/producer-source-evidence.json",
+      "portable_path": "outputs/l6-input-research/producer-source-evidence.json",
+      "bytes": 16013,
+      "sha256": "24dd46c3b7e290d14e73aea78495206e958e8a2b75c88b11e2580ab2aa0b72b2"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/l6-input-research/tracked-input-availability.json",
+      "portable_path": "outputs/l6-input-research/tracked-input-availability.json",
+      "bytes": 11618,
+      "sha256": "c669aac938528826cdbdd44514e80d27bda190abf5378fb8a9eacbeb6cd259ad"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-L6-input-boundary.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-L6-input-boundary.json",
+      "bytes": 2277,
+      "sha256": "8762d8ae19f54a6d7e0b8a791c958620777791df1423af1e3f87e3e6efd79fbe"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-origins/environment-origins.stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-actual-origins/environment-origins.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-origins/environment-origins.stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-actual-origins/environment-origins.stdout.txt",
+      "bytes": 11198,
+      "sha256": "30a2d65eeac568de859e6cf1d11848183929ea034ae262fccc969cd887eebe03"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-origins/execution.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-actual-origins/execution.json",
+      "bytes": 5456,
+      "sha256": "a840c2d4b8aa457f5b20ecdced291097b49b905d4356d690f0c108c66c8252b5"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-origins/stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-actual-origins/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-origins/stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-actual-origins/stdout.txt",
+      "bytes": 3409,
+      "sha256": "003534f8d2f1804b85ee916fe25def9c25eda0a146cb80ed9c36fe47f8abf6a3"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-worktree-scanner/environment-origins.stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-actual-worktree-scanner/environment-origins.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-worktree-scanner/environment-origins.stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-actual-worktree-scanner/environment-origins.stdout.txt",
+      "bytes": 11159,
+      "sha256": "57553465915969db4b2ed1cd66ec28148852ddae3682d5b746bc3335d881354c"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-worktree-scanner/execution.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-actual-worktree-scanner/execution.json",
+      "bytes": 5132,
+      "sha256": "9b2dd0b812b83020b6c5113018903ee1839de506c98b8a85f6df56cdd03035ed"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-worktree-scanner/stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-actual-worktree-scanner/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-worktree-scanner/stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-actual-worktree-scanner/stdout.txt",
+      "bytes": 2830,
+      "sha256": "fc0ed97436d1c39e6fa86800d02e84d0c9108e38cd94530d7fb05827e9b02144"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-worktree-scanner.xml",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-actual-worktree-scanner.xml",
+      "bytes": 2389,
+      "sha256": "dd1586c5a895244185738b6155009b014256b2eed2ff8ed8a561af98d49c881a"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/ownership/transactions/locks/stripe-25.lock",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/ownership/transactions/locks/stripe-25.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/ownership/transactions/locks/stripe-31.lock",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/ownership/transactions/locks/stripe-31.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/ownership/transactions/locks/stripe-48.lock",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/ownership/transactions/locks/stripe-48.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/ownership/transactions/root.lock",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.blob",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.blob",
+      "bytes": 37,
+      "sha256": "6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.manifest.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.manifest.json",
+      "bytes": 358,
+      "sha256": "3d06dc7811c2c22055a04d66ccae434fcca7348ac23053eaa1a30c4eccbdf31b"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.view.d973cbf8818906409964639cee6fa2412442c0a22de882b8d86c4aaea52b1879.manifest.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.view.d973cbf8818906409964639cee6fa2412442c0a22de882b8d86c4aaea52b1879.manifest.json",
+      "bytes": 358,
+      "sha256": "3d06dc7811c2c22055a04d66ccae434fcca7348ac23053eaa1a30c4eccbdf31b"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/d4/0b/d40be56a365ba09208c7ca584c1b5b00cb7e52a0384af9c0ad0be589de05ca19.blob",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/d4/0b/d40be56a365ba09208c7ca584c1b5b00cb7e52a0384af9c0ad0be589de05ca19.blob",
+      "bytes": 16369,
+      "sha256": "d40be56a365ba09208c7ca584c1b5b00cb7e52a0384af9c0ad0be589de05ca19"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/d4/0b/d40be56a365ba09208c7ca584c1b5b00cb7e52a0384af9c0ad0be589de05ca19.manifest.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/d4/0b/d40be56a365ba09208c7ca584c1b5b00cb7e52a0384af9c0ad0be589de05ca19.manifest.json",
+      "bytes": 831,
+      "sha256": "71c6051a2a3d8bee2f462012a0ab5677ddebd78de95aa7303cd81ffabdfd6d77"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/d4/0b/d40be56a365ba09208c7ca584c1b5b00cb7e52a0384af9c0ad0be589de05ca19.view.92f948dcfb7f9ab8591a275e56829da9a30f262fc4527a3e51e4410aa365c019.manifest.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/d4/0b/d40be56a365ba09208c7ca584c1b5b00cb7e52a0384af9c0ad0be589de05ca19.view.92f948dcfb7f9ab8591a275e56829da9a30f262fc4527a3e51e4410aa365c019.manifest.json",
+      "bytes": 831,
+      "sha256": "71c6051a2a3d8bee2f462012a0ab5677ddebd78de95aa7303cd81ffabdfd6d77"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/d4/43/d4434926ce6efe99539dd805394333e20f548af1718ebc1d6929830cd2256cdf.blob",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/d4/43/d4434926ce6efe99539dd805394333e20f548af1718ebc1d6929830cd2256cdf.blob",
+      "bytes": 8931,
+      "sha256": "d4434926ce6efe99539dd805394333e20f548af1718ebc1d6929830cd2256cdf"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/d4/43/d4434926ce6efe99539dd805394333e20f548af1718ebc1d6929830cd2256cdf.manifest.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/d4/43/d4434926ce6efe99539dd805394333e20f548af1718ebc1d6929830cd2256cdf.manifest.json",
+      "bytes": 1044,
+      "sha256": "721c37b88375dea5fd7a5c98842460ab5b72d89ef618c24cac5b974504c46ed7"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/d4/43/d4434926ce6efe99539dd805394333e20f548af1718ebc1d6929830cd2256cdf.view.ea363d51f50f0c092089d2c827fca94ad5888756bf7c114dbe780618b28d4dba.manifest.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/d4/43/d4434926ce6efe99539dd805394333e20f548af1718ebc1d6929830cd2256cdf.view.ea363d51f50f0c092089d2c827fca94ad5888756bf7c114dbe780618b28d4dba.manifest.json",
+      "bytes": 1044,
+      "sha256": "721c37b88375dea5fd7a5c98842460ab5b72d89ef618c24cac5b974504c46ed7"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-packet.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-packet.json",
+      "bytes": 23071,
+      "sha256": "b624c5a063e8ad1c86d0707eb21ca44150dc5199491f3838633d4f81f8672ee5"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-producer/environment-origins.stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-producer/environment-origins.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-producer/environment-origins.stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-producer/environment-origins.stdout.txt",
+      "bytes": 11198,
+      "sha256": "30a2d65eeac568de859e6cf1d11848183929ea034ae262fccc969cd887eebe03"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-producer/execution.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-producer/execution.json",
+      "bytes": 5311,
+      "sha256": "868d97785df161a0052369158c7429f44c8c14ab3a59d73c934f2a53f485d28f"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-producer/stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-producer/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-producer/stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-producer/stdout.txt",
+      "bytes": 225,
+      "sha256": "a1beca3926be14a800832bb987abbfc661784bc3f10b13a1741b6570ece4ec6a"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-reader/environment-origins.stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-reader/environment-origins.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-reader/environment-origins.stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-reader/environment-origins.stdout.txt",
+      "bytes": 11198,
+      "sha256": "30a2d65eeac568de859e6cf1d11848183929ea034ae262fccc969cd887eebe03"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-reader/execution.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-reader/execution.json",
+      "bytes": 5505,
+      "sha256": "e827aa16056ae46762fbc1964114545c02e0f0a166f783d9f3b023231831c8fd"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-reader/stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-reader/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-reader/stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-fresh-capsule-reader/stdout.txt",
+      "bytes": 564,
+      "sha256": "b731e363a748293939ca3ce1c7a2f75e908a9b00162b45dc18485503fa299b87"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-junit.xml",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-junit.xml",
+      "bytes": 47784,
+      "sha256": "8b9cf606e78219e40f047057498d77ea3d06cf8f868d950b56cf3d17df454f48"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-native-wave/environment-origins.stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-native-wave/environment-origins.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-native-wave/environment-origins.stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-native-wave/environment-origins.stdout.txt",
+      "bytes": 11198,
+      "sha256": "30a2d65eeac568de859e6cf1d11848183929ea034ae262fccc969cd887eebe03"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-native-wave/execution.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-native-wave/execution.json",
+      "bytes": 5674,
+      "sha256": "d16c034217fc668dc5d4c5033d3216ce07049a4ef152341c9af7f7677b421da9"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-native-wave/stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-native-wave/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-native-wave/stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-native-wave/stdout.txt",
+      "bytes": 38149,
+      "sha256": "66dfb7e6d6ac12d1fc17b4844fd09625f70f8363280d7a0fd71658b1eb865f0f"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-b36-required/environment-origins.stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-b36-required/environment-origins.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-b36-required/environment-origins.stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-b36-required/environment-origins.stdout.txt",
+      "bytes": 11213,
+      "sha256": "690f43aeb0da0544ed3e7c1488f40018de0d9b7a5a164e96e6c7b36c5ff634c5"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-b36-required/execution.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-b36-required/execution.json",
+      "bytes": 5775,
+      "sha256": "958a74abced8ec7814db5e6f524b9b114a6ca79bbca10399b83c2f9da38729dd"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-b36-required/stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-b36-required/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-b36-required/stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-b36-required/stdout.txt",
+      "bytes": 8692,
+      "sha256": "71187105c9d938a9aeed4a87f056254255d882fe18ecddcab00ee6f0de453333"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-b36-required.xml",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-b36-required.xml",
+      "bytes": 8486,
+      "sha256": "16c711c4ac4e8c5faa16fcbae85484f0d3fc7b9aaf6dee1aa8b790c73d7930e1"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-current-job/environment-origins.stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-capsule-current-job/environment-origins.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-current-job/environment-origins.stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-capsule-current-job/environment-origins.stdout.txt",
+      "bytes": 11220,
+      "sha256": "ed61d75d9f439b1f4091a36742ac73bb064bea6858bf37ee1d6d7e1e6ff5c2ae"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-current-job/execution.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-capsule-current-job/execution.json",
+      "bytes": 5874,
+      "sha256": "3c7e8c84e13ae5ec087c9d2747b50e5f992e4b3f2cae09e68e535ea52c0d6bfb"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-current-job/stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-capsule-current-job/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-current-job/stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-capsule-current-job/stdout.txt",
+      "bytes": 10045,
+      "sha256": "4744888651b3b477bfe8111dff0f1f1731feab460d61ea529bb8cd75209de79a"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-current-job.xml",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-capsule-current-job.xml",
+      "bytes": 9501,
+      "sha256": "07f93888acbec61462612a5dfb08c12f689af8bb5bbf76bbfbbf9dcb0383ea66"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-reader-binding/environment-origins.stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-capsule-reader-binding/environment-origins.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-reader-binding/environment-origins.stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-capsule-reader-binding/environment-origins.stdout.txt",
+      "bytes": 11223,
+      "sha256": "545f2296befe79e281a5757c26e1176c3e87af60ce944c237ba6d6cf7429d545"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-reader-binding/execution.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-capsule-reader-binding/execution.json",
+      "bytes": 5897,
+      "sha256": "2b0d8383eaa1880fb735fa9f7f8a522d1043ac145f388ed5cd5bb4c8435c3307"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-reader-binding/stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-capsule-reader-binding/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-reader-binding/stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-capsule-reader-binding/stdout.txt",
+      "bytes": 9478,
+      "sha256": "3ea2ec9531d95f2496234640551c9fbad66c71f091508e9d7edffb378c41101b"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-reader-binding.xml",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-capsule-reader-binding.xml",
+      "bytes": 8934,
+      "sha256": "07dd5203b174e26a39bbd07bce03169ede8993d4d0b3706f15d6f5e3a6328539"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-child-semantics/environment-origins.stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-child-semantics/environment-origins.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-child-semantics/environment-origins.stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-child-semantics/environment-origins.stdout.txt",
+      "bytes": 11216,
+      "sha256": "59d83e6ddc40e202ca86cc79caf50e1b8915e35d42c49f1715008aacdd4ffd3f"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-child-semantics/execution.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-child-semantics/execution.json",
+      "bytes": 5806,
+      "sha256": "29d63a846b9dbdac74c8d320ecc9c19894f0d0a15556bf72331ecc1c911ba012"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-child-semantics/stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-child-semantics/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-child-semantics/stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-child-semantics/stdout.txt",
+      "bytes": 3967,
+      "sha256": "f72c7980406b72d0b367c353331e1148220b48edb66959ba24efae4b564bed34"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-child-semantics.xml",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-child-semantics.xml",
+      "bytes": 4804,
+      "sha256": "39c5556e1370ce6f3324baf6ed0cc4cde6ac376592b675aa3545207158561705"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-partial-frontier/environment-origins.stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-partial-frontier/environment-origins.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-partial-frontier/environment-origins.stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-partial-frontier/environment-origins.stdout.txt",
+      "bytes": 11217,
+      "sha256": "2e6394b548930d70899b0278cadb954e0a029695f919ceb55a43a5823efa13f5"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-partial-frontier/execution.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-partial-frontier/execution.json",
+      "bytes": 5843,
+      "sha256": "f6d4119d7de83f1156ffdc88efdfe997457fcd349bdee433f0d0bc11ca684d38"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-partial-frontier/stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-partial-frontier/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-partial-frontier/stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-partial-frontier/stdout.txt",
+      "bytes": 5365,
+      "sha256": "b9730c9f103c8708f46a49c2f00c55e7c99d0cba4b1ca410fb34fd120741cab8"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-partial-frontier.xml",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-partial-frontier.xml",
+      "bytes": 5135,
+      "sha256": "1ffa7b28d4f13c87d8cd8820fe9b20a820eec381fed66e89ccd80086e569aa7a"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-uncomposed-parent/environment-origins.stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-uncomposed-parent/environment-origins.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-uncomposed-parent/environment-origins.stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-uncomposed-parent/environment-origins.stdout.txt",
+      "bytes": 11218,
+      "sha256": "f748abcee4df4e66f209cb570eafd342e351b29da07a0ddee5ba145280ba47ff"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-uncomposed-parent/execution.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-uncomposed-parent/execution.json",
+      "bytes": 6001,
+      "sha256": "01867520f0a375d1927165b446047a8afa2dfee93008712066b602d5efd698a8"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-uncomposed-parent/stderr.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-uncomposed-parent/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-uncomposed-parent/stdout.txt",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-uncomposed-parent/stdout.txt",
+      "bytes": 11633,
+      "sha256": "8b3076c4d5bbc37131d786b57f31c1b40d04d79846f0ed3b7e9ee0419b61b2bc"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-uncomposed-parent.xml",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removal-uncomposed-parent.xml",
+      "bytes": 11208,
+      "sha256": "6da0f672a3b83eaaab7a56269c28e3d7639d70e8bdb0dbe2f54159f51f9f636c"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/b36-required/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removals/b36-required/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "bytes": 578910,
+      "sha256": "a9805d62d9582bde3dd300035097460a0e1511c4ebd026d8a2da8be7fff615fb"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/b36-required-mutation.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removals/b36-required-mutation.json",
+      "bytes": 679,
+      "sha256": "5f165c3eb00c968475fd0994c666f433382915f4e6f1414ed783e5f0140dfa40"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/capsule-current-job/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removals/capsule-current-job/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "bytes": 91570,
+      "sha256": "12f530917da28fd68d83658352796e3ddac12dbb8fa497ce74316f977a1d89ad"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/capsule-current-job-mutation.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removals/capsule-current-job-mutation.json",
+      "bytes": 741,
+      "sha256": "384b4363dcd13e09d16d9b2ffcdc4d74f5f1e241c015095b50710b62bf5ebfcb"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/capsule-reader-binding/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removals/capsule-reader-binding/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "bytes": 91513,
+      "sha256": "35cf5dc7aee0cb47c0d0e4fb4a90e8793d766e254b21588b0ac4efa664377881"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/capsule-reader-binding-mutation.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removals/capsule-reader-binding-mutation.json",
+      "bytes": 649,
+      "sha256": "42af6b9589f41c4ea1401faee1a637c70683d36b124b64ed8e46b27a47519b37"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/child-semantics/policy-engine/src/polisyos/runtime/quality/design_generation.py",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removals/child-semantics/policy-engine/src/polisyos/runtime/quality/design_generation.py",
+      "bytes": 187626,
+      "sha256": "070e9fc16a219e13503ee8ef547a7574ec15c270f17f0c661aa7566885d45d95"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/child-semantics-mutation.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removals/child-semantics-mutation.json",
+      "bytes": 657,
+      "sha256": "0f4bf27158fc5f64cc3b26792fca37b632228e4a8ba5e7463f8807746be57cd9"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/partial-frontier/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removals/partial-frontier/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "bytes": 91525,
+      "sha256": "58303d75d12f9e307135e1430859a4148b620df0449f11e286cb1ef4fce01d78"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/partial-frontier-mutation.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removals/partial-frontier-mutation.json",
+      "bytes": 629,
+      "sha256": "a801c924d708f012252fbfbaee3b7a74964e6162bb8374b5c39c7340d36e992f"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/uncomposed-parent/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removals/uncomposed-parent/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "bytes": 91586,
+      "sha256": "94ad00bb9fb92e44138bda970b035ac2006fab85ced7abd88cb5a46590003126"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/uncomposed-parent-mutation.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-removals/uncomposed-parent-mutation.json",
+      "bytes": 757,
+      "sha256": "ed2632f06571a742081f87c13e7299c9dfa7d44b33e48c7d78f24bd115c219a9"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/quality/design_generation.py",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/quality/design_generation.py",
+      "bytes": 187552,
+      "sha256": "e92783bb28ee30d9c75600921177711ebaace433d4d6905179d02818c9458225"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "bytes": 578860,
+      "sha256": "40caaf6c37d4d4d89e9dd3f26954b1621dbd5d8163ddf37a4ba1e6d72586c643"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "bytes": 91503,
+      "sha256": "8fc4063cd126e8c05317b7da642f81fed75ae27ec600c2106adebfcf1fbb951b"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source-source-manifest.json",
+      "portable_path": "outputs/native-tester/C10-03a7c5d5-source-source-manifest.json",
+      "bytes": 6935592,
+      "sha256": "c8d9f33138bd4504daa9bf81ecb0f15210d3b95f91a88ba2a35897b1b4ac9a56"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-cfe46cfa-affected-epoch-wave/environment-origins.stderr.txt",
+      "portable_path": "outputs/native-tester/C10-cfe46cfa-affected-epoch-wave/environment-origins.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-cfe46cfa-affected-epoch-wave/environment-origins.stdout.txt",
+      "portable_path": "outputs/native-tester/C10-cfe46cfa-affected-epoch-wave/environment-origins.stdout.txt",
+      "bytes": 11159,
+      "sha256": "57553465915969db4b2ed1cd66ec28148852ddae3682d5b746bc3335d881354c"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-cfe46cfa-affected-epoch-wave/execution.json",
+      "portable_path": "outputs/native-tester/C10-cfe46cfa-affected-epoch-wave/execution.json",
+      "bytes": 5035,
+      "sha256": "ebf713782f7f3cdd0277041c5f3966ab12dbf8eb43d8af007cfcaea660c33c41"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-cfe46cfa-affected-epoch-wave/stderr.txt",
+      "portable_path": "outputs/native-tester/C10-cfe46cfa-affected-epoch-wave/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-cfe46cfa-affected-epoch-wave/stdout.txt",
+      "portable_path": "outputs/native-tester/C10-cfe46cfa-affected-epoch-wave/stdout.txt",
+      "bytes": 20607,
+      "sha256": "e68ea3dc3032aa949eb0bf5f021dd3a2342012cac0967ba13e6d3d652943c638"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-cfe46cfa-affected-epoch-wave.xml",
+      "portable_path": "outputs/native-tester/C10-cfe46cfa-affected-epoch-wave.xml",
+      "bytes": 27905,
+      "sha256": "4f2182e2429ce7fae17016e90f60c05d7d0ddb34f24b9adb6dc9a07ab03312e9"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-cfe46cfa-input-comparison-preparation-error.json",
+      "portable_path": "outputs/native-tester/C10-cfe46cfa-input-comparison-preparation-error.json",
+      "bytes": 422,
+      "sha256": "1cb7220d23cb6bbd51c8a9e177c3b5cfd2ee87495c6a8474698fabf636dec039"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-cfe46cfa-input-delta.json",
+      "portable_path": "outputs/native-tester/C10-cfe46cfa-input-delta.json",
+      "bytes": 1556,
+      "sha256": "8f40095f7a8934569fe9f0f724d2190d5fb289b8bf264922b09138548718d156"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-actual-checkout-source-manifest.json",
+      "portable_path": "outputs/native-tester/C10-e6854a70-actual-checkout-source-manifest.json",
+      "bytes": 6914136,
+      "sha256": "3bde6bff846b25ef1b5e23d7ca383d9ad5f6299d028f4004535ca9f8f9162034"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-actual-origins/environment-origins.stderr.txt",
+      "portable_path": "outputs/native-tester/C10-e6854a70-actual-origins/environment-origins.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-actual-origins/environment-origins.stdout.txt",
+      "portable_path": "outputs/native-tester/C10-e6854a70-actual-origins/environment-origins.stdout.txt",
+      "bytes": 11159,
+      "sha256": "57553465915969db4b2ed1cd66ec28148852ddae3682d5b746bc3335d881354c"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-actual-origins/execution.json",
+      "portable_path": "outputs/native-tester/C10-e6854a70-actual-origins/execution.json",
+      "bytes": 5122,
+      "sha256": "47a73e3ce68a44cc5308386d982d5020677b98eac39d1321cf5078c1fec57036"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-actual-origins/stderr.txt",
+      "portable_path": "outputs/native-tester/C10-e6854a70-actual-origins/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-actual-origins/stdout.txt",
+      "portable_path": "outputs/native-tester/C10-e6854a70-actual-origins/stdout.txt",
+      "bytes": 1274,
+      "sha256": "c0963a8b515d191224f8c3b855e7b89d6c3ad0a7b552ea08822caea2c916468c"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-alias-component-removal/environment-origins.stderr.txt",
+      "portable_path": "outputs/native-tester/C10-e6854a70-alias-component-removal/environment-origins.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-alias-component-removal/environment-origins.stdout.txt",
+      "portable_path": "outputs/native-tester/C10-e6854a70-alias-component-removal/environment-origins.stdout.txt",
+      "bytes": 11159,
+      "sha256": "57553465915969db4b2ed1cd66ec28148852ddae3682d5b746bc3335d881354c"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-alias-component-removal/execution.json",
+      "portable_path": "outputs/native-tester/C10-e6854a70-alias-component-removal/execution.json",
+      "bytes": 5101,
+      "sha256": "40e8fdd0ba9b5d2fb0b731711531d96591525b30044e2c6d0258f4d1cd4c2a20"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-alias-component-removal/stderr.txt",
+      "portable_path": "outputs/native-tester/C10-e6854a70-alias-component-removal/stderr.txt",
+      "bytes": 564,
+      "sha256": "1135b58e968eaac89cc64afbc6b0a4e778863520f530dbbd75c1864589774122"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-alias-component-removal/stdout.txt",
+      "portable_path": "outputs/native-tester/C10-e6854a70-alias-component-removal/stdout.txt",
+      "bytes": 783,
+      "sha256": "650eebd1dc137d3ee7b80604e76d54ca562d9e4e8933975c898ad2ff6637cb67"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-alias-mutation/mutation.json",
+      "portable_path": "outputs/native-tester/C10-e6854a70-alias-mutation/mutation.json",
+      "bytes": 827,
+      "sha256": "367fddc4974fc0a800d4ea1cd7b80f316b78220a0ea031ba46304b0ae75aed11"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-alias-mutation/postimage.py",
+      "portable_path": "outputs/native-tester/C10-e6854a70-alias-mutation/postimage.py",
+      "bytes": 6580,
+      "sha256": "87563d7cc16f348d93385dc2a1494b6d7978435a69bba33d922202c472ba0b59"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-alias-mutation/preimage.py",
+      "portable_path": "outputs/native-tester/C10-e6854a70-alias-mutation/preimage.py",
+      "bytes": 6556,
+      "sha256": "82add52ceca3ab1118eec9a9054479cfde5742dd353704b3e46b78cd81e59d84"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-git-after-tests.json",
+      "portable_path": "outputs/native-tester/C10-e6854a70-git-after-tests.json",
+      "bytes": 385,
+      "sha256": "9ede3ef32e966e01b19ef718a0e343db1640338a808c187f134b5235eba759c4"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-input-delta.json",
+      "portable_path": "outputs/native-tester/C10-e6854a70-input-delta.json",
+      "bytes": 1642,
+      "sha256": "eeb20a8ee17c71dcf559c63e3a2a7c02dcf9a9bf14c5c5f008044ae862f3af32"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-mechanism-call-closure.json",
+      "portable_path": "outputs/native-tester/C10-e6854a70-mechanism-call-closure.json",
+      "bytes": 4718,
+      "sha256": "ebb0309e0db5c529ba76c967cef395a9ee6ad12c5d09095ae4f8c9919f9d491f"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-single-current-head/environment-origins.stderr.txt",
+      "portable_path": "outputs/native-tester/C10-e6854a70-single-current-head/environment-origins.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-single-current-head/environment-origins.stdout.txt",
+      "portable_path": "outputs/native-tester/C10-e6854a70-single-current-head/environment-origins.stdout.txt",
+      "bytes": 11159,
+      "sha256": "57553465915969db4b2ed1cd66ec28148852ddae3682d5b746bc3335d881354c"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-single-current-head/execution.json",
+      "portable_path": "outputs/native-tester/C10-e6854a70-single-current-head/execution.json",
+      "bytes": 5109,
+      "sha256": "21a7702ab6c6071f23bb03817662f92868a7ed3eeb911c2d093672653d9c3042"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-single-current-head/stderr.txt",
+      "portable_path": "outputs/native-tester/C10-e6854a70-single-current-head/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-single-current-head/stdout.txt",
+      "portable_path": "outputs/native-tester/C10-e6854a70-single-current-head/stdout.txt",
+      "bytes": 655,
+      "sha256": "05e1128cd82465a3bc4bf8d9609a42591cca4e38800bae947b995d4eabbe2ba0"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-single-current-head.xml",
+      "portable_path": "outputs/native-tester/C10-e6854a70-single-current-head.xml",
+      "bytes": 423,
+      "sha256": "e7dfed7fa9b0fa7969d2e4e4c4608f621969ce1a90ac64329e43a11e1d93bce7"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-independent-native-final-addendum-e6854a70.json",
+      "portable_path": "outputs/native-tester/C10-independent-native-final-addendum-e6854a70.json",
+      "bytes": 25856,
+      "sha256": "9e766b505e59cefe86af2d6f6e2ade1943c715b8e86bc4682049a94e1048c6d2"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-independent-native-receipt-03a7c5d5-v2.json",
+      "portable_path": "outputs/native-tester/C10-independent-native-receipt-03a7c5d5-v2.json",
+      "bytes": 68636,
+      "sha256": "51adfa739563fd6cfce7f985e55380837446f418d95416de74a05166665f566d"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/C10-independent-native-receipt-03a7c5d5.json",
+      "portable_path": "outputs/native-tester/C10-independent-native-receipt-03a7c5d5.json",
+      "bytes": 68215,
+      "sha256": "a95a4188890539dde796d560281dd5be8d36b4a4d99e53baf99ea97685b6de46"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/G032-C10-companion-baseline/environment-origins.stderr.txt",
+      "portable_path": "outputs/native-tester/G032-C10-companion-baseline/environment-origins.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/G032-C10-companion-baseline/environment-origins.stdout.txt",
+      "portable_path": "outputs/native-tester/G032-C10-companion-baseline/environment-origins.stdout.txt",
+      "bytes": 11199,
+      "sha256": "2f165a05e070be85977870e1cc65af6a772df800ed94d2792956f2d949a8c949"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/G032-C10-companion-baseline/execution.json",
+      "portable_path": "outputs/native-tester/G032-C10-companion-baseline/execution.json",
+      "bytes": 5339,
+      "sha256": "5f7f1145755796c9ee43603de15ee958d9f4f8ee024bce1fa13b8fceb6db6af6"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/G032-C10-companion-baseline/stderr.txt",
+      "portable_path": "outputs/native-tester/G032-C10-companion-baseline/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/G032-C10-companion-baseline/stdout.txt",
+      "portable_path": "outputs/native-tester/G032-C10-companion-baseline/stdout.txt",
+      "bytes": 15771,
+      "sha256": "1b9d43191708f959bcdbfb0f462d8744939cc990d9b676546233da8a4826a926"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/G032-C10-companion-baseline.xml",
+      "portable_path": "outputs/native-tester/G032-C10-companion-baseline.xml",
+      "bytes": 15859,
+      "sha256": "bb4fb6a9ef727fd3b32fcdf82590c629c5751939295fc79c2efd0e67385469e3"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/G032-C10-scanner-unclassified-inputs.json",
+      "portable_path": "outputs/native-tester/G032-C10-scanner-unclassified-inputs.json",
+      "bytes": 27284,
+      "sha256": "a780ddff492aae19bbb6d768ebc5e6652b282d79b0258c0f92a186ab7dae981f"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/G032-C13-actual-scanner-baseline/environment-origins.stderr.txt",
+      "portable_path": "outputs/native-tester/G032-C13-actual-scanner-baseline/environment-origins.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/G032-C13-actual-scanner-baseline/environment-origins.stdout.txt",
+      "portable_path": "outputs/native-tester/G032-C13-actual-scanner-baseline/environment-origins.stdout.txt",
+      "bytes": 11159,
+      "sha256": "d5b7284b5200bf8f0c4811748e283009f882c8c5c36838d1e44db2db76007351"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/G032-C13-actual-scanner-baseline/execution.json",
+      "portable_path": "outputs/native-tester/G032-C13-actual-scanner-baseline/execution.json",
+      "bytes": 5100,
+      "sha256": "3dfbcd41308f209ca4a3d3a70e121dc95d9e7177570c123fc1ac60caa5b94a9d"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/G032-C13-actual-scanner-baseline/stderr.txt",
+      "portable_path": "outputs/native-tester/G032-C13-actual-scanner-baseline/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/G032-C13-actual-scanner-baseline/stdout.txt",
+      "portable_path": "outputs/native-tester/G032-C13-actual-scanner-baseline/stdout.txt",
+      "bytes": 2840,
+      "sha256": "ea24366283d4e8fdb40e304b7a8733d73286bb85bfc561163e13ea38a17c91ae"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/G032-C13-actual-scanner-baseline.xml",
+      "portable_path": "outputs/native-tester/G032-C13-actual-scanner-baseline.xml",
+      "bytes": 2404,
+      "sha256": "32b09101555db619fbb5c14ad00c9212f71051ddbeddcb5a63f4e31b94f786cb"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/build_c10_final_addendum.py",
+      "portable_path": "outputs/native-tester/build_c10_final_addendum.py",
+      "bytes": 10296,
+      "sha256": "fa91e872ddb10ba8780b6696ca87031d95e55e8dcc03731d024f9ad5d4608e72"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/build_c10_receipt.py",
+      "portable_path": "outputs/native-tester/build_c10_receipt.py",
+      "bytes": 6888,
+      "sha256": "81c2aa5f93705f4204a1d5b4ca10ab810af77de14e0f58c39ef49732ed6d095e"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/c10_alias_component_removal.py",
+      "portable_path": "outputs/native-tester/c10_alias_component_removal.py",
+      "bytes": 1521,
+      "sha256": "338ddbf119302d5aaf822c54276edbba345d7634682fe1d2c247b1c199b3c18b"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/c10_fresh_capsule.py",
+      "portable_path": "outputs/native-tester/c10_fresh_capsule.py",
+      "bytes": 3448,
+      "sha256": "59db1b4274d528dad3b92c9dfc0dc0cffa06ecb10362cca93d7ef095e350b4dd"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/clone_removal.py",
+      "portable_path": "outputs/native-tester/clone_removal.py",
+      "bytes": 799,
+      "sha256": "54ef05c493d5644db176a7c582fd311160ef0328e991c67e796e52d66a02bd4f"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/export_source.py",
+      "portable_path": "outputs/native-tester/export_source.py",
+      "bytes": 1456,
+      "sha256": "9b267c289af9c0b5d45d2330ac01c85b38b8c81cf296c414f6ac7a62df229db2"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/frontend-baseline-diagnostic-v2.json",
+      "portable_path": "outputs/native-tester/frontend-baseline-diagnostic-v2.json",
+      "bytes": 3976,
+      "sha256": "07a06ddcf4bfcfaea54af64c7ca8f3e5d4ffb522d991bd7cc816477038cc5109"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/frontend-baseline-diagnostic.json",
+      "portable_path": "outputs/native-tester/frontend-baseline-diagnostic.json",
+      "bytes": 2798,
+      "sha256": "c00ef5b7c8aca55ef02fb4a5396070d91e49831ceaa0bf089bb9b0245816323c"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/inspect_origins.py",
+      "portable_path": "outputs/native-tester/inspect_origins.py",
+      "bytes": 451,
+      "sha256": "6cb91ad1a92b55f430b4846ac641f739a750488067e67fe2cf5829d223dba0a0"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/manifest_checkout.py",
+      "portable_path": "outputs/native-tester/manifest_checkout.py",
+      "bytes": 1660,
+      "sha256": "c89f002d8bc4e07a8f2306870c554169c4caa35d1b875a62629550cc544f2292"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/prepare_c10_removals.py",
+      "portable_path": "outputs/native-tester/prepare_c10_removals.py",
+      "bytes": 2221,
+      "sha256": "1d07ce067c09e7930fe2d44335da07671c31e77b96ecbe611417e44525a98743"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/run_frontend_baseline.py",
+      "portable_path": "outputs/native-tester/run_frontend_baseline.py",
+      "bytes": 4345,
+      "sha256": "b0b6fee070b35a5219f381412aa497993ccf03299613cf9ce2913acf5376d39f"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/run_frontend_baseline_preparation1.py",
+      "portable_path": "outputs/native-tester/run_frontend_baseline_preparation1.py",
+      "bytes": 4353,
+      "sha256": "004cc055c46b6b4b152158800a6a7864a8a4674817d208db88a5e4c5bb397c76"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/native-tester/run_native.py",
+      "portable_path": "outputs/native-tester/run_native.py",
+      "bytes": 3608,
+      "sha256": "7ef04c4846426d42e38a8598e26b728bfbc5bb32f034faba0c3da61dd670826d"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/03a7c5d/REPORT.md",
+      "portable_path": "outputs/review-c10/03a7c5d/REPORT.md",
+      "bytes": 10847,
+      "sha256": "8f2759182ad2e3bce6c6fcfe399c90fd5fbb2cd3886c93d01b2bb26c357da51e"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/03a7c5d/author-source-input-manifest.json",
+      "portable_path": "outputs/review-c10/03a7c5d/author-source-input-manifest.json",
+      "bytes": 9403,
+      "sha256": "376340102de1876f7a50e8460e6e0c034dbb5d49433eb5678d0b44791376064e"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/03a7c5d/candidate.diff",
+      "portable_path": "outputs/review-c10/03a7c5d/candidate.diff",
+      "bytes": 156063,
+      "sha256": "60c9be0e67596a3da727093213fd144e78818c05be4b58f73b85d1da593d3183"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/03a7c5d/probe_full_parent.execution.json",
+      "portable_path": "outputs/review-c10/03a7c5d/probe_full_parent.execution.json",
+      "bytes": 878,
+      "sha256": "64a819fb117719104518d536caffd5ba9df23b2f6f4fd9e5b59315b96b33915f"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/03a7c5d/probe_full_parent.origins.json",
+      "portable_path": "outputs/review-c10/03a7c5d/probe_full_parent.origins.json",
+      "bytes": 455012,
+      "sha256": "6b332d8cf9eec5e3ffd84b29a21ff1a0cce3e75bcf09963793282d0b7a87b00d"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/03a7c5d/probe_full_parent.py",
+      "portable_path": "outputs/review-c10/03a7c5d/probe_full_parent.py",
+      "bytes": 2682,
+      "sha256": "198fe88a0ccb1d29ae20ed8ae218f1fd4d269ae0e1293c1768842b5a0c7438dc"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/03a7c5d/probe_full_parent.source-verification.json",
+      "portable_path": "outputs/review-c10/03a7c5d/probe_full_parent.source-verification.json",
+      "bytes": 524,
+      "sha256": "5843f24b53f7bbfc26983b9e9a2a7fed88ad9c677bf65fa787d57b67c7e6ed4e"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/03a7c5d/probe_full_parent.stderr",
+      "portable_path": "outputs/review-c10/03a7c5d/probe_full_parent.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/03a7c5d/probe_full_parent.stdout",
+      "portable_path": "outputs/review-c10/03a7c5d/probe_full_parent.stdout",
+      "bytes": 1025,
+      "sha256": "d55e74cf5ac81a8553dd979bbb24b430d732e99fe3be98e03412cff470f38671"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/03a7c5d/profile.json",
+      "portable_path": "outputs/review-c10/03a7c5d/profile.json",
+      "bytes": 1408,
+      "sha256": "a0f127e287f2c769b4aefc1203443b87fdb0d13451e79850987a78c5db700e26"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/03a7c5d/repair.diff",
+      "portable_path": "outputs/review-c10/03a7c5d/repair.diff",
+      "bytes": 7074,
+      "sha256": "38d065f5883ff4163f847cf2e33efeb7420100785c9d7bd4c2bc1d4c817e5f79"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/03a7c5d/result.json",
+      "portable_path": "outputs/review-c10/03a7c5d/result.json",
+      "bytes": 5409,
+      "sha256": "2342713718bee3a91cc6e4c343afe343915846f3adc7796221f79950c2fdc0c8"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/03a7c5d/source-identity.json",
+      "portable_path": "outputs/review-c10/03a7c5d/source-identity.json",
+      "bytes": 4911,
+      "sha256": "ac5b17257698942623222937ec09982fc2abe7c1a18924f2b6494633a64b5d48"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/b6c3201/REPORT.md",
+      "portable_path": "outputs/review-c10/b6c3201/REPORT.md",
+      "bytes": 984,
+      "sha256": "ae0b2bfadbb43121363a4d3d7ca9e0de9fcf8ed8b8fe662772ba82c31a652381"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/b6c3201/candidate.diff",
+      "portable_path": "outputs/review-c10/b6c3201/candidate.diff",
+      "bytes": 153303,
+      "sha256": "321d4f950fd92643b4fefb6e52f4ee0acd7bf4caee1e6467b11affa1d889feb0"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/b6c3201/probe_full_parent.execution.json",
+      "portable_path": "outputs/review-c10/b6c3201/probe_full_parent.execution.json",
+      "bytes": 878,
+      "sha256": "4895ab756f13ed042f15e07324f40e54b69f93358ea1ed852772c4a42f2849f9"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/b6c3201/probe_full_parent.origins.json",
+      "portable_path": "outputs/review-c10/b6c3201/probe_full_parent.origins.json",
+      "bytes": 455012,
+      "sha256": "573477ef0539ea2ccdc1f8eefa42bf80c2c535f7bb084f3731f4072b06ea5d4a"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/b6c3201/probe_full_parent.py",
+      "portable_path": "outputs/review-c10/b6c3201/probe_full_parent.py",
+      "bytes": 2682,
+      "sha256": "4494488d84b1b6d6394127ea81a3c52cc04508cb83c5e61fd804effa27ef537d"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/b6c3201/probe_full_parent.running.json",
+      "portable_path": "outputs/review-c10/b6c3201/probe_full_parent.running.json",
+      "bytes": 469,
+      "sha256": "932c53f297f5e21091f1ea854c00daa83f07288c5a82b0871ece72df97bad938"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/b6c3201/probe_full_parent.source-verification.json",
+      "portable_path": "outputs/review-c10/b6c3201/probe_full_parent.source-verification.json",
+      "bytes": 400,
+      "sha256": "68c56129296e819563f7d849fe39fcfadfd93c4bd91ddbabc1f0b6384d53da2f"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/b6c3201/probe_full_parent.stderr",
+      "portable_path": "outputs/review-c10/b6c3201/probe_full_parent.stderr",
+      "bytes": 1109,
+      "sha256": "4cce643dc0b05abe3c9614a726591c74af21017fd0bab6c606fb1cea05002d12"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/b6c3201/probe_full_parent.stdout",
+      "portable_path": "outputs/review-c10/b6c3201/probe_full_parent.stdout",
+      "bytes": 716,
+      "sha256": "5fe34fc337def8c0bc4c78d3d0ab0823b9473c4587b8c80d0ba8163392107dd9"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/b6c3201/source-identity.json",
+      "portable_path": "outputs/review-c10/b6c3201/source-identity.json",
+      "bytes": 4194,
+      "sha256": "7530a74e73f6158f36d337e2f45ac4fb42d6b0715c989da7825ec93e84ce9677"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/cfe46cf/REPORT.md",
+      "portable_path": "outputs/review-c10/cfe46cf/REPORT.md",
+      "bytes": 8587,
+      "sha256": "b66686acd1e5e332ff6ad10453167185361f7b11ec1942bddd21089c275f0636"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/cfe46cf/author-source-input-manifest.json",
+      "portable_path": "outputs/review-c10/cfe46cf/author-source-input-manifest.json",
+      "bytes": 10475,
+      "sha256": "fff3c762b09d84447dfd1fadf11e714926be87b54b7a832f67ac549b82a021b0"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/cfe46cf/candidate.diff",
+      "portable_path": "outputs/review-c10/cfe46cf/candidate.diff",
+      "bytes": 161156,
+      "sha256": "74f5325bb8049a4cadc35336d337a740c640beecf343bc6471e10709810cf448"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/cfe46cf/delta.diff",
+      "portable_path": "outputs/review-c10/cfe46cf/delta.diff",
+      "bytes": 5502,
+      "sha256": "180ec249b2ac9996bd5e0a4c85ce6596301727bb3fa0a5cd3dec86f0802804c4"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/cfe46cf/native-followup.json",
+      "portable_path": "outputs/review-c10/cfe46cf/native-followup.json",
+      "bytes": 2649,
+      "sha256": "e06fb65d41a971bda2f5de3bdef2c19e1b3ac2f7e5f0a80eeeab73cccf1da46e"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/cfe46cf/result.json",
+      "portable_path": "outputs/review-c10/cfe46cf/result.json",
+      "bytes": 6901,
+      "sha256": "678081972c55c53cdce958f8957ddc0253394817e5cf84faaaaf73b9b375d0b8"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/cfe46cf/source-identity.json",
+      "portable_path": "outputs/review-c10/cfe46cf/source-identity.json",
+      "bytes": 6157,
+      "sha256": "80cd580e594f4135950d403e35877d4cc216931de357850fdef9953da7952cc4"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/complete-scanner-mismatch-census-03a7.json",
+      "portable_path": "outputs/review-c10/complete-scanner-mismatch-census-03a7.json",
+      "bytes": 4579,
+      "sha256": "fdbd8fa269adecfbaaa7b2d636e1afc4712c5cfe4229fe7a7699ee048272b935"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/constructor-census-companion.json",
+      "portable_path": "outputs/review-c10/constructor-census-companion.json",
+      "bytes": 3623,
+      "sha256": "6c15c9ea352a56361be3675d1b6b94f8f82ae40d633b61f61e7e719d388a6149"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/e6854a7/REPORT.md",
+      "portable_path": "outputs/review-c10/e6854a7/REPORT.md",
+      "bytes": 9225,
+      "sha256": "715b162d342090d5b32703aa05f4d6feb9d1333c56c467f0e868b90909c4e740"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/e6854a7/author-source-input-manifest.json",
+      "portable_path": "outputs/review-c10/e6854a7/author-source-input-manifest.json",
+      "bytes": 11927,
+      "sha256": "3e105030b7b007e910422a5fa313c40740604ae72fa890a48026d5a828565af7"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/e6854a7/candidate.diff",
+      "portable_path": "outputs/review-c10/e6854a7/candidate.diff",
+      "bytes": 161603,
+      "sha256": "75daf9f366733db2b0c2b2e79ca94bfd7431ef4c4fb8fb7de845e83a4d85745d"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/e6854a7/delta.diff",
+      "portable_path": "outputs/review-c10/e6854a7/delta.diff",
+      "bytes": 800,
+      "sha256": "7c28bdcf011cabd43e8034e60f988ca8117ba2af4dbecda4aa0b97632a756b76"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/e6854a7/native-evidence-ack.json",
+      "portable_path": "outputs/review-c10/e6854a7/native-evidence-ack.json",
+      "bytes": 1386,
+      "sha256": "58db1fa4268c7c98b69a08b62798cc37193ebef098624d284fa72ac89a333698"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/e6854a7/packet-hashes.json",
+      "portable_path": "outputs/review-c10/e6854a7/packet-hashes.json",
+      "bytes": 445,
+      "sha256": "4cab99010c501c70c53b909764ef76d45c34893c99ac234b00f208eaf58ea5fc"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/e6854a7/result.json",
+      "portable_path": "outputs/review-c10/e6854a7/result.json",
+      "bytes": 11148,
+      "sha256": "62441b80cb89261d4797d108e7859aa11b9620707818c69a540934064d1b998d"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/e6854a7/source-identity.json",
+      "portable_path": "outputs/review-c10/e6854a7/source-identity.json",
+      "bytes": 6215,
+      "sha256": "7df9bdec61573d1ba5f89bd4d3e4bc648ec70557bddeefd15409bc31782190b4"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/test-companion-ownership.json",
+      "portable_path": "outputs/review-c10/test-companion-ownership.json",
+      "bytes": 5484,
+      "sha256": "f4e220722b0f2dd0c634b65e18a0ef74b44aea6722705bf7730a956e7db37d5d"
+    },
+    {
+      "original_path": "/workspace/ORCH04-evidence/review-c10/test-companion-ownership.md",
+      "portable_path": "outputs/review-c10/test-companion-ownership.md",
+      "bytes": 2827,
+      "sha256": "9c79487bcdd0f1be2ecd48a64400c1c0faadcacac06f1b44725a4c513e54c3ad"
+    }
+  ],
+  "historical_digest_alias_resolution": [
+    {
+      "historical_receipts": [
+        "outputs/native-tester/C10-independent-native-receipt-03a7c5d5.json",
+        "outputs/native-tester/C10-independent-native-receipt-03a7c5d5-v2.json",
+        "outputs/review-c10/03a7c5d/result.json"
+      ],
+      "original_alias": "/workspace/ORCH04-evidence/c10/source-input-manifest.json",
+      "deciding_input_sha256": "376340102de1876f7a50e8460e6e0c034dbb5d49433eb5678d0b44791376064e",
+      "exact_portable_copy": "outputs/c10/source-input-manifest-03a7c5d5.json",
+      "current_alias_has_different_final_source": true
+    }
+  ],
+  "qualification": "Each deciding run retains its original immutable source and input digest. Current source contains only the declared test companion delta after03a; no fresh whole51 PASS is inferred."
+}

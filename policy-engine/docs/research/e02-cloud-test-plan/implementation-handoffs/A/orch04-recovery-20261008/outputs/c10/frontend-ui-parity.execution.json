@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm",
+    "--dir",
+    "apps/runtime-dashboard",
+    "exec",
+    "vitest",
+    "run",
+    "src/features/runs/routes/tabs/OverviewTab.test.tsx",
+    "src/shared/i18n/parity.test.ts"
+  ],
+  "cwd": "/workspace/ORCH04-C10/policy-engine",
+  "started_utc": "2026-10-08T16:21:19.636768+00:00",
+  "python_executable": "/workspace/ORCH04-environments/app/bin/python",
+  "profile_env": {
+    "PYTHONPATH": null,
+    "NODE_USE_ENV_PROXY": "1",
+    "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+    "npm_config_store_dir": "/workspace/.polisyos-environment/cache/pnpm"
+  },
+  "pid": 14971,
+  "finished_utc": "2026-10-08T16:21:27.832778+00:00",
+  "elapsed_seconds": 8.196046508000109,
+  "returncode": 1,
+  "outputs": {
+    ".stdout": {
+      "bytes": 408,
+      "sha256": "8b300ec321f1386adfb92890edb942d544c7794e6977865502b840d2cdad13dd"
+    },
+    ".stderr": {
+      "bytes": 1723,
+      "sha256": "2d71b87c3f33b61c4cfc415f2faa4a3df308f5babbc0cec1516bd03b435a57fa"
+    }
+  }
+}

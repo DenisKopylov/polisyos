@@ -1,0 +1,354 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+__________ test_non_simulation_leaf_requires_current_eval_safety_head __________
+
+tmp_path = PosixPath('/workspace/ORCH04-evidence/native-tester/G032-C10-companion-baseline-temp/test_non_simulation_leaf_requi0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7faa62182650>
+
+    @pytest.mark.asyncio
+    async def test_non_simulation_leaf_requires_current_eval_safety_head(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        from polisyos.runtime.http.services.control import evaluation_safety as c02
+        from polisyos.runtime.quality import evaluation_safety as es
+        from polisyos.runtime.quality import generation_cycle as generation_cycle_owner
+        from polisyos.runtime.quality import recursive_generation_cycle as recursive_cycle_owner
+        from polisyos.runtime.quality.generation_cycle import (
+            JointSimulationPort,
+            RealValueOwnerGateway,
+            ValueOwnerAccessError,
+            currentness_for_generation_cycle_run,
+            validate_generation_cycle_candidate_run,
+            validate_generation_cycle_run,
+        )
+        from tests.unit.runtime.http.services import test_evaluation_safety as c02_test
+        from tests.unit.runtime.quality.test_generation_cycle import (
+            REPO_ROOT,
+            _Atom,
+            _budget,
+            _Candidate,
+            _CgfGenerationPort,
+            _problem,
+        )
+        from tests.unit.runtime.quality.test_value_gate import (
+            _non_simulation_execution_context,
+            _simulation,
+            _world_record,
+        )
+    
+        runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas"))
+        problem = _problem(f"recursive_eval_safety_{uuid4().hex}")
+        problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+        root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+        graph = derive_recursive_design_graph(
+            design_ref=root_ref,
+            module_refs=(),
+            parent_child_edges=(),
+            rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+        )
+        recursive_budget = RecursiveCycleBudget(
+            max_depth=0,
+            max_nodes=1,
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=1,
+        )
+        candidate = _Candidate(
+            candidate_id="candidate_cgf_shadow",
+            atom=_Atom(
+                "candidate_cgf_shadow",
+                "sha256:" + "4" * 64,
+                target_world_slots=("firm_survival",),
+            ),
+            diversity_key=("grant", "firms", "cgf_shadow", "baseline"),
+        )
+        world = _world_record("7")
+        simulation = _simulation(world, candidate_id=candidate.candidate_id)
+        bound_context = _non_simulation_execution_context(
+            mode="field_pilot",
+            candidate=candidate,
+            world=world,
+            problem=problem,
+        )
+        original_intake = c02_test.EvaluationAttemptIntake
+    
+        def bound_intake(**values: object) -> es.EvaluationAttemptIntake:
+            values.update(
+                {
+                    "candidate_ref": bound_context.candidate_ref,
+                    "world_model_record_ref": bound_context.world_model_record_ref,
+                }
+            )
+            return original_intake(**values)
+    
+        monkeypatch.setattr(c02_test, "EvaluationAttemptIntake", bound_intake)
+        fixture = c02_test._passing_fixture(  # noqa: SLF001
+            tmp_path / "eval-safety",
+            design_problem_ref=problem_ref,
+        )
+    
+        def actual_n5_input_ref(
+            observation: object,
+        ) -> object:
+            assert observation is simulation
+            return fixture.execution_context.evaluation_input_refs[0]
+    
+        monkeypatch.setattr(
+            generation_cycle_owner,
+            "simulation_evaluation_input_ref",
+            actual_n5_input_ref,
+        )
+    
+        class CurrentStateResolver:
+            def resolve(
+                self,
+                context: es.EvaluationExecutionContext,
+            ) -> c02.EvaluationSafetyReplayMaterial:
+                del context
+                return fixture.replay_material
+    
+        concrete_verifier = c02.EvaluationSafetyAdmissionVerifier(
+            persistence_service=fixture.service,
+            current_state_resolver=CurrentStateResolver(),
+            authority_resolver=fixture.authority_resolver,
+            appointment_resolver=fixture.appointment_resolver,
+            verifier_registry=fixture.verifier_registry,
+        )
+    
+        class ReplayFirstPositive:
+            def __init__(self) -> None:
+                self.first: es.EvalSafetyConsumerAdmissionReceipt | None = None
+    
+            def require_admission(
+                self,
+                context: es.EvaluationExecutionContext,
+                challenge: es.EvalSafetyAdmissionChallenge,
+            ) -> es.EvalSafetyConsumerAdmissionReceipt:
+                if self.first is None:
+                    self.first = concrete_verifier.require_admission(context, challenge)
+                return self.first
+    
+        owner_calls: list[str] = []
+        n4_calls = 0
+        n5_calls = 0
+    
+        def actual_n5(
+            self: JointSimulationPort,
+            *,
+            candidate: object,
+            problem: object,
+            cycle_index: int,
+        ) -> object:
+            nonlocal n5_calls
+            del self, problem, cycle_index
+            n5_calls += 1
+            assert candidate.candidate_id == simulation.candidate_id  # type: ignore[attr-defined]
+            return simulation
+    
+        def value_owner_spy(
+            self: RealValueOwnerGateway,
+            **values: object,
+        ) -> object:
+            del self, values
+            owner_calls.append("load_value_data_profile")
+            raise ValueOwnerAccessError("value_owner_data_profile_invalid")
+    
+        monkeypatch.setattr(JointSimulationPort, "__call__", actual_n5)
+        monkeypatch.setattr(RealValueOwnerGateway, "load_value_data_profile", value_owner_spy)
+    
+        class _CanonicalFixtureN4Port(N4GenerationPort):
+            def __init__(self) -> None:
+                super().__init__(model_id="fixture-model")
+                self._delegate = _CgfGenerationPort()
+    
+            async def __call__(self, problem, *, cycle_index):
+                nonlocal n4_calls
+                n4_calls += 1
+                return await self._delegate(problem, cycle_index=cycle_index)
+    
+        async def run_leaf(
+            *,
+            context: es.EvaluationExecutionContext,
+            verifier: object,
+            context_bindings: dict[str, es.EvaluationExecutionContext] | None = None,
+        ):
+            controller = build_default_recursive_generation_cycle_controller(
+                repo_root=REPO_ROOT,
+                promotion_runtime=runtime,
+                eval_safety_verifier=verifier,
+            )
+            return await controller.run(
+                graph,
+                problems_by_node={root_ref: problem},
+                budget_state=_budget(),
+                recursive_budget=recursive_budget,
+                n4_generation_ports_by_node={root_ref: _CanonicalFixtureN4Port()},
+                evaluation_contexts_by_node=(
+                    {root_ref: context} if context_bindings is None else context_bindings
+                ),
+                execution_intents_by_node={root_ref: "field_pilot"},
+            )
+    
+>       current = await run_leaf(
+            context=fixture.execution_context,
+            verifier=concrete_verifier,
+        )
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:1352: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:1340: in run_leaf
+    return await controller.run(
+src/polisyos/runtime/quality/recursive_generation_cycle.py:1335: in run
+    root = await route(recursive_graph.root_design_ref)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/recursive_generation_cycle.py:1193: in route
+    cycle_run = await controller.run(
+src/polisyos/runtime/quality/generation_cycle.py:5662: in run
+    cycle, cycle_summaries = await self._run_cycle(
+src/polisyos/runtime/quality/generation_cycle.py:6380: in _run_cycle
+    finished = await self._engine.run_async(state)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/workflows/engine_simple.py:51: in run_async
+    next_state = fn(state)
+                 ^^^^^^^^^
+src/polisyos/runtime/quality/generation_cycle.py:8182: in _joint_value_node
+    value = value_port(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.quality.generation_cycle.FoundryValuePort object at 0x7faa5f7ad160>
+
+    def __call__(
+        self,
+        *,
+        candidate: object,
+        simulation: SimulationPortObservation,
+        problem: DesignProblem,
+        cycle_index: int,
+    ) -> ValuePortObservation:
+        """Compute value over a named WMR or fail closed with typed blockers."""
+    
+        started = time.monotonic()
+        del cycle_index
+        candidate_id = _candidate_id(candidate)
+        context = self._evaluation_context
+        mode = context.evaluation_mode
+        if context.evaluator_owner_id != FOUNDRY_VALUE_PORT_EVALUATOR_ID:
+            return _blocked_value_observation(
+                code="eval_safety_evaluator_owner_mismatch",
+                reason="EvalSafety context is bound to another evaluator owner.",
+                mode=mode,
+                started=started,
+                candidate_id=candidate_id,
+            )
+        if context.design_problem_ref != _problem_ref(problem):
+            return _blocked_value_observation(
+                code="eval_safety_design_problem_binding_mismatch",
+                reason="EvalSafety context does not bind this DesignProblem.",
+                mode=mode,
+                started=started,
+                candidate_id=candidate_id,
+            )
+>       actual_input_ref = simulation_evaluation_input_ref(
+            simulation, artifact_store=self._artifact_store
+        )
+E       TypeError: test_non_simulation_leaf_requires_current_eval_safety_head.<locals>.actual_n5_input_ref() got an unexpected keyword argument 'artifact_store'
+
+src/polisyos/runtime/quality/generation_cycle.py:4623: TypeError
+_______________ test_task_44_public_export_denominator_is_exact ________________
+
+    def test_task_44_public_export_denominator_is_exact() -> None:
+        import polisyos.core.contracts as core_contracts
+        import polisyos.scientist.validation as scientist_validation
+        from polisyos.core.contracts import control, decision_validity
+        from polisyos.scientist.validation import decision_validity as scientist_decision_validity
+    
+        base_decision_names = (
+            "DecisionBasisSection",
+            "DecisionDependencyEvent",
+            "DecisionDependencyKind",
+            "DecisionDependencyRef",
+            "DecisionLifecycleJob",
+            "DecisionLifecycleJobKind",
+            "DecisionLifecycleJobState",
+            "DecisionTriggerRecord",
+            "DecisionTriggerSpec",
+            "DecisionTriggerType",
+            "DecisionValidityEnvelope",
+            "DecisionValidityEvaluation",
+            "DecisionValidityStatus",
+            "DecisionValidityTransition",
+        )
+        epoch_decision_names = (
+            "EpochTransitionVerificationReceipt",
+            "EpochTransitionVerifier",
+            "EpochValidityAuthorityGate",
+            "EpochValidityBatchCompletionStatement",
+            "EpochValidityBatchReceipt",
+            "EpochValidityBatchTarget",
+            "EpochValidityCompletedBatchEvidenceDenominator",
+            "EpochValidityCompletedBatchEvidenceResolver",
+            "EpochValidityGateNonReceipt",
+            "EpochValidityGateReceipt",
+            "EpochValidityN9EvidenceResolver",
+            "EpochValidityN9Projection",
+            "EpochValidityPendingBatch",
+            "EpochValidityPreN9SubjectAuthority",
+            "PersistedEpochValidityBatchEvidence",
+            "PersistedEpochValidityGateEvidence",
+            "PersistedPreN9AdmittedCandidateBatch",
+            "PersistedPreN9EpochValiditySubject",
+            "PreN9AdmittedCandidate",
+            "PreN9EpochValiditySubjectStatement",
+        )
+        expected_decision_names = base_decision_names + epoch_decision_names
+        control_epoch_names = ("EpochValidityBatchRequest", "EpochValidityBatchResponse")
+        contract = {
+            "expected_decision_names": expected_decision_names,
+            "decision_owner_names": set(decision_validity.__all__),
+            "decision_facade_names": set(core_contracts._MODULE_SYMBOLS[".decision_validity"]),
+            "control_owner_names": set(control.__all__),
+            "control_facade_names": set(core_contracts._MODULE_SYMBOLS[".control"]),
+            "scientist_names": set(scientist_validation.__all__),
+            "scientist_lazy_names": set(scientist_validation._LAZY_IMPORTS),
+            "facade_lazy_imports": dict(core_contracts._LAZY_IMPORTS),
+        }
+>       _assert_task_44_export_contract(**contract)
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:2244: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _assert_task_44_export_contract(
+        *,
+        expected_decision_names: tuple[str, ...],
+        decision_owner_names: set[str],
+        decision_facade_names: set[str],
+        control_owner_names: set[str],
+        control_facade_names: set[str],
+        scientist_names: set[str],
+        scientist_lazy_names: set[str],
+        facade_lazy_imports: dict[str, str],
+    ) -> None:
+        expected_decision = set(expected_decision_names)
+>       assert decision_owner_names == expected_decision
+E       AssertionError: assert {'DecisionBas...JobKind', ...} == {'DecisionBas...JobKind', ...}
+E         
+E         Extra items in the left set:
+E         'PersistedEpochTransitionDenominatorReconciliation'
+E         'PersistedDecisionValidityEpochImpactSnapshot'
+E         'EpochTransitionDenominatorReconciliationReader'
+E         'EpochTransitionDenominatorReconciliationReceipt'
+E         'DecisionValidityEpochImpactTarget'...
+E         
+E         ...Full output truncated (7 lines hidden), use '-vv' to show
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:1076: AssertionError
+=============================== warnings summary ===============================
+../../../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_non_simulation_leaf_requires_current_eval_safety_head
+FAILED tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_task_44_public_export_denominator_is_exact

@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "/workspace/ORCH04-environments/app/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+  ],
+  "cwd": "/workspace/ORCH04-C10",
+  "started_utc": "2026-10-08T17:01:37.827759+00:00",
+  "python_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+  "profile_env": {
+    "PYTHONPATH": null,
+    "NODE_USE_ENV_PROXY": null,
+    "COREPACK_HOME": null,
+    "npm_config_store_dir": null
+  },
+  "pid": 21831,
+  "finished_utc": "2026-10-08T17:01:37.977008+00:00",
+  "elapsed_seconds": 0.1492642290004369,
+  "returncode": 0,
+  "outputs": {
+    ".stdout": {
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    ".stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

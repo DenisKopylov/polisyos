@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="33.291" timestamp="2026-10-08T16:41:23.342070+00:00" hostname="9065c0936350"><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_value_owner_projection_preserves_required_modality_and_other_hints[required0]" time="0.008"><failure message="AssertionError: assert ('tabular',) == ('panel',)&#10;  &#10;  At index 0 diff: 'tabular' != 'panel'&#10;  Use -v to get more diff">required = ('panel',)
+
+    @pytest.mark.parametrize("required", [("panel",), ("unavailable_modality",), ()])
+    def test_value_owner_projection_preserves_required_modality_and_other_hints(
+        required: tuple[str, ...],
+    ) -&gt; None:
+        """Available row shape cannot rewrite the request passed to real selection."""
+        from polisyos.foundry.methods.selection.advisor import _value_selection_criteria
+    
+        problem = _problem().model_copy(
+            update={
+                "runtime_hints": {
+                    "value_required_data_modalities": required,
+                    "declared_owner_rule": "preserve-me",
+                    "value_data_characteristics": {"n_obs": 99999},
+                }
+            }
+        )
+        rows = []
+        for period_id in range(4):
+            row = {
+                "unit_id": "single_unit",
+                "period_id": period_id,
+                "outcome_value": float(period_id),
+                "source_row_content_hashes": ("sha256:" + "a" * 64,),
+            }
+            rows.append(
+                generation_cycle_module.ValueOwnerRow(**row, row_content_hash=gy_content_hash(row))
+            )
+        payload = {
+            "schema_version": "policyos.runtime.value_data_profile.v1",
+            "outcome": "firm_survival",
+            "rows": [row.model_dump(mode="json") for row in rows],
+            "owner_row_count": 4,
+            "unit_count": 1,
+            "period_count": 4,
+            "available_data_modalities": ("tabular",),
+            "treatment_assignment_status": "owner_assignment_unresolved",
+            "owner_access_ref": "test://bounded-owner-rows",
+            "owner_rows_content_hash": gy_content_hash([row.model_dump(mode="json") for row in rows]),
+        }
+        profile = generation_cycle_module.ValueDataProfile.model_validate(
+            {**payload, "content_hash": gy_content_hash(payload)}
+        )
+        projected = generation_cycle_module._selector_problem_for_value_profile(problem, profile)
+&gt;       assert projected.runtime_hints["value_required_data_modalities"] == required
+E       AssertionError: assert ('tabular',) == ('panel',)
+E         
+E         At index 0 diff: 'tabular' != 'panel'
+E         Use -v to get more diff
+
+../../../C10-03a7c5d5-source/policy-engine/tests/unit/runtime/quality/test_generation_cycle.py:10057: AssertionError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_value_owner_projection_preserves_required_modality_and_other_hints[required1]" time="0.002"><failure message="AssertionError: assert ('tabular',) == ('unavailable_modality',)&#10;  &#10;  At index 0 diff: 'tabular' != 'unavailable_modality'&#10;  Use -v to get more diff">required = ('unavailable_modality',)
+
+    @pytest.mark.parametrize("required", [("panel",), ("unavailable_modality",), ()])
+    def test_value_owner_projection_preserves_required_modality_and_other_hints(
+        required: tuple[str, ...],
+    ) -&gt; None:
+        """Available row shape cannot rewrite the request passed to real selection."""
+        from polisyos.foundry.methods.selection.advisor import _value_selection_criteria
+    
+        problem = _problem().model_copy(
+            update={
+                "runtime_hints": {
+                    "value_required_data_modalities": required,
+                    "declared_owner_rule": "preserve-me",
+                    "value_data_characteristics": {"n_obs": 99999},
+                }
+            }
+        )
+        rows = []
+        for period_id in range(4):
+            row = {
+                "unit_id": "single_unit",
+                "period_id": period_id,
+                "outcome_value": float(period_id),
+                "source_row_content_hashes": ("sha256:" + "a" * 64,),
+            }
+            rows.append(
+                generation_cycle_module.ValueOwnerRow(**row, row_content_hash=gy_content_hash(row))
+            )
+        payload = {
+            "schema_version": "policyos.runtime.value_data_profile.v1",
+            "outcome": "firm_survival",
+            "rows": [row.model_dump(mode="json") for row in rows],
+            "owner_row_count": 4,
+            "unit_count": 1,
+            "period_count": 4,
+            "available_data_modalities": ("tabular",),
+            "treatment_assignment_status": "owner_assignment_unresolved",
+            "owner_access_ref": "test://bounded-owner-rows",
+            "owner_rows_content_hash": gy_content_hash([row.model_dump(mode="json") for row in rows]),
+        }
+        profile = generation_cycle_module.ValueDataProfile.model_validate(
+            {**payload, "content_hash": gy_content_hash(payload)}
+        )
+        projected = generation_cycle_module._selector_problem_for_value_profile(problem, profile)
+&gt;       assert projected.runtime_hints["value_required_data_modalities"] == required
+E       AssertionError: assert ('tabular',) == ('unavailable_modality',)
+E         
+E         At index 0 diff: 'tabular' != 'unavailable_modality'
+E         Use -v to get more diff
+
+../../../C10-03a7c5d5-source/policy-engine/tests/unit/runtime/quality/test_generation_cycle.py:10057: AssertionError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_value_owner_projection_preserves_required_modality_and_other_hints[required2]" time="0.003"><failure message="AssertionError: assert ('tabular',) == ()&#10;  &#10;  Left contains one more item: 'tabular'&#10;  Use -v to get more diff">required = ()
+
+    @pytest.mark.parametrize("required", [("panel",), ("unavailable_modality",), ()])
+    def test_value_owner_projection_preserves_required_modality_and_other_hints(
+        required: tuple[str, ...],
+    ) -&gt; None:
+        """Available row shape cannot rewrite the request passed to real selection."""
+        from polisyos.foundry.methods.selection.advisor import _value_selection_criteria
+    
+        problem = _problem().model_copy(
+            update={
+                "runtime_hints": {
+                    "value_required_data_modalities": required,
+                    "declared_owner_rule": "preserve-me",
+                    "value_data_characteristics": {"n_obs": 99999},
+                }
+            }
+        )
+        rows = []
+        for period_id in range(4):
+            row = {
+                "unit_id": "single_unit",
+                "period_id": period_id,
+                "outcome_value": float(period_id),
+                "source_row_content_hashes": ("sha256:" + "a" * 64,),
+            }
+            rows.append(
+                generation_cycle_module.ValueOwnerRow(**row, row_content_hash=gy_content_hash(row))
+            )
+        payload = {
+            "schema_version": "policyos.runtime.value_data_profile.v1",
+            "outcome": "firm_survival",
+            "rows": [row.model_dump(mode="json") for row in rows],
+            "owner_row_count": 4,
+            "unit_count": 1,
+            "period_count": 4,
+            "available_data_modalities": ("tabular",),
+            "treatment_assignment_status": "owner_assignment_unresolved",
+            "owner_access_ref": "test://bounded-owner-rows",
+            "owner_rows_content_hash": gy_content_hash([row.model_dump(mode="json") for row in rows]),
+        }
+        profile = generation_cycle_module.ValueDataProfile.model_validate(
+            {**payload, "content_hash": gy_content_hash(payload)}
+        )
+        projected = generation_cycle_module._selector_problem_for_value_profile(problem, profile)
+&gt;       assert projected.runtime_hints["value_required_data_modalities"] == required
+E       AssertionError: assert ('tabular',) == ()
+E         
+E         Left contains one more item: 'tabular'
+E         Use -v to get more diff
+
+../../../C10-03a7c5d5-source/policy-engine/tests/unit/runtime/quality/test_generation_cycle.py:10057: AssertionError</failure></testcase></testsuite></testsuites>

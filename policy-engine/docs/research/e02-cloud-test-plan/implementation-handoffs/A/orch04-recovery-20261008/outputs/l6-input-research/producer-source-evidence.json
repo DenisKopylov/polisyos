@@ -1,0 +1,103 @@
+{
+  "schema": "orch04.l6-canonical-producer-source-evidence.v1",
+  "canonical_G": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "source_files": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/intervention_substrate.py",
+      "source_commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "Git_blob": "4fbc772508cc7183a95301556608a6c7101b2f15",
+      "source_bytes": 174058,
+      "source_sha256": "6bc487cb658e6aad0ff6270b9aeffeba7850947424fa1b6116eb1794b5b8503b",
+      "selected_exact_source_spans": [
+        {
+          "start": 110,
+          "end": 119,
+          "text": "DEFAULT_L6_BUNDLE_ROOT = Path(\n    \"production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles\"\n)\nDEFAULT_L3_LEX_DB_PATH = Path(\n    \"production_data/lex/lex-amendment-only-optimized-20260501-v3/\"\n    \"finalize/lex_knowledge_graph.duckdb\"\n)\nDEFAULT_L6_OWNER_AUTHORITY_PATH = Path(\n    \"architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json\"\n)\n"
+        },
+        {
+          "start": 1030,
+          "end": 1072,
+          "text": "def default_l6_bundle_paths(repo_root: Path) -> dict[str, Path]:\n    \"\"\"Return canonical L6 agent-sim bundle paths under ``repo_root``.\"\"\"\n\n    root = repo_root / DEFAULT_L6_BUNDLE_ROOT\n    return {\n        \"intervention_knob_dictionary\": (\n            root / \"intervention_bundle_v1/intervention_knob_dictionary.json\"\n        ),\n        \"lex_intervention_map\": root / \"intervention_bundle_v1/lex_intervention_map.json\",\n        \"observation_to_contract_manifest\": (\n            root / \"method_contract_bundle_v1/observation_to_contract_manifest.json\"\n        ),\n        \"policy_scenario_templates\": (\n            root / \"intervention_bundle_v1/policy_scenario_templates.json\"\n        ),\n        \"slot_family_manifest\": root / \"runtime_bundle_v1/slot_family_manifest.json\",\n        \"owner_authority_bindings\": repo_root / DEFAULT_L6_OWNER_AUTHORITY_PATH,\n    }\n\n\ndef load_l6_intervention_substrate(repo_root: Path) -> InterventionSubstrateBundle:\n    \"\"\"Load the real L6 agent-sim control artifacts with content hashes.\"\"\"\n\n    paths = default_l6_bundle_paths(repo_root.resolve())\n    required = (\n        \"intervention_knob_dictionary\",\n        \"lex_intervention_map\",\n        \"observation_to_contract_manifest\",\n    )\n    missing = [name for name in required if not paths[name].is_file()]\n    if missing:\n        raise InterventionSubstrateError(\n            \"l6_control_artifact_missing\",\n            \", \".join(sorted(missing)),\n        )\n    payloads: dict[str, dict[str, Any]] = {}\n    source_refs: dict[str, str] = {}\n    source_hashes: dict[str, str] = {}\n    for name, path in paths.items():\n        if not path.exists():\n            if name in required:\n                raise InterventionSubstrateError(\"l6_control_artifact_missing\", name)\n            payloads[name] = {}\n"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/sources.py",
+      "source_commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "Git_blob": "3ac47ec47646ea2c84440a9fa0209f2f4f571ac3",
+      "source_bytes": 82823,
+      "source_sha256": "d67a292c7e5d21a5355cbad451c3d24c08a2aa6436349dca9bf15867654108fd",
+      "selected_exact_source_spans": [
+        {
+          "start": 1458,
+          "end": 1483,
+          "text": "def _build_d2_contract_artifacts(\n    *,\n    config: PipelineConfig,\n    stage_dir: Path,\n    monthly_panel_path: Path,\n    annual_panel_path: Path,\n) -> tuple[dict[str, ArtifactRecord], ObservationToContractManifest]:\n    outputs: dict[str, ArtifactRecord] = {}\n    import pyarrow as pa\n    import pyarrow.parquet as pq\n\n    causal_panel_path = stage_dir / \"causal_panel_bundle_monthly.parquet\"\n    shutil.copy2(monthly_panel_path, causal_panel_path)\n    outputs[\"causal_panel_bundle_monthly.parquet\"] = ArtifactRecord.from_path(causal_panel_path)\n\n    annual_rows = 0\n    if annual_panel_path.exists():\n        try:\n            annual_rows = int(pq.ParquetFile(annual_panel_path).metadata.num_rows)\n        except Exception:\n            annual_rows = len(_read_parquet_frame(annual_panel_path, columns=[\"observation_id\"]))\n    if annual_rows > 0:\n        panel_econometric_path = stage_dir / \"panel_econometric_bundle_v1.parquet\"\n        shutil.copy2(annual_panel_path, panel_econometric_path)\n        outputs[\"panel_econometric_bundle_v1.parquet\"] = ArtifactRecord.from_path(\n            panel_econometric_path\n"
+        },
+        {
+          "start": 1845,
+          "end": 1895,
+          "text": "def build_d2_stage(config: PipelineConfig) -> StageBuildResult:\n    \"\"\"Build D2 calibration-plane artifacts and contract bundles.\"\"\"\n\n    build_root = config.build_root\n    stage_dir = _stage_dir(build_root, StageId.D2)\n    ensure_dirs(stage_dir)\n    import gc\n    import resource\n\n    import duckdb\n\n    shard_dir = build_root.tmp_dir / \"d2_observation_shards\"\n    if shard_dir.exists():\n        shutil.rmtree(shard_dir)\n    ensure_dirs(shard_dir)\n\n    monthly_shards: list[Path] = []\n    annual_shards: list[Path] = []\n    family_counts: dict[str, int] = {family.value: 0 for family in ObservationFamily}\n    families_present: set[str] = set()\n    monthly_row_count = 0\n    annual_row_count = 0\n\n    shard_counter = 0\n    for source, metric_id, batch_index, metric_frame in _iter_observation_metric_frames(config):\n        if metric_frame.empty:\n            continue\n        source_dir = shard_dir / source.source_id\n        ensure_dirs(source_dir)\n        shard_path = (\n            source_dir / f\"{_kernel_safe_id(metric_id, prefix='metric')}_{batch_index:05d}.parquet\"\n        )\n        metric_frame.to_parquet(shard_path, index=False)\n        shard_counter += 1\n        if source.time_grain == TimeFrequency.YEAR:\n            annual_shards.append(shard_path)\n            annual_row_count += len(metric_frame)\n        else:\n            monthly_shards.append(shard_path)\n            monthly_row_count += len(metric_frame)\n        family_counts[source.observation_family.value] += len(metric_frame)\n        families_present.add(source.observation_family.value)\n        if shard_counter == 1 or shard_counter % 25 == 0:\n            resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024.0 * 1024.0)\n        del metric_frame\n        try:\n            import pyarrow as pa\n\n            pa.default_memory_pool().release_unused()\n        except Exception:\n            pass\n"
+        },
+        {
+          "start": 2039,
+          "end": 2052,
+          "text": "    del monthly_vectors\n    gc.collect()\n\n    contract_outputs, manifest = _build_d2_contract_artifacts(\n        config=config,\n        stage_dir=stage_dir,\n        monthly_panel_path=monthly_panel_path,\n        annual_panel_path=annual_panel_path,\n    )\n    outputs.update(contract_outputs)\n    manifest_path = stage_dir / \"observation_to_contract_manifest.json\"\n    _write_json(manifest_path, manifest)\n    outputs[\"observation_to_contract_manifest.json\"] = ArtifactRecord.from_path(manifest_path)\n\n"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/release.py",
+      "source_commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "Git_blob": "35f5e13a70c860c948fcb3ffd3d755683d9a9b10",
+      "source_bytes": 21218,
+      "source_sha256": "c9750605d7d1d70a13eb414169d6fc30384e82c340294c3aaeac2a355169eb71",
+      "selected_exact_source_spans": [
+        {
+          "start": 308,
+          "end": 318,
+          "text": "def build_d5_stage(config: PipelineConfig) -> StageBuildResult:\n    \"\"\"Build D5 producer artifacts and a neutral downstream handoff request.\"\"\"\n\n    build_root = config.build_root\n    stage_dir = _stage_dir(build_root, StageId.D5)\n    ensure_dirs(stage_dir)\n    runtime_stage = _stage_dir(build_root, StageId.D0_P0)\n    d1_stage = _stage_dir(build_root, StageId.D1)\n    calibration_stage = _stage_dir(build_root, StageId.D2)\n    d3_stage = _stage_dir(build_root, StageId.D3)\n    d4_stage = _stage_dir(build_root, StageId.D4)\n"
+        },
+        {
+          "start": 380,
+          "end": 421,
+          "text": "\n    release_dirs = {\n        \"runtime_bundle_v1\": stage_dir / \"runtime_bundle_v1\",\n        \"calibration_bundle_v1\": stage_dir / \"calibration_bundle_v1\",\n        \"method_contract_bundle_v1\": stage_dir / \"method_contract_bundle_v1\",\n        \"embedding_bundle_v1\": stage_dir / \"embedding_bundle_v1\",\n    }\n    for directory in release_dirs.values():\n        ensure_dirs(directory)\n\n    copy_plan = {\n        \"runtime_bundle_v1\": [\n            runtime_stage / \"runtime_bundle_manifest.json\",\n            runtime_stage / \"slot_family_manifest.json\",\n            runtime_stage / \"agent_registry_runtime.parquet\",\n            runtime_stage / \"cell_registry_region_sector.parquet\",\n            runtime_stage / \"geo_index_runtime.parquet\",\n        ],\n        \"calibration_bundle_v1\": [\n            calibration_stage / \"calibration_bundle_manifest.json\",\n            calibration_stage / \"observation_panel_monthly.parquet\",\n            calibration_stage / \"observation_panel_annual.parquet\",\n        ],\n        \"method_contract_bundle_v1\": [\n            calibration_stage / \"observation_to_contract_manifest.json\",\n            calibration_stage / \"network_contract_bundle_v1.json\",\n            calibration_stage / \"network_causal_contract_bundle_v1.json\",\n            calibration_stage / \"bounds_estimation_bundle_v1.json\",\n            calibration_stage / \"backtest_plan_bundle.json\",\n        ],\n        \"embedding_bundle_v1\": [\n            stage_dir / \"agent_embedding_32d.npz\",\n            stage_dir / \"cell_prototype_embeddings.npz\",\n            stage_dir / \"graph_compression_bundle.json\",\n        ],\n    }\n    for bundle_name, sources in copy_plan.items():\n        for source_path in sources:\n            if source_path.exists():\n                shutil.copy2(source_path, release_dirs[bundle_name] / source_path.name)\n\n    bundle_records = {\n"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_builders.py",
+      "source_commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "Git_blob": "b2abd6ff47e0f7179411f44efd1b5b973a031580",
+      "source_bytes": 36106,
+      "source_sha256": "abc71b5e91b36a481ef496f780f82195542e03c1628559b173bb7eff58765f18",
+      "selected_exact_source_spans": [
+        {
+          "start": 870,
+          "end": 908,
+          "text": "        for finding in result.findings\n    )\n    assert set(result.outputs) == set(config.stages[StageId.D5.value].output_artifacts)\n    assert \"d5_release_handoff_request.json\" in result.outputs\n    assert not {\n        \"lex_intervention_map.json\",\n        \"intervention_knob_dictionary.json\",\n        \"temporal_intervention_sequences.json\",\n        \"policy_scenario_templates.json\",\n        \"provision_to_program_crosswalk.parquet\",\n        \"advanced_policy_trials.json\",\n        \"release_acceptance_report.json\",\n    }.intersection(result.outputs)\n    handoff = D5ReleaseHandoffRequest.model_validate_json(\n        (config.build_root.bundles_dir / \"d5\" / \"d5_release_handoff_request.json\").read_bytes()\n    )\n    assert handoff.authority_purpose == \"producer_release_handoff_request\"\n    assert handoff.capability_state == \"bridge_missing\"\n    assert handoff.consumer_state == \"consumer_missing\"\n    assert set(handoff.may_not_use_for) == {\n        \"legal_intervention_compilation\",\n        \"governance_admissibility\",\n        \"release_acceptance\",\n        \"publication\",\n    }\n    assert handoff.producer_facts.model_dump(mode=\"json\") == {\n        \"graph_compression_degree_preservation_score\": 1.0,\n        \"graph_compression_edge_weight_reconstruction_error\": 0.0,\n        \"primary_region_id\": \"01\",\n        \"primary_sector_id\": \"A\",\n    }\n    assert set(handoff.content_refs) == {\n        \"cell_registry\",\n        \"d4_governance_request\",\n        \"graph_compression_bundle\",\n    }\n    assert all(record.sha256 for record in handoff.content_refs.values())\n    with pytest.raises(ValidationError, match=\"unexpected_authority\"):\n        D5ReleaseHandoffRequest.model_validate(\n"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/cli.py",
+      "source_commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "Git_blob": "c668644da9e33198d9a4cc82bce1f53c333fb458",
+      "source_bytes": 4974,
+      "source_sha256": "eacccf70eb26bc857c44c628a8e7938d6076c0af34883e2752bfc91995b22a1b",
+      "selected_exact_source_spans": [
+        {
+          "start": 35,
+          "end": 66,
+          "text": "    parser.add_argument(\n        \"--root\",\n        type=Path,\n        default=None,\n        help=\"Override build root for manifests and artifacts.\",\n    )\n    parser.add_argument(\n        \"--workspace-root\",\n        type=Path,\n        default=None,\n        help=\"Repository checkout used for server-only gates; distinct from --root.\",\n    )\n\n    subparsers = parser.add_subparsers(dest=\"command\", required=True)\n\n    bootstrap = subparsers.add_parser(\n        \"bootstrap-server\", help=\"Prepare server layout and capability manifests.\"\n    )\n    bootstrap.add_argument(\n        \"--write-capabilities\",\n        action=\"store_true\",\n        help=\"Write the server capability manifest during bootstrap.\",\n    )\n\n    subparsers.add_parser(\"validate-part-a\", help=\"Run the server-side Part A integration gate.\")\n\n    build = subparsers.add_parser(\"build\", help=\"Build one Part B stage or the full pipeline.\")\n    build.add_argument(\n        \"stage\", type=_parse_stage, help=\"Stage id: d0-p0, d1, d2, d3, d4, d5, full.\"\n    )\n    build.add_argument(\n        \"--resume\", action=\"store_true\", help=\"Reuse a completed stage if outputs still exist.\"\n"
+        },
+        {
+          "start": 87,
+          "end": 114,
+          "text": "    sys.stdout.write(\"\\n\")\n\n\ndef main(argv: list[str] | None = None) -> int:\n    parser = build_parser()\n    args = parser.parse_args(argv)\n    config = load_pipeline_config(args.config, root=args.root)\n    orchestrator = UkraineDataOrchestrator(config, workspace_root=args.workspace_root)\n\n    if args.command == \"bootstrap-server\":\n        summary = orchestrator.bootstrap_server(write_capabilities=args.write_capabilities)\n        _emit(summary.manifest.model_dump(mode=\"json\"))\n        return 0 if summary.status == \"completed\" else 1\n\n    if args.command == \"validate-part-a\":\n        summary = orchestrator.validate_part_a()\n        _emit(summary.manifest.model_dump(mode=\"json\"))\n        return 0 if summary.status == \"passed\" else 1\n\n    if args.command == \"build\":\n        if args.stage == StageId.FULL:\n            summaries = orchestrator.build_full(resume=args.resume)\n            _emit([summary.manifest.model_dump(mode=\"json\") for summary in summaries])\n            return 0 if summaries and summaries[-1].status == \"completed\" else 1\n        summary = orchestrator.build_stage(args.stage, resume=args.resume)\n        _emit(summary.manifest.model_dump(mode=\"json\"))\n        return 0 if summary.status == \"completed\" else 1\n\n"
+        }
+      ]
+    }
+  ],
+  "production_packet_bytes_read_or_exported": false,
+  "canonical_regeneration_selection": "NONE: no normal export-only recipe for all three configured control files with available canonical input packet was established. D2 observation producer and D5 copier are existing source entrypoints; D5 deliberately does not synthesize knobs/maps or legal release authority."
+}

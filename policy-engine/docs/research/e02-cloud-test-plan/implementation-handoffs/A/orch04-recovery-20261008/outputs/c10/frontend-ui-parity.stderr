@@ -1,0 +1,36 @@
+(node:14971) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15009) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15009) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15036) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15035) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| src/shared/i18n/parity.test.ts > locale catalogs > freezes the complete quantitative-use declaration set
+AssertionError: expected [ 2923, 2923 ] to deeply equal [ 2879, 2879 ]
+
+- Expected
++ Received
+
+  [
+-   2879,
+-   2879,
++   2923,
++   2923,
+  ]
+
+ ❯ src/shared/i18n/parity.test.ts:2139:72
+    2137|     expect(declaredVariableNames).toHaveLength(158);
+    2138|     expect(new Set(declaredVariableNames).size).toBe(158);
+    2139|     expect([collectLeafPairs(en).length, collectLeafPairs(uk).length])…
+       |                                                                        ^
+    2140|       ACTIVE_LOCALE_LEAF_COUNT,
+    2141|       ACTIVE_LOCALE_LEAF_COUNT,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

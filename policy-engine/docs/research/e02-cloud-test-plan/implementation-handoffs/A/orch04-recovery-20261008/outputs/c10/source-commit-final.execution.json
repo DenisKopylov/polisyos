@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "git",
+    "commit",
+    "-m",
+    "fix(runtime): bind candidate child context and recover recursive frontier"
+  ],
+  "cwd": "/workspace/ORCH04-C10",
+  "started_utc": "2026-10-08T16:22:37.327931+00:00",
+  "python_executable": "/workspace/ORCH04-environments/app/bin/python",
+  "profile_env": {
+    "PYTHONPATH": null,
+    "NODE_USE_ENV_PROXY": "1",
+    "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+    "npm_config_store_dir": "/workspace/.polisyos-environment/cache/pnpm"
+  },
+  "pid": 15391,
+  "finished_utc": "2026-10-08T16:23:07.002115+00:00",
+  "elapsed_seconds": 29.67426296399981,
+  "returncode": 0,
+  "outputs": {
+    ".stdout": {
+      "bytes": 389,
+      "sha256": "176da399698a7ab7b4b8b43c782c9d78fcfbdbe1979f9209ecbdbb3244f19fb4"
+    },
+    ".stderr": {
+      "bytes": 2216,
+      "sha256": "41f0fe4d87357ac8f97f076a66daee4270b6f43a87a9d99ac9ecb2b4d10a287a"
+    }
+  }
+}

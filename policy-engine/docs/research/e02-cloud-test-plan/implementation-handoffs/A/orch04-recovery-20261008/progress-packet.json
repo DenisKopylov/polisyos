@@ -1,0 +1,34 @@
+{
+  "schema": "policyos.e02.c10.recovery.progress.v1",
+  "source": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+  "tree": "6506a68152d7a957fc7762e9846a72e7ab98d557",
+  "implementation_lineage": [
+    "b6c3201aca6f8a94f05479269e13cde2dd3e7119",
+    "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+    "bf3580aed1127fbb5c4e14d9ec8c50de073bfc89",
+    "cfe46cfa8428d4388a44d2d68828ad1a5a19b256",
+    "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8"
+  ],
+  "source_review": "independent scoped GO",
+  "deciding_evidence": "03a51=44PASS6FAIL1UNRUN; cfe37=34PASS3FAIL; e685freshoriginalselector1PASS with exact input/source closure. Retained shared/input/frontend FAILs unwaived.",
+  "leaf_receipt": "separate document commit after immutable source",
+  "source_acceptance": "G only",
+  "remaining": {
+    "own_new_mechanisms": "Implemented bounded owner child intake/context/currentness/capsule/history/fresh reader, B36 projection, N4 semantic producer and internal configured assembly, full/partial parent integrity, manual UI. Actual ordinary selected composition remains held by exact fields/inputs below.",
+    "canonical_companions": [
+      "RunDetails Core/facade/generated fields and validators.ts runDetailsSchemaInner intake for conditional_simulation_values/recursive_cycle_checkpoint",
+      "fresh persisted served reader/failure readback after selected canonical fields",
+      "shared Task44 complete45Coreexports vs stale34 expectation",
+      "nonleased complete constructor census journals/acquisition/tool inputs",
+      "active en/uk global census metadata expected2879 vs canonical2907 vs candidate2923"
+    ],
+    "supplier_inputs": [
+      "authentic L6dictionary/map/observationmanifest bytes localL02; three configured positive consumers retain rawFAIL",
+      "real root N4 source compatible with declared qualified lever semantics, perchild configured profile/contextjob selection and explicit supported budget",
+      "actual N5/subdesign coupling/composition for positive parent; otherwise conservative recursiveblocked",
+      "typed B36 transform producer input/output/provenance where required"
+    ],
+    "portable_replay": "C13 common replay waits explicit G selected source freeze and independent reviews; no broad cycle or production claim"
+  },
+  "publication": "normal authorized topic push/readback follows receipt freeze; no hooks bypass"
+}

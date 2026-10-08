@@ -1,0 +1,12 @@
+diff --git a/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py b/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py
+index c0de39032..90512c2a5 100644
+--- a/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py
++++ b/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py
+@@ -1681,6 +1681,7 @@ class RecursiveGenerationCycleController:
+                             eval_safety_verifier=self._eval_safety_verifier,
+                             repo_root=self._repo_root,
+                             cycle_substrate_context=context,
++                            artifact_store=self._artifact_store,
+                         )
+                         if evaluation_context is not None
+                         else None

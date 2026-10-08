@@ -1,0 +1,31 @@
+{
+  "from_source": "cfe46cfa8428d4388a44d2d68828ad1a5a19b256",
+  "from_tree": "3313e6e84959cd7d43ad18aa083baf26563a0c86",
+  "to_source": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+  "to_tree": "6506a68152d7a957fc7762e9846a72e7ab98d557",
+  "to_parents": [
+    "cfe46cfa8428d4388a44d2d68828ad1a5a19b256"
+  ],
+  "complete_changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+  ],
+  "all_test_frontend_lock_and_other_source_input_equal": true,
+  "all_equal_paths": 21500,
+  "changed_file_preimage": {
+    "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+    "mode": "100644",
+    "git_blob": "c0de39032807ee808136d0a94f068b01c0dacfc2",
+    "sha256": "8fc4063cd126e8c05317b7da642f81fed75ae27ec600c2106adebfcf1fbb951b",
+    "size": 91503
+  },
+  "changed_file_postimage": {
+    "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+    "mode": "100644",
+    "git_blob": "90512c2a5630b6251fa92ba656a9bf5577bd2079",
+    "sha256": "3861c662c1957dea009d5580d0878a5c4da13d3e7cb46e2f27805c8214418551",
+    "size": 91568
+  },
+  "source_delta": "single keyword artifact_store=self._artifact_store in actual protected recursive FoundryValuePort constructor",
+  "test_source_unchanged": true,
+  "qualification": "Only affected protected non-simulation value route is fresh e685 consumer. cfe epoch34PASS/3FAIL remains raw; sole earlier own callback failure superseded by actual deciding fresh selector, remaining shared diagnostics unaffected.03a property/producer/freshreader evidence remains exact-source qualified; no all52fresh native claim."
+}

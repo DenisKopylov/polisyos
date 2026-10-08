@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/workspace/ORCH04-environments/app/bin/python",
+    "/workspace/ORCH04-evidence/review-c10/b6c3201/probe_full_parent.py"
+  ],
+  "cwd": "/workspace/ORCH04-evidence/review-c10/b6c3201/probe-export/policy-engine",
+  "PYTHONPATH": "/workspace/ORCH04-evidence/review-c10/b6c3201/probe-export/policy-engine/src:/workspace/ORCH04-evidence/review-c10/b6c3201/probe-export/policy-engine",
+  "pid": 16272,
+  "started_utc": "2026-10-08T16:27:20.018016+00:00",
+  "finished_utc": "2026-10-08T16:27:42.911971+00:00",
+  "elapsed_seconds": 22.89397535499984,
+  "returncode": 1,
+  "execution": "completed; see deciding assertion/output",
+  "stdout": {
+    "bytes": 716,
+    "sha256": "5fe34fc337def8c0bc4c78d3d0ab0823b9473c4587b8c80d0ba8163392107dd9"
+  },
+  "stderr": {
+    "bytes": 1109,
+    "sha256": "4cce643dc0b05abe3c9614a726591c74af21017fd0bab6c606fb1cea05002d12"
+  }
+}

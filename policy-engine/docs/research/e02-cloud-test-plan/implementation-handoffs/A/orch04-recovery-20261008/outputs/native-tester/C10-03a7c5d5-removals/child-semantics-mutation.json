@@ -1,0 +1,13 @@
+{
+  "baseline": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source",
+  "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+  "preimage_sha256": "e92783bb28ee30d9c75600921177711ebaace433d4d6905179d02818c9458225",
+  "postimage_sha256": "070e9fc16a219e13503ee8ef547a7574ec15c270f17f0c661aa7566885d45d95",
+  "replacements": [
+    [
+      "        if semantic_ref not in by_semantics:\n",
+      "        semantic_ref = gy_content_hash(candidate.model_dump(mode=\"json\"))\n        if semantic_ref not in by_semantics:\n"
+    ]
+  ],
+  "purpose": "remove runtime property while keeping named markers/refs/testing inputs intact"
+}

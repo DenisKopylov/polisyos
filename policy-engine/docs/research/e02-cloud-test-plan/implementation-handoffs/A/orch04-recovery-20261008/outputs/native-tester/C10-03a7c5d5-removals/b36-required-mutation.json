@@ -1,0 +1,13 @@
+{
+  "baseline": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source",
+  "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+  "preimage_sha256": "40caaf6c37d4d4d89e9dd3f26954b1621dbd5d8163ddf37a4ba1e6d72586c643",
+  "postimage_sha256": "a9805d62d9582bde3dd300035097460a0e1511c4ebd026d8a2da8be7fff615fb",
+  "replacements": [
+    [
+      "\"value_available_data_modalities\": profile.available_data_modalities,",
+      "\"value_required_data_modalities\": profile.available_data_modalities,  # value_available_data_modalities marker retained"
+    ]
+  ],
+  "purpose": "remove runtime property while keeping named markers/refs/testing inputs intact"
+}

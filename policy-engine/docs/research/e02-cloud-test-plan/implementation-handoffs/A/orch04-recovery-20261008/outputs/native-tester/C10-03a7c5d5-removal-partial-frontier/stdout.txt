@@ -1,0 +1,91 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____ test_budget_stopped_child_keeps_completed_child_and_pending_sibling ______
+
+    @pytest.mark.asyncio
+    async def test_budget_stopped_child_keeps_completed_child_and_pending_sibling() -> None:
+        """A canonical N6 budget terminal checkpoints the graph before sibling execution."""
+    
+>       result, child_refs, request, factory = await _run_recursive_fixture(
+            budget_state=BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("0"))})
+        )
+
+../../../C10-03a7c5d5-source/policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py:352: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../C10-03a7c5d5-source/policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py:307: in _run_recursive_fixture
+    result = await controller.run(
+src/polisyos/runtime/quality/recursive_generation_cycle.py:1918: in run
+    return _build_budget_stopped_recursive_run_v2(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _build_budget_stopped_recursive_run_v2(
+        *,
+        recursive_graph: RecursiveDesignGraph,
+        problems_by_node: Mapping[str, DesignProblem],
+        completed_nodes_by_ref: Mapping[str, RecursiveCycleNode],
+        children_by_node: Mapping[str, list[str]],
+        parent_by_node: Mapping[str, str],
+        depths: Mapping[str, int],
+        recursive_budget: RecursiveCycleBudget,
+        budget_stop_node_ref: str,
+        frontier_node_refs: tuple[str, ...],
+        authority_scope: Literal["production", "contract_testing"],
+    ) -> RecursiveGenerationCyclePartialRunV2:
+        """Seal actual routed children and graph-only pending nodes in one checkpoint."""
+    
+        nodes: list[RecursiveCycleNode | RecursiveCyclePendingNode] = []
+        for node_ref in recursive_graph.node_refs:
+            completed = completed_nodes_by_ref.get(node_ref)
+            if completed is not None:
+                nodes.append(completed)
+            else:
+                nodes.append(
+                    RecursiveCyclePendingNode(
+                        node_ref=node_ref,
+                        parent_ref=parent_by_node.get(node_ref),
+                        depth=depths[node_ref],
+                        child_refs=tuple(children_by_node[node_ref]),
+                        design_problem_ref=_problem_ref(problems_by_node[node_ref]),
+                    )
+                )
+        node_payloads = [node.model_dump(mode="json") for node in nodes]
+        payload: dict[str, object] = {
+            "schema_version": RECURSIVE_GENERATION_CYCLE_PARTIAL_V2_SCHEMA_VERSION,
+            "run_id": f"recursive:{recursive_graph.graph_id}",
+            "controller_ref": RECURSIVE_GENERATION_CYCLE_CONTROLLER_REF,
+            "authority_scope": authority_scope,
+            "recursive_graph": recursive_graph.model_dump(mode="json"),
+            "recursive_graph_ref": recursive_graph.graph_ref,
+            "recursive_graph_content_hash": gy_content_hash(recursive_graph.model_dump(mode="json")),
+            "root_node_ref": recursive_graph.root_design_ref,
+            "root_design_problem_ref": _problem_ref(problems_by_node[recursive_graph.root_design_ref]),
+            "recursive_budget": recursive_budget.model_dump(mode="json"),
+            "observed_max_depth": max(depths.values()),
+            "nodes": node_payloads,
+            "traversal_status": "budget_stopped",
+            "traversal_stop_reason": "child_budget_exhausted",
+            "budget_stop_node_ref": budget_stop_node_ref,
+            "frontier_node_refs": list(frontier_node_refs),
+            "terminal": None,
+        }
+>       return RecursiveGenerationCyclePartialRunV2.model_validate(
+            {
+                **payload,
+                "nodes": tuple(nodes),
+                "content_hash": gy_content_hash(payload),
+            }
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for RecursiveGenerationCyclePartialRunV2
+E         Value error, recursive_partial_frontier_denominator_mismatch [type=value_error, input_value={'schema_version': 'polic...bf7a4c4afabc3941e67729'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+src/polisyos/runtime/quality/recursive_generation_cycle.py:905: ValidationError
+=============================== warnings summary ===============================
+../../../../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py::test_budget_stopped_child_keeps_completed_child_and_pending_sibling

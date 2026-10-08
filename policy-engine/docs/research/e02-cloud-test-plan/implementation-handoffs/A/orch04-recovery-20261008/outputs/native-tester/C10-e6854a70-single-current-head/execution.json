@@ -1,0 +1,73 @@
+{
+  "schema": "orch04.native_execution.v1",
+  "argv": [
+    "/workspace/ORCH04-environments/app/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_non_simulation_leaf_requires_current_eval_safety_head",
+    "--junitxml=/workspace/ORCH04-evidence/native-tester/C10-e6854a70-single-current-head.xml",
+    "--basetemp=/workspace/ORCH04-evidence/native-tester/C10-e6854a70-single-current-head-temp",
+    "-q"
+  ],
+  "cwd": "/workspace/ORCH04-C10/policy-engine",
+  "source_commit": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+  "source_tree": "6506a68152d7a957fc7762e9846a72e7ab98d557",
+  "source_manifest_path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-actual-checkout-source-manifest.json",
+  "source_manifest_sha256": "3bde6bff846b25ef1b5e23d7ca383d9ad5f6299d028f4004535ca9f8f9162034",
+  "start_utc": "2026-10-08T17:04:51.986109+00:00",
+  "parent_pid": 22377,
+  "cgroup_before": {
+    "memory.current": "13495152640\n",
+    "memory.peak": "17180999680\n",
+    "memory.max": "17179869184\n",
+    "memory.events": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "memory.stat": "anon 99864576\nfile 11147677696\nkernel 2246877184\nkernel_stack 524288\npagetables 1601536\nsec_pagetables 0\npercpu 13664\nsock 0\nvmalloc 0\nshmem 39874560\nfile_mapped 24576\nfile_dirty 9719808\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 364904448\nshmem_thp 0\ninactive_anon 114151424\nactive_anon 25493504\ninactive_file 1142611968\nactive_file 9965191168\nunevictable 0\nslab_reclaimable 2240517928\nslab_unreclaimable 4200560\nslab 2244718488\nworkingset_refault_anon 0\nworkingset_refault_file 425445\nworkingset_activate_anon 0\nworkingset_activate_file 241313\nworkingset_restore_anon 0\nworkingset_restore_file 8\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 4321570\npgsteal 4317613\npswpin 0\npswpout 0\npgscan_kswapd 28349\npgscan_direct 4293221\npgscan_khugepaged 0\npgscan_proactive 0\npgsteal_kswapd 28349\npgsteal_direct 4289264\npgsteal_khugepaged 0\npgsteal_proactive 0\npgfault 50474689\npgmajfault 373\npgrefill 18719\npgactivate 2055241\npgdeactivate 18719\npglazyfree 2137\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 73\nthp_collapse_alloc 10\nthp_swpout 0\nthp_swpout_fallback 0\n",
+    "pids.current": "76\n",
+    "pids.max": "max\n",
+    "cpu.max": "400000 100000\n",
+    "filesystem": {
+      "available_bytes": 5305335808,
+      "available_inodes": 1315264
+    }
+  },
+  "source_delta_before": [],
+  "selected_environment": {
+    "PYTHONPATH": "/workspace/ORCH04-C10/policy-engine/src:/workspace/ORCH04-C10/policy-engine:",
+    "TMPDIR": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-single-current-head/tmp",
+    "JAX_PLATFORMS": null,
+    "JAX_PLATFORM_NAME": null,
+    "OMP_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "XLA_FLAGS": null
+  },
+  "external_file_inputs": [
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/run_native.py",
+      "sha256": "7ef04c4846426d42e38a8598e26b728bfbc5bb32f034faba0c3da61dd670826d"
+    }
+  ],
+  "origins_exit_code": 0,
+  "pid": 22389,
+  "exit_code": 0,
+  "wall_seconds": 67.88637827399998,
+  "finish_utc": "2026-10-08T17:06:01.603597+00:00",
+  "max_rss_kib": 1620988,
+  "user_seconds": 61.651989,
+  "system_seconds": 6.349376,
+  "cgroup_after": {
+    "memory.current": "14453964800\n",
+    "memory.peak": "17180999680\n",
+    "memory.max": "17179869184\n",
+    "memory.events": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "memory.stat": "anon 1045938176\nfile 11149590528\nkernel 2257616896\nkernel_stack 737280\npagetables 10506240\nsec_pagetables 0\npercpu 13888\nsock 0\nvmalloc 0\nshmem 39874560\nfile_mapped 552042496\nfile_dirty 7917568\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 364904448\nshmem_thp 0\ninactive_anon 1060208640\nactive_anon 25497600\ninactive_file 1143058432\nactive_file 9966661632\nunevictable 0\nslab_reclaimable 2241418272\nslab_unreclaimable 4936728\nslab 2246355000\nworkingset_refault_anon 0\nworkingset_refault_file 425445\nworkingset_activate_anon 0\nworkingset_activate_file 241313\nworkingset_restore_anon 0\nworkingset_restore_file 8\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 4321570\npgsteal 4317613\npswpin 0\npswpout 0\npgscan_kswapd 28349\npgscan_direct 4293221\npgscan_khugepaged 0\npgscan_proactive 0\npgsteal_kswapd 28349\npgsteal_direct 4289264\npgsteal_khugepaged 0\npgsteal_proactive 0\npgfault 51685315\npgmajfault 373\npgrefill 18719\npgactivate 2055601\npgdeactivate 18719\npglazyfree 2143\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 73\nthp_collapse_alloc 10\nthp_swpout 0\nthp_swpout_fallback 0\n",
+    "pids.current": "89\n",
+    "pids.max": "max\n",
+    "cpu.max": "400000 100000\n",
+    "filesystem": {
+      "available_bytes": 5303513088,
+      "available_inodes": 1314944
+    }
+  },
+  "source_delta_after": []
+}

@@ -1,0 +1,15 @@
+
+ RUN  v4.1.5 /workspace/ORCH04-C10/policy-engine/apps/runtime-dashboard
+
+ ❯ |unit| src/shared/i18n/parity.test.ts (48 tests | 5 failed) 342ms
+     × keeps the legacy-continuity Russian key set frozen 56ms
+     × rejects a real new active-catalog numeric use until it is declared 18ms
+     × freezes the complete quantitative-use declaration set 37ms
+     × requires complete active en quantitative-use declarations 7ms
+     × requires complete active uk quantitative-use declarations 9ms
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  5 failed | 47 passed (52)
+   Start at  16:15:33
+   Duration  4.45s (transform 1.96s, setup 1.15s, import 2.79s, tests 652ms, environment 1.51s)
+

@@ -1,0 +1,5 @@
+{
+  "status": "ERROR in first preparatory manifest comparison, no product/source/test failure",
+  "reason": "dict-level comparison mistakenly compared optional schema metadata fields size vs bytes; all actual Gitblob identities already verified by checkout manifest. Corrected comparison uses exact mode/git_blob/sha256 (full byte identities), retaining explicit changed path.",
+  "deciding_native_wave_affected": false
+}

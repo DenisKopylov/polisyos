@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "git",
+    "commit",
+    "-m",
+    "test(runtime): preserve scoped C10 guard preimages and exact owner calls"
+  ],
+  "cwd": "/workspace/ORCH04-C10",
+  "started_utc": "2026-10-08T16:54:12.478045+00:00",
+  "python_executable": "/workspace/.polisyos-environment/bin/python",
+  "profile_env": {
+    "PYTHONPATH": null,
+    "NODE_USE_ENV_PROXY": "1",
+    "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+    "npm_config_store_dir": "/workspace/.polisyos-environment/cache/pnpm"
+  },
+  "pid": 20805,
+  "finished_utc": "2026-10-08T16:54:12.831217+00:00",
+  "elapsed_seconds": 0.3531768380007634,
+  "returncode": 0,
+  "outputs": {
+    ".stdout": {
+      "bytes": 169,
+      "sha256": "9e99c367472e51436f151221ab98533da9e283e60ee86dae6b67bd91e41e5cc3"
+    },
+    ".stderr": {
+      "bytes": 831,
+      "sha256": "880a81a2c38c51cc04240765a4b77c55a0aba014683f7cdb76f9fc371716a7d3"
+    }
+  }
+}

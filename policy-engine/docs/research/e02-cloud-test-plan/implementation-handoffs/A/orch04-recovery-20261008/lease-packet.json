@@ -1,0 +1,147 @@
+{
+  "schema": "policyos.e02.c10.recovery.lease-packet.v1",
+  "actor": "C10 A direct writer; no children",
+  "role": "own runtime/design/context/generation/history/HTTP/manual UI/explanation; no source acceptance/formal G closure",
+  "actual_pair": {
+    "remote": "https://github.com/DenisKopylov/polisyos.git",
+    "branch": "codex/e02-C10-recovery-20261008",
+    "path": "/workspace/ORCH04-C10",
+    "source_head": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+    "source_tree": "6506a68152d7a957fc7762e9846a72e7ab98d557",
+    "status_at_freeze": ""
+  },
+  "admission": {
+    "create_resume_receipts": "/workspace/ORCH04-evidence/admission/C10-*",
+    "fresh_resume": "/workspace/ORCH04-evidence/c10/resume-before-source.json",
+    "new_source_lineage": "G032 -> b6c3201 ->03a7c5d5 ->bf3580ae ->cfe46cfa8428d4388a44d2d68828ad1a5a19b256; append-only ordinary hooks; no carrier merge or rewrite ->e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8 existing typed value consumer store wiring"
+  },
+  "dispatch": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json",
+    "base_blob": "f2e8d2096b86148fb93d4eb61520d22002228a1d",
+    "original_C10_path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C10.md"
+  },
+  "explicit_coordinator_named_grants": [
+    "C10 dispatch own mechanisms and named mirrored tests for touched mechanisms",
+    "unique runtime quality README role slice + unique release fragment",
+    "only new pages.runs.candidateSimulation keys in active en/uk catalogs; scalar pages.runs.overview retained; ru exact frozen unchanged; correction from initial3locale grant approved",
+    "unique implementation-handoffs/A/orch04-recovery-20261008 leaf docs/evidence receipt"
+  ],
+  "prohibited_untouched": [
+    "Core contract/facade source",
+    "canonical DTO validator/generated/API/type family",
+    "IR",
+    "adjacent supplier engines/governance",
+    "locks",
+    "production payload/exports",
+    "main/integration refs"
+  ],
+  "source_paths": [
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx",
+      "preimage_git_blob": "b47543a45bb8980365bc8fe18ba52b44c4eb9de1",
+      "postimage_git_blob": "eb654ee6cd36d9c84d34c80dc6e7e470747db250",
+      "postimage_sha256": "d1d8090bbbed60577d25e814800ed1f5589eccbb9816aae69bb9604776d76c44"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+      "preimage_git_blob": "f2e3a8f67cc2aa3b2655e09ffbaf8bcfc0eefd98",
+      "postimage_git_blob": "4a4dccfc1bd61c1c5d5d61e7ef7c4e2f9721627d",
+      "postimage_sha256": "56a22b66cc1af211bc467341b5d08221f28bc8f79b0ce2ecde57c49566287121"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+      "preimage_git_blob": "e86d49007c139051a7058b76806913149426deeb",
+      "postimage_git_blob": "20fb957a8e42abac40f787483cb0b15b8ed57ae6",
+      "postimage_sha256": "958a18f52e13b636577bdcd27cbfce7d7676e18e8afdd02769ddb511f0cae673"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+      "preimage_git_blob": "18d4cac049193373d592002a6e0dbf1189df0ed1",
+      "postimage_git_blob": "afc2bcf32ab003855e04594de77142edeb07f5c5",
+      "postimage_sha256": "e4548762e3e6d1fe63f7c0a712f31c84133f6ebf254e6fa2767a0a8d41ae4027"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-orch04-c10-candidate-recovery.toml",
+      "preimage_git_blob": null,
+      "postimage_git_blob": "e1afc64b102e0f9e4ab17e733978b03c2dbb2ab5",
+      "postimage_sha256": "4c4dd6bdd0d32a2a4be015ca803df6a7eba265d956d7b136e10bee25a5227d2f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "preimage_git_blob": "29459ff167cad1e011a2de626a627b30d0336a01",
+      "postimage_git_blob": "9505f0acebd8d8f0c556afce3f56f0aa497a8fc4",
+      "postimage_sha256": "286fbec680fd89bc190ba00004c3b227d1ca4978739d64b489deda3302f35dd0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "preimage_git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+      "postimage_git_blob": "57554e1c1b63dd685f81f545ec8dae2201ab2466",
+      "postimage_sha256": "300c0b5b0fa2294abb07b02e09fd91eea5a2600c6e23a46ab6cc45ec7f05784b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+      "preimage_git_blob": "c08a37fa4ac247dcb1c936e82f40fc661aa94fc2",
+      "postimage_git_blob": "6864bdebefefa8de0e77f62b1e04fa12ff00ee5c",
+      "postimage_sha256": "4cf00488f43b568f931c685edbe4db89b38bf1a4ebf269b7c635051123dcef72"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+      "preimage_git_blob": "a12f1aade3ef5368bdd1571df52a2ef32538f7c1",
+      "postimage_git_blob": "8e6672c3cdac53e50b35958a263326408b7c57d4",
+      "postimage_sha256": "e92783bb28ee30d9c75600921177711ebaace433d4d6905179d02818c9458225"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "preimage_git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "postimage_git_blob": "75d820d2bdd2c9cd6ea2a4aa5d98860067112eea",
+      "postimage_sha256": "40caaf6c37d4d4d89e9dd3f26954b1621dbd5d8163ddf37a4ba1e6d72586c643"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "preimage_git_blob": "71aa5c2956ba7033924f90be715ce3b8afb9f798",
+      "postimage_git_blob": "90512c2a5630b6251fa92ba656a9bf5577bd2079",
+      "postimage_sha256": "3861c662c1957dea009d5580d0878a5c4da13d3e7cb46e2f27805c8214418551"
+    },
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+      "preimage_git_blob": "061f5f53d74f0f904a9b6bdafeec3d8432ec8d7d",
+      "postimage_git_blob": "8fd70624486dc228a21664540eb489c2ca5fd8c4",
+      "postimage_sha256": "1efad266144b6934341e2673614266984ccf33fd2d4b5a736a32e65ffcb536b9"
+    },
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+      "preimage_git_blob": null,
+      "postimage_git_blob": "5ecb0c35644d7d5a34f85e7e161c9c058498f8f7",
+      "postimage_sha256": "91072d69f4c94c7f7bf0020be09ba6379f9945c89ff6c57dd73c6e6a06b56747"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "preimage_git_blob": "5fb9c75d734a2398fd6639d983adafb8054d40da",
+      "postimage_git_blob": "3fdf56f920a1575810e9df6b539b82dfa6105233",
+      "postimage_sha256": "8ffc00f30887724315dff5aa9e6f6d8d3298b0f6b92b0b3b1f02f45b627ec0eb"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+      "preimage_git_blob": "6b40cf6f293cc10edfb75cc04eb6e8a71d50365f",
+      "postimage_git_blob": "b38c1e184820d30180c6eae1ebe2ff42e5df0f9b",
+      "postimage_sha256": "31f15335100567b1fcef6cfa2e4379405b8809e5eb60d6b256daa4972c2462a8"
+    }
+  ],
+  "independence": {
+    "reviewer": "/root/review_c10 readonly; no author edits",
+    "tester": "/root/native_tester final immutable source03a after independentGO",
+    "G": "source acceptance/composition and formal closure remain separate"
+  },
+  "hooks": {
+    "state": "enabled ordinary repo dispatcher/lefthook; no skip flags or bypass",
+    "normal_install": "own corepack pnpm install --frozen-lockfile proxy-supported exit0 normalprepare installs shared dispatcher",
+    "local_env_ignore": "ordinary .venv symlink exactlocalexclude authorized; no tracked hook/config mutation",
+    "source_commits": "normal git commits; firstUI-i18n/error receipts preserved then valid hook checks passed",
+    "publication": "pending normal topic push after final required deciding outputs"
+  },
+  "test_companion_ownership": {
+    "Core_Task44": "outside A; independent review_c10 ruling honored, exacttuple unedited",
+    "owned": "callback and conservative full recursive constructor census; own expected keyword sets only",
+    "nonleased": "5 exact journal/acquisition/tool companions held, no source edits"
+  }
+}

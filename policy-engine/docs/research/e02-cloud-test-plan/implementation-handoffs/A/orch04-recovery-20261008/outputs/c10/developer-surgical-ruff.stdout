@@ -1,0 +1,37 @@
+F821 Undefined name `GenerationUnderAResult`
+    --> src/polisyos/runtime/http/services/control/run_lifecycle.py:2314:30
+     |
+2312 |         | None = None,
+2313 |         candidate_simulation_currentness_resolver: Callable[[], bool] | None = None,
+2314 |         n4_recursive_source: GenerationUnderAResult | None = None,
+     |                              ^^^^^^^^^^^^^^^^^^^^^^
+2315 |         recursive_leaf_context_owner: RecursiveLeafContextOwner | None = None,
+2316 |         root_evaluation_context: EvaluationExecutionContext | None = None,
+     |
+
+F821 Undefined name `RecursiveLeafContextOwner`
+    --> src/polisyos/runtime/http/services/control/run_lifecycle.py:2315:39
+     |
+2313 |         candidate_simulation_currentness_resolver: Callable[[], bool] | None = None,
+2314 |         n4_recursive_source: GenerationUnderAResult | None = None,
+2315 |         recursive_leaf_context_owner: RecursiveLeafContextOwner | None = None,
+     |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^
+2316 |         root_evaluation_context: EvaluationExecutionContext | None = None,
+2317 |     ) -> (
+     |
+
+I001 [*] Import block is un-sorted or un-formatted
+     --> tests/unit/runtime/quality/test_generation_cycle.py:10132:5
+      |
+10131 |   def test_n4_candidate_child_producer_uses_declared_atom_semantics_and_complete_problem():
+10132 | /     from polisyos.runtime.quality.design_generation import (
+10133 | |         DesignGenerationError, derive_n4_candidate_child_problems,
+10134 | |     )
+      | |_____^
+10135 |
+10136 |       problem, result = _controlled_declared_n4_child_inputs()
+      |
+help: Organize imports
+
+Found 3 errors.
+[*] 1 fixable with the `--fix` option.

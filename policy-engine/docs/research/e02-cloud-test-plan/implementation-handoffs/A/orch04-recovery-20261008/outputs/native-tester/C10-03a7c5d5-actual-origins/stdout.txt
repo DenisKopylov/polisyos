@@ -1,0 +1,48 @@
+{
+  "schema": "orch04.actual_import_origins.v1",
+  "modules": [
+    {
+      "module": "polisyos.runtime.quality.generation_cycle",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "sha256": "40caaf6c37d4d4d89e9dd3f26954b1621dbd5d8163ddf37a4ba1e6d72586c643"
+    },
+    {
+      "module": "polisyos.runtime.quality.design_generation",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/quality/design_generation.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/quality/design_generation.py",
+      "sha256": "e92783bb28ee30d9c75600921177711ebaace433d4d6905179d02818c9458225"
+    },
+    {
+      "module": "polisyos.runtime.quality.recursive_generation_cycle",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "sha256": "8fc4063cd126e8c05317b7da642f81fed75ae27ec600c2106adebfcf1fbb951b"
+    },
+    {
+      "module": "polisyos.runtime.quality.cycle_substrate",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/quality/cycle_substrate.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/quality/cycle_substrate.py",
+      "sha256": "d16440eff59fb66d98a9eabeb9437e120085fe46bbc015538c399d650ce19e74"
+    },
+    {
+      "module": "polisyos.runtime.http.services.control.generation_cycle",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "sha256": "286fbec680fd89bc190ba00004c3b227d1ca4978739d64b489deda3302f35dd0"
+    },
+    {
+      "module": "polisyos.runtime.http.services.control.run_lifecycle",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "sha256": "300c0b5b0fa2294abb07b02e09fd91eea5a2600c6e23a46ab6cc45ec7f05784b"
+    },
+    {
+      "module": "polisyos.core.contracts.runtime",
+      "actual_file": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/core/contracts/runtime.py",
+      "resolved_file": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/core/contracts/runtime.py",
+      "sha256": "efa4c1416a651199a3c76b757f924e6818e0d8871c16b90b3b9a9412dbcc6bf9"
+    }
+  ],
+  "scope": "actual import origins only, not numerical or semantic conformance"
+}

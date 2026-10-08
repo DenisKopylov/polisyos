@@ -1,0 +1,773 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="1" tests="51" time="38.211" timestamp="2026-10-08T16:38:48.141734+00:00" hostname="9065c0936350"><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_value_owner_projection_preserves_required_modality_and_other_hints[required0]" time="0.007" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_value_owner_projection_preserves_required_modality_and_other_hints[required1]" time="0.001" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_value_owner_projection_preserves_required_modality_and_other_hints[required2]" time="0.001" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_n4_candidate_child_producer_uses_declared_atom_semantics_and_complete_problem" time="0.036" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_n4_candidate_child_producer_deduplicates_names_and_refuses_foreign_subject" time="0.034" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_empty_eval_safety_map_is_rejected_before_n4_dispatch" time="0.023" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_production_recursive_owner_rejects_substrate_without_execution_intent" time="0.089" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_non_simulation_context_without_admission_is_not_candidate_fallback" time="0.434" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_protected_intent_cannot_route_through_context_free_custom_factory" time="0.003" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_implicit_contract_testing_candidate_rejects_subclassed_n9_dispatch[controller]" time="0.003" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_implicit_contract_testing_candidate_rejects_subclassed_n9_dispatch[promotion_port]" time="0.002" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_candidate_or_simulation_intent_preserves_context_free_n4_dispatch[candidate_only]" time="0.033" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_candidate_or_simulation_intent_preserves_context_free_n4_dispatch[simulate_only]" time="0.032" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_data_trust_modes_report_their_missing_owner_separately_from_eval_safety[retrospective]" time="0.015" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_data_trust_modes_report_their_missing_owner_separately_from_eval_safety[measurement_audit]" time="0.017" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[missing-sandbox_pilot]" time="0.020" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[missing-field_pilot]" time="0.023" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[missing-deployment]" time="0.023" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[extra-sandbox_pilot]" time="0.022" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[extra-field_pilot]" time="0.023" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[extra-deployment]" time="0.022" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[wrong_key-sandbox_pilot]" time="0.022" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[wrong_key-field_pilot]" time="0.025" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[wrong_key-deployment]" time="0.019" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_default_recursive_generation_factory_binds_subject_authority_and_gate" time="0.018" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_direct_recursive_controller_rejects_foreign_epoch_dependencies" time="0.034" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_production_recursive_owner_requires_explicit_eval_safety_context_mapping" time="0.020" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_non_simulation_leaf_requires_current_eval_safety_head" time="3.209"><failure message="TypeError: test_non_simulation_leaf_requires_current_eval_safety_head.&lt;locals&gt;.actual_n5_input_ref() got an unexpected keyword argument 'artifact_store'">tmp_path = PosixPath('/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-pytest-temp/test_non_simulation_leaf_requi0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f63e6c32970&gt;
+
+    @pytest.mark.asyncio
+    async def test_non_simulation_leaf_requires_current_eval_safety_head(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        from polisyos.runtime.http.services.control import evaluation_safety as c02
+        from polisyos.runtime.quality import evaluation_safety as es
+        from polisyos.runtime.quality import generation_cycle as generation_cycle_owner
+        from polisyos.runtime.quality import recursive_generation_cycle as recursive_cycle_owner
+        from polisyos.runtime.quality.generation_cycle import (
+            JointSimulationPort,
+            RealValueOwnerGateway,
+            ValueOwnerAccessError,
+            currentness_for_generation_cycle_run,
+            validate_generation_cycle_candidate_run,
+            validate_generation_cycle_run,
+        )
+        from tests.unit.runtime.http.services import test_evaluation_safety as c02_test
+        from tests.unit.runtime.quality.test_generation_cycle import (
+            REPO_ROOT,
+            _Atom,
+            _budget,
+            _Candidate,
+            _CgfGenerationPort,
+            _problem,
+        )
+        from tests.unit.runtime.quality.test_value_gate import (
+            _non_simulation_execution_context,
+            _simulation,
+            _world_record,
+        )
+    
+        runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas"))
+        problem = _problem(f"recursive_eval_safety_{uuid4().hex}")
+        problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+        root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+        graph = derive_recursive_design_graph(
+            design_ref=root_ref,
+            module_refs=(),
+            parent_child_edges=(),
+            rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+        )
+        recursive_budget = RecursiveCycleBudget(
+            max_depth=0,
+            max_nodes=1,
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=1,
+        )
+        candidate = _Candidate(
+            candidate_id="candidate_cgf_shadow",
+            atom=_Atom(
+                "candidate_cgf_shadow",
+                "sha256:" + "4" * 64,
+                target_world_slots=("firm_survival",),
+            ),
+            diversity_key=("grant", "firms", "cgf_shadow", "baseline"),
+        )
+        world = _world_record("7")
+        simulation = _simulation(world, candidate_id=candidate.candidate_id)
+        bound_context = _non_simulation_execution_context(
+            mode="field_pilot",
+            candidate=candidate,
+            world=world,
+            problem=problem,
+        )
+        original_intake = c02_test.EvaluationAttemptIntake
+    
+        def bound_intake(**values: object) -&gt; es.EvaluationAttemptIntake:
+            values.update(
+                {
+                    "candidate_ref": bound_context.candidate_ref,
+                    "world_model_record_ref": bound_context.world_model_record_ref,
+                }
+            )
+            return original_intake(**values)
+    
+        monkeypatch.setattr(c02_test, "EvaluationAttemptIntake", bound_intake)
+        fixture = c02_test._passing_fixture(  # noqa: SLF001
+            tmp_path / "eval-safety",
+            design_problem_ref=problem_ref,
+        )
+    
+        def actual_n5_input_ref(
+            observation: object,
+        ) -&gt; object:
+            assert observation is simulation
+            return fixture.execution_context.evaluation_input_refs[0]
+    
+        monkeypatch.setattr(
+            generation_cycle_owner,
+            "simulation_evaluation_input_ref",
+            actual_n5_input_ref,
+        )
+    
+        class CurrentStateResolver:
+            def resolve(
+                self,
+                context: es.EvaluationExecutionContext,
+            ) -&gt; c02.EvaluationSafetyReplayMaterial:
+                del context
+                return fixture.replay_material
+    
+        concrete_verifier = c02.EvaluationSafetyAdmissionVerifier(
+            persistence_service=fixture.service,
+            current_state_resolver=CurrentStateResolver(),
+            authority_resolver=fixture.authority_resolver,
+            appointment_resolver=fixture.appointment_resolver,
+            verifier_registry=fixture.verifier_registry,
+        )
+    
+        class ReplayFirstPositive:
+            def __init__(self) -&gt; None:
+                self.first: es.EvalSafetyConsumerAdmissionReceipt | None = None
+    
+            def require_admission(
+                self,
+                context: es.EvaluationExecutionContext,
+                challenge: es.EvalSafetyAdmissionChallenge,
+            ) -&gt; es.EvalSafetyConsumerAdmissionReceipt:
+                if self.first is None:
+                    self.first = concrete_verifier.require_admission(context, challenge)
+                return self.first
+    
+        owner_calls: list[str] = []
+        n4_calls = 0
+        n5_calls = 0
+    
+        def actual_n5(
+            self: JointSimulationPort,
+            *,
+            candidate: object,
+            problem: object,
+            cycle_index: int,
+        ) -&gt; object:
+            nonlocal n5_calls
+            del self, problem, cycle_index
+            n5_calls += 1
+            assert candidate.candidate_id == simulation.candidate_id  # type: ignore[attr-defined]
+            return simulation
+    
+        def value_owner_spy(
+            self: RealValueOwnerGateway,
+            **values: object,
+        ) -&gt; object:
+            del self, values
+            owner_calls.append("load_value_data_profile")
+            raise ValueOwnerAccessError("value_owner_data_profile_invalid")
+    
+        monkeypatch.setattr(JointSimulationPort, "__call__", actual_n5)
+        monkeypatch.setattr(RealValueOwnerGateway, "load_value_data_profile", value_owner_spy)
+    
+        class _CanonicalFixtureN4Port(N4GenerationPort):
+            def __init__(self) -&gt; None:
+                super().__init__(model_id="fixture-model")
+                self._delegate = _CgfGenerationPort()
+    
+            async def __call__(self, problem, *, cycle_index):
+                nonlocal n4_calls
+                n4_calls += 1
+                return await self._delegate(problem, cycle_index=cycle_index)
+    
+        async def run_leaf(
+            *,
+            context: es.EvaluationExecutionContext,
+            verifier: object,
+            context_bindings: dict[str, es.EvaluationExecutionContext] | None = None,
+        ):
+            controller = build_default_recursive_generation_cycle_controller(
+                repo_root=REPO_ROOT,
+                promotion_runtime=runtime,
+                eval_safety_verifier=verifier,
+            )
+            return await controller.run(
+                graph,
+                problems_by_node={root_ref: problem},
+                budget_state=_budget(),
+                recursive_budget=recursive_budget,
+                n4_generation_ports_by_node={root_ref: _CanonicalFixtureN4Port()},
+                evaluation_contexts_by_node=(
+                    {root_ref: context} if context_bindings is None else context_bindings
+                ),
+                execution_intents_by_node={root_ref: "field_pilot"},
+            )
+    
+&gt;       current = await run_leaf(
+            context=fixture.execution_context,
+            verifier=concrete_verifier,
+        )
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:1352: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:1340: in run_leaf
+    return await controller.run(
+src/polisyos/runtime/quality/recursive_generation_cycle.py:1916: in run
+    root = await route(recursive_graph.root_design_ref)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/recursive_generation_cycle.py:1734: in route
+    cycle_run = await controller.run(
+src/polisyos/runtime/quality/generation_cycle.py:5662: in run
+    cycle, cycle_summaries = await self._run_cycle(
+src/polisyos/runtime/quality/generation_cycle.py:6380: in _run_cycle
+    finished = await self._engine.run_async(state)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/workflows/engine_simple.py:51: in run_async
+    next_state = fn(state)
+                 ^^^^^^^^^
+src/polisyos/runtime/quality/generation_cycle.py:8182: in _joint_value_node
+    value = value_port(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.runtime.quality.generation_cycle.FoundryValuePort object at 0x7f63e50e7cb0&gt;
+
+    def __call__(
+        self,
+        *,
+        candidate: object,
+        simulation: SimulationPortObservation,
+        problem: DesignProblem,
+        cycle_index: int,
+    ) -&gt; ValuePortObservation:
+        """Compute value over a named WMR or fail closed with typed blockers."""
+    
+        started = time.monotonic()
+        del cycle_index
+        candidate_id = _candidate_id(candidate)
+        context = self._evaluation_context
+        mode = context.evaluation_mode
+        if context.evaluator_owner_id != FOUNDRY_VALUE_PORT_EVALUATOR_ID:
+            return _blocked_value_observation(
+                code="eval_safety_evaluator_owner_mismatch",
+                reason="EvalSafety context is bound to another evaluator owner.",
+                mode=mode,
+                started=started,
+                candidate_id=candidate_id,
+            )
+        if context.design_problem_ref != _problem_ref(problem):
+            return _blocked_value_observation(
+                code="eval_safety_design_problem_binding_mismatch",
+                reason="EvalSafety context does not bind this DesignProblem.",
+                mode=mode,
+                started=started,
+                candidate_id=candidate_id,
+            )
+&gt;       actual_input_ref = simulation_evaluation_input_ref(
+            simulation, artifact_store=self._artifact_store
+        )
+E       TypeError: test_non_simulation_leaf_requires_current_eval_safety_head.&lt;locals&gt;.actual_n5_input_ref() got an unexpected keyword argument 'artifact_store'
+
+src/polisyos/runtime/quality/generation_cycle.py:4623: TypeError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_http_contextless_explicit_n4_refuses_before_n4" time="0.025" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_http_recursive_route_carries_one_cycle_context_without_manual_context" time="0.147" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_http_recursive_route_carries_one_context_to_n5_owner_block" time="0.165" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_http_recursive_route_without_owner_context_fails_closed_before_boundary_wmr" time="0.028" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_http_protected_explicit_n4_without_owner_context_fails_closed_before_boundary_wmr" time="0.027" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_recursive_leaf_preserves_history_and_current_problem_binding" time="0.058" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_recursive_constructor_denominator_has_no_unwrapped_n9_call" time="0.004"><failure message="subprocess.CalledProcessError: Command '['git', '-C', '/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine', 'ls-files', '--cached', '--others', '--exclude-standard', '--', '*.py', '*.pyi']' returned non-zero exit status 128.">def test_recursive_constructor_denominator_has_no_unwrapped_n9_call() -&gt; None:
+        repo_root = Path(__file__).resolve().parents[4]
+&gt;       git_paths, filesystem_paths = _production_python_paths(repo_root)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:2052: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:738: in _production_python_paths
+    result = subprocess.run(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = True, timeout = None, check = True
+popenargs = (['git', '-C', '/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine', 'ls-files', '--cached', '--others', ...],)
+kwargs = {'stderr': -1, 'stdout': -1, 'text': True}
+process = &lt;Popen: returncode: 128 args: ['git', '-C', '/workspace/ORCH04-evidence/nati...&gt;
+stdout = ''
+stderr = 'fatal: not a git repository (or any of the parent directories): .git\n'
+retcode = 128
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output &amp; stderr attributes if those streams
+        were captured.
+    
+        If timeout (seconds) is given and the process takes too long,
+         a TimeoutExpired exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+&gt;               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['git', '-C', '/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine', 'ls-files', '--cached', '--others', '--exclude-standard', '--', '*.py', '*.pyi']' returned non-zero exit status 128.
+
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/subprocess.py:577: CalledProcessError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_task_44_public_export_denominator_is_exact" time="0.001"><failure message="AssertionError: assert {'DecisionBas...JobKind', ...} == {'DecisionBas...JobKind', ...}&#10;  &#10;  Extra items in the left set:&#10;  'DecisionValidityEpochImpactOwnerRow'&#10;  'DecisionValidityEpochImpactSnapshot'&#10;  'PersistedDecisionValidityEpochImpactSnapshot'&#10;  'PersistedEpochTransitionDenominatorReconciliation'&#10;  'DecisionValidityEpochImpactTarget'...&#10;  &#10;  ...Full output truncated (7 lines hidden), use '-vv' to show">def test_task_44_public_export_denominator_is_exact() -&gt; None:
+        import polisyos.core.contracts as core_contracts
+        import polisyos.scientist.validation as scientist_validation
+        from polisyos.core.contracts import control, decision_validity
+        from polisyos.scientist.validation import decision_validity as scientist_decision_validity
+    
+        base_decision_names = (
+            "DecisionBasisSection",
+            "DecisionDependencyEvent",
+            "DecisionDependencyKind",
+            "DecisionDependencyRef",
+            "DecisionLifecycleJob",
+            "DecisionLifecycleJobKind",
+            "DecisionLifecycleJobState",
+            "DecisionTriggerRecord",
+            "DecisionTriggerSpec",
+            "DecisionTriggerType",
+            "DecisionValidityEnvelope",
+            "DecisionValidityEvaluation",
+            "DecisionValidityStatus",
+            "DecisionValidityTransition",
+        )
+        epoch_decision_names = (
+            "EpochTransitionVerificationReceipt",
+            "EpochTransitionVerifier",
+            "EpochValidityAuthorityGate",
+            "EpochValidityBatchCompletionStatement",
+            "EpochValidityBatchReceipt",
+            "EpochValidityBatchTarget",
+            "EpochValidityCompletedBatchEvidenceDenominator",
+            "EpochValidityCompletedBatchEvidenceResolver",
+            "EpochValidityGateNonReceipt",
+            "EpochValidityGateReceipt",
+            "EpochValidityN9EvidenceResolver",
+            "EpochValidityN9Projection",
+            "EpochValidityPendingBatch",
+            "EpochValidityPreN9SubjectAuthority",
+            "PersistedEpochValidityBatchEvidence",
+            "PersistedEpochValidityGateEvidence",
+            "PersistedPreN9AdmittedCandidateBatch",
+            "PersistedPreN9EpochValiditySubject",
+            "PreN9AdmittedCandidate",
+            "PreN9EpochValiditySubjectStatement",
+        )
+        expected_decision_names = base_decision_names + epoch_decision_names
+        control_epoch_names = ("EpochValidityBatchRequest", "EpochValidityBatchResponse")
+        contract = {
+            "expected_decision_names": expected_decision_names,
+            "decision_owner_names": set(decision_validity.__all__),
+            "decision_facade_names": set(core_contracts._MODULE_SYMBOLS[".decision_validity"]),
+            "control_owner_names": set(control.__all__),
+            "control_facade_names": set(core_contracts._MODULE_SYMBOLS[".control"]),
+            "scientist_names": set(scientist_validation.__all__),
+            "scientist_lazy_names": set(scientist_validation._LAZY_IMPORTS),
+            "facade_lazy_imports": dict(core_contracts._LAZY_IMPORTS),
+        }
+&gt;       _assert_task_44_export_contract(**contract)
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:2244: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _assert_task_44_export_contract(
+        *,
+        expected_decision_names: tuple[str, ...],
+        decision_owner_names: set[str],
+        decision_facade_names: set[str],
+        control_owner_names: set[str],
+        control_facade_names: set[str],
+        scientist_names: set[str],
+        scientist_lazy_names: set[str],
+        facade_lazy_imports: dict[str, str],
+    ) -&gt; None:
+        expected_decision = set(expected_decision_names)
+&gt;       assert decision_owner_names == expected_decision
+E       AssertionError: assert {'DecisionBas...JobKind', ...} == {'DecisionBas...JobKind', ...}
+E         
+E         Extra items in the left set:
+E         'DecisionValidityEpochImpactOwnerRow'
+E         'DecisionValidityEpochImpactSnapshot'
+E         'PersistedDecisionValidityEpochImpactSnapshot'
+E         'PersistedEpochTransitionDenominatorReconciliation'
+E         'DecisionValidityEpochImpactTarget'...
+E         
+E         ...Full output truncated (7 lines hidden), use '-vv' to show
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:1076: AssertionError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_implicit_contract_testing_candidate_rejects_instance_shadowed_n9_methods[run]" time="0.002" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_implicit_contract_testing_candidate_rejects_instance_shadowed_n9_methods[_promote_completed_generation]" time="0.002" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_implicit_contract_testing_candidate_rejects_instance_shadowed_n9_methods[deployment_identity_refusal]" time="0.002" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_implicit_contract_testing_candidate_completes_without_n9_authority" time="0.062" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_recursive_child_capsule_resolves_complete_owned_inputs_and_refuses_transplants" time="0.145" /><testcase classname="tests.integration.runtime_quality.test_e02_recursive_budget_frontier" name="test_budget_stopped_child_keeps_completed_child_and_pending_sibling" time="0.105" /><testcase classname="tests.integration.runtime_quality.test_e02_recursive_budget_frontier" name="test_epistemic_abstention_does_not_truncate_recursive_sibling" time="0.140" /><testcase classname="tests.integration.runtime_quality.test_e02_recursive_budget_frontier" name="test_partial_v2_rejects_self_asserted_internal_parent_terminal" time="0.205" /><testcase classname="tests.integration.runtime_quality.test_e02_recursive_budget_frontier" name="test_complete_uncomposed_parent_refuses_rehashed_positive_or_budget_terminal" time="0.156" /><testcase classname="tests.integration.runtime_quality.test_configured_candidate_simulation_served" name="test_profile_selection_ref_ignores_only_server_execution_ids" time="0.016" /><testcase classname="tests.integration.runtime_quality.test_configured_candidate_simulation_served" name="test_served_unknown_candidate_profile_keeps_persisted_n4_candidate" time="2.044"><failure message="ValueError: catalog_fetch_source_unreadable">tmp_path = PosixPath('/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-pytest-temp/test_served_unknown_candidate_0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f63e5382c10&gt;
+
+    def test_served_unknown_candidate_profile_keeps_persisted_n4_candidate(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """An unconfigured scenario leaves the real N4 candidate front door available."""
+    
+        from tests._helpers.control_worker import dispatch_one_control_job
+        from tests.unit.runtime.http.test_control_job_execution_intent import (
+            _valid_intake_for_mode,
+        )
+        from tests.unit.runtime.http.test_nl_pipeline_materialization import (
+            _DeterministicSpanSupportClient,
+            _FakeDesignProblemGateway,
+        )
+        monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+        monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+        monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+        monkeypatch.setenv(
+            "POLISYOS_CONTROL_SQLITE_PATH", (tmp_path / "control.sqlite3").as_posix()
+        )
+        monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+    
+        recording = next(
+            item
+            for item in n4_contract._load_recordings(REPO_ROOT)
+            if item.get("design_problem_id") == _RECORDING_ID
+        )
+        recorded_problem = _current_compiler_problem(recording)
+        raw_request = recorded_problem.nl_provenance.raw_request
+        model_id = str(recording["model_id"])
+        compiler_gateway = _FakeDesignProblemGateway(
+            models=[model_id],
+            arguments=recorded_problem.model_dump(mode="json"),
+        )
+        recorded_n4_client = n4_contract.RecordedGenerationReplayClient(recording)
+    
+        from polisyos.runtime.http.services.control import (
+            generation_cycle as generation_cycle_service,
+        )
+    
+        original_compiler = generation_cycle_service.build_design_problem_from_nl_request
+        compiled_problems = []
+    
+        async def run_real_compiler(**kwargs):
+            kwargs["gateway_client"] = compiler_gateway
+            kwargs["span_support_client"] = _DeterministicSpanSupportClient()
+            problem = await original_compiler(**kwargs)
+            compiled_problems.append(problem)
+            return problem
+    
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "build_design_problem_from_nl_request",
+            run_real_compiler,
+        )
+        monkeypatch.setattr(
+            llm_factory,
+            "create_traced_gateway_client",
+            lambda **_kwargs: recorded_n4_client,
+        )
+    
+&gt;       env = build_runtime_api_env(
+            tmp_path,
+            include_test_client=True,
+            app_kwargs={"candidate_simulation_profiles": ()},
+        )
+
+tests/integration/runtime_quality/test_configured_candidate_simulation_served.py:182: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2234: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb')
+
+    def identify(path: Path) -&gt; CatalogContentIdentity:
+        if not path.is_file():
+&gt;           raise ValueError("catalog_fetch_source_unreadable")
+E           ValueError: catalog_fetch_source_unreadable
+
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: ValueError</failure></testcase><testcase classname="tests.integration.runtime_quality.test_configured_candidate_simulation_served" name="test_served_unrefreshable_profile_evidence_keeps_n4_and_blocks_n5" time="0.057"><failure message="polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest">tmp_path = PosixPath('/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-pytest-temp/test_served_unrefreshable_prof0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f63e5cb04b0&gt;
+
+    def test_served_unrefreshable_profile_evidence_keeps_n4_and_blocks_n5(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """A selected profile with stale context evidence remains N4-only with a typed reason."""
+    
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationScenarioProfile,
+            CandidateSimulationSyntheticModelDeclarationV1,
+            candidate_simulation_profile_ref,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            CandidateLeverEvidence,
+            cycle_job_design_problem_ref,
+            cycle_substrate_context_binding_hash,
+        )
+        from polisyos.runtime.quality.generation_cycle import JointSimulationPort
+        from tests._helpers.control_worker import dispatch_one_control_job
+        from tests.unit.runtime.http.test_control_job_execution_intent import (
+            _valid_intake_for_mode,
+        )
+        from tests.unit.runtime.http.test_nl_pipeline_materialization import (
+            _DeterministicSpanSupportClient,
+            _FakeDesignProblemGateway,
+        )
+    
+        monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+        monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+        monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+        monkeypatch.setenv(
+            "POLISYOS_CONTROL_SQLITE_PATH", (tmp_path / "control.sqlite3").as_posix()
+        )
+        monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+    
+        recording = next(
+            item
+            for item in n4_contract._load_recordings(REPO_ROOT)
+            if item.get("design_problem_id") == _RECORDING_ID
+        )
+        recorded_problem = _current_compiler_problem(recording)
+        raw_request = recorded_problem.nl_provenance.raw_request
+        model_id = str(recording["model_id"])
+        compiler_gateway = _FakeDesignProblemGateway(
+            models=[model_id],
+            arguments=recorded_problem.model_dump(mode="json"),
+        )
+        recorded_n4_client = n4_contract.RecordedGenerationReplayClient(recording)
+    
+        from polisyos.runtime.http.services.control import (
+            generation_cycle as generation_cycle_service,
+        )
+    
+        original_compiler = generation_cycle_service.build_design_problem_from_nl_request
+        compiled_problems = []
+    
+        async def run_real_compiler(**kwargs):
+            kwargs["gateway_client"] = compiler_gateway
+            kwargs["span_support_client"] = _DeterministicSpanSupportClient()
+            problem = await original_compiler(**kwargs)
+            compiled_problems.append(problem)
+            return problem
+    
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "build_design_problem_from_nl_request",
+            run_real_compiler,
+        )
+        monkeypatch.setattr(
+            llm_factory,
+            "create_traced_gateway_client",
+            lambda **_kwargs: recorded_n4_client,
+        )
+    
+        cas_root = tmp_path / ".polisyos"
+        runtime_api_context = build_runtime_api_context(
+            cas_root=cas_root,
+            core_runs_root=cas_root / "runs",
+        )
+&gt;       profile, declaration = _configured_procurement_profile(
+            recorded_problem=recorded_problem,
+            artifact_store=runtime_api_context.store,
+            tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            cell_id="cell-a",
+        )
+
+tests/integration/runtime_quality/test_configured_candidate_simulation_served.py:348: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/controlled_candidate_profile.py:219: in _configured_procurement_profile
+    intervention_substrate=load_l6_intervention_substrate(REPO_ROOT),
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo_root = PosixPath('/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine')
+
+    def load_l6_intervention_substrate(repo_root: Path) -&gt; InterventionSubstrateBundle:
+        """Load the real L6 agent-sim control artifacts with content hashes."""
+    
+        paths = default_l6_bundle_paths(repo_root.resolve())
+        required = (
+            "intervention_knob_dictionary",
+            "lex_intervention_map",
+            "observation_to_contract_manifest",
+        )
+        missing = [name for name in required if not paths[name].is_file()]
+        if missing:
+&gt;           raise InterventionSubstrateError(
+                "l6_control_artifact_missing",
+                ", ".join(sorted(missing)),
+            )
+E           polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest
+
+src/polisyos/runtime/quality/intervention_substrate.py:1061: InterventionSubstrateError</failure></testcase><testcase classname="tests.integration.runtime_quality.test_configured_candidate_simulation_served" name="test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects_drift" time="0.058"><failure message="polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest">tmp_path = PosixPath('/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-pytest-temp/test_served_configured_profile0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f63e4f257f0&gt;
+
+    def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects_drift(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """The verified worker joins one configured scenario without weakening N4 custody."""
+    
+        pytest.importorskip("fastapi.testclient")
+        from fastapi.testclient import TestClient
+    
+        from polisyos.core import canon
+        from polisyos.core.artifacts.manifest import (
+            ArtifactRef,
+            artifact_ref_identity_key,
+            input_ref_from_artifact_ref,
+        )
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.http.app import create_runtime_api_app
+        from polisyos.runtime.http.services.control import (
+            generation_cycle as generation_cycle_service,
+        )
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            CompiledRecursiveGenerationCycleRun,
+        )
+        from polisyos.runtime.http.services.control_plane_store import (
+            _control_job_execution_scope_from_event,
+        )
+        from polisyos.runtime.quality import design_generation as design_generation_module
+        from polisyos.runtime.quality.candidate_simulation import (
+            candidate_simulation_profile_ref,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            cycle_job_design_problem_ref,
+            cycle_job_profile_selection_ref,
+            parse_cycle_substrate_context_job_artifact,
+        )
+        from polisyos.runtime.quality.generation_cycle import (
+            FoundryValuePort,
+            GenerationCycleController,
+            JointSimulationPort,
+            _DefaultSimulationBoundFoundryValuePort,
+            load_joint_simulation_result,
+        )
+        from polisyos.runtime.quality.generation_source import (
+            _SOURCE_CANON,
+            GenerationSourceRepository,
+            N4CandidateProposalLocator,
+            N4CandidateProposalSimulationRecord,
+            N4CandidateScenarioSourceLocator,
+            N4CandidateScenarioSourceRecordV1,
+            N4CandidateScenarioSourceRecordV2,
+            N4CandidateScenarioSourceRecordV3,
+            _candidate_simulation_write_options,
+        )
+        from polisyos.runtime.quality.intervention_atom_binding import (
+            InterventionAtomBinding,
+            intervention_atom_content_hash,
+        )
+        from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
+        from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
+        from polisyos.scientist.orchestration.llm import factory as llm_factory
+        from tests._helpers.control_worker import dispatch_one_control_job
+        from tests.unit.runtime.http.test_control_job_execution_intent import (
+            _valid_intake_for_mode,
+        )
+        from tests.unit.runtime.http.test_nl_pipeline_materialization import (
+            _DeterministicSpanSupportClient,
+            _FakeDesignProblemGateway,
+        )
+        from tools.quality.validation import (
+            check_layer3_gy_design_generation_contract as n4_contract,
+        )
+    
+        monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+        monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+        monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+        monkeypatch.setenv(
+            "POLISYOS_CONTROL_SQLITE_PATH", (tmp_path / "control.sqlite3").as_posix()
+        )
+        monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+        monkeypatch.setenv("JAX_PLATFORMS", "cpu")
+        monkeypatch.setenv("OMP_NUM_THREADS", "1")
+    
+        recording = next(
+            item
+            for item in n4_contract._load_recordings(REPO_ROOT)
+            if item.get("design_problem_id") == _RECORDING_ID
+        )
+        recorded_problem = _current_compiler_problem(recording)
+        outcome_variable = recorded_problem.outcome_of_interest.target_variable
+        controlled_recording = _controlled_procurement_recording(
+            recording,
+            outcome_variable=outcome_variable,
+        )
+        raw_request = recorded_problem.nl_provenance.raw_request
+        model_id = str(recording["model_id"])
+        compiler_gateway = _FakeDesignProblemGateway(
+            models=[model_id],
+            arguments=recorded_problem.model_dump(mode="json"),
+        )
+        cas_root = tmp_path / ".polisyos"
+        runtime_api_context = build_runtime_api_context(
+            cas_root=cas_root,
+            core_runs_root=cas_root / "runs",
+        )
+&gt;       profile, model_declaration = _configured_procurement_profile(
+            recorded_problem=recorded_problem,
+            artifact_store=runtime_api_context.store,
+            tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            cell_id="cell-a",
+        )
+
+tests/integration/runtime_quality/test_configured_candidate_simulation_served.py:603: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/controlled_candidate_profile.py:219: in _configured_procurement_profile
+    intervention_substrate=load_l6_intervention_substrate(REPO_ROOT),
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo_root = PosixPath('/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine')
+
+    def load_l6_intervention_substrate(repo_root: Path) -&gt; InterventionSubstrateBundle:
+        """Load the real L6 agent-sim control artifacts with content hashes."""
+    
+        paths = default_l6_bundle_paths(repo_root.resolve())
+        required = (
+            "intervention_knob_dictionary",
+            "lex_intervention_map",
+            "observation_to_contract_manifest",
+        )
+        missing = [name for name in required if not paths[name].is_file()]
+        if missing:
+&gt;           raise InterventionSubstrateError(
+                "l6_control_artifact_missing",
+                ", ".join(sorted(missing)),
+            )
+E           polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest
+
+src/polisyos/runtime/quality/intervention_substrate.py:1061: InterventionSubstrateError</failure></testcase><testcase classname="tests.integration.runtime_quality.test_configured_candidate_simulation_served" name="test_candidate_child_budget_profile_is_explicit_and_preserves_root_default" time="0.001" /><testcase classname="tests.integration.runtime_quality.test_configured_candidate_simulation_served" name="test_configured_child_intake_refuses_missing_complete_owner_before_n6" time="0.001"><skipped type="pytest.skip" message="served container owner catalog unavailable; this negative intake remains UNRUN">/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py:1910: served container owner catalog unavailable; this negative intake remains UNRUN</skipped></testcase></testsuite></testsuites>

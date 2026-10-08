@@ -1,0 +1,3 @@
+{"case": "foreign_child", "refusal": "recursive_leaf_capsule_reader_binding_mismatch: recursive_leaf_capsule_reader_binding_mismatch"}
+{"case": "changed_current_job", "refusal": "cycle_substrate_context_job_binding_mismatch: cycle_substrate_context_job_binding_mismatch"}
+{"case": "fresh_reader", "capsule_ref": "sha256:d40be56a365ba09208c7ca584c1b5b00cb7e52a0384af9c0ad0be589de05ca19", "purpose": "candidate_leaf_replay_only", "historical_packet_retained": true, "complete_problem_hash": "sha256:0ec70e536069b4fbbaf0bf1bc44722cda6e94639d904d0ab57ba2d3f16572c08"}

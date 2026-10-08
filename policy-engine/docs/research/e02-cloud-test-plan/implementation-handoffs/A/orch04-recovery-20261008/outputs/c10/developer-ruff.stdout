@@ -1,0 +1,7 @@
+src/polisyos/runtime/quality/recursive_generation_cycle.py:3:1: I001 [*] Import block is un-sorted or un-formatted
+src/polisyos/runtime/quality/recursive_generation_cycle.py:349:101: E501 Line too long (101 > 100)
+src/polisyos/runtime/quality/recursive_generation_cycle.py:1434:13: S101 Use of `assert` detected
+src/polisyos/runtime/quality/recursive_generation_cycle.py:1439:17: S101 Use of `assert` detected
+src/polisyos/runtime/quality/recursive_generation_cycle.py:1957:11: RUF022 [*] `__all__` is not sorted
+Found 5 errors.
+[*] 2 fixable with the `--fix` option.

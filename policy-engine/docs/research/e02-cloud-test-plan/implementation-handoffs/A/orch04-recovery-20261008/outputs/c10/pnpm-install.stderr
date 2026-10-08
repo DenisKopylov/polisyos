@@ -1,0 +1,186 @@
+/workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:13170
+    throw new Error(
+          ^
+
+Error: Error when performing the request to https://registry.npmjs.org/pnpm/-/pnpm-10.33.2.tgz; for troubleshooting help, see https://github.com/nodejs/corepack#troubleshooting
+    at fetch (/workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:13170:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async fetchUrlStream (/workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:13200:20)
+    ... 4 lines matching cause stack trace ...
+    at async Object.runMain (/workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:14838:7) {
+  [cause]: TypeError: fetch failed
+      at node:internal/deps/undici/undici:15270:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async fetch (/workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:13165:16)
+      at async fetchUrlStream (/workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:13200:20)
+      at async download (/workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:13352:18)
+      at async installVersion (/workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:13466:55)
+      at async Engine.ensurePackageManager (/workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:13994:32)
+      at async Engine.executePackageManagerRequest (/workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:14111:25)
+      at async Object.runMain (/workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:14838:7) {
+    [cause]: AggregateError [ECONNREFUSED]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1743:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED 104.16.5.34:443
+            at createConnectionError (node:net:1679:14)
+            at afterConnectMultiple (node:net:1709:16) {
+          errno: -111,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '104.16.5.34',
+          port: 443
+        },
+        Error: connect ENETUNREACH 2606:4700::6810:422:443 - Local (:::0)
+            at internalConnectMultiple (node:net:1207:16)
+            at afterConnectMultiple (node:net:1716:7) {
+          errno: -101,
+          code: 'ENETUNREACH',
+          syscall: 'connect',
+          address: '2606:4700::6810:422',
+          port: 443
+        },
+        Error: connect ECONNREFUSED 104.16.6.34:443
+            at createConnectionError (node:net:1679:14)
+            at afterConnectMultiple (node:net:1709:16) {
+          errno: -111,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '104.16.6.34',
+          port: 443
+        },
+        Error: connect ENETUNREACH 2606:4700::6810:522:443 - Local (:::0)
+            at internalConnectMultiple (node:net:1207:16)
+            at afterConnectMultiple (node:net:1716:7) {
+          errno: -101,
+          code: 'ENETUNREACH',
+          syscall: 'connect',
+          address: '2606:4700::6810:522',
+          port: 443
+        },
+        Error: connect ECONNREFUSED 104.16.8.34:443
+            at createConnectionError (node:net:1679:14)
+            at afterConnectMultiple (node:net:1709:16) {
+          errno: -111,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '104.16.8.34',
+          port: 443
+        },
+        Error: connect ENETUNREACH 2606:4700::6810:22:443 - Local (:::0)
+            at internalConnectMultiple (node:net:1207:16)
+            at afterConnectMultiple (node:net:1716:7) {
+          errno: -101,
+          code: 'ENETUNREACH',
+          syscall: 'connect',
+          address: '2606:4700::6810:22',
+          port: 443
+        },
+        Error: connect ECONNREFUSED 104.16.9.34:443
+            at createConnectionError (node:net:1679:14)
+            at afterConnectMultiple (node:net:1709:16) {
+          errno: -111,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '104.16.9.34',
+          port: 443
+        },
+        Error: connect ENETUNREACH 2606:4700::6810:322:443 - Local (:::0)
+            at internalConnectMultiple (node:net:1207:16)
+            at afterConnectMultiple (node:net:1716:7) {
+          errno: -101,
+          code: 'ENETUNREACH',
+          syscall: 'connect',
+          address: '2606:4700::6810:322',
+          port: 443
+        },
+        Error: connect ECONNREFUSED 104.16.4.34:443
+            at createConnectionError (node:net:1679:14)
+            at afterConnectMultiple (node:net:1709:16) {
+          errno: -111,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '104.16.4.34',
+          port: 443
+        },
+        Error: connect ENETUNREACH 2606:4700::6810:b22:443 - Local (:::0)
+            at internalConnectMultiple (node:net:1207:16)
+            at afterConnectMultiple (node:net:1716:7) {
+          errno: -101,
+          code: 'ENETUNREACH',
+          syscall: 'connect',
+          address: '2606:4700::6810:b22',
+          port: 443
+        },
+        Error: connect ECONNREFUSED 104.16.3.34:443
+            at createConnectionError (node:net:1679:14)
+            at afterConnectMultiple (node:net:1709:16) {
+          errno: -111,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '104.16.3.34',
+          port: 443
+        },
+        Error: connect ENETUNREACH 2606:4700::6810:922:443 - Local (:::0)
+            at internalConnectMultiple (node:net:1207:16)
+            at afterConnectMultiple (node:net:1716:7) {
+          errno: -101,
+          code: 'ENETUNREACH',
+          syscall: 'connect',
+          address: '2606:4700::6810:922',
+          port: 443
+        },
+        Error: connect ETIMEDOUT 104.16.2.34:443
+            at createConnectionError (node:net:1679:14)
+            at Timeout.internalConnectMultipleTimeout (node:net:1738:38)
+            at listOnTimeout (node:internal/timers:587:11)
+            at process.processTimers (node:internal/timers:521:7) {
+          errno: -110,
+          code: 'ETIMEDOUT',
+          syscall: 'connect',
+          address: '104.16.2.34',
+          port: 443
+        },
+        Error: connect ENETUNREACH 2606:4700::6810:822:443 - Local (:::0)
+            at internalConnectMultiple (node:net:1207:16)
+            at Timeout.internalConnectMultipleTimeout (node:net:1743:5)
+            at listOnTimeout (node:internal/timers:587:11)
+            at process.processTimers (node:internal/timers:521:7) {
+          errno: -101,
+          code: 'ENETUNREACH',
+          syscall: 'connect',
+          address: '2606:4700::6810:822',
+          port: 443
+        },
+        Error: connect ETIMEDOUT 104.16.1.34:443
+            at createConnectionError (node:net:1679:14)
+            at Timeout.internalConnectMultipleTimeout (node:net:1738:38)
+            at listOnTimeout (node:internal/timers:587:11)
+            at process.processTimers (node:internal/timers:521:7) {
+          errno: -110,
+          code: 'ETIMEDOUT',
+          syscall: 'connect',
+          address: '104.16.1.34',
+          port: 443
+        },
+        Error: connect ENETUNREACH 2606:4700::6810:a22:443 - Local (:::0)
+            at internalConnectMultiple (node:net:1207:16)
+            at Timeout.internalConnectMultipleTimeout (node:net:1743:5)
+            at listOnTimeout (node:internal/timers:587:11)
+            at process.processTimers (node:internal/timers:521:7) {
+          errno: -101,
+          code: 'ENETUNREACH',
+          syscall: 'connect',
+          address: '2606:4700::6810:a22',
+          port: 443
+        }
+      ]
+    }
+  }
+}
+
+Node.js v22.23.3

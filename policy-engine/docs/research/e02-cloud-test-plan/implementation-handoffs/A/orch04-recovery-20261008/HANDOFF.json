@@ -1,0 +1,186 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "execution_role": "C10",
+  "mode": "fresh_own_mechanism_implementation_and_source_qualified_receipt",
+  "slice": "ORCH04 recovery20261008",
+  "branch": "codex/e02-C10-recovery-20261008",
+  "slice_base_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "slice_base_tree_sha": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+  "implementation_commits": [
+    "b6c3201aca6f8a94f05479269e13cde2dd3e7119",
+    "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+    "bf3580aed1127fbb5c4e14d9ec8c50de073bfc89",
+    "cfe46cfa8428d4388a44d2d68828ad1a5a19b256",
+    "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8"
+  ],
+  "checked_source_candidate_sha": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+  "candidate_tree_sha": "6506a68152d7a957fc7762e9846a72e7ab98d557",
+  "candidate_parents": [
+    "cfe46cfa8428d4388a44d2d68828ad1a5a19b256"
+  ],
+  "closure_ids": [],
+  "G_source_acceptance": "pending_G",
+  "formal_G_closure": "separate; unclaimed",
+  "production_claim": false,
+  "own_source_test_config_generated_changed_paths": [
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx",
+      "preimage_git_blob": "b47543a45bb8980365bc8fe18ba52b44c4eb9de1",
+      "postimage_git_blob": "eb654ee6cd36d9c84d34c80dc6e7e470747db250",
+      "postimage_sha256": "d1d8090bbbed60577d25e814800ed1f5589eccbb9816aae69bb9604776d76c44"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+      "preimage_git_blob": "f2e3a8f67cc2aa3b2655e09ffbaf8bcfc0eefd98",
+      "postimage_git_blob": "4a4dccfc1bd61c1c5d5d61e7ef7c4e2f9721627d",
+      "postimage_sha256": "56a22b66cc1af211bc467341b5d08221f28bc8f79b0ce2ecde57c49566287121"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+      "preimage_git_blob": "e86d49007c139051a7058b76806913149426deeb",
+      "postimage_git_blob": "20fb957a8e42abac40f787483cb0b15b8ed57ae6",
+      "postimage_sha256": "958a18f52e13b636577bdcd27cbfce7d7676e18e8afdd02769ddb511f0cae673"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+      "preimage_git_blob": "18d4cac049193373d592002a6e0dbf1189df0ed1",
+      "postimage_git_blob": "afc2bcf32ab003855e04594de77142edeb07f5c5",
+      "postimage_sha256": "e4548762e3e6d1fe63f7c0a712f31c84133f6ebf254e6fa2767a0a8d41ae4027"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-orch04-c10-candidate-recovery.toml",
+      "preimage_git_blob": null,
+      "postimage_git_blob": "e1afc64b102e0f9e4ab17e733978b03c2dbb2ab5",
+      "postimage_sha256": "4c4dd6bdd0d32a2a4be015ca803df6a7eba265d956d7b136e10bee25a5227d2f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "preimage_git_blob": "29459ff167cad1e011a2de626a627b30d0336a01",
+      "postimage_git_blob": "9505f0acebd8d8f0c556afce3f56f0aa497a8fc4",
+      "postimage_sha256": "286fbec680fd89bc190ba00004c3b227d1ca4978739d64b489deda3302f35dd0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "preimage_git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+      "postimage_git_blob": "57554e1c1b63dd685f81f545ec8dae2201ab2466",
+      "postimage_sha256": "300c0b5b0fa2294abb07b02e09fd91eea5a2600c6e23a46ab6cc45ec7f05784b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+      "preimage_git_blob": "c08a37fa4ac247dcb1c936e82f40fc661aa94fc2",
+      "postimage_git_blob": "6864bdebefefa8de0e77f62b1e04fa12ff00ee5c",
+      "postimage_sha256": "4cf00488f43b568f931c685edbe4db89b38bf1a4ebf269b7c635051123dcef72"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+      "preimage_git_blob": "a12f1aade3ef5368bdd1571df52a2ef32538f7c1",
+      "postimage_git_blob": "8e6672c3cdac53e50b35958a263326408b7c57d4",
+      "postimage_sha256": "e92783bb28ee30d9c75600921177711ebaace433d4d6905179d02818c9458225"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "preimage_git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "postimage_git_blob": "75d820d2bdd2c9cd6ea2a4aa5d98860067112eea",
+      "postimage_sha256": "40caaf6c37d4d4d89e9dd3f26954b1621dbd5d8163ddf37a4ba1e6d72586c643"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "preimage_git_blob": "71aa5c2956ba7033924f90be715ce3b8afb9f798",
+      "postimage_git_blob": "90512c2a5630b6251fa92ba656a9bf5577bd2079",
+      "postimage_sha256": "3861c662c1957dea009d5580d0878a5c4da13d3e7cb46e2f27805c8214418551"
+    },
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+      "preimage_git_blob": "061f5f53d74f0f904a9b6bdafeec3d8432ec8d7d",
+      "postimage_git_blob": "8fd70624486dc228a21664540eb489c2ca5fd8c4",
+      "postimage_sha256": "1efad266144b6934341e2673614266984ccf33fd2d4b5a736a32e65ffcb536b9"
+    },
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+      "preimage_git_blob": null,
+      "postimage_git_blob": "5ecb0c35644d7d5a34f85e7e161c9c058498f8f7",
+      "postimage_sha256": "91072d69f4c94c7f7bf0020be09ba6379f9945c89ff6c57dd73c6e6a06b56747"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "preimage_git_blob": "5fb9c75d734a2398fd6639d983adafb8054d40da",
+      "postimage_git_blob": "3fdf56f920a1575810e9df6b539b82dfa6105233",
+      "postimage_sha256": "8ffc00f30887724315dff5aa9e6f6d8d3298b0f6b92b0b3b1f02f45b627ec0eb"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+      "preimage_git_blob": "6b40cf6f293cc10edfb75cc04eb6e8a71d50365f",
+      "postimage_git_blob": "b38c1e184820d30180c6eae1ebe2ff42e5df0f9b",
+      "postimage_sha256": "31f15335100567b1fcef6cfa2e4379405b8809e5eb60d6b256daa4972c2462a8"
+    }
+  ],
+  "source_manifest": "source-manifest.json",
+  "lease_packet": "lease-packet.json",
+  "companion_requirements": "companion-requirements.json",
+  "portable_complete_deciding_outputs": "output-index.json",
+  "old_bytes": {
+    "C10_receipt": "a92f57932385d5b3e34063c3d38a6db68c4a6084",
+    "status": "unavailable on this host; no recovered old source identity/PASS",
+    "UI_proposal": "unavailable; fresh UI implementation derives from exact canonical preimages",
+    "source_supplier": "exact A8bfea source own partial slices only with patch/input provenance; no carrier selection"
+  },
+  "implementation": {
+    "complete_child_context": "full DesignProblem + typed perchild configured handoff/currentness owner, no root grant or boolean surrogate",
+    "capsule": "owner-derived CAS persistence, complete node/parent/problem/current-job/profile scope, separate current and historical reads",
+    "B36": "required modality preserved; available owner modalities projected separately with hints",
+    "partial_integrity": "partial-v2 graph/pending frontier; common conservative no-evidence fold across full and partial parent",
+    "N4_producer": "bounded candidate lever exploration derived from actual typed parent result/atoms+declared compatible lever semantics; semantic dedupe; fullproblem fields preserved; every child re-admitted; no inferred composability",
+    "configured_assembly": "owned internal compiler accepts explicit typed source + supported requested/effective at-most2 budget/profile; ordinary route remains root-only until selected real source/profile inputs",
+    "manual_UI": "qualified raw observations/partial display with run binding and en/uk localizations; canonical DTO intake bridge outside C10 holds actual ordinary parsed/browser positive",
+    "value_consumer_CAS": "Actual recursive protected leaf FoundryValuePort uses canonical runtime-derived artifact_store, matching existing default and reentry value consumers. Current-head test remains strict."
+  },
+  "verification": {
+    "independent_source_review": "Final e685 all15 manifest independent review GO for scoped verification; both owned findings fixed; outputs/review-c10/e6854a7/{REPORT.md,result.json,packet-hashes.json}",
+    "initial_native_03a": "51cases44PASS/6FAIL/1explicit catalog UNRUN; raw deciding outputs retained",
+    "property_removals": "03a six matched mechanisms produce9 red property cases; marker retention + exact mutations retained; not unmodified consumer FAIL; final e685 assignment-alias component removal also produces meaningful red, with exact pre/postimages; this does not make the full live constructor guard PASS.",
+    "fresh_capsule": "Independent03a two-process real capsule producer/new reader PASS with changedjob/foreignchild refusals and retained historical artifact. Relevant owner/capsule functions and inputs retain exact code closure after scoped final route store delta; no new finalsource capsule process is claimed.",
+    "Node_frontend": "ordinary frozen install, Node22.23.3; frontend typecheck/build0 on identical finalfrontendinputs; combined UI/parity52=51PASS1FAIL; UI4PASS component only",
+    "controlled_frontend_baseline": "G exact ordinary frontend baseline49=48PASS1FAIL; expected census2879/G2907/candidate2923 own+16; retained diagnosticFAIL, no metadata waiver",
+    "remaining_diagnostics": [
+      "three configured served native consumer FAILs exactmissing L6dictionary/map/observationmanifest localL02inputs",
+      "Task44 sharedCore45 vsold34 exactexportcensusFAIL outsideA",
+      "complete constructor guardFAIL nonleased3journal/acquisitionkwargs/toolsessionfactory companions; own keyword rows reconciled",
+      "active locale census FAIL includes own changed catalogs, G metadata companion"
+    ],
+    "ordinary_parsed_served_browser_positive": "not_established; canonical Core/generated/validator/freshservedreader+selectedsourceprofile companions pending",
+    "historical_cfe_affected": "37cases34PASS3FAIL retained exactly, including prior owned store omission fixed by e685. Source qualification of unchanged controls is explained by independent input delta and call closure.",
+    "fresh_final_affected_e685": "1/1 PASS original protected current-head/CAS owner consumer, PID22389/67.886s; strict unchanged identity callback; actual final3module origins match final Git; source before/after clean. This is no fresh full51/37 native run.",
+    "native_final_addendum": "outputs/native-tester/C10-independent-native-final-addendum-e6854a70.json"
+  },
+  "publication": {
+    "status_at_receipt_freeze": "receipt precedes ordinary authorized topic push and remote byte readback; exact final publication evidence is retained in required normal transfer and separate coordinator handoff",
+    "topic": "codex/e02-C10-recovery-20261008",
+    "main_integration_publication": false,
+    "hooks": "normal installed dispatcher enabled; ordinary frontend build/typecheck passed on exact final frontend input bytes; mandatory prepush typecheck runs during publication; no bypass/disable"
+  },
+  "profile": {
+    "Python": "supported appenv /workspace/ORCH04-environments/app Python3.14.2; exact perrun import origins and cgroup/fs samples in outputs",
+    "Node": "Node22.23.3 +own frozen pnpm10.33.2 installed before TS scanners",
+    "storage": "real writable workspace volume; environment tmpfs charge/profile measured by host receipts",
+    "signals": "old -9/137 processes not product OOM evidence; fresh complete processes have exact times/PID/outputs; no guessed numerical result"
+  },
+  "receipt_role": "Separate documents receipt; source snapshot and deciding inputs are immutable and sourcequalified; source acceptance remains G.",
+  "remaining": {
+    "own_new_mechanisms": "Implemented bounded owner child intake/context/currentness/capsule/history/fresh reader, B36 projection, N4 semantic producer and internal configured assembly, full/partial parent integrity, manual UI. Actual ordinary selected composition remains held by exact fields/inputs below.",
+    "canonical_companions": [
+      "RunDetails Core/facade/generated fields and validators.ts runDetailsSchemaInner intake for conditional_simulation_values/recursive_cycle_checkpoint",
+      "fresh persisted served reader/failure readback after selected canonical fields",
+      "shared Task44 complete45Coreexports vs stale34 expectation",
+      "nonleased complete constructor census journals/acquisition/tool inputs",
+      "active en/uk global census metadata expected2879 vs canonical2907 vs candidate2923"
+    ],
+    "supplier_inputs": [
+      "authentic L6dictionary/map/observationmanifest bytes localL02; three configured positive consumers retain rawFAIL",
+      "real root N4 source compatible with declared qualified lever semantics, perchild configured profile/contextjob selection and explicit supported budget",
+      "actual N5/subdesign coupling/composition for positive parent; otherwise conservative recursiveblocked",
+      "typed B36 transform producer input/output/provenance where required"
+    ],
+    "portable_replay": "C13 common replay waits explicit G selected source freeze and independent reviews; no broad cycle or production claim"
+  }
+}

@@ -1,0 +1,521 @@
+{
+  "capsule_ref": {
+    "artifact_id": "sha256:d40be56a365ba09208c7ca584c1b5b00cb7e52a0384af9c0ad0be589de05ca19",
+    "kind": "runtime.quality.recursive_leaf_context",
+    "media_type": "application/json"
+  },
+  "capsule": {
+    "schema_version": "policyos.runtime.recursive_leaf_context.v1",
+    "authority_purpose": "candidate_leaf_replay_only",
+    "node_ref": "design://child",
+    "parent_ref": "design://parent",
+    "problem": {
+      "schema_version": "policyos.runtime.design_problem.v2",
+      "design_problem_id": "education_budget_design",
+      "problem_statement": "Improve public school learning outcomes.",
+      "domain": "education",
+      "nl_provenance": {
+        "raw_request": "Improve public school learning outcomes.",
+        "source_surface": "runtime.control.nl_request",
+        "source_context": {}
+      },
+      "authority_profile": {
+        "requester_authority": "research",
+        "requested_authority_level": "research",
+        "mandate": "Research-only candidate generation.",
+        "authority_refs": []
+      },
+      "jurisdiction_time": {
+        "region": "UA",
+        "valid_time": "2025",
+        "as_of": "2025-12-31",
+        "policy_time": "2025",
+        "data_time": "2024/2025",
+        "time_semantics": null
+      },
+      "objectives": [
+        {
+          "objective_id": "improve_learning",
+          "description": "Improve learning outcomes.",
+          "metric_id": "learning_outcomes",
+          "direction": "maximize"
+        }
+      ],
+      "constraints": [],
+      "stakeholders": [
+        {
+          "stakeholder_id": "students",
+          "name": "Students",
+          "role": null
+        }
+      ],
+      "outcome_of_interest": {
+        "target_variable": "learning_outcomes",
+        "metric_id": "learning_outcomes",
+        "estimand": "P(learning_outcomes | do(teaching_method))",
+        "direction": "maximize"
+      },
+      "candidate_lever_space": {
+        "allowed_operator_kinds": [
+          "teaching_method"
+        ],
+        "candidate_levers": [
+          {
+            "lever_id": "teaching_method",
+            "operator_kind": "teaching_method",
+            "instrument": "teaching method",
+            "target_slot": "education.teaching_method"
+          }
+        ]
+      },
+      "evidence_acquisition_needs": {
+        "needs": []
+      },
+      "model_spec_ref": null,
+      "ir_problem_frame_ref": null,
+      "policy_request_frame_ref": null,
+      "runtime_hints": {}
+    },
+    "handoff": {
+      "context": {
+        "schema_version": "policyos.runtime.cycle_substrate_context.v1",
+        "design_problem_ref": "sha256:0ec70e536069b4fbbaf0bf1bc44722cda6e94639d904d0ab57ba2d3f16572c08",
+        "domain": "education",
+        "source_pack_content_hash": "sha256:52760d958b28ae5b0f1fe554b47dc832de88a9e69e3859b1fa3b9efffc718e65",
+        "substrate_input_content_hash": "sha256:785f685474547e08b795106c32dc25697e451f9758fccd19e78461cf49b8f659",
+        "substrate_registry": {
+          "substrate_version_id": "substrate_version_a85e54826145a786",
+          "schema_version": "policyos.runtime.substrate_registry.v1",
+          "producer_ref": "tests.unit.runtime.quality.test_cycle_substrate",
+          "content_hash": "sha256:a85e54826145a786a874c6d58ab97f2added03ad415f77b23decdc5710346f75",
+          "source_catalog_refs": [
+            "lane0://education/registry-owner"
+          ],
+          "entries": [
+            {
+              "source_id": "l2_scholar_kg:education.duckdb",
+              "family_id": "education_causal_priors",
+              "layer": "L2",
+              "coverage": {
+                "coverage_score": 0.8,
+                "coverage_kind": "lane0.causal_claim_coverage",
+                "coverage_rule_ref": "lane0://education/coverage",
+                "dataset_count": null,
+                "metric_binding_count": 4,
+                "observation_count": 4,
+                "quality_scores": {},
+                "coverage_dimensions": {}
+              },
+              "trust_tier": {
+                "tier": "derived_proxy",
+                "trust_cap": 0.5,
+                "trust_multiplier": 0.6,
+                "min_coverage": 0.0,
+                "max_coverage": 1.0,
+                "authority_ref": "lane0://education/trust"
+              },
+              "identification_mode": "causal_prior_candidate",
+              "schema_regime": {
+                "schema_regime_id": "education_schema_v1",
+                "authority_ref": "lane0://education/schema",
+                "effective_start": null,
+                "effective_end": null,
+                "boundary_buffer_periods": null,
+                "source_version": "1"
+              },
+              "data_version": "education-data-v1",
+              "snapshot_id": "education-snapshot-v1",
+              "source_snapshot_id": "education-snapshot-v1",
+              "provenance_refs": [
+                "lane0://education/causal-claims"
+              ],
+              "authority_refs": [
+                "lane0://education/registry-owner"
+              ],
+              "entry_content_hash": "sha256:8edc279d382c2b8fd6bce24b1db6339c8254ff1248425ab2bc848cb3e9b74399"
+            }
+          ]
+        },
+        "substrate_registry_content_hash": "sha256:a85e54826145a786a874c6d58ab97f2added03ad415f77b23decdc5710346f75",
+        "selected_registry_entry_hashes": [
+          "sha256:8edc279d382c2b8fd6bce24b1db6339c8254ff1248425ab2bc848cb3e9b74399"
+        ],
+        "world_model_record": {
+          "world_model_record_id": "world_model_record_718e94837150b3f5",
+          "schema_version": "policyos.runtime.world_model_record.v1",
+          "authority_status": "limited",
+          "created_at": "2026-07-12T00:00:00+00:00",
+          "producer_ref": "tests.unit.runtime.quality.test_cycle_substrate",
+          "content_hash": "sha256:718e94837150b3f5646a3ce61ad0dfec42cf290762d2b690641d93b350a5bf32",
+          "region_or_jurisdiction": "UA",
+          "population_scope": "education_population",
+          "policy_domain": "education",
+          "valid_time_scope": "2020/2025",
+          "tx_time_scope": "2026-07-12T00:00:00+00:00",
+          "resolution": "entity_year",
+          "branch_mode": "observed",
+          "fabric_world_ref": {
+            "snapshot_root": "/lane0/education",
+            "snapshot_id": "education-snapshot-v1",
+            "branch": "observed",
+            "as_of_valid_time": null,
+            "as_of_tx_time": null,
+            "world_query_policy": "lane0_content_bound",
+            "provenance_manifest_ref": "lane0://education/manifest",
+            "content_query_digest": "sha256:023876a8b721c6cb8ebd0737df823d541ddf8a8c2c63c3c02f17b6950af70149",
+            "content_query_row_count": 4
+          },
+          "data_forge_binding_ref": {
+            "snapshot_id": "education-snapshot-v1",
+            "release_id": "education-release-v1",
+            "role": "domain",
+            "read_api_identity": "lane0.education.read_api",
+            "snapshot_ref": "lane0://education/snapshot",
+            "merkle_root": "merkle:education:v1",
+            "data_hash": "sha256:56e88ee14aa042bfda2256b0033297713ac7b68f887f1c6cd4fa58a09854637c",
+            "claim_requirement_bindings": [],
+            "quality_gate_refs": [],
+            "lineage_refs": [],
+            "provenance_manifest_ref": "lane0://education/data-manifest",
+            "binding_path": null
+          },
+          "simulation_model_ref": {
+            "model_spec_ref": "sha256:989890434b15429ce47c7b81671c1d70edfa71db575ca4bbaa73296f10a7ac57",
+            "model_spec_hash": "sha256:6cc7d528ec3ff698232a8aca239b4759a746c847f2bc282ea0751e7e00fdb5da",
+            "model_id": "model_education",
+            "data_snapshot_ref": "sha256:8011f4345a31247a67847210414401601066047e5ad64907fe55a7d853030a38",
+            "registry_bundle_ref": "sha256:104aabb84971979652298cbae1f641cf33bdd710488ffa8683fea3b0690d9c70",
+            "mechanism_refs": [],
+            "gcm_refs": [],
+            "ncm_refs": [],
+            "program_graph_refs": [],
+            "assumptions": [],
+            "fidelity_level": "boundary",
+            "calibration_ref": null,
+            "calibrated": false
+          },
+          "foundry_binding_ref": {
+            "input_bindings_ref": "sha256:46d723235631746c7f71e69bbedee038ea0b78914fb9aa763ae43532d289b385",
+            "bound_state_snapshot_ref": "sha256:8faa43aa9a8ec247362914addf06cb398ecc0ff7aa5f727b69e107a274148be1",
+            "mapping_rules_ref": "sha256:0c1778625d457e4f21c59b375dd483a7039d17f8d3acb43a4affb96703bdf083",
+            "state_slot_digest": "sha256:7fd968452af388cc0a402341d416a177e5725e9e76007f6fe93308fe1df325bf"
+          },
+          "skg_causal_prior_ref": {
+            "skg_snapshot_ref": "lane0://education/skg",
+            "skg_version_id": "education-skg-v1",
+            "source_data_snapshot_id": "education-snapshot-v1",
+            "edge_prior_refs": [],
+            "transport_score_refs": [],
+            "query_trace_refs": []
+          },
+          "substrate_registry_ref": {
+            "substrate_version_id": "substrate_version_a85e54826145a786",
+            "content_hash": "sha256:a85e54826145a786a874c6d58ab97f2added03ad415f77b23decdc5710346f75",
+            "registry_artifact_ref": "lane0://education/substrate-registry",
+            "resolved_entries": [
+              {
+                "source_id": "l2_scholar_kg:education.duckdb",
+                "family_id": "education_causal_priors",
+                "layer": "L2",
+                "coverage_score": 0.8,
+                "trust_tier": "derived_proxy",
+                "trust_cap": 0.5,
+                "identification_mode": "causal_prior_candidate",
+                "schema_regime_id": "education_schema_v1",
+                "data_version": "education-data-v1",
+                "snapshot_id": "education-snapshot-v1",
+                "source_snapshot_id": "education-snapshot-v1",
+                "entry_content_hash": "sha256:8edc279d382c2b8fd6bce24b1db6339c8254ff1248425ab2bc848cb3e9b74399"
+              }
+            ]
+          },
+          "policy_slot_map": [
+            {
+              "slot_id": "education.teaching_method",
+              "state_path": "substrate.education.teaching_method",
+              "unit": null,
+              "entity_scope": "population",
+              "temporal_granularity": "year"
+            },
+            {
+              "slot_id": "learning_outcomes",
+              "state_path": "substrate.learning_outcomes",
+              "unit": null,
+              "entity_scope": "population",
+              "temporal_granularity": "year"
+            }
+          ],
+          "limitations": {
+            "unavailable_data": [],
+            "transport_limits": [],
+            "calibration_envelope_status": "unknown",
+            "unresolved_conflicts": [],
+            "admissibility_blockers": []
+          },
+          "deployment_update_refs": {
+            "phase": "phase_6_forward_hook",
+            "feedback_refs": [],
+            "reissue_refs": [],
+            "refute_refs": [],
+            "incident_refs": [],
+            "posterior_update_refs": []
+          }
+        },
+        "world_model_record_content_hash": "sha256:718e94837150b3f5646a3ce61ad0dfec42cf290762d2b690641d93b350a5bf32",
+        "intervention_substrate": null,
+        "candidate_levers": [],
+        "transport_context": null,
+        "authority_purpose": "cycle_input_candidate_only",
+        "may_not_use_for": [
+          "grounding_authority",
+          "promotion_authority",
+          "transport_authority"
+        ],
+        "context_binding_hash": "sha256:bbe020ba9a59d5c6360a89e413e9fd7e4d528262d99d03168fd89a76ebc3d789",
+        "content_hash": "sha256:a98a68d39d449e9985333bf064dee37c649edd0113432add7899d3f7f4523790"
+      },
+      "context_job_ref": {
+        "artifact_id": "sha256:d4434926ce6efe99539dd805394333e20f548af1718ebc1d6929830cd2256cdf",
+        "kind": "runtime.quality.cycle_substrate_context_job",
+        "media_type": "application/json"
+      },
+      "profile": {
+        "schema_version": "policyos.runtime.candidate_simulation_profile.v2",
+        "profile_id": "bounded-child-profile",
+        "purpose": "synthetic_candidate_scenario",
+        "profile_selection_ref": "sha256:0ec70e536069b4fbbaf0bf1bc44722cda6e94639d904d0ab57ba2d3f16572c08",
+        "context_inputs": {
+          "substrate_registry": {
+            "substrate_version_id": "substrate_version_a85e54826145a786",
+            "schema_version": "policyos.runtime.substrate_registry.v1",
+            "producer_ref": "tests.unit.runtime.quality.test_cycle_substrate",
+            "content_hash": "sha256:a85e54826145a786a874c6d58ab97f2added03ad415f77b23decdc5710346f75",
+            "source_catalog_refs": [
+              "lane0://education/registry-owner"
+            ],
+            "entries": [
+              {
+                "source_id": "l2_scholar_kg:education.duckdb",
+                "family_id": "education_causal_priors",
+                "layer": "L2",
+                "coverage": {
+                  "coverage_score": 0.8,
+                  "coverage_kind": "lane0.causal_claim_coverage",
+                  "coverage_rule_ref": "lane0://education/coverage",
+                  "dataset_count": null,
+                  "metric_binding_count": 4,
+                  "observation_count": 4,
+                  "quality_scores": {},
+                  "coverage_dimensions": {}
+                },
+                "trust_tier": {
+                  "tier": "derived_proxy",
+                  "trust_cap": 0.5,
+                  "trust_multiplier": 0.6,
+                  "min_coverage": 0.0,
+                  "max_coverage": 1.0,
+                  "authority_ref": "lane0://education/trust"
+                },
+                "identification_mode": "causal_prior_candidate",
+                "schema_regime": {
+                  "schema_regime_id": "education_schema_v1",
+                  "authority_ref": "lane0://education/schema",
+                  "effective_start": null,
+                  "effective_end": null,
+                  "boundary_buffer_periods": null,
+                  "source_version": "1"
+                },
+                "data_version": "education-data-v1",
+                "snapshot_id": "education-snapshot-v1",
+                "source_snapshot_id": "education-snapshot-v1",
+                "provenance_refs": [
+                  "lane0://education/causal-claims"
+                ],
+                "authority_refs": [
+                  "lane0://education/registry-owner"
+                ],
+                "entry_content_hash": "sha256:8edc279d382c2b8fd6bce24b1db6339c8254ff1248425ab2bc848cb3e9b74399"
+              }
+            ]
+          },
+          "selected_registry_entry_hashes": [
+            "sha256:8edc279d382c2b8fd6bce24b1db6339c8254ff1248425ab2bc848cb3e9b74399"
+          ],
+          "world_model_record": {
+            "world_model_record_id": "world_model_record_718e94837150b3f5",
+            "schema_version": "policyos.runtime.world_model_record.v1",
+            "authority_status": "limited",
+            "created_at": "2026-07-12T00:00:00+00:00",
+            "producer_ref": "tests.unit.runtime.quality.test_cycle_substrate",
+            "content_hash": "sha256:718e94837150b3f5646a3ce61ad0dfec42cf290762d2b690641d93b350a5bf32",
+            "region_or_jurisdiction": "UA",
+            "population_scope": "education_population",
+            "policy_domain": "education",
+            "valid_time_scope": "2020/2025",
+            "tx_time_scope": "2026-07-12T00:00:00+00:00",
+            "resolution": "entity_year",
+            "branch_mode": "observed",
+            "fabric_world_ref": {
+              "snapshot_root": "/lane0/education",
+              "snapshot_id": "education-snapshot-v1",
+              "branch": "observed",
+              "as_of_valid_time": null,
+              "as_of_tx_time": null,
+              "world_query_policy": "lane0_content_bound",
+              "provenance_manifest_ref": "lane0://education/manifest",
+              "content_query_digest": "sha256:023876a8b721c6cb8ebd0737df823d541ddf8a8c2c63c3c02f17b6950af70149",
+              "content_query_row_count": 4
+            },
+            "data_forge_binding_ref": {
+              "snapshot_id": "education-snapshot-v1",
+              "release_id": "education-release-v1",
+              "role": "domain",
+              "read_api_identity": "lane0.education.read_api",
+              "snapshot_ref": "lane0://education/snapshot",
+              "merkle_root": "merkle:education:v1",
+              "data_hash": "sha256:56e88ee14aa042bfda2256b0033297713ac7b68f887f1c6cd4fa58a09854637c",
+              "claim_requirement_bindings": [],
+              "quality_gate_refs": [],
+              "lineage_refs": [],
+              "provenance_manifest_ref": "lane0://education/data-manifest",
+              "binding_path": null
+            },
+            "simulation_model_ref": {
+              "model_spec_ref": "sha256:989890434b15429ce47c7b81671c1d70edfa71db575ca4bbaa73296f10a7ac57",
+              "model_spec_hash": "sha256:6cc7d528ec3ff698232a8aca239b4759a746c847f2bc282ea0751e7e00fdb5da",
+              "model_id": "model_education",
+              "data_snapshot_ref": "sha256:8011f4345a31247a67847210414401601066047e5ad64907fe55a7d853030a38",
+              "registry_bundle_ref": "sha256:104aabb84971979652298cbae1f641cf33bdd710488ffa8683fea3b0690d9c70",
+              "mechanism_refs": [],
+              "gcm_refs": [],
+              "ncm_refs": [],
+              "program_graph_refs": [],
+              "assumptions": [],
+              "fidelity_level": "boundary",
+              "calibration_ref": null,
+              "calibrated": false
+            },
+            "foundry_binding_ref": {
+              "input_bindings_ref": "sha256:46d723235631746c7f71e69bbedee038ea0b78914fb9aa763ae43532d289b385",
+              "bound_state_snapshot_ref": "sha256:8faa43aa9a8ec247362914addf06cb398ecc0ff7aa5f727b69e107a274148be1",
+              "mapping_rules_ref": "sha256:0c1778625d457e4f21c59b375dd483a7039d17f8d3acb43a4affb96703bdf083",
+              "state_slot_digest": "sha256:7fd968452af388cc0a402341d416a177e5725e9e76007f6fe93308fe1df325bf"
+            },
+            "skg_causal_prior_ref": {
+              "skg_snapshot_ref": "lane0://education/skg",
+              "skg_version_id": "education-skg-v1",
+              "source_data_snapshot_id": "education-snapshot-v1",
+              "edge_prior_refs": [],
+              "transport_score_refs": [],
+              "query_trace_refs": []
+            },
+            "substrate_registry_ref": {
+              "substrate_version_id": "substrate_version_a85e54826145a786",
+              "content_hash": "sha256:a85e54826145a786a874c6d58ab97f2added03ad415f77b23decdc5710346f75",
+              "registry_artifact_ref": "lane0://education/substrate-registry",
+              "resolved_entries": [
+                {
+                  "source_id": "l2_scholar_kg:education.duckdb",
+                  "family_id": "education_causal_priors",
+                  "layer": "L2",
+                  "coverage_score": 0.8,
+                  "trust_tier": "derived_proxy",
+                  "trust_cap": 0.5,
+                  "identification_mode": "causal_prior_candidate",
+                  "schema_regime_id": "education_schema_v1",
+                  "data_version": "education-data-v1",
+                  "snapshot_id": "education-snapshot-v1",
+                  "source_snapshot_id": "education-snapshot-v1",
+                  "entry_content_hash": "sha256:8edc279d382c2b8fd6bce24b1db6339c8254ff1248425ab2bc848cb3e9b74399"
+                }
+              ]
+            },
+            "policy_slot_map": [
+              {
+                "slot_id": "education.teaching_method",
+                "state_path": "substrate.education.teaching_method",
+                "unit": null,
+                "entity_scope": "population",
+                "temporal_granularity": "year"
+              },
+              {
+                "slot_id": "learning_outcomes",
+                "state_path": "substrate.learning_outcomes",
+                "unit": null,
+                "entity_scope": "population",
+                "temporal_granularity": "year"
+              }
+            ],
+            "limitations": {
+              "unavailable_data": [],
+              "transport_limits": [],
+              "calibration_envelope_status": "unknown",
+              "unresolved_conflicts": [],
+              "admissibility_blockers": []
+            },
+            "deployment_update_refs": {
+              "phase": "phase_6_forward_hook",
+              "feedback_refs": [],
+              "reissue_refs": [],
+              "refute_refs": [],
+              "incident_refs": [],
+              "posterior_update_refs": []
+            }
+          },
+          "intervention_substrate": null,
+          "candidate_levers": [],
+          "transport_context": null,
+          "source_pack_content_hash": "sha256:52760d958b28ae5b0f1fe554b47dc832de88a9e69e3859b1fa3b9efffc718e65",
+          "substrate_input_content_hash": "sha256:785f685474547e08b795106c32dc25697e451f9758fccd19e78461cf49b8f659"
+        },
+        "rule": {
+          "schema_version": "policyos.runtime.candidate_scenario.set_to.v1",
+          "operator_kind": "teaching_method_set_to",
+          "parameter_id": "intensity",
+          "target_world_slot": "education.teaching_method",
+          "unit_id": "synthetic_score",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "n5": {
+          "schema_version": "policyos.runtime.candidate_scenario.n5_config.v1",
+          "engine_kind": "ncm_parallel_worlds",
+          "budget_ref": "budget://bounded-child",
+          "horizon": {
+            "start": 0,
+            "end": 0,
+            "step": 1,
+            "valid_time_role": "valid_time",
+            "transaction_time_role": "transaction_time",
+            "scenario_branch_policy": "hold_world_record_constant"
+          },
+          "baseline_state": {
+            "education.teaching_method": 0.0,
+            "learning_outcomes": 0.0
+          },
+          "comparator_refs": [],
+          "seed": 7,
+          "replications": 2
+        },
+        "limitations": [
+          "scenario_only",
+          "real_profile_not_established",
+          "real_time_not_established",
+          "grounding_not_established",
+          "s8_blocked",
+          "n9_not_admitted"
+        ],
+        "content_hash": "sha256:067d5e1c004240b47831ae0e5632a40ae582d535c6f341f8d5da1c1571809323"
+      },
+      "profile_config_ref": "runtime-config:candidate-simulation/bounded-child-profile@sha256:067d5e1c004240b47831ae0e5632a40ae582d535c6f341f8d5da1c1571809323",
+      "job_id": "child-job",
+      "run_id": "child-run",
+      "tenant_id": "child-tenant",
+      "cell_id": "child-cell",
+      "model_declaration": null,
+      "model_declaration_ref": null,
+      "ncm_ref": null
+    },
+    "content_hash": "sha256:05d0f0d1506f5008edb8b98e941c9a0d0269915396698ce4caba0d2b1f61c0c4"
+  }
+}

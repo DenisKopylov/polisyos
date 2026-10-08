@@ -1,0 +1,40 @@
+{
+  "schema": "policyos.e02.l02.restart_unit_handoff.v1",
+  "unit": "C",
+  "execution_role": "L02",
+  "mode": "read_only_verification",
+  "branch": "codex/e02-L02-authentic-20261008",
+  "slice_base_sha": "0cc9df727c2c921d64815e452a9b08681807ce13",
+  "slice_base_tree": "e68bb3b32ff5d7b93818569a793f9594a4afa811",
+  "implementation_commits": [
+    "6e9eed27c41a488c33b6be510b1b4c89a4152f7b"
+  ],
+  "implementation_role": "Own evidence docs only; no product/test/config/lock/generated writes",
+  "candidate_tree_sha": "be4e0bebbecab328d84009628120f64144559f4b",
+  "runtime_contract_target_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "runtime_contract_target_tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+  "runtime_execution": "UNRUN; source/config examination and input identity observer only",
+  "prior_original_criterion_and_owner_binding": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/parallel-20261008-l02-late-input-qualification.json",
+    "commit": "0cc9df727c2c921d64815e452a9b08681807ce13",
+    "bytes": 4110,
+    "sha256": "76e27a4558242e65196cc8487b5e1d171bcd1b24101f3bead8f09bba50c8e54e",
+    "use": "Original criterion/owner status unchanged; this is a scoped continuation, no whole-row reaccounting."
+  },
+  "evidence_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/data-readiness.json",
+      "commit": "6e9eed27c41a488c33b6be510b1b4c89a4152f7b",
+      "bytes": 34690,
+      "sha256": "3ca893aed4f2fe9ddebc53524fbb54fa7dc453cd7d4b3eab53c39053bcc086b6"
+    }
+  ],
+  "outcome": "I3/I4 no selected current source-owned progress/event or generation/assets/encoder/caller tuple. No Legal/DB corpus read or global physical absence inference.",
+  "minimum_next_tuple_or_action": "B79/B80 source-bound dataset/run/cursor/content; B83 independent source event/version+UTC TTL. Catalog same profile; Legal exact generation/membership/assets/immutable encoder/encoded-query profile. LA032 C05 source-to-state/target/prior/donor inventory via existing manifest/CAS/read_api; retain independent scope.",
+  "predicate_basis": "recomputed document/file identities; actual profile/context/law/issuer facts not_established where specifically named, no metadata authority",
+  "production_read_scope": "Root read exactly five selected L6 files: two metadata manifests and three binary-hashed payloads. All per-input identities remain ignored. No production data writes/exports; other task payloads unassessed.",
+  "root_binding_limit": "Observed primary input root is not an executed G Runtime repo_root binding; that must be established before a consumer claim.",
+  "closure_ids": [],
+  "formal_G_closure_updates": "none by L02; existing G decisions remain separate",
+  "created_at_utc": "2026-10-08T16:30:33.555206+00:00"
+}

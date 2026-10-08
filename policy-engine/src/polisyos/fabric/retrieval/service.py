@@ -11,11 +11,9 @@ from collections import OrderedDict
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.backends.config import ArtifactStoreConfig
-from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.contracts.control import (
     DataContext,
     DataNeed,
@@ -37,10 +35,15 @@ from .explore_lane import ExploreLaneDiscoverResult, ExploreLaneDiscovery, Explo
 from .providers import RetrievalProviders, resolve_retrieval_providers
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
 
+    from polisyos.core.artifacts import ArtifactStore, ArtifactStoreConfig
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
-    from polisyos.data_forge.domains.catalog.selection import CatalogRunProfile
+    from polisyos.data_forge.domains.catalog import (
+        CatalogRunProfile,
+        CatalogSourceRegistryEntry,
+        CatalogSourceRegistrySpec,
+    )
     from polisyos.fabric.connectors.profiles import SourceProfileRegistry
     from polisyos.fabric.connectors.registry import ConnectorRegistry
 
@@ -144,6 +147,14 @@ def _coerce_filter_map(value: object) -> dict[str, list[str]]:
     return normalized
 
 
+def _catalog_selection_error(code: str, detail: str | None = None) -> RuntimeError:
+    """Construct the canonical error through the existing lazy read API."""
+    error_type = cast(
+        "Callable[[str, str | None], RuntimeError]", catalog_read_api.CatalogSelectionError
+    )
+    return error_type(code, detail)
+
+
 class RetrievalService:
     """High-level retrieval orchestrator for control API and NL pipeline."""
 
@@ -208,7 +219,7 @@ class RetrievalService:
         self._index_size_bytes = 0
         self._docs_added_last_run = 0
         self._last_updated: datetime | None = None
-        self._catalog_source_registry: Any | None = None
+        self._catalog_source_registry: CatalogSourceRegistrySpec | None = None
         self._catalog_source_selections: dict[str, frozenset[str]] = {}
         self._max_local_index_docs = max(1, max_local_index_docs)
         self._max_promotion_candidates = max(1, max_promotion_candidates)
@@ -219,24 +230,30 @@ class RetrievalService:
         """Return the exact artifact store owned by the fetch executor."""
         return self._artifact_store
 
-    def _catalog_registry(self) -> Any:
+    def _catalog_registry(self) -> CatalogSourceRegistrySpec:
         """Refresh cached selection from the complete canonical effective registry."""
         with self._state_lock:
-            registry = catalog_read_api.load_catalog_source_registry()
-            if self._catalog_source_registry != registry:
-                self._catalog_source_registry = registry
+            load_registry = cast(
+                "Callable[[], CatalogSourceRegistrySpec]",
+                catalog_read_api.load_catalog_source_registry,
+            )
+            registry = load_registry()
+            cached_registry = self._catalog_source_registry
+            if cached_registry is None or cached_registry != registry:
+                cached_registry = registry
+                self._catalog_source_registry = cached_registry
                 self._catalog_source_selections.clear()
-            return self._catalog_source_registry
+            return cached_registry
 
-    def _source_policy(self, source_name: str) -> Any | None:
+    def _source_policy(self, source_name: str) -> CatalogSourceRegistryEntry | None:
         normalized = (source_name or "").strip()
         if not normalized:
             return None
         return self._catalog_registry().source_by_id(normalized)
 
-    def _selected_catalog_source_ids(self, run_profile: str | None) -> frozenset[str]:
+    def _selected_catalog_source_ids(self, run_profile: CatalogRunProfile | None) -> frozenset[str]:
         if run_profile is None:
-            raise catalog_read_api.CatalogSelectionError("catalog_run_profile_unresolved")
+            raise _catalog_selection_error("catalog_run_profile_unresolved")
         with self._state_lock:
             registry = self._catalog_registry()
             cached = self._catalog_source_selections.get(run_profile)
@@ -247,14 +264,16 @@ class RetrievalService:
             self._catalog_source_selections[run_profile] = selected_ids
             return selected_ids
 
-    def _catalog_source_is_enabled(self, source_name: str, *, run_profile: str | None) -> bool:
+    def _catalog_source_is_enabled(
+        self, source_name: str, *, run_profile: CatalogRunProfile | None
+    ) -> bool:
         """Require registered, enabled sources selected by the caller's run profile."""
         normalized = source_name.strip()
         if not normalized:
-            raise catalog_read_api.CatalogSelectionError("catalog_source_identity_unresolved")
+            raise _catalog_selection_error("catalog_source_identity_unresolved")
         policy = self._source_policy(normalized)
         if policy is None:
-            raise catalog_read_api.CatalogSelectionError(
+            raise _catalog_selection_error(
                 "catalog_source_unregistered",
                 normalized,
             )
@@ -267,7 +286,7 @@ class RetrievalService:
         *,
         source_name: str,
         need: DataNeed,
-    ) -> tuple[str | None, str | None, Any | None]:
+    ) -> tuple[str | None, str | None, CatalogSourceRegistryEntry | None]:
         policy = self._source_policy(source_name)
         if need.time_start or need.time_end or policy is None:
             return need.time_start, need.time_end, policy

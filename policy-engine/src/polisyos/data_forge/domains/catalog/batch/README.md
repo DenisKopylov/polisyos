@@ -50,6 +50,12 @@ analysis flows.
   identity are outside this finite local configuration/assets basis.
   A separately injected RetrievalService profile registry is not bound here;
   no absent serving CatalogRunProfile is supplied.
+- **Observation transport ownership** - loaders resolve their split-module
+  transformer and API dependencies through the existing compatibility context.
+  The connector/session cache remains owned by `core_sources/writers.py`; the
+  observation API owns closing that cache after successful or failed ingestion.
+  DuckDB relations separate values from identifiers without narrowing native
+  integer year bounds. WVS still resolves current policy once per bulk operation.
 - **Observation mode** - `observation_mode` controls whether runs build core, backfill, or all observations.
 - **Benchmarking** - the benchmark stage now folds in core-ingest context and bulk-equivalence metrics.
 - **Readiness gating** - QC and publish use the benchmark/readiness outputs to decide whether the snapshot is consumer-ready.

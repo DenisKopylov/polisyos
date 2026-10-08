@@ -1973,6 +1973,172 @@ def test_warm_proxy_policy_change_updates_actual_catalog_alignment(
     assert config.run_signature != absent_signature
 
 
+@pytest.mark.parametrize("fail_fetch", [False, True])
+def test_real_catalog_session_is_reused_and_closed_by_legacy_api(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, fail_fetch: bool
+) -> None:
+    import aiohttp
+
+    from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+        ObservationPlan,
+    )
+    from polisyos.data_forge.domains.catalog.batch.core_sources import api as core_api
+    from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
+    from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle
+    from polisyos.fabric.connectors.profiles import SourceProfile, SourceProfileRegistry
+    from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+
+    profiles = SourceProfileRegistry()
+    profiles.register(
+        SourceProfile(
+            profile_id="worldbank_wdi",
+            display_name="Local transport boundary",
+            connector_family="worldbank",
+            base_url="https://example.test/owned-profile",
+            max_retries=1,
+        )
+    )
+    monkeypatch.setattr(SourceProfileRegistry, "_instance", profiles)
+    monkeypatch.setenv("POLISYOS_DATASET_LEGACY_SERIAL", "yes")
+    config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "snapshot",
+        run_profile="preflight_core",
+        active_countries=("UA",),
+        active_year_window=(2020, 2020),
+        observation_mode="core",
+    )
+    build_graph(records=[], db_path=config.db_path)
+    plans = [
+        ObservationPlan(
+            dataset_id=f"worldbank-{indicator}",
+            source="worldbank",
+            raw_variable=indicator,
+            canonical_var="economic.gdp",
+            connector_id="worldbank.wdi",
+            profile_id="worldbank_wdi",
+            request_dataset_id=indicator,
+            default_filters={},
+            update_frequency="annual",
+        )
+        for indicator in ("NY.GDP.MKTP.CD", "NY.GDP.PCAP.CD")
+    ]
+    connected: list[ConnectionHandle] = []
+    disconnected: list[ConnectionHandle] = []
+    sessions: list[aiohttp.ClientSession] = []
+    urls: list[str] = []
+    original_connect = WorldBankConnector.connect
+    original_disconnect = WorldBankConnector.disconnect
+
+    async def observed_connect(
+        connector: WorldBankConnector, connection: ConnectionConfig
+    ) -> ConnectionHandle:
+        handle = await original_connect(connector, connection)
+        connected.append(handle)
+        return handle
+
+    async def observed_disconnect(connector: WorldBankConnector, handle: ConnectionHandle) -> None:
+        await original_disconnect(connector, handle)
+        disconnected.append(handle)
+
+    async def transport_boundary(
+        _connector: WorldBankConnector,
+        session: aiohttp.ClientSession,
+        url: str,
+        **_kwargs: object,
+    ) -> tuple[object, dict[str, str], bytes]:
+        assert not session.closed
+        sessions.append(session)
+        urls.append(url)
+        if fail_fetch:
+            raise RuntimeError("controlled transport failure")
+        body = [
+            {"pages": 1},
+            [{"country": {"id": "UA"}, "date": "2020", "value": 2.5}],
+        ]
+        return body, {}, json.dumps(body).encode("utf-8")
+
+    monkeypatch.setattr(WorldBankConnector, "connect", observed_connect)
+    monkeypatch.setattr(WorldBankConnector, "disconnect", observed_disconnect)
+    monkeypatch.setattr(WorldBankConnector, "_request_json", transport_boundary)
+    stats = asyncio.run(core_api._ingest_catalog_observations(config.db_path, plans, config=config))
+    assert len(urls) == 2
+    assert all(url.startswith("https://example.test/owned-profile/") for url in urls)
+    assert len(connected) == 1
+    assert disconnected == connected
+    assert sessions[0] is sessions[1]
+    assert all(session.closed for session in sessions)
+    assert connected[0].get_state("session") is None
+    with duckdb.connect(str(config.db_path), read_only=True) as con:
+        persisted = con.execute("SELECT value FROM ds_observations ORDER BY dataset_id").fetchall()
+    if fail_fetch:
+        assert stats.completed_shards == 0
+        assert stats.failures == 2
+        assert persisted == []
+    else:
+        assert stats.completed_shards == 2
+        assert stats.failures == 0
+        assert persisted == [(2.5,), (2.5,)]
+
+
+@pytest.mark.parametrize("year_window", [(-(2**63), 2**63), (-(2**31) - 1, 2**31)])
+def test_wvs_native_integer_bounds_preserve_parameter_selection(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, year_window: tuple[int, int]
+) -> None:
+    from polisyos.data_forge.domains.catalog.batch.core_sources import loaders
+
+    registry_path = tmp_path / "wvs.yaml"
+    registry_path.write_text(
+        "indicators:\n  A173:\n    response_type: continuous\n", encoding="utf-8"
+    )
+    csv_path = tmp_path / "wvs.csv"
+    csv_path.write_text(
+        "COUNTRY_ALPHA,S020,S002VS,S017,S018,A173\n"
+        "UKR,2020,7,1,1,2\nUKR,invalid,7,1,1,90\nUKR,,7,1,1,90\n"
+        "UKR,2147483648,7,1,1,90\nUKR,2020,7,1,1,4\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(loaders, "_wvs_registry_path", lambda: registry_path)
+    monkeypatch.setattr(loaders, "_wvs_bulk_csv_path", lambda: csv_path)
+    with duckdb.connect() as con:
+        original = con.execute(
+            "SELECT A173 FROM read_csv(?, header=true, all_varchar=true) "
+            "WHERE COUNTRY_ALPHA = ? AND try_cast(S020 AS INTEGER) BETWEEN ? AND ?",
+            [str(csv_path), "UKR", *year_window],
+        ).fetchall()
+    assert original == [("2",), ("4",)]
+    rows = loaders._load_wvs_bulk_duckdb(["A173"], year_window=year_window)["A173"]
+    assert len(rows) == 1
+    assert rows[0]["sample_size"] == len(original)
+    assert rows[0]["value"] == pytest.approx(3.0)
+
+
+def test_bulk_relations_keep_identifier_and_value_inputs_separate(tmp_path: Path) -> None:
+    from polisyos.data_forge.domains.catalog.batch.core_sources import loaders
+
+    identifier = 'quoted"column; SELECT 99;--'
+    literal = "record'); DROP TABLE ds_observations;--"
+    with duckdb.connect() as con:
+        con.execute("CREATE TABLE ds_observations(observation_id VARCHAR)")
+        con.executemany("INSERT INTO ds_observations VALUES (?)", [(literal,), ("ordinary",)])
+        assert loaders._existing_observation_ids(con, [literal, "missing"]) == {literal}
+        assert con.execute("SELECT count(*) FROM ds_observations").fetchone() == (2,)
+    path = tmp_path / "quoted'payload.parquet"
+    records = [{identifier: literal, "geo": "UA", "time_period": "2020", "value": 2.5}]
+    assert (
+        loaders._write_bulk_records_to_parquet(
+            records=records, normalized_path=path, table_name="bulk; SELECT 99;--"
+        )
+        == 1
+    )
+    with duckdb.connect() as con:
+        assert con.read_parquet(str(path)).fetchall() == [(literal, "UA", "2020", 2.5)]
+    total, sampled = loaders._bulk_series_sample(source="eurostat", normalized_path=path)
+    assert total == 1
+    assert sampled == [{identifier: literal, "geo": "UA"}]
+    assert not path.with_suffix(".duckdb").exists()
+    assert not Path(f"{path.with_suffix('.duckdb')}.wal").exists()
+
+
 def test_warm_wvs_policy_change_updates_selected_bulk_rows_and_harvest_catalog(
     monkeypatch: pytest.MonkeyPatch, tmp_path
 ) -> None:

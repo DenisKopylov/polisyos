@@ -1,0 +1,17 @@
+id = "2026-10-08-e02-c05-loader-contracts-r2"
+title = "Type catalog loader dependencies and preserve transport ownership"
+type = "fixed"
+component = "data-forge"
+owner = "team-data-forge"
+summary = "Typed lazy loader dependencies preserve the existing API compatibility context and canonical connector/session cache. DuckDB relations separate identifier and value inputs while retaining native integer bounds. Retrieval uses the existing canonical registry/error contracts."
+evidence = ["tests/unit/remediation/test_dfi_03.py", "tests/unit/remediation/test_dfk_02.py"]
+compatibility = "Existing same-ID material currentness, seed None-versus-empty selection, warm registry equality, normalized legacy dispatch and one-read WVS policy behavior are retained. Connector/session ownership remains in the existing writers cache and observation API."
+change_class = "internal"
+surface_classification = "internal"
+migration = "No snapshot migration or alternate producer is introduced."
+api = "No public signature changes."
+limitations = "Shared aggregate public-facade companions and generated architecture freshness remain separately proposed. Header/credential overlays, remote corpus identity, separately injected retrieval profiles and concurrent snapshot atomicity remain outside the finite basis."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/data_forge/domains/catalog/batch/README.md"]
+runbook_docs = []

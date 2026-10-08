@@ -371,11 +371,9 @@ def _runtime_source_profile_payload() -> bytes:
     supplies a non-secret revision or enforces explicit invalidation.
     Only member digests are persisted.
     """
-    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
-    from polisyos.fabric.connectors.profiles.resolver import (
-        resolve_connection_config,
-        resolve_execution_policy,
-    )
+    from polisyos.fabric.connectors import resolve_connection_config
+    from polisyos.fabric.connectors.profiles import SourceProfileRegistry
+    from polisyos.fabric.connectors.profiles.resolver import resolve_execution_policy
 
     profiles = [
         profile.model_copy(deep=True) for profile in SourceProfileRegistry.get_instance().list_all()
@@ -407,5 +405,8 @@ def _signature_safe(value: object) -> object:
     if isinstance(value, (list, tuple)):
         return [_signature_safe(item) for item in value]
     if isinstance(value, (set, frozenset)):
-        return sorted(_signature_safe(item) for item in value)
+        return sorted(
+            (_signature_safe(item) for item in value),
+            key=lambda item: json.dumps(item, ensure_ascii=False, sort_keys=True),
+        )
     return value

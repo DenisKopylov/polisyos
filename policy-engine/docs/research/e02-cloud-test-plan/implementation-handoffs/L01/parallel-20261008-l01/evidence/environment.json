@@ -1,0 +1,17 @@
+{
+  "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "packages": {
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3"
+  },
+  "modules": {
+    "audit": "src/polisyos/ddm/calibration/audit.py",
+    "model_registry": "src/polisyos/ddm/integration/model_registry.py",
+    "calibrate": "src/polisyos/ddm/calibration/calibrate.py"
+  },
+  "environment_alias": "l01-reused-app-python314",
+  "data_payload_used": false
+}

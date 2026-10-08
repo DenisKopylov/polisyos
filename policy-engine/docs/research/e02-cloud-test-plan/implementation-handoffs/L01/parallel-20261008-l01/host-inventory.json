@@ -1,0 +1,138 @@
+{
+  "schema": "polisyos.e02.l01.host-public.v1",
+  "observed_at": "2026-10-08T09:22:45.514017+00:00",
+  "requested_input_bytes_digest": "withheld_no_disclosure_admission",
+  "source_identity": {
+    "assignment_packet_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "dispatch_G_source_pin": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+    "observed_working_head": "355f5e861be96ebf03ee97888a856da2c26f767f"
+  },
+  "configuration_state": {
+    "l01_mode": "read_only_inputs",
+    "declared_source_scopes": [],
+    "dispatch_actual_local_data_paths": "not_established; field is a status statement, not a filesystem path",
+    "absence_scope": "named dispatch and receipts only; no complete path census or claim that production inputs are absent",
+    "owner_specific_alias_producer_profile_consumer_mapping": "not_established"
+  },
+  "aliases": [
+    {
+      "alias": "LOCAL_DATA_ROOT_01",
+      "configured_source_alias": "not_established",
+      "producer": "not_established",
+      "profile": "not_established",
+      "consumer": "not_established",
+      "location_exists": true,
+      "filesystem_object_type": "directory",
+      "dedicated_mountpoint": false,
+      "filesystem_mount_read_only": false,
+      "effective_process_can_write_at_directory_root": false,
+      "descendant_permissions_checked": false,
+      "bytes_admitted": "not_established",
+      "boundary": "directory exists; root access denies writes for this process, but the containing filesystem is read-write and no descendant state was checked"
+    }
+  ],
+  "paired_artifacts": {
+    "I4_Legal_generation_assets_membership_query_encoder": {
+      "state": "not_established; no verified mismatch",
+      "prior_receipt": "C carry-admission receipt states production assets, membership, and matching served profile were not established or read; the named serving path lacks a local query encoder",
+      "current_named_configuration": "no exact pair configuration was named; only the opaque root directory metadata was checked"
+    },
+    "S2_E_law_draw_evaluator_calibration_lineage": {
+      "state": "not_established; no matching pair compared",
+      "prior_receipt": "E carry-admission receipt keeps real evaluator/model/fit inputs held and does not establish source law, sampler, or noise",
+      "current_named_configuration": "no exact input alias or profile was named"
+    }
+  },
+  "tasks": [
+    {
+      "task_id": "T1",
+      "exact_absence": "No owner-specific source alias, producer, profile, or consumer binding is established in the named dispatch/receipt set; this is not a null-owner claim.",
+      "minimum_next_input_fields": [
+        "source_ref",
+        "authority_purpose",
+        "issuer",
+        "verifier",
+        "consumer",
+        "admission_status",
+        "claim_reaction",
+        "time_or_currentness"
+      ]
+    },
+    {
+      "task_id": "I3",
+      "exact_absence": "No source alias, dataset/run identity, cursor, content identity, or source-owned event/version key is named in the local-path dispatch record.",
+      "minimum_next_input_fields": [
+        "source_dataset_ref",
+        "source_run_id",
+        "cursor",
+        "content_identity",
+        "event_version_key",
+        "source_owner",
+        "durable_replay_window"
+      ]
+    },
+    {
+      "task_id": "S2",
+      "exact_absence": "No configured evaluator/law/Jacobian/calibration/lineage packet is named for a current local input.",
+      "minimum_next_input_fields": [
+        "evaluator_ref",
+        "law_ref",
+        "Jacobian_axes_units_model_source",
+        "joint_draw_law",
+        "attempted_draw_outcomes",
+        "covariance_lineage",
+        "subject_identity",
+        "profile_epoch_time"
+      ]
+    },
+    {
+      "task_id": "R4",
+      "exact_absence": "No admitted workload/profile/resource budget or competing-study/fold roster is named.",
+      "minimum_next_input_fields": [
+        "workload_id",
+        "admitted_profile_id",
+        "resource_budget",
+        "competing_study_roster",
+        "fold_roster"
+      ]
+    },
+    {
+      "task_id": "I4",
+      "exact_absence": "No configured paired Legal generation/assets/membership/query-encoder input is named; the prior receipt keeps the production profile boundary held. Catalog additionally depends on I1 acceptance.",
+      "minimum_next_input_fields": [
+        "generation_ref",
+        "assets_ref",
+        "membership_ref",
+        "query_encoder_ref",
+        "serving_profile_id",
+        "request_profile_binding",
+        "fresh_reader_ref",
+        "I1_acceptance_for_Catalog"
+      ]
+    },
+    {
+      "task_id": "S1_scoped_residual_facts",
+      "exact_absence": "No local source-to-state inventory or observed-feature conditional-law packet is mapped to a configured alias.",
+      "minimum_next_input_fields": [
+        "versioned_source_ref",
+        "state_id",
+        "target",
+        "prior_ref",
+        "donor_ref",
+        "conditional_feature_law",
+        "sampler_ref",
+        "support",
+        "epoch",
+        "bound"
+      ]
+    }
+  ],
+  "access_boundaries": {
+    "dotenv_read": false,
+    "environment_values_read": false,
+    "production_payload_opened": false,
+    "production_directory_enumerated": false,
+    "production_bytes_hashed": false,
+    "mount_or_link_created": false
+  }
+}

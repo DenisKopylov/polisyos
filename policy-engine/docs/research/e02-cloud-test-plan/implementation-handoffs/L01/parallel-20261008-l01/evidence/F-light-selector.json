@@ -1,0 +1,53 @@
+{
+  "schema": "l01-f-light-selector-receipt/v1",
+  "repository": "/Users/deniskopylov/.codex/worktrees/e02-l01-custody-20261008/polisyos",
+  "head": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "worktree": "codex/e02-L01-custody-20261008",
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l01-custody-20261008/polisyos/policy-engine",
+  "command_argv": [
+    "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py::TestLocalWorkerPool::test_capacity_defaults"
+  ],
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-l01-custody-20261008/polisyos/src"
+  },
+  "environment_note": "Inherited process environment otherwise unchanged; no credentials or unrelated environment values recorded.",
+  "selector": "tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py::TestLocalWorkerPool::test_capacity_defaults",
+  "wall_seconds_monotonic": 1.2485005000489764,
+  "exit_code": 0,
+  "stdout": ".                                                                        [100%]\n=============================== warnings summary ===============================\n../../../../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428\n  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir\n  \n    self._warn_or_fail_if_strict(f\"Unknown config option: {key}\\n\")\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n1 passed, 1 warning in 0.17s\n",
+  "stderr": "",
+  "started_utc": null,
+  "started_utc_status": "not_recorded_before_subprocess; wall duration is measured with monotonic clock around the subprocess",
+  "captured_utc": "2026-10-08T09:41:56Z",
+  "environment_capture": {
+    "explicit_overrides": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-l01-custody-20261008/polisyos/src"
+    },
+    "inherited_environment": "inherited unchanged by the wrapper, but full values were not serialized to avoid recording secrets; effective full environment is not_established"
+  },
+  "source_refs": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_pool.py",
+      "git_blob": "1c57325b0133222154b0298c814a701b568ccc50"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/worker_pool.py",
+      "git_blob": "4f872336aa5c2c89eed1f396e050345674c92829"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py",
+      "git_blob": "5316c522660bc54fb3a60b9e677036b3ceb7fba6"
+    }
+  ],
+  "full_stdout_stderr_captured": true
+}

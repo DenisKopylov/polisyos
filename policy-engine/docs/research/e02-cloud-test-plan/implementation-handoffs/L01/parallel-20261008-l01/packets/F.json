@@ -1,0 +1,304 @@
+{
+  "schema": "policyos.e02.l01.input_custody_packet.v1",
+  "execution_role": "L01",
+  "original_unit": "F",
+  "mode": "read_only_inputs",
+  "product_source_selection": "Each component ref below is an inspected source; it is not G acceptance. Actual G snapshot f00dd7661a8d3329fb1fa1b049decb0d1d2f277b.",
+  "production_input_admission": "not_established",
+  "input_bytes_digest": "withheld_no_disclosure_admission",
+  "formal_G_closure": "not_adjudicated",
+  "original_criteria": [
+    {
+      "id": "B56",
+      "logical_owner": "F",
+      "bundle": "FIT-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B56",
+          "document": "B_r19",
+          "lines": [
+            1409,
+            1424
+          ],
+          "sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b",
+          "card": "FIT-01"
+        }
+      ]
+    }
+  ],
+  "facts": {
+    "schema": "policyos.l01.f_workload_evidence_draft.v1",
+    "draft_status": "local read-only investigation; non-secret; not a publication or closure receipt",
+    "source_identity": {
+      "task_pinned_G": {
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+        "branch": "codex/e02-L01-custody-20261008"
+      },
+      "dispatch_G_pin": {
+        "commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617",
+        "status": "older dispatch pin; task-pinned exact G f00dd was used"
+      },
+      "F_source": {
+        "commit": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+        "tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+        "in_G_ancestry": true
+      },
+      "F_receipt_commit": {
+        "commit": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+        "tree": "682b043138464c912dd728c12e80049dd44b47f1",
+        "role": "receipt-publication custody; not B56 workload evidence"
+      },
+      "worktree_scope": "Exact task worktree at f00dd was used for source/tests. The caller checkout supplied only the interpreter executable named by the captured command; G source was selected with PYTHONPATH. No caller checkout source/test files were edited."
+    },
+    "original_criterion": {
+      "finding_id": "B56",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a#L1409-L1424",
+      "exact_configuration_problem": "По умолчанию используются пять folds и три повторения. Если `parallel_folds=True` и `max_parallel_folds=0`, число workers берётся из числа tasks — здесь 15 на один fit. Каждый fit создаёт собственный `ThreadPoolExecutor`. Четыре внешних одновременных fit могут тем самым запросить 60 внутренних рабочих потоков ещё до учёта прочих стадий. Это расчёт конфигурационной ёмкости, не наблюдение 60 реально загруженных CPU и не измеренное замедление.",
+      "exact_acceptance": "При заданном общем ресурсе сумма допущенной работы ограничена; задачи ожидают без потери результатов; тот же набор folds/repeats исполнен независимо от уровня параллелизма; численные результаты и provenance согласованы. Измерять общее время, пиковую память, число активных workers и ожидание, а не предполагать, что максимальный worker-count оптимален.",
+      "boundary": "Это возможность настройки и композиции, не доказанный дефект одиночного запуска; исходная 15/60 величина — конфигурационный расчёт, не измеренная нагрузка."
+    },
+    "disposition_and_owner": {
+      "coverage": {
+        "source": "coverage.json@8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf#/findings/181",
+        "historical_ledger_status": "partial",
+        "closure_now": "not_adjudicated",
+        "criterion_specific_acceptance": "not executed; accepted FIT-01 receipt is not a B56-specific closure witness"
+      },
+      "connected_finding": {
+        "source": "findings.json@f9beb4db06c6e269c51e8a3f931a1902dde0fb6e#/rows/259",
+        "original_unit": "F",
+        "bundle": "FIT-01",
+        "author_proposal": "limited",
+        "flows": [
+          "S",
+          "R"
+        ],
+        "next_task": "R4",
+        "G_closure": "not_adjudicated"
+      },
+      "R4": {
+        "source": "tasks.json@a27cf7e78dc7c16df279a5136399ee0a5daeee9a#/tasks/R4",
+        "title": "Existing Runtime competing-study/fold admission witness",
+        "conditional_input": "named admitted workload/profile/resource budget",
+        "exit": "full workload within shared cap, no lost folds/deadlock; extend existing owner only if witness disproves coverage"
+      },
+      "F_per_id": {
+        "source": "B56.json@54ae503a1a4d18b704c0f5a7bf37fa73f65a7af4",
+        "current_result": "UNRUN / limited",
+        "actual_route": "DurableControlWorker → RunLifecycle → run_experiment → sync_run_causal_full",
+        "past_local_pool_attempt": "execution_context_missing before 0 fits; not execution evidence",
+        "full_admitted_workload": "not established"
+      },
+      "connected_decision": {
+        "source": "02-decisions.md@0723bc9d0292b6cf52f1656afe06afd5dcac98a0#L35",
+        "direction": "reuse an existing outer Runtime/study permit and synchronous stable folds; measure complete admitted competing-job/fold/repeat/model work; extend the same owner only if cap fails; use explicit configured budget from actual profile; do not invent a universal quota or a new scheduler"
+      }
+    },
+    "four_planes": {
+      "internal_configured_owner": {
+        "identified_route": "Embedded ControlWorker is created by RunLifecycle when worker_backend is embedded; each dispatch_once leases and executes one control job synchronously. The legacy scientist handler calls run_experiment.",
+        "available_configured_mechanisms": [
+          "TMLE contract carries parallel_folds=true and max_parallel_folds=0 request defaults; current TMLE source records effective_fold_workers=1 and executes fold results sequentially inside an admitted job.",
+          "WorkflowRunnerConfig exposes max_parallelism default 4 via POLISYOS_RUNNER_MAX_PARALLELISM; full scientist_causal_full builder directly constructs sequential WorkflowExecutor and does not pass a shared permit or LocalWorkerPool.",
+          "LocalWorkerPool has max_workers default 4 and counts active_tasks; its gate ignores ResourceRequirements cpu_cores and memory_mb.",
+          "TenantQuotaLimits.max_concurrent_runs defaults to 10 (count-based); runtime RunLifecycle call does not pass quota_registry, while scientist_causal_full has no quota_registry parameter."
+        ],
+        "active_profile_replica_count_shared_permit_and_budget_unit": "not_established from the available tracked source/profile inputs",
+        "actual_product_uses_LocalWorkerPool_or_TaskRouter_for_this_route": "not found in source path; product source search found no LocalWorkerPool() or TaskRouter() construction."
+      },
+      "externally_supplied_fact": {
+        "needed": [
+          "named admitted competing-job roster",
+          "exact runtime/study profile and configured resource cap",
+          "budget unit and owner/permit identity",
+          "per job: model, folds, repeats, seeds, relevant concurrent peers"
+        ],
+        "present": false,
+        "private_inputs": "No payload census or input content inspected; future local private inputs should use opaque aliases, with sensitive digests retained locally only."
+      },
+      "our_admission": {
+        "actual_runtime_admission": "ControlWorker leases one job per worker instance, but no shared resource/fold permit is threaded through RunLifecycle → run_experiment → sync_run_causal_full. Number of worker instances/replicas and their aggregate cap are not established.",
+        "candidate_primitive": "The existing LocalWorkerPool is a per-instance slot-count primitive only. A single shared instance could bound aggregate task slots only if the Runtime/study owner proves all competing jobs use it and the configured cap is expressed in task slots.",
+        "P38_divergence": {
+          "property": "aggregate admitted fit work across the real shared Runtime owner stays within its common cap",
+          "actual_proxy": "per-pool active task count / per-run WorkflowRunnerConfig.max_parallelism",
+          "divergent_case": "two independent LocalWorkerPool(max_workers=c) instances each satisfy c while their combined active tasks can reach 2c; the inspected causal-full Runtime route does not construct either pool."
+        }
+      },
+      "claim_reaction": {
+        "B56_status": "limited / UNRUN; G closure not adjudicated",
+        "capability_labels": [
+          "implemented_but_not_orchestrated (LocalWorkerPool primitive relative to actual Runtime route)",
+          "verification_missing (actual competing Runtime workload and shared cap)",
+          "not_established (active profile, resource budget, full roster)"
+        ],
+        "do_not_promote": "A single MethodJob, historical four-study custom fixture, `max_parallelism=4`, or tenant concurrent-run count does not establish shared CPU/RSS admission or the B56 criterion."
+      }
+    },
+    "existing_discriminators": {
+      "direct_property_selector": {
+        "selector": "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout",
+        "source_blob": "630265e9216390b58c4eb3e2c2aa5bdaa0ae17a5",
+        "locator": "L322-L397+",
+        "scope": "existing test-created LocalWorkerPool, native TMLE StudyNodes, bounded test budgets [1,2], fold/CAS behavior; direct one-pool witness only, not production Runtime admission; not run in this task"
+      },
+      "safe_light_selector_executed": {
+        "receipt": "_build/e02-L01-20261008/agents/f/selector-receipt.json",
+        "selector": "tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py::TestLocalWorkerPool::test_capacity_defaults",
+        "result": "1 passed, 1 harness warning, subprocess exit 0",
+        "wall_seconds_monotonic": 1.248501,
+        "scope": "non-numerical pool capacity default only; not B56 acceptance"
+      },
+      "full_stdout_stderr_and_command": "Captured in selector-receipt.json; explicit env overrides recorded; full inherited environment values were not serialized to avoid secrets, so effective full environment is marked not_established."
+    },
+    "source_test_config_api_blob_refs": [
+      {
+        "name": "criterion_original",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "locator": "L1409-L1424"
+      },
+      {
+        "name": "coverage",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "git_blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+        "locator": "/findings/181"
+      },
+      {
+        "name": "connected_findings",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+        "git_blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e",
+        "locator": "/rows/259"
+      },
+      {
+        "name": "connected_tasks",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+        "git_blob": "a27cf7e78dc7c16df279a5136399ee0a5daeee9a",
+        "locator": "/tasks/R4"
+      },
+      {
+        "name": "connected_decisions",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/02-decisions.md",
+        "git_blob": "0723bc9d0292b6cf52f1656afe06afd5dcac98a0",
+        "locator": "L35"
+      },
+      {
+        "name": "F_B56_carrier",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B56.json",
+        "git_blob": "54ae503a1a4d18b704c0f5a7bf37fa73f65a7af4",
+        "locator": "/criterion_short,/actual_recorded_consumer,/independent_original_criterion_recommendation"
+      },
+      {
+        "name": "dispatch",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json",
+        "git_blob": "f2e8d2096b86148fb93d4eb61520d22002228a1d",
+        "locator": "/source_pins/G,/source_pins/F_source,/source_pins/F_receipt,/roles/L01"
+      },
+      {
+        "name": "F_carry_admission",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/F-carry-admission.md",
+        "git_blob": "0bb00cb0394528ef8fa938dbb21036ee9b4c61b0",
+        "locator": "B56 remains limited/UNRUN"
+      },
+      {
+        "name": "runtime_run_lifecycle",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+        "locator": "L1401,L2264,L6933-L6956"
+      },
+      {
+        "name": "control_worker_api",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+        "git_blob": "9584c2a30ef59cd0dbdfdad1186bc0d2c9032c6f",
+        "locator": "L144-L160,L189-L256"
+      },
+      {
+        "name": "scientist_api",
+        "path": "policy-engine/src/polisyos/scientist/api.py",
+        "git_blob": "00a723f27c161fd8304d494e24525ffd9529c378",
+        "locator": "L215-L222,L286-L312"
+      },
+      {
+        "name": "workflow_builder",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/workflows/builder.py",
+        "git_blob": "52de4ccb6a4d9989265c8c2b4213dd02bf8b048f",
+        "locator": "L145-L166,L551-L686,L887-L953,L1076-L1158"
+      },
+      {
+        "name": "workflow_executor",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+        "git_blob": "fe0aadf975873aa54d35008d5020b66c6c6778fa",
+        "locator": "L800-L808; sequential workflow executor v0"
+      },
+      {
+        "name": "runner_config",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/config.py",
+        "git_blob": "c23adac6ae72e81dd0f1128d8255c171cbe6454a",
+        "locator": "L36,L43-L53"
+      },
+      {
+        "name": "local_worker_pool",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_pool.py",
+        "git_blob": "1c57325b0133222154b0298c814a701b568ccc50",
+        "locator": "L37-L48,L150-L155"
+      },
+      {
+        "name": "resource_requirements",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/worker_pool.py",
+        "git_blob": "4f872336aa5c2c89eed1f396e050345674c92829",
+        "locator": "L19-L25"
+      },
+      {
+        "name": "tenant_quota",
+        "path": "policy-engine/src/polisyos/core/security/tenant_quota.py",
+        "git_blob": "1a0a2c39813abf72eb05657785de9a69d7faa8a3",
+        "locator": "L12-L21"
+      },
+      {
+        "name": "tmle_core",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+        "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a",
+        "locator": "L92-L93,L255-L260,L960-L970"
+      },
+      {
+        "name": "tmle_direct_test",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+        "git_blob": "630265e9216390b58c4eb3e2c2aa5bdaa0ae17a5",
+        "locator": "L322-L397+"
+      },
+      {
+        "name": "safe_test",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py",
+        "git_blob": "5316c522660bc54fb3a60b9e677036b3ceb7fba6",
+        "locator": "L71-L81"
+      },
+      {
+        "name": "configuration_profiles",
+        "path": "policy-engine/docs/reference/configuration-profiles.md",
+        "git_blob": "6e7c941c2a4a0b4700de89f4088ea3637aa1e721",
+        "locator": "Local dev embedded; research/governed examples external; no active deployed roster asserted"
+      }
+    ],
+    "smallest_existing_capability_option": {
+      "option": "First identify and reuse the actual existing outer Runtime/study permit from the named owner, with synchronous folds inside each admitted job; retain fold/repeat/seed set and result/provenance invariance. Only if that actual owner is demonstrably the existing LocalWorkerPool, use one shared instance for all competing work with a task-slot budget.",
+      "current_boundary": "No shared Runtime/study permit instance, active profile, cap unit, or complete peer roster is established in the inspected path. LocalWorkerPool is not wired into that route and does not weight CPU/RSS; therefore no present existing-capability option can yet be claimed to meet B56."
+    },
+    "minimum_next_workload_packet": {
+      "owner": "actual Runtime/study admission owner identified by source or deployment profile",
+      "inputs": [
+        "exact frozen source SHA/tree and consumer path",
+        "runnable recipe through the real admission owner",
+        "active profile plus resource cap and unit",
+        "identity of the one shared permit/admission instance",
+        "complete competing job/model/fold/repeat/seed roster",
+        "CAS/result reader and output/provenance comparison recipe",
+        "wall time, peak RSS, active workers and waits measured during run"
+      ],
+      "privacy": "Only non-secret packet outside local host; use opaque aliases for private input handles and retain private digests locally. No dataset/payload census.",
+      "acceptance": "Run the complete named workload through the existing owner; demonstrate shared cap, preserved waits and outputs, unchanged folds/repeats/seeds, stable numerical result and provenance; keep any failure as evidence to extend the same owner, not as mandate for a new scheduler."
+    }
+  }
+}

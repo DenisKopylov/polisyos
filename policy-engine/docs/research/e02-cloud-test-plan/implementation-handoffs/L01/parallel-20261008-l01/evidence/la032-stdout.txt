@@ -1,0 +1,2 @@
+{"composite_reader": "refused_mixed_layout", "fixture": "synthetic_only", "property_under_probe": "all_four_readers_require_one_admitted_versioned_inventory", "sibling_reader_origins": {"donor": "legacy_donor", "priors": "legacy_priors", "targets": "new_targets"}}
+{'source': 'f00dd7661a8d3329fb1fa1b049decb0d1d2f277b', 'wall_s': 1.6566569170099683, 'max_rss_bytes_macos': 167133184, 'fixture_retained': True, 'production_inputs': False}

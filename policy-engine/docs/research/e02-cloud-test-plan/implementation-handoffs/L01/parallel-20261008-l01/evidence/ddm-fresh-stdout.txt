@@ -1,0 +1,4 @@
+{"allowed": true, "fresh_process": true, "mode": "valid", "pre_rebind_allowed": false, "reason": "R4_promotion_allowed"}
+{"allowed": false, "fresh_process": true, "mode": "tampered", "pre_rebind_allowed": false, "reason": "calibration_report_binding_not_established"}
+{"allowed": false, "fresh_process": true, "mode": "missing", "pre_rebind_allowed": false, "reason": "calibration_validity_not_established"}
+{"fixture": "synthetic existing _registry_context; no factual issuer/source law admitted", "child_timeout_s": 60, "wall_s": 0.3109156670398079, "max_child_rss_bytes_macos": 36700160}

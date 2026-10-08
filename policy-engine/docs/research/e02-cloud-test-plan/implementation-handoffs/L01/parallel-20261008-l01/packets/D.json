@@ -1,0 +1,925 @@
+{
+  "schema": "policyos.e02.l01.input_custody_packet.v1",
+  "execution_role": "L01",
+  "original_unit": "D",
+  "mode": "read_only_inputs",
+  "product_source_selection": "Each component ref below is an inspected source; it is not G acceptance. Actual G snapshot f00dd7661a8d3329fb1fa1b049decb0d1d2f277b.",
+  "production_input_admission": "not_established",
+  "input_bytes_digest": "withheld_no_disclosure_admission",
+  "formal_G_closure": "not_adjudicated",
+  "original_criteria": [
+    {
+      "id": "B108",
+      "logical_owner": "D",
+      "bundle": "OPT-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B108",
+          "document": "B_r19",
+          "lines": [
+            2897,
+            2910
+          ],
+          "sha256": "f43cecf8c2c66d6cc7bce5c5174b45fe7692e5018e1364c9798302104f8e4b55",
+          "card": "OPT-01"
+        }
+      ]
+    },
+    {
+      "id": "B131",
+      "logical_owner": "D",
+      "bundle": "TRN-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B131",
+          "document": "B_r19",
+          "lines": [
+            3459,
+            3472
+          ],
+          "sha256": "60545080be6e14231a07b082abb322b91f9b304c40dbed2d2cc701223470910c",
+          "card": "TRN-01"
+        }
+      ]
+    },
+    {
+      "id": "B137",
+      "logical_owner": "D",
+      "bundle": "TRN-03",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B137",
+          "document": "B_r19",
+          "lines": [
+            3543,
+            3556
+          ],
+          "sha256": "133330308d63d9cf44d4105d556e1e4740ff31b519643791722beb8a8a7bc961",
+          "card": "TRN-03"
+        }
+      ]
+    },
+    {
+      "id": "B157",
+      "logical_owner": "D",
+      "bundle": "FUN-02",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B157",
+          "document": "B_r19",
+          "lines": [
+            4117,
+            4128
+          ],
+          "sha256": "c27f7a7ba4108a5f8f2027bed47b3d3bfa56955f30034c1ede266fc07d7c8284",
+          "card": "FUN-02"
+        }
+      ]
+    },
+    {
+      "id": "B161",
+      "logical_owner": "D",
+      "bundle": "FUN-03",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B161",
+          "document": "B_r19",
+          "lines": [
+            4165,
+            4176
+          ],
+          "sha256": "f08fecf0caf482a9f2d93c1f808ea16daa2232de161e5eeb98a7995fa2d41e0a",
+          "card": "FUN-03"
+        }
+      ]
+    },
+    {
+      "id": "B164",
+      "logical_owner": "D",
+      "bundle": "FUN-03",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B164",
+          "document": "B_r19",
+          "lines": [
+            4201,
+            4212
+          ],
+          "sha256": "ed8189c34e88eec186ca2c6c3d764e796f0cc4f967c601f6a5ec223c43b6c137",
+          "card": "FUN-03"
+        }
+      ]
+    }
+  ],
+  "facts": {
+    "schema": "policyos.e02.l01_d_facts.v1",
+    "as_of": "2026-10-08",
+    "scope": {
+      "role": "L01 direct helper; D fiscal profile/tenant transfer/revalidation/native samples/refinement facts/L6 permit",
+      "finding_ids": [
+        "B108",
+        "B131",
+        "B137",
+        "B157",
+        "B161",
+        "B164"
+      ],
+      "mode": "read_only_inputs",
+      "source_writes": 0,
+      "test_writes": 0,
+      "tests_run": 0,
+      "heavy_runs": 0,
+      "payload_census": false,
+      "production_payload_opened": false,
+      "private_paths_or_payload_digests_included": false,
+      "external_messages_or_publication": false
+    },
+    "source_qualification": {
+      "requested_G": {
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767"
+      },
+      "dispatch_embedded_G_pin": {
+        "commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617",
+        "note": "dispatch source_pins.G differs from requested immutable G carrier; do not conflate"
+      },
+      "dispatch_D_source": {
+        "commit": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+        "in_G_ancestry": false,
+        "role": "source candidate pin only"
+      },
+      "D_current_leaf_production_source": {
+        "commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "qualified_by": "D leaf HANDOFF.json and criterion overlay production_source"
+      },
+      "D_latest_execution_source": {
+        "commit": "a30c140eedc5c0514a93409d4b4040a715231d28",
+        "tree": "7a36d6ab724daac3866c348b39bd79c7fe7fd350",
+        "qualified_by": "D leaf HANDOFF.json latest_execution_source; this packet did not rerun it"
+      },
+      "D_leaf_receipt_source": {
+        "commit": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+        "tree": "10efc41e7a2d792f42bce59af5b87816843df07e"
+      },
+      "original_criterion_source": {
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+      },
+      "source_ref_rule": "Each committed ref below records path_at_source, source_commit, and Git blob. Git blobs identify committed text/code only; no production input digest or private path is published."
+    },
+    "status_axes": {
+      "connected_plan_semantics": "G_closure=not_adjudicated is the closeout-process state, not an open/failed finding outcome. Preserve author_proposal in its own field for each row.",
+      "D_overlay_semantics": "D leaf assertions/proposals remain separate from formal G closure and source acceptance; D overlay says accepted_in_G=false and formal_closed=false for these rows.",
+      "source_acceptance": "No D source acceptance or G finding closure is made by L01. Dispatch source pins are not acceptance. D source pin is outside G ancestry.",
+      "coded_state_vs_capability": "B164 D L6 returns bridge_missing on the effectful runner path; the owner-input/capability state remains not_established. These are different facts."
+    },
+    "B164_L6_source_comparison": {
+      "historical_G_only_observation": {
+        "ref": "g_l6_code",
+        "source_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "observation": "G Level6PromotionStage._owner_recheck_allows_write returns bool(value) for generic non-bool/non-string values; a truthy object such as {\"allowed\":false} therefore normalizes true.",
+        "qualification": "Static observation at pinned G only. It is not attributed to current D."
+      },
+      "current_D_observation": {
+        "refs": [
+          "d8_l6_code",
+          "d3_l6_code",
+          "da30_l6_code"
+        ],
+        "exact_blob_equality": "The L6 module blob is 5154ebfe71891ca5a3046a05e0b03cb79a755a4a at dispatch D_source 8e864f4, D production leaf 3b31e136, and latest execution source a30c140e.",
+        "behavior": "The D L6 consumer fails closed with defer_to_human/bridge_missing when no typed permit/verifier/revoke-serialized commit bridge is available. The adjacent internal _policy_promotion_owner_recheck is only boolean preflight (candidate/evidence/run binding plus ephemeral promotion_write_allowed); L6 does not accept that boolean as a typed permit. A prepared payload is read-only.",
+        "negative_tests": [
+          "test_retained_preflight_markers_never_admit_effectful_generic_callback includes {\"allowed\":false}",
+          "test_revoke_after_true_preflight_barrier_has_zero_effects",
+          "test_prepared_payload_is_read_only_interpretation_without_callback_effects",
+          "test_production_owner_recheck_requires_explicit_write_permission returns a boolean for the helper only; paired L6 test still requires bridge_missing and zero runner effects"
+        ],
+        "positive_permit": "UNRUN / not_established; no positive permit exists in the committed D packet."
+      }
+    },
+    "findings": [
+      {
+        "id": "B108",
+        "bundle": "OPT-01",
+        "connected_plan": {
+          "author_proposal": "limited",
+          "G_closure": "not_adjudicated",
+          "criterion_pointer": "/findings/18/criterion_refs",
+          "next_tasks": [
+            "T1",
+            "V5"
+          ]
+        },
+        "D_leaf": {
+          "proposal": "limited",
+          "capability_state": "not_established",
+          "named_bounded_assertions": "PASS",
+          "required_original_owner_positive": "UNRUN",
+          "whole_current_candidate_execution": "UNRUN",
+          "formal_closed": false,
+          "accepted_in_G": false
+        },
+        "criterion_ref": {
+          "source_ref": "original_b_r19",
+          "line_range": "2897-2910"
+        },
+        "four_planes": {
+          "internal_configured_owner": "PolicyOS has the fiscal objective/extractor and evaluator consumers. The actual fiscal unit/sign/source-law declaring owner is requested but appointment is not established.",
+          "external_fact": "Missing: actual fiscal producer/result and source refs; owner-declared sign, unit and alias equivalence/profile; measurement time/context; and that producer’s conflict/missing policy. No production payload or private source path was opened.",
+          "our_admission": "The D source parses gov_balance/government_balance and budget_deficit/deficit aliases and rejects missing, non-finite and conflicting balance inputs in its named numeric tests. This is technical parsing, not admission of fiscal law. runner.summarize_state emits gov_balance from government_balance; the legacy/default objective consumer still reads gov_balance with a zero default.",
+          "claim_reaction": "Keep the connected author proposal limited. Do not treat numeric alias controls or the existence of a field as evidence of the real producer’s unit/sign/alias law."
+        },
+        "actual_consumers": [
+          "BudgetDeficitObjective._extract_value",
+          "summarize_state",
+          "ExpensiveStage._compute_default_objective"
+        ],
+        "existing_test_selectors": [
+          "tests/unit/scientist/methods/search/test_objective.py::test_budget_deficit_normalizes_missing_null_alias_and_sign",
+          "tests/unit/scientist/methods/search/test_objective.py::test_budget_deficit_marks_missing_metric_unusable",
+          "tests/unit/scientist/methods/search/test_objective.py::test_budget_deficit_keeps_non_finite_metric_unusable",
+          "tests/unit/scientist/methods/search/test_objective.py::test_budget_deficit_rejects_conflicting_balance_aliases"
+        ],
+        "minimum_next_input": [
+          "Opaque ref to actual fiscal producer/result and its source/version",
+          "Owner-issued applicable sign/unit/alias profile plus measurement time/context",
+          "Conflict/missing policy bound to that producer/profile"
+        ],
+        "smallest_discriminator": "On one owner-qualified physical measurement, equivalent declared balance/deficit encodings must yield the same score, explicit zero must remain zero, and a conflicting or incompatible-unit encoding must be unavailable. A synthetic numeric test cannot supply the owner profile.",
+        "input_closure": [
+          "g_connected_findings",
+          "original_b_r19",
+          "d_overlay",
+          "d_owner_inputs_update",
+          "d_prior_owner_inputs",
+          "d_objective",
+          "d_runner",
+          "d_stages",
+          "t_objective"
+        ]
+      },
+      {
+        "id": "B131",
+        "bundle": "TRN-01",
+        "connected_plan": {
+          "author_proposal": "held",
+          "G_closure": "not_adjudicated",
+          "criterion_pointer": "/findings/44/criterion_refs",
+          "next_tasks": [
+            "T2"
+          ]
+        },
+        "D_leaf": {
+          "proposal": "held",
+          "capability_state": "not_established",
+          "named_bounded_assertions": "PASS",
+          "required_original_owner_positive": "UNRUN",
+          "whole_current_candidate_execution": "UNRUN",
+          "formal_closed": false,
+          "accepted_in_G": false
+        },
+        "criterion_ref": {
+          "source_ref": "original_b_r19",
+          "line_range": "3459-3472"
+        },
+        "four_planes": {
+          "internal_configured_owner": "PolicyOS owns the typed numeric-transfer reader and WarmStartBridge. The actual tenant/split/source reuse decision owner is requested for confirmation by A/G; appointment is false and no owner was appointed.",
+          "external_fact": "Missing: actual source and target tenant/split/subject refs; the real owner’s allowed reuse/adapter decision or refusal; source/target data/model/evaluator/metric/unit/direction basis; and exact physical parameter/evaluation refs.",
+          "our_admission": "Current code has NumericTransferBasis and content-/artifact-bound numeric admission; similar-run discovery and tenant/split metadata remain technical matching signals. WarmStartBridge rehydrates selected evaluations as warm-start results with promotable=false. The source/tests do not contain the missing actual owner decision.",
+          "claim_reaction": "Keep held. Similar names, matching tenant strings, a content ref, or a fixture basis do not establish owner-authorized reuse."
+        },
+        "actual_consumers": [
+          "TransferLearningManager.target_basis",
+          "TransferLearningManager._admit/get_warm_start_evaluations",
+          "WarmStartBridge.load_warm_start/evaluations_to_benchmarks"
+        ],
+        "existing_test_selectors": [
+          "tests/unit/scientist/methods/search/strategies/test_transfer.py::test_each_complete_target_basis_identity_is_required",
+          "tests/unit/scientist/methods/search/strategies/test_transfer.py::test_candidate_content_not_ref_markers_binds_the_physical_input",
+          "tests/unit/scientist/methods/autotune/test_warm_start.py::test_reverse_replay_preserves_original_metric_ref_and_metadata_without_promotion"
+        ],
+        "minimum_next_input": [
+          "Opaque source and target tenant/split/subject refs",
+          "Actual owner allowed-reuse/adapter decision or explicit refusal",
+          "Source/target model/data/evaluator/metric/unit/direction refs and physical parameter/evaluation refs",
+          "Permitted adapter and bounded applicability"
+        ],
+        "smallest_discriminator": "Keep objective names and superficial metadata equal while changing a load-bearing unit/split/direction/subject basis or supplying owner refusal: no numeric transfer may be admitted. The positive must use the same native reader with a real owner-approved basis.",
+        "input_closure": [
+          "g_connected_findings",
+          "original_b_r19",
+          "d_overlay",
+          "d_owner_inputs_update",
+          "d_prior_owner_inputs",
+          "d_transfer",
+          "d_warm_start",
+          "t_transfer",
+          "t_warm_start"
+        ]
+      },
+      {
+        "id": "B137",
+        "bundle": "TRN-03",
+        "connected_plan": {
+          "author_proposal": "held",
+          "G_closure": "not_adjudicated",
+          "criterion_pointer": "/findings/50/criterion_refs",
+          "next_tasks": [
+            "T2"
+          ]
+        },
+        "D_leaf": {
+          "proposal": "held",
+          "capability_state": "not_established",
+          "named_bounded_assertions": "PASS",
+          "required_original_owner_positive": "UNRUN",
+          "whole_current_candidate_execution": "UNRUN",
+          "formal_closed": false,
+          "accepted_in_G": false
+        },
+        "criterion_ref": {
+          "source_ref": "original_b_r19",
+          "line_range": "3543-3556"
+        },
+        "four_planes": {
+          "internal_configured_owner": "PolicyOS owns LessonRegistry evidence anchoring, versioning, aging, reads and transfer projection. The actual lesson/evidence revalidation issuer is requested for confirmation by G; appointment is false and no owner was appointed.",
+          "external_fact": "Missing: old and newly produced exact evidence refs/versions, new grounds and occurrence time, owner authorization for this revalidation purpose, same subject/input/rule scope, and declared content/confidence/freshness basis.",
+          "our_admission": "Current query/access/TTL logic and _revalidate_transfer are reader/retention filters. The committed repeated-read test checks that read activity alone does not restore confidence; it is not a new evidence producer or owner-authorized revalidation event.",
+          "claim_reaction": "Keep held. Reads and retention activity do not raise evidence status or create a new evidence version."
+        },
+        "actual_consumers": [
+          "LessonRegistry.query/query_with_transfer",
+          "LessonRegistry._touch_access/_evidence_anchor/_revalidate_transfer",
+          "cold/warm/restart and transfer reads of the same lesson"
+        ],
+        "existing_test_selectors": [
+          "tests/unit/scientist/search/test_lessons.py::test_repeated_reads_do_not_restore_confidence_without_new_evidence"
+        ],
+        "minimum_next_input": [
+          "Opaque old and new evidence refs/version",
+          "New grounds and producer occurrence time",
+          "Owner-authorized revalidation purpose",
+          "Same subject/input/rule scope and content/confidence/freshness basis"
+        ],
+        "smallest_discriminator": "A read or TTL refresh of the same evidence ref must leave evidence version and confidence unchanged; a current owner-authorized new evidence version may update only the matching subject/input/rule scope.",
+        "input_closure": [
+          "g_connected_findings",
+          "original_b_r19",
+          "d_overlay",
+          "d_owner_inputs_update",
+          "d_prior_owner_inputs",
+          "d_lessons",
+          "t_lessons"
+        ]
+      },
+      {
+        "id": "B157",
+        "bundle": "FUN-02",
+        "connected_plan": {
+          "author_proposal": "held",
+          "G_closure": "not_adjudicated",
+          "criterion_pointer": "/findings/72/criterion_refs",
+          "next_tasks": [
+            "S2",
+            "V5"
+          ]
+        },
+        "D_leaf": {
+          "proposal": "held",
+          "capability_state": "producer_missing",
+          "named_bounded_assertions": "PASS",
+          "required_original_owner_positive": "UNRUN",
+          "whole_current_candidate_execution": "UNRUN",
+          "formal_closed": false,
+          "accepted_in_G": false
+        },
+        "criterion_ref": {
+          "source_ref": "original_b_r19",
+          "line_range": "4117-4128"
+        },
+        "four_planes": {
+          "internal_configured_owner": "D consumes effective L3/L4 configuration in FUN-02. The requested canonical producer owner is the actual A/B numerical sample/draw stage owner; appointment is false and no owner was appointed.",
+          "external_fact": "Missing: exact candidate/input/seed/config/basis refs; actual executed sample/draw/work counts and result ref; L3 reduced effective request and measured cheaper work/cost; L4 full effective request on both paths; unmutated caller context and same run/evaluation/attempt scope.",
+          "our_admission": "The runtime builder configures L3 to subsample_fraction=0.35, bootstrap_draws=64, matching estimator, medium scenario, top_k_subgroups=3, and L4 full fidelity. The L3 feedback reports fidelity configuration; this is not observed native draws/work. The consumer is the actual direct L4 vs L3→L4 FunnelOrchestrator on one boundary.",
+          "claim_reaction": "Keep held with producer_missing. A configuration echo, Foundry sample count, or synthetic fixture cannot prove native sample/work counts for the same run."
+        },
+        "actual_consumers": [
+          "FunnelOrchestrator.evaluate/advance",
+          "Level3MediumFidelity.evaluate/_build_reduced_state",
+          "Level4FullFidelity.evaluate",
+          "run_policy_blueprint_runtime L3/L4 builder"
+        ],
+        "existing_test_selectors": [
+          "tests/unit/scientist/search/funnel/test_level3_medium.py::TestLevel3MediumFidelity::test_fidelity_config_in_feedback",
+          "tests/unit/remediation/test_fun_03.py::test_native_execute_restores_report_corpus_into_actual_funnel_then_preserves_guards"
+        ],
+        "minimum_next_input": [
+          "Exact candidate/input/seed/config/basis refs",
+          "Actual executed draw/sample/work count and source result ref",
+          "Effective L3 reduced and L4 full requests for both paths",
+          "Direct-L4 vs L3→L4 same run/eval/attempt records and unmutated caller context"
+        ],
+        "smallest_discriminator": "Hold fidelity labels and caller markers constant while removing the actual L3 reduction; an independent executed-work oracle must then fail. Positive comparison must observe native work on the same candidate/input/seed and compare direct L4 with L3→L4.",
+        "input_closure": [
+          "g_connected_findings",
+          "original_b_r19",
+          "d_overlay",
+          "d_owner_inputs_update",
+          "d_held3_minimum_inputs",
+          "d_level3",
+          "d_level4",
+          "d_runtime_builder",
+          "d_funnel_orchestrator",
+          "t_level3",
+          "t_fun03"
+        ]
+      },
+      {
+        "id": "B161",
+        "bundle": "FUN-03",
+        "connected_plan": {
+          "author_proposal": "held",
+          "G_closure": "not_adjudicated",
+          "criterion_pointer": "/findings/77/criterion_refs",
+          "next_tasks": [
+            "S1"
+          ]
+        },
+        "D_leaf": {
+          "proposal": "held",
+          "capability_state": "not_established",
+          "named_bounded_assertions": "PASS",
+          "required_original_owner_positive": "UNRUN",
+          "whole_current_candidate_execution": "UNRUN",
+          "formal_closed": false,
+          "accepted_in_G": false
+        },
+        "criterion_ref": {
+          "source_ref": "original_b_r19",
+          "line_range": "4165-4176"
+        },
+        "four_planes": {
+          "internal_configured_owner": "PolicyOS has funnel uncertainty history and aggregation consumers. The semantic relation authorizing same-scope refinement is assigned to C11/C09/C10, not L01; no owner appointment or relation is established here.",
+          "external_fact": "Missing: actual prior/later estimate refs; same subject/value/input/rule/time comparison basis; owner-supplied permitted refinement relation; producer evidence for the later estimate/interval; and independent risk components that must remain.",
+          "our_admission": "Current FunnelOrchestrator/UncertaintyEnvelope aggregation can preserve historical maxima; its test shows a bounded same-scope current-vs-history distinction. This implementation/test does not decide the semantic permission to replace earlier unknown risk.",
+          "claim_reaction": "Keep held and defer the refinement law to C11/C09/C10. L01 reports only factual inputs and their scope."
+        },
+        "actual_consumers": [
+          "FunnelOrchestrator.get_outcome",
+          "UncertaintyEnvelope.merge_max",
+          "current search result and historical risk projection"
+        ],
+        "existing_test_selectors": [
+          "tests/unit/remediation/test_fun_03.py::test_same_scope_refinement_is_current_while_history_keeps_unknown_risk",
+          "tests/unit/remediation/test_fun_03.py::test_scope_identity_prevents_cross_scope_continuation"
+        ],
+        "minimum_next_input": [
+          "Opaque prior/later estimate refs",
+          "Same subject/value/input/rule/time basis",
+          "C11/C09/C10 owner decision on allowed refinement relation",
+          "Producer evidence and independent risks to preserve"
+        ],
+        "smallest_discriminator": "A later authorized estimate for the same scope changes the current estimate while preserving an independent high risk and unknown component; a newer estimate for a different subject/value/input/rule/time cannot supersede the earlier state.",
+        "input_closure": [
+          "g_connected_findings",
+          "original_b_r19",
+          "d_overlay",
+          "d_owner_inputs_update",
+          "d_held3_minimum_inputs",
+          "d_funnel_orchestrator",
+          "d_uncertainty",
+          "t_fun03"
+        ]
+      },
+      {
+        "id": "B164",
+        "bundle": "FUN-03",
+        "connected_plan": {
+          "author_proposal": "held",
+          "G_closure": "not_adjudicated",
+          "criterion_pointer": "/findings/80/criterion_refs",
+          "next_tasks": [
+            "T2"
+          ]
+        },
+        "D_leaf": {
+          "proposal": "held",
+          "capability_state": "not_established",
+          "named_bounded_assertions": "PASS",
+          "required_original_owner_positive": "UNRUN",
+          "whole_current_candidate_execution": "UNRUN",
+          "formal_closed": false,
+          "accepted_in_G": false,
+          "conditional_runtime_state": "bridge_missing on the effectful L6 runner path"
+        },
+        "criterion_ref": {
+          "source_ref": "original_b_r19",
+          "line_range": "4201-4212"
+        },
+        "four_planes": {
+          "internal_configured_owner": "The L6 consumer and effect boundary are internal. The runtime already has _policy_promotion_runner and _policy_promotion_owner_recheck, which checks the candidate/evidence/run binding using an ephemeral promotion_write_allowed boolean; that is a local preflight, not a typed permit issuer/current verifier. The actual permit/current-verifier/serialized-commit owner is requested for confirmation by A/B/G; appointment is false. No external approver is invented.",
+          "external_fact": "Missing: actual issued permit ref bound to purpose/subject/input/target; current verifier/owner API and source; serialized revoke-before-commit writer protocol; real prepared payload/ref; and a current positive permit plus revoked/lost-permission control.",
+          "our_admission": "At D production source 3b31, Level6PromotionStage.evaluate refuses the effectful runner path when the permit/verifier/revoke-serialized commit bridge is absent and emits promotion_admission_status=bridge_missing. The adjacent internal boolean helper checks candidate and evidence-bundle/run binding, but Level6 does not admit that boolean as a current typed permit. A supplied prepared promotion payload is interpreted read-only. The committed tests exercise false/truthy marker shapes and the revoke barrier; there is no valid-permit positive.",
+          "claim_reaction": "Report current L6 behavior as fail-closed bridge_missing and capability as not_established. Keep held. Do not describe the earlier G truthy normalizer as a current D defect."
+        },
+        "actual_consumers": [
+          "Level6PromotionStage.evaluate",
+          "run_policy_blueprint_runtime L0-L6 builder",
+          "_policy_promotion_owner_recheck/_policy_promotion_runner",
+          "run_promotion_with_evidence protected write path",
+          "judge-stack/runtime result consumer"
+        ],
+        "existing_test_selectors": [
+          "tests/unit/scientist/search/funnel/test_level6_promotion.py::test_retained_preflight_markers_never_admit_effectful_generic_callback",
+          "tests/unit/scientist/search/funnel/test_level6_promotion.py::test_revoke_after_true_preflight_barrier_has_zero_effects",
+          "tests/unit/scientist/search/funnel/test_level6_promotion.py::test_prepared_payload_is_read_only_interpretation_without_callback_effects",
+          "tests/unit/remediation/test_fun_03.py::test_level6_normal_path_bool_preflight_cannot_admit_runner_effects",
+          "tests/unit/remediation/test_fun_03.py::test_production_owner_recheck_requires_explicit_write_permission (boolean helper only; not a valid permit positive)"
+        ],
+        "minimum_next_input": [
+          "Actual current permit ref with purpose/subject/input/target binding",
+          "Existing issuer and independent current verifier API/source",
+          "Serialized revoke-before-commit write protocol",
+          "Real prepared payload/ref and write target",
+          "One valid current permit positive and one revoked/lost-permission zero-effect control"
+        ],
+        "smallest_discriminator": "Even when the adjacent internal boolean helper returns true, the current L6 effectful runner must remain blocked without the typed permit bridge. A truthy object such as {\"allowed\":false} must never authorize. A later positive requires an independently verified current permit at the actual writer; revoke after preflight but before commit must cause zero effects, while the valid current permit persists only the specifically permitted effect.",
+        "input_closure": [
+          "g_connected_findings",
+          "original_b_r19",
+          "d_overlay",
+          "d_funnel_handoff",
+          "d_owner_inputs_update",
+          "d_held3_minimum_inputs",
+          "d_l6_code",
+          "d8_l6_code",
+          "d3_l6_code",
+          "da30_l6_code",
+          "d_runtime_builder",
+          "d_judge_stack",
+          "t_level6",
+          "t_fun03",
+          "d8_l6_test",
+          "d3_l6_test",
+          "da30_l6_test",
+          "g_l6_code",
+          "g_fun03_test"
+        ]
+      }
+    ],
+    "patterns": {
+      "relevant_ids": [
+        "P05",
+        "P37",
+        "P38"
+      ],
+      "application": "Do not infer authority from a field, callback shape or adjacent receipt (P05); predicate basis for the missing owner-issued facts is not_established (P37); explicitly separate G truthiness proxy from the D fail-closed property and test the actual protected-writer result (P38).",
+      "ref": "g_failure_register"
+    },
+    "source_refs": [
+      {
+        "id": "g_common",
+        "path_at_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/COMMON.md@f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "source_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "116b74d20e0bb9a9e9421bc48a6d95b86a373a79",
+        "role": "L01 process and source-qualification rules"
+      },
+      {
+        "id": "g_l01",
+        "path_at_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/L01.md@f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "source_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "53af8c971cf754b466f85712d2dde3a624c4cda4",
+        "role": "L01 scope, read-only boundary, D facts, and B161 semantic-owner boundary"
+      },
+      {
+        "id": "g_handoff",
+        "path_at_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md@f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "source_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e",
+        "role": "E02 process, evidence and formal-closeout separation"
+      },
+      {
+        "id": "g_dispatch",
+        "path_at_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json@f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "source_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "f2e8d2096b86148fb93d4eb61520d22002228a1d",
+        "role": "dispatch source pins; D_source is a candidate pin, not acceptance"
+      },
+      {
+        "id": "g_connected_findings",
+        "path_at_source": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json@f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "source_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e",
+        "role": "connected-plan author proposals, criterion pointers, and G_closure state"
+      },
+      {
+        "id": "g_failure_register",
+        "path_at_source": "policy-engine/docs/reference/policy-design-case-failure-patterns.md@f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "source_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "652fb2d0b3fbcaa48681adf2e79b66486b4a65a1",
+        "role": "relevant governance pattern definitions P05/P37/P38"
+      },
+      {
+        "id": "original_b_r19",
+        "path_at_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5",
+        "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "role": "original criterion source for all six findings",
+        "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+      },
+      {
+        "id": "d_overlay",
+        "path_at_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/criterion-overlay.json@64355beb636c20c2eb8b586af18a51b503fe40f8",
+        "source_commit": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+        "git_blob": "7cdc3fedd6629fca59a3cb199836eda74f763f70",
+        "role": "D criterion-scoped current assertions and proposed dispositions",
+        "tree": "10efc41e7a2d792f42bce59af5b87816843df07e"
+      },
+      {
+        "id": "d_funnel_handoff",
+        "path_at_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/funnel/HANDOFF.json@64355beb636c20c2eb8b586af18a51b503fe40f8",
+        "source_commit": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+        "git_blob": "295d214fa5d2058c2781fdf74df9c1519becc6f4",
+        "role": "committed D leaf production-source and latest-execution qualification",
+        "tree": "10efc41e7a2d792f42bce59af5b87816843df07e"
+      },
+      {
+        "id": "d_owner_inputs_update",
+        "path_at_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/owner-inputs-update.json@64355beb636c20c2eb8b586af18a51b503fe40f8",
+        "source_commit": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+        "git_blob": "93e4d6f1bf73839d1db40ad9ac0839a3cc9ab4ee",
+        "role": "current minimum owner-input packets for D findings",
+        "tree": "10efc41e7a2d792f42bce59af5b87816843df07e"
+      },
+      {
+        "id": "d_held3_minimum_inputs",
+        "path_at_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/funnel/context/held3-minimum-owner-inputs.json@64355beb636c20c2eb8b586af18a51b503fe40f8",
+        "source_commit": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+        "git_blob": "1b8e078af28c7d2f3cc66ce1f3b3558bece401e0",
+        "role": "current B157/B161/B164 held positive-input requirements",
+        "tree": "10efc41e7a2d792f42bce59af5b87816843df07e"
+      },
+      {
+        "id": "d_prior_owner_inputs",
+        "path_at_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/owner-inputs.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+        "source_commit": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+        "git_blob": "4730cb5147a8b476d72b485b2a9c6aaf348df9ce",
+        "role": "prior D owner-input packet bodies referenced by the current update"
+      },
+      {
+        "id": "g_l6_code",
+        "path_at_source": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py@f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "source_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "b77bfbf37c36ee88a562b1323d4eb80e292f7aa0",
+        "role": "historical G-only source observation; generic truthiness normalizer"
+      },
+      {
+        "id": "g_fun03_test",
+        "path_at_source": "policy-engine/tests/unit/remediation/test_fun_03.py@f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "source_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "f513cb6a5c40921af317c943990bc2a287be4661",
+        "role": "G-era committed FUN-03 tests; not current D test evidence"
+      },
+      {
+        "id": "d_objective",
+        "path_at_source": "policy-engine/src/polisyos/scientist/methods/search/objective.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "76f15a5d276754db6c719515f79414f41af9c52c",
+        "role": "fiscal objective and aliases",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "same_blob_at_dispatch_D_source": true
+      },
+      {
+        "id": "d_runner",
+        "path_at_source": "policy-engine/src/polisyos/scientist/compute/runner.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+        "role": "runtime result summary producer",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "same_blob_at_dispatch_D_source": true
+      },
+      {
+        "id": "d_stages",
+        "path_at_source": "policy-engine/src/polisyos/scientist/methods/search/stages.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "0718ee70627dc9c96265006d0c47e71cb9adcac9",
+        "role": "legacy/default search objective consumer",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "same_blob_at_dispatch_D_source": true
+      },
+      {
+        "id": "d_transfer",
+        "path_at_source": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+        "role": "transfer basis, discovery and numerical admission",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "same_blob_at_dispatch_D_source": true
+      },
+      {
+        "id": "d_warm_start",
+        "path_at_source": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "40532c3c0d20eb8e64ea3b1589c7a1cbae5dedd6",
+        "role": "warm-start bridge and non-promotable replay",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "same_blob_at_dispatch_D_source": true
+      },
+      {
+        "id": "d_lessons",
+        "path_at_source": "policy-engine/src/polisyos/scientist/methods/search/lessons.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "0520a440f0b5285d3976f152dad5a0dbfe9c35cb",
+        "role": "lesson evidence/version, access and transfer query",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "same_blob_at_dispatch_D_source": true
+      },
+      {
+        "id": "d_level3",
+        "path_at_source": "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "c692a9aa352fe145d26fc9cc34975c97e8d28aef",
+        "role": "L3 reduced request and fidelity feedback",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "same_blob_at_dispatch_D_source": true
+      },
+      {
+        "id": "d_level4",
+        "path_at_source": "policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "af004d8dd6d2a46acc4b1a47bcd5dfc9695267f4",
+        "role": "L4 full fidelity adapter",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "same_blob_at_dispatch_D_source": true
+      },
+      {
+        "id": "d_funnel_orchestrator",
+        "path_at_source": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "191ef201a2c952f1696eebb62a497d8778e777bb",
+        "role": "funnel progression and result consumer",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "same_blob_at_dispatch_D_source": true
+      },
+      {
+        "id": "d_uncertainty",
+        "path_at_source": "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "856c6919a3be13f676172d7d0767d0d2d3554f43",
+        "role": "uncertainty envelope aggregation",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "same_blob_at_dispatch_D_source": true
+      },
+      {
+        "id": "d_l6_code",
+        "path_at_source": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "5154ebfe71891ca5a3046a05e0b03cb79a755a4a",
+        "role": "D L6 fail-closed bridge behavior",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "same_blob_at_dispatch_D_source": true
+      },
+      {
+        "id": "d_runtime_builder",
+        "path_at_source": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "24838eb49af51bad590282dbc4f7110164db2c72",
+        "role": "runtime L0-L6 builder and effective L3/L4 configuration",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "same_blob_at_dispatch_D_source": true
+      },
+      {
+        "id": "d_judge_stack",
+        "path_at_source": "policy-engine/src/polisyos/scientist/methods/search/judge_stack.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "85e51430799715e630d2a53a05f6dd92ee800964",
+        "role": "current judge context/projection consumer",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "same_blob_at_dispatch_D_source": true
+      },
+      {
+        "id": "t_objective",
+        "path_at_source": "policy-engine/tests/unit/scientist/methods/search/test_objective.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "5dd6e5b66ca2c5c95752e524d4f43185e17bade7",
+        "role": "alias, missing, non-finite and conflicting balance controls",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "same_blob_at_dispatch_D_source": true
+      },
+      {
+        "id": "t_transfer",
+        "path_at_source": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "1a7e97f9b558f1a27c6977661b6797fcbbb38278",
+        "role": "transfer-basis identity, content binding and refusal controls",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "same_blob_at_dispatch_D_source": true
+      },
+      {
+        "id": "t_warm_start",
+        "path_at_source": "policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "1e5011c1ead8dc6fbecc3c10a0adc1ae6218b278",
+        "role": "warm-start conversion controls",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "same_blob_at_dispatch_D_source": true
+      },
+      {
+        "id": "t_lessons",
+        "path_at_source": "policy-engine/tests/unit/scientist/search/test_lessons.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "7eec3d41f63e9a1f2be1d5e9a04760c83b3b9818",
+        "role": "lesson reads do not restore confidence absent new evidence",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "same_blob_at_dispatch_D_source": true
+      },
+      {
+        "id": "t_level3",
+        "path_at_source": "policy-engine/tests/unit/scientist/search/funnel/test_level3_medium.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "c05ac413293b5b95e168b43d6086072a1c6de1ae",
+        "role": "L3 configuration and feedback selectors",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "same_blob_at_dispatch_D_source": true
+      },
+      {
+        "id": "t_level6",
+        "path_at_source": "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "a5d97c881ffb1f56d770f0d77b0f39729f1c089e",
+        "role": "D L6 truthy-marker denial, revoke race and read-only prepared payload controls",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "same_blob_at_dispatch_D_source": true
+      },
+      {
+        "id": "t_orchestrator",
+        "path_at_source": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "faf42563f125eb535716e3c09317794df60ab118",
+        "role": "funnel orchestration selectors at the current D production leaf",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "same_blob_at_dispatch_D_source": false
+      },
+      {
+        "id": "t_fun03",
+        "path_at_source": "policy-engine/tests/unit/remediation/test_fun_03.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "902c36b0e0f4b7acc7dda085f68ad6d2c07c13cb",
+        "role": "same-scope, L6 preflight, runner and native-consumer controls",
+        "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+        "same_blob_at_dispatch_D_source": true
+      },
+      {
+        "id": "d8_l6_code",
+        "path_at_source": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py@8e864f4ed0eeedf509d836381b20976c413f2443",
+        "source_commit": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "git_blob": "5154ebfe71891ca5a3046a05e0b03cb79a755a4a",
+        "role": "dispatch D_source L6 source"
+      },
+      {
+        "id": "d3_l6_code",
+        "path_at_source": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "5154ebfe71891ca5a3046a05e0b03cb79a755a4a",
+        "role": "D leaf production L6 source"
+      },
+      {
+        "id": "da30_l6_code",
+        "path_at_source": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py@a30c140eedc5c0514a93409d4b4040a715231d28",
+        "source_commit": "a30c140eedc5c0514a93409d4b4040a715231d28",
+        "git_blob": "5154ebfe71891ca5a3046a05e0b03cb79a755a4a",
+        "role": "D latest execution L6 source"
+      },
+      {
+        "id": "d8_l6_test",
+        "path_at_source": "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py@8e864f4ed0eeedf509d836381b20976c413f2443",
+        "source_commit": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "git_blob": "a5d97c881ffb1f56d770f0d77b0f39729f1c089e",
+        "role": "dispatch D_source committed L6 test"
+      },
+      {
+        "id": "d3_l6_test",
+        "path_at_source": "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "git_blob": "a5d97c881ffb1f56d770f0d77b0f39729f1c089e",
+        "role": "D leaf production committed L6 test"
+      },
+      {
+        "id": "da30_l6_test",
+        "path_at_source": "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py@a30c140eedc5c0514a93409d4b4040a715231d28",
+        "source_commit": "a30c140eedc5c0514a93409d4b4040a715231d28",
+        "git_blob": "a5d97c881ffb1f56d770f0d77b0f39729f1c089e",
+        "role": "D latest execution committed L6 test"
+      }
+    ]
+  }
+}

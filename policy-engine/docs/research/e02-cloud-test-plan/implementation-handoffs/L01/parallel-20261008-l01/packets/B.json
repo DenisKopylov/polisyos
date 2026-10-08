@@ -1,0 +1,318 @@
+{
+  "schema": "policyos.e02.l01.input_custody_packet.v1",
+  "execution_role": "L01",
+  "original_unit": "B",
+  "mode": "read_only_inputs",
+  "product_source_selection": "Each component ref below is an inspected source; it is not G acceptance. Actual G snapshot f00dd7661a8d3329fb1fa1b049decb0d1d2f277b.",
+  "production_input_admission": "not_established",
+  "input_bytes_digest": "withheld_no_disclosure_admission",
+  "formal_G_closure": "not_adjudicated",
+  "original_criteria": [
+    {
+      "id": "B13",
+      "logical_owner": "B",
+      "bundle": "RES-03",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B13",
+          "document": "B_r19",
+          "lines": [
+            349,
+            362
+          ],
+          "sha256": "8718ad1c767f83c1f9e5cf47c86e84a80b44005a548d2a109c9d15cc0ebbc799",
+          "card": "RES-03"
+        }
+      ]
+    },
+    {
+      "id": "B67",
+      "logical_owner": "B",
+      "bundle": "LLM-02",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B67",
+          "document": "B_r19",
+          "lines": [
+            1709,
+            1728
+          ],
+          "sha256": "b3d2e0fe856b77f9c1388e795a0f15adeab905c5b60d4d627e83ce23ca4c3278",
+          "card": "LLM-02"
+        }
+      ]
+    },
+    {
+      "id": "B148",
+      "logical_owner": "B",
+      "bundle": "CAS-02",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B148",
+          "document": "B_r19",
+          "lines": [
+            3917,
+            3928
+          ],
+          "sha256": "9dc24cc351838bcc7e2f1210c44c7cd4a6b6377579f500b53a677e8276e6e47a",
+          "card": "CAS-02"
+        }
+      ]
+    }
+  ],
+  "facts": {
+    "schema": "policyos.e02.l01_b_input_facts.v1",
+    "status": "read_only_factual_draft",
+    "as_of": "2026-10-08",
+    "scope": {
+      "role": "L01",
+      "task": "T1 owner inputs and authority-plane inventory",
+      "findings": [
+        "B13",
+        "B67",
+        "B148"
+      ],
+      "mode": "read_only_inputs",
+      "source_writes": 0,
+      "test_writes": 0,
+      "tests_run": 0,
+      "payload_census": false,
+      "chats_or_publication": false
+    },
+    "repository_and_transport": {
+      "l01_checkout": {
+        "branch": "codex/e02-L01-custody-20261008",
+        "head": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+        "status_at_inspection": "clean"
+      },
+      "dispatch": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json",
+        "ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "blob": "f2e8d2096b86148fb93d4eb61520d22002228a1d",
+        "dispatch_time_g_pin": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "b_published": {
+          "sha": "53b14a6e5af66f2a784d7f4981c4613e534acd40",
+          "tree": "568e2e42e18abcea9fd39759546f1e48525c590a"
+        },
+        "b_prepared_source": {
+          "sha": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+          "tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea"
+        },
+        "b_prepared_receipt": {
+          "sha": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+          "tree": "677257974c442ba878a6bf4dba6686ae854b2e67",
+          "parent": "1e18a965b4334331dc3d5542b609f8a00bb35c6d"
+        },
+        "object_availability": "All requested B commits are present in the local object database; no exact fetch was needed in this read-only pass."
+      },
+      "connected_inputs": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json",
+        "ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "blob": "749255cd37f93955b176c748d63b2a3a7b7ee214",
+        "b_current_author_row": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-exact53-repair-all60-delta.json",
+          "ref": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+          "blob": "04a43399a0dd189f83426ee125600c75f63be404"
+        },
+        "b_prior_decisions": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+          "ref": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+          "blob": "644f4811b7a67e767755a41a8afba131fd11ab36"
+        },
+        "transport_receipt": {
+          "b_exact_sha_fetch": "PASS to private G analysis ref, as recorded in connected inputs",
+          "published_b_topic": "53b14a6e5af66f2a784d7f4981c4613e534acd40",
+          "new_runtime": "UNRUN",
+          "qualification": "The prepared source/receipt are not thereby the published B topic or an accepted source. No new transport or publication was performed here."
+        },
+        "b_leaf_receipts": {
+          "cache_harness_preparation": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-exact53-repair-evidence/cache-harness-preparation.json",
+            "ref": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+            "blob": "91426c5bb713ff9688632c8c08afde3245183dbe",
+            "qualification": "B67/B68 source preparation; its earlier product pin is 0bf, new execution UNRUN."
+          },
+          "bound_import_preparation": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-exact53-repair-evidence/bound-import-preparation.json",
+            "ref": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+            "blob": "6d605f10d0ffa398ca40d88df2ddc88d9025a1f1",
+            "qualification": "B148 test proposal; earlier product pin is 0bf and source head is 53b. Candidate 1e18 contains the prepared test, but runtime remains UNRUN."
+          },
+          "execution_unavailable": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-exact53-repair-evidence/execution-unavailable.json",
+            "ref": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+            "blob": "cf6f18227341074894433b7e30314e398ef1d013",
+            "qualification": "No process launched; admission, collection, native, and removal checks UNRUN; failure attribution not_established."
+          },
+          "final_independent_delta_review": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-exact53-repair-evidence/final-independent-delta-review.json",
+            "ref": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+            "blob": "5b188e67975d50319afe5890dfb4e5fd52530894",
+            "qualification": "Static source custody PASS within its declared cut; native/code acceptance HELD or not_established; finding closure NONE."
+          },
+          "handoff_metadata_resolution": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-exact53-repair-evidence/final-handoff-metadata-resolution.json",
+            "ref": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+            "blob": "3f83d4eb0ac33a196ebf9f713a32bfb016e804df",
+            "qualification": "Narrow metadata resolution only; corrected handoff is a blob, not a new receipt commit or source/runtime acceptance."
+          },
+          "cache_independent_review": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-exact53-repair-evidence/cache-independent-review.json",
+            "ref": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+            "blob": "429383530cd7cd7d1335610dcfd6023c491b7d87",
+            "qualification": "Source-only review of earlier draft candidate 4a4638; it does not establish execution or acceptance of 1e18."
+          },
+          "bound_import_successor_review": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-exact53-repair-evidence/bound-import-successor-review.json",
+            "ref": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+            "blob": "05ee2ce9f2a87ba2716ae1df53e4cbe5a7f65b96",
+            "qualification": "Binds source 1e18; source-only nonblocking, runtime verdict UNRUN, material effect not_established."
+          }
+        }
+      },
+      "source_qualification": "Use 1e18 as the prepared source and a0ee as its receipt. Some earlier B leaf preparations refer to product 0bf or topic 53b; those source-only preparations are not runtime evidence for 1e18. The final B delta receipt reports native/code acceptance HELD/not_established and formal closure NONE."
+    },
+    "findings": {
+      "B13": {
+        "bundle": "RES-03",
+        "current_status": "limited",
+        "formal_closure": false,
+        "criterion": "A real simulation result and its scoped partial result must survive a later-stage failure and reach the served consumer with the failure reason. Existing producer/CAS output alone does not prove served recovery.",
+        "current_receipt_fact": "Prior B receipt reports FAIL for the frozen source case: catalog_fetch_source_unreadable; this was not replayed in this task, and there is no producer-only served-route proof. The current terminal join is UNRUN.",
+        "internal_owner": "A owns the generation_cycle/run_lifecycle served bridge.",
+        "external_or_local_input": {
+          "owner": "A data/custody input packet only",
+          "minimum": [
+            "Exact local read-only catalog, acquisition, and history inputs",
+            "L6 artifact pair",
+            "Matching manifest or legitimate versioned replacement",
+            "Source, context, tenant, and run references",
+            "Relevant source/version and time-role refs, plus the consumer route to be exercised"
+          ],
+          "packet_state": "The connected plan names this minimum but does not bind the actual local input path/content identity. Treat it as not_established until A supplies the exact opaque alias and refs."
+        },
+        "our_admission": "No exact A packet was opened or traversed. A producer artifact or catalog-fetch summary is not an admitted served input/readback.",
+        "claim_reaction": "Keep the authentic served recovery claim limited. After A binds the exact local inputs, A/G must exercise the served route and read back the preserved result, scope, and later-stage error.",
+        "next_owner_action": "A supplies the exact local packet identity/refs and G/A replays the real served partial-result route on the exact accepted candidate. No B-side dataset packet is required."
+      },
+      "B67": {
+        "bundle": "LLM-02",
+        "current_status": "held",
+        "formal_closure": false,
+        "criterion": "Reuse authorization must bind actual principal, scope, purpose, epoch, exact verified evidence, model, and request at each read/publication.",
+        "current_receipt_fact": "The current B row records an optional current authorizer, exact-CAS read, scoped request identity, and prepared adversarial controls; the new execution remains UNRUN. The prior decision still says the deployment permission/epoch law is absent.",
+        "internal_configured_owner": "Current source/client may consume an injected owner decision through the optional reuse_authorizer; the read path binds AccessScope/tenant context and the exact CAS reference/version/content/hash. C13 is separately inventorying issuer APIs; this packet does not repeat that census.",
+        "external_supplied_fact": "No verified deployment permission decision or owner law is present in this packet. The permission input must bind principal, tenant/scope, purpose, epoch/currentness, exact evidence/view and model/request, with issuer and verifier provenance. A readable CAS object, hash, agent cacheable flag, or local fixture grant does not supply it.",
+        "our_admission": "The prepared fixture reads the exact bytes from FileSystemCAS, compares reference/version/content/hash and checks actor/tenant/scope/purpose/model/request fields before returning a fixture CacheReuseDecision. This is an operational test input only, not deployed authority.",
+        "claim_reaction": "Without a current matching permission, frozen-evidence reuse is refused; the ordinary provider route remains available. A changed or revoked principal/scope/purpose/epoch/evidence identity must not hit the cache.",
+        "next_owner_action": "The evidence/reuse authorization owner supplies the current-use permission contract/decision and verifier provenance; B executes the prepared current-source tests and G adjudicates. If no authorizer is supplied, preserve the limited no-reuse behavior."
+      },
+      "B148": {
+        "bundle": "CAS-02",
+        "current_status": "held",
+        "formal_closure": false,
+        "criterion": "Verified private staging and admission must preserve the prior readable CAS view on bad, truncated, conflicting, or concurrent import; same-bound retry and owner-selected-view law are separate decisions.",
+        "current_receipt_fact": "The current source prepares foreign-claim, missing/unbound, corrupt/truncated, and concurrent admission controls; native collection and material removal are UNRUN. The prior decision says cross-tenant/first-for-tenant ownership law is not ratified; bytes/hash do not grant tenant ownership.",
+        "internal_configured_owner": "FileSystemCAS owns import admission, existing owner/view claims, staging, publication, and fresh reads. The prepared test exercises directory/archive/exact-view paths with real temporary files and CAS instances.",
+        "external_supplied_fact": "No external signature or policy packet is present. The unresolved decision is the internal CAS tenant/first-owner and selected-view rule; do not invent an external approver or infer that rule from manifest shape or byte integrity. Broad cross-tenant sharing remains a separate semantic extension.",
+        "our_admission": "The prepared control records actual persisted bytes, owner/view claims, returned refs, and fresh tenant-scoped reads before asserting refusal. Its fixture bytes and temporary files are synthetic; no production data is required for this generic property.",
+        "claim_reaction": "Refuse foreign/unbound/corrupt/truncated publication while preserving the prior owner’s bytes, manifest, and fresh read. The positive matching-bound, retry, signature/conflict, and concurrency consumers still require the planned native run.",
+        "next_owner_action": "CAS ownership/security owner supplies or explicitly limits the same-view and first-owner rule; an admitted runner composes 1e18 and runs the defining, maintained consumer, and matched full-admission-removal tests with fresh readbacks."
+      }
+    },
+    "source_test_config_recipe": {
+      "candidate": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+      "candidate_tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+      "B67": {
+        "runtime_sources": [
+          "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+          "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+          "policy-engine/src/polisyos/core/security/tenant_context.py",
+          "policy-engine/src/polisyos/core/artifacts/store.py",
+          "policy-engine/src/polisyos/core/artifacts/__init__.py"
+        ],
+        "defining_and_consumer_tests": [
+          "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+          "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+          "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_scope_admission.py"
+        ],
+        "configuration_and_companions": [
+          "policy-engine/pyproject.toml",
+          "policy-engine/uv.lock",
+          "policy-engine/pytest.ini",
+          "policy-engine/tests/conftest.py",
+          "policy-engine/tests/_helpers/artifacts.py",
+          "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+          "policy-engine/src/polisyos/core/artifacts/README.md"
+        ],
+        "source_profile": "pyproject.toml requires Python >=3.14,<3.15 and declares the test group; uv.lock pins dependencies. The prepared harness template also requires a genuine tokenizer-cache input alias. Its local availability/path was not checked or copied.",
+        "check_state": "The current author receipt reports new execution UNRUN. Source/API reviews are bounded source-only evidence and do not establish native import, collection, permission authority, or consumer behavior on 1e18."
+      },
+      "B148": {
+        "runtime_sources": [
+          "policy-engine/src/polisyos/core/artifacts/store.py",
+          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+          "policy-engine/src/polisyos/core/artifacts/ownership.py",
+          "policy-engine/src/polisyos/core/artifacts/manifest.py",
+          "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+          "policy-engine/src/polisyos/core/artifacts/__init__.py"
+        ],
+        "defining_and_consumer_tests": [
+          "policy-engine/tests/unit/core/artifacts/test_bound_import_preservation.py",
+          "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+          "policy-engine/tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+          "policy-engine/tests/unit/remediation/test_cas_02.py",
+          "policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py"
+        ],
+        "configuration_and_companions": [
+          "policy-engine/pyproject.toml",
+          "policy-engine/uv.lock",
+          "policy-engine/pytest.ini",
+          "policy-engine/tests/conftest.py",
+          "policy-engine/src/polisyos/core/artifacts/README.md",
+          "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-cas-bound-import.toml"
+        ],
+        "source_profile": "Declared project profile is Python >=3.14,<3.15 with locked test dependencies. The planned command uses an admitted interpreter, PYTHONPATH=src:tests/unit, pytest importlib mode, fresh basetemp/JUnit outputs, and the new preservation test plus maintained positive/conflict/concurrency consumers. The prior interpreter locator was explicitly unvalidated; no current local or cloud runtime profile was validated.",
+        "check_state": "bound-import-preparation is a proposal with 12 planned variants, not a collection count. Native, collection, style, typing, actual import integrity, material removal, and current consumer results are UNRUN. The source receipt's old Python 3.13.5/AST-substitution experiment is historical and not current candidate execution."
+      },
+      "candidate_blob_ids": {
+        "B67": {
+          "prompt_cache.py": "e4aece7bace8cc969a0c896727c09cd80cef25bf",
+          "factory.py": "311b66e54dea6c49c4a295121f3ece57aa4a30b9",
+          "tenant_context.py": "5645cf0bf4f8633dc02e800ae28f4496f8d421a9",
+          "test_prompt_cache.py": "4ac872ce11f1232eed5c35f66b073a76fb2d9125",
+          "test_prompt_cache_e02.py": "e1ece585ee96f735db431cffaa870494721ca9e1",
+          "test_prompt_cache_scope_admission.py": "d4f87aef4e879d2f524d951e0d7f6b89e90e4423"
+        },
+        "B148": {
+          "store.py": "02e3253de23db5d64c21b69ce4cc85daa4f0778c",
+          "_transfer_ops.py": "70f7a735755f56dbf2cfd7ad5e4859cd17bf91a9",
+          "ownership.py": "6e4af36382211f1abcc7dbb8128491c2dd4e06f7",
+          "test_bound_import_preservation.py": "1af115eb30c3f27ff32e6b1d9646e518f711d8bc"
+        },
+        "shared_test_profile": {
+          "pyproject.toml": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "uv.lock": "85f1fb2150a4da454fee02108565381d44f56730",
+          "pytest.ini": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+          "tests/conftest.py": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+          "tests/_helpers/artifacts.py": "7bbf2cd7ef2d8b97455788aa3560bed5cd19d664"
+        }
+      }
+    },
+    "receipt_state": {
+      "b13": "limited; exact local A packet and current served terminal join not_established",
+      "b67": "held; source permission/epoch law not_established; new execution UNRUN",
+      "b148": "held; tenant/view ownership law not_established; native/removal UNRUN",
+      "overall": "Source-static preparation is not runtime acceptance or formal closure. G retains formal authority."
+    },
+    "nonclaims": [
+      "No production data payload was opened, copied, counted, or hashed.",
+      "No external permission or tenant-sharing rule was inferred from a digest, manifest, fixture, or local directory.",
+      "No B branch publication, G source acceptance, runtime PASS, or finding closure is claimed."
+    ]
+  }
+}

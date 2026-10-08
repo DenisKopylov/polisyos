@@ -1,0 +1,134 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "parallel-20261008-l01-inputs",
+  "closure_ids": [
+    "B13",
+    "B67",
+    "B148"
+  ],
+  "bundle_ids": [
+    "CAS-02",
+    "LLM-02",
+    "RES-03"
+  ],
+  "slice_base_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "implementation_commits": [
+    "72b9a568fc53dfb89c364749d94b1519648c55af"
+  ],
+  "candidate_tree_sha": "e916c747c3599a45ba2ab83e907c8a4f72637c59",
+  "branch": "codex/e02-L01-custody-20261008",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/api-census.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/F-light-selector.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-fresh-stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-fresh-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-recipe.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-removal-junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-removal-stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-removal-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-source-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/independent-runtime-review.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/la032-stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/la032-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/la036-junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/la036-stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/la036-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/s1-discriminator-recipes.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/host-inventory.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/inventory.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/A.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/B.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/C.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/D.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/E.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/F.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/s1-source-facts.json"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+      "target_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "environment": "local system Python; byte-index validation only",
+      "input_closure": [
+        {
+          "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+          "git_blob": "ad440fe4effad1853be8c3f898d278d607cba08d"
+        },
+        {
+          "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/verification.json",
+          "git_blob": "b4d46edbd185add382dbc3a86f762274a3c5e781"
+        }
+      ],
+      "outcome": "PASS",
+      "output": "L01/parallel-20261008-l01/: {\"ok\":true,\"files\":[\"cells.tsv\",\"properties.tsv\",\"events.jsonl\",\"gates.json\",\"routes.tsv\",\"verification.json\"]}"
+    },
+    {
+      "command": "Select exact per-owner recipe only after its named source/profile/issuer/input closure; no universal unknown command",
+      "target_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "environment": "authentic local profile not established",
+      "input_closure": "host-inventory.json; packets/A.json..F.json; all required raw inputs remain local",
+      "outcome": "UNRUN",
+      "output": "L01/parallel-20261008-l01/: Named exact unavailable boundary and next input per packet; generic runtime checks above are separate."
+    },
+    {
+      "command": "JSON parse + recompute source occurrence SHA256 and explicit path@commit blob equality; Git30-path footprint and byte-exact deciding output readback",
+      "target_sha": "72b9a568fc53dfb89c364749d94b1519648c55af",
+      "environment": "local Python/Git read-only",
+      "input_closure": "common packet inventory + original B_r19/LA_r09@198076863e143dea9f89f02734b13d50dae3eed5",
+      "outcome": "PASS",
+      "output": "42 original occurrences, 0 hash mismatch;136 explicit commit/path/blob checks,0 mismatch;47 implicit-context refs not claimed as full closure. Root full output L01_PACKET_VALIDATION_PRIVATE."
+    }
+  ],
+  "property": {
+    "statement": "Source-qualified local owner-input/custody inventory for original B rows; supplied facts, internal configured owner, admission and claim reaction remain distinct. No finding closure or production authority is granted.",
+    "runtime_path": [
+      "Exact original criterion and committed owner-source packet",
+      "Existing configured producer/issuer or named producer_missing boundary",
+      "Existing artifact/CAS/source-profile admission",
+      "Named actual B consumer and claim reaction in L01/parallel-20261008-l01/packets/B.json"
+    ],
+    "proxy_divergence": "Directory/profile/hash/ref presence does not establish substantive provenance or current permission. Packet names the smallest actual divergent case for each affected consumer.",
+    "negative_controls": [
+      "Prepared B exact authorizer actor/epoch/CAS-ref counterfeit and CAS import corrupt/foreign/truncated controls remain current-source UNRUN.",
+      "B13 authentic partial-result recovery depends only on exact A packet; failed-before-POST receipt is not served recovery evidence."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "L01 factual delivery completed to scoped unavailable boundaries; production-input admission not_established; original historical/author outcomes unchanged; formalGclosure not_adjudicated",
+  "limitations_and_next_owner": [
+    "Read policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/B.json for exact original source occurrences, issuer/verifier/consumer and minimum next source/profile/purpose/time input.",
+    "G alone accepts composition and formal closure. C05 names the LA032 C-W19 producer/reader lease; C09/C08 supply LA036 law/model; C10/C11 consume; C07 owns IR companions.",
+    "B161 refinement decision stays with C11/C09/C10. E B201/B202 owner/choices already tracked; no repeat ratification is requested.",
+    "Confidential raw paths/rows/assets and input digests remain local ignored; no production payload scan/read/hash/upload occurred.",
+    "Actual authentic recipes are not promised before exact local aliases/profile/input closure exist. Unrelated generic cloud mechanisms continue."
+  ],
+  "execution_role": "L01",
+  "packet_ref": {
+    "commit": "72b9a568fc53dfb89c364749d94b1519648c55af",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/B.json",
+    "git_blob": "ed44337f41241a893c6baab7aad8a64e835da59c"
+  },
+  "authority_predicates": {
+    "source_identity_and_census": "recomputed",
+    "bounded_content_binding": "recomputed",
+    "real_source_or_profile_provenance": "not_established",
+    "complete_live_trigger_feed": "consumer_asserted",
+    "institutional_R2_signoff": "consumer_asserted",
+    "semantic_refinement": "owner C11/C09/C10; no L01 ratification"
+  },
+  "source_acceptance": "docs-only topic delivery;G intake pending",
+  "technical_proposal": "smallest reuse/extend existing owner mechanism or precise named not_established boundary; no production/test source authored",
+  "formal_G_closure": "not_adjudicated",
+  "independent_review": "L01/parallel-20261008-l01/evidence/independent-runtime-review.md (boundedDDM); independent-packet-review.md and independent-disclosure-review.md (source72b/treee916), allGO bounded only",
+  "deciding_output_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence"
+}

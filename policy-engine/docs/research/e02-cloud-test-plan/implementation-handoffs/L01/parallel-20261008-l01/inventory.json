@@ -1,0 +1,223 @@
+{
+  "schema": "policyos.e02.l01.inventory.v1",
+  "role": "L01",
+  "branch": "codex/e02-L01-custody-20261008",
+  "slice_base": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "slice_base_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "dispatch_G_pin": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+  "source_delta_paths": [
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C01.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C02.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C03.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C04.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C05.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C06.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C07.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C08.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C09.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C10.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C11.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C12.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C13.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/COMMON.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/G.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/L01.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/L02.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/ORCH01.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/ORCH02.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/ORCH03.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/ORCH04.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/README.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/analysis-receipt.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/reviews/budget.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/reviews/coverage.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/reviews/data-paths.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/reviews/local.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/reviews/organization.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/reviews/platform.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/reviews/runtime.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/reviews/science-served.md"
+  ],
+  "source_test_config_lock_delta": [],
+  "ancestry": {
+    "publication_anchor": true,
+    "published_main": true,
+    "dispatch_G": true
+  },
+  "admission": {
+    "pair": "codex/e02-L01-custody-20261008 / L01_WORKTREE_ROOT",
+    "create": "admitted",
+    "immediate_precreate": "admitted",
+    "postcreate_resume": "admitted",
+    "full_json": "L01_BOOTSTRAP_PRIVATE; retained locally in ignored scratch",
+    "first_main_tool_attempt": "ERROR unsupported flags in old checkout; no mutation; rerun using fetched existing G tool admitted same exact pair",
+    "managed_app_attachment": "unavailable: native Git worktree is not an app-managed worktree; Git branch attachment confirmed"
+  },
+  "source_refs": [
+    {
+      "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/COMMON.md",
+      "git_blob": "116b74d20e0bb9a9e9421bc48a6d95b86a373a79"
+    },
+    {
+      "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/L01.md",
+      "git_blob": "53af8c971cf754b466f85712d2dde3a624c4cda4"
+    },
+    {
+      "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json",
+      "git_blob": "f2e8d2096b86148fb93d4eb61520d22002228a1d"
+    },
+    {
+      "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+      "git_blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e"
+    },
+    {
+      "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+      "git_blob": "a27cf7e78dc7c16df279a5136399ee0a5daeee9a"
+    },
+    {
+      "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "git_blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf"
+    },
+    {
+      "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "git_blob": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b"
+    },
+    {
+      "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "git_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7"
+    },
+    {
+      "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/verification.json",
+      "git_blob": "b4d46edbd185add382dbc3a86f762274a3c5e781"
+    }
+  ],
+  "result_pack_qualification": "importerPASS then full verification read; targeted queries matching=displayed retained locally; compact source-reported historical archive absence is unchanged, not deciding evidence for new source",
+  "unit_packets": {
+    "A": "packets/A.json",
+    "B": "packets/B.json",
+    "C": "packets/C.json",
+    "D": "packets/D.json",
+    "E": "packets/E.json",
+    "F": "packets/F.json"
+  },
+  "private_evidence_aliases": [
+    "L01_HOST_PRIVATE",
+    "L01_BOOTSTRAP_PRIVATE",
+    "L01_BASELINE_PRIVATE"
+  ],
+  "production_payload_reads": false,
+  "production_payload_census": false,
+  "input_digest_disclosure": "withheld_no_disclosure_admission",
+  "checks": [
+    {
+      "id": "result-import",
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+      "target_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "environment": "local system Python; byte-index validation only",
+      "input_closure": [
+        {
+          "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+          "git_blob": "ad440fe4effad1853be8c3f898d278d607cba08d"
+        },
+        {
+          "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/verification.json",
+          "git_blob": "b4d46edbd185add382dbc3a86f762274a3c5e781"
+        }
+      ],
+      "outcome": "PASS",
+      "output": "{\"ok\":true,\"files\":[\"cells.tsv\",\"properties.tsv\",\"events.jsonl\",\"gates.json\",\"routes.tsv\",\"verification.json\"]}"
+    },
+    {
+      "id": "ddm-maintained",
+      "command": "PYTHONPATH=$PWD/src:$PWD/tests /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts='' -p no:cacheprovider --import-mode=importlib tests/unit/ddm/test_full_acceptance.py::test_registry_public_round_trip_rebinds_with_exact_context tests/unit/ddm/test_full_acceptance.py::test_registry_rebind_rejects_tampered_validity_projection tests/unit/ddm/test_full_acceptance.py::test_registry_distinguishes_unavailable_from_observed_empty_triggers -q -s --basetemp=_build/e02-L01-20261008/checks/ddm/tmp --junitxml=_build/e02-L01-20261008/checks/ddm/junit.xml",
+      "target_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "environment": "evidence/environment.json; reused app Python3.14; isolated scratch",
+      "input_closure": "evidence/ddm-source-inputs.json",
+      "outcome": "PASS",
+      "output": "evidence/ddm-stdout.txt; evidence/ddm-stderr.txt; evidence/ddm-junit.xml"
+    },
+    {
+      "id": "ddm-content-reconciliation-removal",
+      "command": "Separate interpreter: set audit._IMMUTABLE_VALIDITY_PROJECTION_FIELDS=(); pytest exact tampered projection selector (evidence/ddm-recipe.md)",
+      "target_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "environment": "same app environment, separate process and scratch; production files unchanged",
+      "input_closure": "evidence/ddm-source-inputs.json; in-process property removal only",
+      "outcome": "FAIL",
+      "output": "evidence/ddm-removal-stdout.txt; evidence/ddm-removal-stderr.txt; evidence/ddm-removal-junit.xml"
+    },
+    {
+      "id": "ddm-fresh-public-roundtrip",
+      "command": "evidence/ddm-recipe.md fresh-process recipe, three explicit valid/tampered/missing modes",
+      "target_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "environment": "evidence/environment.json; synthetic persisted bytes; child timeout60s",
+      "input_closure": "evidence/ddm-source-inputs.json; existing _registry_context fixture; no production input",
+      "outcome": "PASS",
+      "output": "evidence/ddm-fresh-stdout.txt; evidence/ddm-fresh-stderr.txt"
+    },
+    {
+      "id": "la032-four-readers",
+      "command": "evidence/s1-discriminator-recipes.md LA-032 synthetic retained-fixture probe through all four public consumers",
+      "target_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "environment": "local reused app Python3.14; synthetic filesystem layout; 1.657s, RSS167133184bytes",
+      "input_closure": "s1-source-facts.json current public Ukraine reader source; no production payload",
+      "outcome": "PASS",
+      "output": "evidence/la032-stdout.txt; evidence/la032-stderr.txt; observed sibling mixed-layout escape, original all-four property not established"
+    },
+    {
+      "id": "la036-effective-method",
+      "command": "python -m pytest -o addopts= -p no:cacheprovider --import-mode=importlib tests/unit/remediation/test_ber_01.py::test_aliases_preserve_requested_ids_and_share_effective_identity tests/unit/remediation/test_ber_01.py::test_aliases_share_one_raw_calculation_and_are_not_disagreement_methods -q -s",
+      "target_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "environment": "local app Python3.14; explicit60s timeout; 2.708s,RSS141197312bytes",
+      "input_closure": {
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "path": "policy-engine/tests/unit/remediation/test_ber_01.py",
+        "git_blob": "15793d49bacc02677e93a2ea73d47c0e02a92f2d"
+      },
+      "outcome": "PASS",
+      "output": "evidence/la036-stdout.txt; evidence/la036-stderr.txt; evidence/la036-junit.xml; no conditional feature-law positive"
+    },
+    {
+      "id": "F-pool-default-diagnostic",
+      "command": "evidence/F-light-selector.json exact argv",
+      "target_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "environment": "local Python3.14 reused env; full inherited environment values withheld",
+      "input_closure": "evidence/F-light-selector.json source_refs",
+      "outcome": "PASS",
+      "output": "evidence/F-light-selector.json complete stdout/stderr; capacity default only, no B56 workload property"
+    },
+    {
+      "id": "protected-factual-positives",
+      "command": "Select exact per-owner recipe only after its named source/profile/issuer/input closure; no universal unknown command",
+      "target_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "environment": "authentic local profile not established",
+      "input_closure": "host-inventory.json; packets/A.json..F.json; all required raw inputs remain local",
+      "outcome": "UNRUN",
+      "output": "Named exact unavailable boundary and next input per packet; generic runtime checks above are separate."
+    }
+  ],
+  "predicate_basis": {
+    "source_identity_and_census": "recomputed",
+    "bounded_content_binding": "recomputed",
+    "real_source_or_profile_provenance": "not_established",
+    "complete_live_trigger_feed": "consumer_asserted",
+    "institutional_R2_signoff": "consumer_asserted",
+    "semantic_refinement": "owner C11/C09/C10; no L01 ratification"
+  },
+  "review": "evidence/independent-runtime-review.md GO bounded synthetic only; packet privacy/source review pending",
+  "source_acceptance": "docs-only delivery; G intake pending",
+  "technical_proposal": "exact existing capabilities and scoped next input per packet; no source implementation",
+  "formal_G_closure": "not_adjudicated",
+  "cleanup": "Synthetic deciding fixtures and active worktree retained; no permanent cleanup, production mutation or Trash emptying."
+}

@@ -1,0 +1,10 @@
+..
+=============================== warnings summary ===============================
+../../../e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+2 passed, 1 warning in 1.44s
+{"exit_code": 0, "wall_s": 2.7084039580076933, "timeout_s": 60, "max_child_rss_bytes_macos": 141197312, "scope": "synthetic effective-method identity; no observed-feature conditional law admitted"}

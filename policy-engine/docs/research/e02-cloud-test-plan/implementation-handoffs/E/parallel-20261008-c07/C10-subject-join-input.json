@@ -32,13 +32,13 @@
   ],
   "proposed_specific_contract": {
     "subject": "Versioned ValueArtifactSubject in existing uncertainty owner; exact EstimandASTRef, outcome, contrast values, population, typed unit, identity scale, relevant time/epoch and source/model refs",
-    "producer_lineage": "Each actual identification/native-uncertainty output records exactly one InputRef(role=value_subject) plus its complete declared estimand/source/model input roster. Persisted subject contains exact typed refs, never an authoritative boolean.",
+    "producer_lineage": "Each actual identification/native-uncertainty output records exactly one InputRef(role=value_subject) plus its complete declared estimand/source/model input roster. Preserve the actual Core-returned manifest view, including one created automatically for same bytes with changed lineage even when the caller did not select it, and explicitly selected views. The current source741 IR default-view-only reader does not supply this producer-selector preservation; C06 must provide the companion before C10 current-producer adoption. Persisted subject contains exact typed refs, never an authoritative boolean.",
     "relation": "Persisted ValueSubjectRelation seals both output refs, resolved subjects and manifest/content identities. Fresh reader recomputes current inputs/subject/unit equality. Pure content consistency retains production_value_eligible=false.",
     "unit_profile": "Equivalent typed units; exact ratio/percent scaling only. No FX, calendar, welfare or nonlinear transformations invented."
   },
   "minimum_C10_packet": [
     "Exact producer source SHA/tree and supported identification/native artifact kinds/payload paths",
-    "Actual producer-persisted identification/native refs and complete InputRef roster; canonical estimand/source/model/population/contrast/unit/time/epoch",
+    "Actual producer-persisted identification/native refs and complete InputRef roster; canonical estimand/source/model/population/contrast/unit/time/epoch; actual producer-returned manifest_profile_sha256 for automatic as well as explicitly selected nondefault views, retained through the C06 adapter before current-producer claims",
     "Specific current existing Runtime/verifier admission provenance/context and fresh consumer challenge required by that admitted supplier; a caller-constructible NativeValueEstimandBinding or fake ProofBundle is insufficient",
     "Fresh ValuePort receipt/output preserving identification point 4 and native asymmetric interval [1,10]; retained-marker missing/fake/foreign/corrupt ref negatives"
   ],
@@ -48,10 +48,10 @@
   },
   "factual_input_route": "L01 only if the chosen actual admitted supplier requires unavailable local facts; portable content-join mechanics continue without production data.",
   "status": {
-    "mechanical_IR_slice": "preparing",
+    "mechanical_IR_slice": "source741 bounded default-view reader code-ready; preparing caption superseded by implementation.json; current producer/view composition not established",
     "composed_B31_ValuePort_positive": "UNRUN pending exact C10 packet",
     "G_source_acceptance": "not_issued",
     "G_finding_closure": "not_issued"
   },
-  "supported_IR_view": "Default-view only. Nonnull selected manifest_profile_sha256 on incoming refs or producer lineage is typed-refused before ID normalization; Core supports exact selected views but current IR adapters do not preserve them. C06 supplies that companion if chosen admitted supplier needs it."
+  "supported_IR_view": "Default-view mechanical reader only. Nonnull manifest_profile_sha256 on preserved incoming refs or producer lineage is typed-refused before ID normalization; Core supports exact selected views but current IR adapters lose the producer-returned selector. C06 is required whenever a producer returns a nondefault view, including automatic same-bytes/different-lineage creation with no caller selection and explicitly caller-selected views. The C07 guard cannot recover an already discarded selector, so current producer identity/view composition and actual C10 ValuePort admission remain unestablished."
 }

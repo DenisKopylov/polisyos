@@ -116,7 +116,7 @@
       "Schema registry1.0 with exact-read/unknown-version refusal"
     ],
     "oracle": "Fraction ratio\u2194percent exact scaling; independent oracle_ir seven probes. Subject coordinate excludes method FQN; native interval/point/functionals untouched.",
-    "proxy_divergence": "Matching metadata says same estimand but resolved subject/population/time/contrast/unit/refs mismatch refuses; complete persisted relation/markers survive factor forgery but fresh recomputation rejects. An old default ref after producer selector loss reads old declared subject, so it cannot prove current producer quantity.",
+    "proxy_divergence": "Matching metadata says same estimand but resolved subject/population/time/contrast/unit/refs mismatch refuses; complete persisted relation/markers survive factor forgery but fresh recomputation rejects. Core can automatically return a nondefault manifest view for same bytes plus changed lineage with no caller selection, as well as support explicitly selected views. If the IR writer discards that selector, the default reader resolves the old declared subject and cannot prove current producer quantity; C06 preservation is required before C10 adoption.",
     "negative_controls": [
       "8 complete quantity/unit mismatch cases",
       "Missing/extra/duplicate producer roster",
@@ -561,7 +561,7 @@
       "verdict": "GO delta-only whitespace and explicit measured C06 limitation; source804 evidence not relabelled"
     }
   ],
-  "capability_state_or_finding_state": "Bounded default-view IR reader mechanism code-ready with PASS; full B31 original criterion remains limited pending actual canonical C10 producer/readback/scientific basis. Producer currentness/view-composition not established.",
+  "capability_state_or_finding_state": "Bounded default-view IR reader mechanism code-ready with PASS; full B31 original criterion remains limited pending canonical C10 producer/readback/scientific basis. C06 must preserve every actual producer-returned nondefault view, including automatic creation without caller selection and explicitly selected views; producer currentness/view-composition is not established.",
   "status": {
     "technical_supplier_property": "PASS in declared default-reader profile",
     "code_ready": "bounded mechanical leaf ready for G review; known whole-file format red disclosed",
@@ -574,13 +574,13 @@
       "owner": "C10 actual generation/ValuePort producer consumer",
       "state": "UNRUN",
       "input": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/C10-subject-join-input.json",
-      "next": "Persist actual supported identification/native outputs plus exact subject/complete lineage, validate supported identification kind and actual payloadlaw/coordinates/contrast/unit, resolve existing genuine supplier scientific purpose independently from Runtime execution safety, reopen both channels+relation in actual fresh ValuePort. Never turn generic relation read into identification proof."
+      "next": "Persist actual supported identification/native outputs plus exact subject/complete lineage, validate supported identification kind and actual payloadlaw/coordinates/contrast/unit, resolve existing genuine supplier scientific purpose independently from Runtime execution safety, reopen both channels+relation in actual fresh ValuePort. Never turn generic relation read into identification proof. Any automatic producer-returned or explicitly selected nondefault manifest view requires C06 selector preservation first; C07 default-view content consistency cannot recover a discarded selector or establish current producer identity."
     },
     {
       "owner": "C06 adapter in coordination with C07 refs",
       "state": "confirmed selector loss; selected/current producer composition UNRUN",
       "input": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/C06-selected-view-producer-loss.json",
-      "next": "Preserve automatically returned nondefault manifest selector before C10 adoption; then affected selected-view/currentness checks only."
+      "next": "Preserve all producer-returned nondefault manifest selectors before C10 adoption: automatically created same-bytes/different-lineage views even when callers did not select them, and explicitly selected views. Then execute only the affected selected-view/currentness checks on the exact adapter candidate."
     },
     {
       "owner": "G composition/generated family",
@@ -606,7 +606,7 @@
   ],
   "patterns": {
     "P29": "Actual canonical CAS/manifests/current typed bytes plus fresh child, not markers alone.",
-    "P36": "B31 remains A/EMP01; E is relation supplier. Full original2949byte criterion, not shortlabel.",
+    "P36": "B31 remains A/EMP01; E is relation supplier. Full original2949byte criterion, not shortlabel. Passive caption correction supersedes the caller-selection-only C06 qualifier at carrier6bdd in all current G-composition/C10/implementation dependencies; pinned historical source blobs and evidence are unchanged.",
     "P37": "Mechanical predicates recomputed; current producer/scientific/A ValuePort unestablished.",
     "P38": "Matching markers survive quantity and factor mismatch; removing actual predicate makes9 negatives fail.",
     "P40": "Complete subject and full producer role-set choke point, bounded default-view reader. Second selector/currentness escape is disclosed class-wide C06 dependency with finite falsifier samebytes+changedlineage, not per-method ladder.",
@@ -626,7 +626,8 @@
   "output_custody": {
     "index": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/evidence-index.json",
     "complete_moderate_outputs": "All source804 and source741 commands/returncodes/nodeids/stdout/stderr/resources, removal patch/harness, independent reviews and failed harness attempts committed separately from source.",
-    "preservation": "Source/docs/deciding outputs and scratch CAS/current activeenv retained; no cleanup or permanent deletion."
+    "preservation": "Source/docs/deciding outputs and scratch CAS/current activeenv retained; no cleanup or permanent deletion.",
+    "unchanged_evidence_carrier_sha": "6bdd8b66b5773032fefdf6fa2d55a0c9b4bf9281"
   },
   "admission": {
     "carrier_sha": "de7b08ebbac72232c98d96ea74c3c0410864a7ba",
@@ -676,5 +677,23 @@
     ],
     "handoff_is_separate_commit": true,
     "handoff_remote_readback": "To be read after receipt commit; this JSON does not name its own future SHA."
+  },
+  "passive_documentation_correction": {
+    "parent_carrier_sha": "6bdd8b66b5773032fefdf6fa2d55a0c9b4bf9281",
+    "parent_carrier_tree": "b09bc63daa10fc26a027e46d34f35bcb24496d23",
+    "product_source_sha": "741af2a08a8dc5fa36340bf700c092c7fb51f651",
+    "product_source_tree": "bfae04d141187c30e4f6bc14dbbbae00f6ee116c",
+    "changed_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/G-composition-companions.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/C10-subject-join-input.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c07/implementation.json"
+    ],
+    "purpose": "P36 correct all current dependent qualifiers: nondefault view dependency covers automatic Core producer returns without caller selection and explicitly selected views.",
+    "runtime_source_blobs": "Unchanged; whole_source_test_companion_footprint remains the historical implementation source footprint at source741, not the new passive document carrier.",
+    "code_ready": "Unchanged bounded default-view mechanical reader only; no current producer identity, selected-view composition or C10 scientific/ValuePort positive.",
+    "custody": "Source receipts, deciding outputs, independent review bytes/hashes, check states/counts and evidence-index remain unchanged at carrier6bdd. This passive append supplies corrected current captions, no new product source acceptance.",
+    "verification": "JSON parsing, exact passive diff and unchanged runtime/output blob checks only; no test rerun or reassignment of old PASS.",
+    "receipt_commit_identity": "The new document carrier is read back after commit; this document does not name its own future SHA.",
+    "publication_state": "Local passive correction pending ordinary push/readback after origin Git credential readiness. Pre-publication ls-remote returned128 authentication ERROR, separate from preserved product check states. Source741 and original evidence carrier6bdd retain their prior verified publication; this does not claim new passive carrier publication."
   }
 }

@@ -1,0 +1,13 @@
+{
+  "compressed": {
+    "path": "/workspace/orch02-c06-dfk/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/required-gates/invocation-initial/receipt.json.gz",
+    "bytes": 5987263,
+    "sha256": "43cfc23ad93ad2f500db4881b9379419c538d285f7f0bf9cca14c9db8994429b"
+  },
+  "decoded_exact": {
+    "path": "/workspace/orch02-recovery/c06-required-dfk-invocation/receipt.json",
+    "bytes": 170905064,
+    "sha256": "baa8f6a890c195353f4a041a505b89692f0bcfdbd1c657dca74da588f25b56ee"
+  },
+  "round_trip_verified": true
+}

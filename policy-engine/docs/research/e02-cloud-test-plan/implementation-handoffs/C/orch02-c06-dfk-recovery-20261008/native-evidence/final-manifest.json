@@ -1,0 +1,1910 @@
+{
+  "role": "DFK",
+  "source": {
+    "repo": "/workspace/orch02-c06-dfk",
+    "base": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+    "head": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+    "tree": "e0ca5462ec6f38f91e4d2ebedf1bf2f18f2c9f99",
+    "status_porcelain_z_hex": "",
+    "complete_changed_paths": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-orch02-c06-dfk-census.toml",
+        "blob": "761efc1851fdd680aa4db1d47f58a4297d162ec7",
+        "sha256": "734b4049cd7e0744d1c309d035318cd7963bcaf5d50d3a5e959799c101aeed72",
+        "bytes": 1258
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md",
+        "blob": "80b8bc5c1da0cb41126bc85dfa30ded4bcf0e17f",
+        "sha256": "17ad9a3d03d7974797a1eb603b306c616c9ac28ef3df08ca705615f4fff408f9",
+        "bytes": 1076
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+        "blob": "cd6a4456e835c5551093278b0335ff8f0765cce3",
+        "sha256": "50b7e03df66b767ad3bde207017fa5538c38f1241559b9ed693ceafa07f80709",
+        "bytes": 43828
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "blob": "ae838dc362ae33f2a01b984f42d959b74f80183e",
+        "sha256": "02e9123c9be4606840cedad30504417a9e5fe46235437ce0003df7264e9ecff2",
+        "bytes": 31675
+      }
+    ]
+  },
+  "verdict": "GO for final cbb parser property and bounded finite census observations; not repository-wide or external legacy retirement",
+  "independent_review": {
+    "path": "/workspace/orch02-native-c06/independent-final-review.json",
+    "bytes": 6885,
+    "sha256": "22c354595397379324ff03f173d2762860b60af04a9e4bcd084627afd787ba11"
+  },
+  "runs": [
+    {
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-I",
+        "/workspace/orch02-native-c06/pytest_bound.py",
+        "--target",
+        "/workspace/orch02-c06-dfk",
+        "--expected-sha",
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+        "--origins",
+        "/workspace/orch02-native-c06/dfk-native/origins.json",
+        "--",
+        "tests/unit/remediation/test_dfk_01.py",
+        "-q",
+        "-o",
+        "cache_dir=/workspace/orch02-native-c06/dfk-native/cache",
+        "--basetemp=/workspace/orch02-native-c06/dfk-native/basetemp",
+        "--junitxml=/workspace/orch02-native-c06/dfk-native/junit.xml"
+      ],
+      "cwd": "/workspace/orch02-c06-dfk/policy-engine",
+      "start_utc": "2026-10-08T15:49:50.077321+00:00",
+      "end_utc": "2026-10-08T15:50:52.905139+00:00",
+      "wall_seconds": 62.82747830000005,
+      "max_rss_kib": 616100,
+      "user_seconds": 56.390911,
+      "system_seconds": 5.617781,
+      "timeout_seconds": null,
+      "timeout": false,
+      "returncode": 0,
+      "selected_environment": {
+        "PYTHONPATH": null,
+        "PYTHONDONTWRITEBYTECODE": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "JAX_PLATFORMS": null,
+        "JAX_PLATFORM_NAME": null,
+        "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+        "UV_PROJECT_ENVIRONMENT": null
+      },
+      "outputs": {
+        "stdout.txt": {
+          "bytes": 80,
+          "sha256": "1b8f208de3636df279448e40805982570c4351601ce5723301928feea7d343cf"
+        },
+        "stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "label": "dfk-native",
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/dfk-native/command.json",
+          "bytes": 1497,
+          "sha256": "ffa0677721eb8fa014d290aef0af3cbd422bf6205b1a77509488b0a7751e898c"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-native/stdout.txt",
+          "bytes": 80,
+          "sha256": "1b8f208de3636df279448e40805982570c4351601ce5723301928feea7d343cf"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-native/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-native/junit.xml",
+          "bytes": 5033,
+          "sha256": "83949679c2cfe854b925da8921f96f0b02b2c8f27ebd6012a08563fa88603ff6"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-native/origins.json",
+          "bytes": 256085,
+          "sha256": "dadfcaba7971a07a9ebcee91e1084fdd758d3f6b181aa69906dc570bd19e7a38"
+        }
+      ],
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "31",
+          "time": "43.884",
+          "timestamp": "2026-10-08T15:49:52.275936+00:00",
+          "hostname": "31e1e2bb84ff"
+        }
+      ]
+    },
+    {
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-I",
+        "/workspace/orch02-native-c06/pytest_bound.py",
+        "--target",
+        "/workspace/orch02-c06-dfk",
+        "--expected-sha",
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+        "--origins",
+        "/workspace/orch02-native-c06/dfk-old-classifier/origins.json",
+        "--mutant-module",
+        "tools.quality.validation.schema_fqn_census",
+        "--mutant-path",
+        "/workspace/orch02-native-c06/removals/dfk-old-classifier.py",
+        "--census-script",
+        "/workspace/orch02-native-c06/removals/dfk-old-classifier.py",
+        "--",
+        "tests/unit/remediation/test_dfk_01.py",
+        "-k",
+        "two_ordinary_git_status_records or both_rename_paths_and_next_record or clean_real_git_input or both_copy_paths_and_next_record",
+        "-q",
+        "-o",
+        "cache_dir=/workspace/orch02-native-c06/dfk-old-classifier/cache",
+        "--basetemp=/workspace/orch02-native-c06/dfk-old-classifier/basetemp",
+        "--junitxml=/workspace/orch02-native-c06/dfk-old-classifier/junit.xml"
+      ],
+      "cwd": "/workspace/orch02-c06-dfk/policy-engine",
+      "start_utc": "2026-10-08T15:52:26.805238+00:00",
+      "end_utc": "2026-10-08T15:52:49.575883+00:00",
+      "wall_seconds": 22.770173086,
+      "max_rss_kib": 492088,
+      "user_seconds": 21.027947,
+      "system_seconds": 1.893133,
+      "timeout_seconds": 240.0,
+      "timeout": false,
+      "returncode": 1,
+      "selected_environment": {
+        "PYTHONPATH": null,
+        "PYTHONDONTWRITEBYTECODE": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "JAX_PLATFORMS": null,
+        "JAX_PLATFORM_NAME": null,
+        "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+        "UV_PROJECT_ENVIRONMENT": null
+      },
+      "outputs": {
+        "stdout.txt": {
+          "bytes": 26160,
+          "sha256": "c825a5419c9da338e1346b6ce8676fd73f078413c15a59650d151ae9b1b9427e"
+        },
+        "stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "label": "dfk-old-classifier",
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/dfk-old-classifier/command.json",
+          "bytes": 1924,
+          "sha256": "3d3264b6cff30a07799539961a9ca6d9b9dd96aa3c7487f8cbd4800b27cb959a"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-old-classifier/stdout.txt",
+          "bytes": 26160,
+          "sha256": "c825a5419c9da338e1346b6ce8676fd73f078413c15a59650d151ae9b1b9427e"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-old-classifier/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-old-classifier/junit.xml",
+          "bytes": 28998,
+          "sha256": "4de5ce9ed1d5b150c4c85d1ba9cb4b230d83611245437741c8d898abca065e21"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-old-classifier/origins.json",
+          "bytes": 216570,
+          "sha256": "9017db2b45ea13a043471efaedb8aebdc0fbe23bc55b50893880cafcfdfea607"
+        }
+      ],
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "9",
+          "skipped": "0",
+          "tests": "14",
+          "time": "14.705",
+          "timestamp": "2026-10-08T15:52:30.721435+00:00",
+          "hostname": "31e1e2bb84ff"
+        }
+      ]
+    },
+    {
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-I",
+        "/workspace/orch02-native-c06/protocol_probe.py"
+      ],
+      "cwd": "/workspace/orch02-native-c06",
+      "start_utc": "2026-10-08T16:05:30.085497+00:00",
+      "end_utc": "2026-10-08T16:05:35.728158+00:00",
+      "wall_seconds": 5.6419651470000645,
+      "max_rss_kib": 18944,
+      "user_seconds": 4.140832,
+      "system_seconds": 1.4305189999999999,
+      "timeout_seconds": 60.0,
+      "timeout": false,
+      "returncode": 0,
+      "selected_environment": {
+        "PYTHONPATH": null,
+        "PYTHONDONTWRITEBYTECODE": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "JAX_PLATFORMS": null,
+        "JAX_PLATFORM_NAME": null,
+        "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+        "UV_PROJECT_ENVIRONMENT": null
+      },
+      "outputs": {
+        "stdout.txt": {
+          "bytes": 530,
+          "sha256": "b8e0ec2b511cb83b2d6bff98ef0abd91ab712ff5e635ae1677a68a58b7e3376b"
+        },
+        "stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "label": "protocol-native-v3",
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-native-v3/command.json",
+          "bytes": 1029,
+          "sha256": "7c2ffb741b0546ae2d4ac16c1780687ed3b5570611902186fc7c345047d00e52"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-native-v3/stdout.txt",
+          "bytes": 530,
+          "sha256": "b8e0ec2b511cb83b2d6bff98ef0abd91ab712ff5e635ae1677a68a58b7e3376b"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-native-v3/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-I",
+        "tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-c06-dfk/policy-engine"
+      ],
+      "cwd": "/workspace/orch02-c06-dfk/policy-engine",
+      "start_utc": "2026-10-08T15:54:59.202374+00:00",
+      "end_utc": "2026-10-08T15:59:59.219671+00:00",
+      "wall_seconds": 300.016115272,
+      "max_rss_kib": 165448,
+      "user_seconds": 297.998995,
+      "system_seconds": 1.125936,
+      "timeout_seconds": 300.0,
+      "timeout": true,
+      "returncode": -15,
+      "selected_environment": {
+        "PYTHONPATH": null,
+        "PYTHONDONTWRITEBYTECODE": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "JAX_PLATFORMS": null,
+        "JAX_PLATFORM_NAME": null,
+        "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+        "UV_PROJECT_ENVIRONMENT": null
+      },
+      "outputs": {
+        "stdout.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "label": "dfk-census",
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/dfk-census/command.json",
+          "bytes": 1093,
+          "sha256": "995d5ebfa681d7758d208ad2506e4ab31e4e8b35a7d723f5c237e4a1b1d4f006"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-census/stdout.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-census/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-I",
+        "tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-c06-dfk/policy-engine"
+      ],
+      "cwd": "/workspace/orch02-c06-dfk/policy-engine",
+      "start_utc": "2026-10-08T16:01:48.770672+00:00",
+      "end_utc": "2026-10-08T16:07:28.985123+00:00",
+      "wall_seconds": 340.2140213749999,
+      "max_rss_kib": 165588,
+      "user_seconds": 326.871048,
+      "system_seconds": 1.502222,
+      "timeout_seconds": null,
+      "timeout": false,
+      "returncode": 0,
+      "selected_environment": {
+        "PYTHONPATH": null,
+        "PYTHONDONTWRITEBYTECODE": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "JAX_PLATFORMS": null,
+        "JAX_PLATFORM_NAME": null,
+        "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+        "UV_PROJECT_ENVIRONMENT": null
+      },
+      "outputs": {
+        "stdout.txt": {
+          "bytes": 6585971,
+          "sha256": "576e21b21cae0a649110b8a6fd681590008fb0ca4077f30a33e710e4329e7467"
+        },
+        "stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "label": "dfk-census-no-timeout",
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/dfk-census-no-timeout/command.json",
+          "bytes": 1101,
+          "sha256": "2f21b558efa6c1b46c310df154bc34d0e729833a83975c8d9a52bfe271f1bc4b"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-census-no-timeout/stdout.txt",
+          "bytes": 6585971,
+          "sha256": "576e21b21cae0a649110b8a6fd681590008fb0ca4077f30a33e710e4329e7467"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-census-no-timeout/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "argv": [
+        "/workspace/orch02-native-c06/build-env/bin/python",
+        "-I",
+        "-m",
+        "build",
+        "--no-isolation",
+        "--wheel",
+        "--sdist",
+        "--outdir",
+        "/workspace/orch02-native-c06/packages/dfk/dist"
+      ],
+      "cwd": "/workspace/orch02-native-c06/packages/dfk/source/policy-engine",
+      "start_utc": "2026-10-08T15:56:00.640185+00:00",
+      "end_utc": "2026-10-08T15:56:40.044874+00:00",
+      "wall_seconds": 39.40442171100017,
+      "max_rss_kib": 27016,
+      "user_seconds": 38.644195,
+      "system_seconds": 0.657797,
+      "timeout_seconds": null,
+      "timeout": false,
+      "returncode": 0,
+      "selected_environment": {
+        "PYTHONPATH": null,
+        "PYTHONDONTWRITEBYTECODE": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "JAX_PLATFORMS": null,
+        "JAX_PLATFORM_NAME": null,
+        "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+        "UV_PROJECT_ENVIRONMENT": null
+      },
+      "outputs": {
+        "stdout.txt": {
+          "bytes": 87,
+          "sha256": "8279290c6ce5ec90a2d30aca13a49a48895ba96e828bf90276756d95008599c1"
+        },
+        "stderr.txt": {
+          "bytes": 124,
+          "sha256": "25c2185e6adbcd28691afc17c33c35f745fd4f5f8c6874d95b372bc9cc7e8176"
+        }
+      },
+      "label": "dfk-build",
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/dfk-build/command.json",
+          "bytes": 1144,
+          "sha256": "986299d8a524f2aa0170b72564dc4180f7308458f47ecc4fd473065d1c34f1b1"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-build/stdout.txt",
+          "bytes": 87,
+          "sha256": "8279290c6ce5ec90a2d30aca13a49a48895ba96e828bf90276756d95008599c1"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-build/stderr.txt",
+          "bytes": 124,
+          "sha256": "25c2185e6adbcd28691afc17c33c35f745fd4f5f8c6874d95b372bc9cc7e8176"
+        }
+      ]
+    },
+    {
+      "argv": [
+        "/workspace/orch02-native-c06/build-env/bin/python",
+        "-I",
+        "-m",
+        "build",
+        "--no-isolation",
+        "--wheel",
+        "--outdir",
+        "/workspace/orch02-native-c06/packages/dfk/rebuilt-dist"
+      ],
+      "cwd": "/workspace/orch02-native-c06/packages/dfk/rebuilt-source/policy_engine-0.1.0",
+      "start_utc": "2026-10-08T16:02:57.686490+00:00",
+      "end_utc": "2026-10-08T16:03:06.449829+00:00",
+      "wall_seconds": 8.763045624000142,
+      "max_rss_kib": 25364,
+      "user_seconds": 3.369471,
+      "system_seconds": 0.23811,
+      "timeout_seconds": 240.0,
+      "timeout": false,
+      "returncode": 0,
+      "selected_environment": {
+        "PYTHONPATH": null,
+        "PYTHONDONTWRITEBYTECODE": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "JAX_PLATFORMS": null,
+        "JAX_PLATFORM_NAME": null,
+        "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+        "UV_PROJECT_ENVIRONMENT": null
+      },
+      "outputs": {
+        "stdout.txt": {
+          "bytes": 56,
+          "sha256": "4782df0867fa84829ebd852825d6bcfe636d0733a46ad5109a7d04971915b3d9"
+        },
+        "stderr.txt": {
+          "bytes": 62,
+          "sha256": "3fbf5c81df4d6f7774a09a7694742996e64ed07ccaea033ef3d34574059a981c"
+        }
+      },
+      "label": "dfk-rebuilt-wheel",
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/dfk-rebuilt-wheel/command.json",
+          "bytes": 1149,
+          "sha256": "20592c5c1827444e9cf27aa0ade5ff276e40a74c542625500017ab6f740e3257"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-rebuilt-wheel/stdout.txt",
+          "bytes": 56,
+          "sha256": "4782df0867fa84829ebd852825d6bcfe636d0733a46ad5109a7d04971915b3d9"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-rebuilt-wheel/stderr.txt",
+          "bytes": 62,
+          "sha256": "3fbf5c81df4d6f7774a09a7694742996e64ed07ccaea033ef3d34574059a981c"
+        }
+      ]
+    },
+    {
+      "argv": [
+        "uv",
+        "--cache-dir",
+        "/workspace/orch02-native-c06/uv-cache",
+        "pip",
+        "install",
+        "--python",
+        "/workspace/orch02-native-c06/consumer-env/bin/python",
+        "--no-deps",
+        "--reinstall",
+        "/workspace/orch02-native-c06/packages/dfk/dist/policy_engine-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "/workspace/orch02-native-c06",
+      "start_utc": "2026-10-08T16:13:25.217455+00:00",
+      "end_utc": "2026-10-08T16:13:25.693161+00:00",
+      "wall_seconds": 0.4755475629999637,
+      "max_rss_kib": 27960,
+      "user_seconds": 0.44556799999999996,
+      "system_seconds": 0.602428,
+      "timeout_seconds": null,
+      "timeout": false,
+      "returncode": 0,
+      "selected_environment": {
+        "PYTHONPATH": null,
+        "PYTHONDONTWRITEBYTECODE": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "JAX_PLATFORMS": null,
+        "JAX_PLATFORM_NAME": null,
+        "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+        "UV_PROJECT_ENVIRONMENT": null
+      },
+      "outputs": {
+        "stdout.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr.txt": {
+          "bytes": 414,
+          "sha256": "ede5f669d7ce288169916d23ef3e2c1922d3095c5e5e874607faa5ae0a7c8540"
+        }
+      },
+      "label": "dfk-wheel-install",
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/dfk-wheel-install/command.json",
+          "bytes": 1211,
+          "sha256": "6abf291d108b592808b881e6ac5d737f21301bcdce3a615b26a27c1e76683960"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-wheel-install/stdout.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-wheel-install/stderr.txt",
+          "bytes": 414,
+          "sha256": "ede5f669d7ce288169916d23ef3e2c1922d3095c5e5e874607faa5ae0a7c8540"
+        }
+      ]
+    },
+    {
+      "argv": [
+        "/workspace/orch02-native-c06/consumer-env/bin/python",
+        "-I",
+        "/workspace/orch02-native-c06/pytest_bound.py",
+        "--installed-prefix",
+        "/workspace/orch02-native-c06/consumer-env",
+        "--origins",
+        "/workspace/orch02-native-c06/dfk-wheel-consumer/origins.json",
+        "--",
+        "-c",
+        "/workspace/orch02-native-c06/pytest.installed.ini",
+        "--noconftest",
+        "tests/unit/remediation/test_dfk_01.py",
+        "test_dfk_installed.py",
+        "-k",
+        "canonical_schema_exports_preserve_registry_identity or canonical_registry_evolution_and_migration_behave or pipeline_schema_alias_preserves_canonical_identity or real_foundry_runner_executes_canonical_mechanism or retired_distribution_imports_are_absent or installed_schema_alias_retains_identity or installed_census_cli_preserves_ordinary_record_sentinel",
+        "-o",
+        "cache_dir=/workspace/orch02-native-c06/dfk-wheel-consumer/cache",
+        "--basetemp=/workspace/orch02-native-c06/dfk-wheel-consumer/basetemp",
+        "--junitxml=/workspace/orch02-native-c06/dfk-wheel-consumer/junit.xml"
+      ],
+      "cwd": "/workspace/orch02-native-c06/packages/dfk/runner",
+      "start_utc": "2026-10-08T16:16:07.209454+00:00",
+      "end_utc": "2026-10-08T16:16:32.468547+00:00",
+      "wall_seconds": 25.258529931999874,
+      "max_rss_kib": 728960,
+      "user_seconds": 25.101741,
+      "system_seconds": 1.026184,
+      "timeout_seconds": 240.0,
+      "timeout": false,
+      "returncode": 0,
+      "selected_environment": {
+        "PYTHONPATH": null,
+        "PYTHONDONTWRITEBYTECODE": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "JAX_PLATFORMS": null,
+        "JAX_PLATFORM_NAME": null,
+        "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+        "UV_PROJECT_ENVIRONMENT": null
+      },
+      "outputs": {
+        "stdout.txt": {
+          "bytes": 114,
+          "sha256": "1204969b5511ed623fef36dcfe3e976db0169e2b034187c68a8b819187d4b3ba"
+        },
+        "stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "label": "dfk-wheel-consumer",
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/dfk-wheel-consumer/command.json",
+          "bytes": 1978,
+          "sha256": "36c5854d0d0b5a6e678a3dec104fed4226b8153c721eb181b43cf6c6ac4be9b2"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-wheel-consumer/stdout.txt",
+          "bytes": 114,
+          "sha256": "1204969b5511ed623fef36dcfe3e976db0169e2b034187c68a8b819187d4b3ba"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-wheel-consumer/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-wheel-consumer/junit.xml",
+          "bytes": 1663,
+          "sha256": "0581814cac60cee68d80e13d2d18f9fcc0eb81c46942dc386258c837aa5b9144"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-wheel-consumer/origins.json",
+          "bytes": 234865,
+          "sha256": "307032ea872612f852662c949021718c3956581bbf88e1a9c64760f06eeba50e"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-wheel-consumer/wheel-origin-reconciliation.json",
+          "bytes": 284461,
+          "sha256": "428cf2bd2b4e34c7576efe4a1175108285bc271552df0983d469ec6849502836"
+        }
+      ],
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "9",
+          "time": "16.933",
+          "timestamp": "2026-10-08T16:16:09.690467+00:00",
+          "hostname": "31e1e2bb84ff"
+        }
+      ]
+    },
+    {
+      "argv": [
+        "uv",
+        "--cache-dir",
+        "/workspace/orch02-native-c06/uv-cache",
+        "pip",
+        "install",
+        "--python",
+        "/workspace/orch02-native-c06/consumer-env/bin/python",
+        "--no-deps",
+        "--reinstall",
+        "/workspace/orch02-native-c06/packages/dfk/rebuilt-dist/policy_engine-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "/workspace/orch02-native-c06",
+      "start_utc": "2026-10-08T16:19:09.544187+00:00",
+      "end_utc": "2026-10-08T16:19:09.982528+00:00",
+      "wall_seconds": 0.438197795999713,
+      "max_rss_kib": 27548,
+      "user_seconds": 0.388812,
+      "system_seconds": 0.636462,
+      "timeout_seconds": null,
+      "timeout": false,
+      "returncode": 0,
+      "selected_environment": {
+        "PYTHONPATH": null,
+        "PYTHONDONTWRITEBYTECODE": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "JAX_PLATFORMS": null,
+        "JAX_PLATFORM_NAME": null,
+        "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+        "UV_PROJECT_ENVIRONMENT": null
+      },
+      "outputs": {
+        "stdout.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr.txt": {
+          "bytes": 413,
+          "sha256": "adb6c68d5f17ae71c76b914d6ebc2a4c4e78b3a5fc3e409b31b6348dc011685b"
+        }
+      },
+      "label": "dfk-rebuilt-install",
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/dfk-rebuilt-install/command.json",
+          "bytes": 1207,
+          "sha256": "f5a23fd8c326e0df25fafe1b5cd8d6d6942ae7456c72e31f4a737f735900ca25"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-rebuilt-install/stdout.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-rebuilt-install/stderr.txt",
+          "bytes": 413,
+          "sha256": "adb6c68d5f17ae71c76b914d6ebc2a4c4e78b3a5fc3e409b31b6348dc011685b"
+        }
+      ]
+    },
+    {
+      "argv": [
+        "/workspace/orch02-native-c06/consumer-env/bin/python",
+        "-I",
+        "/workspace/orch02-native-c06/pytest_bound.py",
+        "--installed-prefix",
+        "/workspace/orch02-native-c06/consumer-env",
+        "--origins",
+        "/workspace/orch02-native-c06/dfk-rebuilt-consumer/origins.json",
+        "--",
+        "-c",
+        "/workspace/orch02-native-c06/pytest.installed.ini",
+        "--noconftest",
+        "tests/unit/remediation/test_dfk_01.py",
+        "test_dfk_installed.py",
+        "-k",
+        "canonical_schema_exports_preserve_registry_identity or canonical_registry_evolution_and_migration_behave or pipeline_schema_alias_preserves_canonical_identity or real_foundry_runner_executes_canonical_mechanism or retired_distribution_imports_are_absent or installed_schema_alias_retains_identity or installed_census_cli_preserves_ordinary_record_sentinel",
+        "-o",
+        "cache_dir=/workspace/orch02-native-c06/dfk-rebuilt-consumer/cache",
+        "--basetemp=/workspace/orch02-native-c06/dfk-rebuilt-consumer/basetemp",
+        "--junitxml=/workspace/orch02-native-c06/dfk-rebuilt-consumer/junit.xml"
+      ],
+      "cwd": "/workspace/orch02-native-c06/packages/dfk/runner",
+      "start_utc": "2026-10-08T16:19:22.136533+00:00",
+      "end_utc": "2026-10-08T16:19:52.344669+00:00",
+      "wall_seconds": 30.20793601000014,
+      "max_rss_kib": 733504,
+      "user_seconds": 28.355952,
+      "system_seconds": 0.957766,
+      "timeout_seconds": 240.0,
+      "timeout": false,
+      "returncode": 0,
+      "selected_environment": {
+        "PYTHONPATH": null,
+        "PYTHONDONTWRITEBYTECODE": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "JAX_PLATFORMS": null,
+        "JAX_PLATFORM_NAME": null,
+        "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+        "UV_PROJECT_ENVIRONMENT": null
+      },
+      "outputs": {
+        "stdout.txt": {
+          "bytes": 114,
+          "sha256": "a05f1a6f68708280b99bf81dee9eac6508ae416c2450f55dd30e14387bf5484d"
+        },
+        "stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "label": "dfk-rebuilt-consumer",
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/dfk-rebuilt-consumer/command.json",
+          "bytes": 1985,
+          "sha256": "4ed21eaa9c7681acb1875fdd64f47d2e3ee2e19672f53410e211d0a95ee06c4a"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-rebuilt-consumer/stdout.txt",
+          "bytes": 114,
+          "sha256": "a05f1a6f68708280b99bf81dee9eac6508ae416c2450f55dd30e14387bf5484d"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-rebuilt-consumer/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-rebuilt-consumer/junit.xml",
+          "bytes": 1663,
+          "sha256": "010516908d56515e0a28180db5b548e8ee3f630319caf8ef1166903dd0858ee8"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-rebuilt-consumer/origins.json",
+          "bytes": 234865,
+          "sha256": "307032ea872612f852662c949021718c3956581bbf88e1a9c64760f06eeba50e"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/dfk-rebuilt-consumer/wheel-origin-reconciliation.json",
+          "bytes": 276849,
+          "sha256": "af1470291fd7bef45363251ad7f4a0de08e862715f5bb658102f62b056ec82ba"
+        }
+      ],
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "9",
+          "time": "19.081",
+          "timestamp": "2026-10-08T16:19:24.580441+00:00",
+          "hostname": "31e1e2bb84ff"
+        }
+      ]
+    },
+    {
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-I",
+        "/workspace/orch02-native-c06/protocol_probe.py"
+      ],
+      "cwd": "/workspace/orch02-native-c06",
+      "start_utc": "2026-10-08T15:54:59.177253+00:00",
+      "end_utc": "2026-10-08T15:55:03.313406+00:00",
+      "wall_seconds": 4.135855934999881,
+      "max_rss_kib": 18176,
+      "user_seconds": 2.808243,
+      "system_seconds": 0.964641,
+      "timeout_seconds": 240.0,
+      "timeout": false,
+      "returncode": 1,
+      "selected_environment": {
+        "PYTHONPATH": null,
+        "PYTHONDONTWRITEBYTECODE": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "JAX_PLATFORMS": null,
+        "JAX_PLATFORM_NAME": null,
+        "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+        "UV_PROJECT_ENVIRONMENT": null
+      },
+      "outputs": {
+        "stdout.txt": {
+          "bytes": 282,
+          "sha256": "f35de826fe586a529b7fd3dd49810c3805105069cf0a2a4fb206494546c2ecbd"
+        },
+        "stderr.txt": {
+          "bytes": 932,
+          "sha256": "a7b76d798c20f3f54524055acf29eb0f96b63f6a13d8a1e9587e22aefa0e878a"
+        }
+      },
+      "label": "protocol-native",
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-native/command.json",
+          "bytes": 1021,
+          "sha256": "9a16c6a8475a23218e9f3f05b36212f89048508e2206fb0786d6013f24a8f353"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-native/stdout.txt",
+          "bytes": 282,
+          "sha256": "f35de826fe586a529b7fd3dd49810c3805105069cf0a2a4fb206494546c2ecbd"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-native/stderr.txt",
+          "bytes": 932,
+          "sha256": "a7b76d798c20f3f54524055acf29eb0f96b63f6a13d8a1e9587e22aefa0e878a"
+        }
+      ]
+    },
+    {
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-I",
+        "/workspace/orch02-native-c06/protocol_probe.py"
+      ],
+      "cwd": "/workspace/orch02-native-c06",
+      "start_utc": "2026-10-08T15:57:07.854576+00:00",
+      "end_utc": "2026-10-08T15:57:13.646218+00:00",
+      "wall_seconds": 5.791491110999914,
+      "max_rss_kib": 18944,
+      "user_seconds": 3.57885,
+      "system_seconds": 1.298608,
+      "timeout_seconds": 60.0,
+      "timeout": false,
+      "returncode": 0,
+      "selected_environment": {
+        "PYTHONPATH": null,
+        "PYTHONDONTWRITEBYTECODE": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "JAX_PLATFORMS": null,
+        "JAX_PLATFORM_NAME": null,
+        "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+        "UV_PROJECT_ENVIRONMENT": null
+      },
+      "outputs": {
+        "stdout.txt": {
+          "bytes": 530,
+          "sha256": "b8e0ec2b511cb83b2d6bff98ef0abd91ab712ff5e635ae1677a68a58b7e3376b"
+        },
+        "stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "label": "protocol-native-v2",
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-native-v2/command.json",
+          "bytes": 1017,
+          "sha256": "64d450f8bd91ddd1aee96ef8ce34b212a18307c0501fb29f0cbd37075d9f1f59"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-native-v2/stdout.txt",
+          "bytes": 530,
+          "sha256": "b8e0ec2b511cb83b2d6bff98ef0abd91ab712ff5e635ae1677a68a58b7e3376b"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-native-v2/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "argv": [
+        "uv",
+        "--cache-dir",
+        "/workspace/orch02-native-c06/uv-cache",
+        "venv",
+        "--python",
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-native-c06/build-env"
+      ],
+      "cwd": "/workspace/orch02-native-c06",
+      "start_utc": "2026-10-08T15:50:53.308762+00:00",
+      "end_utc": "2026-10-08T15:50:53.429772+00:00",
+      "wall_seconds": 0.1208422160000282,
+      "max_rss_kib": 12288,
+      "user_seconds": 0.097039,
+      "system_seconds": 0.026709,
+      "timeout_seconds": null,
+      "timeout": false,
+      "returncode": 0,
+      "selected_environment": {
+        "PYTHONPATH": null,
+        "PYTHONDONTWRITEBYTECODE": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "JAX_PLATFORMS": null,
+        "JAX_PLATFORM_NAME": null,
+        "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+        "UV_PROJECT_ENVIRONMENT": null
+      },
+      "outputs": {
+        "stdout.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr.txt": {
+          "bytes": 176,
+          "sha256": "31be3a36963177c23425199c016b982b9dca984b120370afcd11d31812d1e8e3"
+        }
+      },
+      "label": "build-env-create",
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/build-env-create/command.json",
+          "bytes": 1103,
+          "sha256": "7021227548b746ae7f5405be117e94d4b48038ebbb4937dad51936c909f679aa"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/build-env-create/stdout.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/build-env-create/stderr.txt",
+          "bytes": 176,
+          "sha256": "31be3a36963177c23425199c016b982b9dca984b120370afcd11d31812d1e8e3"
+        }
+      ]
+    },
+    {
+      "argv": [
+        "uv",
+        "--cache-dir",
+        "/workspace/orch02-native-c06/uv-cache",
+        "pip",
+        "install",
+        "--python",
+        "/workspace/orch02-native-c06/build-env/bin/python",
+        "hatchling>=1.27.0",
+        "build"
+      ],
+      "cwd": "/workspace/orch02-native-c06",
+      "start_utc": "2026-10-08T15:51:20.406784+00:00",
+      "end_utc": "2026-10-08T15:51:21.455888+00:00",
+      "wall_seconds": 1.0489612210000132,
+      "max_rss_kib": 27516,
+      "user_seconds": 0.286029,
+      "system_seconds": 0.144283,
+      "timeout_seconds": null,
+      "timeout": false,
+      "returncode": 0,
+      "selected_environment": {
+        "PYTHONPATH": null,
+        "PYTHONDONTWRITEBYTECODE": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "JAX_PLATFORMS": null,
+        "JAX_PLATFORM_NAME": null,
+        "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+        "UV_PROJECT_ENVIRONMENT": null
+      },
+      "outputs": {
+        "stdout.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr.txt": {
+          "bytes": 305,
+          "sha256": "068349a2f6d15a2ab5b817be4fd09b7033954ae59756fae967daec7c70ddb1ba"
+        }
+      },
+      "label": "build-env-install",
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/build-env-install/command.json",
+          "bytes": 1108,
+          "sha256": "33c1c823360900591fc52a4004f17718d01d75b1b8c2339c9ad65b1a63f69145"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/build-env-install/stdout.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/build-env-install/stderr.txt",
+          "bytes": 305,
+          "sha256": "068349a2f6d15a2ab5b817be4fd09b7033954ae59756fae967daec7c70ddb1ba"
+        }
+      ]
+    },
+    {
+      "argv": [
+        "uv",
+        "--cache-dir",
+        "/workspace/orch02-native-c06/uv-cache",
+        "venv",
+        "--python",
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-native-c06/consumer-env"
+      ],
+      "cwd": "/workspace/orch02-native-c06",
+      "start_utc": "2026-10-08T15:56:24.472407+00:00",
+      "end_utc": "2026-10-08T15:56:24.551528+00:00",
+      "wall_seconds": 0.07840431299996453,
+      "max_rss_kib": 12160,
+      "user_seconds": 0.032729999999999995,
+      "system_seconds": 0.022244999999999997,
+      "timeout_seconds": null,
+      "timeout": false,
+      "returncode": 0,
+      "selected_environment": {
+        "PYTHONPATH": null,
+        "PYTHONDONTWRITEBYTECODE": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "JAX_PLATFORMS": null,
+        "JAX_PLATFORM_NAME": null,
+        "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+        "UV_PROJECT_ENVIRONMENT": null
+      },
+      "outputs": {
+        "stdout.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr.txt": {
+          "bytes": 182,
+          "sha256": "3c52bb860ea74deeb7223291373a68320a5367a678250a13a43f97e72c5dd26c"
+        }
+      },
+      "label": "consumer-env-create",
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/consumer-env-create/command.json",
+          "bytes": 1131,
+          "sha256": "065e1c4daa27d6003c489938b97c75919a4703192a1a4b9346e68a4b27447823"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/consumer-env-create/stdout.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/consumer-env-create/stderr.txt",
+          "bytes": 182,
+          "sha256": "3c52bb860ea74deeb7223291373a68320a5367a678250a13a43f97e72c5dd26c"
+        }
+      ]
+    },
+    {
+      "argv": [
+        "uv",
+        "--cache-dir",
+        "/workspace/orch02-native-c06/uv-cache",
+        "pip",
+        "install",
+        "--python",
+        "/workspace/orch02-native-c06/consumer-env/bin/python",
+        "--no-deps",
+        "-r",
+        "/workspace/orch02-native-c06/consumer-dependencies.txt"
+      ],
+      "cwd": "/workspace/orch02-native-c06",
+      "start_utc": "2026-10-08T15:57:06.479873+00:00",
+      "end_utc": "2026-10-08T15:57:16.490198+00:00",
+      "wall_seconds": 10.010149172999945,
+      "max_rss_kib": 196364,
+      "user_seconds": 10.757408,
+      "system_seconds": 4.516974,
+      "timeout_seconds": null,
+      "timeout": false,
+      "returncode": 0,
+      "selected_environment": {
+        "PYTHONPATH": null,
+        "PYTHONDONTWRITEBYTECODE": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "JAX_PLATFORMS": null,
+        "JAX_PLATFORM_NAME": null,
+        "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+        "UV_PROJECT_ENVIRONMENT": null
+      },
+      "outputs": {
+        "stdout.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr.txt": {
+          "bytes": 5409,
+          "sha256": "b935da50b4ec070279df8f5efdc204392b7b2e9539bfe48f1140d6f6be771c5f"
+        }
+      },
+      "label": "consumer-env-install",
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/consumer-env-install/command.json",
+          "bytes": 1165,
+          "sha256": "1c85644cc0c267f1471b6dd84d6338f519050c60d7678d275e62d37237f7ec86"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/consumer-env-install/stdout.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/consumer-env-install/stderr.txt",
+          "bytes": 5409,
+          "sha256": "b935da50b4ec070279df8f5efdc204392b7b2e9539bfe48f1140d6f6be771c5f"
+        }
+      ]
+    }
+  ],
+  "package_closure": {
+    "wheel_member_denominator": 3454,
+    "sdist_member_denominator": 8505,
+    "all_source_owned_member_bytes_match_frozen_git_archive": true,
+    "direct_rebuilt_member_names_and_bytes_equal": true,
+    "wheel_RECORD_complete_and_hashes_valid": true,
+    "all_source_owned_wheel_members_bind_exact_git_blobs_count": 3449,
+    "retired_DFK_exact_member_prefixes_absent": [
+      "polisyos/foundry/domain/schema.py",
+      "polisyos/foundry/domain/schema/",
+      "polisyos/foundry/domain/mechanisms/",
+      "polisyos/data_forge/kernel/schemas/codegen.py",
+      "polisyos/data_forge/kernel/schemas/codegen/"
+    ],
+    "no_source_or_editable_overlay": true,
+    "fresh_process_each_install": true
+  },
+  "publishable_moderate_complete_artifacts": [
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-native/command.json",
+      "bytes": 1497,
+      "sha256": "ffa0677721eb8fa014d290aef0af3cbd422bf6205b1a77509488b0a7751e898c"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-native/stdout.txt",
+      "bytes": 80,
+      "sha256": "1b8f208de3636df279448e40805982570c4351601ce5723301928feea7d343cf"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-native/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-native/junit.xml",
+      "bytes": 5033,
+      "sha256": "83949679c2cfe854b925da8921f96f0b02b2c8f27ebd6012a08563fa88603ff6"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-native/origins.json",
+      "bytes": 256085,
+      "sha256": "dadfcaba7971a07a9ebcee91e1084fdd758d3f6b181aa69906dc570bd19e7a38"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-old-classifier/command.json",
+      "bytes": 1924,
+      "sha256": "3d3264b6cff30a07799539961a9ca6d9b9dd96aa3c7487f8cbd4800b27cb959a"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-old-classifier/stdout.txt",
+      "bytes": 26160,
+      "sha256": "c825a5419c9da338e1346b6ce8676fd73f078413c15a59650d151ae9b1b9427e"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-old-classifier/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-old-classifier/junit.xml",
+      "bytes": 28998,
+      "sha256": "4de5ce9ed1d5b150c4c85d1ba9cb4b230d83611245437741c8d898abca065e21"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-old-classifier/origins.json",
+      "bytes": 216570,
+      "sha256": "9017db2b45ea13a043471efaedb8aebdc0fbe23bc55b50893880cafcfdfea607"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-native-v3/command.json",
+      "bytes": 1029,
+      "sha256": "7c2ffb741b0546ae2d4ac16c1780687ed3b5570611902186fc7c345047d00e52"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-native-v3/stdout.txt",
+      "bytes": 530,
+      "sha256": "b8e0ec2b511cb83b2d6bff98ef0abd91ab712ff5e635ae1677a68a58b7e3376b"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-native-v3/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-census/command.json",
+      "bytes": 1093,
+      "sha256": "995d5ebfa681d7758d208ad2506e4ab31e4e8b35a7d723f5c237e4a1b1d4f006"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-census/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-census/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-census-no-timeout/command.json",
+      "bytes": 1101,
+      "sha256": "2f21b558efa6c1b46c310df154bc34d0e729833a83975c8d9a52bfe271f1bc4b"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-census-no-timeout/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-build/command.json",
+      "bytes": 1144,
+      "sha256": "986299d8a524f2aa0170b72564dc4180f7308458f47ecc4fd473065d1c34f1b1"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-build/stdout.txt",
+      "bytes": 87,
+      "sha256": "8279290c6ce5ec90a2d30aca13a49a48895ba96e828bf90276756d95008599c1"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-build/stderr.txt",
+      "bytes": 124,
+      "sha256": "25c2185e6adbcd28691afc17c33c35f745fd4f5f8c6874d95b372bc9cc7e8176"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-rebuilt-wheel/command.json",
+      "bytes": 1149,
+      "sha256": "20592c5c1827444e9cf27aa0ade5ff276e40a74c542625500017ab6f740e3257"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-rebuilt-wheel/stdout.txt",
+      "bytes": 56,
+      "sha256": "4782df0867fa84829ebd852825d6bcfe636d0733a46ad5109a7d04971915b3d9"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-rebuilt-wheel/stderr.txt",
+      "bytes": 62,
+      "sha256": "3fbf5c81df4d6f7774a09a7694742996e64ed07ccaea033ef3d34574059a981c"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-wheel-install/command.json",
+      "bytes": 1211,
+      "sha256": "6abf291d108b592808b881e6ac5d737f21301bcdce3a615b26a27c1e76683960"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-wheel-install/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-wheel-install/stderr.txt",
+      "bytes": 414,
+      "sha256": "ede5f669d7ce288169916d23ef3e2c1922d3095c5e5e874607faa5ae0a7c8540"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-wheel-consumer/command.json",
+      "bytes": 1978,
+      "sha256": "36c5854d0d0b5a6e678a3dec104fed4226b8153c721eb181b43cf6c6ac4be9b2"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-wheel-consumer/stdout.txt",
+      "bytes": 114,
+      "sha256": "1204969b5511ed623fef36dcfe3e976db0169e2b034187c68a8b819187d4b3ba"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-wheel-consumer/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-wheel-consumer/junit.xml",
+      "bytes": 1663,
+      "sha256": "0581814cac60cee68d80e13d2d18f9fcc0eb81c46942dc386258c837aa5b9144"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-wheel-consumer/origins.json",
+      "bytes": 234865,
+      "sha256": "307032ea872612f852662c949021718c3956581bbf88e1a9c64760f06eeba50e"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-wheel-consumer/wheel-origin-reconciliation.json",
+      "bytes": 284461,
+      "sha256": "428cf2bd2b4e34c7576efe4a1175108285bc271552df0983d469ec6849502836"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-rebuilt-install/command.json",
+      "bytes": 1207,
+      "sha256": "f5a23fd8c326e0df25fafe1b5cd8d6d6942ae7456c72e31f4a737f735900ca25"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-rebuilt-install/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-rebuilt-install/stderr.txt",
+      "bytes": 413,
+      "sha256": "adb6c68d5f17ae71c76b914d6ebc2a4c4e78b3a5fc3e409b31b6348dc011685b"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-rebuilt-consumer/command.json",
+      "bytes": 1985,
+      "sha256": "4ed21eaa9c7681acb1875fdd64f47d2e3ee2e19672f53410e211d0a95ee06c4a"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-rebuilt-consumer/stdout.txt",
+      "bytes": 114,
+      "sha256": "a05f1a6f68708280b99bf81dee9eac6508ae416c2450f55dd30e14387bf5484d"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-rebuilt-consumer/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-rebuilt-consumer/junit.xml",
+      "bytes": 1663,
+      "sha256": "010516908d56515e0a28180db5b548e8ee3f630319caf8ef1166903dd0858ee8"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-rebuilt-consumer/origins.json",
+      "bytes": 234865,
+      "sha256": "307032ea872612f852662c949021718c3956581bbf88e1a9c64760f06eeba50e"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-rebuilt-consumer/wheel-origin-reconciliation.json",
+      "bytes": 276849,
+      "sha256": "af1470291fd7bef45363251ad7f4a0de08e862715f5bb658102f62b056ec82ba"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-native/command.json",
+      "bytes": 1021,
+      "sha256": "9a16c6a8475a23218e9f3f05b36212f89048508e2206fb0786d6013f24a8f353"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-native/stdout.txt",
+      "bytes": 282,
+      "sha256": "f35de826fe586a529b7fd3dd49810c3805105069cf0a2a4fb206494546c2ecbd"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-native/stderr.txt",
+      "bytes": 932,
+      "sha256": "a7b76d798c20f3f54524055acf29eb0f96b63f6a13d8a1e9587e22aefa0e878a"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-native-v2/command.json",
+      "bytes": 1017,
+      "sha256": "64d450f8bd91ddd1aee96ef8ce34b212a18307c0501fb29f0cbd37075d9f1f59"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-native-v2/stdout.txt",
+      "bytes": 530,
+      "sha256": "b8e0ec2b511cb83b2d6bff98ef0abd91ab712ff5e635ae1677a68a58b7e3376b"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-native-v2/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/build-env-create/command.json",
+      "bytes": 1103,
+      "sha256": "7021227548b746ae7f5405be117e94d4b48038ebbb4937dad51936c909f679aa"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/build-env-create/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/build-env-create/stderr.txt",
+      "bytes": 176,
+      "sha256": "31be3a36963177c23425199c016b982b9dca984b120370afcd11d31812d1e8e3"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/build-env-install/command.json",
+      "bytes": 1108,
+      "sha256": "33c1c823360900591fc52a4004f17718d01d75b1b8c2339c9ad65b1a63f69145"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/build-env-install/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/build-env-install/stderr.txt",
+      "bytes": 305,
+      "sha256": "068349a2f6d15a2ab5b817be4fd09b7033954ae59756fae967daec7c70ddb1ba"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/consumer-env-create/command.json",
+      "bytes": 1131,
+      "sha256": "065e1c4daa27d6003c489938b97c75919a4703192a1a4b9346e68a4b27447823"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/consumer-env-create/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/consumer-env-create/stderr.txt",
+      "bytes": 182,
+      "sha256": "3c52bb860ea74deeb7223291373a68320a5367a678250a13a43f97e72c5dd26c"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/consumer-env-install/command.json",
+      "bytes": 1165,
+      "sha256": "1c85644cc0c267f1471b6dd84d6338f519050c60d7678d275e62d37237f7ec86"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/consumer-env-install/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/consumer-env-install/stderr.txt",
+      "bytes": 5409,
+      "sha256": "b935da50b4ec070279df8f5efdc204392b7b2e9539bfe48f1140d6f6be771c5f"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/receipt_run.py",
+      "bytes": 2581,
+      "sha256": "042e6dd68ed9a21fbd34803152fdc75fda5b97a952ab085bdbbf9f32ee2d2e04"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/pytest_bound.py",
+      "bytes": 3723,
+      "sha256": "e30815a550e6cba49d5c1798e97c642fe6e2428e37676c7de0a700707d086afd"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/pytest.installed.ini",
+      "bytes": 46,
+      "sha256": "cc7481cb81a68b8a62cdbf1ef1b395003aa68e24b15b6ca22df9345ccb34846c"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/package_export.py",
+      "bytes": 1463,
+      "sha256": "ec45b4b3cd07390ef2e5156e7bcbc68312dbd0b254eb857e4593d14b472b9ae2"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/package_inspect.py",
+      "bytes": 3602,
+      "sha256": "1c1d962b1a2f133dba6f4a45df741c3815452b26c09742f45f166aaa7d9f867b"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/finalize_evidence.py",
+      "bytes": 12390,
+      "sha256": "1c302895e3ad59fa1a80a0901583a10449a53c8999e23555d3e744f563b19c1c"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/consumer-dependencies.txt",
+      "bytes": 3189,
+      "sha256": "e9c048b714adb402aa654f1851342dff77ce654b9b5262c85f2ecbb45d4210c3"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/source-review-prewave.json",
+      "bytes": 4658,
+      "sha256": "740e436f478c4df8e6469baa6a7387824189120a69857884a857966893bd4f28"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/independent-final-review.json",
+      "bytes": 6885,
+      "sha256": "22c354595397379324ff03f173d2762860b60af04a9e4bcd084627afd787ba11"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/packages/source-manifest.json",
+      "bytes": 1041,
+      "sha256": "52240792bb7232e0b7a97532f8579a41df4d512d7ace123cc03f3f3dcc6bcef8"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/packages/consumer-test-manifest.json",
+      "bytes": 1558,
+      "sha256": "e6f40d0bb45d2b251cbdd4e5a7db5abeafce8096ed3631292d33f1ef9acbb372"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/removals/manifest.json",
+      "bytes": 2742,
+      "sha256": "a48badb517013beba73b58ab70a570a7b3301f4e92c5d6e34f4649232e15176f"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-source-origin-reconciliation.json",
+      "bytes": 747804,
+      "sha256": "b0f38a80cc3614e4bdec4f76d818ef09fc1e18acc42a182c7d746f412c84288c"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol_probe.py",
+      "bytes": 6602,
+      "sha256": "531ccdecdb073b760c9bb0227a909182634c90ad7aa8233391112f7352b19465"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/test_dfk_installed.py",
+      "bytes": 2125,
+      "sha256": "a0b66ff5f40ce5c3b9b942d59bbcabea6b749135dcd3ce23e27032cf3b65f2a5"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-preflight.json",
+      "bytes": 4925,
+      "sha256": "6f843c277f156899c451dcbf27e34ae9ef7c10c2ecb13d53394241078376042a"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/receipt.json",
+      "bytes": 138409,
+      "sha256": "361f0a9e8970ab4d911a6fd086a895f0e13431c01fcccc71d7484a6fffff03ba"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-census-summary.json",
+      "bytes": 2924,
+      "sha256": "c7bb79565f0ccd56d341cc89dd0765618dbaab2c2faec56ba0f3158a6956c9d7"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/handoff-evidence/lossless-deciding-output-manifest.json",
+      "bytes": 960,
+      "sha256": "0d6aa272765f75faa46752975930887274a114112d5fa18b9d2f76372d129c8c"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/removals/dfk-old-classifier.diff",
+      "bytes": 538,
+      "sha256": "665b96828b4d08a0ce0e6a3d02ced1cef8a61f9fdf2bc9eb6e163e327645ae31"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/removals/dfk-old-classifier.py",
+      "bytes": 31687,
+      "sha256": "777c0f151d7e21c24ebab7bb98bb548d7b8f32ac9bbeacb10b25b8fbfb1d54bb"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/ordinary-staged-root/census.stdout.json",
+      "bytes": 9925,
+      "sha256": "0667600a14038b9001129637d9a9d616c32260aa4285e7733ef208ccab5d58c4"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/ordinary-staged-root/census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/ordinary-staged-nested/census.stdout.json",
+      "bytes": 9940,
+      "sha256": "6f2246c38237e19ab539ed2b7bca6eaf876ed2264dbd7e51678f11dcf5c591a7"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/ordinary-staged-nested/census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/ordinary-unstaged-root/census.stdout.json",
+      "bytes": 9925,
+      "sha256": "d880a0266c90d31bb9023515e31e5bade1ee4b9dd3c2e87a5070c220c35eb380"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/ordinary-unstaged-root/census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/ordinary-unstaged-nested/census.stdout.json",
+      "bytes": 9940,
+      "sha256": "2b98eb8c2f6feddc7219db6e947a2d27be79acbd4f9c6c1c7290b5d1d9e4d7c5"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/ordinary-unstaged-nested/census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/added-modified-root/census.stdout.json",
+      "bytes": 10122,
+      "sha256": "c644fc0719cd3626177accf03100b740706958269b949aa0ec380a26b329ecec"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/added-modified-root/census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/added-modified-nested/census.stdout.json",
+      "bytes": 10137,
+      "sha256": "14752043a466c0d7ec3200e4689b00c1f04f1799523b65f3043340c66eb94d4d"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/added-modified-nested/census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/rename-staged-root/census.stdout.json",
+      "bytes": 9869,
+      "sha256": "dab44ef9f285f4e8170e0c98c9f083586f622245c05ce0d786e0d32072b66d58"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/rename-staged-root/census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/rename-staged-nested/census.stdout.json",
+      "bytes": 9884,
+      "sha256": "49fafbcd29975b5738e7b7f28cbccc90d4004023d3d33a2f02254dbcad37b1eb"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/rename-staged-nested/census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/rename-staged-modified-root/census.stdout.json",
+      "bytes": 9869,
+      "sha256": "4ea8abb1c998fc300256bea82abdc3335681203684e59da264e49b7608a8036f"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/rename-staged-modified-root/census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/rename-staged-modified-nested/census.stdout.json",
+      "bytes": 9884,
+      "sha256": "7700d654724793727fa9479d602a2065849dc1730713653234d00014ca69b54b"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/rename-staged-modified-nested/census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/rename-unstaged-root/census.stdout.json",
+      "bytes": 10162,
+      "sha256": "93cf677c87d4510e90a032507355f26733696fed0b55b3ea8a984ad6f9aaa4b9"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/rename-unstaged-root/census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/rename-unstaged-nested/census.stdout.json",
+      "bytes": 10177,
+      "sha256": "36268ebbc74593cee48baf042525f61874da17d9114beb91b7d30f41e66836d8"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/rename-unstaged-nested/census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/copy-staged-root/census.stdout.json",
+      "bytes": 10614,
+      "sha256": "4d6159eb1694902da3f184b0522a3cbd43a304781303fa452c2dff03e4dc72a7"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/copy-staged-root/census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/copy-staged-nested/census.stdout.json",
+      "bytes": 10628,
+      "sha256": "70f4f374d281311c47c13948044c7ab8a0408d98bb18f9de6e92dea4890e8adc"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/copy-staged-nested/census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/copy-staged-modified-root/census.stdout.json",
+      "bytes": 10614,
+      "sha256": "644de7019816733b926fda25f2054a85f69e31d42a7da21a2b8d0b295e0c18de"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/copy-staged-modified-root/census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/copy-staged-modified-nested/census.stdout.json",
+      "bytes": 10628,
+      "sha256": "fea7778e130fd5f66a5aa6530a781bda2f39e796e3e775055391a551942f9274"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/copy-staged-modified-nested/census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/copy-unstaged-root/census.stdout.json",
+      "bytes": 10614,
+      "sha256": "8c2e3371ec2df5eae251381768167d162201caf6c06b1e188fffc647c92f6f0c"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/copy-unstaged-root/census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/copy-unstaged-nested/census.stdout.json",
+      "bytes": 10628,
+      "sha256": "55c834920293f3138854d969b7029f26ea0420c68108e2af2b6d93690ad2b019"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/copy-unstaged-nested/census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/clean-root/census.stdout.json",
+      "bytes": 9471,
+      "sha256": "39417b41234da6ebed1e0844e31266e10112c31bd8ef4d523d1bfb9d5abd36e6"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/clean-root/census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/clean-nested/census.stdout.json",
+      "bytes": 9486,
+      "sha256": "123683dbcd432314b9bd2085879f9cfa4d86ef573e1d2d4f05948f37ea494299"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-matrix-v3/clean-nested/census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/protocol-child-cli-manifest.json",
+      "bytes": 20079,
+      "sha256": "60bc2395388706d14b87d354da8dd197c1a3ac7d3966514852997656c0191f03"
+    }
+  ],
+  "publishable_lossless_complete_artifacts": [
+    {
+      "complete_lossless_gzip": {
+        "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-census-no-timeout/stdout.txt.gz",
+        "bytes": 1116795,
+        "sha256": "037f41a106a187199b2e8038e527e4316fd3ff9599a53297f082691ab98fdf66"
+      },
+      "decoded_exact": {
+        "path": "/workspace/orch02-native-c06/dfk-census-no-timeout/stdout.txt",
+        "bytes": 6585971,
+        "sha256": "576e21b21cae0a649110b8a6fd681590008fb0ca4077f30a33e710e4329e7467"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "complete_lossless_gzip": {
+        "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/dfk-independent-denominator.json.gz",
+        "bytes": 964116,
+        "sha256": "de9822232db45d21b6b427176f2f026025068e1f110d124cc11155f43cf9cab8"
+      },
+      "decoded_exact": {
+        "path": "/workspace/orch02-native-c06/dfk-independent-denominator.json",
+        "bytes": 4609752,
+        "sha256": "a107db19e7b91267348a5b7b84233a1a69262e7049f914247370324e85fa1f31"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "complete_lossless_gzip": {
+        "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/packages/dfk/archive-manifest.json.gz",
+        "bytes": 647477,
+        "sha256": "aa55a36a7b49d677500654a1c31d546fcdb2fbcb00c062b3ccc3546da7622431"
+      },
+      "decoded_exact": {
+        "path": "/workspace/orch02-native-c06/packages/dfk/archive-manifest.json",
+        "bytes": 2718387,
+        "sha256": "f9fbb87f9ee735be7b4215a6113a5161ff7e6fe9b54af6cae47111083fea650e"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "complete_lossless_gzip": {
+        "path": "/workspace/orch02-native-c06/handoff-evidence/dfk/packages/dfk/rebuilt-wheel-manifest.json.gz",
+        "bytes": 136164,
+        "sha256": "24aacecbc74e1fdf6b07a56a3e35287af506fece3b02e21438090aa75744c307"
+      },
+      "decoded_exact": {
+        "path": "/workspace/orch02-native-c06/packages/dfk/rebuilt-wheel-manifest.json",
+        "bytes": 797459,
+        "sha256": "e43300263d706e3a74b5f9ba6027646a937baba9fffbb5496063c8f8a5f2324d"
+      },
+      "round_trip_verified": true
+    }
+  ],
+  "oversized_reproducible_raw_artifacts": [
+    {
+      "path": "/workspace/orch02-native-c06/packages/dfk/source.tar",
+      "bytes": 460390400,
+      "sha256": "2c3afcbc6607e8de92c17969a0ce149f98dc3207729d71d3a0c9e9c5bdc77d96"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/packages/dfk/dist/policy_engine-0.1.0-py3-none-any.whl",
+      "bytes": 15026245,
+      "sha256": "ff8d45d8e1689bf83449d7a12f04447458b0c1c5f865d7f844d1016d52cbeca3"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/packages/dfk/dist/policy_engine-0.1.0.tar.gz",
+      "bytes": 65104250,
+      "sha256": "fde375fc6502160f50d95e8c9531d519040084529a49b723f7b7520a92f9470d"
+    },
+    {
+      "path": "/workspace/orch02-native-c06/packages/dfk/rebuilt-dist/policy_engine-0.1.0-py3-none-any.whl",
+      "bytes": 15026245,
+      "sha256": "ff8d45d8e1689bf83449d7a12f04447458b0c1c5f865d7f844d1016d52cbeca3"
+    }
+  ],
+  "do_not_commit": "source exports, complete build directories, CAS fixtures, dependency environments, source archives/wheels/sdists; raw path@hash preserved, exact build commands reproducible",
+  "limits": [
+    {
+      "owner": "G/C02/Core",
+      "status": "HELD",
+      "detail": "Raw Core same canon name/version can persist Core-only float_hex/bytes_hex/array_digest tags. Actual CAS examples are admitted by profile, then IR rejects after bytes. Metadata shape/type does not establish tag-set custody; no bypass fix claimed."
+    },
+    {
+      "owner": "G/C02",
+      "status": "HELD",
+      "detail": "Historical profile-less stores are explicitly refused before byte read. Deployment/backward-compatibility policy must be decided by owners."
+    },
+    {
+      "owner": "C02/Core",
+      "status": "UNCHANGED",
+      "detail": "Non-Core adapter option coercion omits tenant_context/same_input_closure/authority/warnings; unchanged producer/adapter contract outside reader delta."
+    },
+    {
+      "owner": "G",
+      "status": "COMPOSED_RERUN_REQUIRED",
+      "detail": "CAN actual native complete observed file-origin denominator 885 compared to G032 has candidate reader IO delta plus loaded foundry/calibration/identifiability older f00 blob aad1abdd89ac8dda43918981bc21f4a9755601a2 vs G blob d0b90fd348a2556b5e23ae8e20409950ad9e712b. Codec/Core/IR/config contour zero delta is not an all-source claim. Candidate-local consumer PASS does not transfer to G composition."
+    },
+    {
+      "owner": "G/external owners",
+      "status": "NOT_ESTABLISHED",
+      "detail": "DFK census selects and reads finite local tracked/untracked text only; runtime-generated/nonliteral, ignored/binary, deployed external/historical clients and N/date/window compatibility sunset remain undecided. Package-member checks are separate evidence, not the scanner asserting installed absence."
+    }
+  ],
+  "retained_harness_version_note": "Successful final v3 protocol harness bytes retained; prior v1 failed oracle and v2 no-explicit-origin run are superseded command/output history, not a claim that final v3 file reproduces those earlier harness revisions."
+}

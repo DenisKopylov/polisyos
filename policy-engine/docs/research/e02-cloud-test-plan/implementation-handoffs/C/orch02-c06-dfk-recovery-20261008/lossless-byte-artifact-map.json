@@ -1,0 +1,52 @@
+[
+  {
+    "raw_published_relative_path": "native-evidence/dfk-native/junit.xml",
+    "raw_bytes": 5033,
+    "raw_sha256": "83949679c2cfe854b925da8921f96f0b02b2c8f27ebd6012a08563fa88603ff6",
+    "lossless_published_path": "native-evidence/dfk-native/junit.xml.gz",
+    "gzip_bytes": 983,
+    "gzip_sha256": "ac5a93ccaa5092d00e47c832b77e95518444cd28d5b451168edc6fb43a8d4174",
+    "roundtrip_verified": true,
+    "reason": "Preserve authentic deciding bytes including original EOF/trailing whitespace while passing repository text whitespace hooks."
+  },
+  {
+    "raw_published_relative_path": "native-evidence/dfk-old-classifier/junit.xml",
+    "raw_bytes": 28998,
+    "raw_sha256": "4de5ce9ed1d5b150c4c85d1ba9cb4b230d83611245437741c8d898abca065e21",
+    "lossless_published_path": "native-evidence/dfk-old-classifier/junit.xml.gz",
+    "gzip_bytes": 2558,
+    "gzip_sha256": "2de3aedf85aa49bad5efd93df0d141964bab18d3d9309b9b0385b9ef61e86fca",
+    "roundtrip_verified": true,
+    "reason": "Preserve authentic deciding bytes including original EOF/trailing whitespace while passing repository text whitespace hooks."
+  },
+  {
+    "raw_published_relative_path": "native-evidence/dfk-old-classifier/stdout.txt",
+    "raw_bytes": 26160,
+    "raw_sha256": "c825a5419c9da338e1346b6ce8676fd73f078413c15a59650d151ae9b1b9427e",
+    "lossless_published_path": "native-evidence/dfk-old-classifier/stdout.txt.gz",
+    "gzip_bytes": 2313,
+    "gzip_sha256": "71345a3e45f5283494a6aa3c0e0f2198effc82997c40ca2d622d233b9d3700ec",
+    "roundtrip_verified": true,
+    "reason": "Preserve authentic deciding bytes including original EOF/trailing whitespace while passing repository text whitespace hooks."
+  },
+  {
+    "raw_published_relative_path": "native-evidence/dfk-rebuilt-consumer/junit.xml",
+    "raw_bytes": 1663,
+    "raw_sha256": "010516908d56515e0a28180db5b548e8ee3f630319caf8ef1166903dd0858ee8",
+    "lossless_published_path": "native-evidence/dfk-rebuilt-consumer/junit.xml.gz",
+    "gzip_bytes": 483,
+    "gzip_sha256": "d29f7a7d4c9ea484706da519bfea3511fd7780c9b5d5bcea8080ef1c31a2055c",
+    "roundtrip_verified": true,
+    "reason": "Preserve authentic deciding bytes including original EOF/trailing whitespace while passing repository text whitespace hooks."
+  },
+  {
+    "raw_published_relative_path": "native-evidence/dfk-wheel-consumer/junit.xml",
+    "raw_bytes": 1663,
+    "raw_sha256": "0581814cac60cee68d80e13d2d18f9fcc0eb81c46942dc386258c837aa5b9144",
+    "lossless_published_path": "native-evidence/dfk-wheel-consumer/junit.xml.gz",
+    "gzip_bytes": 487,
+    "gzip_sha256": "6434a6fa5b2cc45381203e9ef4e02bbd8a9c100541a67e1ab95807a7194f090e",
+    "roundtrip_verified": true,
+    "reason": "Preserve authentic deciding bytes including original EOF/trailing whitespace while passing repository text whitespace hooks."
+  }
+]

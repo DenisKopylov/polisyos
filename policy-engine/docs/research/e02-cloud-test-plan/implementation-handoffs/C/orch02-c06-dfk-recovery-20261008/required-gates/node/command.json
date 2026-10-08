@@ -1,0 +1,38 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm",
+    "install",
+    "--frozen-lockfile",
+    "--ignore-scripts"
+  ],
+  "cwd": "/workspace/orch02-c06-dfk/policy-engine",
+  "start_utc": "2026-10-08T16:19:37.887325+00:00",
+  "end_utc": "2026-10-08T16:20:36.320488+00:00",
+  "wall_seconds": 58.43294006799988,
+  "max_rss_kib": 588292,
+  "user_seconds": 24.066252,
+  "system_seconds": 6.915433,
+  "timeout_seconds": null,
+  "timeout": false,
+  "returncode": 0,
+  "selected_environment": {
+    "PYTHONPATH": null,
+    "PYTHONDONTWRITEBYTECODE": null,
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+    "JAX_PLATFORMS": null,
+    "JAX_PLATFORM_NAME": null,
+    "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+    "UV_PROJECT_ENVIRONMENT": null
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 4294,
+      "sha256": "c90ca1181280643168f987f6565400341fe089db3208a80dcb3e6f76f54527da"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

@@ -1,0 +1,4367 @@
+{
+  "source_commit": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+  "source_sha256": "02e9123c9be4606840cedad30504417a9e5fe46235437ce0003df7264e9ecff2",
+  "origins": [
+    {
+      "module": "tools",
+      "origin": "/workspace/orch02-c06-dfk/policy-engine/tools/__init__.py",
+      "sha256": "f39a12d36e0893e3c32f5ca3a4ae31abda986629a8d2113debb8325318dc0aa3"
+    },
+    {
+      "module": "tools.lib",
+      "origin": "/workspace/orch02-c06-dfk/policy-engine/tools/lib/__init__.py",
+      "sha256": "98a4ac5172a956abac2586bfeb819f86d3d64e09eef960d26d9263e12bf80035"
+    },
+    {
+      "module": "tools.lib.fs",
+      "origin": "/workspace/orch02-c06-dfk/policy-engine/tools/lib/fs.py",
+      "sha256": "d0ec5e12b7762027051614290cf4e21b09dc3602e371a040f9d7ffcd38a8193f"
+    },
+    {
+      "module": "tools.lib.imports",
+      "origin": "/workspace/orch02-c06-dfk/policy-engine/tools/lib/imports.py",
+      "sha256": "f04010c5a61accc638d01ffcb0eceb788730eea4b1d74d015eadeed413951f95"
+    },
+    {
+      "module": "tools.lib.output",
+      "origin": "/workspace/orch02-c06-dfk/policy-engine/tools/lib/output.py",
+      "sha256": "6c86cefdfdc54962ab851d87adbfbad6e682e33cbff6fbb90858fca70cac8a16"
+    },
+    {
+      "module": "tools.lib.preflight",
+      "origin": "/workspace/orch02-c06-dfk/policy-engine/tools/lib/preflight.py",
+      "sha256": "139d9177be3805a62a13264e9749f31fca40d8066b14d4848afa0aae905fd381"
+    },
+    {
+      "module": "tools.lib.runner",
+      "origin": "/workspace/orch02-c06-dfk/policy-engine/tools/lib/runner.py",
+      "sha256": "086c42d85d5807deb6bf06a0161c2f42f828cae94ac17aafcd58347c16879a2c"
+    },
+    {
+      "module": "tools.lib.sql",
+      "origin": "/workspace/orch02-c06-dfk/policy-engine/tools/lib/sql.py",
+      "sha256": "c27f47e76664a20344cb37dabaea9ceaf795a8a871e948cda1844ede2ca8d9ff"
+    },
+    {
+      "module": "tools.lib.timing",
+      "origin": "/workspace/orch02-c06-dfk/policy-engine/tools/lib/timing.py",
+      "sha256": "06c5c71d11ad5f905943fd9ac0f5db4c27feb9588fa55e1cedf2c0ab9ac665c2"
+    }
+  ],
+  "cases": [
+    {
+      "mode": "ordinary-staged",
+      "nested": false,
+      "fixture": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-root",
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "init",
+            "--quiet"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.email",
+            "fixture@example.invalid"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.name",
+            "Fixture"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "status.renames",
+            "copies"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture base"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "-z",
+            "--untracked-files=all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-root",
+          "stdout_hex": "4d2020636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e004d2020636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-root",
+          "stdout_hex": "636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-root",
+          "stdout_hex": "3a3130303634342031303036343420623534313232652031323431373934204d00636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e003a3130303634342031303036343420303936376566342031323431373934204d00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        }
+      ],
+      "parsed_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/03 sentinel.json"
+      ],
+      "oracle": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/03 sentinel.json"
+      ],
+      "selected_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/03 sentinel.json"
+      ],
+      "parser_metadata": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "5f34ed37dd2873eaff134eae6be24b76487ea372f25a5355755bdfd492a6c44f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 65,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": ""
+      },
+      "census_stdout_sha256": "0667600a14038b9001129637d9a9d616c32260aa4285e7733ef208ccab5d58c4",
+      "result": "PASS"
+    },
+    {
+      "mode": "ordinary-staged",
+      "nested": true,
+      "fixture": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-nested",
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "init",
+            "--quiet"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.email",
+            "fixture@example.invalid"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.name",
+            "Fixture"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "status.renames",
+            "copies"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture base"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "-z",
+            "--untracked-files=all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-nested",
+          "stdout_hex": "204d206f7574736964652e6a736f6e004d2020706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e004d2020706f6c6963792d656e67696e652f636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-nested/policy-engine",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-nested/policy-engine",
+          "stdout_hex": "636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-nested/policy-engine",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-nested",
+          "stdout_hex": "3a3130303634342031303036343420623534313232652031323431373934204d00706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e003a3130303634342031303036343420303936376566342031323431373934204d00706f6c6963792d656e67696e652f636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-nested",
+          "stdout_hex": "3a3130303634342031303036343420303936376566342030303030303030204d006f7574736964652e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        }
+      ],
+      "parsed_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/03 sentinel.json"
+      ],
+      "oracle": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/03 sentinel.json"
+      ],
+      "selected_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/03 sentinel.json"
+      ],
+      "parser_metadata": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "f08099bb7199cbb31341468da1a404087a9b3a1bf7b1e8350a592176f5351b4f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 109,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "5a0a7a62a97dba80f1c0674f0698c51a88019eef0926b84656eb56a8deb8f56a",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": "policy-engine/"
+      },
+      "census_stdout_sha256": "6f2246c38237e19ab539ed2b7bca6eaf876ed2264dbd7e51678f11dcf5c591a7",
+      "result": "PASS"
+    },
+    {
+      "mode": "ordinary-unstaged",
+      "nested": false,
+      "fixture": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-root",
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "init",
+            "--quiet"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.email",
+            "fixture@example.invalid"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.name",
+            "Fixture"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "status.renames",
+            "copies"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture base"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "-z",
+            "--untracked-files=all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-root",
+          "stdout_hex": "204d20636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00204d20636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-root",
+          "stdout_hex": "636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-root",
+          "stdout_hex": "3a3130303634342031303036343420623534313232652030303030303030204d00636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e003a3130303634342031303036343420303936376566342030303030303030204d00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        }
+      ],
+      "parsed_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/03 sentinel.json"
+      ],
+      "oracle": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/03 sentinel.json"
+      ],
+      "selected_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/03 sentinel.json"
+      ],
+      "parser_metadata": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "c6dfee6f08788ca3873a71585abe3f565ff26fdfea23dab3fb54c0f00aaf799a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 65,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": ""
+      },
+      "census_stdout_sha256": "d880a0266c90d31bb9023515e31e5bade1ee4b9dd3c2e87a5070c220c35eb380",
+      "result": "PASS"
+    },
+    {
+      "mode": "ordinary-unstaged",
+      "nested": true,
+      "fixture": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-nested",
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "init",
+            "--quiet"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.email",
+            "fixture@example.invalid"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.name",
+            "Fixture"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "status.renames",
+            "copies"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture base"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "-z",
+            "--untracked-files=all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-nested",
+          "stdout_hex": "204d206f7574736964652e6a736f6e00204d20706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00204d20706f6c6963792d656e67696e652f636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-nested/policy-engine",
+          "stdout_hex": "636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-nested/policy-engine",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-nested/policy-engine",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-nested",
+          "stdout_hex": "3a3130303634342031303036343420303936376566342030303030303030204d006f7574736964652e6a736f6e003a3130303634342031303036343420623534313232652030303030303030204d00706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e003a3130303634342031303036343420303936376566342030303030303030204d00706f6c6963792d656e67696e652f636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        }
+      ],
+      "parsed_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/03 sentinel.json"
+      ],
+      "oracle": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/03 sentinel.json"
+      ],
+      "selected_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/03 sentinel.json"
+      ],
+      "parser_metadata": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "d5e829249179dd1570c2732374af7af25b3461d585b166e11f1cccd2b627cd07",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 109,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "5a0a7a62a97dba80f1c0674f0698c51a88019eef0926b84656eb56a8deb8f56a",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": "policy-engine/"
+      },
+      "census_stdout_sha256": "2b98eb8c2f6feddc7219db6e947a2d27be79acbd4f9c6c1c7290b5d1d9e4d7c5",
+      "result": "PASS"
+    },
+    {
+      "mode": "added-modified",
+      "nested": false,
+      "fixture": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-root",
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "init",
+            "--quiet"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.email",
+            "fixture@example.invalid"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.name",
+            "Fixture"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "status.renames",
+            "copies"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture base"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "-z",
+            "--untracked-files=all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-root",
+          "stdout_hex": "414d20636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00414d20636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-root",
+          "stdout_hex": "636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-root",
+          "stdout_hex": "636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-root",
+          "stdout_hex": "3a3130303634342031303036343420303936376566342030393637656634204331303000626173652e6a736f6e00636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e003a3130303634342031303036343420303936376566342030393637656634204331303000626173652e6a736f6e00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-root",
+          "stdout_hex": "3a3130303634342031303036343420303936376566342030303030303030204d00636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e003a3130303634342031303036343420303936376566342030303030303030204d00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        }
+      ],
+      "parsed_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/03 sentinel.json"
+      ],
+      "oracle": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/03 sentinel.json"
+      ],
+      "selected_paths": [
+        "base.json",
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/03 sentinel.json"
+      ],
+      "parser_metadata": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "2ae3ee868c9f7fc053635fd49422384d8de06b414d062864dd3897eb9d6928f3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 65,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": ""
+      },
+      "census_stdout_sha256": "c644fc0719cd3626177accf03100b740706958269b949aa0ec380a26b329ecec",
+      "result": "PASS"
+    },
+    {
+      "mode": "added-modified",
+      "nested": true,
+      "fixture": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-nested",
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "init",
+            "--quiet"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.email",
+            "fixture@example.invalid"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.name",
+            "Fixture"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "status.renames",
+            "copies"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture base"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "-z",
+            "--untracked-files=all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-nested",
+          "stdout_hex": "204d206f7574736964652e6a736f6e00414d20706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00414d20706f6c6963792d656e67696e652f636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-nested/policy-engine",
+          "stdout_hex": "636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-nested/policy-engine",
+          "stdout_hex": "636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-nested/policy-engine",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-nested",
+          "stdout_hex": "3a31303036343420313030363434203039363765663420303936376566342043313030006f7574736964652e6a736f6e00706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e003a31303036343420313030363434203039363765663420303936376566342043313030006f7574736964652e6a736f6e00706f6c6963792d656e67696e652f636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-nested",
+          "stdout_hex": "3a3130303634342031303036343420303936376566342030303030303030204d006f7574736964652e6a736f6e003a3130303634342031303036343420303936376566342030303030303030204d00706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e003a3130303634342031303036343420303936376566342030303030303030204d00706f6c6963792d656e67696e652f636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        }
+      ],
+      "parsed_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/03 sentinel.json"
+      ],
+      "oracle": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/03 sentinel.json"
+      ],
+      "selected_paths": [
+        "base.json",
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/03 sentinel.json"
+      ],
+      "parser_metadata": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "7114673c6ec91f56a81060924594c315d1f19ebd21d1cd6e518e74dba2a9bf5d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 109,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "5a0a7a62a97dba80f1c0674f0698c51a88019eef0926b84656eb56a8deb8f56a",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": "policy-engine/"
+      },
+      "census_stdout_sha256": "14752043a466c0d7ec3200e4689b00c1f04f1799523b65f3043340c66eb94d4d",
+      "result": "PASS"
+    },
+    {
+      "mode": "rename-staged",
+      "nested": false,
+      "fixture": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-root",
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "init",
+            "--quiet"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.email",
+            "fixture@example.invalid"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.name",
+            "Fixture"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "status.renames",
+            "copies"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture base"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "mv",
+            "--",
+            "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+            "configs/02 copy space.json"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "-z",
+            "--untracked-files=all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-root",
+          "stdout_hex": "522020636f6e666967732f303220636f70792073706163652e6a736f6e00636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00204d20636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-root",
+          "stdout_hex": "636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-root",
+          "stdout_hex": "636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f303220636f70792073706163652e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-root",
+          "stdout_hex": "3a3130303634342031303036343420623534313232652062353431323265205231303000636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f303220636f70792073706163652e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-root",
+          "stdout_hex": "3a3130303634342031303036343420303936376566342030303030303030204d00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        }
+      ],
+      "parsed_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "oracle": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "selected_paths": [
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "parser_metadata": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "70749d4a0b4a4c10e27e9a6c9af7840817a18dd08ebbc5ca13400f77c7d78bce",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 92,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": ""
+      },
+      "census_stdout_sha256": "dab44ef9f285f4e8170e0c98c9f083586f622245c05ce0d786e0d32072b66d58",
+      "result": "PASS"
+    },
+    {
+      "mode": "rename-staged",
+      "nested": true,
+      "fixture": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-nested",
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "init",
+            "--quiet"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.email",
+            "fixture@example.invalid"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.name",
+            "Fixture"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "status.renames",
+            "copies"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture base"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "mv",
+            "--",
+            "policy-engine/configs/01 original\n\u043f\u0443\u0442\u044c.json",
+            "policy-engine/configs/02 copy space.json"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "-z",
+            "--untracked-files=all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-nested",
+          "stdout_hex": "204d206f7574736964652e6a736f6e00522020706f6c6963792d656e67696e652f636f6e666967732f303220636f70792073706163652e6a736f6e00706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00204d20706f6c6963792d656e67696e652f636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-nested/policy-engine",
+          "stdout_hex": "636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-nested/policy-engine",
+          "stdout_hex": "636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f303220636f70792073706163652e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-nested/policy-engine",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-nested",
+          "stdout_hex": "3a3130303634342031303036343420623534313232652062353431323265205231303000706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00706f6c6963792d656e67696e652f636f6e666967732f303220636f70792073706163652e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-nested",
+          "stdout_hex": "3a3130303634342031303036343420303936376566342030303030303030204d006f7574736964652e6a736f6e003a3130303634342031303036343420303936376566342030303030303030204d00706f6c6963792d656e67696e652f636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        }
+      ],
+      "parsed_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "oracle": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "selected_paths": [
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "parser_metadata": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "c38dbddefe47ecbd83561ca8f280f769f4ab5699aae02396cadceb877952776b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 150,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "5a0a7a62a97dba80f1c0674f0698c51a88019eef0926b84656eb56a8deb8f56a",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": "policy-engine/"
+      },
+      "census_stdout_sha256": "49fafbcd29975b5738e7b7f28cbccc90d4004023d3d33a2f02254dbcad37b1eb",
+      "result": "PASS"
+    },
+    {
+      "mode": "rename-staged-modified",
+      "nested": false,
+      "fixture": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-root",
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "init",
+            "--quiet"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.email",
+            "fixture@example.invalid"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.name",
+            "Fixture"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "status.renames",
+            "copies"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture base"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "mv",
+            "--",
+            "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+            "configs/02 copy space.json"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "-z",
+            "--untracked-files=all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-root",
+          "stdout_hex": "524d20636f6e666967732f303220636f70792073706163652e6a736f6e00636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00204d20636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-root",
+          "stdout_hex": "636f6e666967732f303220636f70792073706163652e6a736f6e00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-root",
+          "stdout_hex": "636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f303220636f70792073706163652e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-root",
+          "stdout_hex": "3a3130303634342031303036343420623534313232652062353431323265205231303000636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f303220636f70792073706163652e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-root",
+          "stdout_hex": "3a3130303634342031303036343420623534313232652030303030303030204d00636f6e666967732f303220636f70792073706163652e6a736f6e003a3130303634342031303036343420303936376566342030303030303030204d00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        }
+      ],
+      "parsed_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "oracle": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "selected_paths": [
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "parser_metadata": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "8e8c8995f3ffd6336d1524863a6b59d234fe6ed2e6d19494a7122d4d66d2da22",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 92,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": ""
+      },
+      "census_stdout_sha256": "4ea8abb1c998fc300256bea82abdc3335681203684e59da264e49b7608a8036f",
+      "result": "PASS"
+    },
+    {
+      "mode": "rename-staged-modified",
+      "nested": true,
+      "fixture": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-nested",
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "init",
+            "--quiet"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.email",
+            "fixture@example.invalid"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.name",
+            "Fixture"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "status.renames",
+            "copies"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture base"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "mv",
+            "--",
+            "policy-engine/configs/01 original\n\u043f\u0443\u0442\u044c.json",
+            "policy-engine/configs/02 copy space.json"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "-z",
+            "--untracked-files=all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-nested",
+          "stdout_hex": "204d206f7574736964652e6a736f6e00524d20706f6c6963792d656e67696e652f636f6e666967732f303220636f70792073706163652e6a736f6e00706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00204d20706f6c6963792d656e67696e652f636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-nested/policy-engine",
+          "stdout_hex": "636f6e666967732f303220636f70792073706163652e6a736f6e00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-nested/policy-engine",
+          "stdout_hex": "636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f303220636f70792073706163652e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-nested/policy-engine",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-nested",
+          "stdout_hex": "3a3130303634342031303036343420623534313232652062353431323265205231303000706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00706f6c6963792d656e67696e652f636f6e666967732f303220636f70792073706163652e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-nested",
+          "stdout_hex": "3a3130303634342031303036343420303936376566342030303030303030204d006f7574736964652e6a736f6e003a3130303634342031303036343420623534313232652030303030303030204d00706f6c6963792d656e67696e652f636f6e666967732f303220636f70792073706163652e6a736f6e003a3130303634342031303036343420303936376566342030303030303030204d00706f6c6963792d656e67696e652f636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        }
+      ],
+      "parsed_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "oracle": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "selected_paths": [
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "parser_metadata": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "93745005108acd05775acb79e65a6d6df7617e89c4b18aa11932d811852ff9cf",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 150,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "5a0a7a62a97dba80f1c0674f0698c51a88019eef0926b84656eb56a8deb8f56a",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": "policy-engine/"
+      },
+      "census_stdout_sha256": "7700d654724793727fa9479d602a2065849dc1730713653234d00014ca69b54b",
+      "result": "PASS"
+    },
+    {
+      "mode": "rename-unstaged",
+      "nested": false,
+      "fixture": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-root",
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "init",
+            "--quiet"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.email",
+            "fixture@example.invalid"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.name",
+            "Fixture"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "status.renames",
+            "copies"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture base"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "-N",
+            "--",
+            "configs/02 copy space.json"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "-z",
+            "--untracked-files=all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-root",
+          "stdout_hex": "205220636f6e666967732f303220636f70792073706163652e6a736f6e00636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00204d20636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-root",
+          "stdout_hex": "636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f303220636f70792073706163652e6a736f6e00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-root",
+          "stdout_hex": "3a3130303634342031303036343420623534313232652062353431323265205231303000636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f303220636f70792073706163652e6a736f6e003a3130303634342031303036343420303936376566342030303030303030204d00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        }
+      ],
+      "parsed_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "oracle": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "selected_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "parser_metadata": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "486847ac294a513b30daf92528ab9b6d7543aa8be9c6aaeeeb473d38909563da",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 92,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": ""
+      },
+      "census_stdout_sha256": "93cf677c87d4510e90a032507355f26733696fed0b55b3ea8a984ad6f9aaa4b9",
+      "result": "PASS"
+    },
+    {
+      "mode": "rename-unstaged",
+      "nested": true,
+      "fixture": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-nested",
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "init",
+            "--quiet"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.email",
+            "fixture@example.invalid"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.name",
+            "Fixture"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "status.renames",
+            "copies"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture base"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "-N",
+            "--",
+            "policy-engine/configs/02 copy space.json"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "-z",
+            "--untracked-files=all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-nested",
+          "stdout_hex": "204d206f7574736964652e6a736f6e00205220706f6c6963792d656e67696e652f636f6e666967732f303220636f70792073706163652e6a736f6e00706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00204d20706f6c6963792d656e67696e652f636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-nested/policy-engine",
+          "stdout_hex": "636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f303220636f70792073706163652e6a736f6e00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-nested/policy-engine",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-nested/policy-engine",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-nested",
+          "stdout_hex": "3a3130303634342031303036343420303936376566342030303030303030204d006f7574736964652e6a736f6e003a3130303634342031303036343420623534313232652062353431323265205231303000706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00706f6c6963792d656e67696e652f636f6e666967732f303220636f70792073706163652e6a736f6e003a3130303634342031303036343420303936376566342030303030303030204d00706f6c6963792d656e67696e652f636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        }
+      ],
+      "parsed_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "oracle": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "selected_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "parser_metadata": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "2bfe2275b6048050d7b321b848dc3c3141264a1b4f922dab9502b1f7998a5ba9",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 150,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "5a0a7a62a97dba80f1c0674f0698c51a88019eef0926b84656eb56a8deb8f56a",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": "policy-engine/"
+      },
+      "census_stdout_sha256": "36268ebbc74593cee48baf042525f61874da17d9114beb91b7d30f41e66836d8",
+      "result": "PASS"
+    },
+    {
+      "mode": "copy-staged",
+      "nested": false,
+      "fixture": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-root",
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "init",
+            "--quiet"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.email",
+            "fixture@example.invalid"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.name",
+            "Fixture"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "status.renames",
+            "copies"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture base"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "-z",
+            "--untracked-files=all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-root",
+          "stdout_hex": "4d2020636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00432020636f6e666967732f303220636f70792073706163652e6a736f6e00636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00204d20636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-root",
+          "stdout_hex": "636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-root",
+          "stdout_hex": "636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f303220636f70792073706163652e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-root",
+          "stdout_hex": "3a3130303634342031303036343420623534313232652031323431373934204d00636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e003a3130303634342031303036343420623534313232652062353431323265204331303000636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f303220636f70792073706163652e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-root",
+          "stdout_hex": "3a3130303634342031303036343420303936376566342030303030303030204d00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        }
+      ],
+      "parsed_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "oracle": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "selected_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "parser_metadata": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "ed641448d91c2d918657db09297e894bd45c9ff0a90367cf5209a6f05265a083",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 129,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": ""
+      },
+      "census_stdout_sha256": "4d6159eb1694902da3f184b0522a3cbd43a304781303fa452c2dff03e4dc72a7",
+      "result": "PASS"
+    },
+    {
+      "mode": "copy-staged",
+      "nested": true,
+      "fixture": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-nested",
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "init",
+            "--quiet"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.email",
+            "fixture@example.invalid"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.name",
+            "Fixture"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "status.renames",
+            "copies"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture base"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "-z",
+            "--untracked-files=all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-nested",
+          "stdout_hex": "204d206f7574736964652e6a736f6e004d2020706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00432020706f6c6963792d656e67696e652f636f6e666967732f303220636f70792073706163652e6a736f6e00706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00204d20706f6c6963792d656e67696e652f636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-nested/policy-engine",
+          "stdout_hex": "636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-nested/policy-engine",
+          "stdout_hex": "636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f303220636f70792073706163652e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-nested/policy-engine",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-nested",
+          "stdout_hex": "3a3130303634342031303036343420623534313232652031323431373934204d00706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e003a3130303634342031303036343420623534313232652062353431323265204331303000706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00706f6c6963792d656e67696e652f636f6e666967732f303220636f70792073706163652e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-nested",
+          "stdout_hex": "3a3130303634342031303036343420303936376566342030303030303030204d006f7574736964652e6a736f6e003a3130303634342031303036343420303936376566342030303030303030204d00706f6c6963792d656e67696e652f636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        }
+      ],
+      "parsed_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "oracle": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "selected_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "parser_metadata": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "e1183769f4e460923d5c80882a21fcaad897e63526900fcbd46fa875c2ac8e42",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 201,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "5a0a7a62a97dba80f1c0674f0698c51a88019eef0926b84656eb56a8deb8f56a",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": "policy-engine/"
+      },
+      "census_stdout_sha256": "70f4f374d281311c47c13948044c7ab8a0408d98bb18f9de6e92dea4890e8adc",
+      "result": "PASS"
+    },
+    {
+      "mode": "copy-staged-modified",
+      "nested": false,
+      "fixture": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-root",
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "init",
+            "--quiet"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.email",
+            "fixture@example.invalid"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.name",
+            "Fixture"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "status.renames",
+            "copies"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture base"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "-z",
+            "--untracked-files=all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-root",
+          "stdout_hex": "4d2020636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00434d20636f6e666967732f303220636f70792073706163652e6a736f6e00636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00204d20636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-root",
+          "stdout_hex": "636f6e666967732f303220636f70792073706163652e6a736f6e00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-root",
+          "stdout_hex": "636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f303220636f70792073706163652e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-root",
+          "stdout_hex": "3a3130303634342031303036343420623534313232652031323431373934204d00636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e003a3130303634342031303036343420623534313232652062353431323265204331303000636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f303220636f70792073706163652e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-root",
+          "stdout_hex": "3a3130303634342031303036343420623534313232652030303030303030204d00636f6e666967732f303220636f70792073706163652e6a736f6e003a3130303634342031303036343420303936376566342030303030303030204d00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        }
+      ],
+      "parsed_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "oracle": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "selected_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "parser_metadata": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "6e17136e7ac83e1678f099108fa1c4d0b1e6f633b28215c80f6b37b448802dcf",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 129,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": ""
+      },
+      "census_stdout_sha256": "644de7019816733b926fda25f2054a85f69e31d42a7da21a2b8d0b295e0c18de",
+      "result": "PASS"
+    },
+    {
+      "mode": "copy-staged-modified",
+      "nested": true,
+      "fixture": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-nested",
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "init",
+            "--quiet"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.email",
+            "fixture@example.invalid"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.name",
+            "Fixture"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "status.renames",
+            "copies"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture base"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "-z",
+            "--untracked-files=all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-nested",
+          "stdout_hex": "204d206f7574736964652e6a736f6e004d2020706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00434d20706f6c6963792d656e67696e652f636f6e666967732f303220636f70792073706163652e6a736f6e00706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00204d20706f6c6963792d656e67696e652f636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-nested/policy-engine",
+          "stdout_hex": "636f6e666967732f303220636f70792073706163652e6a736f6e00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-nested/policy-engine",
+          "stdout_hex": "636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f303220636f70792073706163652e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-nested/policy-engine",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-nested",
+          "stdout_hex": "3a3130303634342031303036343420623534313232652031323431373934204d00706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e003a3130303634342031303036343420623534313232652062353431323265204331303000706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00706f6c6963792d656e67696e652f636f6e666967732f303220636f70792073706163652e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-nested",
+          "stdout_hex": "3a3130303634342031303036343420303936376566342030303030303030204d006f7574736964652e6a736f6e003a3130303634342031303036343420623534313232652030303030303030204d00706f6c6963792d656e67696e652f636f6e666967732f303220636f70792073706163652e6a736f6e003a3130303634342031303036343420303936376566342030303030303030204d00706f6c6963792d656e67696e652f636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        }
+      ],
+      "parsed_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "oracle": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "selected_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "parser_metadata": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "7800c6f6b43b20f71af872469b498cecb7d4a1e5f38018f2d7560db0961cb72b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 201,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "5a0a7a62a97dba80f1c0674f0698c51a88019eef0926b84656eb56a8deb8f56a",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": "policy-engine/"
+      },
+      "census_stdout_sha256": "fea7778e130fd5f66a5aa6530a781bda2f39e796e3e775055391a551942f9274",
+      "result": "PASS"
+    },
+    {
+      "mode": "copy-unstaged",
+      "nested": false,
+      "fixture": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-root",
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "init",
+            "--quiet"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.email",
+            "fixture@example.invalid"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.name",
+            "Fixture"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "status.renames",
+            "copies"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture base"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "-N",
+            "--",
+            "configs/02 copy space.json"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "-z",
+            "--untracked-files=all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-root",
+          "stdout_hex": "204d20636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00204320636f6e666967732f303220636f70792073706163652e6a736f6e00636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00204d20636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-root",
+          "stdout_hex": "636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f303220636f70792073706163652e6a736f6e00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-root",
+          "stdout_hex": "3a3130303634342031303036343420623534313232652030303030303030204d00636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e003a3130303634342031303036343420623534313232652062353431323265204331303000636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f303220636f70792073706163652e6a736f6e003a3130303634342031303036343420303936376566342030303030303030204d00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        }
+      ],
+      "parsed_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "oracle": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "selected_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "parser_metadata": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "9fab41c6f1e87c105112184c13fd1fc32018df2ad161dfa0c1435d05465ac662",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 129,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": ""
+      },
+      "census_stdout_sha256": "8c2e3371ec2df5eae251381768167d162201caf6c06b1e188fffc647c92f6f0c",
+      "result": "PASS"
+    },
+    {
+      "mode": "copy-unstaged",
+      "nested": true,
+      "fixture": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-nested",
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "init",
+            "--quiet"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.email",
+            "fixture@example.invalid"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.name",
+            "Fixture"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "status.renames",
+            "copies"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture base"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "-N",
+            "--",
+            "policy-engine/configs/02 copy space.json"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "-z",
+            "--untracked-files=all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-nested",
+          "stdout_hex": "204d206f7574736964652e6a736f6e00204d20706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00204320706f6c6963792d656e67696e652f636f6e666967732f303220636f70792073706163652e6a736f6e00706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00204d20706f6c6963792d656e67696e652f636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-nested/policy-engine",
+          "stdout_hex": "636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00636f6e666967732f303220636f70792073706163652e6a736f6e00636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-nested/policy-engine",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-nested/policy-engine",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-nested",
+          "stdout_hex": "3a3130303634342031303036343420303936376566342030303030303030204d006f7574736964652e6a736f6e003a3130303634342031303036343420623534313232652030303030303030204d00706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e003a3130303634342031303036343420623534313232652062353431323265204331303000706f6c6963792d656e67696e652f636f6e666967732f3031206f726967696e616c0ad0bfd183d182d18c2e6a736f6e00706f6c6963792d656e67696e652f636f6e666967732f303220636f70792073706163652e6a736f6e003a3130303634342031303036343420303936376566342030303030303030204d00706f6c6963792d656e67696e652f636f6e666967732f30332073656e74696e656c2e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        }
+      ],
+      "parsed_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "oracle": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "selected_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/02 copy space.json",
+        "configs/03 sentinel.json"
+      ],
+      "parser_metadata": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "0b776c4a4a028a10ad111e357064e373212a8022b0b73a990a3be0d3c66efe55",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 201,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "5a0a7a62a97dba80f1c0674f0698c51a88019eef0926b84656eb56a8deb8f56a",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": "policy-engine/"
+      },
+      "census_stdout_sha256": "55c834920293f3138854d969b7029f26ea0420c68108e2af2b6d93690ad2b019",
+      "result": "PASS"
+    },
+    {
+      "mode": "clean",
+      "nested": false,
+      "fixture": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-root",
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "init",
+            "--quiet"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.email",
+            "fixture@example.invalid"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.name",
+            "Fixture"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "status.renames",
+            "copies"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture base"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "-z",
+            "--untracked-files=all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-root",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        }
+      ],
+      "parsed_paths": [],
+      "oracle": [],
+      "selected_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/03 sentinel.json"
+      ],
+      "parser_metadata": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": ""
+      },
+      "census_stdout_sha256": "39417b41234da6ebed1e0844e31266e10112c31bd8ef4d523d1bfb9d5abd36e6",
+      "result": "PASS"
+    },
+    {
+      "mode": "clean",
+      "nested": true,
+      "fixture": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-nested",
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "init",
+            "--quiet"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.email",
+            "fixture@example.invalid"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "user.name",
+            "Fixture"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "config",
+            "status.renames",
+            "copies"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "add",
+            "--all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture base"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "-z",
+            "--untracked-files=all"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-nested",
+          "stdout_hex": "204d206f7574736964652e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-nested/policy-engine",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--relative",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-nested/policy-engine",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "."
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-nested/policy-engine",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-nested",
+          "stdout_hex": "",
+          "stderr_hex": "",
+          "returncode": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--raw",
+            "-z",
+            "-C",
+            "--find-copies-harder"
+          ],
+          "cwd": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-nested",
+          "stdout_hex": "3a3130303634342031303036343420303936376566342030303030303030204d006f7574736964652e6a736f6e00",
+          "stderr_hex": "",
+          "returncode": 0
+        }
+      ],
+      "parsed_paths": [],
+      "oracle": [],
+      "selected_paths": [
+        "configs/01 original\n\u043f\u0443\u0442\u044c.json",
+        "configs/03 sentinel.json"
+      ],
+      "parser_metadata": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain=v1",
+          "-z",
+          "--untracked-files=all"
+        ],
+        "returncode": 0,
+        "stdout_sha256": "c47bc91336ba7dc95e8edc9287dab1efa3735396745e9decb7964660230bc2fb",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 16,
+        "stderr_bytes": 0,
+        "prefix_command": [
+          "git",
+          "rev-parse",
+          "--show-prefix"
+        ],
+        "prefix_returncode": 0,
+        "prefix_stdout_sha256": "5a0a7a62a97dba80f1c0674f0698c51a88019eef0926b84656eb56a8deb8f56a",
+        "prefix_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix": "policy-engine/"
+      },
+      "census_stdout_sha256": "123683dbcd432314b9bd2085879f9cfa4d86ef573e1d2d4f05948f37ea494299",
+      "result": "PASS"
+    }
+  ]
+}

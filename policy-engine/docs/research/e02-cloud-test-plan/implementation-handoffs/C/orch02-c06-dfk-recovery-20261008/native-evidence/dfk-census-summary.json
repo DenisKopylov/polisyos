@@ -1,0 +1,102 @@
+{
+  "schema": "polisyos.schema_fqn_census.v2",
+  "result": "complete_for_selected_local_text_inputs",
+  "selection_counts": {
+    "excluded_path_count": 95,
+    "ignored_path_count": 11,
+    "ignored_paths_total_candidate_count": 2,
+    "selected_path_count": 13650,
+    "tracked_path_count": 13745,
+    "untracked_path_count": 0
+  },
+  "working_tree_changes": [],
+  "scanned_denominator": {
+    "decoded_suffix_counts": {
+      ".blob": 11,
+      ".cfg": 1,
+      ".cjs": 9,
+      ".css": 17,
+      ".csv": 15,
+      ".cypher": 2,
+      ".example": 3,
+      ".fixture": 2,
+      ".html": 3,
+      ".ini": 11,
+      ".js": 4,
+      ".json": 2985,
+      ".jsonc": 1,
+      ".jsonl": 14,
+      ".lock": 1,
+      ".log": 20,
+      ".md": 2145,
+      ".mdc": 1,
+      ".mjs": 40,
+      ".patch": 2,
+      ".py": 6442,
+      ".pyi": 5,
+      ".rego": 23,
+      ".reproducible": 1,
+      ".retired": 1,
+      ".sh": 45,
+      ".sha256": 1,
+      ".sql": 6,
+      ".svg": 18,
+      ".tf": 1,
+      ".tmpl": 7,
+      ".toml": 265,
+      ".tpl": 1,
+      ".ts": 519,
+      ".tsv": 6,
+      ".tsx": 720,
+      ".txt": 116,
+      ".typed": 2,
+      ".xml": 20,
+      ".yaml": 85,
+      ".yml": 54,
+      "<no suffix>": 25
+    },
+    "decoded_utf8_inputs": 13650,
+    "selected_paths": 13650,
+    "successful_byte_reads": 13650
+  },
+  "read_complete": true,
+  "read_input_count": 13650,
+  "matches": 1334,
+  "unresolved": [
+    {
+      "class": "unresolved_runtime_dispatch",
+      "detail": "Static AST inspection cannot resolve runtime-computed module names, loader arguments, or effects of arbitrary code.",
+      "status": "present"
+    },
+    {
+      "class": "unselected_ignored_inputs",
+      "detail": "Ignored files are enumerated by Git and deliberately not read; ignored candidate path names are listed separately.",
+      "status": "present"
+    },
+    {
+      "class": "unsupported_file_types",
+      "detail": "Binary and unsupported suffixes are excluded by the declared selector; see exact excluded paths and denominator.",
+      "status": "present"
+    },
+    {
+      "class": "wheel_sdist_archive_membership",
+      "detail": "The census reads packaging configuration only; it does not build or inspect wheel/sdist archives.",
+      "status": "UNRUN"
+    },
+    {
+      "class": "external_consumers",
+      "detail": "Local Git-visible repository census does not observe installed clients, external checkouts, registries, or network search.",
+      "status": "not_established"
+    }
+  ],
+  "raw_stdout": {
+    "path": "/workspace/orch02-native-c06/dfk-census-no-timeout/stdout.txt",
+    "bytes": 6585971,
+    "sha256": "576e21b21cae0a649110b8a6fd681590008fb0ca4077f30a33e710e4329e7467"
+  },
+  "independent_selected_paths_and_each_read_byte_hash_match": true,
+  "head": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+  "unsupported_or_ambiguous_inputs": [],
+  "rejected_outside_root_paths": [],
+  "unreadable_paths": []
+}

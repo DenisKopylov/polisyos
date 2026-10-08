@@ -1,0 +1,11 @@
+[
+  {
+    "raw_path": "/workspace/orch02-recovery/c06-required-dfk-family-correction/trust-claim-posture-register/stdout.txt",
+    "raw_bytes": 2554220,
+    "raw_sha256": "a3e54ac80e49168441d9e7a0189c91c2c7cf20a2ef7b710e9b41a076d0608094",
+    "published_path": "required-gates/family-correction/trust-claim-posture-register/stdout.txt.gz",
+    "gzip_bytes": 450926,
+    "gzip_sha256": "568e1a3a01632e101cd4a3b56938b5bf08ccd104ec731179a60151429d5eb9e7",
+    "roundtrip_verified": true
+  }
+]

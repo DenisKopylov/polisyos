@@ -1,0 +1,38 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-I",
+    "tools/quality/validation/schema_fqn_census.py",
+    "--repo-root",
+    "/workspace/orch02-c06-dfk/policy-engine"
+  ],
+  "cwd": "/workspace/orch02-c06-dfk/policy-engine",
+  "start_utc": "2026-10-08T15:54:59.202374+00:00",
+  "end_utc": "2026-10-08T15:59:59.219671+00:00",
+  "wall_seconds": 300.016115272,
+  "max_rss_kib": 165448,
+  "user_seconds": 297.998995,
+  "system_seconds": 1.125936,
+  "timeout_seconds": 300.0,
+  "timeout": true,
+  "returncode": -15,
+  "selected_environment": {
+    "PYTHONPATH": null,
+    "PYTHONDONTWRITEBYTECODE": null,
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+    "JAX_PLATFORMS": null,
+    "JAX_PLATFORM_NAME": null,
+    "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+    "UV_PROJECT_ENVIRONMENT": null
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

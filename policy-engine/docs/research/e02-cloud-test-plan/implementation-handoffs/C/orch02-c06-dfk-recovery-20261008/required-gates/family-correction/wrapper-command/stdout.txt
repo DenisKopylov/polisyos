@@ -1,0 +1,106 @@
+Generated artifact freshness clean: runtime-dashboard-api-types (1 generator-observed outputs).
+{
+  "source_sha": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+  "guardrails_path": "/workspace/orch02-c06-dfk/policy-engine/tools/devx/architecture/guardrails.py",
+  "guardrails_sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+  "retained_source": "/workspace/orch02-recovery/c06-required-dfk-architecture/generated-freshness/source",
+  "retained_environment": "/workspace/orch02-recovery/c06-required-dfk-architecture/generated-freshness/environment",
+  "selected_families": [
+    "runtime-dashboard-api-types",
+    "trust-claim-posture-register"
+  ],
+  "original_full_gate": "/workspace/orch02-recovery/c06-required-dfk-architecture",
+  "reason": "Writer concurrently packaged handoff files during original worktree isolation snapshots; repeat only affected family measurements with own lane writes suspended.",
+  "scope": "Narrow correction, not full architecture PASS or inherited-baseline verdict.",
+  "violations": [
+    {
+      "check": "generated_artifact",
+      "subject": "trust-claim-posture-register",
+      "message": "trust-claim-posture-register generated output apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json does not match /workspace/orch02-c06-dfk/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json.",
+      "detail": "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "source_module": "",
+      "target_module": ""
+    }
+  ],
+  "unrun": [],
+  "commands": [
+    {
+      "argv": [
+        "corepack",
+        "pnpm",
+        "--filter",
+        "@polisyos/runtime-dashboard",
+        "run",
+        "generate:api",
+        "--",
+        "--openapi",
+        "schemas/runtime_api_v1.openapi.json",
+        "--output-root",
+        "/workspace/orch02-recovery/c06-required-dfk-family-correction/outputs/runtime-dashboard-api-types"
+      ],
+      "cwd": "/workspace/orch02-recovery/c06-required-dfk-architecture/generated-freshness/source",
+      "started_utc": "2026-10-08T16:33:34.251350+00:00",
+      "wall_seconds": 8.98727810299988,
+      "returncode": 0,
+      "complete_outputs": {
+        "stdout.txt": {
+          "bytes": 939,
+          "sha256": "c320611628ba095b03462c59184c3f782d86378976080b6024fc9a363bf84407"
+        },
+        "stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "capture_semantics": "Original guardrails subprocess.run capture_output=True,text=True; complete decoded text re-encoded UTF-8.",
+      "selected_environment": {
+        "PATH": "/workspace/orch02-recovery/c06-required-dfk-architecture/generated-freshness/environment/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/workspace/.polisyos-environment/uv/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "PYTHONPATH": "/workspace/orch02-recovery/c06-required-dfk-architecture/generated-freshness/source/src:/workspace/orch02-recovery/c06-required-dfk-architecture/generated-freshness/source",
+        "PYTHONNOUSERSITE": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/orch02-recovery/c06-required-dfk-architecture/generated-freshness/environment",
+        "UV_CACHE_DIR": "/workspace/.polisyos-environment/cache/uv",
+        "UV_NO_SYNC": null,
+        "UV_OFFLINE": "1"
+      }
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python",
+        "tools/quality/validation/check_trust_claim_posture.py",
+        "--repo-root",
+        ".",
+        "--write",
+        "--output-root",
+        "/workspace/orch02-recovery/c06-required-dfk-family-correction/outputs/trust-claim-posture-register"
+      ],
+      "cwd": "/workspace/orch02-recovery/c06-required-dfk-architecture/generated-freshness/source",
+      "started_utc": "2026-10-08T16:34:06.601333+00:00",
+      "wall_seconds": 56.76150086999996,
+      "returncode": 0,
+      "complete_outputs": {
+        "stdout.txt": {
+          "bytes": 2554220,
+          "sha256": "a3e54ac80e49168441d9e7a0189c91c2c7cf20a2ef7b710e9b41a076d0608094"
+        },
+        "stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "capture_semantics": "Original guardrails subprocess.run capture_output=True,text=True; complete decoded text re-encoded UTF-8.",
+      "selected_environment": {
+        "PATH": "/workspace/orch02-recovery/c06-required-dfk-architecture/generated-freshness/environment/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/workspace/.polisyos-environment/uv/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "PYTHONPATH": "/workspace/orch02-recovery/c06-required-dfk-architecture/generated-freshness/source/src:/workspace/orch02-recovery/c06-required-dfk-architecture/generated-freshness/source",
+        "PYTHONNOUSERSITE": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/orch02-recovery/c06-required-dfk-architecture/generated-freshness/environment",
+        "UV_CACHE_DIR": "/workspace/.polisyos-environment/cache/uv",
+        "UV_NO_SYNC": null,
+        "UV_OFFLINE": "1"
+      }
+    }
+  ]
+}

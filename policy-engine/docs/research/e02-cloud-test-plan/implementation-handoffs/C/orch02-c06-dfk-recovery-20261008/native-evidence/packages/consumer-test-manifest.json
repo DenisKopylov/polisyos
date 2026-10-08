@@ -1,0 +1,32 @@
+[
+  {
+    "role": "can",
+    "origin": "4901e26841e2be0ae6ef393754abed5cafb1e2d4:policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+    "copy": "/workspace/orch02-native-c06/packages/can/runner/tests/unit/core/artifacts/test_ir_adapter.py",
+    "sha256": "ae119000b7af559ce72b3edab4ed71c0d7416ff3e814a8ac2cc83e3ba06853f6"
+  },
+  {
+    "role": "can",
+    "origin": "4901e26841e2be0ae6ef393754abed5cafb1e2d4:policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+    "copy": "/workspace/orch02-native-c06/packages/can/runner/tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+    "sha256": "058fd8c5f7c117a189b9cd86c6e369339c561e5bb38f9cb904d1257a07c9d6cd"
+  },
+  {
+    "role": "can",
+    "origin": "/workspace/orch02-native-c06/test_can_independent.py",
+    "copy": "/workspace/orch02-native-c06/packages/can/runner/test_can_independent.py",
+    "sha256": "469931e725cf290df4ff592e46961eed5706c0a7e4cc96255b9785dc26b08b58"
+  },
+  {
+    "role": "dfk",
+    "origin": "cbbfffd367fe283813a8177575d26c0ede8d20c4:policy-engine/tests/unit/remediation/test_dfk_01.py",
+    "copy": "/workspace/orch02-native-c06/packages/dfk/runner/tests/unit/remediation/test_dfk_01.py",
+    "sha256": "50b7e03df66b767ad3bde207017fa5538c38f1241559b9ed693ceafa07f80709"
+  },
+  {
+    "role": "dfk",
+    "origin": "/workspace/orch02-native-c06/test_dfk_installed.py",
+    "copy": "/workspace/orch02-native-c06/packages/dfk/runner/test_dfk_installed.py",
+    "sha256": "a0b66ff5f40ce5c3b9b942d59bbcabea6b749135dcd3ce23e27032cf3b65f2a5"
+  }
+]

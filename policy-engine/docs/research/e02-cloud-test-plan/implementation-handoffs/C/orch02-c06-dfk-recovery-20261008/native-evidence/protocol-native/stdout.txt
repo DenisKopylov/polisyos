@@ -1,0 +1,10 @@
+ordinary-staged root PASS
+ordinary-staged nested PASS
+ordinary-unstaged root PASS
+ordinary-unstaged nested PASS
+added-modified root PASS
+added-modified nested PASS
+rename-staged root PASS
+rename-staged nested PASS
+rename-staged-modified root PASS
+rename-staged-modified nested PASS

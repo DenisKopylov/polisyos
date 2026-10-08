@@ -1,0 +1,19 @@
+{
+  "data": {
+    "changed_file_count": 0,
+    "scan_mode": "changed-only"
+  },
+  "exit_code": 0,
+  "messages": [
+    {
+      "level": "skipped",
+      "line": null,
+      "message": "no changed files",
+      "path": null,
+      "rule_id": null
+    }
+  ],
+  "status": "skipped",
+  "summary": "No changed Python files matched import gate scope.",
+  "tool": "lint.lint-imports"
+}

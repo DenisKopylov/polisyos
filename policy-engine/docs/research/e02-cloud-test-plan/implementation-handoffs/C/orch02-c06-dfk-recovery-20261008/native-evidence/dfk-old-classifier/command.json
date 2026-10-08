@@ -1,0 +1,57 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-I",
+    "/workspace/orch02-native-c06/pytest_bound.py",
+    "--target",
+    "/workspace/orch02-c06-dfk",
+    "--expected-sha",
+    "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+    "--origins",
+    "/workspace/orch02-native-c06/dfk-old-classifier/origins.json",
+    "--mutant-module",
+    "tools.quality.validation.schema_fqn_census",
+    "--mutant-path",
+    "/workspace/orch02-native-c06/removals/dfk-old-classifier.py",
+    "--census-script",
+    "/workspace/orch02-native-c06/removals/dfk-old-classifier.py",
+    "--",
+    "tests/unit/remediation/test_dfk_01.py",
+    "-k",
+    "two_ordinary_git_status_records or both_rename_paths_and_next_record or clean_real_git_input or both_copy_paths_and_next_record",
+    "-q",
+    "-o",
+    "cache_dir=/workspace/orch02-native-c06/dfk-old-classifier/cache",
+    "--basetemp=/workspace/orch02-native-c06/dfk-old-classifier/basetemp",
+    "--junitxml=/workspace/orch02-native-c06/dfk-old-classifier/junit.xml"
+  ],
+  "cwd": "/workspace/orch02-c06-dfk/policy-engine",
+  "start_utc": "2026-10-08T15:52:26.805238+00:00",
+  "end_utc": "2026-10-08T15:52:49.575883+00:00",
+  "wall_seconds": 22.770173086,
+  "max_rss_kib": 492088,
+  "user_seconds": 21.027947,
+  "system_seconds": 1.893133,
+  "timeout_seconds": 240.0,
+  "timeout": false,
+  "returncode": 1,
+  "selected_environment": {
+    "PYTHONPATH": null,
+    "PYTHONDONTWRITEBYTECODE": null,
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+    "JAX_PLATFORMS": null,
+    "JAX_PLATFORM_NAME": null,
+    "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+    "UV_PROJECT_ENVIRONMENT": null
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 26160,
+      "sha256": "c825a5419c9da338e1346b6ce8676fd73f078413c15a59650d151ae9b1b9427e"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

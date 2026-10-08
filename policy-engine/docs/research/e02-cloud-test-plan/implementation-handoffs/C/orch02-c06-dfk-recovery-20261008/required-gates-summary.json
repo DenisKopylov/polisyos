@@ -1,0 +1,56 @@
+{
+  "target_sha": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+  "slice_base": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+  "checks": [
+    {
+      "gate": "own-lane frozen Node bootstrap",
+      "outcome": "PASS",
+      "evidence": "required-gates/node/command.json",
+      "child_returncode": 0
+    },
+    {
+      "gate": "scoped lint_imports --changed-only --git-base-ref own_base",
+      "outcome": "PASS",
+      "evidence": "required-gates/imports/command.json",
+      "child_returncode": 0
+    },
+    {
+      "gate": "full architecture default generated families",
+      "outcome": "FAIL",
+      "child_returncode": 1,
+      "evidence": "required-gates/architecture/command.json",
+      "complete_stdout": "required-gates/architecture/stdout.txt",
+      "deep_import_creep_count": 151,
+      "actual_global_diagnostics": [
+        "deep_import_baseline_drift",
+        "runtime_openapi_snapshot_mismatch",
+        "trust_claim_posture_register_mismatch"
+      ],
+      "initial_family_isolation": "ERROR caused by writer concurrently packaging handoff files in own worktree; no generator escape established.",
+      "inherited_attribution": "not_established; exact own-base full replay/zero complete denominator intersection not measured; no baseline sync/generated mutation authorized."
+    },
+    {
+      "gate": "narrow contaminated family correction",
+      "outcome": "FAIL_on_trust_expected_bytes; no isolation_escape; no_UNRUN",
+      "evidence": "required-gates/family-correction/receipt.json",
+      "selected_families": [
+        "runtime-dashboard-api-types",
+        "trust-claim-posture-register"
+      ],
+      "scope": "Unchanged helper on same retained private source/environment; selected family/expected-output union narrower than full gate. Dashboard matched. No overall architecture or P41 inherited-green inference."
+    },
+    {
+      "gate": "production_invocation --base exact_a13",
+      "outcome": "PASS_partial_static_only",
+      "evidence": "required-gates/invocation-initial/command.json",
+      "child_returncode": 0,
+      "complete_receipt": "required-gates/invocation-initial/receipt.json.gz",
+      "lossless_map": "required-gates/invocation-initial/lossless.json",
+      "runtime_invocation_established": false,
+      "coverage": "Static direct-call reachability; emitted regressions=[] and new_unresolved_by_construction=[]; dynamic dispatch/persistence/runtime effects unmeasured."
+    }
+  ],
+  "mandatory_global_release_gate_status": "architecture remains failed; G source admission/selected composition/required closeout pending",
+  "no_hook_bypass": true,
+  "shared_generated_or_lock_mutations": "none"
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "raw_mutant_reference": "/workspace/orch02-native-c06/handoff-evidence/dfk/removals/dfk-old-classifier.py",
+    "raw_mutant_sha256": "777c0f151d7e21c24ebab7bb98bb548d7b8f32ac9bbeacb10b25b8fbfb1d54bb",
+    "raw_mutant_bytes": 31687,
+    "canonical_source": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+    "canonical_source_commit": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+    "delta_publication_path": "native-evidence/removals/dfk-old-classifier.patch",
+    "delta_sha256": "d878aefa9edd23ebf91cfdb3d3f6ac89727c641d701adc642e1a8dba2d8e13ef",
+    "reconstruction": "git show <canonical_source_commit>:<canonical_source> then apply this unified delta at that source path; exact resulting bytes match raw_mutant_sha256",
+    "reason": "AGENTS receipt rule: cite canonical tracked source plus minimal delta rather than duplicate complete source.",
+    "exact_reconstruction_verified": true
+  }
+]

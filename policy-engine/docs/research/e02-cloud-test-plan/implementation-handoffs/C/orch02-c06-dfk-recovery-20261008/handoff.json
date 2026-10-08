@@ -1,0 +1,244 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "execution_role": "C06",
+  "slice": "orch02-c06-dfk-recovery-20261008",
+  "draft": false,
+  "closure_ids": [],
+  "original_finding_ids": [
+    "LA-005",
+    "LA-006",
+    "LA-026",
+    "LA-027"
+  ],
+  "bundle_ids": [
+    "DFK-01"
+  ],
+  "formal_G_closure": "not_adjudicated",
+  "source_acceptance": "not_admitted_by_G",
+  "technical_proposal": "bounded_dfk_repair",
+  "slice_base_sha": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+  "slice_base_tree_sha": "35d9c02156f8a27335b858bfe8053d7cbc6a54f2",
+  "implementation_commits": [
+    "66fce37eed873311259f111cf28c6b342cb6ae23",
+    "cbbfffd367fe283813a8177575d26c0ede8d20c4"
+  ],
+  "candidate_sha": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+  "candidate_tree_sha": "e0ca5462ec6f38f91e4d2ebedf1bf2f18f2c9f99",
+  "branch": "codex/e02-C-orch02-c06-dfk-recovery",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-08-e02-orch02-c06-dfk-census.toml",
+    "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md",
+    "policy-engine/tests/unit/remediation/test_dfk_01.py",
+    "policy-engine/tools/quality/validation/schema_fqn_census.py"
+  ],
+  "source_manifest": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-orch02-c06-dfk-census.toml",
+      "blob": "761efc1851fdd680aa4db1d47f58a4297d162ec7",
+      "sha256": "734b4049cd7e0744d1c309d035318cd7963bcaf5d50d3a5e959799c101aeed72",
+      "bytes": 1258
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md",
+      "blob": "80b8bc5c1da0cb41126bc85dfa30ded4bcf0e17f",
+      "sha256": "17ad9a3d03d7974797a1eb603b306c616c9ac28ef3df08ca705615f4fff408f9",
+      "bytes": 1076
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+      "blob": "cd6a4456e835c5551093278b0335ff8f0765cce3",
+      "sha256": "50b7e03df66b767ad3bde207017fa5538c38f1241559b9ed693ceafa07f80709",
+      "bytes": 43828
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "blob": "ae838dc362ae33f2a01b984f42d959b74f80183e",
+      "sha256": "02e9123c9be4606840cedad30504417a9e5fe46235437ce0003df7264e9ecff2",
+      "bytes": 31675
+    }
+  ],
+  "original_criteria": [
+    {
+      "id": "LA-005",
+      "document": {
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+      },
+      "lines": "198-224",
+      "criterion_sha256": "ec6ce93b380334ba9e5d13e13ce8ecf637afd057b99008b3aa1b462d29194266"
+    },
+    {
+      "id": "LA-006",
+      "document": {
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+      },
+      "lines": "225-253",
+      "criterion_sha256": "4bc6fa503bce03a1516620c492168088242d61e0ba90697a9377480c13d189fe"
+    },
+    {
+      "id": "LA-026",
+      "document": {
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+      },
+      "lines": "1372-1417",
+      "criterion_sha256": "48da21eccebfe89cf7cc0ed9dba75b26752d06f78625f92088e3cb9ebc88fa1a"
+    },
+    {
+      "id": "LA-027",
+      "document": {
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+      },
+      "lines": "1418-1465",
+      "criterion_sha256": "a78cbc850be0ec8fdbec3076613780d16dfc169517f5f1568f42a6a80cd3e8ce"
+    }
+  ],
+  "baseline_cells": [],
+  "baseline_results_use": "No prior results-pack PASS adopted as current runtime evidence.",
+  "recovery_admission": {
+    "source_commit": "329f81e7e1f431f010bb8193ade522a4c37f276c",
+    "topic": "codex/e02-C-orch02-recovery-coordination",
+    "checkpoint": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/checkpoint.json",
+    "create_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/admission/c06-dfk-create.json",
+    "resume_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/admission/c06-dfk-resume.json",
+    "scope": "exact own-base branch/path admitted by coordinator; snapshot not reservation"
+  },
+  "checks": [
+    {
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/author-checks.json",
+      "target_sha": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+      "outcome": "PASS",
+      "scope": "Author scoped Ruff check/format, strict targeted mypy under repo config, and source-range diff check; not independent runtime evidence."
+    },
+    {
+      "target_sha": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+      "outcome": "PASS_with_bounded_scope_and_retained_harness_history",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/dfk-final-manifest.json",
+      "scope": "Independent native defining/consumer, real protocol/CAS, removal, frozen Git export wheel/sdist/direct-rebuild member bytes and fresh installed consumer checks; all complete deciding outputs published through explicit mapping."
+    },
+    {
+      "target_sha": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+      "outcome": "IMPORT_PASS; ARCHITECTURE_FAIL; INVOCATION_PASS_PARTIAL_STATIC",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/required-gates-summary.json",
+      "scope": "Complete deciding commands/stdout/stderr and lossless graph receipt; initial writer schedulingERROR and narrow correction retained separately. Required architecture green not claimed."
+    }
+  ],
+  "property": {
+    "statement": "Every ordinary porcelain record contributes one path; only rename/copy records consume an additional NUL source path. Both endpoints survive parser output; the CLI selected current-input set correctly excludes a removed rename source.",
+    "runtime_path": [
+      "_git_status_paths: real git status --porcelain=v1 -z + admitted product-root prefix",
+      "collect_census: selection.working_tree_changes = changed intersect complete selected set",
+      "C/G source-input and census readers; maintained test_dfk_01 census tests"
+    ],
+    "proxy_divergence": "Two ordinary modified files still produce Git returncode 0, but the second record is swallowed as a raw filename; selected working_tree_changes silently loses that file.",
+    "negative_controls": [
+      {
+        "label": "dfk-old-classifier",
+        "returncode": 1,
+        "junit": [
+          {
+            "name": "pytest",
+            "errors": "0",
+            "failures": "9",
+            "skipped": "0",
+            "tests": "14",
+            "time": "14.705",
+            "timestamp": "2026-10-08T15:52:30.721435+00:00",
+            "hostname": "31e1e2bb84ff"
+          }
+        ],
+        "meaning": "Expected assertion divergence with repair selectively removed; original markers and tests retained."
+      }
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "candidate_local_native_evidence_complete; formal_G_closure_not_adjudicated",
+  "independent_review": {
+    "reviewer": "/root/native_c06",
+    "exact_sha": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+    "verdict": "GO for final cbb parser property and bounded finite census observations; not repository-wide or external legacy retirement",
+    "full_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/independent-final-review.json",
+    "source_and_runtime_evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/dfk-final-manifest.json",
+    "publication_map": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/native-publication-audit.json",
+    "no_G_acceptance": true
+  },
+  "limitations_and_next_owner": [
+    "No additional schema/FQN retirement authorization; a13 existing retirement source is preserved.",
+    "pipeline.schemas alias preserves canonical identity and remains through actual published notice N and later of next minor release or 90 days; no calendar notice assigned.",
+    "Finite Git-visible selected UTF-8 text census does not establish computed-loader, ignored/binary, installed-distribution, historical or external-client absence.",
+    "Own a13 source history requires G compatible source selection/integration; no main/integration publication by C06.",
+    "Required global architecture remains FAIL on exact candidate; full output records baseline/OpenAPI/trust drift. Initial writer packaging concurrency caused family isolationERROR; selected unchanged-helper correction removed that witness but trust mismatch remains. No inherited attribution or global green; G canonical generated/baseline owners decide scoped next action."
+  ],
+  "handoff_companion_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/companion-inventory.json"
+  ],
+  "publication": {
+    "source_topic_push": "completed_and_remote_head_read_back_at_candidate_sha",
+    "handoff_topic_push": "normal_append_after_documentation_commit; exact final delivery refs supplied by coordinator independent readback",
+    "remote_readback_required": true,
+    "main_or_integration_publication": "none"
+  },
+  "recovered_input_artifact": {
+    "path": "/workspace/orch02-recovery/c06-dfk.patch",
+    "git_blob": "8ef5d4b4d37b035e978dab786539e9afa105a40c",
+    "sha256": "7cfdcb60eab1d3cfe59d03fcfdc8f28354eac2127e60d654621e1aaba8f4a937",
+    "application": "native git apply --check and apply on exact admitted base; no source overlays/history rewrite"
+  },
+  "omitted_gates": [
+    {
+      "gate": "broad portable integration replay/C13",
+      "status": "UNRUN_by_C06",
+      "reason": "G selected composition/freeze not admitted; independent C13 owns one subsequent broad wave."
+    },
+    {
+      "gate": "local authentic production-dependent closeout/L02",
+      "status": "UNRUN_by_C06",
+      "reason": "This cloud candidate evidence does not supply genuine historical/external production inputs; local G/L02 owns named selected profile closeout."
+    },
+    {
+      "gate": "standalone Atlas retirement-inventory gate",
+      "status": "UNRUN_by_C06",
+      "reason": "Full architecture CLI explicitly reports this standalone gate is excluded; no Atlas source paths changed or Atlas retirement claim made."
+    }
+  ],
+  "native_summary": {
+    "defining_tests": 31,
+    "real_protocol_cases": 20,
+    "full_census_selected_and_read": 13650,
+    "fresh_installed_direct_and_rebuilt_consumer_tests_each": 9,
+    "installed_deselected_each": 27,
+    "full_census_first_timeout": "Harness ERROR after arbitrary300s, source unchanged; exact same input uncapped complete340.214s separately retained.",
+    "protocol_first_harness_failure": "Incorrect unstaged rename source-read oracle; history retained, corrected independent oracle v3 complete20cases."
+  },
+  "package_scope": {
+    "wheel_member_denominator": 3454,
+    "sdist_member_denominator": 8505,
+    "all_source_owned_member_bytes_match_frozen_git_archive": true,
+    "direct_rebuilt_member_names_and_bytes_equal": true,
+    "wheel_RECORD_complete_and_hashes_valid": true,
+    "all_source_owned_wheel_members_bind_exact_git_blobs_count": 3449,
+    "retired_DFK_exact_member_prefixes_absent": [
+      "polisyos/foundry/domain/schema.py",
+      "polisyos/foundry/domain/schema/",
+      "polisyos/foundry/domain/mechanisms/",
+      "polisyos/data_forge/kernel/schemas/codegen.py",
+      "polisyos/data_forge/kernel/schemas/codegen/"
+    ],
+    "no_source_or_editable_overlay": true,
+    "fresh_process_each_install": true
+  },
+  "requirements_scope": "AGENTS full architecture and exact own-base static production invocation are separately retained; static wiring never supplies runtime business proof.",
+  "complete_documentation_footprint": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/companion-inventory.json"
+}

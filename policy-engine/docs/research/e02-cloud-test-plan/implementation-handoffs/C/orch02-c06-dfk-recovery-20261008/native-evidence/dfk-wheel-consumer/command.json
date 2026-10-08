@@ -1,0 +1,52 @@
+{
+  "argv": [
+    "/workspace/orch02-native-c06/consumer-env/bin/python",
+    "-I",
+    "/workspace/orch02-native-c06/pytest_bound.py",
+    "--installed-prefix",
+    "/workspace/orch02-native-c06/consumer-env",
+    "--origins",
+    "/workspace/orch02-native-c06/dfk-wheel-consumer/origins.json",
+    "--",
+    "-c",
+    "/workspace/orch02-native-c06/pytest.installed.ini",
+    "--noconftest",
+    "tests/unit/remediation/test_dfk_01.py",
+    "test_dfk_installed.py",
+    "-k",
+    "canonical_schema_exports_preserve_registry_identity or canonical_registry_evolution_and_migration_behave or pipeline_schema_alias_preserves_canonical_identity or real_foundry_runner_executes_canonical_mechanism or retired_distribution_imports_are_absent or installed_schema_alias_retains_identity or installed_census_cli_preserves_ordinary_record_sentinel",
+    "-o",
+    "cache_dir=/workspace/orch02-native-c06/dfk-wheel-consumer/cache",
+    "--basetemp=/workspace/orch02-native-c06/dfk-wheel-consumer/basetemp",
+    "--junitxml=/workspace/orch02-native-c06/dfk-wheel-consumer/junit.xml"
+  ],
+  "cwd": "/workspace/orch02-native-c06/packages/dfk/runner",
+  "start_utc": "2026-10-08T16:16:07.209454+00:00",
+  "end_utc": "2026-10-08T16:16:32.468547+00:00",
+  "wall_seconds": 25.258529931999874,
+  "max_rss_kib": 728960,
+  "user_seconds": 25.101741,
+  "system_seconds": 1.026184,
+  "timeout_seconds": 240.0,
+  "timeout": false,
+  "returncode": 0,
+  "selected_environment": {
+    "PYTHONPATH": null,
+    "PYTHONDONTWRITEBYTECODE": null,
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+    "JAX_PLATFORMS": null,
+    "JAX_PLATFORM_NAME": null,
+    "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+    "UV_PROJECT_ENVIRONMENT": null
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 114,
+      "sha256": "1204969b5511ed623fef36dcfe3e976db0169e2b034187c68a8b819187d4b3ba"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

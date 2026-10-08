@@ -1,0 +1,58 @@
+{
+  "original_manifest": "/workspace/orch02-native-c06/dfk-final-manifest.json",
+  "original_manifest_sha256": "ce4b126763e3b5489da95c77d913ab1e26f0a84c7b11a6b55e007b2cb29bbadf",
+  "source_frozen": {
+    "repo": "/workspace/orch02-c06-dfk",
+    "base": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+    "head": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+    "tree": "e0ca5462ec6f38f91e4d2ebedf1bf2f18f2c9f99",
+    "status_porcelain_z_hex": "",
+    "complete_changed_paths": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-orch02-c06-dfk-census.toml",
+        "blob": "761efc1851fdd680aa4db1d47f58a4297d162ec7",
+        "sha256": "734b4049cd7e0744d1c309d035318cd7963bcaf5d50d3a5e959799c101aeed72",
+        "bytes": 1258
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md",
+        "blob": "80b8bc5c1da0cb41126bc85dfa30ded4bcf0e17f",
+        "sha256": "17ad9a3d03d7974797a1eb603b306c616c9ac28ef3df08ca705615f4fff408f9",
+        "bytes": 1076
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+        "blob": "cd6a4456e835c5551093278b0335ff8f0765cce3",
+        "sha256": "50b7e03df66b767ad3bde207017fa5538c38f1241559b9ed693ceafa07f80709",
+        "bytes": 43828
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "blob": "ae838dc362ae33f2a01b984f42d959b74f80183e",
+        "sha256": "02e9123c9be4606840cedad30504417a9e5fe46235437ce0003df7264e9ecff2",
+        "bytes": 31675
+      }
+    ]
+  },
+  "exact_copy": false,
+  "all_moderate_artifact_hashes_matched": 122,
+  "all_lossless_roundtrips_exact": 4,
+  "publication_prefix": "native-evidence/",
+  "path_rule": "Each manifest publishable absolute path under /workspace/orch02-native-c06/handoff-evidence/dfk maps to this handoff native-evidence/<relative path>; source/export/package binary paths remain raw reproducible refs only. Then apply lossless-byte-artifact-map.json to byte-exact text/EOF packaging exceptions.",
+  "raw_source_snapshot_exceptions": [
+    {
+      "raw_mutant_reference": "/workspace/orch02-native-c06/handoff-evidence/dfk/removals/dfk-old-classifier.py",
+      "raw_mutant_sha256": "777c0f151d7e21c24ebab7bb98bb548d7b8f32ac9bbeacb10b25b8fbfb1d54bb",
+      "raw_mutant_bytes": 31687,
+      "canonical_source": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "canonical_source_commit": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+      "delta_publication_path": "native-evidence/removals/dfk-old-classifier.patch",
+      "delta_sha256": "d878aefa9edd23ebf91cfdb3d3f6ac89727c641d701adc642e1a8dba2d8e13ef",
+      "reconstruction": "git show <canonical_source_commit>:<canonical_source> then apply this unified delta at that source path; exact resulting bytes match raw_mutant_sha256",
+      "reason": "AGENTS receipt rule: cite canonical tracked source plus minimal delta rather than duplicate complete source.",
+      "exact_reconstruction_verified": true
+    }
+  ],
+  "exact_copy_except_reproducible_removal_source_replaced_with_delta": true,
+  "authentic_text_lossless_map": "lossless-byte-artifact-map.json"
+}

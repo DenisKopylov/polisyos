@@ -1,0 +1,20 @@
+[
+  {
+    "uncompressed_source": "/workspace/orch02-native-c06/dfk-census-no-timeout/stdout.txt",
+    "uncompressed_bytes": 6585971,
+    "uncompressed_sha256": "576e21b21cae0a649110b8a6fd681590008fb0ca4077f30a33e710e4329e7467",
+    "lossless_gzip": "/workspace/orch02-native-c06/handoff-evidence/dfk-census-full.json.gz",
+    "gzip_bytes": 1116784,
+    "gzip_sha256": "b91660e5ed11865e8a3cff79a3ae59daa4a82b6cc0f027db2da3ed96ad5dcdc8",
+    "round_trip_byte_equal": true
+  },
+  {
+    "uncompressed_source": "/workspace/orch02-native-c06/dfk-independent-denominator.json",
+    "uncompressed_bytes": 4609752,
+    "uncompressed_sha256": "a107db19e7b91267348a5b7b84233a1a69262e7049f914247370324e85fa1f31",
+    "lossless_gzip": "/workspace/orch02-native-c06/handoff-evidence/dfk-independent-denominator.json.gz",
+    "gzip_bytes": 964083,
+    "gzip_sha256": "03fb9a2e4c21baf91f5de341af240387156ea1c9b78d8d8bf6223e03743e4cb0",
+    "round_trip_byte_equal": true
+  }
+]

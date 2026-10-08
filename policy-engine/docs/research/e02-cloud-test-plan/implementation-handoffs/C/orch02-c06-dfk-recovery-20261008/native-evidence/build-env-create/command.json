@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "uv",
+    "--cache-dir",
+    "/workspace/orch02-native-c06/uv-cache",
+    "venv",
+    "--python",
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/workspace/orch02-native-c06/build-env"
+  ],
+  "cwd": "/workspace/orch02-native-c06",
+  "start_utc": "2026-10-08T15:50:53.308762+00:00",
+  "end_utc": "2026-10-08T15:50:53.429772+00:00",
+  "wall_seconds": 0.1208422160000282,
+  "max_rss_kib": 12288,
+  "user_seconds": 0.097039,
+  "system_seconds": 0.026709,
+  "timeout_seconds": null,
+  "timeout": false,
+  "returncode": 0,
+  "selected_environment": {
+    "PYTHONPATH": null,
+    "PYTHONDONTWRITEBYTECODE": null,
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+    "JAX_PLATFORMS": null,
+    "JAX_PLATFORM_NAME": null,
+    "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+    "UV_PROJECT_ENVIRONMENT": null
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr.txt": {
+      "bytes": 176,
+      "sha256": "31be3a36963177c23425199c016b982b9dca984b120370afcd11d31812d1e8e3"
+    }
+  }
+}

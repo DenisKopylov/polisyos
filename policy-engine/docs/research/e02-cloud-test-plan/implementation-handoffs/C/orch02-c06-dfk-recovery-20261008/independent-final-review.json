@@ -1,0 +1,117 @@
+{
+  "independent_reviewer": "native_c06 direct helper; no children",
+  "created_utc": "2026-10-08T16:21:51.730999+00:00",
+  "source_scope": "read-only frozen source lanes; no production edits, source commits, shared-environment installation or integrated G verdict",
+  "material_implementation_findings": [],
+  "source_qualified_verdicts": {
+    "DFK": "GO for final cbb parser property and bounded finite census observations; not repository-wide or external legacy retirement",
+    "CAN": "GO for final 4901 reader-only profile admission/reconstruction; not overall LA-021 closure"
+  },
+  "specification_review": {
+    "DFK": "Real Git v1 porcelain-z R/C records consume both paths; ordinary M and AM retain following records, independent diff/ls-files oracle, all selected local text reads bounded by finite denominator. Documentation retains ignored/binary/dynamic/external/historical limits.",
+    "CAN": "Actual FileSystemCAS producer, full persisted JSON-mode CanonInfo Mapping, fresh reader, separators normalization, max_depth129, Decimal golden bytes and explicit malformed/unsupported/missing-field refusal before get_bytes are exercised. No producer or adapter/Core changes."
+  },
+  "quality_review": "Native affected tests, independent native protocol/CAS probes, marker-preserving matched removals, exact frozen Git export builds, complete wheel/sdist source-member walks, direct-vs-sdist rebuilt byte identity and RECORD hashes, fresh installed consumer origins establish bounded local behavior. All command/output/JUnit/origin bytes are referenced in split manifests. Source-only AST test is excluded from installed proof.",
+  "correctness_review": "No material regression identified in affected bounded properties. Removals discriminate each admitted repair; negatives retain tests/docs/markers. Initial protocol incorrect unstaged-rename read oracle and arbitrary 300-second census timeout were harness failures, preserved and superseded on unchanged source.",
+  "decisions_and_limits": [
+    {
+      "owner": "G/C02/Core",
+      "status": "HELD",
+      "detail": "Raw Core same canon name/version can persist Core-only float_hex/bytes_hex/array_digest tags. Actual CAS examples are admitted by profile, then IR rejects after bytes. Metadata shape/type does not establish tag-set custody; no bypass fix claimed."
+    },
+    {
+      "owner": "G/C02",
+      "status": "HELD",
+      "detail": "Historical profile-less stores are explicitly refused before byte read. Deployment/backward-compatibility policy must be decided by owners."
+    },
+    {
+      "owner": "C02/Core",
+      "status": "UNCHANGED",
+      "detail": "Non-Core adapter option coercion omits tenant_context/same_input_closure/authority/warnings; unchanged producer/adapter contract outside reader delta."
+    },
+    {
+      "owner": "G",
+      "status": "COMPOSED_RERUN_REQUIRED",
+      "detail": "CAN actual native complete observed file-origin denominator 885 compared to G032 has candidate reader IO delta plus loaded foundry/calibration/identifiability older f00 blob aad1abdd89ac8dda43918981bc21f4a9755601a2 vs G blob d0b90fd348a2556b5e23ae8e20409950ad9e712b. Codec/Core/IR/config contour zero delta is not an all-source claim. Candidate-local consumer PASS does not transfer to G composition."
+    },
+    {
+      "owner": "G/external owners",
+      "status": "NOT_ESTABLISHED",
+      "detail": "DFK census selects and reads finite local tracked/untracked text only; runtime-generated/nonliteral, ignored/binary, deployed external/historical clients and N/date/window compatibility sunset remain undecided. Package-member checks are separate evidence, not the scanner asserting installed absence."
+    }
+  ],
+  "source_reviews_pre_native": {
+    "path": "/workspace/orch02-native-c06/source-review-prewave.json",
+    "bytes": 4658,
+    "sha256": "740e436f478c4df8e6469baa6a7387824189120a69857884a857966893bd4f28"
+  },
+  "final_sources": {
+    "dfk": {
+      "repo": "/workspace/orch02-c06-dfk",
+      "base": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+      "head": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+      "tree": "e0ca5462ec6f38f91e4d2ebedf1bf2f18f2c9f99",
+      "status_porcelain_z_hex": "",
+      "complete_changed_paths": [
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-orch02-c06-dfk-census.toml",
+          "blob": "761efc1851fdd680aa4db1d47f58a4297d162ec7",
+          "sha256": "734b4049cd7e0744d1c309d035318cd7963bcaf5d50d3a5e959799c101aeed72",
+          "bytes": 1258
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md",
+          "blob": "80b8bc5c1da0cb41126bc85dfa30ded4bcf0e17f",
+          "sha256": "17ad9a3d03d7974797a1eb603b306c616c9ac28ef3df08ca705615f4fff408f9",
+          "bytes": 1076
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+          "blob": "cd6a4456e835c5551093278b0335ff8f0765cce3",
+          "sha256": "50b7e03df66b767ad3bde207017fa5538c38f1241559b9ed693ceafa07f80709",
+          "bytes": 43828
+        },
+        {
+          "path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+          "blob": "ae838dc362ae33f2a01b984f42d959b74f80183e",
+          "sha256": "02e9123c9be4606840cedad30504417a9e5fe46235437ce0003df7264e9ecff2",
+          "bytes": 31675
+        }
+      ]
+    },
+    "can": {
+      "repo": "/workspace/orch02-c06-can",
+      "base": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "head": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+      "tree": "7e73132dd639bf03e40a27dd5f12837d916aeb3f",
+      "status_porcelain_z_hex": "",
+      "complete_changed_paths": [
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-c06-ir-reader-profile.toml",
+          "blob": "8098c3492e507f65ea8173e8dcc4f30af04ae319",
+          "sha256": "59bf26569d2c490bae347553d689d1bbf70c7a5064a0b3a92ce9269e3d95fcc0",
+          "bytes": 1680
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/artifacts/README.md",
+          "blob": "e88e3557ae75645a4af7a9ea0616553739ff0dc5",
+          "sha256": "2e725d6229e93b98070e3dd483ca69374bf8a100008d7ec51f6946cf8008a307",
+          "bytes": 3412
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+          "blob": "a815bcd7b3cd15322512c2086724d73ac1c32328",
+          "sha256": "29e538571b87a68afb703eb96558942746e8caaeed0d27b67ff03628866a684d",
+          "bytes": 4721
+        },
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+          "blob": "166a8e4e83b215cda8bc831f45abe47f1104db4e",
+          "sha256": "ae119000b7af559ce72b3edab4ed71c0d7416ff3e814a8ac2cc83e3ba06853f6",
+          "bytes": 8672
+        }
+      ]
+    }
+  },
+  "formal_acceptance": "G alone; no integrated acceptance or finding-closure verdict"
+}

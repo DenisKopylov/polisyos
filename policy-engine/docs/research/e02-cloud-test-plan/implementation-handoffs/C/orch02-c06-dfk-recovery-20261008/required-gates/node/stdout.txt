@@ -1,0 +1,72 @@
+Scope: all 6 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +1213
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+   ╭───────────────────────────────────────────────╮
+   │                                               │
+   │     Update available! 10.33.2 → 12.10.1.      │
+   │     Changelog: https://pnpm.io/v/12.10.1      │
+   │   To update, run: corepack use pnpm@12.10.1   │
+   │                                               │
+   ╰───────────────────────────────────────────────╯
+
+Progress: resolved 1213, reused 0, downloaded 11, added 10
+Progress: resolved 1213, reused 0, downloaded 39, added 39
+Progress: resolved 1213, reused 0, downloaded 66, added 65
+Progress: resolved 1213, reused 0, downloaded 82, added 82
+Progress: resolved 1213, reused 0, downloaded 102, added 102
+Progress: resolved 1213, reused 0, downloaded 115, added 115
+Progress: resolved 1213, reused 0, downloaded 127, added 125
+Progress: resolved 1213, reused 0, downloaded 151, added 151
+Progress: resolved 1213, reused 0, downloaded 169, added 169
+Progress: resolved 1213, reused 0, downloaded 185, added 185
+Progress: resolved 1213, reused 0, downloaded 208, added 208
+Progress: resolved 1213, reused 0, downloaded 225, added 225
+Progress: resolved 1213, reused 0, downloaded 245, added 245
+Progress: resolved 1213, reused 0, downloaded 268, added 268
+Progress: resolved 1213, reused 0, downloaded 291, added 291
+Progress: resolved 1213, reused 0, downloaded 310, added 310
+Progress: resolved 1213, reused 0, downloaded 331, added 332
+Progress: resolved 1213, reused 0, downloaded 353, added 354
+Progress: resolved 1213, reused 0, downloaded 376, added 377
+Progress: resolved 1213, reused 0, downloaded 397, added 398
+Progress: resolved 1213, reused 0, downloaded 421, added 422
+Progress: resolved 1213, reused 0, downloaded 444, added 445
+Progress: resolved 1213, reused 0, downloaded 466, added 467
+Progress: resolved 1213, reused 0, downloaded 486, added 487
+Progress: resolved 1213, reused 0, downloaded 506, added 505
+Progress: resolved 1213, reused 0, downloaded 533, added 534
+Progress: resolved 1213, reused 0, downloaded 555, added 556
+Progress: resolved 1213, reused 0, downloaded 579, added 580
+Progress: resolved 1213, reused 0, downloaded 602, added 603
+Progress: resolved 1213, reused 0, downloaded 625, added 626
+Progress: resolved 1213, reused 0, downloaded 647, added 648
+Progress: resolved 1213, reused 0, downloaded 672, added 673
+Progress: resolved 1213, reused 0, downloaded 695, added 696
+Progress: resolved 1213, reused 0, downloaded 718, added 719
+Progress: resolved 1213, reused 0, downloaded 741, added 742
+Progress: resolved 1213, reused 0, downloaded 760, added 761
+Progress: resolved 1213, reused 0, downloaded 782, added 783
+Progress: resolved 1213, reused 0, downloaded 808, added 809
+Progress: resolved 1213, reused 0, downloaded 825, added 826
+Progress: resolved 1213, reused 0, downloaded 852, added 853
+Progress: resolved 1213, reused 0, downloaded 876, added 877
+Progress: resolved 1213, reused 0, downloaded 901, added 902
+Progress: resolved 1213, reused 0, downloaded 927, added 928
+Progress: resolved 1213, reused 0, downloaded 948, added 949
+Progress: resolved 1213, reused 0, downloaded 969, added 970
+Progress: resolved 1213, reused 0, downloaded 993, added 994
+Progress: resolved 1213, reused 0, downloaded 1015, added 1016
+Progress: resolved 1213, reused 0, downloaded 1037, added 1038
+Progress: resolved 1213, reused 0, downloaded 1062, added 1064
+Progress: resolved 1213, reused 0, downloaded 1080, added 1082
+Progress: resolved 1213, reused 0, downloaded 1102, added 1104
+Progress: resolved 1213, reused 0, downloaded 1125, added 1127
+Progress: resolved 1213, reused 0, downloaded 1143, added 1145
+Progress: resolved 1213, reused 0, downloaded 1166, added 1168
+Progress: resolved 1213, reused 0, downloaded 1193, added 1195
+Progress: resolved 1213, reused 0, downloaded 1211, added 1213, done
+
+Done in 58.1s using pnpm v10.33.2

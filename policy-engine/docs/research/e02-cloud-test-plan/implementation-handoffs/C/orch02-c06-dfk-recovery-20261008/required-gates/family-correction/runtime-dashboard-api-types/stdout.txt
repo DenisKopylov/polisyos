@@ -1,0 +1,8 @@
+
+> @polisyos/runtime-dashboard@0.1.0 generate:api /workspace/orch02-recovery/c06-required-dfk-architecture/generated-freshness/source/apps/runtime-dashboard
+> ./scripts/generate-api-client.sh -- --openapi schemas/runtime_api_v1.openapi.json --output-root /workspace/orch02-recovery/c06-required-dfk-family-correction/outputs/runtime-dashboard-api-types
+
+✨ openapi-typescript 7.13.0
+🚀 /workspace/orch02-recovery/c06-required-dfk-architecture/generated-freshness/source/schemas/runtime_api_v1.openapi.json → /workspace/orch02-recovery/c06-required-dfk-family-correction/outputs/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts [2.3s]
+../../../../../c06-required-dfk-family-correction/outputs/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts 2321ms
+Generated /workspace/orch02-recovery/c06-required-dfk-family-correction/outputs/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts

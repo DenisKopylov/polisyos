@@ -1,0 +1,11 @@
+--- /workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py
++++ /workspace/orch02-native-c06/removals/dfk-old-classifier.py
+@@ -298,7 +298,7 @@
+         record = os.fsdecode(chunk)
+         if len(record) >= 4:
+             names.add(record[3:])
+-        if any(status in {"R", "C"} for status in record[:2]):
++        if record[:2] in {"R ", " R", "RM", "AM", " M", "M ", "C ", " C"}:
+             if i < len(chunks) and chunks[i]:
+                 names.add(os.fsdecode(chunks[i]))
+                 i += 1

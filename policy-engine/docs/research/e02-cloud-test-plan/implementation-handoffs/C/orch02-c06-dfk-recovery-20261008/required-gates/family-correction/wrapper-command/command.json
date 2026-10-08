@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/workspace/orch02-recovery/c06-family-correction.py",
+    "--role",
+    "dfk"
+  ],
+  "cwd": "/workspace/orch02-c06-dfk/policy-engine",
+  "start_utc": "2026-10-08T16:33:17.990208+00:00",
+  "end_utc": "2026-10-08T16:35:10.403199+00:00",
+  "wall_seconds": 112.41254817199979,
+  "max_rss_kib": 814836,
+  "user_seconds": 97.630277,
+  "system_seconds": 13.329759,
+  "timeout_seconds": null,
+  "timeout": false,
+  "returncode": 1,
+  "selected_environment": {
+    "PYTHONPATH": null,
+    "PYTHONDONTWRITEBYTECODE": null,
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+    "JAX_PLATFORMS": null,
+    "JAX_PLATFORM_NAME": null,
+    "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+    "UV_PROJECT_ENVIRONMENT": null
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 6128,
+      "sha256": "14749d2827bd5114fc44e1032da83985da5d2698ee092c1084d4c04879c0ab0b"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

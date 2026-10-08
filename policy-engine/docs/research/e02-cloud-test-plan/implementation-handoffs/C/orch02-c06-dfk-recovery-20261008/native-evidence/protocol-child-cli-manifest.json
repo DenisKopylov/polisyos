@@ -1,0 +1,485 @@
+{
+  "note": "Child CLI command from retained immutable v3 harness; process wall/RSS measured for entire 20-case parent command, no per-child resource measurement claimed",
+  "rows": [
+    {
+      "mode": "ordinary-staged",
+      "nested": false,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-root"
+      ],
+      "exit_from_asserted_protocol_receipt": 0,
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-root/census.stdout.json",
+          "bytes": 9925,
+          "sha256": "0667600a14038b9001129637d9a9d616c32260aa4285e7733ef208ccab5d58c4"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-root/census.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "census_raw_result": "complete_for_selected_local_text_inputs"
+    },
+    {
+      "mode": "ordinary-staged",
+      "nested": true,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-nested/policy-engine"
+      ],
+      "exit_from_asserted_protocol_receipt": 0,
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-nested/census.stdout.json",
+          "bytes": 9940,
+          "sha256": "6f2246c38237e19ab539ed2b7bca6eaf876ed2264dbd7e51678f11dcf5c591a7"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-staged-nested/census.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "census_raw_result": "complete_for_selected_local_text_inputs"
+    },
+    {
+      "mode": "ordinary-unstaged",
+      "nested": false,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-root"
+      ],
+      "exit_from_asserted_protocol_receipt": 0,
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-root/census.stdout.json",
+          "bytes": 9925,
+          "sha256": "d880a0266c90d31bb9023515e31e5bade1ee4b9dd3c2e87a5070c220c35eb380"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-root/census.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "census_raw_result": "complete_for_selected_local_text_inputs"
+    },
+    {
+      "mode": "ordinary-unstaged",
+      "nested": true,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-nested/policy-engine"
+      ],
+      "exit_from_asserted_protocol_receipt": 0,
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-nested/census.stdout.json",
+          "bytes": 9940,
+          "sha256": "2b98eb8c2f6feddc7219db6e947a2d27be79acbd4f9c6c1c7290b5d1d9e4d7c5"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/ordinary-unstaged-nested/census.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "census_raw_result": "complete_for_selected_local_text_inputs"
+    },
+    {
+      "mode": "added-modified",
+      "nested": false,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-root"
+      ],
+      "exit_from_asserted_protocol_receipt": 0,
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-root/census.stdout.json",
+          "bytes": 10122,
+          "sha256": "c644fc0719cd3626177accf03100b740706958269b949aa0ec380a26b329ecec"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-root/census.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "census_raw_result": "complete_for_selected_local_text_inputs"
+    },
+    {
+      "mode": "added-modified",
+      "nested": true,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-nested/policy-engine"
+      ],
+      "exit_from_asserted_protocol_receipt": 0,
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-nested/census.stdout.json",
+          "bytes": 10137,
+          "sha256": "14752043a466c0d7ec3200e4689b00c1f04f1799523b65f3043340c66eb94d4d"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/added-modified-nested/census.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "census_raw_result": "complete_for_selected_local_text_inputs"
+    },
+    {
+      "mode": "rename-staged",
+      "nested": false,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-root"
+      ],
+      "exit_from_asserted_protocol_receipt": 0,
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-root/census.stdout.json",
+          "bytes": 9869,
+          "sha256": "dab44ef9f285f4e8170e0c98c9f083586f622245c05ce0d786e0d32072b66d58"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-root/census.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "census_raw_result": "complete_for_selected_local_text_inputs"
+    },
+    {
+      "mode": "rename-staged",
+      "nested": true,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-nested/policy-engine"
+      ],
+      "exit_from_asserted_protocol_receipt": 0,
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-nested/census.stdout.json",
+          "bytes": 9884,
+          "sha256": "49fafbcd29975b5738e7b7f28cbccc90d4004023d3d33a2f02254dbcad37b1eb"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-nested/census.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "census_raw_result": "complete_for_selected_local_text_inputs"
+    },
+    {
+      "mode": "rename-staged-modified",
+      "nested": false,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-root"
+      ],
+      "exit_from_asserted_protocol_receipt": 0,
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-root/census.stdout.json",
+          "bytes": 9869,
+          "sha256": "4ea8abb1c998fc300256bea82abdc3335681203684e59da264e49b7608a8036f"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-root/census.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "census_raw_result": "complete_for_selected_local_text_inputs"
+    },
+    {
+      "mode": "rename-staged-modified",
+      "nested": true,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-nested/policy-engine"
+      ],
+      "exit_from_asserted_protocol_receipt": 0,
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-nested/census.stdout.json",
+          "bytes": 9884,
+          "sha256": "7700d654724793727fa9479d602a2065849dc1730713653234d00014ca69b54b"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-staged-modified-nested/census.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "census_raw_result": "complete_for_selected_local_text_inputs"
+    },
+    {
+      "mode": "rename-unstaged",
+      "nested": false,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-root"
+      ],
+      "exit_from_asserted_protocol_receipt": 2,
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-root/census.stdout.json",
+          "bytes": 10162,
+          "sha256": "93cf677c87d4510e90a032507355f26733696fed0b55b3ea8a984ad6f9aaa4b9"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-root/census.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "census_raw_result": "partial_unreadable_input"
+    },
+    {
+      "mode": "rename-unstaged",
+      "nested": true,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-nested/policy-engine"
+      ],
+      "exit_from_asserted_protocol_receipt": 2,
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-nested/census.stdout.json",
+          "bytes": 10177,
+          "sha256": "36268ebbc74593cee48baf042525f61874da17d9114beb91b7d30f41e66836d8"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/rename-unstaged-nested/census.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "census_raw_result": "partial_unreadable_input"
+    },
+    {
+      "mode": "copy-staged",
+      "nested": false,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-root"
+      ],
+      "exit_from_asserted_protocol_receipt": 0,
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-root/census.stdout.json",
+          "bytes": 10614,
+          "sha256": "4d6159eb1694902da3f184b0522a3cbd43a304781303fa452c2dff03e4dc72a7"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-root/census.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "census_raw_result": "complete_for_selected_local_text_inputs"
+    },
+    {
+      "mode": "copy-staged",
+      "nested": true,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-nested/policy-engine"
+      ],
+      "exit_from_asserted_protocol_receipt": 0,
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-nested/census.stdout.json",
+          "bytes": 10628,
+          "sha256": "70f4f374d281311c47c13948044c7ab8a0408d98bb18f9de6e92dea4890e8adc"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-nested/census.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "census_raw_result": "complete_for_selected_local_text_inputs"
+    },
+    {
+      "mode": "copy-staged-modified",
+      "nested": false,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-root"
+      ],
+      "exit_from_asserted_protocol_receipt": 0,
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-root/census.stdout.json",
+          "bytes": 10614,
+          "sha256": "644de7019816733b926fda25f2054a85f69e31d42a7da21a2b8d0b295e0c18de"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-root/census.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "census_raw_result": "complete_for_selected_local_text_inputs"
+    },
+    {
+      "mode": "copy-staged-modified",
+      "nested": true,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-nested/policy-engine"
+      ],
+      "exit_from_asserted_protocol_receipt": 0,
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-nested/census.stdout.json",
+          "bytes": 10628,
+          "sha256": "fea7778e130fd5f66a5aa6530a781bda2f39e796e3e775055391a551942f9274"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-staged-modified-nested/census.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "census_raw_result": "complete_for_selected_local_text_inputs"
+    },
+    {
+      "mode": "copy-unstaged",
+      "nested": false,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-root"
+      ],
+      "exit_from_asserted_protocol_receipt": 0,
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-root/census.stdout.json",
+          "bytes": 10614,
+          "sha256": "8c2e3371ec2df5eae251381768167d162201caf6c06b1e188fffc647c92f6f0c"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-root/census.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "census_raw_result": "complete_for_selected_local_text_inputs"
+    },
+    {
+      "mode": "copy-unstaged",
+      "nested": true,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-nested/policy-engine"
+      ],
+      "exit_from_asserted_protocol_receipt": 0,
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-nested/census.stdout.json",
+          "bytes": 10628,
+          "sha256": "55c834920293f3138854d969b7029f26ea0420c68108e2af2b6d93690ad2b019"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/copy-unstaged-nested/census.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "census_raw_result": "complete_for_selected_local_text_inputs"
+    },
+    {
+      "mode": "clean",
+      "nested": false,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-native-c06/protocol-matrix-v3/clean-root"
+      ],
+      "exit_from_asserted_protocol_receipt": 0,
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-root/census.stdout.json",
+          "bytes": 9471,
+          "sha256": "39417b41234da6ebed1e0844e31266e10112c31bd8ef4d523d1bfb9d5abd36e6"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-root/census.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "census_raw_result": "complete_for_selected_local_text_inputs"
+    },
+    {
+      "mode": "clean",
+      "nested": true,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "--repo-root",
+        "/workspace/orch02-native-c06/protocol-matrix-v3/clean-nested/policy-engine"
+      ],
+      "exit_from_asserted_protocol_receipt": 0,
+      "complete_outputs": [
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-nested/census.stdout.json",
+          "bytes": 9486,
+          "sha256": "123683dbcd432314b9bd2085879f9cfa4d86ef573e1d2d4f05948f37ea494299"
+        },
+        {
+          "path": "/workspace/orch02-native-c06/protocol-matrix-v3/clean-nested/census.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "census_raw_result": "complete_for_selected_local_text_inputs"
+    }
+  ]
+}

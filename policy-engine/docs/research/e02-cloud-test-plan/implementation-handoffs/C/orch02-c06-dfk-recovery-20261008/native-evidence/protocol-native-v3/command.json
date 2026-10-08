@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-I",
+    "/workspace/orch02-native-c06/protocol_probe.py"
+  ],
+  "cwd": "/workspace/orch02-native-c06",
+  "start_utc": "2026-10-08T16:05:30.085497+00:00",
+  "end_utc": "2026-10-08T16:05:35.728158+00:00",
+  "wall_seconds": 5.6419651470000645,
+  "max_rss_kib": 18944,
+  "user_seconds": 4.140832,
+  "system_seconds": 1.4305189999999999,
+  "timeout_seconds": 60.0,
+  "timeout": false,
+  "returncode": 0,
+  "selected_environment": {
+    "PYTHONPATH": null,
+    "PYTHONDONTWRITEBYTECODE": null,
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+    "JAX_PLATFORMS": null,
+    "JAX_PLATFORM_NAME": null,
+    "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+    "UV_PROJECT_ENVIRONMENT": null
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 530,
+      "sha256": "b8e0ec2b511cb83b2d6bff98ef0abd91ab712ff5e635ae1677a68a58b7e3376b"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

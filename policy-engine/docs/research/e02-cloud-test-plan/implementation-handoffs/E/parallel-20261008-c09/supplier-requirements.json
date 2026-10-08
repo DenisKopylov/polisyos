@@ -235,7 +235,7 @@
     {
       "id": "B190",
       "existing_path": "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
-      "producer": "identifiability_diagnostic → _build_execute_summary_evaluator → actual foundry.execute.api.execute → persisted SimulationResult/Metrics → _persist_sensitivity_matrix",
+      "producer": "Historical Gf00d: identifiability_diagnostic → _build_execute_summary_evaluator → actual foundry.execute.api.execute → SimulationResult.metrics_ref → operational Metrics.values (counts/latency). This is actual execution but does not supply a scientific state-response Jacobian. The separately frozen producer below consumes declared scalar state slots instead.",
       "existing_matrix_fields": [
         "schema_version",
         "moment_names",
@@ -246,17 +246,37 @@
         "finite_diff_steps"
       ],
       "existing_missing_basis": [
+        "operational Metrics counts/latency are not a scientific response variable or response projection",
         "typed units/scale",
         "source/model input refs on matrix manifest",
         "content-bound evaluator identity"
       ],
-      "free_C09_work": "Extend only the owned native sensitivity producer/intake with exact axes/source/model/unit binding, preserving non-gating local diagnostic profile. Existing native execution helper can be reused; no new simulation service.",
+      "free_C09_work": "Completed separately by the root-appointed disjoint canonical sensitivity writer; use its frozen native scalar-state response producer and incoming source-bound handoff. No second evaluator or simulation service is introduced.",
       "partner_bridge": "PropagateUncertaintyNode currently params-only affine; outside C09/C08 declared lease. G must appoint exact Node adapter writer before source mutation.",
       "tests_proposal": [
-        "policy-engine/tests/unit/foundry/calibration/test_identifiability_sensitivity_basis.py"
+        "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py"
       ],
-      "consumer_discriminator": "zero-baseline y=x−2 retains variance1; wrong-axis/wrong-unit/fake/unresolved map refuses rather than fallback-links; constant model variance0 remains valid.",
-      "current_work": "Root appointed disjoint /root/producer_packets native sensitivity leaf from G on codex/e02-E-c09-sensitivity-20261008; outside this C09 write lease. Node bridge remains G-appointed consumer writer."
+      "consumer_discriminator": "Separate mathematical callback control y=x−2 at x=2 has J=1 and variance1 for input variance1; it has no execute-state response_basis. Native deterministic registered income_tax fixture has government.balance=4r−2 at r=.5, J=4, with a second declared global.tax_rate response having J=0. Wrong axis/unit/source/manifest lineage refuses before state load; no scientific measurement/noise or authority claim.",
+      "current_work": "Root-appointed /root/producer_packets owns the disjoint native sensitivity leaf on codex/e02-E-c09-sensitivity-20261008. Frozen source e6d76c534ee79efea5de38d9e383bbf0b67b1490 / tree e7c6b418607d6b39b55f4a5f6b1d37532788273c adds native state-response projection and reader; actual PropagateUncertaintyNode adapter remains an independently appointed cross-owner dependency.",
+      "frozen_native_producer": {
+        "source_sha": "e6d76c534ee79efea5de38d9e383bbf0b67b1490",
+        "source_tree": "e7c6b418607d6b39b55f4a5f6b1d37532788273c",
+        "topic": "codex/e02-E-c09-sensitivity-20261008",
+        "profile": "execute_scalar_state_response_v1",
+        "producer_artifact_bridge_consumer_surface": [
+          "registered income_tax parameter override",
+          "actual foundry.execute.api.execute",
+          "SimulationResult manifest-selected state snapshot/view",
+          "declared registered scalar state-response slots and unit/axis bindings",
+          "persisted local sensitivity matrix response_basis and manifest inputs",
+          "fresh internal _load_execute_response_matrix reader recomputing state values/Jacobian and source/config/lineage basis"
+        ],
+        "native_fixture": "Two active agents with reported_income=(2,2), government balance−2, mechanism rate r: balance=4r−2; r=.5 gives0, J=4. Ordered second global.tax_rate response stays.125 and J=0.",
+        "mathematical_control": "y=x−2 is a separate callback-only scalar fixture; not the native registered-mechanism law.",
+        "gate_eligible": false,
+        "scientific_response_law_or_Runtime_authority": "not_established",
+        "publication": "awaiting exact committed component handoff; do not infer publication from local object availability"
+      }
     },
     {
       "id": "B194",
@@ -586,7 +606,7 @@
   "missing_historical_custody": "No old raw archive transfer or source PR prose used as new candidate PASS. Non-deciding175c history not mandatory new-method input.",
   "next_concrete_results": [
     "publish narrow MC conditional mean error source/receipt after independent review",
-    "root-appointed native sensitivity producer response basis leaf; then exact G-appointed Node adapter",
+    "consume exact published native scalar-state sensitivity leaf e6d76c534ee79efea5de38d9e383bbf0b67b1490 and its handoff; then exact G-appointed Node adapter",
     "G selects compatible ForecastOwner v2 +calibration facade source, C10 configured actual consumer replay",
     "G/C07 choose existing observed-feature law intake, C09/C08 supply exact profile then BERL/C10/C11 negatives"
   ]

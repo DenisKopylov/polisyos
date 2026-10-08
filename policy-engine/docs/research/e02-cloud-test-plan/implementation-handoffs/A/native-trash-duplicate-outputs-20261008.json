@@ -1,0 +1,82 @@
+{
+  "validated_paths": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-observer-composed-eee7",
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-owner-hold-pre-B3-red",
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-consumer-eee7",
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-routing-R1",
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-routing-R1-selector-corrected",
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-census-full-eee7",
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-census-final-bcb122",
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/final-monetary-req-owned-ruff-bcb122"
+  ],
+  "results": [
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-observer-composed-eee7",
+      "native_action": "Finder delete -> Trash; never empty Trash",
+      "exit_code": 0,
+      "stdout": "Macintosh HD:Users:deniskopylov:.Trash:monetary-observer-composed-eee7:\n",
+      "stderr": "",
+      "source_exists_after": false
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-owner-hold-pre-B3-red",
+      "native_action": "Finder delete -> Trash; never empty Trash",
+      "exit_code": 0,
+      "stdout": "Macintosh HD:Users:deniskopylov:.Trash:monetary-owner-hold-pre-B3-red:\n",
+      "stderr": "",
+      "source_exists_after": false
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-consumer-eee7",
+      "native_action": "Finder delete -> Trash; never empty Trash",
+      "exit_code": 0,
+      "stdout": "Macintosh HD:Users:deniskopylov:.Trash:req-caller-binding-consumer-eee7:\n",
+      "stderr": "",
+      "source_exists_after": false
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-routing-R1",
+      "native_action": "Finder delete -> Trash; never empty Trash",
+      "exit_code": 0,
+      "stdout": "Macintosh HD:Users:deniskopylov:.Trash:req-caller-binding-routing-R1:\n",
+      "stderr": "",
+      "source_exists_after": false
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-routing-R1-selector-corrected",
+      "native_action": "Finder delete -> Trash; never empty Trash",
+      "exit_code": 0,
+      "stdout": "Macintosh HD:Users:deniskopylov:.Trash:req-caller-binding-routing-R1-selector-corrected:\n",
+      "stderr": "",
+      "source_exists_after": false
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-census-full-eee7",
+      "native_action": "Finder delete -> Trash; never empty Trash",
+      "exit_code": 0,
+      "stdout": "Macintosh HD:Users:deniskopylov:.Trash:req-caller-census-full-eee7:\n",
+      "stderr": "",
+      "source_exists_after": false
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-census-final-bcb122",
+      "native_action": "Finder delete -> Trash; never empty Trash",
+      "exit_code": 0,
+      "stdout": "Macintosh HD:Users:deniskopylov:.Trash:req-caller-census-final-bcb122:\n",
+      "stderr": "",
+      "source_exists_after": false
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/final-monetary-req-owned-ruff-bcb122",
+      "native_action": "Finder delete -> Trash; never empty Trash",
+      "exit_code": 0,
+      "stdout": "Macintosh HD:Users:deniskopylov:.Trash:final-monetary-req-owned-ruff-bcb122:\n",
+      "stderr": "",
+      "source_exists_after": false
+    }
+  ],
+  "policy": "Only complete byte-exact duplicate output directories with no basetemps, no unique input, no active process. Production/code/documentation/CAS/DB/used active worktree retained. Trash never emptied.",
+  "source_head_before_cleanup": "34b211268fc70f5e98e06b9f6c26922bc46f8093",
+  "source_tree_before_cleanup": "6bf82f32b0114aa6e9ae96d28ef276efe13b77af",
+  "preserved_unique_inputs": "All CAS/SQLite/DuckDB basetemps, production data, active worktree and environment retained. Only duplicate already committed deciding-output folders moved."
+}

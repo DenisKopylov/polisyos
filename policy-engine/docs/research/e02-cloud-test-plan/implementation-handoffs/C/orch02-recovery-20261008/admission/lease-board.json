@@ -1,0 +1,42 @@
+[
+  {
+    "role": "c05",
+    "branch": "codex/e02-C-orch02-c05-recovery",
+    "path": "/workspace/orch02-c05",
+    "base": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+    "tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+    "admission": "admitted",
+    "create_receipt": "/workspace/orch02-recovery/admission/c05-create.json",
+    "resume_receipt": "/workspace/orch02-recovery/admission/c05-resume.json"
+  },
+  {
+    "role": "c06-dfk",
+    "branch": "codex/e02-C-orch02-c06-dfk-recovery",
+    "path": "/workspace/orch02-c06-dfk",
+    "base": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+    "tree": "35d9c02156f8a27335b858bfe8053d7cbc6a54f2",
+    "admission": "admitted",
+    "create_receipt": "/workspace/orch02-recovery/admission/c06-dfk-create.json",
+    "resume_receipt": "/workspace/orch02-recovery/admission/c06-dfk-resume.json"
+  },
+  {
+    "role": "c06-can",
+    "branch": "codex/e02-C-orch02-c06-can-recovery",
+    "path": "/workspace/orch02-c06-can",
+    "base": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+    "admission": "admitted",
+    "create_receipt": "/workspace/orch02-recovery/admission/c06-can-create.json",
+    "resume_receipt": "/workspace/orch02-recovery/admission/c06-can-resume.json"
+  },
+  {
+    "role": "c12",
+    "branch": "codex/e02-C-orch02-c12-recovery",
+    "path": "/workspace/orch02-c12",
+    "base": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+    "tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+    "admission": "admitted",
+    "create_receipt": "/workspace/orch02-recovery/admission/c12-create.json",
+    "resume_receipt": "/workspace/orch02-recovery/admission/c12-resume.json"
+  }
+]

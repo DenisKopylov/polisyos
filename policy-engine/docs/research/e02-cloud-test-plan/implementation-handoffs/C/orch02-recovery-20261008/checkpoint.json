@@ -1,0 +1,112 @@
+{
+  "schema": "policyos.e02.orch02.recovery_coordinator.v1",
+  "original_unit": "C",
+  "execution_roles": [
+    "C05",
+    "C06",
+    "C12"
+  ],
+  "previous_setup_error": "failed to query executor configuration capabilities",
+  "current_G": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "current_G_tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+  "status": "recovered_blob_inputs_and_actual_host_lanes_admitted; final_applied_sources_under_review",
+  "source_selection": {
+    "G_only_selects_composition": true,
+    "own_base_candidates_permitted": "User exact recovery prompt permits isolated candidate verification before cohort acceptance",
+    "all_preimages_against_G": "Writers independently record every existing and new path and material dependency; incompatible C05/C12/DFK bases retain original lineage and request G source selection",
+    "CAN": "Reader-only delta on f00; producer/put_json/adapter contract unchanged and dependency closure independently compared with G032; no Core overlay admission"
+  },
+  "actual_lanes": [
+    {
+      "role": "c05",
+      "branch": "codex/e02-C-orch02-c05-recovery",
+      "path": "/workspace/orch02-c05",
+      "base": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+      "admission": "admitted",
+      "create_receipt": "/workspace/orch02-recovery/admission/c05-create.json",
+      "resume_receipt": "/workspace/orch02-recovery/admission/c05-resume.json"
+    },
+    {
+      "role": "c06-dfk",
+      "branch": "codex/e02-C-orch02-c06-dfk-recovery",
+      "path": "/workspace/orch02-c06-dfk",
+      "base": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+      "tree": "35d9c02156f8a27335b858bfe8053d7cbc6a54f2",
+      "admission": "admitted",
+      "create_receipt": "/workspace/orch02-recovery/admission/c06-dfk-create.json",
+      "resume_receipt": "/workspace/orch02-recovery/admission/c06-dfk-resume.json"
+    },
+    {
+      "role": "c06-can",
+      "branch": "codex/e02-C-orch02-c06-can-recovery",
+      "path": "/workspace/orch02-c06-can",
+      "base": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+      "admission": "admitted",
+      "create_receipt": "/workspace/orch02-recovery/admission/c06-can-create.json",
+      "resume_receipt": "/workspace/orch02-recovery/admission/c06-can-resume.json"
+    },
+    {
+      "role": "c12",
+      "branch": "codex/e02-C-orch02-c12-recovery",
+      "path": "/workspace/orch02-c12",
+      "base": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+      "admission": "admitted",
+      "create_receipt": "/workspace/orch02-recovery/admission/c12-create.json",
+      "resume_receipt": "/workspace/orch02-recovery/admission/c12-resume.json"
+    }
+  ],
+  "independent_helpers": {
+    "canonical_writers": [
+      "/root/c05_writer",
+      "/root/c06_writer",
+      "/root/c12_writer"
+    ],
+    "source_review": [
+      "/root/recovery_review",
+      "/root/native_c06"
+    ],
+    "native_testers": [
+      "/root/native_c05_c12",
+      "/root/native_c06"
+    ],
+    "children_prohibited": true
+  },
+  "source_acceptance": "not_admitted_by_G",
+  "formal_closure_ids": [],
+  "native_runtime_outcome": "UNRUN at this checkpoint; separate later source-qualified receipts",
+  "partner_requirements": [
+    {
+      "owner": "G",
+      "requirement": "Select complete DFI->CAT->Legal ancestry and DFK baseline; return any composition delta to its canonical owner, do not overwrite/drop hunks. Shared lock/API/generated/public companions belong to G."
+    },
+    {
+      "owner": "C02/G",
+      "requirement": "Decide Core/canon/options compatibility, profile-less history and raw-Core bypass. Generic strict IR reader proof can precede selected installed composition acceptance."
+    },
+    {
+      "owner": "C10/A",
+      "requirement": "Real served Catalog request->CatalogRunProfile/output; Legal caller retained immutable expected generation/model/profile + actual encoder, never new reader selector or compatibility Graph.embedding_model."
+    },
+    {
+      "owner": "L01/L02",
+      "requirement": "Use existing local LA032 mixed-layout producer/reader quantity and smallest authentic selected source/profile or Legal corpus/model/generation/encoder tuple, no asset/payload upload."
+    },
+    {
+      "owner": "G/C06",
+      "requirement": "LA023 explicit existing one-call trained artifact with unsupported cross-call resume or extension of existing TrainingCarry with optimizer/RNG/episode/config; no third PPO loop; separate from census/CAN."
+    },
+    {
+      "owner": "G/C13",
+      "requirement": "Exactly one broad portable replay only after selected composition freeze; candidate-local package/native receipts do not imply integrated PASS."
+    }
+  ],
+  "limitations": [
+    "C05 finite material basis does not automatically close full LA041 output/resume integrity or source-registry consolidation; headers/credentials/remote/concurrent atomic snapshot bounded.",
+    "DFK census repair neither establishes installed/external FQN retirement nor authorizes legacy deletion.",
+    "C12 fixture intent refusal neither proves current-law authority nor whole LA040/LA042 retirement.",
+    "App Python3.14.2 observed; Node24 vs22 and uv0.12.19 vs0.9.21 baseline deviations recorded as toolchain observations."
+  ]
+}

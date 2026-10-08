@@ -1,0 +1,21 @@
+{
+  "environment_id": "ccarenv_b64_Y2NhcmVudl83OGZmYmU0YjBhOTg4MTkxOTRlNjYxMzlhMjY4MjQ1Ng",
+  "source_config_id": "a3c414f4-1444-4409-88b7-b3306d1e6a6f~cecfg_6ac24a8eab988194a41b3775d61e5d3e",
+  "source_config_version_id": "a3c414f4-1444-4409-88b7-b3306d1e6a6f~cecfgver_6ac2a17c61788194a84bf357feaf489a",
+  "spec_revision": "2",
+  "observed_spec_revision": "2",
+  "observations_current": true,
+  "provider": "cloud",
+  "desired_phase": "running",
+  "observed_phase": "running",
+  "failure": null,
+  "connectivity": "connected",
+  "network_policy": {
+    "mode": "unrestricted",
+    "state": "enforced"
+  },
+  "capabilities": [],
+  "secrets": [],
+  "runtime_variables": [],
+  "outbound_identities": []
+}

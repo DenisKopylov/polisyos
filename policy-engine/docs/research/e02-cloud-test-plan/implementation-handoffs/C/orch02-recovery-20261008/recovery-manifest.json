@@ -1,0 +1,178 @@
+{
+  "schema": "policyos.e02.orch02.recovered_blob_manifest.v1",
+  "files": [
+    {
+      "artifact": "c05-consumer-review.json",
+      "git_blob": "5e875f2c888bcd834267799063fd5be149a5acfd",
+      "bytes": 22866,
+      "sha256": "10fcb6e8560980a8d685143919d178c587d8f2c213356447f37754411a398564",
+      "identity_check": "PASS",
+      "manifest_check": "PASS",
+      "retrieval_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/blobs/5e875f2c888bcd834267799063fd5be149a5acfd",
+      "kind": "unattached_blob_input_not_applied_commit"
+    },
+    {
+      "artifact": "c05-finite-inventory.json",
+      "git_blob": "656713ba4dc6b06152d97bdfe1fa8f696794047b",
+      "bytes": 36024,
+      "sha256": "59cdc724ca051cc638a5da5188a7ee697987f16ae416f8ef699f3616ce20e038",
+      "identity_check": "PASS",
+      "manifest_check": "PASS",
+      "retrieval_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/blobs/656713ba4dc6b06152d97bdfe1fa8f696794047b",
+      "kind": "unattached_blob_input_not_applied_commit"
+    },
+    {
+      "artifact": "c05-leaf.json",
+      "git_blob": "4df4a942553603746d349dd82c5f22eaaad7e062",
+      "bytes": 33508,
+      "sha256": "b1a8adf075fb0d2868b1809fd981041fab67c66c6a1a062b6089b15733867c0a",
+      "identity_check": "PASS",
+      "manifest_check": "PASS",
+      "retrieval_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/blobs/4df4a942553603746d349dd82c5f22eaaad7e062",
+      "kind": "unattached_blob_input_not_applied_commit"
+    },
+    {
+      "artifact": "c05-source-review.json",
+      "git_blob": "6085eb77f80d71982ef9a239cdd5718a33a07cff",
+      "bytes": 20209,
+      "sha256": "8a9b1f020525c93cf5301f9ec20035748b780f5c6fa1326b1c1304e953254bbd",
+      "identity_check": "PASS",
+      "manifest_check": "PASS",
+      "retrieval_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/blobs/6085eb77f80d71982ef9a239cdd5718a33a07cff",
+      "kind": "unattached_blob_input_not_applied_commit"
+    },
+    {
+      "artifact": "c05-v5.patch",
+      "git_blob": "a9d38a51c6b6ff2e28667bc6653008368c546346",
+      "bytes": 71212,
+      "sha256": "e758776ce0798fe4b61f649db1674215190437e4833e00d287c03d216926e269",
+      "identity_check": "PASS",
+      "manifest_check": "PASS",
+      "retrieval_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/blobs/a9d38a51c6b6ff2e28667bc6653008368c546346",
+      "kind": "unattached_blob_input_not_applied_commit"
+    },
+    {
+      "artifact": "c06-can.patch",
+      "git_blob": "0861da93126c5e7d08ddcecae757a42001a25e70",
+      "bytes": 13780,
+      "sha256": "d212860f37f333168d52c2c52558c46fb2bbc420751b04193c3893fe0e1735ab",
+      "identity_check": "PASS",
+      "manifest_check": "PASS",
+      "retrieval_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/blobs/0861da93126c5e7d08ddcecae757a42001a25e70",
+      "kind": "unattached_blob_input_not_applied_commit"
+    },
+    {
+      "artifact": "c06-dfk.patch",
+      "git_blob": "8ef5d4b4d37b035e978dab786539e9afa105a40c",
+      "bytes": 8480,
+      "sha256": "7cfdcb60eab1d3cfe59d03fcfdc8f28354eac2127e60d654621e1aaba8f4a937",
+      "identity_check": "PASS",
+      "manifest_check": "PASS",
+      "retrieval_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/blobs/8ef5d4b4d37b035e978dab786539e9afa105a40c",
+      "kind": "unattached_blob_input_not_applied_commit"
+    },
+    {
+      "artifact": "c06-leaf.json",
+      "git_blob": "c6dcac4d77d4f1db05cbe38450335acd772b7a7d",
+      "bytes": 33616,
+      "sha256": "83a0a9af015cc120da1a13df14aa1d4f41bf7fe28a8b68007ffc977f1ecb524e",
+      "identity_check": "PASS",
+      "manifest_check": "PASS",
+      "retrieval_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/blobs/c6dcac4d77d4f1db05cbe38450335acd772b7a7d",
+      "kind": "unattached_blob_input_not_applied_commit"
+    },
+    {
+      "artifact": "c06-review.json",
+      "git_blob": "1bc6874b92eabb019758bb8acaa1e816256f0489",
+      "bytes": 42084,
+      "sha256": "23a4dcef4c93f8e3b2b615704f54a0a0597c25c5fcea7c3f10f7e9c4ba274fdb",
+      "identity_check": "PASS",
+      "manifest_check": "PASS",
+      "retrieval_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/blobs/1bc6874b92eabb019758bb8acaa1e816256f0489",
+      "kind": "unattached_blob_input_not_applied_commit"
+    },
+    {
+      "artifact": "c12-leaf.json",
+      "git_blob": "7d92ae730cdd9a2060f3abe3901dfd437145e0df",
+      "bytes": 10619,
+      "sha256": "fd5cfda9aa4f2f16d079e2428fb21cec9e63a3e5171a35b5c127ad467e20bd46",
+      "identity_check": "PASS",
+      "manifest_check": "PASS",
+      "retrieval_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/blobs/7d92ae730cdd9a2060f3abe3901dfd437145e0df",
+      "kind": "unattached_blob_input_not_applied_commit"
+    },
+    {
+      "artifact": "c12-proposal.json",
+      "git_blob": "a8869a2adaa29f249378e4041f03f06b322e4480",
+      "bytes": 61782,
+      "sha256": "3cdfb778f4fd1e39c92bf0547950c0be849d0435c03f32b53e486e33e9bc3295",
+      "identity_check": "PASS",
+      "manifest_check": "PASS",
+      "retrieval_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/blobs/a8869a2adaa29f249378e4041f03f06b322e4480",
+      "kind": "unattached_blob_input_not_applied_commit"
+    },
+    {
+      "artifact": "c12-review.json",
+      "git_blob": "676a4ee950d309bdc376d7092d37aff2fdc21cfe",
+      "bytes": 25898,
+      "sha256": "9f11f5e9141bef95bf8cf20d765275b4337a220d9e8c1100665d59bebb1054b4",
+      "identity_check": "PASS",
+      "manifest_check": "PASS",
+      "retrieval_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/blobs/676a4ee950d309bdc376d7092d37aff2fdc21cfe",
+      "kind": "unattached_blob_input_not_applied_commit"
+    },
+    {
+      "artifact": "coordination.json",
+      "git_blob": "bd44b9476cb2349093ef5dccecc465ec93b54045",
+      "bytes": 39539,
+      "sha256": "f81ad6bdf7c7944c841bab74f513e8c5c60dddb9a7a5f888a04a84bb9ebaba50",
+      "identity_check": "PASS",
+      "manifest_check": "PASS",
+      "retrieval_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/blobs/bd44b9476cb2349093ef5dccecc465ec93b54045",
+      "kind": "unattached_blob_input_not_applied_commit"
+    },
+    {
+      "artifact": "l01-c-factual.json",
+      "git_blob": "ef0a4f87fac08b9b0d58044176a9e79274a1a9de",
+      "bytes": 29831,
+      "sha256": "17f80b522b01e0c25385c250bb0411af98d033fed1972e07d238015d483a5f77",
+      "identity_check": "PASS",
+      "manifest_check": "PASS",
+      "retrieval_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/blobs/ef0a4f87fac08b9b0d58044176a9e79274a1a9de",
+      "kind": "unattached_blob_input_not_applied_commit"
+    },
+    {
+      "artifact": "l01-c-wrapper.json",
+      "git_blob": "55a578306a1e1ece80ad8c454da0de196dab1d8e",
+      "bytes": 11972,
+      "sha256": "e3222240a2500ab7775d14a7f9cf6b5fd762c467cda3f9c1331797695cc09873",
+      "identity_check": "PASS",
+      "manifest_check": "PASS",
+      "retrieval_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/blobs/55a578306a1e1ece80ad8c454da0de196dab1d8e",
+      "kind": "unattached_blob_input_not_applied_commit"
+    },
+    {
+      "artifact": "l01-s1-source-facts.json",
+      "git_blob": "ade3547eaff26ac6b4acaca861e4e92becaeae74",
+      "bytes": 19963,
+      "sha256": "9dd92d6a8e23f3bf20acec3631f74d7cf8825767702b87cee419a272a9642782",
+      "identity_check": "PASS",
+      "manifest_check": "PASS",
+      "retrieval_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/blobs/ade3547eaff26ac6b4acaca861e4e92becaeae74",
+      "kind": "unattached_blob_input_not_applied_commit"
+    },
+    {
+      "artifact": "l02-i4-preparation.json",
+      "git_blob": "f7dd69e939ded4c3aa840c3a15af4a0ae11b2384",
+      "bytes": 33068,
+      "sha256": "899d03373a461ae1763162b5b626b0b5d95f76e874fc01427a97603705b9528b",
+      "identity_check": "PASS",
+      "manifest_check": "PASS",
+      "retrieval_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/blobs/f7dd69e939ded4c3aa840c3a15af4a0ae11b2384",
+      "kind": "unattached_blob_input_not_applied_commit"
+    }
+  ],
+  "denominator": "every downloaded needed recovery/partner blob matched to supplied coordination/user manifest",
+  "observations": "Git header+exact UTF8 byte SHA1 and manifest bytes/SHA256; no native/runtime/source acceptance verdict",
+  "previous_executor_error": "failed to query executor configuration capabilities"
+}

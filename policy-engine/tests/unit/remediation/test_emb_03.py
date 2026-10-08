@@ -1556,3 +1556,58 @@ def test_reopened_consumer_uses_saved_request_intent_before_encode_and_index(
         assert knn_calls == 1
     finally:
         reopened.close()
+
+
+@pytest.mark.parametrize("operator", ["between", "in"])
+@pytest.mark.parametrize("lower_bound", [0.0, 1e-5])
+@pytest.mark.parametrize("candidate_value", [-1.0, 0.0, 1e-5, 2.0, 5.0, 6.0])
+def test_reopened_threshold_consumer_retains_numeric_scalar(
+    tmp_path: Path, operator: str, lower_bound: float, candidate_value: float
+) -> None:
+    db_path = tmp_path / "lex_knowledge_graph.duckdb"
+    with duckdb.connect(str(db_path)) as con:
+        con.execute(
+            """
+            CREATE TABLE lex_facts (
+                fact_id VARCHAR, confidence DOUBLE, trust_tier VARCHAR
+            )
+            """
+        )
+        con.execute("INSERT INTO lex_facts VALUES ('fact-zero', 1.0, 'normative_fact')")
+        con.execute(
+            """
+            CREATE TABLE lex_rule_thresholds (
+                threshold_id VARCHAR, fact_id VARCHAR, metric VARCHAR,
+                operator VARCHAR, value_decimal DOUBLE, value_text VARCHAR,
+                unit VARCHAR, applies_to VARCHAR
+            )
+            """
+        )
+        con.execute(
+            "INSERT INTO lex_rule_thresholds VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            ["threshold-zero", "fact-zero", "distance", operator, lower_bound, "5", "km", "firms"],
+        )
+
+    store = LegalKnowledgeStore(db_path=db_path, index_dir=tmp_path)
+    try:
+        result = store.evaluate_rule_threshold(
+            threshold_id="threshold-zero",
+            candidate_value=candidate_value,
+            candidate_unit="km",
+            applies_to="firms",
+        )
+    finally:
+        store.close()
+
+    admitted = (
+        lower_bound <= candidate_value <= 5.0
+        if operator == "between"
+        else candidate_value in {lower_bound, 5.0}
+    )
+    assert result.status == ("admitted" if admitted else "blocked")
+    assert result.reason == ("threshold_satisfied" if admitted else "threshold_violated")
+    assert result.normalized_candidate_value == candidate_value
+    assert result.normalized_threshold_value == lower_bound
+    assert result.canonical_unit == "km"
+    assert result.threshold_id == "threshold-zero"
+    assert result.fact_id == "fact-zero"

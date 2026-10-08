@@ -979,7 +979,12 @@ class LegalKnowledgeStore:
     def _parse_numeric_values(*values: str | float | None) -> tuple[float, ...]:
         parsed: list[float] = []
         for value in values:
-            token = str(value or "").replace(",", ".")
+            if value is None:
+                continue
+            if isinstance(value, float):
+                parsed.append(value)
+                continue
+            token = value.replace(",", ".")
             number = ""
             for char in token:
                 if char.isdigit() or char in ".-+":

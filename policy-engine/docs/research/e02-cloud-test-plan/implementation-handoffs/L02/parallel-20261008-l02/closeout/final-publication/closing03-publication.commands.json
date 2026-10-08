@@ -1,0 +1,62 @@
+[
+  {
+    "argv": [
+      "git",
+      "push",
+      "origin",
+      "HEAD:refs/heads/codex/e02-L02-authentic-20261008"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "wall_s": 2.0799816249636933,
+    "stdout_ref": ".tmp/parallel-20261008-l02/closeout/closing03-push.stdout",
+    "stdout_sha256": "afb31dc11a3e7d56a7e91d7e36ba07fbdb0b38b464fdfd1785b7100b40a73788",
+    "stderr_ref": ".tmp/parallel-20261008-l02/closeout/closing03-push.stderr",
+    "stderr_sha256": "eabaec3a217817d63527e644ebb401dc12b947e8532efa9868109f800dc3ce41"
+  },
+  {
+    "argv": [
+      "git",
+      "ls-remote",
+      "origin",
+      "refs/heads/codex/e02-L02-authentic-20261008"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "wall_s": 0.5451347500202246,
+    "stdout_ref": ".tmp/parallel-20261008-l02/closeout/closing03-lsremote.stdout",
+    "stdout_sha256": "41e5ef63787aa686b860831a95a1f31ab3093dfffd69022dfae83115a6b91961",
+    "stderr_ref": ".tmp/parallel-20261008-l02/closeout/closing03-lsremote.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "argv": [
+      "git",
+      "fetch",
+      "origin",
+      "codex/e02-L02-authentic-20261008"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "wall_s": 0.5872790419962257,
+    "stdout_ref": ".tmp/parallel-20261008-l02/closeout/closing03-fetch.stdout",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_ref": ".tmp/parallel-20261008-l02/closeout/closing03-fetch.stderr",
+    "stderr_sha256": "b798af6f1eccaf9523f4c308b26e0e531a197fac2fd27c0e4bb98a9754ed1e44"
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "origin/codex/e02-L02-authentic-20261008",
+      "origin/codex/e02-L02-authentic-20261008^{tree}"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "wall_s": 0.00753100001020357,
+    "stdout_ref": ".tmp/parallel-20261008-l02/closeout/closing03-remote-identity.stdout",
+    "stdout_sha256": "1d2f3871ecc2ef7fe99403338bb6dbf11c547188808ee1616fd8daf139418d04",
+    "stderr_ref": ".tmp/parallel-20261008-l02/closeout/closing03-remote-identity.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

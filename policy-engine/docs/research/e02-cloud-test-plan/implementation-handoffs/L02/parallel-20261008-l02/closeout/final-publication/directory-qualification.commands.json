@@ -1,0 +1,97 @@
+[
+  {
+    "argv": [
+      "git",
+      "add",
+      "--",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/parallel-20261008-l02-late-input-qualification.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/parallel-20261008-l02-late-input-qualification.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/parallel-20261008-l02-late-input-qualification.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/parallel-20261008-l02-late-input-qualification.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-l02-late-input-qualification.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-l02-late-input-qualification.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/final-delivery.json"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "wall_s": 0.027244709024671465,
+    "stdout_ref": ".tmp/parallel-20261008-l02/closeout/directory-add.stdout",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_ref": ".tmp/parallel-20261008-l02/closeout/directory-add.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "argv": [
+      "git",
+      "diff",
+      "--cached",
+      "--check"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "wall_s": 0.010368374991230667,
+    "stdout_ref": ".tmp/parallel-20261008-l02/closeout/directory-diff.stdout",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_ref": ".tmp/parallel-20261008-l02/closeout/directory-diff.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "argv": [
+      "git",
+      "status",
+      "-sb"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "wall_s": 0.09583850001217797,
+    "stdout_ref": ".tmp/parallel-20261008-l02/closeout/directory-attachment.stdout",
+    "stdout_sha256": "9f165c0f0482bf90e999b20cad799f0171d37e859d14b21b0ae68303194acbdc",
+    "stderr_ref": ".tmp/parallel-20261008-l02/closeout/directory-attachment.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "argv": [
+      "git",
+      "commit",
+      "-m",
+      "docs(e02): bound L02 input presence to observed directory facts"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "wall_s": 0.5476647500181571,
+    "stdout_ref": ".tmp/parallel-20261008-l02/closeout/directory-commit.stdout",
+    "stdout_sha256": "82557f10bfc0b625c556567ac535c74ed7ae1fae1f6cf3cce5ff6bc5a67fae1d",
+    "stderr_ref": ".tmp/parallel-20261008-l02/closeout/directory-commit.stderr",
+    "stderr_sha256": "4b07c9ded5c6b363cf13e82c56dfe4a13f3c909ea34c83f21a6ddd5045510295"
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD",
+      "HEAD^{tree}"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "wall_s": 0.006957584002520889,
+    "stdout_ref": ".tmp/parallel-20261008-l02/closeout/directory-identity.stdout",
+    "stdout_sha256": "e6bc92e0495bfaa3afe0bcfe28045a4794d1c43d5aeca9f4b25d0afaab70d767",
+    "stderr_ref": ".tmp/parallel-20261008-l02/closeout/directory-identity.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "argv": [
+      "git",
+      "status",
+      "-sb"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "wall_s": 0.09468212496722117,
+    "stdout_ref": ".tmp/parallel-20261008-l02/closeout/directory-status.stdout",
+    "stdout_sha256": "9033e4035b8141137ecbc3fd728fa1fc211ea4cfd75a2a72f7d9026534712531",
+    "stderr_ref": ".tmp/parallel-20261008-l02/closeout/directory-status.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

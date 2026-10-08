@@ -1,0 +1,9 @@
+{
+  "branch": "codex/e02-L02-authentic-20261008",
+  "head": "3d5cd1b5390ebb7c0dad7664a1468a75bee0585b",
+  "tree": "ea5648a6e3b9bd4d94ad31f39caae670214f4cc9",
+  "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/final-delivery.json",
+  "bytes": 13495,
+  "sha256": "c4afc2ae6b114ed268ff26414c26c3580fea9a7796f3de49291a92e89eceedde",
+  "remote_bytes_equal_candidate": true
+}

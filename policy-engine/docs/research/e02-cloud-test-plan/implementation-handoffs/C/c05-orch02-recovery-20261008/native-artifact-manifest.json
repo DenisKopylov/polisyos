@@ -197,11 +197,20 @@
     {
       "check": "c05-full-native",
       "original": "/workspace/orch02-native-c05-c12/raw/c05-full-native/stdout.txt",
-      "stored_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-full-native/stdout.txt",
+      "stored_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-full-native/stdout.txt.gz",
       "bytes": 639,
       "sha256": "d71d0d769681b0b2ad1d543d61de3a86cc2311dd7c83c7acb19b9089a09ccc8c",
       "git_blob": "ff46e053db8920aa81b66ef6879926d7e64b4856",
-      "alias_of_equal_bytes": false
+      "alias_of_equal_bytes": false,
+      "encoding": "gzip",
+      "stored_git_blob": "167630bb2112edfc97d92b9074dc50c0db260caf",
+      "stored_bytes": 283,
+      "stored_sha256": "ed6466c13e505234dad8d1e688dfa4abca195048f37ec22d643507f2318a14d1",
+      "decoded_original_git_ref": {
+        "commit": "56523d0f33f1babfd6ef9d1ab58268570af3d576",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-full-native/stdout.txt",
+        "git_blob": "ff46e053db8920aa81b66ef6879926d7e64b4856"
+      }
     },
     {
       "check": "c05-full-native",
@@ -558,11 +567,20 @@
     {
       "check": "c05-reader-consumers",
       "original": "/workspace/orch02-native-c05-c12/raw/c05-reader-consumers/stdout.txt",
-      "stored_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-reader-consumers/stdout.txt",
+      "stored_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-reader-consumers/stdout.txt.gz",
       "bytes": 559,
       "sha256": "42cdd8d06f851741ff38ee9a0ab59e1bc1783a24e39a2e63c75a7b55231dcd4f",
       "git_blob": "61984a4e96480f85f5db899bed80f5fc25d08606",
-      "alias_of_equal_bytes": false
+      "alias_of_equal_bytes": false,
+      "encoding": "gzip",
+      "stored_git_blob": "f81c9fa4e4d6d009e64b7c251971e8e49d095f05",
+      "stored_bytes": 273,
+      "stored_sha256": "561214d68a30592d37413b771e439e3ac2f32eb2562b504c76201b0675fc920b",
+      "decoded_original_git_ref": {
+        "commit": "56523d0f33f1babfd6ef9d1ab58268570af3d576",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-evidence/c05-reader-consumers/stdout.txt",
+        "git_blob": "61984a4e96480f85f5db899bed80f5fc25d08606"
+      }
     },
     {
       "check": "c05-reader-consumers",
@@ -909,5 +927,5 @@
       "alias_of_equal_bytes": false
     }
   ],
-  "retention": "Complete moderate command/stdout/stderr/JUnit/origin/resource/semantic deciding outputs copied byte-for-byte. Identical stdout/semantic bytes stored once with explicit alias mapping. No environment directory, DB, basetemp or production input copied. Original fixture/member paths and hashes remain in deciding output."
+  "retention": "Complete moderate command/stdout/stderr/JUnit/origin/resource/semantic deciding outputs preserved byte-for-byte. Identical stdout/semantic streams stored once with explicit alias mapping. Two pytest stdout streams are deterministically lossless gzip to retain captured trailing spaces without diff-check violations; records bytes/sha256/git_blob describe the decoded original stream and stored_* describe encoded file. Original565 Git refs are retained. No environment directory, DB, basetemp or production input copied."
 }

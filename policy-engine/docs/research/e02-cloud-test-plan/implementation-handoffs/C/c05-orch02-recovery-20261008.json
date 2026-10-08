@@ -1045,9 +1045,9 @@
   },
   "native_complete_deciding_output_custody": {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/native-artifact-manifest.json",
-    "git_blob": "22ce2f688f70eb63b2f5de54ebecbee1353bf8de",
-    "sha256": "fca48a443484287075e2ccb220eaf5c26f2dbede18df8d6d8d37dbff6957f27b",
-    "bytes": 54222
+    "git_blob": "e150011e36d9e3b7e7178c4e024fc0f2455ca4a7",
+    "sha256": "39eba717ef964507d5bb015659a63de859b9122c5b32ee90c9f879791a309640",
+    "bytes": 55532
   },
   "native_independent_final_review": [
     {
@@ -1121,5 +1121,6 @@
     "unchanged_public_signature": true,
     "old_receipt_policy": "Readable; missing new material basis produces existing cache miss/recomputation. Cache_clear seams retained. No fabricated default CatalogRunProfile.",
     "generated_owner": "G; generated check UNRUN; no shared source/API/schema/lock edits"
-  }
+  },
+  "deciding_output_presentation": "Two captured pytest stdout streams retain their original trailing-space bytes in deterministic lossless gzip. Manifest binds original565 blobs and decoded hashes/sizes; all native commands/results and other streams unchanged. No source or replay follows this presentation-only repair."
 }

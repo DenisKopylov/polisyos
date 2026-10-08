@@ -2439,6 +2439,7 @@ def load_value_subject_relation(
         raise ValueError("value_subject_relation_stale_or_forged")
     return recomputed
 
+
 __all__ = [
     "CertificateKind",
     "ComposedFlavour",

@@ -205,7 +205,6 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.registry.refs",
         "ValueSubjectRelationRef",
     ),
-
     "AccessTier": ("polisyos.ir.analytics.data_views", "AccessTier"),
     "AdmittedClaimAdjudicationBatch": (
         "polisyos.ir.analytics.literature",

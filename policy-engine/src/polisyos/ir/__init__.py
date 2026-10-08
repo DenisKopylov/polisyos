@@ -337,7 +337,6 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.registry.refs",
         "ValueSubjectRelationRef",
     ),
-
     "ArticleExtractionResult": ("polisyos.ir.analytics.literature", "ArticleExtractionResult"),
     "ArtifactRefModel": ("polisyos.ir.registry.refs", "ArtifactRefModel"),
     "TrinityBundle": ("polisyos.ir.trinity", "TrinityBundle"),

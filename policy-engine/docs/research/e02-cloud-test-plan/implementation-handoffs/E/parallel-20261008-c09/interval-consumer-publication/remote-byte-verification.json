@@ -1,0 +1,39 @@
+{
+  "schema": "policyos.e02.source_bound_remote_byte_verification.v1",
+  "status": "PASS",
+  "source_check": "none; transport-only verification",
+  "topic": "codex/e02-E-c09-20261008",
+  "verified_receipt_sha": "8ea1f703f8ed6cd9294f9e9cce7f9aa96cf9d8b2",
+  "verified_receipt_tree": "86d3ddc7c37a54ec6f9430cc09a6e167ef521971",
+  "candidate_sha": "b3df9b6d84c67b48e91ea9227cadb89f5010b2a2",
+  "runtime_sha": "adb66080e3ac64d73b3faa85d693a47c6c284427",
+  "ordinary_push_fetch_lsremote": "all exit0; complete outputs committed alongside verification",
+  "manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/artifact-manifest.json",
+    "bytes": 10978,
+    "sha256": "8a5ca20a7b38dea2ce828e02499b32f27bfea5267130de8ad8bcb161c3c46347"
+  },
+  "direct_artifact_count": 24,
+  "archive_count": 8,
+  "member_count": 2075,
+  "decoded_member_payload_bytes": 6209000,
+  "mismatches": 0,
+  "source_diff_paths": 24,
+  "full_source_diff_and_24_git_blobs_verified": true,
+  "runtime_src_schema_trees_identical_through_test_only_candidate": true,
+  "handoffs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis.json",
+      "bytes": 25817,
+      "sha256": "8a804ec83443f7c9b2b9c1779948131c8024f92fd5852b3da23829681c97da00"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/mean-law-label.json",
+      "bytes": 22105,
+      "sha256": "84edfd657fe2869a2806b4ce2c9c0144eb054cb9cee6b14b9b14b7d75a0d3dbb"
+    }
+  ],
+  "wall_seconds": 0.4599626309936866,
+  "no_G_source_or_finding_acceptance": true,
+  "qualification": "actual 54PASS/2FAIL sourceADB and exact2PASS sourceb3 preserved separately; no whole56b3 replay, no global/installed/production authority proof"
+}

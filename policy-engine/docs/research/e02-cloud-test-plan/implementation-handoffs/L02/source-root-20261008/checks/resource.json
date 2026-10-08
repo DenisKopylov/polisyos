@@ -1,0 +1,10 @@
+{
+  "before_available_kib": 42901596,
+  "after_df_stdout": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239362496 163569632  42732364    80% 3104537 427323640    1%   /System/Volumes/Data\n",
+  "df_exit": 0,
+  "lightweight_reader_import_wall_s": 19.30890987504972,
+  "scratch_bytes": 116521974,
+  "production_symlinks": 5,
+  "heavy_local_slot_used": false,
+  "cleanup": "None performed; unique ignored audit/private reports preserved. Snapshot/projection remain for independent review and reproducible rerun, not active serving."
+}

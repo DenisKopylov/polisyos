@@ -1,0 +1,64 @@
+{
+  "source": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "tree": "4caee698bd9a6c61277a1608bb38376b669f0372",
+  "predecessor": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "family": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/intervention_substrate.py",
+      "blob": "4fbc772508cc7183a95301556608a6c7101b2f15",
+      "unchanged_from_predecessor": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+      "blob": "a12f1aade3ef5368bdd1571df52a2ef32538f7c1",
+      "unchanged_from_predecessor": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "unchanged_from_predecessor": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+      "unchanged_from_predecessor": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "blob": "29459ff167cad1e011a2de626a627b30d0336a01",
+      "unchanged_from_predecessor": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/production_data.py",
+      "blob": "2a07d333f6272328e171a5c9f641420c2c419abf",
+      "unchanged_from_predecessor": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_intervention_substrate.py",
+      "blob": "85eeadb8f262acc9524a9757fc203f4fc090609c",
+      "unchanged_from_predecessor": true
+    },
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+      "blob": "061f5f53d74f0f904a9b6bdafeec3d8432ec8d7d",
+      "unchanged_from_predecessor": true
+    },
+    {
+      "path": "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+      "blob": "caf4fa98a0669f6d81bd8b5db0014cb015b9492f",
+      "unchanged_from_predecessor": true
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "unchanged_from_predecessor": true
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "unchanged_from_predecessor": true
+    }
+  ],
+  "source_test_lock_full_delta": "",
+  "no_production_source_modifications": true
+}

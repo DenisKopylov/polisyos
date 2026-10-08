@@ -1,0 +1,37 @@
+{
+  "schema": "policyos.e02.l02.l6_path_preflight.v1",
+  "source": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "chosen_reader_root": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/input-projection",
+  "profile": "explicit minimal L6 reader projection; 3 required present, all3 optional absent; no served profile claim",
+  "saved_identity_report_sha256": "e54d4fde0532fd521ec3894b4abdd9ee856e148e68f3ed73fcb1e06532a6940d",
+  "selected_payload_denominator": 3,
+  "payload_rehash": false,
+  "stat_rows": [
+    {
+      "input_id": "knob_dictionary",
+      "saved_stat_matches_now": true
+    },
+    {
+      "input_id": "lex_map",
+      "saved_stat_matches_now": true
+    },
+    {
+      "input_id": "observation_contract",
+      "saved_stat_matches_now": true
+    }
+  ],
+  "module_root_calculation": {
+    "run_lifecycle": {
+      "source_origin": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "expected_source_product_root": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c/policy-engine",
+      "serving_observed": false
+    },
+    "generation_cycle": {
+      "source_origin": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "expected_source_product_root": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c/policy-engine",
+      "serving_observed": false
+    }
+  },
+  "live_serving_root": "not_established; narrow PID/executable and listening TCP observation found no identified PolicyOS serving process, not a global absence claim",
+  "production_data_root_env_or_request": "does not set selected caller repo_root in inspected call path"
+}

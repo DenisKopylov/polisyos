@@ -1,0 +1,10 @@
+{
+  "schema": "policyos.e02.l02.loaded_source_origin_readback.v1",
+  "source": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "file_backed_policyos_module_denominator": 1430,
+  "git_blob_mismatches": [],
+  "outcome": "PASS",
+  "oracle": "Git ls-tree entire policy-engine/src keyed by path versus Git blob recomputed from every actual file-backed polisyos sys.modules origin",
+  "private_derived_module_report": "raw/module-origins.json (local derivable origins; no redundant list in Git)",
+  "not_installed_artifact_or_serving_claim": true
+}

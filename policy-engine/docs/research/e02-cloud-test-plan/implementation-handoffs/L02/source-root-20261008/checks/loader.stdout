@@ -1,0 +1,50 @@
+{
+  "schema": "policyos.e02.l02.existing_l6_reader_witness.v1",
+  "source": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "reader_origin": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c/policy-engine/src/polisyos/runtime/quality/intervention_substrate.py",
+  "execution_profile": {
+    "python": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+    "executable": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "pydantic": "2.12.5",
+    "mode": "source archive with existing local dependencies; not installed wheel or serving process"
+  },
+  "positive": {
+    "returned_type": "InterventionSubstrateBundle",
+    "required_inputs": 3,
+    "optional_inputs_present": 0,
+    "actual_production_open_order": [
+      "knob_dictionary",
+      "lex_map",
+      "observation_contract"
+    ],
+    "resolved_paths_match_saved_identities": {
+      "knob_dictionary": true,
+      "lex_map": true,
+      "observation_contract": true
+    },
+    "fresh_semantic_content_readback_equal": true,
+    "previous_final_manifest_raw_mismatch_rejected": false,
+    "interpretation": "accepts JSON controls and computes own semantic identity; raw manifest descriptors not supplied/consulted"
+  },
+  "missing_required_negative": {
+    "code": "l6_control_artifact_missing",
+    "detail_names_missing_lexmap": true,
+    "production_open_events": []
+  },
+  "semantic_hash_negative": {
+    "code": "intervention_substrate_bundle_content_hash_mismatch",
+    "production_open_events": []
+  },
+  "production_stat_matches_saved_after": {
+    "knob_dictionary": true,
+    "lex_map": true,
+    "observation_contract": true
+  },
+  "actual_file_backed_policyos_module_denominator": 1430,
+  "wall_s": 19.30890987504972,
+  "maxrss_bytes": 725663744,
+  "live_serving_root": "not_established",
+  "job_numeric_cas_protected_effect_execution": false,
+  "formal_closure": "unchanged"
+}

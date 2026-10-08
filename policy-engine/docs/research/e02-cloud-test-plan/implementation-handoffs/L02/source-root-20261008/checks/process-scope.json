@@ -1,0 +1,15 @@
+{
+  "observation": "ps -axo pid=,comm= plus lsof -nP -iTCP -sTCP:LISTEN -Fpcn",
+  "ps_exit": 0,
+  "lsof_exit": 0,
+  "identified_serving_runtime": false,
+  "observed_python_listener": false,
+  "listening_process_names": [
+    "rapportd",
+    "ControlCenter"
+  ],
+  "limitations": [
+    "No live Runtime module-origin/config/cwd tuple was identified. This is not a machine-wide process absence census.",
+    "No full argv or process environment read. Local explicit reader root remains separate from live serving root."
+  ]
+}

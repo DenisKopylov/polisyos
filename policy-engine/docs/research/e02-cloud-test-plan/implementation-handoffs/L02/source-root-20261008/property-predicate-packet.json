@@ -1,0 +1,55 @@
+{
+  "schema": "policyos.e02.l02.l6_property_predicate_packet.v1",
+  "source_sha": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "source_tree": "4caee698bd9a6c61277a1608bb38376b669f0372",
+  "canonical_owner": "C10/A selected caller and L6 source intake; G selects composition/admission; L01/custodian supplies source currentness",
+  "read_only_verification": true,
+  "property": "For an authentic L6 source claim, bind the actually selected root and member bytes/version to the nominated descriptor basis before downstream source promotion. Candidate-only proposals may retain a declared unknown.",
+  "actual_predicate": "load_l6_intervention_substrate checks 3 required paths exist; parses every present named file as a JSON object; computes gy_content_hash and bundle self-identity. It does not consume root/final manifest descriptors or prove their raw-byte identity/currentness.",
+  "real_reader_witness": "checks/loader.command.json + complete loader.stdout/stderr; actual exact-source reader returned a bundle from 3 links resolving to previously nominated private identities. All3 optional inputs absent. Fresh semantic identity verifier accepted it.",
+  "divergent_case": "Those same nominated controls were previously observed with two final-manifest descriptor size/checksum mismatches (6e9/L01). Current stat fingerprints match the saved identities; without a new raw hash observation, continuity remains stat-based. The real reader accepted their JSON and computed new semantic identities without consulting the descriptor basis. That is not raw descriptor admission or a protected-transition witness.",
+  "discriminators": [
+    {
+      "kind": "required control removal",
+      "outcome": "l6_control_artifact_missing for missing lex_intervention_map before any production open; retained other2 controls/paths"
+    },
+    {
+      "kind": "forged semantic self-identity with payload markers retained",
+      "outcome": "intervention_substrate_bundle_content_hash_mismatch; fresh verifier refused"
+    }
+  ],
+  "predicate_basis": {
+    "explicit reader root/3 opened targets/exact source origins": "recomputed",
+    "root-to-bundle/selected raw comparisons at historical observation": "independently_reconciled within5-file historical observer scope",
+    "current content continuity without new byte hash": "not_established beyond unchanged stat fingerprints",
+    "live serving module-root/profile/context": "not_established",
+    "legitimate source replacement/currentness/authority": "not_established"
+  },
+  "minimum_existing_capability_option": {
+    "owner": "C10/A existing configured caller/context/source intake, not L02 parallel validator",
+    "proposal": "Bind the chosen serving source origin/root and admitted context to one exact versioned input basis. If downstream claims manifest-backed authenticity, reconcile selected bytes/descriptors there before that claim; otherwise carry candidate-grade source unknown explicitly. Reuse existing loader/bundle identity, do not mint authority or replace producer files.",
+    "readiness": "Engineering reader/path witness is complete independently of issuer. Authentic POST/N5 needs its own selected source/profile/context and matching versioned source basis.",
+    "custodian_input": "One existing matching pair or legitimate versioned replacement for nominated knobs/Lex map; source/currentness cannot be decided from two mismatches."
+  },
+  "non_claims": [
+    "No live serving root, HTTP POST/GET, N5, CAS/history, simulation, issuer/law authority, installed wheel, or whole-capability closure demonstrated.",
+    "No judgment stale manifest versus intentional update versus mixed release.",
+    "No current-directory/data census or new raw payload hash observation.",
+    "The default root is source-derived; production_data_root resolver is separate in traced call path.",
+    "Context carrying an L6 bundle can avoid fixed-path load; no-context proposal branch can return before loader."
+  ],
+  "remaining_finding_outcome": {
+    "B01": "authentic qualifier UNRUN; no formal update",
+    "B02": "authentic qualifier UNRUN; L6 reader/root precondition bounded observed only",
+    "B03": "authentic qualifier UNRUN; no N5 invoked"
+  },
+  "pattern_pass": [
+    "P29 actual reader plus two behavioral negatives",
+    "P35 3 selected payloads,11 named source/test/config family paths; module-origin denominator1430",
+    "P37 semantic self-identity recomputed; live/currentness/authority not_established",
+    "P38 semantic hash is not raw descriptor or currentness admission",
+    "P40 same source-identity class declared bounded residual, no second validator",
+    "P41 no inherited product red attribution; first setup failure is archive companion omission"
+  ],
+  "created_at_utc": "2026-10-08T18:04:39.220949+00:00"
+}

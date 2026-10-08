@@ -1,0 +1,395 @@
+{
+  "47_manifest_payload_rows_not_reaudited": true,
+  "G_analysis_to_current_only_metadata_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/G-DEVX.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/L01.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/L02.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/ORCH02.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/ORCH03.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/analysis-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/continuation-leases.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/reviews/gates.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/reviews/organization.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/restart-20261008-l02-source-qualified.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/restart-20261008-l02-source-qualified.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/restart-20261008-l02-source-qualified.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/restart-20261008-l02-source-qualified.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/restart-20261008-l02-source-qualified.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/restart-20261008-l02-source-qualified.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/delivery.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/evidence/binding-readback.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/evidence/independent-reviews.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/evidence/receipt-validation-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/evidence/receipt-validation.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/handoffs/A.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/handoffs/C.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/handoffs/E.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/handoffs/F.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/packets/A-l6.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/packets/C-i3.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/packets/C-legal.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/packets/E-b194.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/packets/F-b56.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/residual-scope.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/source.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008-source-qualified-handoff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/baseline/import.command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/baseline/import.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/baseline/import.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/bootstrap/admission-resume.command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/bootstrap/admission-resume.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/bootstrap/admission-resume.stdout.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/bootstrap/identity-resource-readback.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/checks/l6.command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/checks/l6.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/checks/l6.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/frozen-delivery-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/observer-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/data-readiness.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/input-release-check.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/l6-reconciliation-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/mac-permission-qualification.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/mac-profile-readiness.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/readiness-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/science-rights-readiness.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/served-readiness.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/source/current-source-identities.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/source/source-pins.json"
+  ],
+  "G_product_analysis": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "G_prospective_base": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "actual_command_contexts": [
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "--no-tags",
+        "origin",
+        "refs/heads/codex/e02-C-orch02-recovery-coordination:refs/readback/orch02-r2-publication-audit/common-inputs-e5e32e19"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "From https://github.com/DenisKopylov/polisyos\n * [new branch]          codex/e02-C-orch02-recovery-coordination -> refs/readback/orch02-r2-publication-audit/common-inputs-e5e32e19\n",
+      "stdout": "",
+      "wall_seconds": 0.6326003074645996
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/readback/orch02-r2-publication-audit/common-inputs-e5e32e19"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "e5e32e19b69d1847b153efc0b83987fdd28e68c2\n",
+      "wall_seconds": 0.0025527477264404297
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "e5e32e19b69d1847b153efc0b83987fdd28e68c2^"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "e2a737ffda0e3fc5b621e0ba539a0563fe151e1a\n",
+      "wall_seconds": 0.0031168460845947266
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "e5e32e19b69d1847b153efc0b83987fdd28e68c2^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "c6f7eee86568425e5659c0a4fb8786d7c0b45077\n",
+      "wall_seconds": 0.0077550411224365234
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-status",
+        "-z",
+        "e2a737ffda0e3fc5b621e0ba539a0563fe151e1a",
+        "e5e32e19b69d1847b153efc0b83987fdd28e68c2"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "stdout": null,
+      "wall_seconds": 0.007349491119384766
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "e5e32e19b69d1847b153efc0b83987fdd28e68c2:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/inputs-manifest.json"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "stdout": null,
+      "wall_seconds": 0.009239673614501953
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "e2a737ffda0e3fc5b621e0ba539a0563fe151e1a",
+        "e5e32e19b69d1847b153efc0b83987fdd28e68c2",
+        "--",
+        "policy-engine/src",
+        "policy-engine/tools",
+        "policy-engine/tests",
+        "policy-engine/pyproject.toml",
+        "policy-engine/uv.lock"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "stdout": null,
+      "wall_seconds": 0.009253740310668945
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "dee58973f7673299070b7c7374f419b0adb8175c"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "stdout": null,
+      "wall_seconds": 0.0043179988861083984
+    }
+  ],
+  "added_paths": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/C10-discovery.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/README.md",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c05-g-commission.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c05-g-create.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c05-g-create.stderr",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c05-g-creation.stderr",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c05-g-creation.stdout",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c05-g-resume.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c05-g-resume.stderr",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c05-resume.command.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c05-resume.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c05-resume.stderr",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c06-can-g-commission.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c06-can-g-create.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c06-can-g-create.stderr",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c06-can-g-creation.stderr",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c06-can-g-creation.stdout",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c06-can-g-resume.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c06-can-g-resume.stderr",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c06-can-resume.command.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c06-can-resume.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c06-can-resume.stderr",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c06-dfk-g-commission.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c06-dfk-g-create.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c06-dfk-g-create.stderr",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c06-dfk-g-creation.stderr",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c06-dfk-g-creation.stdout",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c06-dfk-g-resume.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c06-dfk-g-resume.stderr",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c06-dfk-resume.command.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c06-dfk-resume.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c06-dfk-resume.stderr",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c12-resume.command.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c12-resume.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/c12-resume.stderr",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/coordination-resume.command.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/coordination-resume.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/admission/coordination-resume.stderr",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/current-host-resource-snapshot.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/independent-preparation/independent-static-callers-classification-r2.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/independent-preparation/reviewer-preparation-source-contracts-r2.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/inputs-manifest.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/native-harness-c05-c12/environment-readiness.json",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/native-harness-c05-c12/orch02_capture.py",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/native-harness-c05-c12/orch02_numeric_probe.py",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/native-harness-c05-c12/orch02_profile_probe.py",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/native-harness-c05-c12/run_gate_r2.py",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/native-harness-c05-c12/run_script_capture.py",
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/remote-heads-discovery.txt",
+      "status": "A"
+    }
+  ],
+  "auditor": "/root/publication_audit",
+  "coordinator_product_source_delta": [],
+  "errors": [],
+  "exact_manifest_bytes": 11873,
+  "exact_manifest_sha256": "659377ac0baa037c953a2ae31cb37ffeae52552c2b611d72a2c166bf4e34d2c1",
+  "formal_closure_ids": [],
+  "new_docs_count": 49,
+  "observed_utc": "2026-10-08T19:45:19.545408+00:00",
+  "old522_namespace_readback_repeated": false,
+  "parent": "e2a737ffda0e3fc5b621e0ba539a0563fe151e1a",
+  "readback_ref": "refs/readback/orch02-r2-publication-audit/common-inputs-e5e32e19",
+  "remote_head": "e5e32e19b69d1847b153efc0b83987fdd28e68c2",
+  "runtime_checks_replayed": false,
+  "schema": "policyos.orch02.r2.independent-common-input-publication-custody.v1",
+  "source_acceptance": "not_issued_by_G",
+  "topic": "codex/e02-C-orch02-recovery-coordination",
+  "tree": "c6f7eee86568425e5659c0a4fb8786d7c0b45077",
+  "verdict": "PASS_IMMUTABLE_COMMON_INPUT_SOURCE_CUSTODY"
+}

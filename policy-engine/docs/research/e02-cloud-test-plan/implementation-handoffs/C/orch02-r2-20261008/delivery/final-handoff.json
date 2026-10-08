@@ -1,0 +1,608 @@
+{
+  "schema": "policyos.e02.ORCH02.r2.original_C_coordinator_delivery.v1",
+  "unit": "C",
+  "role": "ORCH02 coordinator; product source authors are four direct canonical writers",
+  "draft": false,
+  "observed_utc": "2026-10-08T20:38:47.382762+00:00",
+  "inputs_publication": {
+    "commit": "e5e32e19b69d1847b153efc0b83987fdd28e68c2",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/inputs-manifest.json",
+    "manifest_sha256": "659377ac0baa037c953a2ae31cb37ffeae52552c2b611d72a2c166bf4e34d2c1"
+  },
+  "prospective_G": {
+    "sha": "dee58973f7673299070b7c7374f419b0adb8175c",
+    "tree": "4caee698bd9a6c61277a1608bb38376b669f0372",
+    "analysis_source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+    "product_delta_from_analysis": [],
+    "fresh_remote_receipt": "custody/late-remote-source-check.json",
+    "acceptance": "not_issued"
+  },
+  "completed_candidates": {
+    "C05": {
+      "worktree": "/workspace/orch02-c05",
+      "topic": "codex/e02-C-orch02-c05-recovery",
+      "own_base": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "source": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+      "previous_published_head": "2a7f9bf8f02aa8e751614f751b6d9ee2af2dfe5e",
+      "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/handoff.json",
+      "new_native": {
+        "affected_cases": 119,
+        "passed": 119,
+        "errors": 0,
+        "skips": 0,
+        "matched_removals": "profile, benchmark/seed, WVS selection; actual session reuse2FAIL and WVS forwarding1FAIL",
+        "initial_changed_source": "2734ee49f6985ff2bd7ad6e3c4d6089a7d7848ca",
+        "initial_result": "117PASS+2FAIL preserved; forward repair restores canonical context/global/owner resolver at exactly3 consumers"
+      },
+      "typing": "Final scoped Ruff/format and strict six-source mypy PASS with pinned private PyYAML/pandas stubs. Shared environment separately has2 missing-stub errors only; no source/type weakening.",
+      "architecture": {
+        "outcome": "FAIL",
+        "scope": "full_required_default_gate",
+        "rows": 160,
+        "full_default_gate": {
+          "schema": "policyos.ORCH02.r2.coordinator_C05_final_full_architecture_binding.v1",
+          "derivation": "Root read-only binding of canonical actual terminal capture; independent final reviewer separately validates gate/source/custody. No gate execution or source edits by coordinator.",
+          "outcome": "FAIL",
+          "source_sha": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+          "source_tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+          "capture_path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15",
+          "actual_returncode": 1,
+          "wall_seconds": 375.6799151689993,
+          "max_rss_kib": 1111400,
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "-m",
+            "tools.cli",
+            "architecture",
+            "guardrails",
+            "check",
+            "--generated-freshness-workspace-root",
+            "/workspace/orch02-r2/c05/generated-freshness-5ccbfa15",
+            "--generated-freshness-uv-cache-dir",
+            "/workspace/.polisyos-environment/cache/uv"
+          ],
+          "cwd": "/workspace/orch02-c05/policy-engine",
+          "source_clean_before_after": true,
+          "tracked_python_input_count": 5909,
+          "tracked_python_inputs_intact": true,
+          "issues": {
+            "total": 160,
+            "deep_imports": 157,
+            "owned_edges": 6,
+            "other_edges": 151,
+            "baseline": 1,
+            "generated_drift": 2
+          },
+          "family_denominator": 4,
+          "output_denominator": 6,
+          "family_status_counts": {
+            "PASS": 2,
+            "FAIL": 2,
+            "UNRUN": 0,
+            "UNESTABLISHED": 0
+          },
+          "family_isolation_escape_rows": [],
+          "UNRUN_rows": [],
+          "family_outputs": [
+            {
+              "family": "runtime-openapi-snapshot",
+              "status": "FAIL",
+              "outputs": [
+                {
+                  "family": "runtime-openapi-snapshot",
+                  "path": "schemas/runtime_api_v1.openapi.json",
+                  "generated": {
+                    "bytes": 2812414,
+                    "sha256": "ea698f0ecd27151ec6e6cedf658e332c2777cbed9e6c0d82182db47d12d18a6d"
+                  },
+                  "current": {
+                    "bytes": 2812414,
+                    "sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a"
+                  },
+                  "matches_current": false
+                }
+              ]
+            },
+            {
+              "family": "runtime-api-client",
+              "status": "PASS",
+              "outputs": [
+                {
+                  "family": "runtime-api-client",
+                  "path": "packages/runtime-api-client/canonicalRuntimeApiClient.js",
+                  "generated": {
+                    "bytes": 31276,
+                    "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+                  },
+                  "current": {
+                    "bytes": 31276,
+                    "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+                  },
+                  "matches_current": true
+                },
+                {
+                  "family": "runtime-api-client",
+                  "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+                  "generated": {
+                    "bytes": 108061,
+                    "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+                  },
+                  "current": {
+                    "bytes": 108061,
+                    "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+                  },
+                  "matches_current": true
+                },
+                {
+                  "family": "runtime-api-client",
+                  "path": "packages/runtime-api-client/types.ts",
+                  "generated": {
+                    "bytes": 951543,
+                    "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+                  },
+                  "current": {
+                    "bytes": 951543,
+                    "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+                  },
+                  "matches_current": true
+                }
+              ]
+            },
+            {
+              "family": "runtime-dashboard-api-types",
+              "status": "PASS",
+              "outputs": [
+                {
+                  "family": "runtime-dashboard-api-types",
+                  "path": "apps/runtime-dashboard/src/api/types.ts",
+                  "generated": {
+                    "bytes": 791736,
+                    "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+                  },
+                  "current": {
+                    "bytes": 791736,
+                    "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+                  },
+                  "matches_current": true
+                }
+              ]
+            },
+            {
+              "family": "trust-claim-posture-register",
+              "status": "FAIL",
+              "outputs": [
+                {
+                  "family": "trust-claim-posture-register",
+                  "path": "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+                  "generated": {
+                    "bytes": 2376644,
+                    "sha256": "a8d6c1638690961fb33745bfdbb9ed4df6a4cf4a4d3828d3288459aeb487b119"
+                  },
+                  "current": {
+                    "bytes": 2365635,
+                    "sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba"
+                  },
+                  "matches_current": false
+                }
+              ]
+            }
+          ],
+          "qualified_client_dashboard_comparison": "Successful generation compares each family to committed schema input; this is not a refreshed downstream chain from separately regenerated OpenAPI.",
+          "P41": "not_established",
+          "scope_correction": "Both prior working4/final5ccb checks were nongenerated only; this distinct required-default measurement fills previously unmeasured families, no old result transferred.",
+          "records": [
+            {
+              "path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/command.json",
+              "bytes": 4575,
+              "sha256": "1f38738288a34de1311cbe257448ab04df1dbee80cbb12a5606476c8f3b0ae83"
+            },
+            {
+              "path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/scoped-readback.json",
+              "bytes": 14188,
+              "sha256": "ad860182d5fc7c3825106d325bacf2f39735d1621c99c998cbd78b1656fe0202"
+            },
+            {
+              "path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/node-command.json",
+              "bytes": 1064,
+              "sha256": "7c0cbb673ca4520fa8efa37077f80d5e5b5d56f4c4ebcf824ce99615c8e4421e"
+            },
+            {
+              "path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/stdout.txt",
+              "bytes": 122327,
+              "sha256": "65f31ce8dc308c2150809703c8075ef34f305c5d0865cbc61e28f89ee634065a"
+            },
+            {
+              "path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/stderr.txt",
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          ],
+          "generated_source_snapshots_or_outputs_published": false,
+          "source_acceptance_issued": false,
+          "formal_closure_ids": []
+        },
+        "previous_scope_limited_reports": {
+          "outcome": "FAIL_NONGENERATED_SCOPE_ONLY",
+          "scope": "nongenerated",
+          "rows": 158,
+          "owned_illegal_import_edges": 6,
+          "required_full_default_gate": "PENDING_new_unmeasured_generated_families",
+          "previous_working4_full_description": "CORRECTED_bothworking4_and_finalscoped_commands_skippedgenerated"
+        },
+        "owned_illegal_import_edges": 6
+      },
+      "invocation": {
+        "outcome": "UNRESOLVED_PARTIAL_STATIC_MODEL",
+        "actual_returncode": 3,
+        "wall_seconds": 500.1519627380003,
+        "max_rss_kib": 8369920,
+        "runtime_invocation_established": false
+      },
+      "prior_native_transfer": false,
+      "source_tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+      "source_parents": [
+        "2734ee49f6985ff2bd7ad6e3c4d6089a7d7848ca"
+      ],
+      "published_head": "eee090e345d1121d3d53cdd93a7ab32f818d5ef7",
+      "published_tree": "4a9af5064f47b795bfb5d00533b19f2e39bcb1c9",
+      "handoff": {
+        "commit": "eee090e345d1121d3d53cdd93a7ab32f818d5ef7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/handoff.json",
+        "bytes": 9772,
+        "sha256": "093dde1287777952782277092e0596a5d36611cfdb5fe11f5bab8a6e9628fd71",
+        "git_blob": "d448e2a45fa12ef7d9ccd0bdee70817459d5d606"
+      },
+      "source_acceptance": "not_issued_by_G",
+      "formal_closure_ids": [],
+      "complete_DAG_and_native_origins": "Full source/dependency/companion/input DAG and complete observed native file-origin denominator are pinned in the original-C handoff namespace; custody audit checks Git objects independently. Not inferred from changed-path footprint.",
+      "independent_normal_remote_publication_custody": [
+        {
+          "report": "custody/c05-publication-source-custody-audit.json",
+          "bytes": 703755,
+          "sha256": "93dfb4d4ab4c732210c10a4c18da5d2908bb38d18b6ffc3eebc9155ded668206",
+          "git_blob": "2f33c1ff495b3059d2290801ab6e7a2e1b9c18be",
+          "verdict": "PASS_PUBLICATION_SOURCE_CUSTODY_ONLY"
+        }
+      ]
+    },
+    "C06-DFK": {
+      "worktree": "/workspace/orch02-r2-c06-dfk-g",
+      "topic": "codex/e02-C-orch02-r2-c06-dfk-g",
+      "own_base": "dee58973f7673299070b7c7374f419b0adb8175c",
+      "source": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+      "published_head": "6c565cd65899d91bda370416651555eee143e194",
+      "previous_published_head": "e4bd1527c941ff880a5d34898c57428c7be4b1cc",
+      "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-c06-dfk-current-g-20261008/handoff.json",
+      "new_native": {
+        "physical_affected_family": "DFK01 35 + current-G DFK02 10 =45PASS",
+        "actual_git_cli_cases": "6PASS; same old-classifier removal6FAIL",
+        "additional_output_boundary_cases": "4SARIF/JUnit +1JSON missing-selected-path PASS",
+        "DFK02_supplier": "Current G, not final C05 composition"
+      },
+      "typing": "Scoped Ruff/format/strict mypy PASS; no changed-src import gate is SKIP, never package-import PASS.",
+      "architecture": {
+        "outcome": "FAIL",
+        "scope": "full required default4 generated families",
+        "rows": 196,
+        "UNRUN_families": 0
+      },
+      "invocation": {
+        "outcome": "EXIT0_PARTIAL_STATIC_MODEL_ONLY",
+        "actual_returncode": 0,
+        "runtime_invocation_established": false
+      },
+      "prior_native_transfer": false,
+      "source_tree": "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a",
+      "source_parents": [
+        "dee58973f7673299070b7c7374f419b0adb8175c"
+      ],
+      "published_tree": "c2740b7eb4e0b49cf30fec1582545bea54593a79",
+      "handoff": {
+        "commit": "6c565cd65899d91bda370416651555eee143e194",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-c06-dfk-current-g-20261008/handoff.json",
+        "bytes": 9552,
+        "sha256": "70935e224afe3d2155390076decbb5f6b3c31b54853a90d1a01ca8b2f3dec326",
+        "git_blob": "b07d8bc09c9fc64d0946f5adcb22563f3ae5cd73"
+      },
+      "source_acceptance": "not_issued_by_G",
+      "formal_closure_ids": [],
+      "complete_DAG_and_native_origins": "Full source/dependency/companion/input DAG and complete observed native file-origin denominator are pinned in the original-C handoff namespace; custody audit checks Git objects independently. Not inferred from changed-path footprint.",
+      "independent_normal_remote_publication_custody": [
+        {
+          "report": "custody/c06-dfk-publication-source-custody-audit.json",
+          "bytes": 322056,
+          "sha256": "625f42528f8373e6388bb678b167942c0607ab03dbf87af13adec15bcfea738e",
+          "git_blob": "63ba6c73945d25e9344a0b22861fca015f92ce2d",
+          "verdict": "PASS_PUBLICATION_SOURCE_CUSTODY_ONLY"
+        }
+      ]
+    },
+    "C06-CAN": {
+      "worktree": "/workspace/orch02-r2-c06-can",
+      "topic": "codex/e02-C-orch02-c06-can-r2-g-compatible",
+      "own_base": "dee58973f7673299070b7c7374f419b0adb8175c",
+      "source": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "published_head": "328d91dfee230aeb67ad1168e83b2ece8183d725",
+      "previous_published_head": "6602fbd087ef31d3f8eff42e94fc1fc074326d45",
+      "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-r2-g-compatible-20261008/handoff.json",
+      "new_native": {
+        "checks": 50,
+        "denominator": {
+          "IR_adapter_actual_CAS": 40,
+          "source_AST": 1,
+          "in_memory_protocol": 2,
+          "HTE_actual_CAS_roundtrips": 3,
+          "HTE_constructor_invariants": 4
+        },
+        "additional_actual_CAS_residual_witnesses": 11,
+        "matched_removals": "original reader21FAIL; complete-field guard9FAIL; separator normalization2FAIL"
+      },
+      "typing": "Scoped Ruff/format/strict mypy and one changed-source import policy PASS; global cycle warning retained.",
+      "architecture": {
+        "outcome": "FAIL",
+        "scope": "full required default4 generated families",
+        "rows": 196,
+        "UNRUN_families": 0
+      },
+      "invocation": {
+        "outcome": "EXIT0_PARTIAL_STATIC_MODEL_ONLY",
+        "actual_returncode": 0,
+        "runtime_invocation_established": false,
+        "dataclass_manifest_branch": "UNRUN"
+      },
+      "prior_native_transfer": false,
+      "source_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+      "source_parents": [
+        "dee58973f7673299070b7c7374f419b0adb8175c"
+      ],
+      "published_tree": "f499af13ffb094745d0f58a9013b768a953c2390",
+      "handoff": {
+        "commit": "328d91dfee230aeb67ad1168e83b2ece8183d725",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-r2-g-compatible-20261008/handoff.json",
+        "bytes": 13361,
+        "sha256": "d8aabe6cdbdd80e8908502788467e729d784d7d38cb3f15b961232042aa71a95",
+        "git_blob": "f5e6bdbd633ca398ce01b3b5df35f123db4ad29c"
+      },
+      "source_acceptance": "not_issued_by_G",
+      "formal_closure_ids": [],
+      "complete_DAG_and_native_origins": "Full source/dependency/companion/input DAG and complete observed native file-origin denominator are pinned in the original-C handoff namespace; custody audit checks Git objects independently. Not inferred from changed-path footprint.",
+      "independent_normal_remote_publication_custody": [
+        {
+          "report": "custody/c06-can-publication-source-custody-audit.json",
+          "bytes": 96770,
+          "sha256": "4185db99b45ce55347bebb7f30a84fe61c2f0ece1c33780dc7f29302823fabdf",
+          "git_blob": "23486097cb714c34cc4a2b0b69ace00f842b9097",
+          "verdict": "PASS_PUBLICATION_SOURCE_CUSTODY_ONLY"
+        }
+      ]
+    },
+    "C12": {
+      "worktree": "/workspace/orch02-c12",
+      "topic": "codex/e02-C-orch02-c12-recovery",
+      "own_base": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "source": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+      "published_head": "fcf164eb1c5bb54786462e67ba2537313b33b90d",
+      "previous_published_head": "9c46da826c3d54b6d0a13cc1772bda4b2c646e68",
+      "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008.json",
+      "new_native": {
+        "unique_affected_passes": 58,
+        "primary": "45PASS",
+        "additional_previously_omitted_affected_consumers": "13PASS",
+        "full_semantic_collection": 64,
+        "semantic_affected": 50,
+        "unchanged_producer_constructor_cases_excluded_explicitly": 14,
+        "separate_complete_filter_file": "8PASS (already in primary)",
+        "matched_removals": "guard-only removal: same9 expectedFAIL with actual encode/knn counters; intact guards refuse before those calls. Same24 numeric cases12scientific FAIL+12zero PASS"
+      },
+      "typing": "Final exact store/search strict mypy PASS with private pinned hnswlib stub; final Ruff/format PASS. Stale677 receipt not final source qualification.",
+      "architecture": {
+        "outcome": "FAIL",
+        "scope": "full required default4 generated families",
+        "rows": 157,
+        "owned_illegal_import_edges": 2,
+        "UNRUN_families": 0
+      },
+      "invocation": {
+        "outcome": "ERROR_INCOMPLETE_AUTHOR_PROCESS_CAPTURE",
+        "actual_returncode": null,
+        "wall_seconds": null,
+        "max_rss_kib": null,
+        "raw_receipt_bytes": 170878513,
+        "raw_receipt_sha256": "f085965bdedca04acf47ae5cdc2f9f7c316b1e0d04dead869fde1ff69b93e50b",
+        "runtime_invocation_established": false,
+        "interpretation": "Partial static stdout exists; terminal wait4 capture was lost. No inferred exit3/OOM; no unchanged170MB replay."
+      },
+      "prior_native_transfer": false,
+      "source_tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+      "source_parents": [
+        "fd3898acf23212c14b0fea62647e882c81d4f479"
+      ],
+      "published_tree": "e0ad136df2f004bc87cdb596c3955a88913b3ff1",
+      "handoff": {
+        "commit": "fcf164eb1c5bb54786462e67ba2537313b33b90d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008.json",
+        "bytes": 20565,
+        "sha256": "307af7013495b021978fce66507e2a789fbff6120f565e98993bcddd8e8a9a2d",
+        "git_blob": "d8c723953256bf86ce83934599f7e3988f4bc269"
+      },
+      "source_acceptance": "not_issued_by_G",
+      "formal_closure_ids": [],
+      "complete_DAG_and_native_origins": "Full source/dependency/companion/input DAG and complete observed native file-origin denominator are pinned in the original-C handoff namespace; custody audit checks Git objects independently. Not inferred from changed-path footprint.",
+      "independent_normal_remote_publication_custody": [
+        {
+          "report": "custody/c12-publication-source-custody-audit.json",
+          "bytes": 122769,
+          "sha256": "5e838f91deb7d30a15f916c497ea10b7715d4254237dc90951b507603511222a",
+          "git_blob": "4fe56813af4de318509f0b16c7cbe3b85661313c",
+          "verdict": "PASS_PUBLICATION_SOURCE_CUSTODY_ONLY"
+        }
+      ]
+    }
+  },
+  "ready_owner_packets": {
+    "C02_G_Core_IR": {
+      "artifact": {
+        "commit": "328d91dfee230aeb67ad1168e83b2ece8183d725",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-r2-g-compatible-20261008/core-owner-packet.json",
+        "bytes": 12120,
+        "sha256": "48f5bb2efbae9f493aef035cd0e482dda57759a735ba838cd22eac22a59b9910",
+        "git_blob": "18830701c2d97b4c00fac5fa6a63f843ee698a69"
+      },
+      "ready_rule": "Use current IR adapter for IR-facing payloads. Complete current JSON-mode presented Mapping and supported IR tags/depth have bounded positive/negative evidence; history remains strict reject.",
+      "finite_pending_decisions": [
+        "Core-only tag ABI and raw-Core bypass conformance/provenance",
+        "Nine missing raw canon fields are default-materialized before reader admission",
+        "Equivalent Mapping options lose warnings1→0; preserve full existing ArtifactWriteOptions fields or refuse explicitly"
+      ],
+      "patch_requirement": "Existing _coerce_write_options: validate/preserve tenant_context, same_input_closure, authority, warnings or refuse unsupported Mapping fields; typed pass-through remains. No new DTO/store or C06 Core write."
+    },
+    "C10_A_G_Legal_caller": {
+      "artifact": {
+        "commit": "fcf164eb1c5bb54786462e67ba2537313b33b90d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/companions/C10-A-served-handshake-proposal.json",
+        "bytes": 15596,
+        "sha256": "cb5e98af0a186742cd5c78b2a509533457ac3a2057515bdab257aaab18a7a78f",
+        "git_blob": "dfebea9bc79f4977bfd23649ffb02ab659fe505e"
+      },
+      "minimal_callable_excerpt": {
+        "commit": "fcf164eb1c5bb54786462e67ba2537313b33b90d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/companions/existing-Legal-typed-call-proposal.py",
+        "bytes": 1827,
+        "sha256": "7d24410a127b5098777de5639ff17abf8aef9b36f8a6beb49df88ea83d00cf69",
+        "git_blob": "226351a9ea076b68a5ee168beed1f8783e68c8f9"
+      },
+      "fetchable_C10": {
+        "topic": "codex/e02-C10-recovery-20261008",
+        "head": "8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+        "checked_source": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+        "all15source_blobs_verified": true
+      },
+      "actual_current_caller": "POST /api/v1/control/lex/search → LexPipelineMixin.search_lex_graph → Graph.text_search; strict LexSearchRequest has only query/top_k/output_dir. No saved Legal intent/profile/encoder/vector bridge.",
+      "ready_minimal_delta": [
+        "G/Core extend existing request or saved request record with immutable desired generation/model/profile intent; existing DTO only.",
+        "A/C10 exact lex_pipeline lease: resolve saved tuple+canonical local encoder, reopen existing Graph and call search_facts preserving existing filters/result projection.",
+        "A/G preserve LegalQueryProfileError.code through served response instead of empty success fallback.",
+        "G expose/type existing LegalQueryProfile/Input/Error via existing supported knowledge facade; no duplicate DTO."
+      ],
+      "actual_encoder_provenance": "Pinned loaded model weights, tokenizer/config, projection/dimension/device/generator rule; immutable desired inventory is saved request intent, not reader selector or embedding_model.",
+      "portable_status": "58unique affectedPASS on finala47; missing/stale/mixed saved intent refuses before encode/knn; guard-only removal exercises same actual consumers.",
+      "bounded_residual": "Arbitrary replaced encode callable with unchanged covered assets remains trusted-canonical-encoder residual. Selected index may load before refusal; no zero-index-load claim.",
+      "authentic_local_pairing": "L01 existing minimal matching local producer inventory/index/encoder/member/profile tuple → L02 authentic local served consumer; not established, no payload/assets upload or second producer."
+    },
+    "G_DFK_capability_adoption": {
+      "handoff": {
+        "commit": "6c565cd65899d91bda370416651555eee143e194",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-c06-dfk-current-g-20261008/handoff.json",
+        "bytes": 9552,
+        "sha256": "70935e224afe3d2155390076decbb5f6b3c31b54853a90d1a01ca8b2f3dec326",
+        "git_blob": "b07d8bc09c9fc64d0946f5adcb22563f3ae5cd73"
+      },
+      "candidate": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+      "decision": "Adopt bounded existing schema-FQN census tool with canonical CLI/public lifecycle/manifest/version companions, or nominate admitted owner for generic two-path parsing. G historical absence alone is not retirement.",
+      "current_candidate_CLI": "polisyos-tools validation schema-fqn-census --repo-root PATH",
+      "existing_schema_family_status": "Compatibility retained for pipeline.schemas/kernel.schemas.codegen/foundry.domain.schema; neutral/unadjudicated observations, no retirement/delete permission.",
+      "selectors": "Preserve staged rename versus unstaged Y=R/intention-to-add distinction, complete Git-visible tracked denominator and refusal for missing selected tracked paths; formats json/jsonl/sarif/junit tested.",
+      "unestablished_absence": [
+        "external",
+        "binary",
+        "ignored",
+        "historical",
+        "computed callers"
+      ]
+    },
+    "G_C05_C12_source_selection": {
+      "prospective_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+      "status": "C05 fourteen-owned-path unapplied reconciliation patch and four foreign public-facade companion patches await exact owner source selection; C12 four existing preimages differ and six original owned paths are not automatic G adoption.",
+      "rule": "Select complete DFI→CAT→Legal supplier ancestry and exact contract bytes; CAT alone is not DFI currentness. Preserve foreign hunks and original completed commits. Own-base PASS never transfers to composed G.",
+      "public_API_obligations": "G declared public API/typed exports and generated families; C02 Core/IR binding; C10 served CatalogRunProfile/output caller. Existing own illegal import edges remain engineering reds until canonical surfaces are available/admitted.",
+      "LA032_exact_scoped_reference": {
+        "commit": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/scoped-requirements.json",
+        "bytes": 14034,
+        "sha256": "8266e1ef68a1707744c78864c492b2094b6344cfebe41da6ffe789bb03e1c250",
+        "git_blob": "625e56fbebe85564bd81a0f1cf67dca2d9c1030b"
+      },
+      "LA032_pairing": "Existing L01 C-W19/UDF05 mixed new_targets + legacy_priors + legacy_donor probe: load_reconciled_targets/load_transition_priors/load_donor_pool resolve individual members while load_demography_artifacts refuses incomplete/mixed layout. Source-reported historical discriminator only; exact original output was not transferred. One versioned source-to-state-ID/target/prior/donor inventory from actual configured producer must feed all four readers; no second cloud producer or D3 builder relabeling, no authority inferred.",
+      "C05_G_patch_packet": {
+        "topic": "codex/e02-C-orch02-c05-r2-gproposal",
+        "head": "42987be62c48356211e1ce4397ca67cd45249997",
+        "tree": "ab1aa6a9cfe98d4a613fe04f83cc4bd56124c628",
+        "handoff": {
+          "commit": "42987be62c48356211e1ce4397ca67cd45249997",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/handoff.json",
+          "bytes": 5172,
+          "sha256": "ae4d6dd31fd3f809721e5af1224e4c738d4e6beb0a9c08660daad0e73802d2f3",
+          "git_blob": "93d20f01b37def885306f6246f2997d3921ba8d2"
+        },
+        "status": "UNAPPLIED_PATCH_ONLY; all product source paths equal selectedG. No G native/source acceptance.",
+        "decoded_owned_patch_paths": 14,
+        "foreign_public_facade_companion_paths": 4,
+        "missing_supplier_paths_held": 14,
+        "historical_contract_reference": "Exact historical registry/context/checkpoint/benchmark contracts are navigation/reference only, not an applied selected composition. G must select/admit canonical suppliers before source application/nativeG verification.",
+        "independent_normal_remote_publication_custody": [
+          {
+            "report": "custody/c05-G-proposal-publication-patch-custody-audit.json",
+            "bytes": 49520,
+            "sha256": "61d96becfd5cb6baa7aeae0bfaf86765be84040e80b2becbe1f2957bd8ffac91",
+            "git_blob": "9a9382ecc9ec27032d68430c047833c3b6b32ac3",
+            "verdict": "PASS_DOCS_AND_UNAPPLIED_PATCH_CUSTODY_ONLY"
+          }
+        ]
+      }
+    },
+    "C10_G_Catalog_caller": {
+      "exact_packet": "custody/C10-catalog-caller-requirement.json",
+      "checked_C10_source": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+      "actual_site": "runtime/http/services/control/run_lifecycle.py:7407 self._retrieval.resolve(request)",
+      "existing_owned_callable": "C05source5ccb RetrievalService.resolve(request: DataResolveRequest, *, run_profile: CatalogRunProfile | None = None) -> ResolveOutcome",
+      "minimal_actual_delta": "C10/G pass an independently admitted supported typed profile from existing canonical request context as run_profile, and preserve actual selected output/refusal. Exact Core/request/public/generated contract selected by owners; no second registry/default profile/parallel caller.",
+      "missing_or_foreign_profile": "Must refuse through actual served response; disabled source remains excluded/refused per existing selection.",
+      "authentic_positive": "L01/L02 minimal actual source/profile/member inventory tuple remains not_established; own portable currentness checks do not establish served positive."
+    }
+  },
+  "engineering_outcome": "OWN_TYPED_REPAIRS_AND_SOURCE_QUALIFIED_PORTABLE_CANDIDATES_DELIVERED; REQUIRED_GLOBAL_GATES_AND_OWNER_DECISIONS_REMAIN_OPEN",
+  "composition": {
+    "G_based_ready_sources": [
+      "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+      "2762cec321d0cc78874abb986736dab54e2fb189"
+    ],
+    "original_own_base_repaired_sources": [
+      "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+      "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7"
+    ],
+    "selected_integrated_composition": null,
+    "broad_portable_C13_replay": "UNRUN_await_selected_G_freeze",
+    "source_selection_and_companions": "G alone adjudicates original candidate commits and owned/foreign companion proposals; no main/integration publication"
+  },
+  "review_application_native_source_formal_distinct": true,
+  "required_quality_limits": {
+    "global_architecture": "FAIL. Initial C05 working4/final5ccb architecture scopes both skipped generated checks; that full-gate description is corrected and the separately captured complete default gate binds its own outcome. C06/C12fullrequireddefaultgeneratedfamilies completed. OpenAPI/trust drift and public exports/baseline findings are preserved; no policy/baseline/expiry/lock/generated changes to hide findings.",
+    "P41": "not_established_no_exact_slice_base_full_denominator_zero_overlap_replay",
+    "invocation": "Finite partial static diagnostics classified; actual portable boundary witnesses qualify only their observed mechanisms. C12 terminal captureERROR remains ERROR.",
+    "hooks": "UNRUN_no_active_native_hooks_installed; actual core.hooksPath unset and only samples observed. Ordinary commits/pushes; no bypass.",
+    "runtime_profile": "Python3.14.2 product/native; pinned private stubs without shared lock changes; managed Node22.23.3 frozenpnpm10.33.2. Root orchestrationPython3.12.14 and observed initial defaultNode24/uv deviations explicit in receipts."
+  },
+  "criterion_boundaries": {
+    "C05": "Finite currentness/session/SQL/WVS/retrieval mechanisms only. No whole LA041 output/resume integrity, source-registry consolidation, performancePASS, credentials/remote corpus/headers/concurrent atomic snapshot closure.",
+    "C06_DFK": "Census parser repair/adoption candidate only, no installed/external retirement or permission deleting legacy families.",
+    "C06_CAN": "Presented persisted profile ABI/shared tags/depth only; C02/G ratifies history/options/raw-byte compatibility/provenance.",
+    "LA023": "Separate explicit existing one-call artifact versus unsupported cross-call resume, or existing TrainingCarry optimizer/RNG/episode/config extension decision. No third PPO loop or whole continuation claim.",
+    "C12": "Immutable request intent and actual selected encoder/member/index consumer boundaries on portable fixtures only. No current-law authority or whole LA040/LA042 retirement.",
+    "production": "Minimal authentic local L01/L02 tuple not established; bounded portable positives/negatives complete independently. No production assets/private corpus uploads."
+  },
+  "preservation": {
+    "same_healthy_VM": true,
+    "old_lanes_history_receipts_append_only": true,
+    "no_reset_rebase_switch_cherry_pick_force": true,
+    "blob_recovery_old522_readback_completed_waves_repeated": false,
+    "main_integration_unchanged": true,
+    "source_snapshots_or_large_static_raw_receipts_in_delivery": false
+  },
+  "source_acceptance_issued": false,
+  "formal_closure_ids": [],
+  "integrated_PASS": false,
+  "evidence_index": "manifest.json"
+}

@@ -1,0 +1,20 @@
+{
+  "Git_readback_cwd": "/workspace/polisyos",
+  "Git_version": "git version 2.52.0",
+  "Git_version_exit": 0,
+  "audit_execution_cwd": "/workspace",
+  "auditor": "/root/publication_audit",
+  "execution_profile_scope": "Only independent Git/blob/gzip/SHA/source-manifest custody analysis; no product runtime/type/lint/import/architecture checks replayed",
+  "managed_product_Python_3_14_check_claimed_by_auditor": false,
+  "native_evidence_reference": "Original canonical reviewer/tester artifacts in exact independently fetched source-qualified namespaces; native process profiles remain those captured in their own full outputs/origins",
+  "new_product_dependencies_installed": false,
+  "observed_utc": "2026-10-08T20:10:11.824967+00:00",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "product_source_tests_locks_or_policies_written": false,
+  "python_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+  "python_version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "schema": "policyos.orch02.r2.publication-auditor-execution-profile.v1",
+  "scratch_evidence_directory": "/workspace/orch02-r2/publication-audit",
+  "separate_helper_has_no_children": true,
+  "worktree_branch_reset_rebase_switch_or_history_rewrite": false
+}

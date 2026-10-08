@@ -1,0 +1,83 @@
+{
+  "schema": "policyos.e02.orch02-r2.complete-own-publication-custody-index.v1",
+  "at_utc": "2026-10-08T20:37:49.656174+00:00",
+  "auditor": "/root/publication_audit",
+  "rows": [
+    {
+      "path": "/workspace/orch02-r2/publication-audit/c05-publication-source-custody-audit.json",
+      "bytes": 703755,
+      "sha256": "93dfb4d4ab4c732210c10a4c18da5d2908bb38d18b6ffc3eebc9155ded668206",
+      "role": "C05",
+      "verdict": "PASS_PUBLICATION_SOURCE_CUSTODY_ONLY",
+      "source_readback": {
+        "topic": "codex/e02-C-orch02-c05-recovery",
+        "independent_readback_ref": "refs/readback/orch02-r2-publication-audit/c05-final-eee090e3",
+        "HEAD": "eee090e345d1121d3d53cdd93a7ab32f818d5ef7",
+        "tree": "4a9af5064f47b795bfb5d00533b19f2e39bcb1c9",
+        "parent": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+        "source_tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09"
+      }
+    },
+    {
+      "path": "/workspace/orch02-r2/publication-audit/c06-dfk-publication-source-custody-audit.json",
+      "bytes": 322056,
+      "sha256": "625f42528f8373e6388bb678b167942c0607ab03dbf87af13adec15bcfea738e",
+      "role": "c06-dfk",
+      "verdict": "PASS_PUBLICATION_SOURCE_CUSTODY_ONLY",
+      "source_readback": null
+    },
+    {
+      "path": "/workspace/orch02-r2/publication-audit/c06-can-publication-source-custody-audit.json",
+      "bytes": 96770,
+      "sha256": "4185db99b45ce55347bebb7f30a84fe61c2f0ece1c33780dc7f29302823fabdf",
+      "role": "c06-can",
+      "verdict": "PASS_PUBLICATION_SOURCE_CUSTODY_ONLY",
+      "source_readback": null
+    },
+    {
+      "path": "/workspace/orch02-r2/publication-audit/c12-publication-source-custody-audit.json",
+      "bytes": 122769,
+      "sha256": "5e838f91deb7d30a15f916c497ea10b7715d4254237dc90951b507603511222a",
+      "role": "c12",
+      "verdict": "PASS_PUBLICATION_SOURCE_CUSTODY_ONLY",
+      "source_readback": null
+    },
+    {
+      "path": "/workspace/orch02-r2/publication-audit/c05-G-proposal-publication-patch-custody-audit.json",
+      "bytes": 49520,
+      "sha256": "61d96becfd5cb6baa7aeae0bfaf86765be84040e80b2becbe1f2957bd8ffac91",
+      "role": "c05_G_proposal_only",
+      "verdict": "PASS_DOCS_AND_UNAPPLIED_PATCH_CUSTODY_ONLY",
+      "source_readback": null
+    },
+    {
+      "path": "/workspace/orch02-r2/publication-audit/coordinator-inputs-publication-source-custody-audit.json",
+      "bytes": 20737,
+      "sha256": "d0bcec5d9aabd5a47dcfdeb212925b863e0695a011709531e41933dad1aa96b0",
+      "role": null,
+      "verdict": "PASS_IMMUTABLE_COMMON_INPUT_SOURCE_CUSTODY",
+      "source_readback": null
+    },
+    {
+      "path": "/workspace/orch02-r2/publication-audit/c06-dfk-source-parent-mutant-byte-custody-supplement.json",
+      "bytes": 4479,
+      "sha256": "80e04d59613861fe76ac5a5c599c8e4f199fbb6bff74a6a9075486b6cc09f3d9",
+      "role": null,
+      "verdict": null,
+      "source_readback": null
+    },
+    {
+      "path": "/workspace/orch02-r2/publication-audit/auditor-execution-profile.json",
+      "bytes": 1290,
+      "sha256": "fbfd0eb916678d557bdd24502ab33346bec3cdd937c664f55f3b3f765b32b9fb",
+      "role": null,
+      "verdict": null,
+      "source_readback": null
+    }
+  ],
+  "four_original_sources_and_new_G_proposal_audited": true,
+  "new_coordinator_final_aggregate_publication": "PENDING_EXACT_PUBLICATION_METADATA_NOT_AUDITED",
+  "source_acceptance_issued": false,
+  "formal_closure_ids": [],
+  "native_replay_performed": false
+}

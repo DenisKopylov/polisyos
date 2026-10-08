@@ -1,0 +1,121 @@
+{
+  "C02_G_Core_IR": {
+    "artifact": {
+      "commit": "328d91dfee230aeb67ad1168e83b2ece8183d725",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-r2-g-compatible-20261008/core-owner-packet.json",
+      "bytes": 12120,
+      "sha256": "48f5bb2efbae9f493aef035cd0e482dda57759a735ba838cd22eac22a59b9910",
+      "git_blob": "18830701c2d97b4c00fac5fa6a63f843ee698a69"
+    },
+    "ready_rule": "Use current IR adapter for IR-facing payloads. Complete current JSON-mode presented Mapping and supported IR tags/depth have bounded positive/negative evidence; history remains strict reject.",
+    "finite_pending_decisions": [
+      "Core-only tag ABI and raw-Core bypass conformance/provenance",
+      "Nine missing raw canon fields are default-materialized before reader admission",
+      "Equivalent Mapping options lose warnings1→0; preserve full existing ArtifactWriteOptions fields or refuse explicitly"
+    ],
+    "patch_requirement": "Existing _coerce_write_options: validate/preserve tenant_context, same_input_closure, authority, warnings or refuse unsupported Mapping fields; typed pass-through remains. No new DTO/store or C06 Core write."
+  },
+  "C10_A_G_Legal_caller": {
+    "artifact": {
+      "commit": "fcf164eb1c5bb54786462e67ba2537313b33b90d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/companions/C10-A-served-handshake-proposal.json",
+      "bytes": 15596,
+      "sha256": "cb5e98af0a186742cd5c78b2a509533457ac3a2057515bdab257aaab18a7a78f",
+      "git_blob": "dfebea9bc79f4977bfd23649ffb02ab659fe505e"
+    },
+    "minimal_callable_excerpt": {
+      "commit": "fcf164eb1c5bb54786462e67ba2537313b33b90d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/companions/existing-Legal-typed-call-proposal.py",
+      "bytes": 1827,
+      "sha256": "7d24410a127b5098777de5639ff17abf8aef9b36f8a6beb49df88ea83d00cf69",
+      "git_blob": "226351a9ea076b68a5ee168beed1f8783e68c8f9"
+    },
+    "fetchable_C10": {
+      "topic": "codex/e02-C10-recovery-20261008",
+      "head": "8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+      "checked_source": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+      "all15source_blobs_verified": true
+    },
+    "actual_current_caller": "POST /api/v1/control/lex/search → LexPipelineMixin.search_lex_graph → Graph.text_search; strict LexSearchRequest has only query/top_k/output_dir. No saved Legal intent/profile/encoder/vector bridge.",
+    "ready_minimal_delta": [
+      "G/Core extend existing request or saved request record with immutable desired generation/model/profile intent; existing DTO only.",
+      "A/C10 exact lex_pipeline lease: resolve saved tuple+canonical local encoder, reopen existing Graph and call search_facts preserving existing filters/result projection.",
+      "A/G preserve LegalQueryProfileError.code through served response instead of empty success fallback.",
+      "G expose/type existing LegalQueryProfile/Input/Error via existing supported knowledge facade; no duplicate DTO."
+    ],
+    "actual_encoder_provenance": "Pinned loaded model weights, tokenizer/config, projection/dimension/device/generator rule; immutable desired inventory is saved request intent, not reader selector or embedding_model.",
+    "portable_status": "58unique affectedPASS on finala47; missing/stale/mixed saved intent refuses before encode/knn; guard-only removal exercises same actual consumers.",
+    "bounded_residual": "Arbitrary replaced encode callable with unchanged covered assets remains trusted-canonical-encoder residual. Selected index may load before refusal; no zero-index-load claim.",
+    "authentic_local_pairing": "L01 existing minimal matching local producer inventory/index/encoder/member/profile tuple → L02 authentic local served consumer; not established, no payload/assets upload or second producer."
+  },
+  "G_DFK_capability_adoption": {
+    "handoff": {
+      "commit": "6c565cd65899d91bda370416651555eee143e194",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-c06-dfk-current-g-20261008/handoff.json",
+      "bytes": 9552,
+      "sha256": "70935e224afe3d2155390076decbb5f6b3c31b54853a90d1a01ca8b2f3dec326",
+      "git_blob": "b07d8bc09c9fc64d0946f5adcb22563f3ae5cd73"
+    },
+    "candidate": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+    "decision": "Adopt bounded existing schema-FQN census tool with canonical CLI/public lifecycle/manifest/version companions, or nominate admitted owner for generic two-path parsing. G historical absence alone is not retirement.",
+    "current_candidate_CLI": "polisyos-tools validation schema-fqn-census --repo-root PATH",
+    "existing_schema_family_status": "Compatibility retained for pipeline.schemas/kernel.schemas.codegen/foundry.domain.schema; neutral/unadjudicated observations, no retirement/delete permission.",
+    "selectors": "Preserve staged rename versus unstaged Y=R/intention-to-add distinction, complete Git-visible tracked denominator and refusal for missing selected tracked paths; formats json/jsonl/sarif/junit tested.",
+    "unestablished_absence": [
+      "external",
+      "binary",
+      "ignored",
+      "historical",
+      "computed callers"
+    ]
+  },
+  "G_C05_C12_source_selection": {
+    "prospective_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+    "status": "C05 fourteen-owned-path unapplied reconciliation patch and four foreign public-facade companion patches await exact owner source selection; C12 four existing preimages differ and six original owned paths are not automatic G adoption.",
+    "rule": "Select complete DFI→CAT→Legal supplier ancestry and exact contract bytes; CAT alone is not DFI currentness. Preserve foreign hunks and original completed commits. Own-base PASS never transfers to composed G.",
+    "public_API_obligations": "G declared public API/typed exports and generated families; C02 Core/IR binding; C10 served CatalogRunProfile/output caller. Existing own illegal import edges remain engineering reds until canonical surfaces are available/admitted.",
+    "LA032_exact_scoped_reference": {
+      "commit": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/scoped-requirements.json",
+      "bytes": 14034,
+      "sha256": "8266e1ef68a1707744c78864c492b2094b6344cfebe41da6ffe789bb03e1c250",
+      "git_blob": "625e56fbebe85564bd81a0f1cf67dca2d9c1030b"
+    },
+    "LA032_pairing": "Existing L01 C-W19/UDF05 mixed new_targets + legacy_priors + legacy_donor probe: load_reconciled_targets/load_transition_priors/load_donor_pool resolve individual members while load_demography_artifacts refuses incomplete/mixed layout. Source-reported historical discriminator only; exact original output was not transferred. One versioned source-to-state-ID/target/prior/donor inventory from actual configured producer must feed all four readers; no second cloud producer or D3 builder relabeling, no authority inferred.",
+    "C05_G_patch_packet": {
+      "topic": "codex/e02-C-orch02-c05-r2-gproposal",
+      "head": "42987be62c48356211e1ce4397ca67cd45249997",
+      "tree": "ab1aa6a9cfe98d4a613fe04f83cc4bd56124c628",
+      "handoff": {
+        "commit": "42987be62c48356211e1ce4397ca67cd45249997",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/handoff.json",
+        "bytes": 5172,
+        "sha256": "ae4d6dd31fd3f809721e5af1224e4c738d4e6beb0a9c08660daad0e73802d2f3",
+        "git_blob": "93d20f01b37def885306f6246f2997d3921ba8d2"
+      },
+      "status": "UNAPPLIED_PATCH_ONLY; all product source paths equal selectedG. No G native/source acceptance.",
+      "decoded_owned_patch_paths": 14,
+      "foreign_public_facade_companion_paths": 4,
+      "missing_supplier_paths_held": 14,
+      "historical_contract_reference": "Exact historical registry/context/checkpoint/benchmark contracts are navigation/reference only, not an applied selected composition. G must select/admit canonical suppliers before source application/nativeG verification.",
+      "independent_normal_remote_publication_custody": [
+        {
+          "report": "custody/c05-G-proposal-publication-patch-custody-audit.json",
+          "bytes": 49520,
+          "sha256": "61d96becfd5cb6baa7aeae0bfaf86765be84040e80b2becbe1f2957bd8ffac91",
+          "git_blob": "9a9382ecc9ec27032d68430c047833c3b6b32ac3",
+          "verdict": "PASS_DOCS_AND_UNAPPLIED_PATCH_CUSTODY_ONLY"
+        }
+      ]
+    }
+  },
+  "C10_G_Catalog_caller": {
+    "exact_packet": "custody/C10-catalog-caller-requirement.json",
+    "checked_C10_source": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+    "actual_site": "runtime/http/services/control/run_lifecycle.py:7407 self._retrieval.resolve(request)",
+    "existing_owned_callable": "C05source5ccb RetrievalService.resolve(request: DataResolveRequest, *, run_profile: CatalogRunProfile | None = None) -> ResolveOutcome",
+    "minimal_actual_delta": "C10/G pass an independently admitted supported typed profile from existing canonical request context as run_profile, and preserve actual selected output/refusal. Exact Core/request/public/generated contract selected by owners; no second registry/default profile/parallel caller.",
+    "missing_or_foreign_profile": "Must refuse through actual served response; disabled source remains excluded/refused per existing selection.",
+    "authentic_positive": "L01/L02 minimal actual source/profile/member inventory tuple remains not_established; own portable currentness checks do not establish served positive."
+  }
+}

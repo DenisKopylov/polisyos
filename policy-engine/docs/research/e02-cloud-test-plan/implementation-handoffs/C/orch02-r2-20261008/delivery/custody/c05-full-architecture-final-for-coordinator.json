@@ -1,0 +1,185 @@
+{
+  "schema": "policyos.ORCH02.r2.coordinator_C05_final_full_architecture_binding.v1",
+  "derivation": "Root read-only binding of canonical actual terminal capture; independent final reviewer separately validates gate/source/custody. No gate execution or source edits by coordinator.",
+  "outcome": "FAIL",
+  "source_sha": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+  "source_tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+  "capture_path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15",
+  "actual_returncode": 1,
+  "wall_seconds": 375.6799151689993,
+  "max_rss_kib": 1111400,
+  "argv": [
+    "/workspace/.polisyos-environment/uv/bin/uv",
+    "run",
+    "--no-sync",
+    "python",
+    "-m",
+    "tools.cli",
+    "architecture",
+    "guardrails",
+    "check",
+    "--generated-freshness-workspace-root",
+    "/workspace/orch02-r2/c05/generated-freshness-5ccbfa15",
+    "--generated-freshness-uv-cache-dir",
+    "/workspace/.polisyos-environment/cache/uv"
+  ],
+  "cwd": "/workspace/orch02-c05/policy-engine",
+  "source_clean_before_after": true,
+  "tracked_python_input_count": 5909,
+  "tracked_python_inputs_intact": true,
+  "issues": {
+    "total": 160,
+    "deep_imports": 157,
+    "owned_edges": 6,
+    "other_edges": 151,
+    "baseline": 1,
+    "generated_drift": 2
+  },
+  "family_denominator": 4,
+  "output_denominator": 6,
+  "family_status_counts": {
+    "PASS": 2,
+    "FAIL": 2,
+    "UNRUN": 0,
+    "UNESTABLISHED": 0
+  },
+  "family_isolation_escape_rows": [],
+  "UNRUN_rows": [],
+  "family_outputs": [
+    {
+      "family": "runtime-openapi-snapshot",
+      "status": "FAIL",
+      "outputs": [
+        {
+          "family": "runtime-openapi-snapshot",
+          "path": "schemas/runtime_api_v1.openapi.json",
+          "generated": {
+            "bytes": 2812414,
+            "sha256": "ea698f0ecd27151ec6e6cedf658e332c2777cbed9e6c0d82182db47d12d18a6d"
+          },
+          "current": {
+            "bytes": 2812414,
+            "sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a"
+          },
+          "matches_current": false
+        }
+      ]
+    },
+    {
+      "family": "runtime-api-client",
+      "status": "PASS",
+      "outputs": [
+        {
+          "family": "runtime-api-client",
+          "path": "packages/runtime-api-client/canonicalRuntimeApiClient.js",
+          "generated": {
+            "bytes": 31276,
+            "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+          },
+          "current": {
+            "bytes": 31276,
+            "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+          },
+          "matches_current": true
+        },
+        {
+          "family": "runtime-api-client",
+          "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+          "generated": {
+            "bytes": 108061,
+            "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+          },
+          "current": {
+            "bytes": 108061,
+            "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+          },
+          "matches_current": true
+        },
+        {
+          "family": "runtime-api-client",
+          "path": "packages/runtime-api-client/types.ts",
+          "generated": {
+            "bytes": 951543,
+            "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+          },
+          "current": {
+            "bytes": 951543,
+            "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+          },
+          "matches_current": true
+        }
+      ]
+    },
+    {
+      "family": "runtime-dashboard-api-types",
+      "status": "PASS",
+      "outputs": [
+        {
+          "family": "runtime-dashboard-api-types",
+          "path": "apps/runtime-dashboard/src/api/types.ts",
+          "generated": {
+            "bytes": 791736,
+            "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+          },
+          "current": {
+            "bytes": 791736,
+            "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+          },
+          "matches_current": true
+        }
+      ]
+    },
+    {
+      "family": "trust-claim-posture-register",
+      "status": "FAIL",
+      "outputs": [
+        {
+          "family": "trust-claim-posture-register",
+          "path": "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+          "generated": {
+            "bytes": 2376644,
+            "sha256": "a8d6c1638690961fb33745bfdbb9ed4df6a4cf4a4d3828d3288459aeb487b119"
+          },
+          "current": {
+            "bytes": 2365635,
+            "sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba"
+          },
+          "matches_current": false
+        }
+      ]
+    }
+  ],
+  "qualified_client_dashboard_comparison": "Successful generation compares each family to committed schema input; this is not a refreshed downstream chain from separately regenerated OpenAPI.",
+  "P41": "not_established",
+  "scope_correction": "Both prior working4/final5ccb checks were nongenerated only; this distinct required-default measurement fills previously unmeasured families, no old result transferred.",
+  "records": [
+    {
+      "path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/command.json",
+      "bytes": 4575,
+      "sha256": "1f38738288a34de1311cbe257448ab04df1dbee80cbb12a5606476c8f3b0ae83"
+    },
+    {
+      "path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/scoped-readback.json",
+      "bytes": 14188,
+      "sha256": "ad860182d5fc7c3825106d325bacf2f39735d1621c99c998cbd78b1656fe0202"
+    },
+    {
+      "path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/node-command.json",
+      "bytes": 1064,
+      "sha256": "7c0cbb673ca4520fa8efa37077f80d5e5b5d56f4c4ebcf824ce99615c8e4421e"
+    },
+    {
+      "path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/stdout.txt",
+      "bytes": 122327,
+      "sha256": "65f31ce8dc308c2150809703c8075ef34f305c5d0865cbc61e28f89ee634065a"
+    },
+    {
+      "path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "generated_source_snapshots_or_outputs_published": false,
+  "source_acceptance_issued": false,
+  "formal_closure_ids": []
+}

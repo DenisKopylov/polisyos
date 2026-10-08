@@ -1,0 +1,769 @@
+{
+  "schema": "policyos.e02.orch02-r2.independent-C05-G-proposal-review.v1",
+  "reviewer": "/root/recovery_review",
+  "at_utc": "2026-10-08T20:07:25.427938+00:00",
+  "verdict": "GO_DOCS_ONLY_UNAPPLIED_SUPPLIER_QUALIFIED_PROPOSAL_COMMIT_NORMAL_PUBLICATION_WITH_G_COMPOSITION_HELD",
+  "staged_documentation_tree": "0e7a465844ec7b98b59755c329f1dbb4ef4f9080",
+  "base_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "source_candidate": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+  "source_tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+  "handoff": {
+    "path": "/workspace/orch02-c05-r2-gproposal/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/handoff.json",
+    "bytes": 5105,
+    "SHA256": "f9028ec4465f408eea90d4b7d7a4d04224204b8daa16ebfa0d1bd547c75d39af",
+    "Git_blob_identity": "8ec77a72f90d6f91eafcfd584844f1d0d604f955"
+  },
+  "all28newdocs_unique_prefix_and_staged_Gitbytes": true,
+  "all_product_paths_equal_G": true,
+  "all_lossless_aliases_verified": [
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/owned-g-proposal.patch.gz",
+      "encoding": "gzip",
+      "stored_bytes": 35642,
+      "stored_SHA256": "02e0da8df38f846b5cd0de9e4cc1a4ed3e67119e2cec82561e7884814470d19e",
+      "decoded_bytes": 166912,
+      "decoded_SHA256": "0e17f271cda9f8f4db077281e376a3dbf81c9f9be42b93862b521ca7684eca77"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/reconciliation.json",
+      "encoding": "identity",
+      "stored_bytes": 17204,
+      "stored_SHA256": "032f8a885663fd08a59b644a99ad2ae7ddbea6cb3cf5e328ffa72ba508e10292",
+      "decoded_bytes": 17204,
+      "decoded_SHA256": "032f8a885663fd08a59b644a99ad2ae7ddbea6cb3cf5e328ffa72ba508e10292"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/foreign-public-companions.patch.gz",
+      "encoding": "gzip",
+      "stored_bytes": 1828,
+      "stored_SHA256": "9a51eb7cb63348b6c706af632245f9fb5fb0bf14d33db610630dc2e1b4efa9cc",
+      "decoded_bytes": 6173,
+      "decoded_SHA256": "5dd76c6c3349acde4c2366aa1dcf8cd83684a3bdbf99c5e8bc9557508f80f3ce"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/foreign-public-companions.json",
+      "encoding": "identity",
+      "stored_bytes": 3360,
+      "stored_SHA256": "6eb17f1aa2dbcc46a6a8376b8ea655f93062a49ca4f191e1dc840a677258edc4",
+      "decoded_bytes": 3360,
+      "decoded_SHA256": "6eb17f1aa2dbcc46a6a8376b8ea655f93062a49ca4f191e1dc840a677258edc4"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/owned-predecessor-method-selection.json",
+      "encoding": "identity",
+      "stored_bytes": 4972,
+      "stored_SHA256": "3fd583811955ac10cf902ab53cf1f33baba40f3d5848cbee76761dc839032a1e",
+      "decoded_bytes": 4972,
+      "decoded_SHA256": "3fd583811955ac10cf902ab53cf1f33baba40f3d5848cbee76761dc839032a1e"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/source-controls.json",
+      "encoding": "identity",
+      "stored_bytes": 113687,
+      "stored_SHA256": "62c8cb3262318c728798c6902b32d5574070513778a06cdbb92e663f0dcc7730",
+      "decoded_bytes": 113687,
+      "decoded_SHA256": "62c8cb3262318c728798c6902b32d5574070513778a06cdbb92e663f0dcc7730"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/selected-predecessor-contract-reference.patch.gz",
+      "encoding": "gzip",
+      "stored_bytes": 27228,
+      "stored_SHA256": "bc81aa7981658a95606a21db265cd51c4fd57edeb51b7371099a7b76a4b22a26",
+      "decoded_bytes": 139106,
+      "decoded_SHA256": "bd4160028bea43699e8c7070b3c80badccaff2b334a550328c7d36409aa71ec4"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/owned-apply-check.stdout.txt.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_SHA256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decoded_bytes": 0,
+      "decoded_SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/owned-apply-check.stderr.txt.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_SHA256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decoded_bytes": 0,
+      "decoded_SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/combined-apply-check.stdout.txt.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_SHA256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decoded_bytes": 0,
+      "decoded_SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/combined-apply-check.stderr.txt.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_SHA256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decoded_bytes": 0,
+      "decoded_SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/foreign-apply-check.stdout.txt.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_SHA256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decoded_bytes": 0,
+      "decoded_SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/foreign-apply-check.stderr.txt.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_SHA256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decoded_bytes": 0,
+      "decoded_SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/c05-independent-source-DAG-66151f3b.json",
+      "encoding": "identity",
+      "stored_bytes": 5627,
+      "stored_SHA256": "ecc127aca9ea23b0590c0a1917ece60c39344253983cb3edc17066b5b958d8a8",
+      "decoded_bytes": 5627,
+      "decoded_SHA256": "ecc127aca9ea23b0590c0a1917ece60c39344253983cb3edc17066b5b958d8a8"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/admission/c05-g-commission.json",
+      "encoding": "identity",
+      "stored_bytes": 489,
+      "stored_SHA256": "7e174fd79699ea344fe3da60b3660f71f438b825ada9ba6a23ee5cf59315d43f",
+      "decoded_bytes": 489,
+      "decoded_SHA256": "7e174fd79699ea344fe3da60b3660f71f438b825ada9ba6a23ee5cf59315d43f"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/admission/c05-g-create.json",
+      "encoding": "identity",
+      "stored_bytes": 48123,
+      "stored_SHA256": "9c7cb343f8b858a0a5208d086bc399a1beab62d03d590841d74ea97a0c430d71",
+      "decoded_bytes": 48123,
+      "decoded_SHA256": "9c7cb343f8b858a0a5208d086bc399a1beab62d03d590841d74ea97a0c430d71"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/admission/c05-g-resume.json",
+      "encoding": "identity",
+      "stored_bytes": 54269,
+      "stored_SHA256": "bb13488226364daba4e9ade06aeb59a29d635d9fa8f89a0cfe8befe39745f542",
+      "decoded_bytes": 54269,
+      "decoded_SHA256": "bb13488226364daba4e9ade06aeb59a29d635d9fa8f89a0cfe8befe39745f542"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/historical-scoped-requirements.json",
+      "encoding": "identity",
+      "stored_bytes": 14034,
+      "stored_SHA256": "8266e1ef68a1707744c78864c492b2094b6344cfebe41da6ffe789bb03e1c250",
+      "decoded_bytes": 14034,
+      "decoded_SHA256": "8266e1ef68a1707744c78864c492b2094b6344cfebe41da6ffe789bb03e1c250"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/own-source-publication.json",
+      "encoding": "identity",
+      "stored_bytes": 14442,
+      "stored_SHA256": "6f8f65c2e699b51630a37802307762e3ee2eeae36dccc79b8d8ff3fcafe85d84",
+      "decoded_bytes": 14442,
+      "decoded_SHA256": "6f8f65c2e699b51630a37802307762e3ee2eeae36dccc79b8d8ff3fcafe85d84"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/author-proposal-tools/prepare_g_patch.py",
+      "encoding": "identity",
+      "stored_bytes": 2401,
+      "stored_SHA256": "377a82797a29fbb302af08c50def9f492b75c0695981138ee94ccae347248f55",
+      "decoded_bytes": 2401,
+      "decoded_SHA256": "377a82797a29fbb302af08c50def9f492b75c0695981138ee94ccae347248f55"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/author-proposal-tools/resolve_g_patch.py",
+      "encoding": "identity",
+      "stored_bytes": 4864,
+      "stored_SHA256": "ae64db2333527da56877277c13d423adbd74145db73fd20bb10893a2ef5c230b",
+      "decoded_bytes": 4864,
+      "decoded_SHA256": "ae64db2333527da56877277c13d423adbd74145db73fd20bb10893a2ef5c230b"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/author-proposal-tools/public_companion_proposal.py",
+      "encoding": "identity",
+      "stored_bytes": 7647,
+      "stored_SHA256": "5f381fa027abff846005d8a866b6f5e3c70b2ac634befc6aef185ce856561a49",
+      "decoded_bytes": 7647,
+      "decoded_SHA256": "5f381fa027abff846005d8a866b6f5e3c70b2ac634befc6aef185ce856561a49"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/author-proposal-tools/finalize_g_proposal.py",
+      "encoding": "identity",
+      "stored_bytes": 3386,
+      "stored_SHA256": "7f0e2a061bdb4fd48fef444dd8ecfc2c169f6ebd7e4fe39869b4596dbe3d0a48",
+      "decoded_bytes": 3386,
+      "decoded_SHA256": "7f0e2a061bdb4fd48fef444dd8ecfc2c169f6ebd7e4fe39869b4596dbe3d0a48"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/author-proposal-tools/g_proposal_controls.py",
+      "encoding": "identity",
+      "stored_bytes": 7587,
+      "stored_SHA256": "e8671f937668cad5a11a085441189ed3ae655b1af769501f91faa215eec08714",
+      "decoded_bytes": 7587,
+      "decoded_SHA256": "e8671f937668cad5a11a085441189ed3ae655b1af769501f91faa215eec08714"
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/author-proposal-tools/port_owned_predecessor_contracts.py",
+      "encoding": "identity",
+      "stored_bytes": 2784,
+      "stored_SHA256": "5da5bc87610f9c2a6366cde4d3d31e4ffd9960328c27fc1370220468203b026a",
+      "decoded_bytes": 2784,
+      "decoded_SHA256": "5da5bc87610f9c2a6366cde4d3d31e4ffd9960328c27fc1370220468203b026a"
+    }
+  ],
+  "owned14patch_full_preimage_to_postimage_reconstructed_from_exact_G": true,
+  "foreign4patch_full_preimage_to_postimage_reconstructed_from_exact_G": true,
+  "all18postimages": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-c05-catalog-profile-currentness.toml",
+      "exact_G_preimage_blob": null,
+      "postimage_blob": "ed976b6fe22e57bf37ae63f3ec89854a5cabee1e",
+      "SHA256": "3e10fb94ab32847bcf4a899556ae839261bb797a16744427e7b809cfd5366da1",
+      "bytes": 2409,
+      "preparation_conflict_resolutions": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md",
+      "exact_G_preimage_blob": "4f40f366c18ab5e17f4c5ff22fb5337923304208",
+      "postimage_blob": "ec145d1cc7bc1bacd954131db5952348f3bf68b9",
+      "SHA256": "f0d8abf8b463b74a6e05569f5b5f3bb51f7ffba9f768206b9be6cfdc233b33ea",
+      "bytes": 7635,
+      "preparation_conflict_resolutions": [
+        {
+          "G_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "CAT_sha256": "8d89ccb90816de2d942aed3cd6134d0dbd9355d434ac39a5ac7c61ed4a0dbed1",
+          "own_sha256": "ad8d1c3bbf86e6d4a946743715a12f3320677e135148a68d27a3944027558896",
+          "resolution": "owned changed contract"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "exact_G_preimage_blob": "f688aee6a609a5d7e7c7f656cef89659928783c0",
+      "postimage_blob": "55f6ee8c171b775004d9ff92fcbea5c1f1691163",
+      "SHA256": "b2dd44851993386b426b4fa8941fe76e512e8274609fcf9e2731df391b980bd9",
+      "bytes": 15766,
+      "preparation_conflict_resolutions": [
+        {
+          "G_sha256": "10c0ced64ad2be8b72de55102169bfe7aace78d2e7f655f7c645f0c10f8865ad",
+          "CAT_sha256": "e2f45e5b450a040957f86b0d284e08d328727a17ef709e340f5424f02d266145",
+          "own_sha256": "413e382fd85ccd93b90fc46b8b4ece8bb30287d9e18dec25db76aa8291d6310a",
+          "resolution": "owned changed contract"
+        },
+        {
+          "G_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "CAT_sha256": "8b45de04bcf34820a3b3e6a7a7862e6c61ab3a6800d8378956f248d037154bab",
+          "own_sha256": "bd456a566995d958a853de36a3bbdff966c4b88d0e49739417656a442fcd36ea",
+          "resolution": "owned changed contract"
+        },
+        {
+          "G_sha256": "2a9e643d2cb86b42b29fec44e10feb63e31ed6617ea8e3eae1fa886497cd8519",
+          "CAT_sha256": "aaba09abcf97af49aea30b272367d24a3c1acefa06ca5d06d289238cfb9c7edd",
+          "own_sha256": "e53dfd6f273f0a348840570ffb44262c738e9a859b8d23a1671ef5853a0743a3",
+          "resolution": "owned changed contract"
+        },
+        {
+          "G_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "CAT_sha256": "4e4a4a92cf551ad7e3b7d9888a45095700229d6e5180809ec71108d6e54a712b",
+          "own_sha256": "3adcb6718554eb3e878b077d232a752ded64b2d4d675352dbeee325b43628341",
+          "resolution": "owned changed contract"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "exact_G_preimage_blob": "fb6d0f4d9bbc52b20cbdf0ceec88e411348948ba",
+      "postimage_blob": "a1ddcc3e56f9265090ac6b9c68a3b4c5e631d927",
+      "SHA256": "2a337ff66a133a0b44b4e2491857339fd61af1c864a750f4221b2251011df141",
+      "bytes": 67933,
+      "preparation_conflict_resolutions": [
+        {
+          "G_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "CAT_sha256": "ef36f1338931112920a9ade04c7cb04a464e93d613af7600795040a982686f66",
+          "own_sha256": "630683ec031e804b1e35f46cca9141ab46ff405d5625e50a9f26a38499585aa0",
+          "resolution": "owned changed contract"
+        },
+        {
+          "G_sha256": "eb949607de2cb071736bdb1361143ef1df75cda26cce34bf7e5c2dfbca9c9c95",
+          "CAT_sha256": "8e1a6d975d088ee490a55c475fd9223626f662f0c18cd83ed0a607e00d1090cc",
+          "own_sha256": "aa5257d2cdeeb856743917742a21be1e24bcf0d17ee5c6b74bae9f20d5cf2019",
+          "resolution": "owned changed contract"
+        },
+        {
+          "G_sha256": "b1943e0f7fc34e8f027875c0d0002e08141f9623e713d967c692a0ec37e0ff7a",
+          "CAT_sha256": "d5849e6e8af3509a90901f34dbec05bcbd15acadc7faa32fde280849b7242a99",
+          "own_sha256": "5be4403f07f9dcae42e3ae16dbf84625744832ca7f9b3f144f7fe531fa2008d1",
+          "resolution": "owned changed contract"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "exact_G_preimage_blob": "7f2da42fadbeb5a0ccd1ae8b1d3b2f0e9844a25d",
+      "postimage_blob": "b612813db99cd3490438ce00ac3fa16c512663d2",
+      "SHA256": "18a16440d6632e1ecf885d11419376c0c9dc7c674514aaead019212a60e9774f",
+      "bytes": 81958,
+      "preparation_conflict_resolutions": [
+        {
+          "G_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "CAT_sha256": "e0f1e700caf07eaba6129c0be823e279dbc77ca8f61a70b3afe4e446774a21e2",
+          "own_sha256": "2077bf45342a2f29c9a9e8843c182ab181fd19110dca287e9cc4a65eb21afce3",
+          "resolution": "G unchanged semantic tokens"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+      "exact_G_preimage_blob": null,
+      "postimage_blob": "6805747595f68ae20491a59459bebc3ce685ead3",
+      "SHA256": "27fda210162bfcd1934b17251a54dc1219ed8c4a2407bee3572c64e029521ed5",
+      "bytes": 1584,
+      "preparation_conflict_resolutions": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "exact_G_preimage_blob": "e6dda2023438f9c65f3ee59c5959c154092b11fa",
+      "postimage_blob": "8d8200c4d34e004b99e83711a042f357d4814c04",
+      "SHA256": "6d7c492ef6d41acfee180cb197efa68fd5e6a8d2f03d0596c5612b3a36dba58f",
+      "bytes": 6508,
+      "preparation_conflict_resolutions": [
+        {
+          "G_sha256": "77945db642f48d1a4d87c72fb8ee7869fa8b0e7571f49cb9da8c592d140205b2",
+          "CAT_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "own_sha256": "82759c206a2bac080cdef395e47ed18a432e34f4586e6a6d2fc73013acea4b52",
+          "resolution": "retain G resource import and owned material imports"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "exact_G_preimage_blob": "115db3f1239630ef609e2bc69f9f0922a0c198cd",
+      "postimage_blob": "cadcf79acb5082c69749ae31752f1876cb1af1a9",
+      "SHA256": "cd20236baa71abee9770e71708eb723657df1f077a4fa2b00933106e3b20017d",
+      "bytes": 43305,
+      "preparation_conflict_resolutions": [
+        {
+          "G_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "CAT_sha256": "b07a025d81fee231583d07880ec8c005182f72cb1626d592c42a6bb72879382e",
+          "own_sha256": "5f4746463608a4d33f88ab83cf379cfe212920cb642964721cb91b9dc00ec981",
+          "resolution": "owned changed contract"
+        },
+        {
+          "G_sha256": "28304ee8e5c9853f2d0c9ea6914f013d5bdeeeabc30972705571d76b370d0eb2",
+          "CAT_sha256": "0e361d91b9854b4b33f889b5466d53118d98a0e57e491071d0291b586ace40bb",
+          "own_sha256": "c327a213ca60c83ee386a799295fc67a8994dfebd4851e28654ea27e9ffc7fa2",
+          "resolution": "owned changed contract"
+        },
+        {
+          "G_sha256": "7f32edac927bf7ffe8357cedaaea88560ef5f3caa0091c653a96eefa68dda3df",
+          "CAT_sha256": "3b6f207b57eb3e7c2cd629f93a3db01f3ab62ed7c480dc489ac55642c6919b94",
+          "own_sha256": "241aa5acc3096a61e353685d92d521988af4daf8dc8df8ca9e9c68365b491791",
+          "resolution": "owned changed contract"
+        },
+        {
+          "G_sha256": "f073ff51241e0c991491b7f2e111c8d6c52466aa90a8aabc5922aec722a13dfa",
+          "CAT_sha256": "6ff01b5242d415224e5745e68e1021cf5f099102a73ed809b56026dc4970fae8",
+          "own_sha256": "b4c68a81c6eb38258e2e1a95b18637a08cd3c7fc4fe4de72f82d08fe0d6cb8ee",
+          "resolution": "G unchanged semantic tokens"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dfi_03.py",
+      "exact_G_preimage_blob": "e61580cd72b37ab1e430f335174e694eba58c4ad",
+      "postimage_blob": "fa569469fc043c5bbdcb3bb64cd80f0870761d94",
+      "SHA256": "7cc838c00d0549ee0747e4d585554d44fd8fdbf4f2f55ee02aab653952132828",
+      "bytes": 83427,
+      "preparation_conflict_resolutions": [
+        {
+          "G_sha256": "276f12832e284f449f63fecb8305dd9f4f56075ce15d461a86f4fd207843b50d",
+          "CAT_sha256": "ec239d78ff269f21c8f4c91fee9dc319d355c9e3057ab6838c684e4f29c6e729",
+          "own_sha256": "b2b872d8e1e042ab1a8455d92cecd31c31b5b769fb4fcb8b7e7c9f735c8031c9",
+          "resolution": "G unchanged semantic tokens"
+        },
+        {
+          "G_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "CAT_sha256": "f686322b1302da4c0cd3dc537882b6d729924efd79a39b4df12569ebdb463fb8",
+          "own_sha256": "ab59bd91406ee58ecddb113e653b515213c9b9e8caa29e95f83f4a1d62635bb8",
+          "resolution": "owned changed contract"
+        },
+        {
+          "G_sha256": "fd85020ebc53e4ac3a46f5271056a98bc5127a3aef9118e8a7fa59edca7b8eb8",
+          "CAT_sha256": "329fe2980417733f5c11ddad797aa70bc17a694e5bf7ff890f6ec1f25f5b0822",
+          "own_sha256": "061ecc2827ab6a378dbe47dbd8c9da6c184abedfccac22d412d095f87796c11b",
+          "resolution": "G unchanged semantic tokens"
+        },
+        {
+          "G_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "CAT_sha256": "546b90d0341b95936c74af404ac74cc21f538b0924bc5907c6aa11ed56fe0ed5",
+          "own_sha256": "f29898a6603684f0ecc2d19bd8174e157d9f04420b7e9ddeb00063afa20e97af",
+          "resolution": "owned changed contract"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dfk_02.py",
+      "exact_G_preimage_blob": "1e8263b473c448fc39a85e6169d305079b51050c",
+      "postimage_blob": "a2ebcd1f62a399be31529b158eb895e8360ef6b9",
+      "SHA256": "662ae5dcf3282923bcac3d73131f971b5fd517c7f084b39281a597acc2ed7e2b",
+      "bytes": 11233,
+      "preparation_conflict_resolutions": []
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-c05-loader-contracts-r2.toml",
+      "exact_G_preimage_blob": null,
+      "postimage_blob": "bb6a754bdb2dcdf2afcc2be9e3ed5cc169c309bf",
+      "SHA256": "9bd5469d0ab50121ebef02f4d3357c54eaacc8d1d3b0b722eaaa29758fb32171",
+      "bytes": 1485,
+      "preparation_conflict_resolutions": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+      "exact_G_preimage_blob": "19ca41eead188afac99ed21cca386c460763e15d",
+      "postimage_blob": "b1b60eefd5513ebdf717bdd4eb39b1bbd9538eac",
+      "SHA256": "86ba6f9022c385ae8f031a7d7d2e67eabe348a074c7d8ddaf712e3d381270412",
+      "bytes": 9655,
+      "preparation_conflict_resolutions": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py",
+      "exact_G_preimage_blob": "0a2dcac138f0c0bfa82425542b8c4a8212e63f84",
+      "postimage_blob": "98769e8dca53ff2e49a4244ab28a79aa0b91d4c6",
+      "SHA256": "081a4790578f1f023c0990af074bcffdc52c6ed144bfae2607427311731a3898",
+      "bytes": 7878,
+      "preparation_conflict_resolutions": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/selection.py",
+      "exact_G_preimage_blob": null,
+      "postimage_blob": "5b98667f1929a9390b175167884bc2b1fa6d759b",
+      "SHA256": "b1759577b117ab5400db47913b1eef05d0d54684adf0b8b91831616297471de8",
+      "bytes": 5458,
+      "preparation_conflict_resolutions": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/__init__.py",
+      "owner": "G/Fabric canonical facade owner",
+      "exact_G_preimage_blob": "d481f246cdec134fdb5e9b1447404d56b341c304",
+      "postimage_blob": "d36bfda8149c583a25a7a1a69ac3e444a022037e",
+      "SHA256": "eeb1c453c51954869bb76f302b84b2fccadde0796cb0d462bc2928ee090e47fb",
+      "bytes": 13121
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/__init__.py",
+      "owner": "C02/G Core canonical facade owner",
+      "exact_G_preimage_blob": "5964150861173fd27143d44363fda0ddd1b6f7e4",
+      "postimage_blob": "42a09cd25b2098611420966cb232848ead760ad7",
+      "SHA256": "54620e5df543909b9fa95d5ecc7d8f721d600b3602a7a6ec0aa31dde4c6ccffd",
+      "bytes": 12094
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "owner": "G/IR canonical facade owner",
+      "exact_G_preimage_blob": "2b0699140cb734b833204332398d05ff3bc8faa2",
+      "postimage_blob": "6a1559bf640157ca3cb5bb602b35ab17d087a830",
+      "SHA256": "cd0a18c5f9a308836b629cc577764f593cadbffeea16fedf918a3d6eb1f50dec",
+      "bytes": 39598
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "owner": "G/Data Forge shared read-API owner",
+      "exact_G_preimage_blob": "2c72928690b4981542475bc0f7861bb808c921b1",
+      "postimage_blob": "661000fc73efc1ecad66eae535d243f84015e4b9",
+      "SHA256": "0a9781a08cd2f050d2b473847d6395e92d2c754489809d4ed78aa2c77ea92876",
+      "bytes": 38556
+    }
+  ],
+  "all65path6declared_ref_identity_cells_verified": true,
+  "foreign_hunk_preservation": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "foreign_definition_count": 7,
+      "exact_AST_preserved": [
+        "DatasetBatchConfig.default_metrics_map_path",
+        "DatasetBatchConfig.__post_init__"
+      ],
+      "explicit_owned_overlap_or_selected_predecessor": [
+        "DatasetBatchConfig",
+        "DatasetBatchConfig.load_registry",
+        "DatasetBatchConfig.default_registry_path",
+        "DatasetBatchConfig.run_signature",
+        "DatasetBatchConfig.uses_custom_registry"
+      ],
+      "every_G_catalog_default_resource_locator_preserved": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "foreign_definition_count": 4,
+      "exact_AST_preserved": [
+        "_seed_alignments_path",
+        "_wvs_registry_path"
+      ],
+      "explicit_owned_overlap_or_selected_predecessor": [
+        "__resolve_implementation_dependency",
+        "_load_wvs_bulk_rows"
+      ],
+      "every_G_catalog_default_resource_locator_preserved": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "foreign_definition_count": 4,
+      "exact_AST_preserved": [
+        "_wvs_registry_path",
+        "harvest_sources",
+        "harvest_one_source",
+        "_payload_hash"
+      ],
+      "explicit_owned_overlap_or_selected_predecessor": [],
+      "every_G_catalog_default_resource_locator_preserved": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+      "foreign_definition_count": 0,
+      "exact_AST_preserved": [],
+      "explicit_owned_overlap_or_selected_predecessor": [],
+      "every_G_catalog_default_resource_locator_preserved": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "foreign_definition_count": 1,
+      "exact_AST_preserved": [
+        "default_proxy_metric_alignments_path"
+      ],
+      "explicit_owned_overlap_or_selected_predecessor": [],
+      "every_G_catalog_default_resource_locator_preserved": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "foreign_definition_count": 5,
+      "exact_AST_preserved": [],
+      "explicit_owned_overlap_or_selected_predecessor": [
+        "RetrievalService",
+        "RetrievalService.__init__",
+        "RetrievalService._source_policy",
+        "RetrievalService.resolve",
+        "RetrievalService._resolve_via_catalog"
+      ],
+      "every_G_catalog_default_resource_locator_preserved": true
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dfi_03.py",
+      "foreign_definition_count": 6,
+      "exact_AST_preserved": [
+        "test_same_stat_changed_manifest_bytes_do_not_reuse_normalize_stage",
+        "test_mtime_only_manifest_change_keeps_normalize_stage_reusable",
+        "test_empty_normalize_output_directory_is_not_reusable",
+        "test_content_stage_recompute_disables_inner_resume_checkpoint",
+        "test_selected_empty_generation_is_reused_without_reencoding",
+        "test_embed_resume_rejects_config_rule_and_selected_output_changes"
+      ],
+      "explicit_owned_overlap_or_selected_predecessor": [],
+      "every_G_catalog_default_resource_locator_preserved": true
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dfk_02.py",
+      "foreign_definition_count": 1,
+      "exact_AST_preserved": [
+        "test_registry_projection_keeps_the_35_entry_order_and_equality_contract"
+      ],
+      "explicit_owned_overlap_or_selected_predecessor": [],
+      "every_G_catalog_default_resource_locator_preserved": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+      "foreign_definition_count": 0,
+      "exact_AST_preserved": [],
+      "explicit_owned_overlap_or_selected_predecessor": [],
+      "every_G_catalog_default_resource_locator_preserved": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py",
+      "foreign_definition_count": 2,
+      "exact_AST_preserved": [],
+      "explicit_owned_overlap_or_selected_predecessor": [
+        "write_publish_manifest",
+        "_artifact_ref"
+      ],
+      "every_G_catalog_default_resource_locator_preserved": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/selection.py",
+      "foreign_definition_count": 0,
+      "exact_AST_preserved": [],
+      "explicit_owned_overlap_or_selected_predecessor": [],
+      "every_G_catalog_default_resource_locator_preserved": true
+    }
+  ],
+  "public_facade_preservation": [
+    {
+      "path": "policy-engine/src/polisyos/fabric/__init__.py",
+      "checks": [
+        {
+          "symbol": "_LAZY_IMPORTS",
+          "old_entries": 55,
+          "new_entries": 59,
+          "every_old_entry_unchanged": true
+        },
+        {
+          "symbol": "__all__",
+          "every_old_entry_retained": true
+        }
+      ],
+      "additive_alias_dispatch_only": [],
+      "old_serving_function_count": 17,
+      "old_CatalogSelectionError_preserved": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/__init__.py",
+      "checks": [
+        {
+          "symbol": "_LAZY_EXPORTS",
+          "old_entries": 7,
+          "new_entries": 9,
+          "every_old_entry_unchanged": true
+        },
+        {
+          "symbol": "__all__",
+          "every_old_entry_retained": true
+        }
+      ],
+      "additive_alias_dispatch_only": [],
+      "old_serving_function_count": 2,
+      "old_CatalogSelectionError_preserved": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "checks": [
+        {
+          "symbol": "_LAZY_IMPORTS",
+          "old_entries": 291,
+          "new_entries": 293,
+          "every_old_entry_unchanged": true
+        },
+        {
+          "symbol": "__all__",
+          "every_old_entry_retained": true
+        }
+      ],
+      "additive_alias_dispatch_only": [],
+      "old_serving_function_count": 2,
+      "old_CatalogSelectionError_preserved": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "checks": [
+        {
+          "symbol": "_EXPORTS",
+          "old_entries": 129,
+          "new_entries": 130,
+          "every_old_entry_unchanged": true
+        },
+        {
+          "symbol": "__all__",
+          "every_old_entry_retained": true
+        }
+      ],
+      "additive_alias_dispatch_only": [
+        "__getattr__"
+      ],
+      "old_serving_function_count": 12,
+      "old_CatalogSelectionError_preserved": true
+    }
+  ],
+  "existing_canonical_CatalogSelectionError_G_derivation_binding_unchanged": true,
+  "additive_distinct_run_profile_error_alias": "CatalogRunProfileSelectionError keeps every currentGreadAPIexport and existingservingfunction; selection imports currentGderivation ownererror with compatible code/detail constructor.",
+  "selected8owned_CAT_serving_methods_equal_existing5ccb_AST": true,
+  "historical23DFI_CAT_ancestors_every_tree_and_parent_verified": true,
+  "current5ccb_descendant_lineage_verified": [
+    "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857 2734ee49f6985ff2bd7ad6e3c4d6089a7d7848ca",
+    "2734ee49f6985ff2bd7ad6e3c4d6089a7d7848ca 2a7f9bf8f02aa8e751614f751b6d9ee2af2dfe5e",
+    "2a7f9bf8f02aa8e751614f751b6d9ee2af2dfe5e f4c8aac2f311e9ab7c5603f87650fe87ea2b179c",
+    "f4c8aac2f311e9ab7c5603f87650fe87ea2b179c 56523d0f33f1babfd6ef9d1ab58268570af3d576",
+    "56523d0f33f1babfd6ef9d1ab58268570af3d576 66151f3b7c806fdd0af0e6b2f71762e4defcc023"
+  ],
+  "held14supplier_paths": [
+    "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/registry.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/source_modules.py",
+    "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py"
+  ],
+  "historical_contract_reference": "Decoded139106B identity verified, explicitly NOT an apply-ready sourcecomposition; changesG-onlyfunctions/locators require canonicalowner/Gdecision before supplieradmission.",
+  "kernel_prerequisites": "ExistingC05dispatch generation_basis/manifests scopes; GenerationIdentity is additive and existing publishmanifest capture usesNone-vs-empty correctly. No persistedbasis schema/productproducer rewrite.",
+  "remaining_limits": [
+    "ALL headers including content negotiation, credentials/env auth excluded from current finite basis",
+    "Raw corpus/remote versions/source membership and concurrent atomic snapshot remain bounded",
+    "LA-041 full producer outputs/resume/source registry not closed by this finite leaf",
+    "LA-032 retains the existing demonstrated L01 C-W19 producer/reader quantity, no second local producer; exact packet in historical-scoped-requirements.json",
+    "B19/B36 remain named C10 partner requirements"
+  ],
+  "source_native_G_claim": false,
+  "source_accepted_by_G": false,
+  "formal_closure_ids": [],
+  "requirements_for_G_C02_C10_L01L02": [
+    {
+      "owner": "C05 catalog canonical predecessor supplier selection through G",
+      "paths": [
+        "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/registry.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/source_modules.py",
+        "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py"
+      ],
+      "contract": "Select exact DFI→CAT registry/source_modules, request-context, producer checkpoint/benchmark and alignment contracts pathwise; retain G resource suppliers and G-only functions. The historical reference delta is not an apply-ready composition."
+    },
+    {
+      "owner": "G/Fabric public facade",
+      "path": "policy-engine/src/polisyos/fabric/__init__.py",
+      "contract": "Add four lazy aliases to existing effective resolver/registry objects."
+    },
+    {
+      "owner": "C02/G Core public facade",
+      "path": "policy-engine/src/polisyos/core/__init__.py",
+      "contract": "Add existing artifact protocol/config aliases, keep cold imports and optional backends."
+    },
+    {
+      "owner": "C07/G IR public facade",
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "contract": "Expose existing FetchRequest/FetchResult without DTO copies."
+    },
+    {
+      "owner": "G/Data Forge shared read API",
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "contract": "Add static registry contracts and distinct run-profile error alias; keep current G derivation CatalogSelectionError unchanged."
+    },
+    {
+      "owner": "G/DevX",
+      "contract": "Regenerate public inventory/typed projections from selected sources and rerun actual composed import gate; no policy/baseline/lock waiver."
+    },
+    {
+      "owner": "C10 + L01/L02",
+      "contract": "Actual configured production source/profile positive after minimum supplier selection. Paired fixtures do not establish production source/profile acceptance."
+    }
+  ],
+  "reviewer_product_source_edits_or_runtime_execution": false
+}

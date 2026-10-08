@@ -1,0 +1,85 @@
+{
+  "actual_command_contexts": [
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d^"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "dee58973f7673299070b7c7374f419b0adb8175c\n"
+    }
+  ],
+  "actual_source_parent": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "auditor": "/root/publication_audit",
+  "direct_source_parent_is_prospective_G": true,
+  "distinct_mutant_origin_file_count": 1,
+  "errors": [],
+  "explicit_mutant_record_count": 6,
+  "formal_closure_ids": [],
+  "frozen_source_existing_audit_sha256": "625f42528f8373e6388bb678b167942c0607ab03dbf87af13adec15bcfea738e",
+  "mutant_origin_records": [
+    {
+      "bytes": 31635,
+      "canonical_path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "captured_process_origin_artifact": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/origins.json",
+      "git_blob": "706e9f932cdf27c9a595727d9295603662f2956b",
+      "mutant_origin": "/workspace/orch02-r2/native-c06/mutants/dfk-old-classifier/schema_fqn_census.py",
+      "physical_mutant_source_verified": true,
+      "sha256": "20274fa9df883e3546c6deeef03129286b7540dbe905c3673bae4135419fcc58"
+    },
+    {
+      "bytes": 31635,
+      "canonical_path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "captured_process_origin_artifact": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/origins.json",
+      "git_blob": "706e9f932cdf27c9a595727d9295603662f2956b",
+      "mutant_origin": "/workspace/orch02-r2/native-c06/mutants/dfk-old-classifier/schema_fqn_census.py",
+      "physical_mutant_source_verified": true,
+      "sha256": "20274fa9df883e3546c6deeef03129286b7540dbe905c3673bae4135419fcc58"
+    },
+    {
+      "bytes": 31635,
+      "canonical_path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "captured_process_origin_artifact": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/origins.json",
+      "git_blob": "706e9f932cdf27c9a595727d9295603662f2956b",
+      "mutant_origin": "/workspace/orch02-r2/native-c06/mutants/dfk-old-classifier/schema_fqn_census.py",
+      "physical_mutant_source_verified": true,
+      "sha256": "20274fa9df883e3546c6deeef03129286b7540dbe905c3673bae4135419fcc58"
+    },
+    {
+      "bytes": 31635,
+      "canonical_path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "captured_process_origin_artifact": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/origins.json",
+      "git_blob": "706e9f932cdf27c9a595727d9295603662f2956b",
+      "mutant_origin": "/workspace/orch02-r2/native-c06/mutants/dfk-old-classifier/schema_fqn_census.py",
+      "physical_mutant_source_verified": true,
+      "sha256": "20274fa9df883e3546c6deeef03129286b7540dbe905c3673bae4135419fcc58"
+    },
+    {
+      "bytes": 31635,
+      "canonical_path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "captured_process_origin_artifact": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/origins.json",
+      "git_blob": "706e9f932cdf27c9a595727d9295603662f2956b",
+      "mutant_origin": "/workspace/orch02-r2/native-c06/mutants/dfk-old-classifier/schema_fqn_census.py",
+      "physical_mutant_source_verified": true,
+      "sha256": "20274fa9df883e3546c6deeef03129286b7540dbe905c3673bae4135419fcc58"
+    },
+    {
+      "bytes": 31635,
+      "canonical_path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "captured_process_origin_artifact": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/origins.json",
+      "git_blob": "706e9f932cdf27c9a595727d9295603662f2956b",
+      "mutant_origin": "/workspace/orch02-r2/native-c06/mutants/dfk-old-classifier/schema_fqn_census.py",
+      "physical_mutant_source_verified": true,
+      "sha256": "20274fa9df883e3546c6deeef03129286b7540dbe905c3673bae4135419fcc58"
+    }
+  ],
+  "observed_utc": "2026-10-08T20:06:47.194883+00:00",
+  "runtime_replay": false,
+  "schema": "policyos.orch02.r2.dfk-source-lineage-mutant-custody-supplement.v1",
+  "source_acceptance": "not_admitted_by_G",
+  "source_commit": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+  "source_edits": false
+}

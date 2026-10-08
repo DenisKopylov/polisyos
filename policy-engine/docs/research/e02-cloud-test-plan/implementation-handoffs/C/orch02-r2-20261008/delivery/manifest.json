@@ -1,0 +1,201 @@
+{
+  "schema": "policyos.ORCH02.r2.delivery_artifact_manifest.v1",
+  "scope": "All delivery files except this manifest; input and original-C namespaces remain immutable referenced commits, not copied/replayed.",
+  "files": [
+    {
+      "path": "G-owner-decisions.json",
+      "bytes": 9803,
+      "sha256": "bd28a088d71466d9abd253fad0c1342f11ebbfeb8d26535f75465efbc107f81b",
+      "git_blob": "c957d54777bb1d018d156c159be22a792da3dca8"
+    },
+    {
+      "path": "README.md",
+      "bytes": 5569,
+      "sha256": "c7c8c17244c20e42c7068142d69149df84e7d7d4f29d6a61680b251075de5f68",
+      "git_blob": "ea626b503bded8933851d45bf3ac7f361799fe24"
+    },
+    {
+      "path": "custody/C10-catalog-caller-requirement.json",
+      "bytes": 2815,
+      "sha256": "ac16770f4fa86b98aa70b2b28764e2a6588b1e582895a3fd4e6f6da614b87897",
+      "git_blob": "aeca17c12435b22b3e99508733ba382f7c5c6cc5"
+    },
+    {
+      "path": "custody/G-final-remote-readback.json",
+      "bytes": 413,
+      "sha256": "8dd0e456a00879a004f73ee76df42dd6ac437056fac2288b9c9e656185aa2a33",
+      "git_blob": "563feea4d2452265e6192ad0ae77c8848e47fd0f"
+    },
+    {
+      "path": "custody/G-product-reconciliation.json",
+      "bytes": 7927,
+      "sha256": "49b5ef4eb2db4885ea095512c1b8d6205e0396ef56454ba6589104b66c965f69",
+      "git_blob": "86b7be147bed76a3f31dd1e995e6eb33fd10bc40"
+    },
+    {
+      "path": "custody/auditor-execution-profile.json",
+      "bytes": 1290,
+      "sha256": "fbfd0eb916678d557bdd24502ab33346bec3cdd937c664f55f3b3f765b32b9fb",
+      "git_blob": "39bc4936aa689a63e2d4a306f1cb2a91692d4062"
+    },
+    {
+      "path": "custody/c05-G-proposal-publication-patch-custody-audit.json",
+      "bytes": 49520,
+      "sha256": "61d96becfd5cb6baa7aeae0bfaf86765be84040e80b2becbe1f2957bd8ffac91",
+      "git_blob": "9a9382ecc9ec27032d68430c047833c3b6b32ac3"
+    },
+    {
+      "path": "custody/c05-full-architecture-final-for-coordinator.json",
+      "bytes": 6463,
+      "sha256": "704428bac37e9ced35b10eb90ff27a72281245291d3ff297e34c753c306150a0",
+      "git_blob": "65c2c3532b6566dd2db30986ccfd8043368c9f48"
+    },
+    {
+      "path": "custody/c05-publication-source-custody-audit.json",
+      "bytes": 703755,
+      "sha256": "93dfb4d4ab4c732210c10a4c18da5d2908bb38d18b6ffc3eebc9155ded668206",
+      "git_blob": "2f33c1ff495b3059d2290801ab6e7a2e1b9c18be"
+    },
+    {
+      "path": "custody/c06-can-publication-source-custody-audit.json",
+      "bytes": 96770,
+      "sha256": "4185db99b45ce55347bebb7f30a84fe61c2f0ece1c33780dc7f29302823fabdf",
+      "git_blob": "23486097cb714c34cc4a2b0b69ace00f842b9097"
+    },
+    {
+      "path": "custody/c06-dfk-publication-source-custody-audit.json",
+      "bytes": 322056,
+      "sha256": "625f42528f8373e6388bb678b167942c0607ab03dbf87af13adec15bcfea738e",
+      "git_blob": "63ba6c73945d25e9344a0b22861fca015f92ce2d"
+    },
+    {
+      "path": "custody/c06-dfk-source-parent-mutant-byte-custody-supplement.json",
+      "bytes": 4479,
+      "sha256": "80e04d59613861fe76ac5a5c599c8e4f199fbb6bff74a6a9075486b6cc09f3d9",
+      "git_blob": "d6bf0a2ea6286d766994b854a7c2659a7350bba5"
+    },
+    {
+      "path": "custody/c12-publication-source-custody-audit.json",
+      "bytes": 122769,
+      "sha256": "5e838f91deb7d30a15f916c497ea10b7715d4254237dc90951b507603511222a",
+      "git_blob": "4fe56813af4de318509f0b16c7cbe3b85661313c"
+    },
+    {
+      "path": "custody/completed-publication-audits-four-writers-common-and-G-proposal.json",
+      "bytes": 3456,
+      "sha256": "914d6b694a4c9ef15c52caddb4d23773d86605d9ee092686ce402ab9e323309e",
+      "git_blob": "f2b684c4cd759502d769c36ed14cf59b1a28141f"
+    },
+    {
+      "path": "custody/coordinator-inputs-publication-source-custody-audit.json",
+      "bytes": 20737,
+      "sha256": "d0bcec5d9aabd5a47dcfdeb212925b863e0695a011709531e41933dad1aa96b0",
+      "git_blob": "3e969ab0c566f18adaefdf2fdb459d97976ca2c6"
+    },
+    {
+      "path": "custody/late-remote-source-check.json",
+      "bytes": 1180,
+      "sha256": "63ca120f751ec6c142c26bfe725ac416742226b819661db566af324ef4755724",
+      "git_blob": "ce4db684c7885f53b74d2c50a295687dbe479db9"
+    },
+    {
+      "path": "final-handoff.json",
+      "bytes": 35001,
+      "sha256": "4ebd1485c7e47dd62d98b04771734807988d61fd3ff0446947a1180fbfbc229a",
+      "git_blob": "11f0226185b667e289900f61c4b47dcb8604c3cd"
+    },
+    {
+      "path": "reviews/c05-independent-G-owner-requirements-delta-review-ab1aa6a9.json",
+      "bytes": 3126,
+      "sha256": "e31581a106408115c1fab82eed14d0ea694f8fb8aac2529add017aaeece72ca1",
+      "git_blob": "94b4404cac3d09c621d347735a44854fd803c233"
+    },
+    {
+      "path": "reviews/c05-independent-G-owner-requirements-delta-review-ab1aa6a9.md",
+      "bytes": 1001,
+      "sha256": "3a92a4820f890f3071095f8c6d9b288d263fa471cc346e7994b2d0d1136a171b",
+      "git_blob": "6d930bb732ba6522b635002b2f66237130b23db1"
+    },
+    {
+      "path": "reviews/c05-independent-G-owner-requirements-review-clarification-ab1aa6a9.json",
+      "bytes": 1734,
+      "sha256": "17282cd4431d24a5ab034412c9885b0460e9f659f0e15ed9b90c31f195ad4a31",
+      "git_blob": "1f9c29fc3752abc04a87ec72234cb998676145bd"
+    },
+    {
+      "path": "reviews/c05-independent-G-proposal-review-0e7a4658.json",
+      "bytes": 38720,
+      "sha256": "68f228ebeaa889f8ca8c01ed089020d7e29f9483f0683acea4d1d71a2455fe75",
+      "git_blob": "a5d4d85acbbbf0a6ea86843927a9734a142edb98"
+    },
+    {
+      "path": "reviews/c05-independent-G-proposal-review-0e7a4658.md",
+      "bytes": 1295,
+      "sha256": "736b35909e1c1568de9e5741c8675f1606e5a9e4eaf1847f48cecd3e2091974f",
+      "git_blob": "165a80e04a8d8fd550d5f11d78c0e30420670df9"
+    },
+    {
+      "path": "reviews/c05-independent-final-native-review-5ccbfa15.json",
+      "bytes": 66631,
+      "sha256": "07184d8625d77ea694b3cac4f9f1cf75b17bc3b33e3f048f7f9825fb55bf76e0",
+      "git_blob": "2af778352f66d1a7487acd0cf4cbc481ad7ec6bd"
+    },
+    {
+      "path": "reviews/c05-independent-final-native-review-5ccbfa15.md",
+      "bytes": 1447,
+      "sha256": "d151820fc689d04f88e5646ce8f73a3f839828269abb4ec32252e1ad4d2a1310",
+      "git_blob": "dccd2de0c7d103c66d533a9806954288a9ace459"
+    },
+    {
+      "path": "reviews/c05-independent-final-quality-handoff-review-4a9af506.json",
+      "bytes": 231380,
+      "sha256": "3f6672b7dfbdeebd2f676f76c48b84c6ed9d65e4ac90dd83289d88847ed7d56d",
+      "git_blob": "df5030360d877b169c109f72762b0b01b5f0e3ba"
+    },
+    {
+      "path": "reviews/c05-independent-final-quality-handoff-review-4a9af506.md",
+      "bytes": 1487,
+      "sha256": "49a3aa6bbcb32a15045804e64dc109e461c1588f2e555adcbb525769d07bd254",
+      "git_blob": "5c550b8f1cb8d1f3164ae1d08fd8230626c3fe3f"
+    },
+    {
+      "path": "reviews/c06-can-independent-final-quality-handoff-review-2762cec3.json",
+      "bytes": 98942,
+      "sha256": "7d8b57652f0946fe840cb6f57128b35edf4bd4495d236659613bf6a15bab0ffd",
+      "git_blob": "6417dc0d86e406fda5cf4f0204c4a5454ee9f559"
+    },
+    {
+      "path": "reviews/c06-can-independent-final-quality-handoff-review-2762cec3.md",
+      "bytes": 1523,
+      "sha256": "44e9179f199b886daa23b897a688a3e14b25b2a704f68656b4f0018bbb18f86e",
+      "git_blob": "0b7fde94fa6cb63521a0d405b7a510367dd7c560"
+    },
+    {
+      "path": "reviews/c06-dfk-independent-final-native-handoff-review-3a0d5549.json",
+      "bytes": 134038,
+      "sha256": "267a120b75654dd89b13011edcb384550bb102d8a839b0f33f4acdf933a71d3d",
+      "git_blob": "edfdac85d859780ee007726ab5be6f9382398202"
+    },
+    {
+      "path": "reviews/c06-dfk-independent-final-native-handoff-review-3a0d5549.md",
+      "bytes": 1072,
+      "sha256": "43004e166cde7c9882f88634986cc2bd14bcd65027a6c7040b66b6c71a12422e",
+      "git_blob": "f9bc1c5da8b8de6007483abe732a4bcc2d485260"
+    },
+    {
+      "path": "reviews/c12-independent-final-quality-handoff-review-a47ec396.json",
+      "bytes": 64298,
+      "sha256": "3ee641eae70749e960f49cc708e68fbc82bc28d4673999e4a16019c57fad56ab",
+      "git_blob": "486d24837c46bd17bd19d003eaeda40f5ef2aa44"
+    },
+    {
+      "path": "reviews/c12-independent-final-quality-handoff-review-a47ec396.md",
+      "bytes": 1534,
+      "sha256": "fb1b799cf1e5c016ca5559b0605fbf7f51e54e0e6cbed08bb9e91e5b466efeeb",
+      "git_blob": "5ca25bd809e6848e9ed4ac4dc7798b755788020f"
+    }
+  ],
+  "file_count": 32,
+  "source_snapshots": false,
+  "large_raw_static_receipts": false
+}

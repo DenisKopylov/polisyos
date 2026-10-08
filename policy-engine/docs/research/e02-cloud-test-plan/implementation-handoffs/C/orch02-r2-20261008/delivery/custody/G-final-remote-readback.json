@@ -1,0 +1,11 @@
+{
+  "schema": "orch02.r2.root.G_remote_readback.v1",
+  "pinned_prospective_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "fresh_remote_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "fresh_tree": "4caee698bd9a6c61277a1608bb38376b669f0372",
+  "complete_delta_paths": [],
+  "pinned_equal_remote": true,
+  "product_delta": [],
+  "at": "2026-10-08T19:36:07.015464+00:00",
+  "source_acceptance": "not_issued"
+}

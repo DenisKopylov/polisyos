@@ -1,0 +1,62 @@
+{
+  "remote_heads_count": 176,
+  "selection": "case-insensitive c10/orch01/e02-a-/e02-a/ in complete current heads",
+  "selected": [
+    [
+      "44f0ac8d62da3d96464515b58c5bc29f03d238fa",
+      "refs/heads/codex/e02-A-compiler-full"
+    ],
+    [
+      "289571b0b51d8404fe44702f1345552b6b10af32",
+      "refs/heads/codex/e02-A-custody"
+    ],
+    [
+      "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+      "refs/heads/codex/e02-A-delivery-attached"
+    ],
+    [
+      "f1f7a1b5a9914d1a040e2fe182e0b1bdf393b43b",
+      "refs/heads/codex/e02-A-empirical-scope"
+    ],
+    [
+      "93d62af8eb037fa37cb0254ad38285507b26a86a",
+      "refs/heads/codex/e02-A-full-queue"
+    ],
+    [
+      "03ea5babece94bd443022dd54998aab201f058b1",
+      "refs/heads/codex/e02-A-n5-readback"
+    ],
+    [
+      "164cc001a81a570657079a1666e70ffe3650d82a",
+      "refs/heads/codex/e02-A-replay-full"
+    ],
+    [
+      "a683059753cbb366574793474fa8ffc17b3ba7a8",
+      "refs/heads/codex/e02-A-replay-owner"
+    ],
+    [
+      "a0302b7c717fe9eb7652a8e2bbbbea230115aedd",
+      "refs/heads/codex/e02-A-requirement-context"
+    ],
+    [
+      "a83f7eda380eb516d5162bfa11d7dc52278bc673",
+      "refs/heads/codex/e02-A-s10-verifier"
+    ],
+    [
+      "c020fd9629fa36cfdd6f7de12cff8b263f1a42b9",
+      "refs/heads/codex/e02-A-selection"
+    ],
+    [
+      "0c8842191a69e4c47158ad29de37ea1268b3fa41",
+      "refs/heads/codex/e02-A-selection-full"
+    ],
+    [
+      "b3a07fc23d9300805ce552f25631d6eedab98413",
+      "refs/heads/codex/e02-A-simulation-full"
+    ],
+    [
+      "8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+      "refs/heads/codex/e02-C10-recovery-20261008"
+    ]
+  ]
+}

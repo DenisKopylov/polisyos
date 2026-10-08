@@ -1,0 +1,13 @@
+{
+  "cpu_count": 5,
+  "root_python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "root_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+  "time_executable_exists": false,
+  "cgroup": {
+    "/sys/fs/cgroup/memory.max": "17179869184",
+    "/sys/fs/cgroup/memory.current": "8513028096",
+    "/sys/fs/cgroup/memory.peak": "17179987968",
+    "/sys/fs/cgroup/memory.events": "low 0\nhigh 0\nmax 116518\noom 3\noom_kill 1\noom_group_kill 0"
+  },
+  "disk": "Filesystem      Size  Used Avail Use% Mounted on\noverlay          32G   15G   16G  50% /\n"
+}

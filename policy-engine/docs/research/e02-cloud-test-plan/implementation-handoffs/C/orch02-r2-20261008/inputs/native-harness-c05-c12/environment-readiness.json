@@ -1,0 +1,109 @@
+{
+  "schema": "orch02r2.environment-readiness.v1",
+  "assessment_only": true,
+  "candidate_tests_executed": false,
+  "executable": "/workspace/orch02-native-c05-c12/venv/bin/python",
+  "executable_realpath": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "packages": {
+    "pytest": {
+      "version": "9.0.2",
+      "distribution_metadata_origin": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest-9.0.2.dist-info"
+    },
+    "numpy": {
+      "version": "2.3.5",
+      "distribution_metadata_origin": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/numpy-2.3.5.dist-info"
+    },
+    "duckdb": {
+      "version": "1.4.3",
+      "distribution_metadata_origin": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb-1.4.3.dist-info"
+    },
+    "hnswlib": {
+      "version": "0.8.0",
+      "distribution_metadata_origin": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/hnswlib-0.8.0.dist-info"
+    },
+    "pandas": {
+      "version": "2.3.3",
+      "distribution_metadata_origin": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pandas-2.3.3.dist-info"
+    },
+    "pyyaml": {
+      "version": "6.0.3",
+      "distribution_metadata_origin": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pyyaml-6.0.3.dist-info"
+    },
+    "openpyxl": {
+      "version": "3.1.5",
+      "distribution_metadata_origin": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/openpyxl-3.1.5.dist-info"
+    },
+    "pydantic": {
+      "version": "2.12.5",
+      "distribution_metadata_origin": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic-2.12.5.dist-info"
+    },
+    "aiohttp": {
+      "version": "3.13.3",
+      "distribution_metadata_origin": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/aiohttp-3.13.3.dist-info"
+    },
+    "hypothesis": {
+      "version": "6.151.2",
+      "distribution_metadata_origin": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/hypothesis-6.151.2.dist-info"
+    },
+    "mypy": {
+      "version": "1.19.1",
+      "distribution_metadata_origin": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/mypy-1.19.1.dist-info"
+    },
+    "ruff": {
+      "version": "0.14.10",
+      "distribution_metadata_origin": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/ruff-0.14.10.dist-info"
+    }
+  },
+  "module_specs": {
+    "hnswlib": {
+      "origin": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "a610bcdb0465ee4559a4f88e42926d0df80992bbc1cf3ee5c05e4ec646ca4dfd",
+      "measurement": "filesystem module-spec assessment, not candidate runtime origin"
+    },
+    "numpy": {
+      "origin": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/numpy/__init__.py",
+      "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38",
+      "measurement": "filesystem module-spec assessment, not candidate runtime origin"
+    },
+    "duckdb": {
+      "origin": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb/__init__.py",
+      "sha256": "2b20aa68f219791777a195cfec5f87fff610299d26bfbc1e6ef7692476c704a1",
+      "measurement": "filesystem module-spec assessment, not candidate runtime origin"
+    },
+    "pytest": {
+      "origin": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+      "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766",
+      "measurement": "filesystem module-spec assessment, not candidate runtime origin"
+    },
+    "mypy": {
+      "origin": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/mypy/__init__.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "cf4e1ca6480b73f8208448f078ca4aad5941f0d5fbb58225d98f3a33d9757256",
+      "measurement": "filesystem module-spec assessment, not candidate runtime origin"
+    },
+    "ruff": {
+      "origin": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/ruff/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "measurement": "filesystem module-spec assessment, not candidate runtime origin"
+    }
+  },
+  "environment_configs": {
+    "/workspace/orch02-native-c05-c12/venv/pyvenv.cfg": {
+      "sha256": "25550a4b95a44509983d644447a4febb4b1975024a0b1f1d3857a11149b6b9bc",
+      "content": "home = /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin\ninclude-system-site-packages = true\nversion = 3.14.2\nexecutable = /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14\ncommand = /workspace/polisyos/policy-engine/.venv/bin/python -m venv --system-site-packages /workspace/orch02-native-c05-c12/venv\n"
+    },
+    "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/orch02-shared-readonly.pth": {
+      "sha256": "266721c2c08a955e301460fa6e29c8b0ad825981771ddff04301c5feb64a2cb6",
+      "content": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages\n"
+    }
+  },
+  "measurement_backend": {
+    "usr_bin_time_exists": false,
+    "os_wait4_available": true,
+    "rss_units": "Linux ru_maxrss in KiB for actual command child, captured only after execution"
+  },
+  "shared_environment_mutated": false,
+  "locked_profile_status": "External hnswlib0.8.0/NumPy2.3.5 adds native backend to existing shared read-only site-packages; not a uv --frozen whole-lock installation or global acceptance",
+  "optional_typing_recipe": "If canonical writer needs a missing hnswlib typing companion, use an external MYPYPATH stub directory against precisely used actual public Index API; report tooling profile separately. Do not alter shared lock, dependency config or runtime backend."
+}

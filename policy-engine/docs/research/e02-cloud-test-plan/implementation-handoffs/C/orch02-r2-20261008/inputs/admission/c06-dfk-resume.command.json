@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/workspace/.polisyos-environment/uv/bin/uv",
+    "run",
+    "--no-sync",
+    "polisyos-tools",
+    "workspace",
+    "doctor",
+    "--worktree-admission",
+    "resume",
+    "--branch",
+    "codex/e02-C-orch02-c06-dfk-recovery",
+    "--path",
+    "/workspace/orch02-c06-dfk"
+  ],
+  "cwd": "/workspace/polisyos/policy-engine",
+  "exit_code": 0,
+  "observed_at_utc": "2026-10-08T17:54:15.341986+00:00",
+  "stdout_sha256": "be562359cb35f539c3073782c174076609cab8bc0f2252d4e24d4f430f1f0bdf"
+}

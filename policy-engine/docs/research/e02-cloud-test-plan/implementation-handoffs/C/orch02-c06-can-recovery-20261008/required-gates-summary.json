@@ -10,9 +10,11 @@
     },
     {
       "gate": "scoped lint_imports --changed-only --git-base-ref own_base",
-      "outcome": "PASS",
+      "outcome": "PASS_one_changed_src_file; cycle_warning_not_enforced",
       "evidence": "required-gates/imports/command.json",
-      "child_returncode": 0
+      "child_returncode": 0,
+      "changed_file_count": 1,
+      "scope": "One changed IR io source input, zero policy violations; one broad cycle warning with cycles_enforced=false, no cycle closure inferred."
     },
     {
       "gate": "full architecture default generated families",

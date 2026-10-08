@@ -618,8 +618,8 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/required-gates-summary.json",
-      "bytes": 3472,
-      "sha256": "beb34687ca6b363b649c67acbeb798740c985901fe0c57d8bcd69525c8c79f48"
+      "bytes": 3705,
+      "sha256": "56903d83bc4c57c0b57204bf160a172fca40201c07ae21995889d2b9f99fdd4f"
     }
   ],
   "additional_paths": [

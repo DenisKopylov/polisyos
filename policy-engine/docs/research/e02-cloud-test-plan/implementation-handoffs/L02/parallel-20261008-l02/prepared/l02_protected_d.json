@@ -1,0 +1,487 @@
+{
+  "schema": "policyos.e02.l02.qualified_preparation.v1",
+  "role": "L02",
+  "helper": "l02_protected_d",
+  "source_candidate_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "source_candidate_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "preparer_raw_local_ref": {
+    "path": ".tmp/parallel-20261008-l02/prepared/l02_protected_d.json",
+    "bytes": 27443,
+    "sha256": "95f2a1d6a1e93b142aecb2f412c351807dd5a13c92869e5dc174948c4911b3a2"
+  },
+  "delivery_compaction": {
+    "removed_derivable_text_fields": [],
+    "raw_report_preserved": true,
+    "no_semantic_qualification_promoted": true
+  },
+  "preparation": {
+    "schema": "l02_protected_d_prepared_receipt_v1",
+    "purpose": "Nonsecret read-only T2 preparation for D findings B131, B137, B164. This file is a prepared research receipt, not source acceptance, runtime evidence, or finding closure.",
+    "prepared_at": "2026-10-08",
+    "scope": {
+      "read_only_research": true,
+      "source_test_config_runtime_writes": false,
+      "production_reads": false,
+      "tests_or_baseline_run": false,
+      "root_owns_commit": true
+    },
+    "canonical_worktree": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+      "head": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+      "branch": "codex/e02-L02-authentic-20261008"
+    },
+    "object_lookup_correction": {
+      "mistyped_lookup": {
+        "argv": [
+          "git",
+          "cat-file",
+          "-t",
+          "f00dd7661a8d3329fb1fa1b049decb0d1d2f2771"
+        ],
+        "cwd": "/Users/deniskopylov/polisyos",
+        "result": "fatal: git cat-file: could not get object info"
+      },
+      "correction": "The last character in the requested SHA was mistyped as digit 1. Correct object f00dd7661a8d3329fb1fa1b049decb0d1d2f277b resolves to commit; it is not an unavailable immutable object.",
+      "correct_object": {
+        "sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+        "parent": "fe5ccf9ce90c336fff749da48bd0138d321baf23"
+      }
+    },
+    "connected_closeout_inputs": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json",
+      "read_at": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "scope": "planning; no new source acceptance or finding closure",
+      "integration_base": {
+        "sha": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "tree": "32a32cc77039554a3777a11fd7fc8f96f3a88625"
+      },
+      "published_main_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "D_overlay_pin": {
+        "sha": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+        "tree": "10efc41e7a2d792f42bce59af5b87816843df07e",
+        "in_G_ancestry": false
+      },
+      "D_source_pin": {
+        "sha": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+        "in_G_ancestry": false
+      },
+      "dispatch_G_source": {
+        "sha": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617"
+      }
+    },
+    "t2_task": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+      "task_id": "T2",
+      "title": "Protected positive and revalidation consumer",
+      "depends_on": [
+        "T1"
+      ],
+      "conditional_input": "specific admitted owner fact/API required by criterion",
+      "exit": "valid positive plus fake/foreign/stale/revoked zero effects, including commit-time check",
+      "boundary": "T2's adversarial cases qualify the consumer proof; they do not silently amend each original card's substantive scope."
+    },
+    "finding_rows": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+      "rows": [
+        {
+          "id": "B131",
+          "original_unit": "D",
+          "original_primary_bundle": "TRN-01",
+          "proposal": "held",
+          "original_criteria_pointer": "/findings/44/criterion_refs",
+          "D_author_row_pointer": "/rows/25",
+          "D_proposal_pointer": "/unique_finding_proposals/B131",
+          "flows": [
+            "V",
+            "T"
+          ],
+          "next_task": "T2",
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        {
+          "id": "B137",
+          "original_unit": "D",
+          "original_primary_bundle": "TRN-03",
+          "proposal": "held",
+          "original_criteria_pointer": "/findings/50/criterion_refs",
+          "D_author_row_pointer": "/rows/31",
+          "D_proposal_pointer": "/unique_finding_proposals/B137",
+          "flows": [
+            "V",
+            "T"
+          ],
+          "next_task": "T2",
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        {
+          "id": "B164",
+          "original_unit": "D",
+          "original_primary_bundle": "FUN-03",
+          "proposal": "held",
+          "original_criteria_pointer": "/findings/80/criterion_refs",
+          "D_author_row_pointer": "/rows/40",
+          "D_proposal_pointer": "/unique_finding_proposals/B164",
+          "flows": [
+            "V",
+            "T"
+          ],
+          "next_task": "T2",
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        }
+      ]
+    },
+    "original_criterion_source": {
+      "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "bytes": 1336380,
+      "line_count": 5545
+    },
+    "original_criteria": [
+      {
+        "finding": "B131",
+        "bundle": "TRN-01",
+        "criterion_ref": {
+          "document": "B_r19",
+          "lines": [
+            3459,
+            3472
+          ],
+          "sha256": "60545080be6e14231a07b082abb322b91f9b304c40dbed2d2cc701223470910c"
+        },
+        "coverage_pointer": "coverage.json#/findings/44/criterion_refs/0",
+        "criterion_summary": "Separate analogy discovery from numerical warm-start reuse. Numeric reuse needs stored identities and checked compatibility or a permitted adapter; verify tenant/split with the actual owner, not metadata labels."
+      },
+      {
+        "finding": "B137",
+        "bundle": "TRN-03",
+        "criterion_ref": {
+          "document": "B_r19",
+          "lines": [
+            3543,
+            3556
+          ],
+          "sha256": "133330308d63d9cf44d4105d556e1e4740ff31b519643791722beb8a8a7bc961"
+        },
+        "coverage_pointer": "coverage.json#/findings/50/criterion_refs/0",
+        "criterion_summary": "Reads never raise evidence confidence or trust. Actual authorized revalidation creates a new version with new grounds; cold/warm reads and restart/transfer preserve equivalent substantive freshness."
+      },
+      {
+        "finding": "B164",
+        "bundle": "FUN-03",
+        "criterion_ref": {
+          "document": "B_r19",
+          "lines": [
+            4201,
+            4212
+          ],
+          "sha256": "ed8189c34e88eec186ca2c6c3d764e796f0cc4f967c601f6a5ec223c43b6c137"
+        },
+        "coverage_pointer": "coverage.json#/findings/80/criterion_refs/0",
+        "criterion_summary": "Blocked mode must not call an effectful promotion runner; ordinary mode still works; an already-prepared result may be read under its policy; the write owner rechecks permission at commit. The historical probe did not perform production authorization/write/publication."
+      }
+    ],
+    "coverage_binding": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "git_ref": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+      "finding_indexes": {
+        "B131": 44,
+        "B137": 50,
+        "B164": 80
+      },
+      "note": "Indexes are copied from the original owner coverage document; verify against its IDs before using any index-derived claim. The full source cards are bound independently by document lines and SHA-256 above."
+    },
+    "D_current_overlay": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/criterion-overlay.json",
+      "git_ref": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+      "git_blob": "7cdc3fedd6629fca59a3cb199836eda74f763f70",
+      "candidate": "8e864f4ed0eeedf509d836381b20976c413f2443",
+      "tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+      "state": "all three rows held; formal_closed=false; accepted_in_G=false; P41=not_established; owned_fixable_defect_established=false; required_original_owner_positive=UNRUN; whole_current_candidate_execution=UNRUN",
+      "rows": [
+        {
+          "finding": "B131",
+          "id": "B131@TRN-01",
+          "pointer": "/rows/25",
+          "current_assertion_ref": "transfer_rows#/rows/3",
+          "owner_packet": "tenant_split_transfer",
+          "capability_state_label": "not_established"
+        },
+        {
+          "finding": "B137",
+          "id": "B137@TRN-03",
+          "pointer": "/rows/31",
+          "current_assertion_ref": "transfer_rows#/rows/9",
+          "owner_packet": "authorized_revalidation",
+          "capability_state_label": "not_established"
+        },
+        {
+          "finding": "B164",
+          "id": "B164@FUN-03",
+          "pointer": "/rows/40",
+          "current_assertion_ref": "funnel_rows#/findings/8",
+          "owner_packet": "typed_write_permit",
+          "capability_state_label": "not_established"
+        }
+      ],
+      "formal_closed": 0,
+      "accepted_in_G": false,
+      "D_owner_inputs_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/owner-inputs-update.json",
+      "D_owner_inputs_ref": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+      "D_owner_inputs_appointments": {
+        "tenant_split_transfer": false,
+        "authorized_revalidation": false,
+        "typed_write_permit": false
+      }
+    },
+    "D_leaf_outputs": {
+      "transfer": {
+        "matrix": {
+          "git_ref": "a30c140eedc5c0514a93409d4b4040a715231d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/transfer/original-ten-criterion-matrix.json",
+          "git_blob": "b5cd492e9e7b5d9c2c7d067ef2122897e6732774",
+          "sha256": "5a64ddea0555a27242512cbc91c0db25c4fec6f74fe2c64c01493cfa6727b69b",
+          "bytes": 56859,
+          "publication_status": "local immutable Git commit readback; remote publication not_established",
+          "leaf_rows": {
+            "B131": "/rows/3",
+            "B137": "/rows/9"
+          },
+          "execution_pins": {
+            "actual_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+            "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+            "new_legacy6_source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+            "new_legacy6_actual_execution_source": null
+          },
+          "B131_result": "held; actual authorized tenant/split/adapter positive missing; fixture owner labels are not authority",
+          "B137_result": "held; authorized revalidation positive and production lesson history absent; current G evidence/access clocks are already separated"
+        },
+        "handoff": {
+          "git_ref": "a30c140eedc5c0514a93409d4b4040a715231d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/transfer/HANDOFF.json",
+          "sha256": "3625e1a11c298e7c673f397f96647371773dd6ce26e5f91b325070db968bf86f",
+          "bytes": 2867
+        }
+      },
+      "funnel": {
+        "outcomes": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/funnel/original10-outcomes.json",
+          "sha256": "c2f734080c1feda26e4d68ff84aa6bc9600288f66b28f236c2e68062bef883f4",
+          "bytes": 48770,
+          "publication_git_ref": "not_established",
+          "leaf_row": "/findings/8",
+          "B164_result": "valid typed permit/current verifier/revoke-before-commit positive UNRUN; no production registry writer admitted"
+        },
+        "handoff": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/funnel/HANDOFF.json",
+          "sha256": "802f46d87df7f6bc471d9b7c50394f9501e11cc51ee354745e8c94e4479b35f4",
+          "bytes": 8628,
+          "publication_git_ref": "not_established"
+        }
+      }
+    },
+    "t2_owner_inputs": [
+      {
+        "finding": "B131",
+        "packet_key": "tenant_split_transfer",
+        "requested_existing_owner": "Actual tenant/split/source reuse decision owner to be confirmed by A/G; D TRN-01 consumes it",
+        "appointment_established": false,
+        "minimum_actual_input": [
+          "Actual source and target tenant/split/subject refs",
+          "Specific allowed reuse/adapter decision from the real owner",
+          "Source/target data/model/evaluator/metric/unit/direction basis",
+          "Exact source physical parameter and evaluation refs",
+          "Permitted adapter/ref and bounded applicability, or explicit refusal"
+        ],
+        "smallest_existing_owner_option": "Extend the canonical TransferLearningManager/WarmStartBridge flow; keep broad analogies distinct from numeric reuse, and leave incompatible history as a limited idea. Do not synthesize rights or request a whole dataset.",
+        "consumer": "Saved evaluation -> native warm-transfer target -> configured Bayesian consumer."
+      },
+      {
+        "finding": "B137",
+        "packet_key": "authorized_revalidation",
+        "requested_existing_owner": "Actual lesson/evidence revalidation issuer to be confirmed by G; D TRN-03 reader",
+        "appointment_established": false,
+        "minimum_actual_input": [
+          "Prior and newly produced exact evidence refs/version",
+          "Actual new grounds and occurrence time from producer",
+          "Owner authorization for this revalidation purpose",
+          "Subject/input/rule scope tying old and new version",
+          "Declared content/confidence/freshness basis"
+        ],
+        "smallest_existing_owner_option": "Use the existing LessonRegistry producer/record path and local/transfer query consumer; preserve G's separate usage/evidence clocks. Do not create a new scientific revalidation authority or treat TTL/read checks as a positive.",
+        "consumer": "Same lesson through local, transferred, cold/warm, and restarted reads."
+      },
+      {
+        "finding": "B164",
+        "packet_key": "typed_write_permit",
+        "requested_existing_owner": "Actual purpose-bound permit issuer/current verifier and serialized commit owner to be confirmed by A/B/G; D FUN-03 consumer",
+        "appointment_established": false,
+        "minimum_actual_input": [
+          "Actual issued permit ref and purpose/subject/input binding",
+          "Existing current verifier/owner API and source",
+          "Serialized revoke-before-commit writer protocol",
+          "Real prepared payload/ref and permitted write target",
+          "Positive current permit plus revoked/lost-permission control"
+        ],
+        "smallest_existing_owner_option": "Retain L6 preflight and run_policy_blueprint_runtime's commit path; replace boolean permission as authority only after the existing issuer/verifier/write owner and typed permit are supplied. Do not invent a sovereign permit subsystem.",
+        "consumer": "Actual Level6/native commit effect; prepared-payload read remains separately allowed.",
+        "conditional_capability_label": "bridge_missing only after actual typed issued permit/current verifier/write-owner refs exist",
+        "current_owner_issuer_verifier_commit_api": "not_established"
+      }
+    ],
+    "current_G_behavior_and_patterns": {
+      "B131": {
+        "source_paths": [
+          "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+        ],
+        "current_properties": "find_similar_runs and _binding_matches compare space/objective/bounds/split/units/origin/tenant/direction metadata; WarmStartBridge rechecks the target fingerprint. Similarity is discovery, but indexed metadata and an ArtifactRef constructed from candidate_id do not establish owner authorization or independently content-bound source evidence.",
+        "P37": "Engineering comparisons are recomputed from indexed fields; decisive source/target owner authorization is not_established. Fail closed for numeric reuse when owner/source basis is absent.",
+        "P38": {
+          "property": "Numerical reuse is allowed only for the actual compatible source and owner-approved tenant/split/adapter.",
+          "implementation_proxy": "Indexed space and compatibility metadata plus syntactic ref fields.",
+          "divergent_case": "Retain all owner/split/space labels while the actual source evaluation or tenant/split basis changes; metadata gate may pass although the required owner/source decision does not.",
+          "T2_divergent_case": "Preserve owner/split/space labels while swapping the underlying source or revoking reuse; a marker-based gate can still pass although T2 requires zero reuse."
+        },
+        "current_G_selectors": [
+          "tests/unit/scientist/methods/autotune/test_warm_start.py::TestWarmStartBridge::test_loads_from_transfer_manager",
+          "tests/unit/scientist/methods/autotune/test_warm_start.py::TestTransferLearningManagerWarmStart::test_similar_objectives_do_not_override_space_binding"
+        ],
+        "P37_scope": {
+          "original_predicate": "Owner-approved tenant/split/source compatibility is decisive and is not_established.",
+          "T2_qualifier": "Independently observe the protected effect for authentic positive and adversarial zero-effect cases; fake labels remain consumer_asserted."
+        }
+      },
+      "B137": {
+        "source_path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+        "current_properties": "_activity_anchor uses last_accessed_at or last_seen for retention; _evidence_anchor uses max(last_seen, card.created_at), not access time. The original repeated-read clock regression is already addressed in this G source.",
+        "P37": "Read/access separation is locally recomputable. Authorized producer revalidation, its new grounds/version, and the issuer's authority are not_established.",
+        "P38": {
+          "property": "Only an authorized producer event with new grounds/version renews evidence freshness.",
+          "implementation_proxy": "Stored evidence timestamps, with no admitted issuer/verifier binding in this T2 source set.",
+          "divergent_case": "Keep a future-looking created_at/last_seen marker while removing the producer grounds or owner authorization; a timestamp-based freshness check can pass without an authorized revalidation.",
+          "T2_divergent_case": "Preserve a future created_at/last_seen marker but remove producer grounds or authorization; timestamp-only freshness can pass while T2 requires no trust renewal."
+        },
+        "current_G_selectors": [
+          "tests/unit/scientist/search/test_lessons.py::test_repeated_reads_do_not_restore_confidence_without_new_evidence",
+          "tests/unit/scientist/search/test_lesson_transfer.py::test_query_with_transfer_reapplies_source_trust_and_confidence_filters",
+          "tests/unit/scientist/search/test_lesson_transfer.py::test_cross_tenant_transfer_denied_by_default",
+          "tests/unit/scientist/search/test_lesson_transfer.py::test_ttl_demotes_old_lessons_before_archive",
+          "tests/unit/scientist/search/test_lesson_transfer.py::test_invalidation_beats_transfer_materialization"
+        ],
+        "P37_scope": {
+          "original_predicate": "Ordinary-read immutability is recomputable; actual authorized new grounds/version is not_established.",
+          "T2_qualifier": "Require zero freshness/trust effect for fake/foreign/stale/revoked events and for future-looking timestamps without an admitted producer basis."
+        }
+      },
+      "B164": {
+        "source_paths": [
+          "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+          "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+        ],
+        "current_properties": "L6 preflight and owner callback precede the runner; runtime rechecks degradation mode, promotion_write_allowed is True, candidate ref, and compatible promotion evidence bundle. There is no admitted typed permit/current verifier/revocation source/serialized commit-owner API; this bool and its fields are not authority evidence.",
+        "P37": "Bundle/run/candidate checks are recomputed; permission truth is consumer_asserted by a bool/context field. Independent issuer/verifier and current revocation basis are not_established.",
+        "P38": {
+          "property": "Current independently verified permit and commit-time revocation check authorize the actual write.",
+          "implementation_proxy": "promotion_write_allowed is True plus candidate/evidence bundle compatibility.",
+          "divergent_case": "Keep the bool true and all refs valid, then revoke after preflight or counterfeit the callback result; current markers can pass while no current permit exists.",
+          "T2_divergent_case": "Keep promotion_write_allowed=True and refs valid, then revoke between preflight and commit; a bool gate may call the runner while T2 requires zero writer effects."
+        },
+        "current_G_selectors": [
+          "tests/unit/remediation/test_fun_03.py::test_level6_degradation_preflight_reads_existing_payload_without_runner",
+          "tests/unit/remediation/test_fun_03.py::test_level6_owner_recheck_happens_before_effectful_runner",
+          "tests/unit/remediation/test_fun_03.py::test_level6_normal_path_calls_runner_after_owner_recheck",
+          "tests/unit/remediation/test_fun_03.py::test_production_owner_recheck_requires_explicit_write_permission",
+          "tests/unit/remediation/test_fun_03.py::test_run_policy_blueprint_execute_rechecks_owner_at_commit",
+          "tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_level6_respects_no_promotion_degraded_mode"
+        ],
+        "P37_scope": {
+          "original_predicate": "Commit owner must check current permission; G has bool/context and evidence compatibility but no independent permission basis.",
+          "T2_qualifier": "Typed permit, issuer/verifier, validity and revocation predicates must be independently resolved; not_established fails closed."
+        }
+      }
+    },
+    "original_acceptance_commands": [
+      {
+        "finding": "B131",
+        "command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_transfer.py tests/unit/scientist/methods/autotune/test_warm_start.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
+        "runnable_on_frozen_G": false,
+        "missing_paths_on_frozen_G": [
+          "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+          "tests/unit/scientist/methods/autotune/test_transfer_workflow.py"
+        ],
+        "available_relevant_path": "tests/unit/scientist/methods/autotune/test_warm_start.py"
+      },
+      {
+        "finding": "B137",
+        "command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/test_lesson_query_persistence.py tests/unit/scientist/search/test_lessons.py tests/unit/scientist/search/test_lesson_transfer.py -ra",
+        "runnable_on_frozen_G": false,
+        "missing_paths_on_frozen_G": [
+          "tests/unit/scientist/methods/search/test_lesson_query_persistence.py"
+        ],
+        "available_relevant_paths": [
+          "tests/unit/scientist/search/test_lessons.py",
+          "tests/unit/scientist/search/test_lesson_transfer.py"
+        ]
+      },
+      {
+        "finding": "B164",
+        "command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/scientist/search/funnel/test_level6_promotion.py tests/unit/remediation/test_fun_03.py -ra",
+        "runnable_on_frozen_G": false,
+        "missing_paths_on_frozen_G": [
+          "tests/unit/scientist/search/funnel/test_level6_promotion.py"
+        ],
+        "available_relevant_paths": [
+          "tests/unit/scientist/search/funnel/test_orchestrator.py",
+          "tests/unit/remediation/test_fun_03.py"
+        ]
+      }
+    ],
+    "prepared_frozen_G_commands_not_executed": [
+      "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_warm_start.py::TestWarmStartBridge::test_loads_from_transfer_manager tests/unit/scientist/methods/autotune/test_warm_start.py::TestTransferLearningManagerWarmStart::test_similar_objectives_do_not_override_space_binding -ra",
+      "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_lessons.py::test_repeated_reads_do_not_restore_confidence_without_new_evidence tests/unit/scientist/search/test_lesson_transfer.py -ra",
+      "cd policy-engine && python -m pytest -q tests/unit/remediation/test_fun_03.py::test_level6_degradation_preflight_reads_existing_payload_without_runner tests/unit/remediation/test_fun_03.py::test_level6_owner_recheck_happens_before_effectful_runner tests/unit/remediation/test_fun_03.py::test_level6_normal_path_calls_runner_after_owner_recheck tests/unit/remediation/test_fun_03.py::test_production_owner_recheck_requires_explicit_write_permission tests/unit/remediation/test_fun_03.py::test_run_policy_blueprint_execute_rechecks_owner_at_commit tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_level6_respects_no_promotion_degraded_mode -ra"
+    ],
+    "capability_and_pattern_accounting": {
+      "current_overlay_label": "not_established",
+      "honest_capability_state": "absent/unallocated while no admitted owner chain or owner appointment exists",
+      "conditional_B164_label": "bridge_missing only after actual typed permit, current verifier, and writer-owner refs are supplied",
+      "relevant_patterns": [
+        "P01",
+        "P02",
+        "P05",
+        "P09",
+        "P29",
+        "P32",
+        "P33",
+        "P34",
+        "P37",
+        "P38",
+        "P41"
+      ],
+      "target_pattern": "Reuse the canonical owner, bind a real producer artifact to an independent verifier, exercise the configured consumer, and prove both permitted positive and adversarial zero-effect cases; do not claim closure from markers or test-local recorder behavior.",
+      "P41": "not_established; no new baseline replay or inherited-red waiver was claimed"
+    },
+    "original_vs_t2_qualification": {
+      "B131": {
+        "original_criterion": "Do not equate different numeric spaces; permit actual parameter conversion only through an allowed adapter; incompatible observations remain ideas; the real tenant/split owner decides reuse.",
+        "T2_qualifier": "Require one genuine owner-approved compatible positive and zero numeric-reuse effects for fake/foreign/stale/revoked or changed-source/split cases. The wider negative matrix is a T2 proof condition, not a claim that the original card created a general revocation subsystem."
+      },
+      "B137": {
+        "original_criterion": "Ordinary reads never refresh confidence/trust; only actual authorized revalidation creates a new version with new grounds, stable across cold/warm/restart/transfer.",
+        "T2_qualifier": "Require a genuine authorized revalidation positive plus zero evidence-freshness effects for fake/foreign/stale/revoked events or a timestamp marker without grounds. No new scientific evidence-sufficiency rule is inferred."
+      },
+      "B164": {
+        "original_criterion": "Blocked modes do not invoke the effectful runner; ordinary path remains usable; prepared payload read remains separately allowed; the actual write owner rechecks permission at commit.",
+        "T2_qualifier": "Require a current typed-permit positive with one permitted effect and zero effects for absent/fake/foreign/stale/expired/revoked permit, including revocation between preflight and commit. This qualifies the consumer proof; it does not authorize inventing a new permit authority."
+      }
+    }
+  }
+}

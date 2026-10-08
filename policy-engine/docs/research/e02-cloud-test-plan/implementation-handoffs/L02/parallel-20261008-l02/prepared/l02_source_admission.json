@@ -1,0 +1,2979 @@
+{
+  "schema": "policyos.e02.l02.qualified_preparation.v1",
+  "role": "L02",
+  "helper": "l02_source_admission",
+  "source_candidate_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "source_candidate_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "preparer_raw_local_ref": {
+    "path": ".tmp/parallel-20261008-l02/prepared/l02_source_admission.json",
+    "bytes": 114062,
+    "sha256": "a3f671b54f819fc8a985cf73e5a844b9833c72747375f4c6edaf108bdd4df6fe"
+  },
+  "delivery_compaction": {
+    "removed_derivable_text_fields": [],
+    "raw_report_preserved": true,
+    "no_semantic_qualification_promoted": true
+  },
+  "preparation": {
+    "schema": "policyos.e02.parallel_l02_source_admission.v1",
+    "created_utc": "2026-10-08T09:47:35.652113+00:00",
+    "role": "L02 source qualification helper",
+    "workspace": {
+      "repository": "/Users/deniskopylov/polisyos",
+      "isolated_worktree": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+      "branch": "codex/e02-L02-authentic-20261008",
+      "head": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+      "parent": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+      "parent_tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617",
+      "status_at_read": "clean attached topic"
+    },
+    "authority_and_write_manifest": {
+      "source_writer_scope": "NONE (read_only_verification)",
+      "only_authorized_write": "this nonsecret prepared receipt document",
+      "prepared_receipt_path": ".tmp/parallel-20261008-l02/prepared/l02_source_admission.json",
+      "no_source_test_config_lock_generated_release_or_production_data_writes": true,
+      "no_tests_install_or_baseline_replay": true,
+      "no_production_data_read": true,
+      "root_importer_order": "No baseline/result use before root importer; none was used here.",
+      "commit_owner": "root"
+    },
+    "decision": {
+      "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "current_G_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+      "dispatch_G_commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+      "dispatch_G_tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617",
+      "current_G_delta_class": "carrier_doc_only",
+      "meaning": "f00 is a 32-path document carrier on fe5; its own delta contains no source/test/config/generated/release changes. This does not erase or replace prior independently admitted source content already in its base.",
+      "current_G_as_whole_source_admission": "not granted by this carrier delta or dispatch ancestry; source admission remains per exact source tree, owner receipt and scoped property.",
+      "source_acceptance_vs_actual_inputs": "separate. This census establishes exact source identities/status only; L01 authentic actual-input payloads, data IDs/assets, and per-task input closure were not read or promoted.",
+      "release_boundary": "No source merge, publish, formal finding closure, or general Q2 release. A compiler profile and F-852 bounded profile retain only their recorded scopes. L02 authentic executions release per task only when the selected admitted supplier blobs and L01 input closure are both exact. Unaffected admitted F/native profiles are not held behind a blanket global source-freeze barrier."
+    },
+    "current_G_full_delta": {
+      "base_commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+      "base_tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617",
+      "candidate_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "candidate_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+      "comparison": "base..candidate; full tracked Git name-only delta",
+      "changed_path_count": 32,
+      "file_type_denominator_by_extension": {
+        "json": 2,
+        "md": 30
+      },
+      "complete_changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C01.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C02.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C03.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C04.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C05.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C06.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C07.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C08.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C09.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C10.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C11.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C12.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C13.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/COMMON.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/G.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/L01.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/L02.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/ORCH01.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/ORCH02.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/ORCH03.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/ORCH04.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/analysis-receipt.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/reviews/budget.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/reviews/coverage.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/reviews/data-paths.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/reviews/local.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/reviews/organization.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/reviews/platform.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/reviews/runtime.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/reviews/science-served.md"
+      ],
+      "class_counts": {
+        "policy_engine_product_source_paths": 0,
+        "test_tree_paths": 0,
+        "configuration_or_lock_paths": 0,
+        "generated_surface_paths": 0,
+        "release_fragment_paths": 0
+      },
+      "interpretation": "doc-only carrier commit; no source/test/config/generated/release path in the complete delta"
+    },
+    "source_pins": {
+      "G_dispatch": {
+        "sha": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617"
+      },
+      "G_analysis_parent": {
+        "sha": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "tree": "32a32cc77039554a3777a11fd7fc8f96f3a88625"
+      },
+      "G_current_doc_carrier": {
+        "sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767"
+      },
+      "A": {
+        "sha": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "tree": "fef42aadf2bf58ed5cc97ec827be99245a154253"
+      },
+      "B_published": {
+        "sha": "53b14a6e5af66f2a784d7f4981c4613e534acd40",
+        "tree": "568e2e42e18abcea9fd39759546f1e48525c590a"
+      },
+      "B_prepared_source": {
+        "sha": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+        "tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea"
+      },
+      "B_prepared_receipt": {
+        "sha": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+        "tree": "677257974c442ba878a6bf4dba6686ae854b2e67"
+      },
+      "C_root": {
+        "sha": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+        "tree": "7edd87e6730739fbe2d7c7ed0c35d4a4e1e11ba8"
+      },
+      "C_stream_source": {
+        "sha": "81a4af184d72cd28e7ab4063140432e2af764547",
+        "tree": "c3423c94f28409ec663ec3b161ca85eecfe6207c"
+      },
+      "C_DFK_source": {
+        "sha": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+        "tree": "35d9c02156f8a27335b858bfe8053d7cbc6a54f2"
+      },
+      "C_DFI_source": {
+        "sha": "ab44166335130463178e65dfc29a252c96afe479",
+        "tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d"
+      },
+      "C_CAT_source": {
+        "sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681"
+      },
+      "C_Legal_source": {
+        "sha": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714"
+      },
+      "C_CAN_source": {
+        "sha": "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+        "tree": "2d27c9c182cf550088c5a8c072dc2f36df84e20d"
+      },
+      "C_NET_source": {
+        "sha": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+        "tree": "267fef2e1a46aee7a7b2c1f6baaa00bf66e3cbd9"
+      },
+      "D_receipt": {
+        "sha": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+        "tree": "10efc41e7a2d792f42bce59af5b87816843df07e"
+      },
+      "D_source": {
+        "sha": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9"
+      },
+      "E_receipt": {
+        "sha": "7bf53fd0cf69a568b37d8a881e26bfb16c315653",
+        "tree": "946ec147aa09db5b76c66e7ac3e3a2e491f9868b"
+      },
+      "E_source": {
+        "sha": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+        "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb"
+      },
+      "F_source": {
+        "sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+        "tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8"
+      },
+      "F_receipt": {
+        "sha": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+        "tree": "682b043138464c912dd728c12e80049dd44b47f1"
+      }
+    },
+    "owner_source_delta_denominators": [
+      {
+        "label": "A_G6f_to_A8b",
+        "start_commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "start_tree": "32a32cc77039554a3777a11fd7fc8f96f3a88625",
+        "end_commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "end_tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+        "changed_paths": 1377,
+        "complete_file_type_denominator_by_extension": {
+          "diff": 3,
+          "json": 452,
+          "md": 30,
+          "py": 243,
+          "sh": 1,
+          "toml": 2,
+          "ts": 3,
+          "txt": 480,
+          "xml": 163
+        },
+        "production_python_paths": 31,
+        "test_tree_paths": 59,
+        "test_python_paths": 59,
+        "release_fragment_paths": 2,
+        "census": "complete git diff --name-only set; not a sample",
+        "source_selection_reference": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/07-source-selection.md"
+      },
+      {
+        "label": "B_prepared_2d3a_to_1e18",
+        "start_commit": "2d3a990ff716b46ccf473e229b9de7e009a1d1fb",
+        "start_tree": "68ae933789c2160911260d769039757c7a142a58",
+        "end_commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+        "end_tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+        "changed_paths": 52,
+        "complete_file_type_denominator_by_extension": {
+          "json": 13,
+          "md": 24,
+          "py": 14,
+          "toml": 1
+        },
+        "production_python_paths": 7,
+        "test_tree_paths": 7,
+        "test_python_paths": 7,
+        "release_fragment_paths": 1,
+        "census": "complete git diff --name-only set; not a sample",
+        "source_selection_reference": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/07-source-selection.md"
+      },
+      {
+        "label": "C_stream_198076_to_81a4",
+        "start_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "start_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+        "end_commit": "81a4af184d72cd28e7ab4063140432e2af764547",
+        "end_tree": "c3423c94f28409ec663ec3b161ca85eecfe6207c",
+        "changed_paths": 15,
+        "complete_file_type_denominator_by_extension": {
+          "json": 3,
+          "lock": 1,
+          "md": 2,
+          "py": 6,
+          "toml": 3
+        },
+        "production_python_paths": 3,
+        "test_tree_paths": 3,
+        "test_python_paths": 3,
+        "release_fragment_paths": 2,
+        "census": "complete git diff --name-only set; not a sample",
+        "source_selection_reference": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/07-source-selection.md"
+      },
+      {
+        "label": "C_DFK_28b041_to_a13f",
+        "start_commit": "28b04149e6477216f37c2ab2e0abfc54b8857ac6",
+        "start_tree": "715e11ef478d6c8827494e6da89ed08792708fb2",
+        "end_commit": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+        "end_tree": "35d9c02156f8a27335b858bfe8053d7cbc6a54f2",
+        "changed_paths": 8,
+        "complete_file_type_denominator_by_extension": {
+          "md": 3,
+          "py": 4,
+          "toml": 1
+        },
+        "production_python_paths": 2,
+        "test_tree_paths": 1,
+        "test_python_paths": 1,
+        "release_fragment_paths": 1,
+        "census": "complete git diff --name-only set; not a sample",
+        "source_selection_reference": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/07-source-selection.md"
+      },
+      {
+        "label": "C_DFI_12190_to_ab441",
+        "start_commit": "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63",
+        "start_tree": "fcfe8de3a6cbc0dd1c0df1d02b65cc2d7c1cee04",
+        "end_commit": "ab44166335130463178e65dfc29a252c96afe479",
+        "end_tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+        "changed_paths": 30,
+        "complete_file_type_denominator_by_extension": {
+          "json": 2,
+          "py": 12,
+          "txt": 16
+        },
+        "production_python_paths": 6,
+        "test_tree_paths": 1,
+        "test_python_paths": 1,
+        "release_fragment_paths": 0,
+        "census": "complete git diff --name-only set; not a sample",
+        "source_selection_reference": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/07-source-selection.md"
+      },
+      {
+        "label": "C_CAT_ab441_to_8dfa",
+        "start_commit": "ab44166335130463178e65dfc29a252c96afe479",
+        "start_tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+        "end_commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "end_tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+        "changed_paths": 36,
+        "complete_file_type_denominator_by_extension": {
+          "json": 2,
+          "md": 2,
+          "py": 22,
+          "txt": 10
+        },
+        "production_python_paths": 14,
+        "test_tree_paths": 6,
+        "test_python_paths": 6,
+        "release_fragment_paths": 0,
+        "census": "complete git diff --name-only set; not a sample",
+        "source_selection_reference": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/07-source-selection.md"
+      },
+      {
+        "label": "C_Legal_f428_to_c60e",
+        "start_commit": "f428b114f4afb5c9cdde93a8e9bf036abe5ac329",
+        "start_tree": "feda38826ac6cf2a3a5ac38e0e86dd72d72d8730",
+        "end_commit": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "end_tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+        "changed_paths": 10,
+        "complete_file_type_denominator_by_extension": {
+          "md": 4,
+          "py": 5,
+          "toml": 1
+        },
+        "production_python_paths": 4,
+        "test_tree_paths": 1,
+        "test_python_paths": 1,
+        "release_fragment_paths": 1,
+        "census": "complete git diff --name-only set; not a sample",
+        "source_selection_reference": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/07-source-selection.md"
+      },
+      {
+        "label": "D_83e7c_to_8e864",
+        "start_commit": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "start_tree": "dc1a7697f506b23f2db0f1c80bf929fd2d6a2e0d",
+        "end_commit": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "end_tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+        "changed_paths": 3540,
+        "complete_file_type_denominator_by_extension": {
+          "bin": 3,
+          "diff": 5,
+          "gz": 770,
+          "json": 1332,
+          "jsonl": 22,
+          "lock": 1,
+          "log": 22,
+          "md": 80,
+          "patch": 2,
+          "py": 311,
+          "startup-error": 2,
+          "stderr": 3,
+          "stdout": 3,
+          "toml": 61,
+          "txt": 750,
+          "xml": 161,
+          "xz": 12
+        },
+        "production_python_paths": 77,
+        "test_tree_paths": 156,
+        "test_python_paths": 155,
+        "release_fragment_paths": 61,
+        "census": "complete git diff --name-only set; not a sample",
+        "source_selection_reference": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/07-source-selection.md"
+      },
+      {
+        "label": "E_df525_to_8d8e",
+        "start_commit": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+        "start_tree": "7bec40f1926422c363a3cf3fa623089d85a68139",
+        "end_commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+        "end_tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+        "changed_paths": 7,
+        "complete_file_type_denominator_by_extension": {
+          "md": 1,
+          "py": 5,
+          "toml": 1
+        },
+        "production_python_paths": 2,
+        "test_tree_paths": 3,
+        "test_python_paths": 3,
+        "release_fragment_paths": 1,
+        "census": "complete git diff --name-only set; not a sample",
+        "source_selection_reference": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/07-source-selection.md"
+      },
+      {
+        "label": "F_2c095_to_852cc",
+        "start_commit": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+        "start_tree": "c9dcc58e520cb2c161c85a74e8a2161c32a7276f",
+        "end_commit": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+        "end_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+        "changed_paths": 9,
+        "complete_file_type_denominator_by_extension": {
+          "md": 2,
+          "py": 6,
+          "toml": 1
+        },
+        "production_python_paths": 2,
+        "test_tree_paths": 4,
+        "test_python_paths": 4,
+        "release_fragment_paths": 1,
+        "census": "complete git diff --name-only set; not a sample",
+        "source_selection_reference": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/07-source-selection.md"
+      }
+    ],
+    "source_admission_state_by_owner": [
+      {
+        "owner": "A",
+        "candidate_sha": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "candidate_tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+        "admission": "only exact compiler slice accepted at G 9c989f7877bd25fea38416cbd10d4c8b2511d10e (source 577521c6651bba048d6bdfdc13f36a383c8146c6/tree 1e8820533c48ec88355f2a2fccba486f279c2a4b); remaining A queue held. This does not accept A8b auth/generation route."
+      },
+      {
+        "owner": "B",
+        "candidate_sha": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+        "candidate_tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+        "admission": "runtime UNRUN; prepared source and receipt are not a runtime source acceptance or published topic. Owner version choices differ on CAS store and budget enforcer."
+      },
+      {
+        "owner": "C stream",
+        "candidate_sha": "81a4af184d72cd28e7ab4063140432e2af764547",
+        "candidate_tree": "c3423c94f28409ec663ec3b161ca85eecfe6207c",
+        "admission": "dispatch pin only; no source acceptance inferred. 15-path range includes streaming, pool/CAS inputs, pyproject and uv.lock as mandatory companions."
+      },
+      {
+        "owner": "C DFK",
+        "candidate_sha": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+        "candidate_tree": "35d9c02156f8a27335b858bfe8053d7cbc6a54f2",
+        "admission": "bounded runtime retirement GO, but full 8-path unit held because mandatory schema_fqn_census.py companion has a demonstrated P38 dirty-path omission. Do not stamp full-unit acceptance."
+      },
+      {
+        "owner": "C DFI",
+        "candidate_sha": "ab44166335130463178e65dfc29a252c96afe479",
+        "candidate_tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+        "admission": "12190 baseline bounded GO; final 12190→ab441 delta lacks independent source review. Same-ID source/profile currentness remains unestablished at final source."
+      },
+      {
+        "owner": "C CAT",
+        "candidate_sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "candidate_tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+        "admission": "26 dependent tests are recorded on exact CAT tree, but CAT source increment lacks independent review and inherits held DFI history; not a clean source acceptance."
+      },
+      {
+        "owner": "C Legal",
+        "candidate_sha": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "candidate_tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+        "admission": "direct Legal delta bounded GO with 10 selectors, but ordinary full history is HOLD pending DFI/CAT source reviews. LA-040 serving bridge_missing/held; production assets/profile not established."
+      },
+      {
+        "owner": "D",
+        "candidate_sha": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "candidate_tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+        "admission": "exact D source is reviewer GO for append-only history, conditional on D-selected B CAS/budget blobs. Current G has different store and budget enforcer; therefore D candidate receipts are not transferable wholesale to current G."
+      },
+      {
+        "owner": "E",
+        "candidate_sha": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+        "candidate_tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+        "admission": "reviewer GO recommendation for bounded code carry, not formal G source-acceptance record. Exact 165 focused PASS is narrow; generated Profile2 ABI/inventory surface_missing and float-tag input materializer verification_missing."
+      },
+      {
+        "owner": "F",
+        "candidate_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+        "candidate_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+        "admission": "bounded exact source accepted by G integration merge 99c7eb501c525912e4142a9ca833f07de3ff6c8e/tree a1faa2717458f9bd330b566404ec1555c47817ac. 38 native and 17 installed-wheel PASS with removal controls; source range blobs equal current G on all 9 changed paths. Scope-specific, not whole package."
+      }
+    ],
+    "source_blob_identity_comparisons": [
+      {
+        "canonical_owner_pin": "A",
+        "owner_commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "owner_tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+        "owner_blob": "18f6cbc8cf3fe2e44ba6d0ed944bf6420d970d0d",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "V4",
+          "V7",
+          "T2",
+          "Q2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "A",
+        "owner_commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "owner_tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_source.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "727237e063321fa07ec14fd4c4ca4d724427f776",
+        "owner_blob": "1b82d0c1a7935649b6315ea34bdab2f8a618fb83",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "V4",
+          "V7",
+          "T2",
+          "Q2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "A",
+        "owner_commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "owner_tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+        "path": "policy-engine/src/polisyos/runtime/quality/conditional_simulation_replay.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": null,
+        "owner_blob": "fe8696e7111b1c6354c1e996dea282291b814b1e",
+        "identity": "absent_current_G",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "V4",
+          "V7",
+          "T2",
+          "Q2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "A",
+        "owner_commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "owner_tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+        "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "71aa5c2956ba7033924f90be715ce3b8afb9f798",
+        "owner_blob": "f21c3fa9b2eb9735b6503f442c0db0ac70ff21f5",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "V4",
+          "V7",
+          "T2",
+          "Q2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "A",
+        "owner_commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "owner_tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "29459ff167cad1e011a2de626a627b30d0336a01",
+        "owner_blob": "1e735f2322a1f15fc8cb6a439d8231b2dc19c898",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "V4",
+          "V7",
+          "T2",
+          "Q2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "A",
+        "owner_commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "owner_tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+        "owner_blob": "e874398449b7abffa4be665e00b4bc36a1a2001f",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "V4",
+          "V7",
+          "T2",
+          "Q2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "A",
+        "owner_commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "owner_tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/evaluation_safety.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "efa454a8eaf663b2d393bbc0b51c4920fc345a27",
+        "owner_blob": "bfe854aa302750a31f9b17a3faba6491df71af11",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "V4",
+          "V7",
+          "T2",
+          "Q2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "A",
+        "owner_commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "owner_tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+        "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "49ddb4c29f333de12211a1e7222a1d8368f8cd85",
+        "owner_blob": "75b018e3e0bb5f10fa8e6847ddfbc4fdc20de7c5",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "V4",
+          "V7",
+          "T2",
+          "Q2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "A",
+        "owner_commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "owner_tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+        "path": "policy-engine/architecture/public_surface/inventory.json",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "7c91d9d6ea92b65c0e0696ecccbed54f6c45214a",
+        "owner_blob": "f3aadb9390a6a66684d02ef4d4efddd43f0172f4",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "V4",
+          "V7",
+          "T2",
+          "Q2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "A",
+        "owner_commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "owner_tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+        "path": "policy-engine/docs/reference/public-surface.md",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "7c66e6c0b3ff8c4dfcfa546178735655b4f5bca8",
+        "owner_blob": "3d14b9133983b762175d5ce9a6610643e5eba810",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "V4",
+          "V7",
+          "T2",
+          "Q2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "A",
+        "owner_commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "owner_tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+        "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "f8a9dda954bc3bee4f9d4441311f2dcc9fe392e7",
+        "owner_blob": "fafa53ab0557697f82f4631b1c7d5a85dca3186d",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "V4",
+          "V7",
+          "T2",
+          "Q2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "A",
+        "owner_commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "owner_tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+        "path": "policy-engine/apps/runtime-dashboard/src/api/types.ts",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "91e455f1424cd2222fd3e45fd9e14a20a54cffa0",
+        "owner_blob": "d85743d91f5b9aab425268ba24b42c127e949ffe",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "V4",
+          "V7",
+          "T2",
+          "Q2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "B_prepared_source",
+        "owner_commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+        "owner_tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+        "owner_blob": "02e3253de23db5d64c21b69ce4cc85daa4f0778c",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V6",
+          "I3",
+          "T2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "B_prepared_source",
+        "owner_commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+        "owner_tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+        "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "70c7131a170f4860334e59965bc951347bc12365",
+        "owner_blob": "00831a2cbab0fc8c74f0e01595d41fa2d73eff33",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V6",
+          "I3",
+          "T2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "B_prepared_source",
+        "owner_commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+        "owner_tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+        "path": "policy-engine/src/polisyos/data_forge/read_api/academic.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "4451e2f65e563fc27d627ef038875d034695bb0e",
+        "owner_blob": "78259b567f0bc70cb29c884f626a1c02e4f768de",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V6",
+          "I3",
+          "T2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "B_prepared_source",
+        "owner_commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+        "owner_tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "8756fd0a66cdf91c18e8b7c3bb60872926af05be",
+        "owner_blob": "4d33922df1841dbf383aaec522bd2d74d80ea718",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V6",
+          "I3",
+          "T2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "B_prepared_source",
+        "owner_commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+        "owner_tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "fe0aadf975873aa54d35008d5020b66c6c6778fa",
+        "owner_blob": "5f71059129d195dd285ba3e9907dcb1b16bf18f6",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V6",
+          "I3",
+          "T2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "B_prepared_source",
+        "owner_commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+        "owner_tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "cf3613c67755e170c51f06dcc3d2f831fd5de02a",
+        "owner_blob": "75b44f2c607ac5fc9e77294c9a1f2fbdd5612705",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V6",
+          "I3",
+          "T2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "B_prepared_source",
+        "owner_commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+        "owner_tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/skg_snapshot.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": null,
+        "owner_blob": "170190c9f9bbc050061313e606731ce06107b6ab",
+        "identity": "absent_current_G",
+        "task_relevance": [
+          "V1",
+          "V6",
+          "I3",
+          "T2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "B_prepared_source",
+        "owner_commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+        "owner_tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "08760b26aae2a489b54441b20b3a90fcd040888d",
+        "owner_blob": "e47518a0bead3a28a77cb87c20be092c7a1fe3a2",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V6",
+          "I3",
+          "T2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "B_prepared_source",
+        "owner_commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+        "owner_tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "a9495ddede391755196189929ee02c10f75364cd",
+        "owner_blob": "70b6067337a239d98ae468f2d8cb229a1d7bd336",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V6",
+          "I3",
+          "T2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "B_prepared_source",
+        "owner_commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+        "owner_tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+        "path": "policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "0c5c8f353ef0e593442c3563478b97b364ce04fb",
+        "owner_blob": "850659c2e09aa6a23aa7f3f0daebb88637fd9e29",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V6",
+          "I3",
+          "T2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "B_prepared_source",
+        "owner_commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+        "owner_tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+        "path": "policy-engine/src/polisyos/fabric/connectors/registry.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "fb7d08d06747eaa81bc30fbdd03a290721f3ed9c",
+        "owner_blob": "fb7d08d06747eaa81bc30fbdd03a290721f3ed9c",
+        "identity": "equal",
+        "task_relevance": [
+          "V1",
+          "V6",
+          "I3",
+          "T2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_stream_source",
+        "owner_commit": "81a4af184d72cd28e7ab4063140432e2af764547",
+        "owner_tree": "c3423c94f28409ec663ec3b161ca85eecfe6207c",
+        "path": "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "198ca13aac6a3edf29120f530b155cb9139d38da",
+        "owner_blob": "9f68fb5c4453789362f0d089b9b4c2b2ceeb7439",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "I3"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_stream_source",
+        "owner_commit": "81a4af184d72cd28e7ab4063140432e2af764547",
+        "owner_tree": "c3423c94f28409ec663ec3b161ca85eecfe6207c",
+        "path": "policy-engine/src/polisyos/fabric/data_plane/schema_rows.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": null,
+        "owner_blob": "0d43177f3991c6c48fa78c5e3060e9a38871815b",
+        "identity": "absent_current_G",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "I3"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_stream_source",
+        "owner_commit": "81a4af184d72cd28e7ab4063140432e2af764547",
+        "owner_tree": "c3423c94f28409ec663ec3b161ca85eecfe6207c",
+        "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6",
+        "owner_blob": "08b304cc85885e0a95348b4b2d69bf3459e11e21",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "I3"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_DFK_source",
+        "owner_commit": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+        "owner_tree": "35d9c02156f8a27335b858bfe8053d7cbc6a54f2",
+        "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/codegen.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": null,
+        "owner_blob": null,
+        "identity": "different",
+        "task_relevance": [
+          "I4",
+          "Q2",
+          "LA-032 context"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_DFK_source",
+        "owner_commit": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+        "owner_tree": "35d9c02156f8a27335b858bfe8053d7cbc6a54f2",
+        "path": "policy-engine/src/polisyos/foundry/domain/schema.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "098c04de8a8fa4987b78fa0d7e3cb0af25ef5616",
+        "owner_blob": null,
+        "identity": "absent_owner",
+        "task_relevance": [
+          "I4",
+          "Q2",
+          "LA-032 context"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_DFK_source",
+        "owner_commit": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+        "owner_tree": "35d9c02156f8a27335b858bfe8053d7cbc6a54f2",
+        "path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": null,
+        "owner_blob": "dd9d831d2dcf46a35886cc6ef57bf24faa8423cb",
+        "identity": "absent_current_G",
+        "task_relevance": [
+          "I4",
+          "Q2",
+          "LA-032 context"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_DFI_source",
+        "owner_commit": "ab44166335130463178e65dfc29a252c96afe479",
+        "owner_tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "384a30f2c4bf679127cd6008b28cfc20c6b99449",
+        "owner_blob": "2aa866c8a5523b9a345baad5a8a4ec631453bb1a",
+        "identity": "different",
+        "task_relevance": [
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_DFI_source",
+        "owner_commit": "ab44166335130463178e65dfc29a252c96afe479",
+        "owner_tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "aab8fa8d7c0ae21129ee7bc7615d92f70125fd02",
+        "owner_blob": "f6f24dd85418848664a93d2ed6cf63593561d237",
+        "identity": "different",
+        "task_relevance": [
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_DFI_source",
+        "owner_commit": "ab44166335130463178e65dfc29a252c96afe479",
+        "owner_tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "4c0b0e74cd199ceaeabc6eff5a2b6a4a24688b21",
+        "owner_blob": "6d9ffc41ddcb95cdab7e249eac634f3a2114de1e",
+        "identity": "different",
+        "task_relevance": [
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_DFI_source",
+        "owner_commit": "ab44166335130463178e65dfc29a252c96afe479",
+        "owner_tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "21d43040f1418712dcf568a096f371e646ae4e25",
+        "owner_blob": "c7f39ed894869d54a46d75ccf3a0ee85844a2c35",
+        "identity": "different",
+        "task_relevance": [
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_DFI_source",
+        "owner_commit": "ab44166335130463178e65dfc29a252c96afe479",
+        "owner_tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "f9808edde2972c8be45a56121f605dd6e21e4d18",
+        "owner_blob": "87d3a8250d375861a44de7d1697c9c05d11d9c10",
+        "identity": "different",
+        "task_relevance": [
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_DFI_source",
+        "owner_commit": "ab44166335130463178e65dfc29a252c96afe479",
+        "owner_tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "ba41f373de71d42a7b7f5c1b84cc6a4f511460a8",
+        "owner_blob": "eeaa31f6d2d9cdd8bedeac6e5c61996f2f5777c1",
+        "identity": "different",
+        "task_relevance": [
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_Legal_source",
+        "owner_commit": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "owner_tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+        "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "02f47ec1dc17eab658849a764cc43a90cf419857",
+        "owner_blob": "48c6f4e1e899613962e984ffd25d4bd7baa8230e",
+        "identity": "different",
+        "task_relevance": [
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_Legal_source",
+        "owner_commit": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "owner_tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+        "path": "policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": null,
+        "owner_blob": "ee526dd88b8acf41931793010ac7a81b7b64329c",
+        "identity": "absent_current_G",
+        "task_relevance": [
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_Legal_source",
+        "owner_commit": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "owner_tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+        "path": "policy-engine/src/polisyos/lex/knowledge/search.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "ed7710c10a76913b0f0e209481baf65129943270",
+        "owner_blob": "a25674788cf0d7305cbb60db5172aa113fd5c8cf",
+        "identity": "different",
+        "task_relevance": [
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_Legal_source",
+        "owner_commit": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "owner_tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+        "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "9a01a6c2cd2baa0ae29736b526153046ae2e822a",
+        "owner_blob": "95c2ab216c5c4bd60c71bf13eb1e0c1596d8df8a",
+        "identity": "different",
+        "task_relevance": [
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "D_source",
+        "owner_commit": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "owner_tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "e0656b09f28d83816eb844f199e56cf8656eee64",
+        "owner_blob": "191ef201a2c952f1696eebb62a497d8778e777bb",
+        "identity": "different",
+        "task_relevance": [
+          "S2",
+          "T2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "D_source",
+        "owner_commit": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "owner_tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "6e099ff6f8c7c4e4e1106a36407d97c5053caa3d",
+        "owner_blob": "fe536ef0107539689c28a5d73d387eec1936edc9",
+        "identity": "different",
+        "task_relevance": [
+          "S2",
+          "T2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "D_source",
+        "owner_commit": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "owner_tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "0b6832cd6ee46e09a10f3bbdc8972bcbaad22f81",
+        "owner_blob": "24838eb49af51bad590282dbc4f7110164db2c72",
+        "identity": "different",
+        "task_relevance": [
+          "S2",
+          "T2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "D_source",
+        "owner_commit": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "owner_tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+        "owner_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+        "identity": "different",
+        "task_relevance": [
+          "S2",
+          "T2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "D_source",
+        "owner_commit": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "owner_tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "a9495ddede391755196189929ee02c10f75364cd",
+        "owner_blob": "7105b2b3992f140570a1eee5d17b6bd67b3d3022",
+        "identity": "different",
+        "task_relevance": [
+          "S2",
+          "T2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "D_source",
+        "owner_commit": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "owner_tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "fe0aadf975873aa54d35008d5020b66c6c6778fa",
+        "owner_blob": "fe0aadf975873aa54d35008d5020b66c6c6778fa",
+        "identity": "equal",
+        "task_relevance": [
+          "S2",
+          "T2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "E_source",
+        "owner_commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+        "owner_tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+        "owner_blob": "6468bf46e3a3dfa341112022eccdfe826aaa04ac",
+        "identity": "different",
+        "task_relevance": [
+          "V4",
+          "V7",
+          "S2",
+          "T2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "E_source",
+        "owner_commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+        "owner_tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+        "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "00ede8ba8383e7531bfbfcb05a5dc17e09cd9d0a",
+        "owner_blob": "211103b83d6e71aadc314464d799c97eb1ed41f0",
+        "identity": "different",
+        "task_relevance": [
+          "V4",
+          "V7",
+          "S2",
+          "T2"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_CAT_source",
+        "owner_commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "owner_tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/cli.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "14d1b7b5ad31f0f9776616d7944aa1bceaf60b35",
+        "owner_blob": "bd2427e665fc73dbf21a6bea8a84f186581d4146",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_CAT_source",
+        "owner_commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "owner_tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "f688aee6a609a5d7e7c7f656cef89659928783c0",
+        "owner_blob": "ca2ecfd6227edcce605bbc3091cddc6b38a86d55",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_CAT_source",
+        "owner_commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "owner_tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/publish.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "98e23e3aba9950730c7b26def9cd765643eb214a",
+        "owner_blob": "4e5c671353b09651cb9aee060d8f2daf3590743a",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_CAT_source",
+        "owner_commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "owner_tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "e03e3650e4be407d5a43eb2ce3acae0dd39a5744",
+        "owner_blob": "537172785837469853b2e0d33ac6ec8750614865",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_CAT_source",
+        "owner_commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "owner_tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/registry.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "142040537e37167e9f97955d4f19cbcaf76002c6",
+        "owner_blob": "aebd4168dd9140db918e43db9220f338b60ffd60",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_CAT_source",
+        "owner_commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "owner_tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/selection.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": null,
+        "owner_blob": "5b98667f1929a9390b175167884bc2b1fa6d759b",
+        "identity": "absent_current_G",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_CAT_source",
+        "owner_commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "owner_tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/source_modules.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "89e954146abb82d33c4ef5df6fe7e64f36a77c7c",
+        "owner_blob": "496f12ea05400d68015a1819cf99548d9b3be8f6",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_CAT_source",
+        "owner_commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "owner_tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/sources/__init__.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "360fcaa189a6cb9adab47bf0298457f491216d50",
+        "owner_blob": "4162ff199f78bb9e65c38533abc2f75abf896d7b",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_CAT_source",
+        "owner_commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "owner_tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/sources/core.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "a5c6171bbdc0c96702140ac5fcf8484175695ec8",
+        "owner_blob": "3c307daf7b0d289102fc88c293f2c25c290ef981",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_CAT_source",
+        "owner_commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "owner_tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/sources/open_data.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "2d2b17d30ff527e3b1e5927f83ecd800c3cad693",
+        "owner_blob": "8abb2a6fa291f80785c98a49b05481644c168031",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_CAT_source",
+        "owner_commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "owner_tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/sources/sdmx.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "36bd092b61f5e79b3536fd10248e57b5a4aa73d4",
+        "owner_blob": "a78700b19d8f1e35d2ad76cd0a96f57003b93865",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_CAT_source",
+        "owner_commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "owner_tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/sources/specialized.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "695f2f5ced63691fd84181da0633eb980811cf35",
+        "owner_blob": "82494354fc0d8ccc097ef5924b308e700e82faec",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_CAT_source",
+        "owner_commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "owner_tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+        "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "0a2dcac138f0c0bfa82425542b8c4a8212e63f84",
+        "owner_blob": "98769e8dca53ff2e49a4244ab28a79aa0b91d4c6",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "C_CAT_source",
+        "owner_commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "owner_tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+        "path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "115db3f1239630ef609e2bc69f9f0922a0c198cd",
+        "owner_blob": "db82bce59407cebe887060fde8831d5cdec5c770",
+        "identity": "different",
+        "task_relevance": [
+          "V1",
+          "V3",
+          "I4"
+        ]
+      },
+      {
+        "canonical_owner_pin": "F_source",
+        "owner_commit": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+        "owner_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+        "path": "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "afb69055f2a78bdf73f5dc0df7fe5a55c27654f5",
+        "owner_blob": "afb69055f2a78bdf73f5dc0df7fe5a55c27654f5",
+        "identity": "equal",
+        "task_relevance": [
+          "V3",
+          "V4",
+          "V7",
+          "Q2 scoped admitted profile"
+        ]
+      },
+      {
+        "canonical_owner_pin": "F_source",
+        "owner_commit": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+        "owner_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "8ea6ce1d44a5090f556e6672091d67385b6ed6d3",
+        "owner_blob": "8ea6ce1d44a5090f556e6672091d67385b6ed6d3",
+        "identity": "equal",
+        "task_relevance": [
+          "V3",
+          "V4",
+          "V7",
+          "Q2 scoped admitted profile"
+        ]
+      },
+      {
+        "canonical_owner_pin": "F_source",
+        "owner_commit": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+        "owner_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "21e4a6af610b8977801b40f0295a2c221a8b18ed",
+        "owner_blob": "21e4a6af610b8977801b40f0295a2c221a8b18ed",
+        "identity": "equal",
+        "task_relevance": [
+          "V3",
+          "V4",
+          "V7",
+          "Q2 scoped admitted profile"
+        ]
+      },
+      {
+        "canonical_owner_pin": "F_source",
+        "owner_commit": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+        "owner_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/discovery_pipeline.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "b75b58d0d1d8e90f11f64f5265eb5146fa5aca85",
+        "owner_blob": "b75b58d0d1d8e90f11f64f5265eb5146fa5aca85",
+        "identity": "equal",
+        "task_relevance": [
+          "V3",
+          "V4",
+          "V7",
+          "Q2 scoped admitted profile"
+        ]
+      },
+      {
+        "canonical_owner_pin": "F_source",
+        "owner_commit": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+        "owner_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "5eda1db188d50495da7599f048501d64114aeb13",
+        "owner_blob": "5eda1db188d50495da7599f048501d64114aeb13",
+        "identity": "equal",
+        "task_relevance": [
+          "V3",
+          "V4",
+          "V7",
+          "Q2 scoped admitted profile"
+        ]
+      },
+      {
+        "canonical_owner_pin": "F_source",
+        "owner_commit": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+        "owner_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_pipeline.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "713d7e7e61624692cbbd09b3a15662fbef6be6e8",
+        "owner_blob": "713d7e7e61624692cbbd09b3a15662fbef6be6e8",
+        "identity": "equal",
+        "task_relevance": [
+          "V3",
+          "V4",
+          "V7",
+          "Q2 scoped admitted profile"
+        ]
+      },
+      {
+        "canonical_owner_pin": "F_source",
+        "owner_commit": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+        "owner_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "6373650ccf55d9cd82725ffebba261c810267477",
+        "owner_blob": "6373650ccf55d9cd82725ffebba261c810267477",
+        "identity": "equal",
+        "task_relevance": [
+          "V3",
+          "V4",
+          "V7",
+          "Q2 scoped admitted profile"
+        ]
+      },
+      {
+        "canonical_owner_pin": "F_source",
+        "owner_commit": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+        "owner_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "28be212da517d103518e043d94f45af2500a69ee",
+        "owner_blob": "28be212da517d103518e043d94f45af2500a69ee",
+        "identity": "equal",
+        "task_relevance": [
+          "V3",
+          "V4",
+          "V7",
+          "Q2 scoped admitted profile"
+        ]
+      },
+      {
+        "canonical_owner_pin": "F_source",
+        "owner_commit": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+        "owner_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+        "path": "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+        "current_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "current_G_blob": "2ef2b90d48c24cfa4f2612a5079f282a8f4393d7",
+        "owner_blob": "2ef2b90d48c24cfa4f2612a5079f282a8f4393d7",
+        "identity": "equal",
+        "task_relevance": [
+          "V3",
+          "V4",
+          "V7",
+          "Q2 scoped admitted profile"
+        ]
+      }
+    ],
+    "original_criteria_source_manifest": {
+      "B_r19_original": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "file_type": "Markdown",
+        "line_count": 5545
+      },
+      "LA_r09_original": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "bytes": 648034,
+        "file_type": "Markdown",
+        "line_count": 4425
+      }
+    },
+    "plan_inputs_refs": {
+      "inputs": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "blob": "749255cd37f93955b176c748d63b2a3a7b7ee214"
+      },
+      "tasks": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "blob": "a27cf7e78dc7c16df279a5136399ee0a5daeee9a"
+      },
+      "findings": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e"
+      },
+      "source_selection": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/07-source-selection.md",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "blob": "f501af90dc634286f6948bfc77b6711c5b60cb73"
+      },
+      "dispatch": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "blob": "f2e8d2096b86148fb93d4eb61520d22002228a1d"
+      },
+      "L02_prompt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/L02.md",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "blob": "e97385084b0101fcc6dca2c5aba5519ab55b3090"
+      },
+      "COMMON": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/COMMON.md",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "blob": "116b74d20e0bb9a9e9421bc48a6d95b86a373a79"
+      },
+      "HANDOFF": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e"
+      },
+      "failure_repair_register": {
+        "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "blob": "652fb2d0b3fbcaa48681adf2e79b66486b4a65a1"
+      },
+      "F_acceptance": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/F-acceptance.json",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "blob": "e0fa02b56ae11735eb9cbea025a82e21e708dbc5"
+      },
+      "F_carry_admission": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/F-carry-admission.md",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "blob": "0bb00cb0394528ef8fa938dbb21036ee9b4c61b0"
+      },
+      "C_carry_admission": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/C-carry-admission.md",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "blob": "49fb0429555517dac25428f4eebb0c11269f328c"
+      },
+      "D_carry_admission": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/D-carry-admission.md",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "blob": "b4e2372ba289b54d056a0139ef11ffa585c2e45e"
+      },
+      "E_carry_admission": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/E-carry-admission.md",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "blob": "f01a7e469e7d50b8a308418fae71cea0a2197314"
+      },
+      "A_compiler_acceptance": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/A-delta-owner-actions-2026-10-06.md",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "blob": "30d3c87cc779be9801ea2262cbdeef007c5e7675"
+      },
+      "final_semantic_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/final-admission-semantic.md",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "blob": "b5942c71d596489ff76deb82a7db6a776c8ee813"
+      }
+    },
+    "task_supplier_and_original_source_map": [
+      {
+        "task": "V1",
+        "task_plan_pointer": "/tasks/V1",
+        "routed_finding_count": 10,
+        "routed_findings_and_original_refs": [
+          {
+            "finding_id": "B01",
+            "original_unit": "A",
+            "primary_bundle": "CYC-01",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/0",
+            "original_criterion_pointer": "/findings/0/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/0"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/0",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "B02",
+            "original_unit": "A",
+            "primary_bundle": "CYC-01",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/1",
+            "original_criterion_pointer": "/findings/1/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/1"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/1",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "B03",
+            "original_unit": "A",
+            "primary_bundle": "CYC-01",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/2",
+            "original_criterion_pointer": "/findings/2/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/2"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/2",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "B04",
+            "original_unit": "A",
+            "primary_bundle": "CYC-02",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/3",
+            "original_criterion_pointer": "/findings/3/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/3"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/3",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "B05",
+            "original_unit": "A",
+            "primary_bundle": "CYC-02",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/4",
+            "original_criterion_pointer": "/findings/4/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/4"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/4",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "B08",
+            "original_unit": "A",
+            "primary_bundle": "CYC-02",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/7",
+            "original_criterion_pointer": "/findings/7/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/7"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/7",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "B10",
+            "original_unit": "A",
+            "primary_bundle": "CYC-04",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/9",
+            "original_criterion_pointer": "/findings/9/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/9"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/9",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "B13",
+            "original_unit": "B",
+            "primary_bundle": "RES-03",
+            "author_source": "B",
+            "findings_row_pointer": "/rows/34",
+            "original_criterion_pointer": "/findings/42/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/0"
+              },
+              {
+                "pointer": "/decisions_by_id/B13",
+                "role": "prior_status_comparison"
+              }
+            ]
+          },
+          {
+            "finding_id": "B74",
+            "original_unit": "B",
+            "primary_bundle": "RES-04",
+            "author_source": "B",
+            "findings_row_pointer": "/rows/72",
+            "original_criterion_pointer": "/findings/199/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/37"
+              },
+              {
+                "pointer": "/decisions_by_id/B74",
+                "role": "prior_status_comparison"
+              }
+            ]
+          },
+          {
+            "finding_id": "B154",
+            "original_unit": "B",
+            "primary_bundle": "CAS-03",
+            "author_source": "B",
+            "findings_row_pointer": "/rows/92",
+            "original_criterion_pointer": "/findings/69/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/57"
+              },
+              {
+                "pointer": "/decisions_by_id/B154",
+                "role": "prior_status_comparison"
+              }
+            ]
+          }
+        ],
+        "minimal_supplier_families": [
+          "A served generation/lifecycle",
+          "B CAS persistence",
+          "C only the selected local catalog/acquisition profile needed by the authentic source discriminator",
+          "G current canonical runner/consumer"
+        ],
+        "input_boundary": "matching criterion-specific L6/local catalog/acquisition packet required; source profile must be the one actually selected."
+      },
+      {
+        "task": "V6",
+        "task_plan_pointer": "/tasks/V6",
+        "routed_finding_count": 1,
+        "routed_findings_and_original_refs": [
+          {
+            "finding_id": "B13",
+            "original_unit": "B",
+            "primary_bundle": "RES-03",
+            "author_source": "B",
+            "findings_row_pointer": "/rows/34",
+            "original_criterion_pointer": "/findings/42/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/0"
+              },
+              {
+                "pointer": "/decisions_by_id/B13",
+                "role": "prior_status_comparison"
+              }
+            ]
+          }
+        ],
+        "minimal_supplier_families": [
+          "A simulation/reentry/history",
+          "B async collector/worker and exact CAS/history readers",
+          "G runner",
+          "C only the V1 local catalog/acquisition profile"
+        ],
+        "input_boundary": "B13 authentic catalog/acquisition/history inputs remain conditional; recorded prior route was catalog_fetch_source_unreadable."
+      },
+      {
+        "task": "V3",
+        "task_plan_pointer": "/tasks/V3",
+        "routed_finding_count": 5,
+        "routed_findings_and_original_refs": [
+          {
+            "finding_id": "B09",
+            "original_unit": "A",
+            "primary_bundle": "CYC-03",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/8",
+            "original_criterion_pointer": "/findings/8/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/8"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/8",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "B12",
+            "original_unit": "A",
+            "primary_bundle": "ACQ-01",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/11",
+            "original_criterion_pointer": "/findings/31/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/11"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/11",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "B27",
+            "original_unit": "A",
+            "primary_bundle": "CYC-03",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/22",
+            "original_criterion_pointer": "/findings/152/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/22"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/22",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "B28",
+            "original_unit": "A",
+            "primary_bundle": "CYC-03",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/23",
+            "original_criterion_pointer": "/findings/153/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/23"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/23",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-046",
+            "original_unit": "A",
+            "primary_bundle": "ACQ-01",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/33",
+            "original_criterion_pointer": "/findings/270/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/33"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/33",
+                "role": "bound_root_row"
+              }
+            ]
+          }
+        ],
+        "minimal_supplier_families": [
+          "A same-candidate reissue/acquisition/lifecycle",
+          "C only the selected I1/I3/I4 source/progress/serving supplier required by the discriminator",
+          "F admitted relevance/model profile only if the criterion-specific method requires it",
+          "G current history/CAS consumer"
+        ],
+        "input_boundary": "content change must be source-bound; ID/write-time-only controls do not reissue. S1 release is decision-scoped, not all-of."
+      },
+      {
+        "task": "V4",
+        "task_plan_pointer": "/tasks/V4",
+        "routed_finding_count": 3,
+        "routed_findings_and_original_refs": [
+          {
+            "finding_id": "B16",
+            "original_unit": "A",
+            "primary_bundle": "EMP-01",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/13",
+            "original_criterion_pointer": "/findings/75/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/13"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/13",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "B32",
+            "original_unit": "E",
+            "primary_bundle": "FRC-01",
+            "author_source": "E",
+            "findings_row_pointer": "/rows/193",
+            "original_criterion_pointer": "/findings/157/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/0"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-051",
+            "original_unit": "E",
+            "primary_bundle": "FRC-02",
+            "author_source": "E",
+            "findings_row_pointer": "/rows/194",
+            "original_criterion_pointer": "/findings/275/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/48"
+              }
+            ]
+          }
+        ],
+        "minimal_supplier_families": [
+          "E empirical/forecast producer",
+          "A S10/default resolver and serving consumer",
+          "G CAS/fresh grade consumer",
+          "only the applicable S1 decision"
+        ],
+        "input_boundary": "same method/estimand/design/time/purpose paired evidence required; predictive-only evidence cannot release causal grade."
+      },
+      {
+        "task": "V7",
+        "task_plan_pointer": "/tasks/V7",
+        "routed_finding_count": 3,
+        "routed_findings_and_original_refs": [
+          {
+            "finding_id": "B16",
+            "original_unit": "A",
+            "primary_bundle": "EMP-01",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/13",
+            "original_criterion_pointer": "/findings/75/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/13"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/13",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "B32",
+            "original_unit": "E",
+            "primary_bundle": "FRC-01",
+            "author_source": "E",
+            "findings_row_pointer": "/rows/193",
+            "original_criterion_pointer": "/findings/157/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/0"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-051",
+            "original_unit": "E",
+            "primary_bundle": "FRC-02",
+            "author_source": "E",
+            "findings_row_pointer": "/rows/194",
+            "original_criterion_pointer": "/findings/275/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/48"
+              }
+            ]
+          }
+        ],
+        "minimal_supplier_families": [
+          "E compatible empirical producer",
+          "A S10/default resolver and serving consumer",
+          "G CAS/fresh grade consumer",
+          "only the applicable S1 decision"
+        ],
+        "input_boundary": "same-criterion paired predictions/observations required; same CI with changed actual outcomes must change grade."
+      },
+      {
+        "task": "I3",
+        "task_plan_pointer": "/tasks/I3",
+        "routed_finding_count": 3,
+        "routed_findings_and_original_refs": [
+          {
+            "finding_id": "B79",
+            "original_unit": "C",
+            "primary_bundle": "ING-01",
+            "author_source": "C",
+            "findings_row_pointer": "/rows/129",
+            "original_criterion_pointer": "/findings/204/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/1"
+              }
+            ]
+          },
+          {
+            "finding_id": "B80",
+            "original_unit": "C",
+            "primary_bundle": "ING-01",
+            "author_source": "C",
+            "findings_row_pointer": "/rows/130",
+            "original_criterion_pointer": "/findings/205/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/2"
+              }
+            ]
+          },
+          {
+            "finding_id": "B83",
+            "original_unit": "C",
+            "primary_bundle": "ING-03",
+            "author_source": "C",
+            "findings_row_pointer": "/rows/133",
+            "original_criterion_pointer": "/findings/208/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/5"
+              }
+            ]
+          }
+        ],
+        "minimal_supplier_families": [
+          "B pool/physical cleanup witness",
+          "C streaming cursor/progress producer",
+          "G durable progress/fresh consumer"
+        ],
+        "input_boundary": "actual dataset/run/cursor/content/event-version evidence is conditional and not established by this source-only receipt."
+      },
+      {
+        "task": "I4",
+        "task_plan_pointer": "/tasks/I4",
+        "routed_finding_count": 5,
+        "routed_findings_and_original_refs": [
+          {
+            "finding_id": "LA-033",
+            "original_unit": "A",
+            "primary_bundle": "REP-01",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/28",
+            "original_criterion_pointer": "/findings/257/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/31"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/31",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-046",
+            "original_unit": "A",
+            "primary_bundle": "ACQ-01",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/33",
+            "original_criterion_pointer": "/findings/270/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/33"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/33",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-028",
+            "original_unit": "C",
+            "primary_bundle": "DFK-02",
+            "author_source": "C",
+            "findings_row_pointer": "/rows/111",
+            "original_criterion_pointer": "/findings/252/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/36"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-032",
+            "original_unit": "C",
+            "primary_bundle": "UDF-05",
+            "author_source": "C",
+            "findings_row_pointer": "/rows/115",
+            "original_criterion_pointer": "/findings/256/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/40"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-040",
+            "original_unit": "C",
+            "primary_bundle": "EMB-03",
+            "author_source": "C",
+            "findings_row_pointer": "/rows/120",
+            "original_criterion_pointer": "/findings/264/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/45"
+              }
+            ]
+          }
+        ],
+        "minimal_supplier_families": [
+          "C DFI currentness and CAT source profile for Catalog",
+          "C Legal query profile plus A serving adapters for Legal",
+          "G HTTP/fresh reader"
+        ],
+        "input_boundary": "Catalog requires I1 acceptance; isolated Legal fixture preparation may proceed earlier; production Legal claim needs paired assets/encoder; LA-040 remains held."
+      },
+      {
+        "task": "S2",
+        "task_plan_pointer": "/tasks/S2",
+        "routed_finding_count": 6,
+        "routed_findings_and_original_refs": [
+          {
+            "finding_id": "LA-036",
+            "original_unit": "C",
+            "primary_bundle": "BER-01",
+            "author_source": "C",
+            "findings_row_pointer": "/rows/117",
+            "original_criterion_pointer": "/findings/260/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/42"
+              }
+            ]
+          },
+          {
+            "finding_id": "B157",
+            "original_unit": "D",
+            "primary_bundle": "FUN-02",
+            "author_source": "D",
+            "findings_row_pointer": "/rows/184",
+            "original_criterion_pointer": "/findings/72/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/33",
+                "role": "canonical_owner",
+                "bundle": "FUN-02"
+              },
+              {
+                "pointer": "/unique_finding_proposals/B157",
+                "role": "unique_proposal"
+              }
+            ]
+          },
+          {
+            "finding_id": "B190",
+            "original_unit": "E",
+            "primary_bundle": "UQP-01",
+            "author_source": "E",
+            "findings_row_pointer": "/rows/233",
+            "original_criterion_pointer": "/findings/109/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/34"
+              }
+            ]
+          },
+          {
+            "finding_id": "B194",
+            "original_unit": "E",
+            "primary_bundle": "UQP-03",
+            "author_source": "E",
+            "findings_row_pointer": "/rows/237",
+            "original_criterion_pointer": "/findings/113/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/38"
+              }
+            ]
+          },
+          {
+            "finding_id": "B197",
+            "original_unit": "E",
+            "primary_bundle": "CAL-06",
+            "author_source": "E",
+            "findings_row_pointer": "/rows/240",
+            "original_criterion_pointer": "/findings/116/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/41"
+              }
+            ]
+          },
+          {
+            "finding_id": "B200",
+            "original_unit": "E",
+            "primary_bundle": "UQS-01",
+            "author_source": "E",
+            "findings_row_pointer": "/rows/243",
+            "original_criterion_pointer": "/findings/120/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/44"
+              }
+            ]
+          }
+        ],
+        "minimal_supplier_families": [
+          "E law/draw/calibration/evaluator producers",
+          "D named Scientist/Foundry consumers for B157",
+          "C law/support basis for LA-036",
+          "G selected consumer"
+        ],
+        "input_boundary": "configured evaluator/law/Jacobian/calibration/lineage packets required; none established by this source-only review."
+      },
+      {
+        "task": "T2",
+        "task_plan_pointer": "/tasks/T2",
+        "routed_finding_count": 11,
+        "routed_findings_and_original_refs": [
+          {
+            "finding_id": "B05",
+            "original_unit": "A",
+            "primary_bundle": "CYC-02",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/4",
+            "original_criterion_pointer": "/findings/4/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/4"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/4",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "B08",
+            "original_unit": "A",
+            "primary_bundle": "CYC-02",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/7",
+            "original_criterion_pointer": "/findings/7/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/7"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/7",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "B154",
+            "original_unit": "B",
+            "primary_bundle": "CAS-03",
+            "author_source": "B",
+            "findings_row_pointer": "/rows/92",
+            "original_criterion_pointer": "/findings/69/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/57"
+              },
+              {
+                "pointer": "/decisions_by_id/B154",
+                "role": "prior_status_comparison"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-018",
+            "original_unit": "C",
+            "primary_bundle": "HYG-02",
+            "author_source": "C",
+            "findings_row_pointer": "/rows/103",
+            "original_criterion_pointer": "/findings/242/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/28"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-024",
+            "original_unit": "C",
+            "primary_bundle": "SCL-01",
+            "author_source": "C",
+            "findings_row_pointer": "/rows/107",
+            "original_criterion_pointer": "/findings/248/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/32"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-025",
+            "original_unit": "C",
+            "primary_bundle": "SCL-03",
+            "author_source": "C",
+            "findings_row_pointer": "/rows/108",
+            "original_criterion_pointer": "/findings/249/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/33"
+              }
+            ]
+          },
+          {
+            "finding_id": "B131",
+            "original_unit": "D",
+            "primary_bundle": "TRN-01",
+            "author_source": "D",
+            "findings_row_pointer": "/rows/176",
+            "original_criterion_pointer": "/findings/44/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/25",
+                "role": "canonical_owner",
+                "bundle": "TRN-01"
+              },
+              {
+                "pointer": "/unique_finding_proposals/B131",
+                "role": "unique_proposal"
+              }
+            ]
+          },
+          {
+            "finding_id": "B137",
+            "original_unit": "D",
+            "primary_bundle": "TRN-03",
+            "author_source": "D",
+            "findings_row_pointer": "/rows/182",
+            "original_criterion_pointer": "/findings/50/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/31",
+                "role": "canonical_owner",
+                "bundle": "TRN-03"
+              },
+              {
+                "pointer": "/unique_finding_proposals/B137",
+                "role": "unique_proposal"
+              }
+            ]
+          },
+          {
+            "finding_id": "B164",
+            "original_unit": "D",
+            "primary_bundle": "FUN-03",
+            "author_source": "D",
+            "findings_row_pointer": "/rows/191",
+            "original_criterion_pointer": "/findings/80/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/40",
+                "role": "canonical_owner",
+                "bundle": "FUN-03"
+              },
+              {
+                "pointer": "/unique_finding_proposals/B164",
+                "role": "unique_proposal"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-054",
+            "original_unit": "E",
+            "primary_bundle": "DDM-02",
+            "author_source": "E",
+            "findings_row_pointer": "/rows/197",
+            "original_criterion_pointer": "/findings/278/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/51"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-055",
+            "original_unit": "E",
+            "primary_bundle": "DDM-02",
+            "author_source": "E",
+            "findings_row_pointer": "/rows/198",
+            "original_criterion_pointer": "/findings/279/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/52"
+              }
+            ]
+          }
+        ],
+        "minimal_supplier_families": [
+          "the named A/B/C/D/E protected consumers scoped by the original rows",
+          "G CAS/commit-time authority boundary"
+        ],
+        "input_boundary": "T1 must identify actual owner fact/API, source/ref/issuer/verifier/consumer; positive and fake/foreign/stale/revoked zero-effect inputs not established here."
+      },
+      {
+        "task": "Q2",
+        "task_plan_pointer": "/tasks/Q2",
+        "routed_finding_count": 21,
+        "routed_findings_and_original_refs": [
+          {
+            "finding_id": "B04",
+            "original_unit": "A",
+            "primary_bundle": "CYC-02",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/3",
+            "original_criterion_pointer": "/findings/3/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/3"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/3",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "B11",
+            "original_unit": "A",
+            "primary_bundle": "CYC-04",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/10",
+            "original_criterion_pointer": "/findings/20/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/10"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/10",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "B29",
+            "original_unit": "A",
+            "primary_bundle": "CYC-05",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/24",
+            "original_criterion_pointer": "/findings/154/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/24"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/24",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "B30",
+            "original_unit": "A",
+            "primary_bundle": "CYC-05",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/25",
+            "original_criterion_pointer": "/findings/155/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/25"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/25",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-033",
+            "original_unit": "A",
+            "primary_bundle": "REP-01",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/28",
+            "original_criterion_pointer": "/findings/257/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/31"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/31",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "B34",
+            "original_unit": "A",
+            "primary_bundle": "SEL-01",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/29",
+            "original_criterion_pointer": "/findings/159/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/28"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/28",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "B35",
+            "original_unit": "A",
+            "primary_bundle": "SEL-01",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/30",
+            "original_criterion_pointer": "/findings/160/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/29"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/29",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "B36",
+            "original_unit": "A",
+            "primary_bundle": "SEL-01",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/31",
+            "original_criterion_pointer": "/findings/161/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/30"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/30",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-045",
+            "original_unit": "A",
+            "primary_bundle": "REQ-01",
+            "author_source": "A",
+            "findings_row_pointer": "/rows/32",
+            "original_criterion_pointer": "/findings/269/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/current_index/32"
+              },
+              {
+                "pointer": "#/current_root_adjudication_20261008/rows/32",
+                "role": "bound_root_row"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-005",
+            "original_unit": "C",
+            "primary_bundle": "DFK-01",
+            "author_source": "C",
+            "findings_row_pointer": "/rows/94",
+            "original_criterion_pointer": "/findings/229/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/20"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-006",
+            "original_unit": "C",
+            "primary_bundle": "DFK-01",
+            "author_source": "C",
+            "findings_row_pointer": "/rows/95",
+            "original_criterion_pointer": "/findings/230/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/21"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-021",
+            "original_unit": "C",
+            "primary_bundle": "CAN-01",
+            "author_source": "C",
+            "findings_row_pointer": "/rows/104",
+            "original_criterion_pointer": "/findings/245/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/29"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-023",
+            "original_unit": "C",
+            "primary_bundle": "PLG-03",
+            "author_source": "C",
+            "findings_row_pointer": "/rows/106",
+            "original_criterion_pointer": "/findings/247/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/31"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-026",
+            "original_unit": "C",
+            "primary_bundle": "DFK-01",
+            "author_source": "C",
+            "findings_row_pointer": "/rows/109",
+            "original_criterion_pointer": "/findings/250/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/34"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-027",
+            "original_unit": "C",
+            "primary_bundle": "DFK-01",
+            "author_source": "C",
+            "findings_row_pointer": "/rows/110",
+            "original_criterion_pointer": "/findings/251/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/35"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-042",
+            "original_unit": "C",
+            "primary_bundle": "EMB-03",
+            "author_source": "C",
+            "findings_row_pointer": "/rows/122",
+            "original_criterion_pointer": "/findings/266/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/47"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-050",
+            "original_unit": "C",
+            "primary_bundle": "MIG-04",
+            "author_source": "C",
+            "findings_row_pointer": "/rows/128",
+            "original_criterion_pointer": "/findings/274/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/53"
+              }
+            ]
+          },
+          {
+            "finding_id": "LA-053",
+            "original_unit": "E",
+            "primary_bundle": "PCL-01",
+            "author_source": "E",
+            "findings_row_pointer": "/rows/196",
+            "original_criterion_pointer": "/findings/277/criterion_refs",
+            "original_criteria_source_key": "LA_r09_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/50"
+              }
+            ]
+          },
+          {
+            "finding_id": "B201",
+            "original_unit": "E",
+            "primary_bundle": "UQS-01",
+            "author_source": "E",
+            "findings_row_pointer": "/rows/244",
+            "original_criterion_pointer": "/findings/121/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/45"
+              }
+            ]
+          },
+          {
+            "finding_id": "B202",
+            "original_unit": "E",
+            "primary_bundle": "UQS-01",
+            "author_source": "E",
+            "findings_row_pointer": "/rows/245",
+            "original_criterion_pointer": "/findings/122/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/46"
+              }
+            ]
+          },
+          {
+            "finding_id": "B212",
+            "original_unit": "F",
+            "primary_bundle": "CAU-04",
+            "author_source": "F",
+            "findings_row_pointer": "/rows/268",
+            "original_criterion_pointer": "/findings/133/criterion_refs",
+            "original_criteria_source_key": "B_r19_original",
+            "author_row_pointers": [
+              {
+                "pointer": "/rows/8"
+              }
+            ]
+          }
+        ],
+        "minimal_supplier_families": [
+          "F exact 852 bounded native/installed profile when that is the declared Mac profile",
+          "G frozen generated/installed contract and consumer",
+          "other A/C/E families only for specifically selected supported profiles"
+        ],
+        "input_boundary": "Mac-only scope can proceed for unchanged admitted F/native profiles; do not require unrelated source-family freeze or claim global Q2."
+      }
+    ],
+    "scoped_LA_032": {
+      "finding_id": "LA-032",
+      "original_unit": "C",
+      "primary_bundle": "UDF-05",
+      "findings_row_pointer": "/rows/115",
+      "original_criterion_pointer": "/findings/256/criterion_refs",
+      "original_criteria_source_key": "LA_r09_original",
+      "owner": "C-W19",
+      "required_property": "versioned source → state-ID/order/target/prior/donor inventory producer/artifact/bridge for four readers",
+      "recorded_decision": "authority/source inventory not established; source status is bridge_missing/held; four existing readers share an immutable selector but no producer-bound mapping evidence is established.",
+      "minimal_next_supplier": "C05 proposes existing C-W19 producer/reader exact paths; G confirms the lease before any source change.",
+      "input_boundary": "L01 exact factual packet required; this worker did not read production inputs."
+    },
+    "F_admitted_profile_boundary": {
+      "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+      "G_acceptance_merge": "99c7eb501c525912e4142a9ca833f07de3ff6c8e",
+      "accepted_tree": "a1faa2717458f9bd330b566404ec1555c47817ac",
+      "recorded_profiles": {
+        "native": {
+          "result": "PASS",
+          "count": 38
+        },
+        "installed_wheel": {
+          "result": "PASS",
+          "count": 17
+        },
+        "rebuilt_sdist": "UNRUN"
+      },
+      "current_G_identity": "all 9 paths in the scoped 2c09571..852cc37 F source delta are byte-identical by Git blob to current G.",
+      "not_accepted_or_not_established": [
+        "whole-package/global quality",
+        "rebuilt sdist",
+        "B214 general PAG/CPDAG semantics (limited)",
+        "B56 real shared Runtime/Scientist workload admission (limited/UNRUN)",
+        "B212 changed producer/report/fresh-reader test body (outside 91-case installed profile)",
+        "later REQ-01 installed test selector (not in retained profile)"
+      ],
+      "Q2_boundary": "Mac-only may use the unchanged admitted F native/installed profile where exact criteria select it; this does not qualify other unaccepted owner families or claim full Q2."
+    },
+    "pattern_pass": {
+      "relevant_ids": [
+        "P05",
+        "P10",
+        "P14",
+        "P15",
+        "P32",
+        "P35",
+        "P36",
+        "P37",
+        "P38",
+        "P41"
+      ],
+      "avoided": "Dispatch pins, ancestry, source labels, carrier proximity and profile markers were not treated as acceptance. Complete selected range denominators were computed from full Git path sets; exact blob identity was checked for task suppliers.",
+      "predicate_classification": {
+        "current_candidate_delta_is_doc_only": "recomputed from complete fe5..f00 path set with extension denominator",
+        "supplier_blob_identity": "recomputed from exact Git tree entries at current G and named owner commits",
+        "owner_source_acceptance": "independently reconciled to committed G admission/review receipts; dispatch.in_G_ancestry alone is not an acceptance predicate",
+        "L02_actual_input_closure": "not_established by this source-only receipt; requires L01 evidence and no production reads here"
+      },
+      "proxy_divergence": "A branch ancestry flag can be green while the relevant current-G blob differs (e.g. D/B store and budget choices), and a bounded source profile can be admitted while sibling profile/actual input conditions stay unrun (F sdist/B56). The property is exact source-and-profile admissibility; ancestry is only a locator."
+    },
+    "execution_record": {
+      "work_done": "read-only Git identity/diff census and planning/admission document review; no production source content, production rows, or actual L01 data read",
+      "tests": "not run",
+      "baseline": "not used",
+      "network": "not used",
+      "git_refs_changed": false
+    },
+    "limitations": [
+      "This receipt qualifies source identity, documentary admission status, and task supplier boundaries; it is not an execution PASS, formal closure, or legal/scientific authority determination.",
+      "Actual input closure must be joined by root from L01 receipts before any authentic result is claimed."
+    ]
+  }
+}

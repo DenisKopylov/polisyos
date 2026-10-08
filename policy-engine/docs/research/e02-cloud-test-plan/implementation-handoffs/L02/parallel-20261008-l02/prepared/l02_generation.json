@@ -1,0 +1,427 @@
+{
+  "schema": "policyos.e02.l02.qualified_preparation.v1",
+  "role": "L02",
+  "helper": "l02_generation",
+  "source_candidate_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "source_candidate_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "preparer_raw_local_ref": {
+    "path": ".tmp/parallel-20261008-l02/prepared/l02_generation.json",
+    "bytes": 22777,
+    "sha256": "bc589ab246abbcb20207fc964370ba1b4215206d6c13d93331b1997341bd9c99"
+  },
+  "delivery_compaction": {
+    "removed_derivable_text_fields": [],
+    "raw_report_preserved": true,
+    "no_semantic_qualification_promoted": true
+  },
+  "preparation": {
+    "schema": "e02.l02-prepared-receipt.v1",
+    "state": "PREPARATION_ONLY",
+    "executed": false,
+    "authority": "Read-only source/evidence preparation. No tests, runtime commands, installs, source/test/config writes, or publication were performed. This file is the only authorized write.",
+    "frozen_source": {
+      "fetched_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "fetched_G_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+      "dispatch_source_pin": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+      "dispatch_source_tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617",
+      "fe5_to_f00_source_and_test_delta": [],
+      "acceptance_boundary": "Use exact f00 checkout (source pin fe5; f00 adds docs only relative to that source pin). No source/test evidence from A 8bfea/8ec98 or B d1efd/53b14 is itself a G execution. The A partial-readback candidate is explicitly manual budget-stop fixture and not ordinary POST production."
+    },
+    "authoritative_input_refs": {
+      "connected_inputs": {
+        "ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23:policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json",
+        "git_blob": "749255cd37f93955b176c748d63b2a3a7b7ee214",
+        "note": "Inputs record source G pin 6f3983466f1eca14b510c4f5006fab5092d418d3; dispatch’s later selected G source pin is fe5 above. A and B author evidence commits are out of G ancestry."
+      },
+      "connected_findings": {
+        "ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23:policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+        "git_blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e",
+        "G_closure_for_all_selected_rows": "not_adjudicated"
+      },
+      "original_criterion_coverage": {
+        "ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23:policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "git_blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+        "original_document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "original_document_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "original_document_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "criterion_locator_rule": "Line ranges below refer to the complete original B_r19 card at the pinned blob, not to a later proposal. Coverage row is /findings/<index>; connected-findings pointer is listed separately."
+      },
+      "A_author_rows": {
+        "source_commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "in_G_ancestry": false,
+        "progress_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+        "progress_blob": "5beae048efe4b4ffda43583d1f9b93c3298e0d86",
+        "current_index_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-current-index.json",
+        "current_index_blob": "2a14fa091eb1b1d1f8ab0b9aa0d4757baddddcb0",
+        "row_pointer": "#/current_root_adjudication_20261008/rows keyed by finding id; full rows read for B01/B02/B03/B04/B05/B08/B10",
+        "deciding_leaf_receipts": [
+          {
+            "finding": "B01",
+            "outcome": "open/UNRUN",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-source-input-gap.json",
+            "blob": "703ab4d3ffb7d0cbc3221d9ce78f4edadceb2301",
+            "packet_sha256": "9816b849f8e22910c06603dee6fd5f9a7df5c98cecc3eafc481586d044ad057b"
+          },
+          {
+            "finding": "B02",
+            "outcome": "open/UNRUN for authentic ordinary route",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/conditional-interaction-history-readback.json",
+            "blob": "495082ef118e66486af17bf3a3534fbb49766c0d",
+            "packet_sha256": "d454eac3603615b163cc58eb340d618047ea99598db1311ac09e3ba19d47ea19"
+          },
+          {
+            "finding": "B03",
+            "outcome": "open/UNRUN for authentic ordinary route; bounded manual/controller fixture only",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-intake.json",
+            "blob": "c7ce4b02502dc5a9b3c3f41ea67ddf90363933eb",
+            "packet_sha256": "6b321e78def872a6dc67886ae55393c7d30a72b9df3a494e6d66b2822f24d82c"
+          },
+          {
+            "finding": "B04",
+            "outcome": "limited; bounded N5→CAS→fresh Core RunDetails readback, Atlas consumer not established",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-refusal-core-readback.json",
+            "blob": "8ae1b32240b094ecd9bbb8f89ec20c5dac41cb33",
+            "packet_sha256": "09d65d9fbed78a92e93af4a7f358a25909a14b8e23ef5437ff95d46a574273ef"
+          },
+          {
+            "finding": "B05",
+            "outcome": "limited; K_sim retained, N9 early refusal does not establish world-evidence/external-action consumer negative",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate.json",
+            "blob": "84150edc235043312eb2ddb3064e3d9860a4fa2f",
+            "packet_sha256": "37d84b1a1909564d7aeb22d173b5618fdb1bcc1daf8832684fb24e5e100e3c39"
+          },
+          {
+            "finding": "B08",
+            "outcome": "limited; conditional simulate_only positive, authentic empirical no-assignment negative still needed",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/sparse-owner-v2-intake.json",
+            "blob": "16686d756db00514f8d5e04932014d3136de2216",
+            "packet_sha256": "034e906142e41889b9aef400dc2cb8827d50e896cfd1a9b775742d28ea06f17b"
+          },
+          {
+            "finding": "B10",
+            "outcome": "limited; bounded three-candidate witness, debit/diversity producer not established",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/persisted-value-hard-feasibility.json",
+            "blob": "a79a0a5e99911cb5decb56c8aa445858f3ae0400",
+            "packet_sha256": "0ea2c98fa64e49d1541495204df4660b5a95cf6ed54633e4d571abe48edbddc7"
+          }
+        ]
+      },
+      "B_author_rows": {
+        "prepared_receipt_commit": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+        "published_commit": "53b14a6e5af66f2a784d7f4981c4613e534acd40",
+        "final_criterion_proposal_commit": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "final_criterion_proposal_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "final_criterion_proposal_blob": "ae48371ff7af5d5adbbed9944cdada23ba746953",
+        "selected_row_pointers": {
+          "B13": "/all60_manual_rows/0",
+          "B74": "/all60_manual_rows/37",
+          "B154": "/all60_manual_rows/57"
+        },
+        "decision": "B13/B74/B154 remain limited; formal_closure=false. B13 says full served TestClient terminal join unrun/blocked by actual catalog input. B74 is a checkpoint request-identity issue only if this served path actually resumes that checkpoint. B154’s all-confirmations signature publisher is a separate surface and is out of this V1/V6 route scope."
+      }
+    },
+    "criterion_rows": [
+      {
+        "id": "B01",
+        "coverage_row": "/findings/0",
+        "connected_findings_row": ".rows[id=B01]",
+        "connected_criterion_ref": "/findings/0/criterion_refs",
+        "original_lines": [
+          205,
+          216
+        ],
+        "original_span_sha256": "515ee67aec37de92c27b20c9ddd90cc61c95c41608b1daf4eddc88d640c78759",
+        "historical_status": "partial",
+        "current_author_status": "open"
+      },
+      {
+        "id": "B02",
+        "coverage_row": "/findings/1",
+        "connected_findings_row": ".rows[id=B02]",
+        "connected_criterion_ref": "/findings/1/criterion_refs",
+        "original_lines": [
+          217,
+          228
+        ],
+        "original_span_sha256": "6b6265c0da20f55356b1a97a791c6d2e909fd1a38c32b8ccd8375bce507c1f38",
+        "historical_status": "partial",
+        "current_author_status": "open"
+      },
+      {
+        "id": "B03",
+        "coverage_row": "/findings/2",
+        "connected_findings_row": ".rows[id=B03]",
+        "connected_criterion_ref": "/findings/2/criterion_refs",
+        "original_lines": [
+          229,
+          240
+        ],
+        "original_span_sha256": "9dcbf9befc0921cfe71e8cb743417b59cc9faec769ae21342ff874c21260314d",
+        "historical_status": "partial",
+        "current_author_status": "open"
+      },
+      {
+        "id": "B04",
+        "coverage_row": "/findings/3",
+        "connected_findings_row": ".rows[id=B04]",
+        "connected_criterion_ref": "/findings/3/criterion_refs",
+        "original_lines": [
+          241,
+          252
+        ],
+        "original_span_sha256": "2f664b147db7753604b3fa729f42e5d1560d9ed43de9643169255d6b8270df26",
+        "historical_status": "partial",
+        "current_author_status": "limited"
+      },
+      {
+        "id": "B05",
+        "coverage_row": "/findings/4",
+        "connected_findings_row": ".rows[id=B05]",
+        "connected_criterion_ref": "/findings/4/criterion_refs",
+        "original_lines": [
+          253,
+          264
+        ],
+        "original_span_sha256": "7ab0816d8b7cc9f46a900842951a67c92b12ff09362616d87afd82223bcd7970",
+        "historical_status": "partial",
+        "current_author_status": "limited"
+      },
+      {
+        "id": "B08",
+        "coverage_row": "/findings/7",
+        "connected_findings_row": ".rows[id=B08]",
+        "connected_criterion_ref": "/findings/7/criterion_refs",
+        "original_lines": [
+          289,
+          300
+        ],
+        "original_span_sha256": "ca0c9f2ceb0a7fd1323082c9a317a509a1ee78f25ec73185c59b3de1d019ffb9",
+        "historical_status": "partial",
+        "current_author_status": "limited"
+      },
+      {
+        "id": "B10",
+        "coverage_row": "/findings/9",
+        "connected_findings_row": ".rows[id=B10]",
+        "connected_criterion_ref": "/findings/9/criterion_refs",
+        "original_lines": [
+          313,
+          324
+        ],
+        "original_span_sha256": "9fc056a6b1bbde89fd8ffb6f7da36b6f8d7cdf81480f0ef395adec5e6ef1c246",
+        "historical_status": "partial",
+        "current_author_status": "limited"
+      },
+      {
+        "id": "B13",
+        "coverage_row": "/findings/42",
+        "connected_findings_row": ".rows[id=B13]",
+        "connected_criterion_ref": "/findings/42/criterion_refs",
+        "original_lines": [
+          349,
+          362
+        ],
+        "original_span_sha256": "8718ad1c767f83c1f9e5cf47c86e84a80b44005a548d2a109c9d15cc0ebbc799",
+        "historical_status": "partial",
+        "current_author_status": "limited",
+        "B_proposal_pointer": "/all60_manual_rows/0"
+      },
+      {
+        "id": "B74",
+        "coverage_row": "/findings/199",
+        "connected_findings_row": ".rows[id=B74]",
+        "connected_criterion_ref": "/findings/199/criterion_refs",
+        "original_lines": [
+          1939,
+          1952
+        ],
+        "original_span_sha256": "8d9049975bdf678761aab8dbf7f9b2e3fa2aa4dabda2d6c2fd9a2d2c6ba5a88b",
+        "historical_status": "partial",
+        "current_author_status": "limited",
+        "B_proposal_pointer": "/all60_manual_rows/37",
+        "route_scope": "Only relevant if a generation result actually resumes the Foundry checkpoint/cursor; do not import the whole Foundry checkpoint requirement into this request/GET path."
+      },
+      {
+        "id": "B154",
+        "coverage_row": "/findings/69",
+        "connected_findings_row": ".rows[id=B154]",
+        "connected_criterion_ref": "/findings/69/criterion_refs",
+        "original_lines": [
+          3989,
+          4000
+        ],
+        "original_span_sha256": "5e25ba12544423bc8a7de3338e8d104bb6c6ef4619bcdf95639c05652cd8c1c5",
+        "historical_status": "partial",
+        "current_author_status": "limited",
+        "B_proposal_pointer": "/all60_manual_rows/57",
+        "route_scope": "All-confirmations signer publisher is separate; no evidence that V1/V6 calls this consumer."
+      }
+    ],
+    "g_source_candidates": [
+      {
+        "path": "policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+        "git_blob_at_fe5": "061f5f53d74f0f904a9b6bdafeec3d8432ec8d7d",
+        "state": "Exact G candidate; fixture-backed only. Test POSTs /api/v1/control/runs/nl, dispatches the worker, asserts admitted owned job context, reaches real N5, persists source/CAS artifacts, and reads private bytes in admitted job scope. It has foreign-reference and semantic-drift negatives, and blocks N8/N9. It has no fresh public GET and uses recorded N4 plus a configured synthetic profile/model declaration; not V1 authentic.",
+        "prepared_selector": "tests/integration/runtime_quality/test_configured_candidate_simulation_served.py::test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects_drift",
+        "argv": [
+          "uv",
+          "run",
+          "--no-sync",
+          "pytest",
+          "-c",
+          "pytest.ini",
+          "tests/integration/runtime_quality/test_configured_candidate_simulation_served.py::test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects_drift"
+        ],
+        "executed": false
+      },
+      {
+        "path": "policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py",
+        "git_blob_at_fe5": "71987b5a1f52c7ca8ddb4033b306d2d6fc0a6492",
+        "sha256_at_fe5": "38fa5c5a098c67a2fa8b30fcbfa90eb989177b817c5a66f81bfedc1aa64eb76d",
+        "state": "Exact G candidate; real simulation result is persisted, later_failure fails, dependent node is skipped, independent sibling remains okay, and a separate TestClient app exposes workflow/errors/debug simulation-result GET. It uses a hand-built fixture ExperimentState/Trinity/DataSnapshot, allow_unscoped_artifacts and allow_fixture_identity; there is no ordinary NL POST, no N5 route, and the fresh app is in-process. Foreign run/node/ref, artifact/report corruption and binding mismatch controls exist. This is V6 fixture-only, not authentic.",
+        "prepared_selector": "tests/integration/scientist/test_res_03_real_simulation_route.py::test_res_03_real_simulation_later_failure_reaches_user_route",
+        "pytest_argv": [
+          "<supported absolute G Python 3.14>",
+          "-m",
+          "pytest",
+          "-o",
+          "addopts=",
+          "-o",
+          "cache_dir=<unique ignored output>/cache",
+          "-q",
+          "tests/integration/scientist/test_res_03_real_simulation_route.py",
+          "--basetemp=<unique ignored output>/fixture",
+          "--junitxml=<unique ignored output>/junit.xml"
+        ],
+        "environment": {
+          "PYTHONPATH": "src",
+          "POLISYOS_METRICS_PORT": "0",
+          "PYTHONDONTWRITEBYTECODE": "1"
+        },
+        "executed": false
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_cyc_02.py",
+        "git_blob_at_fe5": "894d6ce0b4f1a797c76dab91576d0682af4c0011",
+        "supporting_selectors": [
+          "test_n5_result_has_reopenable_cas_reference",
+          "test_recursive_parent_keeps_n5_cas_reference"
+        ],
+        "state": "CAS/reopen support only; does not add the fresh HTTP consumer to the configured POST route.",
+        "executed": false
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_runs_api.py",
+        "git_blob_at_fe5": "508bbb1493a6c1d0b7eb3487202e7d4bfd33fd9e",
+        "supporting_selectors": [
+          "test_get_run_details_returns_normalized_payload",
+          "test_list_runs_cursor_pagination"
+        ],
+        "state": "Run-details and cursor API support only; not bound to the same ordinary N5 run or the later-failure simulation artifact.",
+        "executed": false
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py",
+        "git_blob_at_fe5": "cecafa6ff98f70269385ebe496a4668181a7d44c",
+        "supporting_selectors": [
+          "test_history_replay_is_read_only_and_does_not_consult_current_source",
+          "test_v1_projection_removal_probe_rejects_post_v1_field_with_markers_retained"
+        ],
+        "state": "Historical semantic/version and removal coverage only; not an ordinary served generation integration.",
+        "executed": false
+      }
+    ],
+    "later_non_G_candidate": {
+      "commit": "8ec98ad",
+      "path": "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+      "git_blob": "5b3235660b6e56afb1063f3d6842e33861e0ec45",
+      "state": "Not in G. Its docstring says production NL is singleton; it uses a contract-testing budget-stop fixture, then manually persists the partial result via an owned job. It provides Core CAS/fresh run-details GET and foreign/corrupt controls, but does not establish ordinary POST producing that partial graph."
+    },
+    "authentic_input_and_acceptance": {
+      "V1_local_L6_inputs": [
+        {
+          "path": "production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+          "manifest_declared_bytes": 268,
+          "manifest_declared_sha256": "4f52f0a743a46f5c53cf5608cc73b1b05f0e8d7f8ee360d866e6f127863a840f",
+          "observed_bytes_in_bounded_inventory": 581,
+          "observed_sha256": "005d89f0ab1728a4f6c20cccad5781c1ef7721f82215c8de7c21622f3abe4328",
+          "matches": false
+        },
+        {
+          "path": "production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json",
+          "manifest_declared_bytes": 178,
+          "manifest_declared_sha256": "49168c4779a0d1025c166f7eea04477efdd27fb3a3b7554ae7878da45af7fbaa",
+          "observed_bytes_in_bounded_inventory": 972,
+          "observed_sha256": "5c72461237a09605c39f180345de45cff55c59eed5d4d0e2ca80cc4aa446addf",
+          "matches": false
+        }
+      ],
+      "V1_minimum_missing_provider": "Original intervention-bundle source custodian is null/unidentified. Obtain byte-exact declared pair, or owner-ratified replacement manifest plus matching nested/root binding and provenance naming custodian, artifact/version, revision/time, and reason. The prior search was bounded to actual production-root and stated same-project scope; do not claim external absence. Do not patch manifest or substitute fixtures.",
+      "V6_local_catalog": {
+        "path": "policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+        "pinned_B_preflight": "is_file=false; wrapper returned UNRUN before pytest because default lifecycle needs this catalog"
+      },
+      "V6_optional_if_actually_resolved": {
+        "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb",
+        "pinned_B_preflight": "is_file=false; inventory it only if the exact route resolves/uses it"
+      },
+      "smallest_joined_capability": "Using canonical existing owners, one exact source-backed ordinary POST -> admitted owner context -> actual N5 -> CAS/history -> independent fresh served GET, followed by a real later independent failure whose partial outcome is reloaded from that served consumer. No existing G test joins both paths."
+    },
+    "pinned_B13_evidence": {
+      "decision_ref": "a0ee451fb287d9666c620defd01fdc87ff864c60:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json#/decisions_by_id/B13",
+      "decision_blob": "644f4811b7a67e767755a41a8afba131fd11ab36",
+      "proposal_ref": "d1efd64136815a04a96a534e1be8003783f444fe:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json#/all60_manual_rows/0",
+      "proposal_blob": "ae48371ff7af5d5adbbed9944cdada23ba746953",
+      "current_composition_ref": "53b14a6e5af66f2a784d7f4981c4613e534acd40:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03.json",
+      "current_composition_blob": "71ac15a4b8d9b52342da926e8cc5ba23ab21f275",
+      "local_preflight_ref": "53b14a6e5af66f2a784d7f4981c4613e534acd40:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/local-cloud-preflight.json",
+      "local_preflight_blob": "0fea4203fd40f02ac27c59ea323e486829a434c1",
+      "local_preflight_outcome": "UNRUN; B checkout df5a6e227bbbac07bef08690f5a733777d3b10b4 lacked catalog and overlay, so wrapper exited 2 before pytest. The B historic full-case FAIL catalog_fetch_source_unreadable is not a fresh run at G; do not transfer it as G PASS/FAIL.",
+      "test_file_sha256_in_preflight_equals_G_test_sha256": "38fa5c5a098c67a2fa8b30fcbfa90eb989177b817c5a66f81bfedc1aa64eb76d",
+      "prepared_wrapper_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/local_res03_replay.py",
+        "commit": "53b14a6e5af66f2a784d7f4981c4613e534acd40",
+        "git_blob": "3975ca9f6aed146a3d5727ca759e45c21c96b81d",
+        "status": "Pinned procedural recipe outside G tree; not executed or copied into the G checkout."
+      }
+    },
+    "independent_discriminators_for_the_joined_witness": {
+      "positive": "Ordinary permitted user POST only; normal owned worker admits its event-derived tenant/cell/job/run scope, compiles the exact source-backed DesignProblem, derives one identical WMR/catalog context through every stage, calls the applicable N5 engine, persists typed result/ref plus history, and a separate fresh authorized GET reloads exact bytes and provenance. For V6 the same run must retain the successful simulation after a later independent sibling failure, report the exact error/scope, invalidate only dependent claims/nodes, preserve independent work, and show no promotion.",
+      "foreign": "Replay saved ref under another tenant/cell, run, job, node, candidate, model, or WMR; must fail closed without returning bytes or invoking N5 for the unauthorized request. Existing fixture tests cover some of these individually, but not this joined authentic route.",
+      "stale": "Change DesignProblem/time, WMR/model, source-catalog revision/manifest, candidate inputs, or resumed cursor/history basis while retaining old reference; require typed refusal/invalidation before reuse. Source custodian and admitted revision remain not_established until exact inputs arrive.",
+      "corrupt": "Mutate CAS payload, manifest/lineage, simulation result, workflow report, or saved history/cursor; test fresh GET must refuse with typed integrity/binding error, not treat a matching marker or id as content proof.",
+      "removal_property_probe": "Remove/monkeypatch the ordinary JointSimulationPort/N5 producer call while retaining status/ref markers: positive must fail because no N5 artifact exists. Separately remove the fresh GET CAS/history resolve/read path while preserving refs/projection markers: served-read assertion must fail. Retain the original negative controls. This distinguishes the actual property from P29/P38 marker or exit-code checks.",
+      "proxy_divergence_P38": "The configured POST test can pass using private service-scope CAS bytes without any fresh public GET; the RES-03 GET test can pass from a hand-built fixture ExperimentState without POST/owner-context/N5. Both can be green while the authentic POST→N5→freshGET partial-history property is false."
+    },
+    "capability_state": {
+      "V1_authentic": [
+        "producer_missing for admitted L6 inputs (B01/B03 source-backed branch)",
+        "verification_missing for same context binding across authentic route (B02)",
+        "semantic_test_missing for POST-to-fresh-public-GET joined chain"
+      ],
+      "V6_authentic": [
+        "consumer_missing for full source-backed served terminal join (B13); producer and served consumer exist only as separate fixture witnesses",
+        "verification_missing until actual catalog/acquisition inputs and joined failure/readback execute"
+      ],
+      "non_claim": "No authentic PASS, no G closure, no authority/promotion claim. Existing tests prove bounded fixture behavior only."
+    },
+    "pattern_pass": {
+      "relevant_ids": [
+        "P01",
+        "P02",
+        "P05",
+        "P10",
+        "P29",
+        "P32",
+        "P33",
+        "P37",
+        "P38",
+        "P41"
+      ],
+      "target": "Wire the canonical control generation/context/N5/CAS owners into the existing served reader; preserve purpose-scoped candidate status and typed failure/invalidation. No new engine, authority marker, fixture, or parallel history path.",
+      "predicate_basis": "Content hashes/payload integrity are recomputed; actual source-custodian identity/replacement authority and reachability of production inputs are not established. Gate must fail closed/degrade until those are admitted.",
+      "P41": "Historical A/B evidence is not a G replay; exact G source/run provenance must be re-established before a current red/green is assigned."
+    },
+    "receipt_write_scope": "Only .tmp/parallel-20261008-l02/prepared/l02_generation.json in the isolated G checkout; not committed by this helper. Final readback SHA-256 and byte count are reported in the handoff."
+  }
+}

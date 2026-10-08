@@ -1,0 +1,479 @@
+{
+  "schema": "policyos.e02.l02.qualified_preparation.v1",
+  "role": "L02",
+  "helper": "l02_law_intake",
+  "source_candidate_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "source_candidate_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "preparer_raw_local_ref": {
+    "path": ".tmp/parallel-20261008-l02/prepared/l02_law_intake.json",
+    "bytes": 41400,
+    "sha256": "7220cfc08f27ed0f93f0a994cb87aea2269572d8982dabfe270312c67f65aa2c"
+  },
+  "delivery_compaction": {
+    "removed_derivable_text_fields": [],
+    "raw_report_preserved": true,
+    "no_semantic_qualification_promoted": true
+  },
+  "preparation": {
+    "schema": "e02_l02_law_intake_prepared_v1",
+    "prepared_at": "2026-10-08",
+    "purpose": "Read-only source intake for six distinct findings. This receipt preserves exact source/row bindings and proposes authentic factual inputs and semantic oracles; it does not accept source, execute tests, or close findings.",
+    "workspace": {
+      "checkout": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+      "branch": "codex/e02-L02-authentic-20261008",
+      "frozen_G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "frozen_G_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+      "dispatch_G_source_commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+      "dispatch_G_source_tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617",
+      "connected_plan": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json",
+        "tree_read": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+        "integration_base_G": {
+          "commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+          "tree": "32a32cc77039554a3777a11fd7fc8f96f3a88625"
+        },
+        "published_main_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "selection_rule": "Use frozen G/tree as current source state, with plan inputs as source-pin manifest. Do not collapse frozen G, integration-base G, dispatch source, author-row commits, and producer commits into one baseline."
+      },
+      "verification_scope": "No source/test/config/runtime writes, tests, installs, production-data reads, numeric runs, or raw result imports were made. The only authorized write is this prepared JSON. No finding disposition is changed."
+    },
+    "authoritative_source_bindings": {
+      "original_B_r19": {
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "line_count": 5545
+      },
+      "original_LA_r09": {
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "bytes": 648034,
+        "line_count": 4425
+      },
+      "coverage_source_pin": {
+        "commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+        "bytes": 550854,
+        "frozen_G_readback": "The selected six rows all retain closure_now=not_adjudicated; their historical partial/held and Appendix-C fields remain separately stated below."
+      },
+      "method_decisions": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+        "frozen_G_blob": "8a3c23e48bf1defbbc3d5da3b364e49fa7ca4aea",
+        "relevant_sections": [
+          "C-M1: lines 48-70, verified Gaussian joint law, exact/approximate expectation boundary and source/model binding",
+          "C-M2: lines 72-83, finite-support empirical conditional law and exact aligned-row requirements"
+        ]
+      },
+      "original_criterion_source_rule": "The immutable source-document line span and criterion SHA below bind each criterion fragment; the original full source files and criterion cards are the leaves. The source row is cited by its finding ID, not inferred from a search/index."
+    },
+    "source_admission_and_producer_boundary": {
+      "G": {
+        "status": "frozen current source state",
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+        "consequence": "The code findings below are observations of this exact G tree. Passing unit tests or type markers alone do not establish authentic producer input or fresh-consumer behavior."
+      },
+      "F": {
+        "source": {
+          "commit": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+          "tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+          "in_G_ancestry": true,
+          "acceptance_receipt": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/F-acceptance.json@e0fa02b56ae11735eb9cbea025a82e21e708dbc5",
+          "carry_review": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/F-carry-admission.md@0bb00cb0394528ef8fa938dbb21036ee9b4c61b0"
+        },
+        "accepted_scope_vs_law": "F source is admitted bounded graph/SCM code. Its ir/analytics/structural_causal_model.py@cd6a59856b9bcc5e06446283b5287c4ba0f66a15 binds training rows, columns, row IDs, source/data/row/graph digests and fit input. That establishes content custody for those SCM rows only; its source comments explicitly do not establish an IID conditional observed-feature law or causal identification. It is not a BER conditional-feature-law producer."
+      },
+      "E": {
+        "author_row_source": {
+          "commit": "7bf53fd0cf69a568b37d8a881e26bfb16c315653",
+          "tree": "946ec147aa09db5b76c66e7ac3e3a2e491f9868b",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries/full54/all54-delta-associations-v2-source11082.json",
+          "blob": "502f44eb34c277b11764f89f153df17231864bf6"
+        },
+        "candidate_source": {
+          "commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+          "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+          "in_G_ancestry": false
+        },
+        "admission": "Do not use E candidate code or its 165-PASS candidate-bound wave as G source acceptance or any of the six finding closures. The final semantic review says E is not admitted pending four canonical-owner reconciliations: architecture/public_surface/inventory.json, docs/reference/public-surface.md, the Foundry graph __init__.py, and Methods README. E's own source-admission text says B194/B197 real evaluator/model/fit inputs remain owner-specific held evidence; the nine limited proposals remain limited.",
+        "review_refs": [
+          "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/E-carry-admission.md@f01a7e469e7d50b8a308418fae71cea0a2197314",
+          "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/final-admission-semantic.md@b5942c71d596489ff76deb82a7db6a776c8ee813"
+        ],
+        "applicability": "Candidate source contains additional sampling-admission, welfare-law, calibration-report-reader, and aggregator changes; none may be credited as an admitted G producer. Candidate test selectors are navigation only and were not run here."
+      },
+      "D": {
+        "author_row_source": {
+          "commit": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+          "tree": "10efc41e7a2d792f42bce59af5b87816843df07e",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/criterion-overlay.json",
+          "blob": "7cdc3fedd6629fca59a3cb199836eda74f763f70"
+        },
+        "source_candidate": {
+          "commit": "8e864f4ed0eeedf509d836381b20976c413f2443",
+          "tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+          "in_G_ancestry": false
+        },
+        "admission": "B157 overlay row proposes held, formal_closed=false, accepted_in_G=false, P41=not_established, required original owner positive=UNRUN, no owned fixable mechanism defect established. A separate bounded carry recommendation is not B157 closure."
+      },
+      "C": {
+        "current_pin": {
+          "commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+          "tree": "7edd87e6730739fbe2d7c7ed0c35d4a4e1e11ba8",
+          "in_G_ancestry": false
+        },
+        "current_author_row": {
+          "commit": "980d91b36452307d683283ddcf1e89a653af3ce2",
+          "tree_membership": "not in G ancestry",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c5-v1.json",
+          "blob": "98c39eb77e4397bc9a6e95d8e0a210100fa96e5f"
+        },
+        "current_C5_owner_input": {
+          "commit": "2a702c26c047ccafde68523afcd7fc356f2edfb9",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/C5-owner-inputs-20261007.json",
+          "blob": "5549b337ecaf567c222f970977f636ed386b2aed",
+          "sha256": "95dfff35eadcd55895b643af217ddaac3a6f176038e6d1b651662c4165b4c385",
+          "pointer": "/rows/16"
+        },
+        "LA_036_row": {
+          "pointer": "/rows/42",
+          "current_root_verdict_pointer": "/rows/42/current_root_verdict",
+          "current_availability_note": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-availability-20261007.json#/finding_notes/LA-036 (sha256 af2ddd0c790d7c9bbe9c2fccec161294947a08fc530b8f9981ce6a7053886a88)"
+        },
+        "admission": "C's held current recommendation says E posterior-parameter rows and F graph/SCM rows are not the observed-feature conditional law. No G product Runtime PASS is added by the read-only availability refresh."
+      }
+    },
+    "findings": [
+      {
+        "id": "LA-036",
+        "owner_and_bundle": {
+          "unit": "C",
+          "canonical_closure_owner": "BER-01",
+          "task_ref": "C.md#finding-la-036",
+          "capability_state": "producer_missing"
+        },
+        "original_criterion": {
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            2103,
+            2145
+          ],
+          "criterion_sha256": "ebc61d92552c6dfbf538aed17c8a7ed476ee4322fc9df09f7ed3b89e8c530a2a",
+          "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BER-01.md@66ebe42781cff6735748b067c25474a7734978c7",
+          "coverage_row": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/rows[id=LA-036]",
+          "C_author_row": "C54-current-root-20261007-c5-v1.json#/rows/42",
+          "current_C5_owner_input": "C5-owner-inputs-20261007.json#/rows/16"
+        },
+        "criterion_scope": "A conditional observational explanation requires E[f(X)|X_S=x_S] under the actual admitted observed-feature joint law. Background replacement/marginal KernelSHAP is a different game. Bind family, exact feature variables/order, observed population/cohort, epoch/time, schema, support, source/model identity and verifier provenance. A covariance or normal label alone is insufficient; unsupported requests must remain diagnostic/refused.",
+        "method_decision": "method-decisions.md#C-M1 and #C-M2. Reuse the existing coalition/Shapley executor; add a verified law-bound draw/expectation producer and persist a versioned ExplanationBundle, then prove fresh Runtime and Scientist Phase5 readback. Gaussian conditioning is analytic; generic nonlinear MC precision is approximate and only certified with an independently admitted structural bound, fixed predeclared K/epsilon/delta/N, and declared IID law. Finite empirical conditioning requires exact finite support, row weights, exact observed stratum and aligned sample IDs/axis/count/order/digest.",
+        "G_source_and_actual_divergence": [
+          "policy-engine/src/polisyos/berl/service.py@6c73971f16f63e7aaa5e60a07a706d2cefe82491 maps kernel_shap, kernel_shap_conditional, and kernel_shap_marginal to KernelSHAPAdapter with different method IDs.",
+          "policy-engine/src/polisyos/berl/adapters/shap_kernel.py@d2a598b5a03f6f2ea24f67a024ae7d056e2ba6d2 loops background rows, overwrites present coalition features with the observation, and averages; effective_method_id is kernel_shap. This is replacement/marginal masking, not conditional sampling.",
+          "The service returns an in-memory ExplanationBundle; the examined G source has no conditional-law producer plus persisted conditional bundle bridge.",
+          "Actual consumers: policy-engine/src/polisyos/runtime/quality/explanation_reliability.py@c4fc6e3eef609ce714c25e0bc81a66d3a58142b5 and policy-engine/src/polisyos/scientist/validation/phase5_preflight.py@b652a7ffe889df79f9ab34c0e87995e1844cb760 validate/read a supplied bundle, but they do not create the missing source law."
+        ],
+        "independent_positive_recipe": {
+          "selector": "policy-engine/tests/unit/remediation/test_ber_01.py::test_aliases_preserve_requested_ids_and_share_effective_identity and ::test_aliases_share_one_raw_calculation_and_are_not_disagreement_methods",
+          "selector_status": "Existing synthetic alias tests only; no conditional positive and not run in this intake.",
+          "exact_oracle": "At correlated Gaussian rho=0.8, X~N(0,[[1,.8],[.8,1]]), f=x1, x=(1,1), independently derive four conditional coalition values (0,1,.8,1), giving Shapley (.6,.4). Marginal replacement yields (1,0) and must fail. At rho=0, both games give (1,0). For empirical finite support, enumerate weighted rows in the exact conditioning stratum.",
+          "consumer_path": "Admitted producer -> existing coalition executor -> persisted versioned ExplanationBundle -> fresh Runtime explanation_reliability and Scientist phase5_preflight."
+        },
+        "negative_and_removal_controls": [
+          "Use the current marginal-background calculation as the divergent mutant: conditional request returning (1,0) at rho=.8 must fail, or typed unsupported/refusal must be returned with no conditional attribution.",
+          "Change law bytes/digest under the same caller ID; use wrong order/schema, missing/stale population epoch, source/model mismatch, covariance-only input, asymmetric/materially indefinite covariance, or impossible singular-support x_S: reject with no marginal/independence fallback.",
+          "For empirical profile, vary joint sample ID, axis, count, row order/digest or aligned weights; reject mismatched joint law, empty stratum, continuous law without declared finite support, or wrong population/time.",
+          "Removal: remove the law-bound sampler/verifier while retaining method/schema/conditional markers; the persisted bundle and both fresh consumers must refuse. For nonlinear certified precision, remove the admitted structural bound or fixed-N union-budget behavior while keeping markers; precision admission must fail."
+        ],
+        "minimum_factual_input_and_owner": {
+          "named_owner": "E/F conditional-law/model/bounds suppliers; C BERL consumer owner; G integration owner for the bridge.",
+          "minimum_input": "Exact content-resolved observed-feature joint law and source/model identity; feature variables/order; population/cohort and epoch/time; schema/support; verifier provenance. For a nonlinear certified precision claim only, include independently verified structural bound/profile and frozen estimator budget. Do not treat posterior parameter rows, a graph marker, or SCM training rows as this law.",
+          "smallest_option": "Obtain one owner-admitted law/model input for a bounded supported profile, wire the existing coalition executor and ExplanationBundle readback into both already-existing consumers, then test exact Gaussian or exact finite-support oracle plus law-removal/mismatch controls. Otherwise keep conditional requests typed unsupported; that guard is honest mitigation, not capability closure."
+        },
+        "current_G_test_navigation": [
+          "policy-engine/tests/unit/remediation/test_ber_01.py (alias-identity tests above)",
+          "No G test currently demonstrates conditional-law positive + persisted readback + both consumers."
+        ]
+      },
+      {
+        "id": "B157",
+        "owner_and_bundle": {
+          "unit": "D",
+          "canonical_closure_owner": "FUN-02",
+          "task_ref": "D.md#bundle-fun-02",
+          "capability_state": "bridge_missing"
+        },
+        "original_criterion": {
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4117,
+            4128
+          ],
+          "criterion_sha256": "c27f7a7ba4108a5f8f2027bed47b3d3bfa56955f30034c1ede266fc07d7c8284",
+          "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-02.md@8111de32d5167f1fd1c91b1cac1f64267398d8db",
+          "coverage_row": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/rows[id=B157]",
+          "D_author_row": "criterion-overlay.json#/rows/33 (id B157@FUN-02)",
+          "D_owner_input": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/owner-inputs.json#/packets/2 (native_draw_producer)"
+        },
+        "criterion_scope": "L3 may isolate only the mutable reduced-config subtree; direct full L4 and L3->L4 on the same original request must reach equivalent effective full L4 configuration and allowed outputs, caller context remains unchanged, and L3 remains measurably cheaper. Do not copy datasets/models/CAS objects to isolate small config maps; do not infer native backend fidelity from a generic fixture.",
+        "G_source_and_delta": [
+          "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py@c692a9aa352fe145d26fc9cc34975c97e8d28aef creates a reduced state by copying the five small mutable config maps data_config, estimation_config, scenario_config, subgroup_config, and model_config before the local overlay.",
+          "G tests policy-engine/tests/unit/remediation/test_fun_02.py@ca482e98bc99b78b515902de05ee16b05b2c071a::test_l3_overlays_only_owned_config_and_preserves_caller_references and policy-engine/tests/unit/scientist/search/funnel/test_level3_medium.py@c05ac413293b5b95e168b43d6086072a1c6de1ae::test_reduced_config_injected demonstrate config isolation/overlay only.",
+          "The original card itself distinguishes generic-path aliasing from native _PolicyRuntimeWorkflowEngine, which explicitly passes backend fidelity and did not expose the nested config in the inspected funnel_context. The G unit tests are not actual native draws/work evidence.",
+          "D selected source tree 1b2e5d31424a4de0c7150ef79b9e04c93486f0b9 has no matching L3/test-level3 delta against frozen G; D evidence says native actual draw/work artifact and same-run effective L3 reduced/L4 full producer lineage are absent."
+        ],
+        "prepared_positive_recipe": {
+          "selector": "Existing tests above, followed by original-owner native producer witness; no native witness is present in this receipt.",
+          "actual_positive": "On one authentic native request/seed/source, run direct L4 and L3->L4; record actual L3 reduced request/config and actual draw/work/cost, then actual L4 full effective config and output on both paths; prove full-profile equivalence, caller immutability, and lower L3 work/cost. Bind backend/package/profile, source/input hash, run/evaluation/attempt scope, and result artifact refs.",
+          "source_admission": "D owner-inputs packet #2 is the exact recipe starting point; it is an input request, not an executed positive."
+        },
+        "negative_and_removal_controls": [
+          "Mutate an owned nested config in L3 and confirm it cannot mutate the caller or direct L4 full config.",
+          "Remove the actual stage-specific isolation while retaining the config field names and helper markers; execute direct L4 vs L3->L4 and require the semantic comparison to detect reduced config leakage.",
+          "A same label, synthetic config-only test, Foundry 20/80 sibling, or backend fidelity pin without actual draw/work counts and same-run lineage is not a positive."
+        ],
+        "minimum_factual_input_and_owner": {
+          "named_owner": "Native backend/evaluator owner B with policy caller A; D FUN-02 consumes the effective-config result.",
+          "minimum_input": "Exact candidate/request/source, seed and backend/profile; actual L3 and L4 effective configs; draw/work count and result refs; scope IDs; full L4 outputs; caller before/after; evidence that L3 is cheaper.",
+          "smallest_option": "Native owner supplies this one same-input direct-vs-sequential execution packet; use the existing FunnelOrchestrator consumer and report effective configs in result. No blanket L0-L6 run and no unowned native positive."
+        },
+        "D_author_row_binding": {
+          "overlay_row_pointer": "/rows/33",
+          "accepted_in_G": false,
+          "formal_closed": false,
+          "P41": "not_established",
+          "capability_state_label_in_D": "producer_missing",
+          "required_original_owner_positive": "UNRUN",
+          "D_original_fragment": {
+            "document": "B_r19",
+            "lines": [
+              4117,
+              4128
+            ],
+            "byte_offset": 949088,
+            "bytes": 3269,
+            "sha256": "c27f7a7ba4108a5f8f2027bed47b3d3bfa56955f30034c1ede266fc07d7c8284"
+          },
+          "D_acceptance_binding": {
+            "byte_offset": 951621,
+            "bytes": 734,
+            "sha256": "260d939d59a70f8f9acca08bc5386d4ac4e4070c4725b6287fd2c1a4d534444b"
+          }
+        }
+      },
+      {
+        "id": "B190",
+        "owner_and_bundle": {
+          "unit": "E",
+          "canonical_closure_owner": "UQP-01",
+          "task_ref": "E.md#bundle-uqp-01",
+          "capability_state": "producer_missing"
+        },
+        "original_criterion": {
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4752,
+            4761
+          ],
+          "criterion_sha256": "bb28f0e65d6317465c37bae99ed3a0bd89a03a3194f111e0f3faf24553724d53",
+          "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-01.md@8522630fba017eee65c6b12d96c618f0eadbdc01",
+          "coverage_row": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/rows[id=B190]",
+          "E_author_row": "all54-delta-associations-v2-source11082.json#/rows/34",
+          "E_owner_input": "all54-delta-associations-v2-source11082.json#/external_owner_inputs/3"
+        },
+        "criterion_scope": "Missing sensitivity remains unknown rather than an invented link or zero. An explicit affine response/Jacobian has source, axis and unit meaning; additive response preserves nonzero uncertainty at a zero baseline; a partial map leaves unresolved outputs unknown.",
+        "G_source_and_actual_delta": [
+          "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py@ef85325624efa365cd716b9633dc7ed6f1fe4e56 only accepts an explicit propagation_sensitivity map; it no longer invents missing links. The additive propagation retains response when the baseline is zero, and unresolved sensitivity disables gate eligibility.",
+          "G synthetic selectors: tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py::test_build_propagation_fn_keeps_unknown_sensitivity_unmapped and ::test_build_propagation_fn_preserves_zero_baseline_effect.",
+          "The current raw params map has no producer-bound Jacobian axis/unit/provenance. No actual configured evaluator response or admitted Jacobian producer -> persisted response artifact -> fresh Node consumer path is established. E source candidate did not change this G propagation file."
+        ],
+        "prepared_positive_recipe": {
+          "source_recipe": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4 (B190 source recipe; scoped start, not a blanket prerequisite)",
+          "selector": "The two G unit selectors above, then actual configured response/Jacobian producer and persisted artifact fresh-read witness.",
+          "exact_oracle": "For y=x-2 at x0=2 and Var(x)=1, the explicit additive response retains output variance 1; no baseline division may erase it."
+        },
+        "negative_and_removal_controls": [
+          "Absent sensitivity stays unknown; an actually constant output may remain zero only when that is an admitted response, not as a default.",
+          "A partial Jacobian resolves only the mapped outputs; unresolved outputs remain unknown. Wrong unit/axis, fake identity or changed model/objective/source refs must not acquire authority.",
+          "Removal: remove the actual response/Jacobian producer or its source/axis/unit binding while retaining propagation_sensitivity field names; the fresh consumer must not treat the raw map as verified sensitivity."
+        ],
+        "minimum_factual_input_and_owner": {
+          "named_owner": "Scientist response/Jacobian/execution producer with E propagation adapter.",
+          "minimum_input": "Actual configured model/evaluator or source-bound Jacobian; input/output axis and unit mapping; immutable model/objective/source refs, or declared affine response with content-bound provenance and units.",
+          "smallest_option": "Reuse the existing response/sensitivity artifact and configured Node propagation; produce one real response/Jacobian, persist it, and prove fresh read plus zero-baseline and partial/unknown controls."
+        }
+      },
+      {
+        "id": "B194",
+        "owner_and_bundle": {
+          "unit": "E",
+          "canonical_closure_owner": "UQP-03",
+          "task_ref": "E.md#bundle-uqp-03",
+          "capability_state": "producer_missing",
+          "capability_state_detail": "factual served evaluator/source-law producer absent; generic per-draw report exists"
+        },
+        "original_criterion": {
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4792,
+            4801
+          ],
+          "criterion_sha256": "47058d366d7ff7e11ed2348e96b2f56659a999f1f0839a02edc92804b295711e",
+          "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-03.md@1d1d1d6add4711247edf5e99cde67a62df954e6e",
+          "coverage_row": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/rows[id=B194]",
+          "E_author_row": "all54-delta-associations-v2-source11082.json#/rows/38",
+          "E_owner_input": "all54-delta-associations-v2-source11082.json#/external_owner_inputs/4"
+        },
+        "criterion_scope": "Account for each requested draw, including terminal success, failure, refusal and any unattempted draw. A successful-only mean is conditional on execution; it cannot be silently promoted to an unconditional predictive distribution. Retain sample IDs, failures/missing mass and distinguish estimator error from outcome spread.",
+        "G_source_and_actual_delta": [
+          "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py@7bd39d2e9e437a4b98a292a8da7b3744f7f3182c tracks requested/attempted/success/unattempted counts, per-input sampled-input hashes, failure outcomes and successful_draws_only_conditional_on_execution; incomplete reports remain candidate_only/gate=false.",
+          "Existing G selectors: tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_partial_failures_are_per_draw_provenanced_candidate_only, ::test_missing_and_non_finite_outputs_are_also_not_authoritative, and ::test_real_node_persists_aggregate_draw_report_and_exact_missing_set.",
+          "These prove bounded generic mechanism only. The actual configured served evaluator/domain/source-law/model, exact source-joint law and fresh served consumer remain unbound. E's Native Welfare 128=92+36 witness is a generic sibling, not the missing served input."
+        ],
+        "prepared_positive_recipe": {
+          "source_recipe": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4#/recipes/1",
+          "technical_profile": "Empirical support [0,1], weights [3,1], seed 31415, N=128, 92 successful draws and 36 failures; consumer labels W=2 conditional on execution. This is a prepared generic discriminator, not a factual source/model claim and not executed here.",
+          "selector": "Current G test_monte_carlo_b194 selectors above, plus one actual configured served evaluator -> persisted report/envelope -> fresh served consumer."
+        },
+        "negative_and_removal_controls": [
+          "Bind requested = terminal successes + failures/refusals + explicitly unattempted; a missing, duplicated or forged outcome changes the denominator and fails.",
+          "Keep the successful-only estimate explicitly conditional; fresh consumer must refuse unconditional authority when failures/refusals are omitted or a domain region is unsupported.",
+          "Retry only the same draw for a declared transient class when the admitted profile requests retry; do not retry region-of-support refusal or invent a global retry rule.",
+          "Removal: remove a failed/refused terminal outcome or the addressed denominator/reconciliation while retaining report/status markers; the actual fresh consumer must reject unconditional promotion."
+        ],
+        "minimum_factual_input_and_owner": {
+          "named_owner": "Scientist served evaluator/domain owner and Foundry actual source-law/model issuer.",
+          "minimum_input": "Owner-admitted exact served evaluator/model/config/source/joint-law/output/domain refs in configured CAS; addressed run/draw IDs and support; same-input transient retry classification only if that profile requests retries.",
+          "smallest_option": "Use the existing dispatcher and terminal-outcome report, persist the complete addressed outcome set, then read it through the configured served consumer. The 128=92+36 sibling is only a selector/example."
+        }
+      },
+      {
+        "id": "B197",
+        "owner_and_bundle": {
+          "unit": "E",
+          "canonical_closure_owner": "CAL-06",
+          "task_ref": "E.md#bundle-cal-06",
+          "capability_state": "producer_missing",
+          "capability_state_detail": "factual configured fit input/producer absent; typed J Sigma J^T mechanism exists"
+        },
+        "original_criterion": {
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4922,
+            4935
+          ],
+          "criterion_sha256": "2f5e64ff7238ff5a340224382fa2875b57ea9e960e0e50bfea7f349c6a83ff3d",
+          "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-06.md@20103522e2b512847eee272a8354633a2b94d650",
+          "coverage_row": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/rows[id=B197]",
+          "E_author_row": "all54-delta-associations-v2-source11082.json#/rows/41",
+          "E_owner_input": "all54-delta-associations-v2-source11082.json#/external_owner_inputs/5"
+        },
+        "criterion_scope": "A typed tie-group-to-field Jacobian J maps fitted-coordinate covariance Sigma to parameter covariance J Sigma J^T, preserving axis, address, cross-covariance and null space through a configured calibration producer, versioned report/CAS and welfare consumer. A heuristic envelope is not a statistical normal law.",
+        "G_source_and_actual_delta": [
+          "Accepted G source already has the mechanism: foundry/calibration/calibrator.py@f64ce5319b4fd88c98ba6cd5bab7af9e8f880c37, report.py@d82d467af1e8eb11155a251e233a728d2097decc, uncertainty_adapter.py@00ede8ba8383e7531bfbfcb05a5dc17e09cd9d0a, and scientist/nodes/builtins/simulate/propagate_welfare.py@ad1c3b15596354aab368147f093b3cc7e97efb70.",
+          "G tests: tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py::test_envelopes_from_calibration_projects_tied_group_covariance; tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_calibrator_tied_report_reaches_delta_and_monte_carlo_welfare.",
+          "G derives a typed coordinate projection and computes J Sigma J^T, but current welfare _load_model only resolves/model-validates bytes. The actual factual CalibratorInputs/source-fit/noise identity and strict configured report-to-fresh-consumer evidence are absent. E candidate's stricter load_calibration_report change is not admitted.",
+          "Source acceptance of the projection mechanism and a technical known-noise fixture do not close this finding or establish the factual fit."
+        ],
+        "prepared_positive_recipe": {
+          "source_recipe": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4#/recipes/2",
+          "selectors": [
+            "tests/unit/foundry/calibration/test_hessian.py",
+            "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+            "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+            "Candidate-only selector: test_welfare_draw_outcomes.py is not admitted G evidence."
+          ],
+          "technical_oracle": "Known-noise fixture H=diag(1/4,1/9), covariance=diag(4,9), giving standard errors 2 and 3; a tied coordinate with covariance 0.0025*ones has zero contrast variance. This is a technical discriminator only, not the actual source-fit."
+        },
+        "negative_and_removal_controls": [
+          "Recompute and independently check J axes/units/tie-group addresses, cross-covariance and null space; reject a string-parsed, guessed, or mismatched coordinate mapping.",
+          "Reject wrong Funnel-vs-calibration artifact kind, schema, config, objective profile, model/source or target time/unit/split.",
+          "Removal: remove the actual report-reader/fit binding while keeping covariance and calibration markers; a fresh configured Node/Welfare consumer must not claim a calibrated law. Remove tied-row J behavior while retaining field labels and require the covariance oracle to fail."
+        ],
+        "minimum_factual_input_and_owner": {
+          "named_owner": "Foundry actual Calibrator/source-fit/noise issuer and Scientist configured welfare consumer.",
+          "minimum_input": "Actual CalibratorInputs, model/objective/source-target/time/unit/split join, declared likelihood/noise/fit assumptions, trainable-field/tie-coordinate mapping, configured CAS/report refs and report schema/config identity.",
+          "smallest_option": "Reuse the existing typed projection, CalibrationReportv2 writer and Welfare consumer. Bind one real configured fit into strict report readback; technical known-noise fixture remains separate."
+        }
+      },
+      {
+        "id": "B200",
+        "owner_and_bundle": {
+          "unit": "E",
+          "canonical_closure_owner": "UQS-01",
+          "task_ref": "E.md#bundle-uqs-01",
+          "capability_state": "producer_missing",
+          "capability_state_detail": "content-bound information-relationship producer absent; aggregator exists"
+        },
+        "original_criterion": {
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4964,
+            4977
+          ],
+          "criterion_sha256": "721775dd6bad0fdd3c7392ef5030fcba3032c7f31094b189d99dce422ecc7b2d",
+          "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQS-01.md@cf08b17c89b6ae300b432c18da7d01cbd9a1b51b",
+          "coverage_row": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/rows[id=B200]",
+          "E_author_row": "all54-delta-associations-v2-source11082.json#/rows/44",
+          "E_owner_input": "all54-delta-associations-v2-source11082.json#/external_owner_inputs/6"
+        },
+        "criterion_scope": "Duplicate evidence does not become independent precision. The information unit, estimand/unit, measurement or replicate identity, shared-data/covariance relation, and prior/likelihood/posterior lineage must be source-bound; envelope count or equal values is not n.",
+        "G_source_and_actual_delta": [
+          "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py@3e463d16d93f4a51e4b19ffca7b46ba310d96905 de-duplicates metadata origin IDs and accepts caller string/bool independence markers; policy-engine/src/polisyos/ir/analytics/uncertainty.py@0a2495855d707a6548da6983bdef9abed9c4b0c7 exposes PosteriorSamplesCarrier/DistributionCarrier with a caller-supplied joint_sample_id marker.",
+          "The internal _build_empirical_joint_spec checks axis/count/weights/shared marker, but the marker itself does not establish source law, covariance or conditional semantics. Existing synthetic aggregation tests trust source-like labels rather than a content-bound relationship artifact.",
+          "Current G selector: tests/unit/remediation/test_uqs_01.py. E candidate's consumer_asserted status/sample_size-none change is candidate-only and cannot be counted."
+        ],
+        "prepared_positive_recipe": {
+          "source_recipe": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4#/recipes/3",
+          "technical_oracle": "Four exact duplicate copies of one artifact remain effective n=1 and SD=1. For a declared paired joint law (g,g), the difference has variance 0; independent marginals with each variance .0025 have difference variance .005. This shows why relation matters, but supplies no real relationship authority.",
+          "consumer_path": "Information-relationship producer -> content-bound CAS artifact -> fresh aggregator read; preserve effective information count and gate eligibility from verified relation, not envelope count."
+        },
+        "negative_and_removal_controls": [
+          "Equal values, repeated origin strings, or independence=true/'independent' alone cannot establish independent information.",
+          "Four byte-identical copies remain one unit. Same-origin changed content is a conflict, not a second independent datum.",
+          "Removing source identity/content resolution while keeping origin/joint_sample_id/independence markers must leave aggregation non-authoritative and must not narrow uncertainty."
+        ],
+        "minimum_factual_input_and_owner": {
+          "named_owner": "Foundry/Scientist information-relationship producer with E aggregator and IR contract owner.",
+          "minimum_input": "Content-bound relationship artifact for source identities, same/different measurement or replicate, shared data/covariance, prior/likelihood/posterior lineage, and same estimand/unit.",
+          "smallest_option": "Add one real relationship producer/artifact at the existing CAS boundary and consume it in the existing aggregator; validate duplicate and independently admitted measurement cases in a fresh read. Do not build a generic authority registry."
+        }
+      }
+    ],
+    "non_combination_rule": {
+      "statement": "These six factual packets are independent criterion lanes, not an all-of precondition or a shared authority gate. A calibration fit is not a prerequisite for a B194 served evaluator, a B200 measurement relationship is not a conditional-feature law, SCM graph rows are not an IID law, and a B157 native draw witness does not prove any E/C criterion. Produce only the fact packet owned by the row under review; leave unrelated rows unchanged.",
+      "pattern_pass": {
+        "relevant": [
+          "P05",
+          "P10",
+          "P14",
+          "P29",
+          "P30",
+          "P31",
+          "P32",
+          "P37",
+          "P38",
+          "P41"
+        ],
+        "observed_risk": "Several existing G consumers can be green on caller labels, field presence, shared string markers, or bounded synthetic fixtures while the factual law/source/property is absent.",
+        "target": "Content-resolve and independently reconcile the row's own source fact; verify persisted artifact and actual fresh consumer behavior; retain unsupported/limited where the factual input is not established.",
+        "labels": "No blanket authority prerequisite. Use row-specific capability labels and distinguish source acceptance, producer availability, artifact persistence, bridge, consumer, verification, surface and semantic test."
+      }
+    },
+    "prepared_status": "Complete as read-only prepared research input; not a run receipt, source acceptance, or finding closure."
+  }
+}

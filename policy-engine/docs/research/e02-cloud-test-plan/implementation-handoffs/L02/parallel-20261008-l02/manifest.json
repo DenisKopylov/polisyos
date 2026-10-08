@@ -1,0 +1,1844 @@
+{
+  "schema": "policyos.e02.l02.delivery_manifest.v1",
+  "created_at_utc": "2026-10-08T10:02:27.357661+00:00",
+  "role": "L02",
+  "mode": "read_only_verification",
+  "branch": "codex/e02-L02-authentic-20261008",
+  "source_candidate_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "source_candidate_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "dispatch_source_G_sha": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+  "dispatch_source_G_tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617",
+  "closure_ids": [],
+  "source_test_config_generated_writes": [],
+  "own_receipt_document_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_forecast_empirical.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_generation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_ingestion.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_input_packets.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_law_intake.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_mac_a.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_mac_c.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_mac_independent_review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_mac_numeric.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_protected_ab.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_protected_d.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_protected_e.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_reissue.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_serving.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_source_admission.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_source_rights.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_udf_inventory.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/admission-create.command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/identities.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/worktree-create.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/worktree-create.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/identities.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/admission-create.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/admission-resume.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/admission-create-immediate.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/attachment.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/attachment.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/commission-commands.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/admission-resume.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/admission-create-immediate.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/admission-create.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/fake-point-control.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/fake-point-control.command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/fake-point-control.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/observations/baseline-commands.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/observations/results-import-check.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/observations/results-import-check.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/observations/primary-env-metadata.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/observations/G-env-metadata.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/observations/latest-source-input-and-disk.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/hooks-bootstrap/install.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/hooks-bootstrap/install.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/hooks-bootstrap/install.command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/stdout.txt.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/observations/mac-stdout-lossless-format.json"
+  ],
+  "complete_role_navigation": {
+    "full_source_rows": 282,
+    "selected_unique_findings": 58,
+    "original_criterion_occurrences": 61,
+    "ten_task_memberships": 68,
+    "per_original_unit": {
+      "A": 21,
+      "B": 3,
+      "C": 18,
+      "D": 4,
+      "E": 11,
+      "F": 1
+    },
+    "scope": "All ten role task routes plus scoped LA032. Q2 Mac-only qualification is narrower than original whole finding scope."
+  },
+  "criterion_identity": [
+    {
+      "finding_id": "B01",
+      "original_unit": "A",
+      "original_primary_bundle": "CYC-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B01",
+          "document": "B_r19",
+          "lines": [
+            205,
+            216
+          ],
+          "sha256": "515ee67aec37de92c27b20c9ddd90cc61c95c41608b1daf4eddc88d640c78759",
+          "card": "CYC-01"
+        }
+      ],
+      "author_proposal_historical_only": "open",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "V1"
+      ],
+      "role_findings_pointer": "/rows/0"
+    },
+    {
+      "finding_id": "B02",
+      "original_unit": "A",
+      "original_primary_bundle": "CYC-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B02",
+          "document": "B_r19",
+          "lines": [
+            217,
+            228
+          ],
+          "sha256": "6b6265c0da20f55356b1a97a791c6d2e909fd1a38c32b8ccd8375bce507c1f38",
+          "card": "CYC-01"
+        }
+      ],
+      "author_proposal_historical_only": "open",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "V1"
+      ],
+      "role_findings_pointer": "/rows/1"
+    },
+    {
+      "finding_id": "B03",
+      "original_unit": "A",
+      "original_primary_bundle": "CYC-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B03",
+          "document": "B_r19",
+          "lines": [
+            229,
+            240
+          ],
+          "sha256": "9dcbf9befc0921cfe71e8cb743417b59cc9faec769ae21342ff874c21260314d",
+          "card": "CYC-01"
+        }
+      ],
+      "author_proposal_historical_only": "open",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "V1"
+      ],
+      "role_findings_pointer": "/rows/2"
+    },
+    {
+      "finding_id": "B04",
+      "original_unit": "A",
+      "original_primary_bundle": "CYC-02",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B04",
+          "document": "B_r19",
+          "lines": [
+            241,
+            252
+          ],
+          "sha256": "2f664b147db7753604b3fa729f42e5d1560d9ed43de9643169255d6b8270df26",
+          "card": "CYC-02"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "V1",
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/3"
+    },
+    {
+      "finding_id": "B05",
+      "original_unit": "A",
+      "original_primary_bundle": "CYC-02",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B05",
+          "document": "B_r19",
+          "lines": [
+            253,
+            264
+          ],
+          "sha256": "7ab0816d8b7cc9f46a900842951a67c92b12ff09362616d87afd82223bcd7970",
+          "card": "CYC-02"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "V1",
+        "T2"
+      ],
+      "role_findings_pointer": "/rows/4"
+    },
+    {
+      "finding_id": "B08",
+      "original_unit": "A",
+      "original_primary_bundle": "CYC-02",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B08",
+          "document": "B_r19",
+          "lines": [
+            289,
+            300
+          ],
+          "sha256": "ca0c9f2ceb0a7fd1323082c9a317a509a1ee78f25ec73185c59b3de1d019ffb9",
+          "card": "CYC-02"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "V1",
+        "T2"
+      ],
+      "role_findings_pointer": "/rows/7"
+    },
+    {
+      "finding_id": "B09",
+      "original_unit": "A",
+      "original_primary_bundle": "CYC-03",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B09",
+          "document": "B_r19",
+          "lines": [
+            301,
+            312
+          ],
+          "sha256": "62b0ba80257fe40aee4e48fda73caf00a617fa55d29c54693185e6996b0ce64c",
+          "card": "CYC-03"
+        }
+      ],
+      "author_proposal_historical_only": "open",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "V3"
+      ],
+      "role_findings_pointer": "/rows/8"
+    },
+    {
+      "finding_id": "B10",
+      "original_unit": "A",
+      "original_primary_bundle": "CYC-04",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B10",
+          "document": "B_r19",
+          "lines": [
+            313,
+            324
+          ],
+          "sha256": "9fc056a6b1bbde89fd8ffb6f7da36b6f8d7cdf81480f0ef395adec5e6ef1c246",
+          "card": "CYC-04"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "V1"
+      ],
+      "role_findings_pointer": "/rows/9"
+    },
+    {
+      "finding_id": "B11",
+      "original_unit": "A",
+      "original_primary_bundle": "CYC-04",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B11",
+          "document": "B_r19",
+          "lines": [
+            325,
+            336
+          ],
+          "sha256": "37f6f0543710b466822aa39ffeb7d3ce5b9a4b57bed99dc429087a3a61ff268c",
+          "card": "CYC-04"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/10"
+    },
+    {
+      "finding_id": "B12",
+      "original_unit": "A",
+      "original_primary_bundle": "ACQ-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B12",
+          "document": "B_r19",
+          "lines": [
+            337,
+            348
+          ],
+          "sha256": "06171b3b04ee5503cea6193347c3299e0016b1f54a96564e3dc5e439feb85798",
+          "card": "ACQ-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "V3"
+      ],
+      "role_findings_pointer": "/rows/11"
+    },
+    {
+      "finding_id": "B16",
+      "original_unit": "A",
+      "original_primary_bundle": "EMP-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B16",
+          "document": "B_r19",
+          "lines": [
+            387,
+            398
+          ],
+          "sha256": "fddf1601c092be1f87a19a79a3f6975264850d8df9428e3f54bd3f8fe48d8706",
+          "card": "EMP-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "V4",
+        "V7"
+      ],
+      "role_findings_pointer": "/rows/13"
+    },
+    {
+      "finding_id": "B27",
+      "original_unit": "A",
+      "original_primary_bundle": "CYC-03",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B27",
+          "document": "B_r19",
+          "lines": [
+            537,
+            550
+          ],
+          "sha256": "052dfe6a01330cee3d1975a69adaed578a7c1d3259c9c9889c09ce9e867ecc44",
+          "card": "CYC-03"
+        }
+      ],
+      "author_proposal_historical_only": "open",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "V3"
+      ],
+      "role_findings_pointer": "/rows/22"
+    },
+    {
+      "finding_id": "B28",
+      "original_unit": "A",
+      "original_primary_bundle": "CYC-03",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B28",
+          "document": "B_r19",
+          "lines": [
+            551,
+            564
+          ],
+          "sha256": "24bde0d2e6c00856b28cf4cc5bc1be23c22e6395760df1a5c615bc74ab99b343",
+          "card": "CYC-03"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "V3"
+      ],
+      "role_findings_pointer": "/rows/23"
+    },
+    {
+      "finding_id": "B29",
+      "original_unit": "A",
+      "original_primary_bundle": "CYC-05",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B29",
+          "document": "B_r19",
+          "lines": [
+            565,
+            578
+          ],
+          "sha256": "b8e65549bab11a9d52bdc33a78faf071a96c241730ecb10dfdfe237cf494d8f4",
+          "card": "CYC-05"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/24"
+    },
+    {
+      "finding_id": "B30",
+      "original_unit": "A",
+      "original_primary_bundle": "CYC-05",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B30",
+          "document": "B_r19",
+          "lines": [
+            579,
+            592
+          ],
+          "sha256": "251d77ebefef25cd01ccd9bf1bcf331725906815dddf47212336198586f99104",
+          "card": "CYC-05"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/25"
+    },
+    {
+      "finding_id": "LA-033",
+      "original_unit": "A",
+      "original_primary_bundle": "REP-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-033",
+          "document": "LA_r09",
+          "lines": [
+            1994,
+            2028
+          ],
+          "sha256": "60a48ac490a9fe0add1bbecc3bbfb74a011f8038a5dc3f6196f929f9de19739f",
+          "card": "REP-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "I4",
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/28"
+    },
+    {
+      "finding_id": "B34",
+      "original_unit": "A",
+      "original_primary_bundle": "SEL-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B34",
+          "document": "B_r19",
+          "lines": [
+            639,
+            663
+          ],
+          "sha256": "b72c038145a8eea6dbec5058fd877f57f9a7f4a2e16d63de9ae67be750158be4",
+          "card": "SEL-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/29"
+    },
+    {
+      "finding_id": "B35",
+      "original_unit": "A",
+      "original_primary_bundle": "SEL-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B35",
+          "document": "B_r19",
+          "lines": [
+            664,
+            681
+          ],
+          "sha256": "d68708b6e5c579f97b0e9f3f121f67a477712796fce8dc87371fc93ee91400b4",
+          "card": "SEL-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/30"
+    },
+    {
+      "finding_id": "B36",
+      "original_unit": "A",
+      "original_primary_bundle": "SEL-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B36",
+          "document": "B_r19",
+          "lines": [
+            682,
+            699
+          ],
+          "sha256": "0493e6060257ca8b6680154283ca98ea0abba69172a196664e83a4cc3baad90b",
+          "card": "SEL-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/31"
+    },
+    {
+      "finding_id": "LA-045",
+      "original_unit": "A",
+      "original_primary_bundle": "REQ-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-045",
+          "document": "LA_r09",
+          "lines": [
+            2999,
+            3033
+          ],
+          "sha256": "56970bcb95cda770929f9d2189bd528c98722300f9e5b80b76c80dcdb115da28",
+          "card": "REQ-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/32"
+    },
+    {
+      "finding_id": "LA-046",
+      "original_unit": "A",
+      "original_primary_bundle": "ACQ-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-046",
+          "document": "LA_r09",
+          "lines": [
+            3034,
+            3068
+          ],
+          "sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38",
+          "card": "REQ-01"
+        },
+        {
+          "criterion_id": "LA-046",
+          "document": "LA_r09",
+          "lines": [
+            3034,
+            3068
+          ],
+          "sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38",
+          "card": "ACQ-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "V3",
+        "I4"
+      ],
+      "role_findings_pointer": "/rows/33"
+    },
+    {
+      "finding_id": "B13",
+      "original_unit": "B",
+      "original_primary_bundle": "RES-03",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B13",
+          "document": "B_r19",
+          "lines": [
+            349,
+            362
+          ],
+          "sha256": "8718ad1c767f83c1f9e5cf47c86e84a80b44005a548d2a109c9d15cc0ebbc799",
+          "card": "RES-03"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "V6",
+        "V1"
+      ],
+      "role_findings_pointer": "/rows/34"
+    },
+    {
+      "finding_id": "B74",
+      "original_unit": "B",
+      "original_primary_bundle": "RES-04",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B74",
+          "document": "B_r19",
+          "lines": [
+            1939,
+            1952
+          ],
+          "sha256": "8d9049975bdf678761aab8dbf7f9b2e3fa2aa4dabda2d6c2fd9a2d2c6ba5a88b",
+          "card": "RES-04"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "V1"
+      ],
+      "role_findings_pointer": "/rows/72"
+    },
+    {
+      "finding_id": "B154",
+      "original_unit": "B",
+      "original_primary_bundle": "CAS-03",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B154",
+          "document": "B_r19",
+          "lines": [
+            3989,
+            4000
+          ],
+          "sha256": "5e25ba12544423bc8a7de3338e8d104bb6c6ef4619bcdf95639c05652cd8c1c5",
+          "card": "CAS-03"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "T2",
+        "V1"
+      ],
+      "role_findings_pointer": "/rows/92"
+    },
+    {
+      "finding_id": "LA-005",
+      "original_unit": "C",
+      "original_primary_bundle": "DFK-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-005",
+          "document": "LA_r09",
+          "lines": [
+            198,
+            224
+          ],
+          "sha256": "ec6ce93b380334ba9e5d13e13ce8ecf637afd057b99008b3aa1b462d29194266",
+          "card": "DFK-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/94"
+    },
+    {
+      "finding_id": "LA-006",
+      "original_unit": "C",
+      "original_primary_bundle": "DFK-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-006",
+          "document": "LA_r09",
+          "lines": [
+            225,
+            253
+          ],
+          "sha256": "4bc6fa503bce03a1516620c492168088242d61e0ba90697a9377480c13d189fe",
+          "card": "DFK-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/95"
+    },
+    {
+      "finding_id": "LA-018",
+      "original_unit": "C",
+      "original_primary_bundle": "HYG-02",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-018",
+          "document": "LA_r09",
+          "lines": [
+            571,
+            597
+          ],
+          "sha256": "b28c10a9c4c31b5fad21560ddaf3888df77a534d2cb9fdb992853637ccd91421",
+          "card": "HYG-02"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "T2"
+      ],
+      "role_findings_pointer": "/rows/103"
+    },
+    {
+      "finding_id": "LA-021",
+      "original_unit": "C",
+      "original_primary_bundle": "CAN-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-021",
+          "document": "LA_r09",
+          "lines": [
+            990,
+            1021
+          ],
+          "sha256": "6bf9986ec241a8980ff624f30d08973fba07f5c8e1402652a276da1bce22aa7b",
+          "card": "CAN-01"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/104"
+    },
+    {
+      "finding_id": "LA-023",
+      "original_unit": "C",
+      "original_primary_bundle": "PLG-03",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-023",
+          "document": "LA_r09",
+          "lines": [
+            1052,
+            1083
+          ],
+          "sha256": "b06af2883398bbe4c039459613c259f92c15a4722d59b57dd28b6397f3e72ac3",
+          "card": "PLG-02"
+        },
+        {
+          "criterion_id": "LA-023",
+          "document": "LA_r09",
+          "lines": [
+            1052,
+            1083
+          ],
+          "sha256": "b06af2883398bbe4c039459613c259f92c15a4722d59b57dd28b6397f3e72ac3",
+          "card": "PLG-03"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/106"
+    },
+    {
+      "finding_id": "LA-024",
+      "original_unit": "C",
+      "original_primary_bundle": "SCL-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-024",
+          "document": "LA_r09",
+          "lines": [
+            1084,
+            1113
+          ],
+          "sha256": "ac5148dc11d7ccb7f825d8d672b2be62db9fee78d7c8a0f15150889bd154ef67",
+          "card": "SCL-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "T2"
+      ],
+      "role_findings_pointer": "/rows/107"
+    },
+    {
+      "finding_id": "LA-025",
+      "original_unit": "C",
+      "original_primary_bundle": "SCL-03",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-025",
+          "document": "LA_r09",
+          "lines": [
+            1114,
+            1149
+          ],
+          "sha256": "2bc4e727677c0b073b03c2cd763b0dc65c25b0917ab5e423ee9f7d4442c05da4",
+          "card": "SCL-03"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "T2"
+      ],
+      "role_findings_pointer": "/rows/108"
+    },
+    {
+      "finding_id": "LA-026",
+      "original_unit": "C",
+      "original_primary_bundle": "DFK-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-026",
+          "document": "LA_r09",
+          "lines": [
+            1372,
+            1417
+          ],
+          "sha256": "48da21eccebfe89cf7cc0ed9dba75b26752d06f78625f92088e3cb9ebc88fa1a",
+          "card": "DFK-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/109"
+    },
+    {
+      "finding_id": "LA-027",
+      "original_unit": "C",
+      "original_primary_bundle": "DFK-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-027",
+          "document": "LA_r09",
+          "lines": [
+            1418,
+            1465
+          ],
+          "sha256": "a78cbc850be0ec8fdbec3076613780d16dfc169517f5f1568f42a6a80cd3e8ce",
+          "card": "DFK-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/110"
+    },
+    {
+      "finding_id": "LA-028",
+      "original_unit": "C",
+      "original_primary_bundle": "DFK-02",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-028",
+          "document": "LA_r09",
+          "lines": [
+            1466,
+            1517
+          ],
+          "sha256": "ca582afd9387c0ba6c4c4bbc9278a6da82d00d06d347269c089531d12355b2f6",
+          "card": "DFK-02"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "I4"
+      ],
+      "role_findings_pointer": "/rows/111"
+    },
+    {
+      "finding_id": "LA-032",
+      "original_unit": "C",
+      "original_primary_bundle": "UDF-05",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-032",
+          "document": "LA_r09",
+          "lines": [
+            1668,
+            1715
+          ],
+          "sha256": "5f5c7a56a652a0328e25fd8b6091a2f780750d9eaee8f10c0129b2f9f0609cf2",
+          "card": "UDF-05"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "I4"
+      ],
+      "role_findings_pointer": "/rows/115"
+    },
+    {
+      "finding_id": "LA-036",
+      "original_unit": "C",
+      "original_primary_bundle": "BER-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-036",
+          "document": "LA_r09",
+          "lines": [
+            2103,
+            2145
+          ],
+          "sha256": "ebc61d92552c6dfbf538aed17c8a7ed476ee4322fc9df09f7ed3b89e8c530a2a",
+          "card": "BER-01"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "S2"
+      ],
+      "role_findings_pointer": "/rows/117"
+    },
+    {
+      "finding_id": "LA-040",
+      "original_unit": "C",
+      "original_primary_bundle": "EMB-03",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-040",
+          "document": "LA_r09",
+          "lines": [
+            2556,
+            2594
+          ],
+          "sha256": "04d9279a2c0e0e0f10649e69a1a06e4e8a4128b384d5b44f2c9cd45fff8ba67a",
+          "card": "EMB-03"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "I4"
+      ],
+      "role_findings_pointer": "/rows/120"
+    },
+    {
+      "finding_id": "LA-042",
+      "original_unit": "C",
+      "original_primary_bundle": "EMB-03",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-042",
+          "document": "LA_r09",
+          "lines": [
+            2632,
+            2660
+          ],
+          "sha256": "7e63e0b9e9c68ba15ec62b843a0ba22bd8294466741f4a23521983be635b5724",
+          "card": "EMB-03"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/122"
+    },
+    {
+      "finding_id": "LA-050",
+      "original_unit": "C",
+      "original_primary_bundle": "MIG-04",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-050",
+          "document": "LA_r09",
+          "lines": [
+            3397,
+            3431
+          ],
+          "sha256": "929111170bede523485d77e9bd1ae74702f9a8dfbbc4422d8c6cdc85252bac05",
+          "card": "MIG-04"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/128"
+    },
+    {
+      "finding_id": "B79",
+      "original_unit": "C",
+      "original_primary_bundle": "ING-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B79",
+          "document": "B_r19",
+          "lines": [
+            2153,
+            2166
+          ],
+          "sha256": "27bcd616e4c3651c5234684c5f00bfc90929f35b417c71f57e4740fa2afb567d",
+          "card": "ING-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "I3"
+      ],
+      "role_findings_pointer": "/rows/129"
+    },
+    {
+      "finding_id": "B80",
+      "original_unit": "C",
+      "original_primary_bundle": "ING-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B80",
+          "document": "B_r19",
+          "lines": [
+            2167,
+            2180
+          ],
+          "sha256": "4c1a2181de7a1faab9b419139aacb69af646339f4920a172f21dbe2c4d0cbdad",
+          "card": "ING-01"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "I3"
+      ],
+      "role_findings_pointer": "/rows/130"
+    },
+    {
+      "finding_id": "B83",
+      "original_unit": "C",
+      "original_primary_bundle": "ING-03",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B83",
+          "document": "B_r19",
+          "lines": [
+            2209,
+            2222
+          ],
+          "sha256": "33f33619aeda80550a33302bfc571497c218ec5f0f6ea09fa22d447e74d58441",
+          "card": "ING-03"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "I3"
+      ],
+      "role_findings_pointer": "/rows/133"
+    },
+    {
+      "finding_id": "B131",
+      "original_unit": "D",
+      "original_primary_bundle": "TRN-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B131",
+          "document": "B_r19",
+          "lines": [
+            3459,
+            3472
+          ],
+          "sha256": "60545080be6e14231a07b082abb322b91f9b304c40dbed2d2cc701223470910c",
+          "card": "TRN-01"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "T2"
+      ],
+      "role_findings_pointer": "/rows/176"
+    },
+    {
+      "finding_id": "B137",
+      "original_unit": "D",
+      "original_primary_bundle": "TRN-03",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B137",
+          "document": "B_r19",
+          "lines": [
+            3543,
+            3556
+          ],
+          "sha256": "133330308d63d9cf44d4105d556e1e4740ff31b519643791722beb8a8a7bc961",
+          "card": "TRN-03"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "T2"
+      ],
+      "role_findings_pointer": "/rows/182"
+    },
+    {
+      "finding_id": "B157",
+      "original_unit": "D",
+      "original_primary_bundle": "FUN-02",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B157",
+          "document": "B_r19",
+          "lines": [
+            4117,
+            4128
+          ],
+          "sha256": "c27f7a7ba4108a5f8f2027bed47b3d3bfa56955f30034c1ede266fc07d7c8284",
+          "card": "FUN-02"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "S2"
+      ],
+      "role_findings_pointer": "/rows/184"
+    },
+    {
+      "finding_id": "B164",
+      "original_unit": "D",
+      "original_primary_bundle": "FUN-03",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B164",
+          "document": "B_r19",
+          "lines": [
+            4201,
+            4212
+          ],
+          "sha256": "ed8189c34e88eec186ca2c6c3d764e796f0cc4f967c601f6a5ec223c43b6c137",
+          "card": "FUN-03"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "T2"
+      ],
+      "role_findings_pointer": "/rows/191"
+    },
+    {
+      "finding_id": "B32",
+      "original_unit": "E",
+      "original_primary_bundle": "FRC-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B32",
+          "document": "B_r19",
+          "lines": [
+            607,
+            620
+          ],
+          "sha256": "68a3acb0a34e8ebfce5217cdc99785a851a21368ea2d552795f68272e7140d6c",
+          "card": "FRC-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "V4",
+        "V7"
+      ],
+      "role_findings_pointer": "/rows/193"
+    },
+    {
+      "finding_id": "LA-051",
+      "original_unit": "E",
+      "original_primary_bundle": "FRC-02",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-051",
+          "document": "LA_r09",
+          "lines": [
+            3712,
+            3746
+          ],
+          "sha256": "5d3fe7ce8b71d77c07f35e5a68fed244c0d40e0f24925714edbf7297c37ea616",
+          "card": "FRC-01"
+        },
+        {
+          "criterion_id": "LA-051",
+          "document": "LA_r09",
+          "lines": [
+            3712,
+            3746
+          ],
+          "sha256": "5d3fe7ce8b71d77c07f35e5a68fed244c0d40e0f24925714edbf7297c37ea616",
+          "card": "FRC-02"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "V4",
+        "V7"
+      ],
+      "role_findings_pointer": "/rows/194"
+    },
+    {
+      "finding_id": "LA-053",
+      "original_unit": "E",
+      "original_primary_bundle": "PCL-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-053",
+          "document": "LA_r09",
+          "lines": [
+            3793,
+            3815
+          ],
+          "sha256": "b8486db456080f21e07d1949996f18748785d02672e511ea8b57c273192d63a4",
+          "card": "PCL-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/196"
+    },
+    {
+      "finding_id": "LA-054",
+      "original_unit": "E",
+      "original_primary_bundle": "DDM-02",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-054",
+          "document": "LA_r09",
+          "lines": [
+            4053,
+            4107
+          ],
+          "sha256": "ffb93357b63c03313b11c4dedb3cce3153c2f14b30257aadd860ca09fda6d425",
+          "card": "DDM-02"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "T2"
+      ],
+      "role_findings_pointer": "/rows/197"
+    },
+    {
+      "finding_id": "LA-055",
+      "original_unit": "E",
+      "original_primary_bundle": "DDM-02",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-055",
+          "document": "LA_r09",
+          "lines": [
+            4108,
+            4140
+          ],
+          "sha256": "79f9809eacc0a1dbb11ff784ecc8b073da1ca23ef0c2212437a05094423e518f",
+          "card": "DDM-02"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "T2"
+      ],
+      "role_findings_pointer": "/rows/198"
+    },
+    {
+      "finding_id": "B190",
+      "original_unit": "E",
+      "original_primary_bundle": "UQP-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B190",
+          "document": "B_r19",
+          "lines": [
+            4752,
+            4761
+          ],
+          "sha256": "bb28f0e65d6317465c37bae99ed3a0bd89a03a3194f111e0f3faf24553724d53",
+          "card": "UQP-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "S2"
+      ],
+      "role_findings_pointer": "/rows/233"
+    },
+    {
+      "finding_id": "B194",
+      "original_unit": "E",
+      "original_primary_bundle": "UQP-03",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B194",
+          "document": "B_r19",
+          "lines": [
+            4792,
+            4801
+          ],
+          "sha256": "47058d366d7ff7e11ed2348e96b2f56659a999f1f0839a02edc92804b295711e",
+          "card": "UQP-03"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "S2"
+      ],
+      "role_findings_pointer": "/rows/237"
+    },
+    {
+      "finding_id": "B197",
+      "original_unit": "E",
+      "original_primary_bundle": "CAL-06",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B197",
+          "document": "B_r19",
+          "lines": [
+            4922,
+            4935
+          ],
+          "sha256": "2f5e64ff7238ff5a340224382fa2875b57ea9e960e0e50bfea7f349c6a83ff3d",
+          "card": "CAL-06"
+        }
+      ],
+      "author_proposal_historical_only": "held",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "S2"
+      ],
+      "role_findings_pointer": "/rows/240"
+    },
+    {
+      "finding_id": "B200",
+      "original_unit": "E",
+      "original_primary_bundle": "UQS-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B200",
+          "document": "B_r19",
+          "lines": [
+            4964,
+            4977
+          ],
+          "sha256": "721775dd6bad0fdd3c7392ef5030fcba3032c7f31094b189d99dce422ecc7b2d",
+          "card": "UQS-01"
+        }
+      ],
+      "author_proposal_historical_only": "limited",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "S2"
+      ],
+      "role_findings_pointer": "/rows/243"
+    },
+    {
+      "finding_id": "B201",
+      "original_unit": "E",
+      "original_primary_bundle": "UQS-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B201",
+          "document": "B_r19",
+          "lines": [
+            4978,
+            4991
+          ],
+          "sha256": "8069cd2dfd13bbfca1d2bbf02a7cc761d6614a5e967d7c11b1de299e64960474",
+          "card": "UQS-01"
+        }
+      ],
+      "author_proposal_historical_only": "closed",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/244"
+    },
+    {
+      "finding_id": "B202",
+      "original_unit": "E",
+      "original_primary_bundle": "UQS-01",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B202",
+          "document": "B_r19",
+          "lines": [
+            4992,
+            5005
+          ],
+          "sha256": "8d507abb668fd82e3a58b5b416e8d011d07927198cfae69949d218a6328a16ab",
+          "card": "UQS-01"
+        }
+      ],
+      "author_proposal_historical_only": "closed",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/245"
+    },
+    {
+      "finding_id": "B212",
+      "original_unit": "F",
+      "original_primary_bundle": "CAU-04",
+      "original_criterion_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion_refs": [
+        {
+          "criterion_id": "B212",
+          "document": "B_r19",
+          "lines": [
+            5194,
+            5205
+          ],
+          "sha256": "dd369570f1235d66729b8c5526f88a5968905343594089f5a4c00da90631238f",
+          "card": "CAU-04"
+        }
+      ],
+      "author_proposal_historical_only": "closed",
+      "G_formal_status": "not_adjudicated",
+      "L02_task_memberships": [
+        "Q2"
+      ],
+      "role_findings_pointer": "/rows/268"
+    }
+  ],
+  "payloads": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_forecast_empirical.json",
+      "bytes": 40208,
+      "sha256": "840a4dd006b3865d019f9a0305dddb9d68035511dbff09e8a6fecd1eca18af8c",
+      "raw_source": ".tmp/parallel-20261008-l02/prepared/l02_forecast_empirical.json",
+      "raw_source_sha256": "c10a4c628d715c2ae1f5080ed58484170b1c0e60107b3d1e41dbae780d385cdb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_generation.json",
+      "bytes": 26242,
+      "sha256": "0ea2a2cb7a08a89424a29c47d1c16b1bf0f3200a654fe0ac4bd7b2319e2d8370",
+      "raw_source": ".tmp/parallel-20261008-l02/prepared/l02_generation.json",
+      "raw_source_sha256": "bc589ab246abbcb20207fc964370ba1b4215206d6c13d93331b1997341bd9c99"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_ingestion.json",
+      "bytes": 27222,
+      "sha256": "7bb19ab468b382b631bbfe93040a058a2ebcc8cc1aa02afefa6ffb4abb553b15",
+      "raw_source": ".tmp/parallel-20261008-l02/prepared/l02_ingestion.json",
+      "raw_source_sha256": "484fbf717ba3a52e3b1da827da016d2f0714f4395c76df0ad5bd0ef5f02fa60e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_input_packets.json",
+      "bytes": 34334,
+      "sha256": "a6104430660f645c96d0308a5ab5dbae21695cf78400e5bec4fbd607d859907f",
+      "raw_source": "policy-engine/docs/research/e02-cloud-test-plan/.tmp/parallel-20261008-l02/prepared/l02_input_packets.json",
+      "raw_source_sha256": "6a4b72fc95dfb07f739dfabfd99f3a783418513c7f8a933ba44f6b53bc0785b9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_law_intake.json",
+      "bytes": 42953,
+      "sha256": "ae55d88e496cd90a80eceb1cfa491ce95d0ea425bb13c0b712df884f0b6519c4",
+      "raw_source": ".tmp/parallel-20261008-l02/prepared/l02_law_intake.json",
+      "raw_source_sha256": "7220cfc08f27ed0f93f0a994cb87aea2269572d8982dabfe270312c67f65aa2c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_mac_a.json",
+      "bytes": 107957,
+      "sha256": "4915c73bdd4c5d9e3494ec32609752ef5d093071daf3bd12c960fea5b4ea6de3",
+      "raw_source": "policy-engine/.tmp/parallel-20261008-l02/prepared/l02_mac_a.json",
+      "raw_source_sha256": "1301a70ea71011382d898f5fe4ddf406f68a51d2611dd6eceb50dc4ad41147d3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_mac_c.json",
+      "bytes": 13692,
+      "sha256": "9dc77c5b3c07f4a20b0b4f417ed39a0fe04a908eaf8f33acd0c9014bafb8601d",
+      "raw_source": ".tmp/parallel-20261008-l02/prepared/l02_mac_c.json",
+      "raw_source_sha256": "0995fc1555c56c563e2a5696bea7fc84d077792fe32a96845855a6ffe24ef729"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_mac_independent_review.json",
+      "bytes": 18709,
+      "sha256": "6258efd112ab6aa37280e40b081b03fb1e525ea8fdd60316425d4047922b764c",
+      "raw_source": ".tmp/parallel-20261008-l02/prepared/l02_mac_independent_review.json",
+      "raw_source_sha256": "da90a9a522028923110c452c39fef0379d773abad7c822844e1e8dec44faf980"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_mac_numeric.json",
+      "bytes": 24975,
+      "sha256": "9a3c4870ff48cb9109c3796d53bf23eb26791a8f467019b5c7cf6b20ab912d1d",
+      "raw_source": "policy-engine/docs/research/e02-cloud-test-plan/.tmp/parallel-20261008-l02/prepared/l02_mac_numeric.json",
+      "raw_source_sha256": "de2f8c86527172410b26797df8d639266ac207c343508baeb8fa7107ce188358"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_protected_ab.json",
+      "bytes": 37255,
+      "sha256": "49ec47048de9ff39ff8f38f217cd2bf7bcd3e8640e089600c312c1930f19a5d9",
+      "raw_source": ".tmp/parallel-20261008-l02/prepared/l02_protected_ab.json",
+      "raw_source_sha256": "6e26bdd5eeabd3591f3a9429c7e5c8ee927bd4a27ab5a6b0e610ad35105e3fc7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_protected_d.json",
+      "bytes": 29014,
+      "sha256": "520c92f31d26e6973071b78f1e43b2c7f8ae842bb02e7a99aca3f679cde77250",
+      "raw_source": ".tmp/parallel-20261008-l02/prepared/l02_protected_d.json",
+      "raw_source_sha256": "95f2a1d6a1e93b142aecb2f412c351807dd5a13c92869e5dc174948c4911b3a2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_protected_e.json",
+      "bytes": 57815,
+      "sha256": "e799113371758ce768a2356393e9979d970fac4c1f01cdcdb85ed3af29d103a9",
+      "raw_source": ".tmp/parallel-20261008-l02/prepared/l02_protected_e.json",
+      "raw_source_sha256": "33972cd6a82f8647aa2b6d1cf138f74c44572e089f76d7618324b6bd269109e0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_reissue.json",
+      "bytes": 33054,
+      "sha256": "10721f8947405b960a10775a6868e9d9e3ddc4ac3111c74952ac5f2ab70b0df7",
+      "raw_source": ".tmp/parallel-20261008-l02/prepared/l02_reissue.json",
+      "raw_source_sha256": "9e751f4590f0eaafd52b13d548f1282f1b820a460b49bffd9174f3aae9fd0c7b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_serving.json",
+      "bytes": 33068,
+      "sha256": "899d03373a461ae1763162b5b626b0b5d95f76e874fc01427a97603705b9528b",
+      "raw_source": ".tmp/parallel-20261008-l02/prepared/l02_serving.json",
+      "raw_source_sha256": "55db1c1cd5fbc4969be5c2f6855166383f472f1c03c68f5ee52d3937eabad5c9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_source_admission.json",
+      "bytes": 120628,
+      "sha256": "581ba3d87460e78c24f66c1a7b253eca07e55c1c3dac08ffbdff2fa164e04d57",
+      "raw_source": ".tmp/parallel-20261008-l02/prepared/l02_source_admission.json",
+      "raw_source_sha256": "a3f671b54f819fc8a985cf73e5a844b9833c72747375f4c6edaf108bdd4df6fe"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_source_rights.json",
+      "bytes": 42235,
+      "sha256": "1dc7c61b533dae0a39f199394e007a3077f93bed7d0cd69e5944f4d49e574300",
+      "raw_source": ".tmp/parallel-20261008-l02/prepared/l02_source_rights.json",
+      "raw_source_sha256": "cdf641eea257e58776d160723f26c8cbed33ba97b0a5223ce0bf1e812cab3872"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_udf_inventory.json",
+      "bytes": 41757,
+      "sha256": "6cf85eafdb462684820340558547d9df60aa4df480ac63777132194ca53cd7a4",
+      "raw_source": ".tmp/parallel-2026-10-08-l02/prepared/l02_udf_inventory.json",
+      "raw_source_sha256": "63d20eaf58cf794f93b661b8a0dde097ff3148786a8a1ac00f12de9e8a7490bf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/admission-create.command.json",
+      "bytes": 775,
+      "sha256": "c59cdd6befbb41061654e3e611ebb8b824199cde7217486ac9d5df19e1d911f3",
+      "purpose": "Complete canonical admission/commissioning output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/identities.stdout",
+      "bytes": 155,
+      "sha256": "67a1eef0be22ff6fad550ba5e2fb08ab2685fe10e9ee9a6b1a3ff8b7cf5baa33",
+      "purpose": "Complete canonical admission/commissioning output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/worktree-create.stderr",
+      "bytes": 2407,
+      "sha256": "f1a3d00b70cf6628c7619335e33658d8a29e4c1d4d91d5173b11c37649a40a8f",
+      "purpose": "Complete canonical admission/commissioning output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/worktree-create.stdout",
+      "bytes": 81,
+      "sha256": "7cf2d89d70f497cdb93cd924929f7925e2acc9ec4ed6595a960d78362f9aa06b",
+      "purpose": "Complete canonical admission/commissioning output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/identities.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "Complete canonical admission/commissioning output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/admission-create.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "Complete canonical admission/commissioning output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/admission-resume.stdout",
+      "bytes": 95616,
+      "sha256": "9d7a3f423df1eabf43bfbc3f460692e073b6e3983b86aa9c538776b8da9f73ee",
+      "purpose": "Complete canonical admission/commissioning output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/admission-create-immediate.stdout",
+      "bytes": 88767,
+      "sha256": "bf2eaea1f4599b705b6d515b8c28402eaf0a9de70d27c17caee397723861f8b6",
+      "purpose": "Complete canonical admission/commissioning output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/attachment.stdout",
+      "bytes": 36,
+      "sha256": "743a784e09b6c98dfc74c4d7d4bb39d7b3aac7fc2044e42073c3b3106fa57a96",
+      "purpose": "Complete canonical admission/commissioning output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/attachment.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "Complete canonical admission/commissioning output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/commission-commands.json",
+      "bytes": 2550,
+      "sha256": "9a93651caf6a7f1d891edf9c10c878f6a1a27e3acaee58d0a0cc5a29dd7045c6",
+      "purpose": "Complete canonical admission/commissioning output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/admission-resume.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "Complete canonical admission/commissioning output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/admission-create-immediate.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "Complete canonical admission/commissioning output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/bootstrap/admission-create.stdout",
+      "bytes": 88767,
+      "sha256": "23bf6356188530d25eea4569d64039534ddabb377e813f9ddff37b6aaffdab78",
+      "purpose": "Complete canonical admission/commissioning output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/fake-point-control.stdout",
+      "bytes": 1153,
+      "sha256": "43bf1c14e539dc161d38a4b958b77f693dab2460743b315d0a498233cc9039f2",
+      "purpose": "Complete deciding Mac refusal/test-sensitivity output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "Complete deciding Mac refusal/test-sensitivity output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/command.json",
+      "bytes": 1963,
+      "sha256": "124964d9665d3040264f46c6b44a9f581d9a559006cba14a8d54c524ddb418ad",
+      "purpose": "Complete deciding Mac refusal/test-sensitivity output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/fake-point-control.command.json",
+      "bytes": 2894,
+      "sha256": "05e060d762239e27966ed09105582bfdfe371da8cf5566b2f1c0c3fee7ffc9ba",
+      "purpose": "Complete deciding Mac refusal/test-sensitivity output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/junit.xml",
+      "bytes": 1467,
+      "sha256": "cb764a4f269c8060d9236a90580419bd9626bd000be62170b10da64537b2fe58",
+      "purpose": "Complete deciding Mac refusal/test-sensitivity output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/fake-point-control.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "Complete deciding Mac refusal/test-sensitivity output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/observations/baseline-commands.json",
+      "bytes": 1298,
+      "sha256": "f18a13e44a0ad47c881e13e7a153971b04bca35a6634fcad0f56e6e87adbc4ee",
+      "purpose": "Executed non-secret observer command/output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/observations/results-import-check.stdout",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+      "purpose": "Executed non-secret observer command/output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/observations/results-import-check.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "Executed non-secret observer command/output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/observations/primary-env-metadata.json",
+      "bytes": 1095,
+      "sha256": "c68207d0f3f3d3ff0be9383861bdac6755928dddaba4523ca43d2a6759682405",
+      "purpose": "Executed non-secret observer command/output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/observations/G-env-metadata.json",
+      "bytes": 1147,
+      "sha256": "a8c118e987a306370e2c413a26340845ac838f4e491485bab6771da9e01d5965",
+      "purpose": "Executed non-secret observer command/output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/observations/latest-source-input-and-disk.json",
+      "bytes": 3012,
+      "sha256": "fdb18b552aa862eb84bb286f9016ebca193c32f4f6470cb7688a9279131622e0",
+      "purpose": "Executed non-secret observer command/output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/hooks-bootstrap/install.stdout",
+      "bytes": 524,
+      "sha256": "a1846fa361d60d866896954cd6f06cad3d40b165124085eb5996b9f06739ffda",
+      "purpose": "Complete required repository-hook dependency bootstrap output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/hooks-bootstrap/install.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "Complete required repository-hook dependency bootstrap output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/hooks-bootstrap/install.command.json",
+      "bytes": 758,
+      "sha256": "f43b183b855fff42af38354b4a862a47db89860a663f66048943d1aae90994f7",
+      "purpose": "Complete required repository-hook dependency bootstrap output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/stdout.txt.gz",
+      "bytes": 298,
+      "sha256": "ebaac359908ccd7d631f309bff7c19df756d52e8ec4b0528d36391d6dc1dccf5",
+      "purpose": "Full deciding stdout; gzip decompresses to exact original UTF8 bytes",
+      "compression": "gzip",
+      "uncompressed_bytes": 606,
+      "uncompressed_sha256": "bb5416691116073b8086fcc9fe21b5616c6b756cfa4296572369e72fee9283e0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/observations/mac-stdout-lossless-format.json",
+      "bytes": 1420,
+      "sha256": "45b8ea2c872ddcecfde849eacdefac03300037fdc977b4a38890fb9dfefd7f23",
+      "purpose": "Complete native Trash duplicate-format operation; ignored raw audit unchanged"
+    }
+  ],
+  "technical_result": {
+    "authentic_producer_positive": "UNRUN: exact task-specific G composition and criterion-specific published L01 packet not supplied",
+    "Mac_Q2_source_refusal": "7 PASS on Mac arm64/Python3.14, limited to unavailable-source-context and declared-request refusals",
+    "marker_kept_point7_control": "REJECTED with status/capability unchanged; restored genuine refusal PASS",
+    "Mac_installed_or_native_DoWhy_positive": "UNRUN: existing inspected venvs are not exact artifact-installed consumers; no source-origin substitution",
+    "source_acceptance": "Existing G decisions remain scoped; F852 nine-path source preserved/admitted. Current dispatch commit itself adds documents; other owner candidates are not admitted as a common task composition.",
+    "formal_G_closure": "not_adjudicated; no ledger/status update"
+  },
+  "bootstrap": "Complete canonical create/immediate-create/resume admission JSON exit0 retained; exact unused branch/path, source tree and clean attachment read back.",
+  "baseline": "Importer --check exit0. Verification grade transfer_and_navigation_only/rawarchives0/product_closure not_established. 58 targeted full-limit queries and complete2074/2524 TSV denominators examined; baseline is not candidate behavior. Full queries stay in ignored local navigation reports and are reconstructible from Git.",
+  "resource_boundary": "No heavy/numeric/full-production run; one-thread light Mac check. Heavy slot G release absent in inspected packet scope, not claimed available. Existing Python environments reused; required checkout-local hooks provisioned from frozen offline corepack pnpm workspace with scripts disabled. No Python backend install/restore or production reads.",
+  "nondeciding_observer_error": "First Root inline environment observer had IndentationError before observation; corrected observer ran exit0. First failure output survives conversation only, not a product or inherited-red finding.",
+  "preparer_lookup_corrections": [
+    "Helper D mistyped f00 suffix2771; correct277b exists, not a real object unavailable boundary.",
+    "Source-rights helper used wrong undated inputs path; exact dated inputs.json exists and was read.",
+    "Mac C initially missed CANe3 committed leaf/removal; exact60b leaf resolved, prior absence claim corrected.",
+    "Q2 route membership count is21 from complete findings rows, not preliminary22 prose."
+  ],
+  "raw_report_write_locations": "Helpers used several ignored .tmp locations; actual paths are bound in payload index. No tracked source changes; own original reports preserved in place.",
+  "cleanup": "No permanent cleanup/Trash emptying. Own ignored audit reports and deciding evidence preserved.",
+  "hook_boundary": "Required checkout-local Lefthook binary was missing; frozen offline workspace bootstrap restored the actual declared hook tool without disabling/bypassing hooks. Both commit and push use normal Git hooks. Installer did not download packages; no source/generated/lock changes observed.",
+  "output_format": "Deciding Mac stdout stored losslessly as gzip because warning padding has trailing spaces; exact decompressed SHA checked. Original ignored raw report preserved. Only the redundant staged text copy moved via native Trash."
+}

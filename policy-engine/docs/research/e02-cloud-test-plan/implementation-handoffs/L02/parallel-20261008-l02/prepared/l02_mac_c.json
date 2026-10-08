@@ -1,0 +1,203 @@
+{
+  "schema": "policyos.e02.l02.qualified_preparation.v1",
+  "role": "L02",
+  "helper": "l02_mac_c",
+  "source_candidate_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "source_candidate_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "preparer_raw_local_ref": {
+    "path": ".tmp/parallel-20261008-l02/prepared/l02_mac_c.json",
+    "bytes": 12701,
+    "sha256": "0995fc1555c56c563e2a5696bea7fc84d077792fe32a96845855a6ffe24ef729"
+  },
+  "delivery_compaction": {
+    "removed_derivable_text_fields": [],
+    "raw_report_preserved": true,
+    "no_semantic_qualification_promoted": true
+  },
+  "preparation": {
+    "schema": "policyos.e02.l02.prepared_receipt.v1",
+    "role": "L02_mac_c",
+    "status": "prepared_read_only",
+    "workspace": {
+      "root": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+      "head": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+      "branch": "codex/e02-L02-authentic-20261008"
+    },
+    "frozen_sources": {
+      "G_analysis_commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+      "G_analysis_tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617",
+      "connected_closeout_inputs": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json",
+      "CAN_candidate_commit": "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+      "CAN_candidate_tree": "2d27c9c182cf550088c5a8c072dc2f36df84e20d",
+      "CAN_candidate_in_G_ancestry": false,
+      "scope_note": "The connected-closeout plan is planning-only; source-DAG pins are not G source acceptance or formal closure."
+    },
+    "CAN_LA021_correction": {
+      "criterion": "LA-021",
+      "original_criterion": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "revision": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "span": "near lines 990-1018"
+      },
+      "candidate_handoff": {
+        "commit": "60b523c2d0e1a587f2f1d4b92a0ac9a89a1f49db",
+        "tree": "75308c9d306bc8187008613597f2acc917cb0d74",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-canonical-json-mapping-20261007.json",
+        "blob_sha1": "6dda17e5d9c2e04c383883bda5e8196c319d9d4b",
+        "sha256": "529f473f1546e1035f7abb0571d08088fb1f1d1749cf655e7248c8f2bdccd1bc",
+        "bytes": 49591,
+        "candidate_status": "candidate_only_not_integrated",
+        "bounded_verdict": "GO for this JSON-mode Mapping reader property only; full LA-021 remains HELD."
+      },
+      "root_c5_binding": {
+        "commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+        "tree": "7edd87e6730739fbe2d7c7ed0c35d4a4e1e11ba8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261007-C5.json",
+        "blob_sha1": "7310778b273b89341330154ab215b183c79e2e53",
+        "source_ref": "source_refs.CAN_unchanged_handoff",
+        "bound_leaf_commit": "60b523c2d0e1a587f2f1d4b92a0ac9a89a1f49db",
+        "bound_leaf_sha256": "529f473f1546e1035f7abb0571d08088fb1f1d1749cf655e7248c8f2bdccd1bc",
+        "bound_leaf_bytes": 49591
+      },
+      "changed_candidate_paths": [
+        "policy-engine/src/polisyos/ir/artifacts/io.py",
+        "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+        "policy-engine/src/polisyos/ir/artifacts/README.md",
+        "policy-engine/release-fragments/unreleased/2026-10-07-e02-canon-json-mapping.toml"
+      ],
+      "actual_property": "An unchanged full ArtifactManifest.model_dump(mode=json) Mapping from a typed FileSystemCAS is accepted by get_json_artifact for a supported profile; payload and Mapping are unchanged and other profile fields remain strict.",
+      "deciding_controls": {
+        "author_final46": {
+          "result": "46 passed; 0 failures/errors/skips in 18.212s",
+          "source_commit": "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+          "receipt_dir": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/final46",
+          "stdout_sha256": "2903fe24236a0abcbf5187a007f327f24ec0b5f7ff6a2e24c5abb995172610be",
+          "junit_sha256": "952ce57ef1b6d2e1e4dbe836d0bbaaad4632b5cd9a5f981e7a98489ed109bc04",
+          "argv_sha256": "8d8f963a49248939609b00c489f8f0fbd552cc19bf279a74318e9052854d25cf",
+          "input_hashes_stable": true
+        },
+        "author_first_red": {
+          "result": "Expected red: full JSON Mapping failed strict tuple validation before payload bytes",
+          "base_source_commit": "79cbb05c90026973a32022ca02c63877b2cde1a5",
+          "exit_code": 1,
+          "junit_sha256": "4c3df05aafa77d3fed50561a86bb832fb914deb86199e4fb10bad83454a20a4a"
+        },
+        "independent_focused_selector": {
+          "command": "env PYTHONPATH=src /opt/homebrew/opt/python@3.14/bin/python3.14 -m pytest -v -q tests/unit/core/artifacts/test_ir_adapter.py -k 'json_mode_manifest_mapping or malformed_json_mapping_separators or unsupported_json_mapping_profiles or keeps_other_json_mapping_profile_fields_strict or profileless_json_mapping or persisted_profile_depth or direct_core_json_writer_remains_an_ir_profile_bypass'",
+          "result": "14 passed, 30 deselected in 0.14s",
+          "stdout_sha256": "ec13b07075705e78575f94e56c86cd546af8215e824ae1c5993f7ecd1fa49666",
+          "review_report_sha256": "28a0f716289433dc4d9cd318865b77d554bf4609f5f17c773d2216b4c1a37cf7"
+        },
+        "independent_positive": "Real temporary FileSystemCAS write at profile depth 129; typed CoreArtifactRef and persisted full Mapping read back; payload and Mapping unchanged; exactly one manifest and one payload-byte read.",
+        "independent_negatives": "19 independently mutated malformed, unsupported, or absent-profile mappings refused before payload-byte reads.",
+        "independent_removal_control": {
+          "result": "Removal red: candidate module executed in memory with only the separators normalization block removed; valid full Mapping then failed unsupported_ir_canon_profile before bytes while on-disk positive/negative markers remained.",
+          "oracle_script_sha256": "313ce03b42deda32563c262fa71c5bc3e296872a431a86a522d4ed52cde0f3f7",
+          "oracle_output_sha256": "86d1657265d680b6ad226db794e3d80dd5b9f9f43240563d874b057acac30ba0",
+          "root_capture_run_sha256": "56ca4a867f7ba1e05ced63d07496f7f8c2ea82c7360103bb064969c53d535875",
+          "root_capture_exit_code": 0,
+          "root_capture_stderr_empty": true,
+          "source_and_probe_input_hashes_unchanged": true
+        }
+      },
+      "actual_mac_profile_evidence": {
+        "python_executable": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "python": "3.14.0",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "pythonpath": "src",
+        "environment_provisioned": false,
+        "platform_note": "Homebrew path is consistent with macOS; the leaf does not contain a separately captured uname result."
+      },
+      "installed_candidate_layer": {
+        "status": "UNRUN",
+        "candidate": "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+        "reason": "Offline Hatchling >=1.27.0 backend and wheel were unavailable; no build, install, environment creation, network access, or alternate backend was attempted.",
+        "old_wheel_substitution": "Forbidden as evidence: previous installed-wheel receipt is bound to 55b45d9a5c95c3b773fc3b4d8679786b3993eb1e, before the JSON Mapping normalization."
+      },
+      "full_finding_boundary": "LA-021 remains HELD: B-owned Core byte-emission/admission contract and profile decision are unresolved/unratified; cross-boundary traversal or rejection is not established; historical profileless support is not established. Raw Core float_hex bypass remains outside this bounded C repair.",
+      "replay_policy": "Do not rerun the unchanged 46-test selector, focused 14-test selector, or oracle/removal method. Reuse these source-qualified receipts; source admission and any later installed-layer check are separate decisions.",
+      "prior_claim_correction": "An earlier draft said no committed e3 output/removal witness was located. That statement was incorrect: this exact handoff is bound by C-root-final-C5 and includes the 46-test output, independent 19-negative oracle, and removal-property red. The distinct e3 installed-wheel layer remains UNRUN."
+    },
+    "other_l02_findings": [
+      {
+        "findings": [
+          "LA-005",
+          "LA-006",
+          "LA-026",
+          "LA-027"
+        ],
+        "candidate": "C_DFK a13f6c1acfe15a6750d71c6e86521f119d794def; not in G ancestry",
+        "existing_receipt": "C5 dfk-c5-lifecycle-source-handoff.json at 4576f67b… records 24 Python 3.14 Mac source tests across test_dfk_01.py and test_no_compat_facade_imports.py; no unchanged rerun.",
+        "semantic_checks": "Retired FQNs/resources absent; canonical SimulationConfig and registry/runner behavior retained; migration and alias identity retained; tombstone not importable.",
+        "companions": [
+          "tools/quality/validation/schema_fqn_census.py",
+          "pyproject.toml",
+          "hatch.toml",
+          "release-fragments/unreleased/2026-10-07-e02-dfk-schema-lifecycle.toml"
+        ],
+        "installed_layer": "Candidate wheel/sdist and installed readback UNRUN; Hatchling/build backend unavailable in the C5 preflight.",
+        "narrow_source_selectors": [
+          "tests/unit/remediation/test_dfk_01.py::test_dfk_01_retired_schema_fqns_and_resources_are_absent",
+          "tests/unit/remediation/test_dfk_01.py::test_dfk_01_foundry_plugin_simulation_config_remains_canonical",
+          "tests/unit/remediation/test_dfk_01.py::test_dfk_01_mechanisms_tombstone_is_not_importable",
+          "tests/unit/remediation/test_dfk_01.py::test_dfk_01_canonical_foundry_mechanism_registry_resolves_and_dispatches",
+          "tests/unit/remediation/test_dfk_01.py::test_dfk_01_real_foundry_runner_executes_canonical_mechanism",
+          "tests/unit/remediation/test_dfk_01.py::test_dfk_01_canonical_registry_evolution_and_migration_behave",
+          "tests/unit/remediation/test_dfk_01.py::test_dfk_01_pipeline_schema_alias_preserves_canonical_identity"
+        ]
+      },
+      {
+        "finding": "LA-023",
+        "candidate": "PLG implementation a452011da3de26d90877ae95ab10a72cce8e0b45 and tests 443f346f5cf33f37175fc8e4dfe61d1060bc07f5; neither is G-admitted",
+        "existing_receipt": "C5 domain-plugin-training.json at 976212bb… records the one-call Economics CPU run, tenant-store readback, saved-action oracle, optimizer-removal negative, and installed candidate; do not repeat one-call suite.",
+        "mac_profile": "Python 3.14 CPU; JAX_PLATFORMS=cpu and single-thread BLAS profile; no GPU requirement.",
+        "remaining_boundary": "Held pending public .train/TrainingResult and checkpoint or cross-call semantics, or an explicit scoped refusal.",
+        "narrow_source_selectors": [
+          "test_economics_training_updates_policy_and_produces_readable_artifact",
+          "test_training_uses_supplied_tenant_store_for_persist_and_readback",
+          "test_unsupported_composite_remains_bridge_pending",
+          "test_optimizer_removal_keeps_markers_but_fails_saved_action_oracle"
+        ]
+      },
+      {
+        "finding": "LA-042",
+        "candidate": "C_Legal c60e37e7833b2dbb22af1868e31dc3f519d6a4f2; not in G ancestry",
+        "narrow_source_selectors": [
+          "tests/unit/remediation/test_emb_03.py::test_legacy_backend_argument_is_rejected_explicitly",
+          "tests/unit/remediation/test_emb_03.py::test_legacy_wrapper_preserves_canonical_result_and_forwards_profile",
+          "tests/unit/remediation/test_emb_03.py::test_legacy_entrypoint_uses_supported_encoder_and_legal_reader"
+        ],
+        "boundary": "Earlier installed/source evidence is bound to ab441… rather than c60; exact c60 noneditable package readback is UNRUN. Semantics are portable; no Mac-only requirement identified."
+      },
+      {
+        "finding": "LA-050",
+        "candidate": "004ae11f1a541e2035f71cefa92f89b71bd8f562; not G-admitted",
+        "existing_receipt": "Bounded installed CLI conversion/readback covered four genuine current v1 manifests; do not repeat the CLI/census.",
+        "remaining_input": "One authorized genuine historical 0.9 manifest with lineage is missing; do not read production data or substitute synthetic input for that historical claim.",
+        "platform": "No Mac-specific semantic requirement identified."
+      }
+    ],
+    "mac_scope_decision": {
+      "criteria": [
+        "LA-005",
+        "LA-006",
+        "LA-021",
+        "LA-023",
+        "LA-026",
+        "LA-027",
+        "LA-042",
+        "LA-050"
+      ],
+      "intrinsically_mac_only": [],
+      "portable_owner": "C13 can own the post-G-freeze portable source suite; preserve exact source-bound C5 receipts and avoid replaying unchanged methods.",
+      "Mac_only_use": "Only a claim explicitly about the local Mac-installed artifact/profile or authorized local-only input would require a Mac receipt. No such semantic requirement is established by these eight criteria."
+    },
+    "constraints_observed": [
+      "Read-only Git/evidence inspection only; no source or test writes, checkouts, installs, test execution, production reads, chats, or push.",
+      "Only this prepared receipt path is written by this role.",
+      "Source acceptance, measured source property, installed-package behavior, proposed finding disposition, and formal G closure remain separate."
+    ]
+  }
+}

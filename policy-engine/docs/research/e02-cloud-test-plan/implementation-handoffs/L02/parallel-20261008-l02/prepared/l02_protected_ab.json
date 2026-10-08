@@ -1,0 +1,496 @@
+{
+  "schema": "policyos.e02.l02.qualified_preparation.v1",
+  "role": "L02",
+  "helper": "l02_protected_ab",
+  "source_candidate_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "source_candidate_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "preparer_raw_local_ref": {
+    "path": ".tmp/parallel-20261008-l02/prepared/l02_protected_ab.json",
+    "bytes": 35664,
+    "sha256": "6e26bdd5eeabd3591f3a9429c7e5c8ee927bd4a27ab5a6b0e610ad35105e3fc7"
+  },
+  "delivery_compaction": {
+    "removed_derivable_text_fields": [],
+    "raw_report_preserved": true,
+    "no_semantic_qualification_promoted": true
+  },
+  "preparation": {
+    "schema": "policyos.e02.L02.prepared_protected_ab.v1",
+    "role": "L02",
+    "mode": "read_only_preparation",
+    "worktree": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+      "branch": "codex/e02-L02-authentic-20261008",
+      "head": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+      "prewrite_status": "clean"
+    },
+    "immutable_source_pins": {
+      "commission_G": {
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767"
+      },
+      "dispatch_sourceG": {
+        "commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617"
+      },
+      "connected_plan_analysis_G": {
+        "commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "tree": "32a32cc77039554a3777a11fd7fc8f96f3a88625",
+        "in_G_ancestry": true
+      },
+      "inputs_manifest": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json@f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "749255cd37f93955b176c748d63b2a3a7b7ee214",
+        "scope": "planning only; no source acceptance or finding closure"
+      }
+    },
+    "task_qualifier": {
+      "task_source": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json@f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "git_blob": "a27cf7e78dc7c16df279a5136399ee0a5daeee9a",
+      "task_id": "T2",
+      "title": "Protected positive and revalidation consumer",
+      "depends": [
+        "T1"
+      ],
+      "conditional_inputs": [
+        "specific admitted owner fact/API required by criterion"
+      ],
+      "exit": "valid positive + fake/foreign/stale/revoked zero effects including commit-time check",
+      "separation": "This qualifier is distinct from each original criterion below."
+    },
+    "owner_input_boundary": {
+      "L01_prompt": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/L01.md@f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "git_blob": "53af8c971cf754b466f85712d2dde3a624c4cda4",
+      "statement": "The pinned L01 instructions say actual data paths/recipes are not established by the plan pack; T1 must inventory internal configured owners versus external facts and provide source/ref/input digest/time/purpose/issuer/verifier/consumer. No L01 result or criterion-specific factual packet is in the pinned inputs manifest.",
+      "effect": "T2 authentic runs are UNRUN until T1 supplies the exact owner packet. Do not synthesize a signer, treatment assignment, tenant permission, trust law, population, or publisher."
+    },
+    "evidence_sources": {
+      "findings": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json@f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e"
+      },
+      "coverage": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "git_blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf"
+      },
+      "original_criteria": {
+        "ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "line_count": 5545
+      },
+      "source_selection": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/07-source-selection.md@f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "f501af90dc634286f6948bfc77b6711c5b60cb73"
+      }
+    },
+    "findings": [
+      {
+        "id": "B05",
+        "finding_row": {
+          "original_unit": "A",
+          "original_primary_bundle": "CYC-02",
+          "author_proposal": "limited",
+          "original_criteria_pointer": "/findings/4/criterion_refs",
+          "author_source": "A",
+          "author_row_pointers": [
+            "/current_index/4",
+            "#/current_root_adjudication_20261008/rows/4"
+          ],
+          "flows": [
+            "V",
+            "T"
+          ],
+          "next_tasks": [
+            "V1",
+            "T2"
+          ],
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "criterion": {
+          "coverage_pointer": "#/findings/4/criterion_refs/0",
+          "source_lines": [
+            253,
+            264
+          ],
+          "span_sha256": "7ab0816d8b7cc9f46a900842951a67c92b12ff09362616d87afd82223bcd7970",
+          "acceptance": "A real N5 K_sim result traverses the runtime adapter into conditional simulation analysis while remaining unable to assert K_world, empirical effect, or external action; manually clearing its limitation is invalid."
+        },
+        "author_status": {
+          "A_current_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-current-index.json@8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+          "A_current_index_blob": "2a14fa091eb1b1d1f8ab0b9aa0d4757baddddcb0",
+          "index_status": "original partial; source_closure not_adjudicated; root_outcome limited",
+          "A_progress_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json@8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+          "A_progress_blob": "5beae048efe4b4ffda43583d1f9b93c3298e0d86",
+          "progress_state": "verification_missing; complete signed/currentness criterion UNRUN",
+          "named_dependency": "real N9/OWR owner supplies issuer- and verifier-provenance-bound currentness receipt bound to occurrence, subject, and epoch"
+        },
+        "owner_fact_api_to_protected_effect": {
+          "admissible_input_required": "A genuine production signed/currentness receipt from the actual N9/OWR owner, with issuer and verifier provenance and exact occurrence/subject/epoch binding; the policy admission/current epoch must be owner-reconciled.",
+          "existing_intake_and_revalidation_seam": "GenerationCycleController persists the pre-N9 subject, then ArtifactEpochValidityAuthorityGate.reconcile_before_n9 reloads the exact subject/context/member/query, checks hashes and candidate bindings, and recomputes SemanticEpochService.qualify_chronology_query immediately before sealing the admitted batch.",
+          "source_refs": [
+            "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@ffd6ccda2ee00189d38d0d601b1cb9cc5c6f30da#L6266-L6315; blob a9bee33288e66aecada88a58b44fd504a33b78c7",
+            "policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py@ffd6ccda2ee00189d38d0d601b1cb9cc5c6f30da#L2683-L2795; blob f460d1ae6afc3371f9fa21b90eff3f16f2887a48",
+            "policy-engine/src/polisyos/runtime/quality/promotion_sequence.py@ffd6ccda2ee00189d38d0d601b1cb9cc5c6f30da; blob b7e2f72a9cd8352da62a2c04208a58776592b8a4"
+          ],
+          "protected_effect_and_fresh_consumer": "Only a successfully bound, current gate result can seal PreN9AdmittedCandidateBatch and reach CanonicalN9PromotionPort. The current tested production path refused before N9; no public external action is authorized by the conditional K_sim value.",
+          "commit_time_revalidation": "The source gate recomputes query qualification at the pre-N9 call site. A valid production signer/receipt and a successful fresh N9 consumer were not exercised, so this seam is not a positive end-to-end capability yet."
+        },
+        "committed_leaf": {
+          "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate.json@8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+          "receipt_blob": "84150edc235043312eb2ddb3064e3d9860a4fa2f",
+          "author_test_candidate": "6993641ac6f879b676a48378b52c8743bd138a95",
+          "author_test_tree": "a8e37dff9320c28288a5d9ba3a217216696065dd",
+          "test_source": "policy-engine/tests/integration/core_runtime/test_e02_n9_refusal.py@6993641ac6f879b676a48378b52c8743bd138a95",
+          "test_blob": "248b1c2c115fbf0cb3a15c7d883acc40067e7684",
+          "deciding_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/current-wave-6993/stdout.txt@8bfea70b2e2090ad5c541b103b7521efc01b30eb; blob dd4078e56275d4b19c6211a22098f195c9820376; sha256 d0313c2a55413d2843ccb2301be8987284a9bee0542b3dd7ca2b54831698a386",
+          "deciding_junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/current-wave-6993/junit.xml@8bfea70b2e2090ad5c541b103b7521efc01b30eb; blob d1e0c302bd080cb5e89b45eec129ef1b84afee9e; sha256 0a7683735b6c0e4d3faa0f31ef404c1efc41ab62fd4de4fb8dd60698b91915d6; 16 passed in 91.55s",
+          "result_scope": "Actual N5 persisted/reopened K_sim reaches conditional N8 value_conditional/simulate_only/low; production pre-N9 gate refused policy_admission_missing and made zero production N9 calls; test-only public N9 refused missing N8 ValueGateReceipt. No production signed/currentness positive.",
+          "removal_oracle": "Denied reads of exact N5 K_sim bytes; attempted N5 reads remained zero and N9 status/value obligation/refusal reasons matched baseline. This is an early missing-N8-receipt refusal oracle, not a currentness/signature-removal oracle and not proof that K_sim cannot authorize a later effect.",
+          "scope_caveat": "The tested source is 6993641. A current queue points at runtime source ffd6ccda2ee00189d38d0d601b1cb9cc5c6f30da/tree 4ecbe1cb189f5ef465fc66a883144c1ee4497037, whose generation_cycle.py blob is a9bee33288e66aecada88a58b44fd504a33b78c7; the tested source predates that production-file change. Current A progress says other code acceptance pending. Do not treat this result as replay on the current A candidate."
+        },
+        "existing_command_selectors": [
+          {
+            "argv": [
+              "uv",
+              "run",
+              "pytest",
+              "-q",
+              "tests/unit/runtime/quality/test_generation_cycle.py",
+              "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+              "tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+              "tests/unit/runtime/http/test_control_service_di.py"
+            ],
+            "source": "execution-sequence.md A1 selector for CYC-02",
+            "status": "UNRUN by L02 for T2; selector only, authentic owner input absent",
+            "cwd": "policy-engine"
+          },
+          {
+            "argv": [
+              ".venv/bin/python",
+              "-m",
+              "pytest",
+              "-c",
+              "pytest.ini",
+              "tests/unit/remediation/test_cyc_02.py",
+              "tests/unit/runtime/quality/test_generation_cycle.py",
+              "tests/unit/runtime/quality/test_joint_simulation_horizon.py"
+            ],
+            "source": "bundle-catalog.md CYC-02 defining selector",
+            "status": "UNRUN by L02 for T2; selector only",
+            "cwd": "policy-engine"
+          }
+        ],
+        "required_T2_discriminators": {
+          "positive": "Owner supplies a valid signed/currentness receipt for the exact occurrence/subject/epoch; production pre-N9 gate re-resolves/recomputes it, the actual N9 fresh consumer receives the admitted batch, and the resulting effect remains limited to its declared authority purpose.",
+          "fake_foreign_stale_revoked_or_removed": "For each owner-defined invalid case, use same candidate and K_sim, falsify signature/content/issuer/subject/epoch or currentness/revocation while leaving declarations/marker fields intact; assert a typed refusal and zero N9/public effects. Revalidate immediately before the effect to catch a revocation/currentness change after intake.",
+          "minimum_missing_input": "Actual N9/OWR owner packet: source/ref/content identity, issuer, verifier, exact occurrence/subject/epoch binding, purpose, validity/currentness and revocation semantics, plus an admissible positive receipt. Status remains verification_missing/not_established without it."
+        }
+      },
+      {
+        "id": "B08",
+        "finding_row": {
+          "original_unit": "A",
+          "original_primary_bundle": "CYC-02",
+          "author_proposal": "limited",
+          "original_criteria_pointer": "/findings/7/criterion_refs",
+          "author_source": "A",
+          "author_row_pointers": [
+            "/current_index/7",
+            "#/current_root_adjudication_20261008/rows/7"
+          ],
+          "flows": [
+            "V",
+            "T"
+          ],
+          "next_tasks": [
+            "V1",
+            "T2"
+          ],
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "criterion": {
+          "coverage_pointer": "#/findings/7/criterion_refs/0",
+          "source_lines": [
+            289,
+            300
+          ],
+          "span_sha256": "ca0c9f2ceb0a7fd1323082c9a317a509a1ee78f25ec73185c59b3de1d019ffb9",
+          "acceptance": "Conditional evaluation must consume a real N5 result and stay explicitly conditional; an empirical causal route requires owner-derived treatment assignment and the actual identification/applicability basis. Synthetic indicators, arbitrary signatures, or hand-set value_ready do not qualify."
+        },
+        "author_status": {
+          "A_current_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-current-index.json@8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+          "A_current_index_blob": "2a14fa091eb1b1d1f8ab0b9aa0d4757baddddcb0",
+          "index_status": "original partial; source_closure not_adjudicated; root_outcome limited",
+          "A_progress_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json@8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+          "A_progress_blob": "5beae048efe4b4ffda43583d1f9b93c3298e0d86",
+          "progress_state": "verification_missing; full criterion at source 542d UNRUN",
+          "root_basis": "Default N5 to N8 conditional path is positive and simulate_only; direct sparse-owner refusal passes. The older test requiring empirical refusal from the simulate_only branch used the wrong oracle. Authentic empirical no-assignment negative remains required.",
+          "root_next_action": "A/F value owner checks the actual empirical branch without owner-derived treatment assignment; predictive S10 is not causal authority."
+        },
+        "owner_fact_api_to_protected_effect": {
+          "admissible_input_required": "An existing owner-derived treatment-assignment producer/artifact bound to the actual candidate/intervention exposure, design/estimand, outcome, time, method and applicability; actual source provenance is supplied by its owner, not inferred from selected outcome rows or candidate metadata.",
+          "existing_intake_and_refusal_seam": "FoundryValuePort validates the evaluation context and actual N5 provenance, permits a typed conditional simulate_only result, but the empirical branch terminates with treatment_assignment_not_owner_derived when no canonical treatment-assignment producer is registered.",
+          "source_ref": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@ffd6ccda2ee00189d38d0d601b1cb9cc5c6f30da; blob a9bee33288e66aecada88a58b44fd504a33b78c7; FoundryValuePort around class line 4598, empirical refusal around line 4974, conditional result around lines 5164-5177 at the tested 7ff source (current file later changed).",
+          "protected_effect_and_fresh_consumer": "Conditional N8 values remain simulate_only/low with simulation blockers and cannot become empirical S10 calibration or causal authority. The required fresh consumer is the real empirical value/S10/default HTTP consumer after the actual served N5/CAS readback, not a branch-only fixture.",
+          "commit_time_revalidation": "Re-resolve/bind the owner treatment evidence and its time/estimand applicability immediately before the empirical grade/effect. No such owner-derived producer/commit fence or authentic fresh consumer is established in the pinned receipt."
+        },
+        "committed_leaf": {
+          "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate.json@8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+          "receipt_blob": "84150edc235043312eb2ddb3064e3d9860a4fa2f",
+          "author_test_candidate": "6993641ac6f879b676a48378b52c8743bd138a95",
+          "test_blob": "248b1c2c115fbf0cb3a15c7d883acc40067e7684",
+          "deciding_stdout_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/current-wave-6993/stdout.txt@8bfea70b2e2090ad5c541b103b7521efc01b30eb; blob dd4078e56275d4b19c6211a22098f195c9820376",
+          "result_scope": "The single integration case supplies a bounded N5 to conditional N8 positive and N9 early refusal; it does not test an authentic empirical no-assignment branch or ordinary served fresh GET. Separate A root row states empirical missing/zero/comparator/replication semantics and served downstream consumer remain UNRUN.",
+          "removal_oracle": "The K_sim-byte removal repeats the same early N8 ValueGateReceipt refusal and does not distinguish empiric treatment assignment. The accepted next oracle is a same-candidate real empirical consumer with no owner assignment; no assignment must leave no empirical grade/effect. The prior simulate_only-as-empirical-negative test is explicitly rejected as an invalid oracle."
+        },
+        "existing_command_selectors": [
+          {
+            "argv": [
+              "uv",
+              "run",
+              "pytest",
+              "-q",
+              "tests/unit/runtime/quality/test_generation_cycle.py",
+              "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+              "tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+              "tests/unit/runtime/http/test_control_service_di.py"
+            ],
+            "source": "execution-sequence.md A1 CYC-02 selector",
+            "status": "UNRUN by L02 for T2",
+            "cwd": "policy-engine"
+          },
+          {
+            "argv": [
+              ".venv/bin/python",
+              "-m",
+              "pytest",
+              "-c",
+              "pytest.ini",
+              "tests/unit/remediation/test_cyc_02.py",
+              "tests/unit/runtime/quality/test_generation_cycle.py",
+              "tests/unit/runtime/quality/test_joint_simulation_horizon.py"
+            ],
+            "source": "bundle-catalog.md CYC-02 selector",
+            "status": "UNRUN by L02 for T2",
+            "cwd": "policy-engine"
+          }
+        ],
+        "required_T2_discriminators": {
+          "conditional_positive": "Real admitted N5 artifact through the actual N8 default consumer produces value_conditional/simulate_only/low and retains K_sim blockers; for V1 authentic scope, perform the selected ordinary POST to owned context to N5 to persisted CAS/history to fresh GET using the exact L01 input.",
+          "empirical_negative_and_positive": "On the actual empirical branch, missing, synthetic, foreign, stale, revoked, or content/subject-mismatched treatment evidence must produce typed refusal and zero causal S10/publish effects, rechecked at commit. A valid owner-derived packet may support only its declared method/estimand/time purpose and must be read back by the fresh consumer.",
+          "minimum_missing_input": "L01 factual packet for the selected configured value owner: exact source/ref, issuer/verifier or source custodian, assignment/evidence producer and consumer, design/estimand/outcome/time binding, and any currentness semantics. Status remains verification_missing/not_established absent this packet."
+        }
+      },
+      {
+        "id": "B154",
+        "finding_row": {
+          "original_unit": "B",
+          "original_primary_bundle": "CAS-03",
+          "author_proposal": "limited",
+          "original_criteria_pointer": "/findings/69/criterion_refs",
+          "author_source": "B",
+          "author_row_pointers": [
+            "/rows/57",
+            "/decisions_by_id/B154"
+          ],
+          "flows": [
+            "R",
+            "T",
+            "V"
+          ],
+          "next_tasks": [
+            "T2",
+            "V1"
+          ],
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "criterion": {
+          "coverage_pointer": "#/findings/69/criterion_refs/0",
+          "source_lines": [
+            3989,
+            4000
+          ],
+          "span_sha256": "5e25ba12544423bc8a7de3338e8d104bb6c6ef4619bcdf95639c05652cd8c1c5",
+          "acceptance": "A local item failure is a typed item result when policy permits continuing; a global authorization, cancellation, shared-basis, or executor failure may abort while retaining completed items. Partial or incomplete reports cannot authorize an existing all-confirmations publication. Test callback failures were not actual tenant authorization."
+        },
+        "author_status": {
+          "B_current_delta_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-exact53-repair-all60-delta.json@a0ee451fb287d9666c620defd01fdc87ff864c60",
+          "B_current_delta_blob": "04a43399a0dd189f83426ee125600c75f63be404",
+          "source_candidate": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+          "source_tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+          "new_execution": "UNRUN",
+          "row_status": "limited; formal_closure false; no new runtime grade; exact prior scope retained",
+          "next_owner": "A/G actual all-confirmations governed publisher",
+          "remaining": "Typed full-batch partial/aborted report exists; real served publisher refusal/recovery on exact local read-only input is unproved."
+        },
+        "owner_fact_api_to_protected_effect": {
+          "admissible_input_required": "The existing appointed publisher's exact required confirmation set, selected view/profile/kind/media identity, tenant/purpose, verifier/trust settings and currentness/revocation law. Only an already-established owner rule may require all signatures; B's API does not create that authority.",
+          "existing_producer_and_predicate": "FileSystemCAS.verify_all_signatures(verifier, artifact_ids=required_refs, pending_window, cancel_event, deadline) returns a fresh BulkVerificationReport; report.require_complete_valid(required_refs) checks complete state, exact per-item refs/statuses, and the actual required refs.",
+          "protected_effect_and_fresh_consumer": "The missing component is A/G's actual all-confirmations governed publisher. The --all crypto CLI is a verification command, not publication; CAS import's TransferVerificationBatch gate protects byte/manifest integrity, not signature trust. No current publication callsite consumes BulkVerificationReport.require_complete_valid.",
+          "commit_time_revalidation": "The B contract requires a fresh canonical in-process report immediately before publication under the existing owner's fences, but no appointed publisher/fence is present. Revalidate current signer/trust/tenant/view state at the actual owner effect boundary; revoked/stale semantics must come from that owner."
+        },
+        "committed_leaf_and_contract": {
+          "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-completion.json@a0ee451fb287d9666c620defd01fdc87ff864c60",
+          "receipt_blob": "27155e8cc43c0c00ca9bb79b6c4095276d30f81f",
+          "contract_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-signature-publisher-contract.json@a0ee451fb287d9666c620defd01fdc87ff864c60",
+          "contract_blob": "2bc684de21d4b6680c5481c2e69a6f87b9fd1c53",
+          "tested_source": "441f79f173df5e0d2a08c161120e634bb0e4f5aa/tree 135c30d39535b9e103648ea8facf7595db6267b1",
+          "test_files": [
+            "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py@441f79f173df5e0d2a08c161120e634bb0e4f5aa; blob c493db7680df69132ef36f14e951f001f0f993e9",
+            "policy-engine/tests/unit/core/artifacts/test_signed_evidence.py@441f79f173df5e0d2a08c161120e634bb0e4f5aa; sha256 08a2fc52ab0eebe5b3d1b465663ba566d6f59ceff81e545f867adce1157b0b3e"
+          ],
+          "deciding_outputs": [
+            "batch-delta-frozen.txt@a0ee451fb287d9666c620defd01fdc87ff864c60; blob 8b86df381c7dc5689a25d214cfea270c84fce5e5; sha256 ae935041295a44b2299bb51062da16519833b62e3c546f7afa2f3eb49ad06083; 20 passed at 441f",
+            "batch-delta-frozen.xml@a0ee451fb287d9666c620defd01fdc87ff864c60; blob 09df268d896e1d1cf959cf36f369d002f6355299; sha256 c9a994ddf47955924df97d5cdcfbadab2835421ddbaa2e3f293248e22335c974",
+            "batch-signed-consumer.txt@a0ee451fb287d9666c620defd01fdc87ff864c60; blob 796720c659760b67f8840642091ae0a60252e65c; sha256 3230560ca605e62ec8d6ead7a7bd614c50705fdc6ae66aa82ba19e68eb84f45a; 6 passed at 441f",
+            "batch-signed-consumer.xml@a0ee451fb287d9666c620defd01fdc87ff864c60; blob bed94eb3f1a957a58315dd3adade31a218e4a221; sha256 a154c1786144a3cf761f65749049e19bc98eab26eea477b41da51525a720b231"
+          ],
+          "independent_oracle": "Three exact required refs: valid/invalid/valid preserves three exact statuses and refuses completeness; a missing item with a correct-looking count refuses; cancel after one verified item retains that item but marks the report aborted; default and selected views of identical bytes remain two distinct confirmations.",
+          "removal_oracle": "Removing completeness/stop/window assertions made the defining tests fail (the retained removal runs target 98cd038b56d08ab33567bce6e7211d77986df326, not final 441f). The final 441f reran 20 affected batch tests and 6 signed-evidence tests, but not a final-source removal wave or the whole 209 suite.",
+          "limits": "Synthetic CAS objects and test verifier demonstrate local structural batch behavior only. Historical 209-case suite at 98cd had 208 pass/1 unbound-to-scoped compatibility failure; not a 209 pass at 441f. B handoff explicitly leaves publisher authority/population/trust to A/G."
+        },
+        "source_delta": {
+          "CAS03_slice_base": "6b0e799678e3538bb8940b8a4fd6374c6249a3f3",
+          "CAS03_candidate": "441f79f173df5e0d2a08c161120e634bb0e4f5aa",
+          "changed_paths": [
+            "policy-engine/release-fragments/unreleased/2026-10-06-e02-cas-batch-completion.toml",
+            "policy-engine/src/polisyos/core/artifacts/README.md",
+            "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+            "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+            "policy-engine/src/polisyos/core/artifacts/signing.py",
+            "policy-engine/src/polisyos/core/artifacts/store.py",
+            "policy-engine/src/polisyos/core/components/_cli_crypto.py",
+            "policy-engine/tests/unit/core/artifacts/batch_duplicate_worker.py",
+            "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py",
+            "policy-engine/tests/unit/remediation/test_cas_03.py"
+          ],
+          "current_prepared_range": {
+            "base": "2d3a990ff716b46ccf473e229b9de7e009a1d1fb",
+            "target": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+            "changed_path_count": 52,
+            "full_path_set_recomputes_from": "git diff --name-status 2d3a990ff716b46ccf473e229b9de7e009a1d1fb 1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+            "source_selection_ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/07-source-selection.md@f00dd7661a8d3329fb1fa1b049decb0d1d2f277b#B prepared range"
+          },
+          "relevant_changes_after_tested_441f": [
+            "policy-engine/src/polisyos/core/artifacts/README.md@1e18a965b4334331dc3d5542b609f8a00bb35c6d blob e10156b8b8428918bcb0388bf6701a8ed3ffe04a",
+            "policy-engine/src/polisyos/core/artifacts/__init__.py@1e18a965b4334331dc3d5542b609f8a00bb35c6d blob 00831a2cbab0fc8c74f0e01595d41fa2d73eff33",
+            "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py@1e18a965b4334331dc3d5542b609f8a00bb35c6d blob 557fbb829dec5e9f349e5de7a7d5013ca1c2a2ef",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py@1e18a965b4334331dc3d5542b609f8a00bb35c6d blob 70f7a735755f56dbf2cfd7ad5e4859cd17bf91a9",
+            "policy-engine/src/polisyos/core/artifacts/async_store.py@1e18a965b4334331dc3d5542b609f8a00bb35c6d blob 1111ad75ed6632d87280e5699845811ec355bfbb",
+            "policy-engine/src/polisyos/core/artifacts/store.py@1e18a965b4334331dc3d5542b609f8a00bb35c6d blob 02e3253de23db5d64c21b69ce4cc85daa4f0778c",
+            "policy-engine/src/polisyos/core/artifacts/signing.py remains blob 8aa4cdd46dc9de873df15b977ed6576eb11bb30f",
+            "policy-engine/src/polisyos/core/artifacts/_signature_ops.py remains blob 5c483b787d7afbef8b489383e5a01fc9734af6e7",
+            "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py remains blob c493db7680df69132ef36f14e951f001f0f993e9"
+          ],
+          "interpretation": "The current prepared source 1e18 is not in G ancestry and new_execution is UNRUN; the 441f receipt is a bounded earlier source result, not current candidate verification. The later FileSystemCAS.store.py and integrity changes require exact affected consumer review before reuse."
+        },
+        "existing_command_selectors": [
+          {
+            "argv": [
+              ".venv/bin/python",
+              "-m",
+              "pytest",
+              "-c",
+              "pytest.ini",
+              "tests/unit/core/artifacts/test_batch_completion_admission.py"
+            ],
+            "historical_source": "441f79f173df5e0d2a08c161120e634bb0e4f5aa",
+            "historical_result": "20 passed",
+            "status_for_T2_current_source": "UNRUN",
+            "cwd": "policy-engine"
+          },
+          {
+            "argv": [
+              ".venv/bin/python",
+              "-m",
+              "pytest",
+              "-c",
+              "pytest.ini",
+              "tests/unit/core/artifacts/test_signed_evidence.py"
+            ],
+            "historical_source": "441f79f173df5e0d2a08c161120e634bb0e4f5aa",
+            "historical_result": "6 passed",
+            "status_for_T2_current_source": "UNRUN",
+            "cwd": "policy-engine"
+          },
+          {
+            "argv": [
+              ".venv/bin/python",
+              "-m",
+              "pytest",
+              "-c",
+              "pytest.ini",
+              "tests/unit/remediation/test_cas_03.py"
+            ],
+            "source": "execution-sequence.md B3 broader CAS selector",
+            "status_for_T2_current_source": "UNRUN; no authenticated publisher selector exists in the admitted owner source",
+            "cwd": "policy-engine"
+          }
+        ],
+        "required_T2_discriminators": {
+          "positive": "Only after A/G names the existing governed all-confirmations publication path, derive the exact required refs from that owner request, verify fresh exact-view signatures, consume report.require_complete_valid in-process, and observe the real publication effect through a fresh consumer.",
+          "fake_foreign_stale_revoked_or_removed": "For owner-defined invalid states, alter/corrupt one object, bind a different tenant/view/profile, omit an item, use stale/revoked signer state, cancel or fail mid-batch; retain per-item status but assert the actual publisher has zero effects. Recheck the current owner trust/tenant/view/revocation predicate immediately before durable publish. Missing semantics must stay not_established and fail closed; do not invent signature or tenant policy.",
+          "minimum_missing_input": "A/G actual publisher API and owner-named trust/purpose/tenant policy, exact required confirmation population, verifier/currentness/revocation source and commit-time fence; then run the fresh publication consumer on an exact local read-only packet. Capability currently consumer_missing."
+        }
+      }
+    ],
+    "source_acceptance": {
+      "A": {
+        "source_pin": "8bfea70b2e2090ad5c541b103b7521efc01b30eb/tree fef42aadf2bf58ed5cc97ec827be99245a154253; in_G_ancestry false",
+        "progress_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json@8bfea70b2e2090ad5c541b103b7521efc01b30eb; blob 5beae048efe4b4ffda43583d1f9b93c3298e0d86",
+        "acceptance": "Only the bounded installed-compiler evidence slice is accepted at 9c989f7877bd25fea38416cbd10d4c8b2511d10e; no B05/B08 finding closure. Other A code acceptance remains pending.",
+        "receipts": [
+          "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/A-delta-owner-actions-2026-10-06.md@6f3983466f1eca14b510c4f5006fab5092d418d3; blob 30d3c87cc779be9801ea2262cbdeef007c5e7675",
+          "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/2100-A-delivery-identity-surface.md@6f3983466f1eca14b510c4f5006fab5092d418d3; blob 54ba6429478e8e5b70cf195567a8889f9962fbe8"
+        ]
+      },
+      "B": {
+        "prepared_source_pin": "1e18a965b4334331dc3d5542b609f8a00bb35c6d/tree e711617c480101e5a7e8f9dd1fb23ab74e2c78ea; in_G_ancestry false",
+        "prepared_receipt_pin": "a0ee451fb287d9666c620defd01fdc87ff864c60/tree 677257974c442ba878a6bf4dba6686ae854b2e67; in_G_ancestry false",
+        "acceptance": "inputs.json is planning-only; its G receipt list has no B acceptance. B current row says new_execution UNRUN and formal_closure false; technical producer tests do not admit a publisher or close B154."
+      },
+      "formal_state": "B05, B08, and B154 are not_adjudicated by G in the frozen findings rows; appendix C closed_bounded is a separate historical field and is not current formal closure."
+    },
+    "pattern_pass": {
+      "relevant_ids": [
+        "P01",
+        "P02",
+        "P05",
+        "P10",
+        "P29",
+        "P31",
+        "P32",
+        "P33",
+        "P37",
+        "P38",
+        "P40",
+        "P41"
+      ],
+      "observed_gaps": [
+        "B05's present removal oracle measures K_sim byte access while the early refusal is determined by missing N8 ValueGateReceipt; it is not an oracle for signed/currentness or later external action (P38).",
+        "B08's old simulate_only-as-empirical-negative test had the wrong oracle; current evidence does not include the authentic empirical consumer (P33).",
+        "B154's typed batch report has no all-confirmations publication consumer, and its removal run is not on the current prepared source (P01/P02/P29/P41)."
+      ],
+      "target_pattern": "Use an existing owner source and strict typed input; bind source/ref/subject/purpose/time at intake; recompute currentness at the protected effect boundary; consume the resulting evidence in the actual N9, empirical-value, or governed publisher path; prove the effect/no-effect with a fresh consumer and adversarial or removal probe. Keep unresolved authority predicates not_established.",
+      "capability_labels": {
+        "B05": "verification_missing",
+        "B08": "verification_missing",
+        "B154": "consumer_missing"
+      }
+    },
+    "execution_by_this_receipt": {
+      "tests_run": false,
+      "production_data_read": false,
+      "source_or_test_changes": false,
+      "authenticated_T2_positive": "UNRUN; exact L01 factual packet not established",
+      "fresh_authority_consumer": "UNRUN; actual B154 publisher and B05 signed-currentness positive are absent from admitted evidence",
+      "next_step": "Consume T1's exact owner packet, fix immutable G-admitted candidate/source tree and shared runner slot, then select only existing owner consumers. If any owner capability is absent, preserve the named not_established/consumer_missing boundary instead of fabricating a positive."
+    }
+  }
+}

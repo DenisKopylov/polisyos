@@ -1,0 +1,2131 @@
+{
+  "schema": "policyos.e02.l02.qualified_preparation.v1",
+  "role": "L02",
+  "helper": "l02_mac_a",
+  "source_candidate_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "source_candidate_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "preparer_raw_local_ref": {
+    "path": "policy-engine/.tmp/parallel-20261008-l02/prepared/l02_mac_a.json",
+    "bytes": 133663,
+    "sha256": "1301a70ea71011382d898f5fe4ddf406f68a51d2611dd6eceb50dc4ad41147d3"
+  },
+  "delivery_compaction": {
+    "removed_derivable_text_fields": [
+      {
+        "json_pointer": "/criteria/0/original_criterion/text_exact_lines",
+        "bytes": 2315,
+        "sha256": "2f664b147db7753604b3fa729f42e5d1560d9ed43de9643169255d6b8270df26",
+        "reason": "Tracked original wording or Git diff is reconstructible from the retained immutable source/span/range; ignored preparer report is unchanged."
+      },
+      {
+        "json_pointer": "/criteria/1/original_criterion/text_exact_lines",
+        "bytes": 2445,
+        "sha256": "37f6f0543710b466822aa39ffeb7d3ce5b9a4b57bed99dc429087a3a61ff268c",
+        "reason": "Tracked original wording or Git diff is reconstructible from the retained immutable source/span/range; ignored preparer report is unchanged."
+      },
+      {
+        "json_pointer": "/criteria/2/original_criterion/text_exact_lines",
+        "bytes": 2079,
+        "sha256": "b8e65549bab11a9d52bdc33a78faf071a96c241730ecb10dfdfe237cf494d8f4",
+        "reason": "Tracked original wording or Git diff is reconstructible from the retained immutable source/span/range; ignored preparer report is unchanged."
+      },
+      {
+        "json_pointer": "/criteria/3/original_criterion/text_exact_lines",
+        "bytes": 2525,
+        "sha256": "251d77ebefef25cd01ccd9bf1bcf331725906815dddf47212336198586f99104",
+        "reason": "Tracked original wording or Git diff is reconstructible from the retained immutable source/span/range; ignored preparer report is unchanged."
+      },
+      {
+        "json_pointer": "/criteria/4/original_criterion/text_exact_lines",
+        "bytes": 4018,
+        "sha256": "b72c038145a8eea6dbec5058fd877f57f9a7f4a2e16d63de9ae67be750158be4",
+        "reason": "Tracked original wording or Git diff is reconstructible from the retained immutable source/span/range; ignored preparer report is unchanged."
+      },
+      {
+        "json_pointer": "/criteria/5/original_criterion/text_exact_lines",
+        "bytes": 3641,
+        "sha256": "d68708b6e5c579f97b0e9f3f121f67a477712796fce8dc87371fc93ee91400b4",
+        "reason": "Tracked original wording or Git diff is reconstructible from the retained immutable source/span/range; ignored preparer report is unchanged."
+      },
+      {
+        "json_pointer": "/criteria/6/original_criterion/text_exact_lines",
+        "bytes": 3651,
+        "sha256": "0493e6060257ca8b6680154283ca98ea0abba69172a196664e83a4cc3baad90b",
+        "reason": "Tracked original wording or Git diff is reconstructible from the retained immutable source/span/range; ignored preparer report is unchanged."
+      },
+      {
+        "json_pointer": "/criteria/7/original_criterion/text_exact_lines",
+        "bytes": 6106,
+        "sha256": "60a48ac490a9fe0add1bbecc3bbfb74a011f8038a5dc3f6196f929f9de19739f",
+        "reason": "Tracked original wording or Git diff is reconstructible from the retained immutable source/span/range; ignored preparer report is unchanged."
+      },
+      {
+        "json_pointer": "/criteria/8/original_criterion/text_exact_lines",
+        "bytes": 6463,
+        "sha256": "56970bcb95cda770929f9d2189bd528c98722300f9e5b80b76c80dcdb115da28",
+        "reason": "Tracked original wording or Git diff is reconstructible from the retained immutable source/span/range; ignored preparer report is unchanged."
+      }
+    ],
+    "raw_report_preserved": true,
+    "no_semantic_qualification_promoted": true
+  },
+  "preparation": {
+    "schema": "policyos.e02.l02_prepared_receipt.v1",
+    "artifact_state": "PREPARED_NOT_EXECUTED",
+    "created_for": "/root L02 Mac-only Q2 preparation",
+    "canonical_admitted_worktree": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "repository_state": {
+      "head": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+      "sourceG": {
+        "sha": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617"
+      },
+      "connected_plan_integration_base": {
+        "sha": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "tree": "32a32cc77039554a3777a11fd7fc8f96f3a88625"
+      },
+      "published_original_cards_base": {
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5"
+      },
+      "worktree_branch": "codex/e02-L02-authentic-20261008"
+    },
+    "execution_boundary": {
+      "mode": "read_only_verification",
+      "L02_dispatch": {
+        "title": "Локальные exact-candidate authentic consumers и Mac profiles",
+        "environment": "local",
+        "mode": "read_only_verification",
+        "original_units": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F"
+        ],
+        "input_pin_keys": [
+          "G"
+        ],
+        "task_parts": [
+          "V1:authentic",
+          "V6:authentic",
+          "V3:authentic",
+          "V4:authentic",
+          "V7:authentic",
+          "I3:authentic",
+          "I4:authentic",
+          "S2:authentic",
+          "T2:authentic",
+          "Q2:Mac-only",
+          "S1:scoped residual input/research"
+        ],
+        "source_scopes": [],
+        "excluded_paths": [],
+        "test_start_paths": [],
+        "prompt": "L02.md",
+        "test_write_rule": "No production/test source writes; own non-secret receipt docs only on an admitted topic.",
+        "receipt_namespace": "parallel-20261008-l02",
+        "property_and_execution_source": "L02.md + original criterion refs in linked findings.json/tasks.json"
+      },
+      "no_source_test_config_runtime_writes": true,
+      "no_install_tests_production_reads": true,
+      "no_baseline_results_imported": true,
+      "baseline_importer_invoked": false,
+      "production_data_paths": "not read; L01 owns resolution",
+      "actual_execution_status": "UNRUN; this artifact is a prepared input only"
+    },
+    "Q2_task": {
+      "plan_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+      "plan_git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "plan_git_blob": "a27cf7e78dc7c16df279a5136399ee0a5daeee9a",
+      "planning_only": true,
+      "task": {
+        "flow": "Q",
+        "title": "Canonical generated and declared installed consumers",
+        "depends": [
+          "Q1"
+        ],
+        "exit": "frozen contracts->canonicalfamily->typedclient/defaultinstalled reader; declared supported profiles only",
+        "conditional_inputs": [
+          "selected source contracts fixed and relevant upstream task exits; source/test/config/companion input manifest before acceptance"
+        ]
+      },
+      "acceptance_qualifier_from_delivery_plan": "Canonical schemas/OpenAPI/inventory/client family must be fresh; frontend must actually consume affected statuses; declared wheel/sdist/default assets/origins must be checked; installed package consumer cannot be replaced with editable-source check.",
+      "source_acceptance_boundary": "Current connected plan is planning-only and makes no new source acceptance or finding-level closure. Q2 waits for Q1 exact source DAG/base/candidate/tree/parents plus per-path source/test/config/lock/companion manifest; do not accept from a branch-wide diff or earlier A receipt alone."
+    },
+    "frozen_inputs": {
+      "connected_plan_inputs": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json",
+        "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "749255cd37f93955b176c748d63b2a3a7b7ee214",
+        "scope": "planning; no new source acceptance or finding closure",
+        "published_main_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "integration_base": "6f3983466f1eca14b510c4f5006fab5092d418d3"
+      },
+      "coverage": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "git_ref": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "git_blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+        "bytes": 550854,
+        "file_type": "JSON"
+      },
+      "findings_json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+        "git_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "git_blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e",
+        "selected_row_indices": {
+          "B04": 3,
+          "B11": 10,
+          "B29": 24,
+          "B30": 25,
+          "B34": 29,
+          "B35": 30,
+          "B36": 31,
+          "LA-033": 28,
+          "LA-045": 32
+        }
+      },
+      "A_current_index": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-current-index.json",
+        "git_ref": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "git_blob": "2a14fa091eb1b1d1f8ab0b9aa0d4757baddddcb0",
+        "bytes": 39043,
+        "file_type": "JSON"
+      },
+      "A_progress": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+        "git_ref": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "git_blob": "5beae048efe4b4ffda43583d1f9b93c3298e0d86",
+        "bytes": 266100,
+        "file_type": "JSON"
+      },
+      "A_current_index_source_snapshot": {
+        "branch": "codex/e02-A-delivery-attached",
+        "workspace_HEAD": "97454091e2b93d47dddb3268466a4a8a29379b6d",
+        "workspace_tree": "6d483adc0126a171e4280ee832c0148ebbb85a1a",
+        "meaning": "Current A delivery/evidence snapshot after the ordinary G merge. The latest source freeze is 8ec98ad; HEAD 9745409 is its documentation/evidence carrier. Individual check cases retain their own immutable candidate pins.",
+        "prior_index_assembly": {
+          "workspace_HEAD": "8947449e7b1a69a5b3b286acd6f42779c10ca6c8",
+          "workspace_tree": "bebc86312f20624fb5eba9d34a25b3666e43a1da",
+          "meaning": "Initial ignored-index assembly before the G merge; preserved as an earlier snapshot."
+        },
+        "ordinary_G_merge": {
+          "commit": "7818f314450349cecfee4bc6f070e4ba41433a7f",
+          "tree": "95eb9affc1fdf67f418967eef71a035c8899b8ee",
+          "parents": [
+            "f7e9dea1b7f5ec61b0c42f64637265e577a71d03",
+            "6f3983466f1eca14b510c4f5006fab5092d418d3"
+          ],
+          "G_parent": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+          "state": "merged"
+        },
+        "progress": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+          "sha256": "caeb74facc6e3f99ff3f35265c3e83b5e073863f164b0957644ba33b00e2fcf9",
+          "git_blob": "5beae048efe4b4ffda43583d1f9b93c3298e0d86",
+          "meaning": "Pointer-only companion append after the immutable974 snapshot; every preexisting field/value is preserved. Criterion/row JSON pointers are unchanged."
+        },
+        "progress_basis_at_source_snapshot": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+          "sha256": "c70f498ea39c1b9d2f6bb7c25da844feb5f28081dd714375bc0a951657c1b83b",
+          "git_blob": "3bbebc438e989b58be07584cf5823611847d66bd"
+        }
+      },
+      "A_source_freeze": {
+        "source_commit": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+        "source_tree": "c644eb74aca98215b247df1638854490d66715b7",
+        "source_parent": "dba8ec622e273c6ffbaf94732fd13eaf484245ba",
+        "source_delta_from_merged_G_candidate": {
+          "base": "7818f314450349cecfee4bc6f070e4ba41433a7f",
+          "paths": [
+            "policy-engine/src/polisyos/core/contracts/runtime.py",
+            "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+            "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py"
+          ],
+          "path_count": 3,
+          "composition": "two runtime source paths and one integration test path"
+        },
+        "delivery_evidence_commit": "97454091e2b93d47dddb3268466a4a8a29379b6d",
+        "delivery_tree": "6d483adc0126a171e4280ee832c0148ebbb85a1a",
+        "delivery_delta_after_source_freeze": {
+          "path_count": 55,
+          "source_or_test_paths": 0,
+          "scope": "55 handoff/evidence/documentation files; no source or test changes after the 8ec98ad freeze."
+        },
+        "field_scope": {
+          "field": "leaf_terminal_kinds",
+          "meaning": "Owner-derived terminal kind for each recursive leaf, projected through the current API branch. This is a typed status projection only; no N9/publication authority is established.",
+          "source_paths": [
+            "policy-engine/src/polisyos/core/contracts/runtime.py",
+            "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py"
+          ],
+          "generated_G_surface": "UNRUN; no generated G surface is included in this source freeze."
+        }
+      },
+      "A_current_generated_state": {
+        "state": "UNRUN",
+        "note": "No generated G artifacts or integration acceptance are asserted by the current index."
+      },
+      "A_current_structural_guard": {
+        "target_commit": "97454091e2b93d47dddb3268466a4a8a29379b6d",
+        "target_tree": "6d483adc0126a171e4280ee832c0148ebbb85a1a",
+        "state": "FAIL",
+        "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/final-composed-architecture-structural-9745/receipt.json",
+        "stdout": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/final-composed-architecture-structural-9745/stdout.txt",
+          "bytes": 743852,
+          "sha256": "2f31565ea1c00e9625185d8fee66dcc9af0a1bb2f9003158495fead93ccf6422",
+          "custody": "Retained local oversized raw; local G may read it. A remote consumer lacking bytes must rerun the exact command; no automatic acceptance."
+        },
+        "scope": "--skip-generated-checks; no generated freshness verdict. Public inventory and deep-import baseline drift.",
+        "inherited_red": "not_established"
+      },
+      "A_latest_REQ_census": {
+        "target_commit": "97454091e2b93d47dddb3268466a4a8a29379b6d",
+        "target_tree": "6d483adc0126a171e4280ee832c0148ebbb85a1a",
+        "state": "PASS",
+        "check_scope": "Complete tracked Python walk executed successfully; absence verdict UNRESOLVED, not a finding closure.",
+        "verdict": "UNRESOLVED",
+        "selected_parsed_paths": 7335,
+        "file_type_denominator": {
+          ".py": 7330,
+          ".pyi": 5
+        },
+        "unique_blobs": 7094,
+        "parse_errors": 0,
+        "ambiguous_computed_reflective_sites": 305,
+        "absence_claim_supported": false,
+        "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/final-composed-REQ-census-9745/receipt.json",
+        "complete_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/final-composed-REQ-census-9745/stdout.txt"
+      }
+    },
+    "source_acceptance": {
+      "current_A_source_commit": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+      "current_A_source_tree": "c644eb74aca98215b247df1638854490d66715b7",
+      "A_delivery_evidence_commit": "97454091e2b93d47dddb3268466a4a8a29379b6d",
+      "A_delivery_tree": "6d483adc0126a171e4280ee832c0148ebbb85a1a",
+      "A_source_delta_from_G_merge": {
+        "base": "7818f314450349cecfee4bc6f070e4ba41433a7f",
+        "exact_paths": [
+          {
+            "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+            "git_ref": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+            "git_blob": "8da759179eb523bf5d95ec20e3c6513b5f6d563a",
+            "role": "current A source-freeze member"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+            "git_ref": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+            "git_blob": "e874398449b7abffa4be665e00b4bc36a1a2001f",
+            "role": "current A source-freeze member"
+          },
+          {
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+            "git_ref": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+            "git_blob": "5b3235660b6e56afb1063f3d6842e33861e0ec45",
+            "role": "current A source-freeze member"
+          }
+        ],
+        "path_count": 3
+      },
+      "A_delivery_delta_after_freeze": "55 handoff/evidence/docs paths, source/test paths 0; source snapshot states this is a documentation/evidence carrier only.",
+      "changed_field": {
+        "name": "leaf_terminal_kinds",
+        "meaning": "Owner-derived terminal kind for each recursive leaf in the current API branch; typed status projection only, no N9/publication authority."
+      },
+      "generated_G_surface": "UNRUN; no generated G artifact or integration acceptance is present in the source freeze.",
+      "source_generation_check_status": "Existing A leaf check is a 1-case bounded Python API readback on 8ec98; it does not generate current OpenAPI/client/dashboard artifacts or prove a typed frontend consumer.",
+      "generator_accepted_scope": "check_runtime_api_contract.py measures generated OpenAPI byte drift/hardening and package runtime-client bytes; its own output states it does not measure endpoint execution, authorization, client behavior, production deployment, or hosted CI."
+    },
+    "dependent_input_manifest": {
+      "status": "PRELIMINARY_ONLY; final complete Q2 denominator waits for Q1 selected source DAG and per-path companion admission.",
+      "current_A_source_freeze_paths": [
+        {
+          "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+          "git_ref": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+          "git_blob": "8da759179eb523bf5d95ec20e3c6513b5f6d563a",
+          "role": "current A source-freeze member"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+          "git_ref": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+          "git_blob": "e874398449b7abffa4be665e00b4bc36a1a2001f",
+          "role": "current A source-freeze member"
+        },
+        {
+          "path": "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+          "git_ref": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+          "git_blob": "5b3235660b6e56afb1063f3d6842e33861e0ec45",
+          "role": "current A source-freeze member"
+        }
+      ],
+      "canonical_generated_family": [
+        {
+          "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "f8a9dda954bc3bee4f9d4441311f2dcc9fe392e7",
+          "role": "canonical generated client/API family; not regenerated at 8ec98"
+        },
+        {
+          "path": "policy-engine/packages/runtime-api-client/types.ts",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "fed12f54958a714d738007d69fcefcb724e4abec",
+          "role": "canonical generated client/API family; not regenerated at 8ec98"
+        },
+        {
+          "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "7fba416588d222e0195dc95f54c4a164d25264a5",
+          "role": "canonical generated client/API family; not regenerated at 8ec98"
+        },
+        {
+          "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "3ae262fcb1aa09aef80929be1c270170d787179e",
+          "role": "canonical generated client/API family; not regenerated at 8ec98"
+        },
+        {
+          "path": "policy-engine/apps/runtime-dashboard/src/api/types.ts",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "91e455f1424cd2222fd3e45fd9e14a20a54cffa0",
+          "role": "canonical generated client/API family; not regenerated at 8ec98"
+        }
+      ],
+      "generator_config_lock_and_profile_inputs": [
+        {
+          "path": "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "04416db33c86bd5610fd33893ad6867db7a9f22f",
+          "role": "generator/config/consumer input"
+        },
+        {
+          "path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "37ceb13937e36ab6c237595a74e7be70ca987c8d",
+          "role": "generator/config/consumer input"
+        },
+        {
+          "path": "policy-engine/architecture/atlas_surfaces/generated_client_receipt_census.py",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "c041391a80951b6ce4a61b5bf943f125bde6dd19",
+          "role": "generator/config/consumer input"
+        },
+        {
+          "path": "policy-engine/architecture/public_surface/contract.toml",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+          "role": "generator/config/consumer input"
+        },
+        {
+          "path": "policy-engine/architecture/public_surface/inventory.json",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "7c91d9d6ea92b65c0e0696ecccbed54f6c45214a",
+          "role": "generator/config/consumer input"
+        },
+        {
+          "path": "policy-engine/packages/runtime-api-client/scripts/generate-runtime-api-client.sh",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "b34db71557e853c590694a3e127ee547ef72c686",
+          "role": "generator/config/consumer input"
+        },
+        {
+          "path": "policy-engine/apps/runtime-dashboard/scripts/generate-api-client.sh",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "e2cc520207e9001ea8af60cb5f851ddfd5271b05",
+          "role": "generator/config/consumer input"
+        },
+        {
+          "path": "policy-engine/packages/runtime-api-client/package.json",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "dfa28841133283414ab747f18731dc844cb9652d",
+          "role": "generator/config/consumer input"
+        },
+        {
+          "path": "policy-engine/apps/runtime-dashboard/package.json",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "0eca7ad3345d1492d108b8847d79ea55c7719615",
+          "role": "generator/config/consumer input"
+        },
+        {
+          "path": "policy-engine/package.json",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "05c08c9dad38ef14ff9c32b28f555a7647b6cb85",
+          "role": "generator/config/consumer input"
+        },
+        {
+          "path": "policy-engine/pnpm-lock.yaml",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "095a555d9a1eb173732f409550d5a1436c3be861",
+          "role": "generator/config/consumer input"
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "role": "generator/config/consumer input"
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "role": "generator/config/consumer input"
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+          "role": "generator/config/consumer input"
+        },
+        {
+          "path": "policy-engine/tools/devx/workspace/_common.py",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "5f99fd0e73d91ca28e3be56442679d3f7772acaa",
+          "role": "generator/config/consumer input"
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/contracts/control.py",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "f50c1bf321abfb05ed5c7aaa56a845a8ecf9ab65",
+          "role": "generator/config/consumer input"
+        },
+        {
+          "path": "policy-engine/docs/how-to/install.md",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "bcf35b1d43e0210a1282f8817e224d5115275d8f",
+          "role": "generator/config/consumer input"
+        }
+      ],
+      "existing_typed_and_default_consumers": [
+        {
+          "path": "policy-engine/packages/runtime-api-client/runtimeApiClient.test.mjs",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "ae3b91139b28ca1f5e8d644a6b87f1c032ae3473",
+          "role": "existing consumer or focused test input"
+        },
+        {
+          "path": "policy-engine/packages/runtime-api-client/scripts/canonicalize-runtime-client.test.mjs",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "13ff31afbf23de91bda208176c976b649bbfd710",
+          "role": "existing consumer or focused test input"
+        },
+        {
+          "path": "policy-engine/packages/runtime-api-client/scripts/normalize-recursive-openapi-types.test.mjs",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "bcf3cd644e1a55d9fb4be6060bf074a9b20fc9a8",
+          "role": "existing consumer or focused test input"
+        },
+        {
+          "path": "policy-engine/apps/runtime-dashboard/src/api/validators.ts",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "fe0609304d9a40a596b90f5346114b6735e34b5c",
+          "role": "existing consumer or focused test input"
+        },
+        {
+          "path": "policy-engine/apps/runtime-dashboard/src/api/validators.test.ts",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "511486ff0bfd1d439e70a35d394fcf2757fe700f",
+          "role": "existing consumer or focused test input"
+        },
+        {
+          "path": "policy-engine/apps/runtime-dashboard/src/api/hooks/runQueries.test.tsx",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "15effd830fe1f32e21f74c54a954df4fc4c885df",
+          "role": "existing consumer or focused test input"
+        },
+        {
+          "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "c0ce08f7d85a5fc6f9f8078f2fd97a40df06cfb0",
+          "role": "existing consumer or focused test input"
+        },
+        {
+          "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/RunsListPage.test.tsx",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "a909426fb716d64580aaa3230703249ef8d367bc",
+          "role": "existing consumer or focused test input"
+        },
+        {
+          "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "4efe93d83cb548b4d40c8e9600fc9a4b2ef23af4",
+          "role": "existing consumer or focused test input"
+        },
+        {
+          "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "72e9e11931664cca57b91da7ee889e03e45cbcb0",
+          "role": "existing consumer or focused test input"
+        },
+        {
+          "path": "policy-engine/apps/runtime-dashboard/src/features/runs/components/cycleBoardPresentation.ts",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "334f2c787700459508862e262c0c451058ca6bdb",
+          "role": "existing consumer or focused test input"
+        },
+        {
+          "path": "policy-engine/apps/runtime-dashboard/src/features/runs/components/cycleBoardPresentation.test.ts",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "6a37dfc41ba85206b8adc00924fcdb5a1064ceda",
+          "role": "existing consumer or focused test input"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_req_01_installed.py",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "c05a7da95fffb1e4dc2550d11f7a33dfaab8ea89",
+          "role": "existing consumer or focused test input"
+        }
+      ],
+      "additional_A_leaf_footprints": {
+        "B04": [
+          "policy-engine/src/polisyos/runtime/quality/conditional_simulation_replay.py",
+          "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+          "policy-engine/tests/integration/core_runtime/test_e02_terminal_status_readback.py"
+        ],
+        "B11": [
+          "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+          "policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py",
+          "policy-engine/tests/unit/remediation/test_emp_01.py",
+          "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py"
+        ],
+        "B29": [
+          "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "policy-engine/tests/integration/core_runtime/test_e02_terminal_status_readback.py",
+          "policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py",
+          "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py"
+        ],
+        "B30": [
+          "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "policy-engine/src/polisyos/runtime/quality/production_invocation.py",
+          "policy-engine/tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+          "policy-engine/tests/unit/remediation/test_e02_source_strangle_owner_resolution.py",
+          "policy-engine/tests/unit/remediation/test_frc_01.py",
+          "policy-engine/tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+          "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py"
+        ],
+        "B34": [
+          "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+          "policy-engine/tests/unit/data_requirement/test_e02_named_profile_context.py",
+          "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py",
+          "policy-engine/tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+          "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py"
+        ],
+        "B35": [
+          "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+          "policy-engine/tests/unit/data_requirement/test_e02_named_profile_context.py",
+          "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py",
+          "policy-engine/tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+          "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py"
+        ],
+        "B36": [
+          "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+          "policy-engine/tests/unit/data_requirement/test_e02_named_profile_context.py",
+          "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py",
+          "policy-engine/tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+          "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py"
+        ],
+        "LA-033": [],
+        "LA-045": [
+          "policy-engine/src/polisyos/data_requirement/compiler.py",
+          "policy-engine/tests/unit/data_requirement/test_compiler.py",
+          "policy-engine/tests/unit/data_requirement/test_e02_named_profile_context.py",
+          "policy-engine/tests/unit/fabric/catalog/test_data_requirement_adapter.py",
+          "policy-engine/tests/unit/remediation/test_req_01_installed.py"
+        ]
+      },
+      "known_current_consumer_gap": "At sourceG, run-level run_terminality/search_terminal_kind consumers exist; per-leaf leaf_terminal_kinds does not occur in OpenAPI, package types, dashboard types, or a dashboard consumer. A run-level state test cannot stand in for the new per-leaf property.",
+      "generated_family_output_set": [
+        "schemas/runtime_api_v1.openapi.json",
+        "packages/runtime-api-client/types.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.js",
+        "apps/runtime-dashboard/src/api/types.ts"
+      ],
+      "companion_recheck_set": [
+        "architecture/public_surface/inventory.json",
+        "the public/generated surface docs and their owner inventory rows, only if the selected source change requires them; source G canonical owner determines this denominator."
+      ],
+      "shared_lock_ownership": "G owns shared pyproject.toml/uv.lock and canonical generated owner outputs; do not edit them in L02."
+    },
+    "mac_profile_diagnosis": {
+      "documented_named_execution_profile": "App Python3.14 (connected plan 05 verification table; used for B state/runtime and A/C/E native selected scopes).",
+      "Mac_supported_baseline": "Apple Silicon CPU-first baseline; JAX CPU works in default setup. Exact test receipt sets JAX_PLATFORMS=cpu and one thread for OMP/OPENBLAS/MKL/NUMEXPR.",
+      "Mac_specific_selector_status": "No Mac-specific product runtime-profile selector is established in the explicit selectors inspected. UV_SYNC_PROFILES is minimal/docs/runtime/research (default runtime); ExecutionProfile is dev/research/governed/production (authority/runtime mode); pyproject apple-metal is an opt-in dependency extra, not a runtime-profile/refusal selector. A full repository-wide selector census was not run, so global absence is not_established.",
+      "named_refusal_profile": "Linux Python3.12 / DoWhy0.14 worker profile. Plan states Darwin refusal occurred before the consumer and remains UNRUN. This is not a semantic negative and does not cover any selected A criterion.",
+      "scope_guard": "These nine findings are portable behavior/consumer criteria; running them on Mac does not turn method-selection or runtime contracts into Mac-specific properties. Only the documented App Python3.14 CPU-first execution envelope is a supported Mac-side runner here. No Apple Metal refusal result is established.",
+      "minimum_runtime_inputs": {
+        "python": "CPython 3.14.x (project >=3.14,<3.15); primary system interpreter exists at /opt/homebrew/bin/python3.14; no canonical-worktree .venv; no UV bootstrap/install performed.",
+        "uv": "0.9.21 contributor baseline; UV_SYNC_PROFILES default runtime. Use existing environment only; missing package -> UNRUN.",
+        "runtime": "FastAPI test client/runtime-http + pytest for the B29 integration selector; core JAX is base and CPU-first. Runtime API contract checker uses --extra runtime --extra ml in the package script; pytest selectors require existing test dependencies.",
+        "backend": "JAX_PLATFORMS=cpu; optional apple-metal extra is not part of default CPU profile.",
+        "frontend": "Node 22 and pnpm 10.33.2 via corepack pnpm; if workspace install is absent, generated TS/client verification remains UNRUN rather than installing in this preparation."
+      }
+    },
+    "narrow_Q2_recipe": {
+      "order": [
+        "Q1 pins the exact source DAG and companion manifest",
+        "run the supported App Python3.14 CPU-first B29 API fresh-read selector on the selected source tree",
+        "run the actual-property deletion probe separately and expect the semantic assertion to fail",
+        "freshly export OpenAPI and compare the canonical client/dashboard family in temp output",
+        "run focused client/dashboard consumer selectors and establish a consumer for the per-leaf field or adjudicate that surface out of scope",
+        "if LA-045 is selected, run its isolated wheel reader at the exact selected source and inspect import origins; sdist remains separate unless explicitly covered"
+      ],
+      "source_revision_for_existing_B29_witness": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+      "existing_A_positive_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/leaf-terminal-projection-frozen-8ec98/receipt.json",
+        "git_ref": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "git_blob": "2a668bd43528882515845315b8716951628a137f",
+        "sha256": "471421c045738e41e3a337aed1b8ade94e1438cdf60d08185398157b1cecf6f9",
+        "stdout_sha256": "82cb9ecb7a2cafcee3a4dfd8970c2bd21beefeb286995a6d231cfa3ee556091a",
+        "result": "1 passed in 16.23s; JAX CPU/thread limits; candidate 8ec98/c644eb7"
+      },
+      "existing_A_removal_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/leaf-terminal-projection-R1-frozen-8ec98/receipt.json",
+        "git_ref": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "git_blob": "cdb73fef7e801775148efd77a711a8e63fc89782",
+        "sha256": "048df1363457bde8ce650ec8d7887cc683169fd8433c96ff9b01d747cfee8d59",
+        "stdout_sha256": "ef509dfb35689bfbf035c46e6c97ac920a8732ea0c11d076f4450c4e38ba62f2",
+        "result": "EXPECTED_FAIL at checkpoint[leaf_terminal_kinds]: removal returns {} while actual budget-stop child expects budget_exhausted; other status/marker assertions remain intact."
+      },
+      "python_positive_argv": [
+        "/opt/homebrew/bin/python3.14",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "tests/integration/core_runtime/test_e02_recursive_partial_readback.py::test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_get"
+      ],
+      "python_env": {
+        "cwd": "policy-engine at the exact selected source candidate; may use the 9745409 evidence carrier only after verifying the three source/test blobs match 8ec98.",
+        "PYTHONPATH": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/leaf-terminal-projection-frozen-8ec98:src:.",
+        "JAX_PLATFORMS": "cpu",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1"
+      },
+      "python_removal_env_addition": {
+        "POLISYOS_E02_LEAF_TERMINAL_PROJECTION_REMOVAL": "1"
+      },
+      "api_openapi_and_runtime_client_command": "PYTHONPATH=src:. JAX_PLATFORMS=cpu /opt/homebrew/bin/python3.14 tools/ops_runners/runtime/check_runtime_api_contract.py --openapi <fresh-temp-openapi.json> ; the fresh OpenAPI is exported to a temp path with tools/ops_runners/runtime/export_runtime_openapi.py. This checks OpenAPI and runtime-api-client drift, not endpoint/client behavior.",
+      "typed_client_dashboard_temp_generation": [
+        "bash packages/runtime-api-client/scripts/generate-runtime-api-client.sh --openapi <fresh-temp-openapi.json> --output-root <temp-output-root>",
+        "bash apps/runtime-dashboard/scripts/generate-api-client.sh --openapi <fresh-temp-openapi.json> --output-root <temp-output-root>"
+      ],
+      "focused_frontend_argv": [
+        "corepack pnpm --filter @polisyos/runtime-api-client test",
+        "corepack pnpm --filter @polisyos/runtime-api-client typecheck",
+        "corepack pnpm --filter @polisyos/runtime-dashboard typecheck",
+        "corepack pnpm --dir apps/runtime-dashboard exec vitest run src/api/validators.test.ts src/api/hooks/runQueries.test.tsx src/features/runs/routes/RunsListPage.test.tsx src/features/runs/routes/RunReportPage.test.tsx"
+      ],
+      "installed_wheel_argv_if_LA045_selected": [
+        "/opt/homebrew/bin/python3.14",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "tests/unit/remediation/test_req_01_installed.py::test_installed_wheel_keeps_active_compiler_and_retires_legacy_helpers"
+      ],
+      "commands_status": "Prepared exact selectors only; none of the commands above was executed by this agent."
+    },
+    "independent_negative_removal_readback_oracles": [
+      {
+        "finding": "B04",
+        "Q2_oracle": "fresh authorized consumer resolves and content-binds same CAS identity/model; foreign, unavailable and tampered refs refuse; fresh GET preserves refusal history. Keep raw content route 409 without authority_signal. Existing author removal proves refusal branch deletion removes refusal reason, but does not reach later ref assertion."
+      },
+      {
+        "finding": "B11",
+        "Q2_oracle": "selected HTTP/client surface labels proxy as heuristic, shows picked/deferred reason, has no monetary/probability or publishability claim; actual exhausted budget blocks. Remove actual informative-positive branch with markers intact and the expected N5 advance must disappear. No invoice/new authority."
+      },
+      {
+        "finding": "B29",
+        "Q2_oracle": "fresh independent GET returns the exact per-leaf terminal mapping alongside partial/no-root-terminal checkpoint; a budget_exhausted child remains distinct from frontier-stable/grounded-partial/abstention. The existing AST removal sets field to {} and fails the exact budget-stop assertion; generated typed consumer must independently reject missing field or fail its semantic read."
+      },
+      {
+        "finding": "B30",
+        "Q2_oracle": "missing source denominator cannot produce empty-success; unrelated parse error is not a forbidden caller; actual caller is detected; unchanged dependency identity permits reuse and changed relevant dependency invalidates. Q2 does not repeat the whole source census or require signed N6 as an invented condition."
+      },
+      {
+        "finding": "B34",
+        "Q2_oracle": "once full default registry source is content-bound, real singleton automatic selection passes and fake/out-of-registry singleton or hidden required member refuses. Keep explicit requested-singleton branch separate. Existing A methods are not rerun as Mac tests."
+      },
+      {
+        "finding": "B35",
+        "Q2_oracle": "add non-value candidates before ranking and prove eligible value option is not crowded out; no qualifying option remains a true refusal with scope/reason."
+      },
+      {
+        "finding": "B36",
+        "Q2_oracle": "hard modality without a typed transform refuses; only a real typed producer/output can satisfy it. Selector retention alone is not acceptance."
+      },
+      {
+        "finding": "LA-033",
+        "Q2_oracle": "absent/null PII scan remains unknown with PII_SCAN_MISSING warning; actual zero-result summary is clean only when produced by real scan; never use {}. No Q2 V1 7/23 replay."
+      },
+      {
+        "finding": "LA-045",
+        "Q2_oracle": "isolated installed-wheel fresh consumer resolves active compiler and reports eight retired helper names unavailable; run outside checkout with PYTHONPATH cleared from source checkout and verify every polisyos import origin. Dynamic/computed/external alias absence remains unestablished; sdist consumer not proved by the wheel selector."
+      }
+    ],
+    "existing_mac_selector_diagnosis": {
+      "targeted_explicit_registry_refs": [
+        {
+          "path": "policy-engine/tools/devx/workspace/_common.py",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "5f99fd0e73d91ca28e3be56442679d3f7772acaa",
+          "role": "UV sync profiles/default"
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/contracts/control.py",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "f50c1bf321abfb05ed5c7aaa56a845a8ecf9ab65",
+          "role": "authority/execution profile literals"
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "role": "optional extras"
+        },
+        {
+          "path": "policy-engine/docs/how-to/install.md",
+          "git_ref": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+          "git_blob": "bcf35b1d43e0210a1282f8817e224d5115275d8f",
+          "role": "Apple Silicon baseline"
+        }
+      ],
+      "finding": "The only named app profile is App Python3.14; Apple Silicon default is CPU-first; apple-metal is opt-in dependency only. The Linux Python3.12/DoWhy0.14 Darwin refusal stopped before the consumer and remains UNRUN. There is no named macOS Metal/refusal selector for these nine rows in the explicit registries inspected."
+    },
+    "pattern_pass": {
+      "relevant_ids": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P09",
+        "P10",
+        "P12",
+        "P15",
+        "P27",
+        "P29",
+        "P31",
+        "P32",
+        "P33",
+        "P35",
+        "P36",
+        "P37",
+        "P38",
+        "P40",
+        "P41"
+      ],
+      "existing_risks": [
+        "P01/P02: author candidates exist but no admitted Q1 DAG/installed/API bridge across the selected source tree.",
+        "P03/P05/P15: internal B11 heuristic can be projected as monetary VOI/authority unless the consumer labels and may-not-use-for semantics are enforced.",
+        "P04/P10: root controller stop and per-leaf terminal kinds need distinct typed/API consumer semantics.",
+        "P29/P32/P33/P37/P38: A receipts provide a real fresh-read and removal witness; contract markers/client type freshness alone are not consumer behavior or content-bound evidence.",
+        "P35/P36: original rows and exact byte spans were read from full pinned sets; references below cite finding IDs, not adjacent prose.",
+        "P40/P41: retain known bounded alias/consumer limitations and source-provenance; do not inherit reds or promote missing selectors to PASS."
+      ],
+      "target_pattern": "Q1 freezes source/test/config/lock/companion blobs. Q2 freshly derives OpenAPI/client outputs from that freeze, checks a real API and declared installed reader on the documented profile, and proves consumer-side negatives/removal; any missing field/client/profile stays UNRUN or explicitly out_of_scope."
+    },
+    "missing_inputs_and_next_owner": [
+      {
+        "missing": "Q1 selected compatible source DAG and exact base/candidate/tree/parents, plus per-path source/test/config/lock/companion manifest.",
+        "owner": "Q1 source-selection/root; Q2 cannot accept before this."
+      },
+      {
+        "missing": "A named Mac refusal selector for the selected nine criteria; only App Python3.14 CPU-first is supported and the unrelated Linux-worker Darwin refusal is pre-consumer/UNRUN.",
+        "owner": "Q1/profile owner; otherwise report only CPU-first app execution and do not claim refusal coverage."
+      },
+      {
+        "missing": "Generated G family for the 8ec98 B29 field and an actual client/dashboard consumer for per-leaf leaf_terminal_kinds; current consumer tests cover different run-level fields.",
+        "owner": "G canonical schema/OpenAPI/client owner plus A dashboard/API consumer owner; source freeze remains generated_G_surface UNRUN."
+      },
+      {
+        "missing": "B11 typed external projection of heuristic score/reason and consumer-side nonpublishability semantics.",
+        "owner": "A runtime API/surface owner; B66 cost/invoice work remains separate."
+      },
+      {
+        "missing": "B04 authorized Atlas reader; B34–B36 content-bound complete default registry and typed transform consumer; LA-033 B optional-read/C truthful-output admission; B30 dependency-bound installed source identity.",
+        "owner": "Each criterion owner listed in its root-row next_action; these are not generic Mac profiles."
+      },
+      {
+        "missing": "If LA045 requires sdist acceptance in Q2, a selected sdist install/import-origin consumer and output receipt; existing selector proves only an isolated wheel.",
+        "owner": "A packaging/compiler owner plus Q1 selection."
+      }
+    ],
+    "criteria": [
+      {
+        "id": "B04",
+        "connected_findings_json_row": 3,
+        "connected_findings_json_record": {
+          "id": "B04",
+          "original_unit": "A",
+          "original_primary_bundle": "CYC-02",
+          "author_proposal": "limited",
+          "original_criteria_pointer": "/findings/3/criterion_refs",
+          "author_source": "A",
+          "author_row_pointers": [
+            {
+              "pointer": "/current_index/3"
+            },
+            {
+              "pointer": "#/current_root_adjudication_20261008/rows/3",
+              "role": "bound_root_row"
+            }
+          ],
+          "flows": [
+            "V",
+            "Q"
+          ],
+          "next_tasks": [
+            "V1",
+            "Q2"
+          ],
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "original_coverage_row_index": 3,
+        "coverage_record": {
+          "id": "B04",
+          "unit": "A",
+          "primary_bundle": "CYC-02",
+          "source_closure_owner_literal": "CYC-02",
+          "companion_bundles": [
+            "CYC-02"
+          ],
+          "ledger_status_historical": "partial",
+          "appendix_c_status_separate": "closed_bounded",
+          "task_refs": [
+            "A.md#task-a2"
+          ],
+          "criterion_refs": [
+            {
+              "criterion_id": "B04",
+              "document": "B_r19",
+              "lines": [
+                241,
+                252
+              ],
+              "sha256": "2f664b147db7753604b3fa729f42e5d1560d9ed43de9643169255d6b8270df26",
+              "card": "CYC-02"
+            }
+          ],
+          "closure_now": "not_adjudicated",
+          "criterion_specific_acceptance_not_executed": "valid CAS/content receipt can coexist with a foreign selected engine or sibling hash.",
+          "capability_label": "verification_missing"
+        },
+        "original_criterion": {
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "criterion_ref": {
+            "criterion_id": "B04",
+            "document": "B_r19",
+            "lines": [
+              241,
+              252
+            ],
+            "sha256": "2f664b147db7753604b3fa729f42e5d1560d9ed43de9643169255d6b8270df26",
+            "card": "CYC-02"
+          },
+          "coverage_json_pointer": "#/findings/3/criterion_refs/0",
+          "sha256_verified_over_exact_raw_lf_span": "2f664b147db7753604b3fa729f42e5d1560d9ed43de9643169255d6b8270df26"
+        },
+        "connected_plan_route": {
+          "id": "B04",
+          "original_unit": "A",
+          "original_primary_bundle": "CYC-02",
+          "author_proposal": "limited",
+          "original_criteria_pointer": "/findings/3/criterion_refs",
+          "author_source": "A",
+          "author_row_pointers": [
+            {
+              "pointer": "/current_index/3"
+            },
+            {
+              "pointer": "#/current_root_adjudication_20261008/rows/3",
+              "role": "bound_root_row"
+            }
+          ],
+          "flows": [
+            "V",
+            "Q"
+          ],
+          "next_tasks": [
+            "V1",
+            "Q2"
+          ],
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "A_progress_row": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+          "git_ref": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+          "git_blob": "5beae048efe4b4ffda43583d1f9b93c3298e0d86",
+          "sha256": null,
+          "row_pointer": "#/current_root_adjudication_20261008/rows/3",
+          "root_outcome": "limited",
+          "next_action": "A/Atlas surface owner: verify the retained N5 result and refusal history through the authorized Atlas consumer, with foreign/missing/tampered negatives. G: independently admit the source slice. No L6 prerequisite for this criterion.",
+          "leaf_receipt": {
+            "packet": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-refusal-core-readback.json",
+              "sha256": "09d65d9fbed78a92e93af4a7f358a25909a14b8e23ef5437ff95d46a574273ef",
+              "git_blob_at_A": "8ae1b32240b094ecd9bbb8f89ec20c5dac41cb33"
+            },
+            "candidate_sha": "16d0b70c44a9ada815d54ba4a5e98a6e5f48f36b",
+            "candidate_tree": "82268b941b53ff479a1b12c6c384b032103935d4",
+            "implementation_commits": [
+              "975a3b2b97979f36c0af5d2ea98e757e2fe88c99",
+              "16d0b70c44a9ada815d54ba4a5e98a6e5f48f36b"
+            ],
+            "current_root_outcome": "limited",
+            "source_closure": "not_adjudicated",
+            "next_action": "A/Atlas surface owner: verify the retained N5 result and refusal history through the authorized Atlas consumer, with foreign/missing/tampered negatives. G: independently admit the source slice. No L6 prerequisite for this criterion.",
+            "existing_footprint_paths": [
+              "policy-engine/src/polisyos/runtime/quality/conditional_simulation_replay.py",
+              "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+              "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+              "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+              "policy-engine/tests/integration/core_runtime/test_e02_terminal_status_readback.py"
+            ],
+            "evidence_note": "Candidate 16d0b70 source/test receipt: bounded fresh Core/N8 CAS readback PASS; R1 in-memory deletion of the actual N5 refusal branch makes the exact refusal reason disappear and assertion fail, but later result-ref assertion is not reached. Authorized Atlas consumer remains missing."
+          }
+        },
+        "criterion_summary": "Persist numerical N5 result content by resolvable CAS reference; retain identity/model/semantics and refusal history; foreign, unavailable, tampered, or other-model content must refuse.",
+        "Q2_scope": "Q2 reader boundary only: previous A Core/N8 synthetic CAS readback is not an authorized Atlas consumer. Verify any selected public/authorized consumer plus foreign/missing/tampered refusals; keep authority-less raw-content route blocked. Do not repeat generic N5 method tests."
+      },
+      {
+        "id": "B11",
+        "connected_findings_json_row": 10,
+        "connected_findings_json_record": {
+          "id": "B11",
+          "original_unit": "A",
+          "original_primary_bundle": "CYC-04",
+          "author_proposal": "limited",
+          "original_criteria_pointer": "/findings/20/criterion_refs",
+          "author_source": "A",
+          "author_row_pointers": [
+            {
+              "pointer": "/current_index/10"
+            },
+            {
+              "pointer": "#/current_root_adjudication_20261008/rows/10",
+              "role": "bound_root_row"
+            }
+          ],
+          "flows": [
+            "V",
+            "Q"
+          ],
+          "next_tasks": [
+            "Q0",
+            "Q2"
+          ],
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "original_coverage_row_index": 20,
+        "coverage_record": {
+          "id": "B11",
+          "unit": "A",
+          "primary_bundle": "CYC-04",
+          "source_closure_owner_literal": "CYC-04",
+          "companion_bundles": [
+            "CYC-04"
+          ],
+          "ledger_status_historical": "partial",
+          "appendix_c_status_separate": "closed_bounded",
+          "task_refs": [
+            "A.md#task-a4"
+          ],
+          "criterion_refs": [
+            {
+              "criterion_id": "B11",
+              "document": "B_r19",
+              "lines": [
+                325,
+                336
+              ],
+              "sha256": "37f6f0543710b466822aa39ffeb7d3ce5b9a4b57bed99dc429087a3a61ff268c",
+              "card": "CYC-04"
+            }
+          ],
+          "closure_now": "not_adjudicated",
+          "criterion_specific_acceptance_not_executed": "An informative permitted check runs while the bounded research budget remains even if the economic value-proxy is low or unknown; observed exhaustion stops it. Caller-asserted VOI/spend cannot substitute for actual budget use.",
+          "capability_label": "bridge_missing"
+        },
+        "original_criterion": {
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "criterion_ref": {
+            "criterion_id": "B11",
+            "document": "B_r19",
+            "lines": [
+              325,
+              336
+            ],
+            "sha256": "37f6f0543710b466822aa39ffeb7d3ce5b9a4b57bed99dc429087a3a61ff268c",
+            "card": "CYC-04"
+          },
+          "coverage_json_pointer": "#/findings/20/criterion_refs/0",
+          "sha256_verified_over_exact_raw_lf_span": "37f6f0543710b466822aa39ffeb7d3ce5b9a4b57bed99dc429087a3a61ff268c"
+        },
+        "connected_plan_route": {
+          "id": "B11",
+          "original_unit": "A",
+          "original_primary_bundle": "CYC-04",
+          "author_proposal": "limited",
+          "original_criteria_pointer": "/findings/20/criterion_refs",
+          "author_source": "A",
+          "author_row_pointers": [
+            {
+              "pointer": "/current_index/10"
+            },
+            {
+              "pointer": "#/current_root_adjudication_20261008/rows/10",
+              "role": "bound_root_row"
+            }
+          ],
+          "flows": [
+            "V",
+            "Q"
+          ],
+          "next_tasks": [
+            "Q0",
+            "Q2"
+          ],
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "A_progress_row": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+          "git_ref": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+          "git_blob": "5beae048efe4b4ffda43583d1f9b93c3298e0d86",
+          "sha256": null,
+          "row_pointer": "#/current_root_adjudication_20261008/rows/10",
+          "root_outcome": "limited",
+          "next_action": "A: доказать heuristic score surface без monetary/probability claim и настоящий budget exhaustion; B cost producer seam отдельно B66.",
+          "leaf_receipt": {
+            "packet": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/informative-voi-execution.json",
+              "sha256": "8c0f04a5d35845d53043518c57b77a2cf1cf0a5c7fecb44a13121df965a0f73f",
+              "git_blob_at_A": "04c7c0d59f75a0a16d820347367de467654a5dbb"
+            },
+            "candidate_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+            "candidate_tree": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+            "implementation_commits": [
+              "a6fa9c37c223d99669ad0503216e328c24f9905f",
+              "aaa89a6988ed553310fc7950054e7b6af4a05956"
+            ],
+            "current_root_outcome": "limited",
+            "source_closure": "not_adjudicated",
+            "next_action": "A: доказать heuristic score surface без monetary/probability claim и настоящий budget exhaustion; B cost producer seam отдельно B66.",
+            "existing_footprint_paths": [
+              "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+              "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+              "policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py",
+              "policy-engine/tests/unit/remediation/test_emp_01.py",
+              "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py"
+            ],
+            "evidence_note": "Candidate 3ba1deaa test is a bounded controller direct-return check with positive execution and actual exhausted-budget stop plus property removal; recorded surface_trace explicitly says no HTTP, serialized response, audit export, or publication surface was exercised."
+          }
+        },
+        "criterion_summary": "An allowed informative check runs while bounded research spend remains despite low/unknown economic proxy; actual exhaustion stops work; score remains an explicitly heuristic proxy, never measured monetary VOI/probability.",
+        "Q2_scope": "Q2 must expose proxy/inspection score as heuristic, preserve picked/deferred reason, and assign no publishability. The A controller test is direct typed return only and does not call HTTP/export. B66 invoice/provider truth is separate and is not a B11 prerequisite."
+      },
+      {
+        "id": "B29",
+        "connected_findings_json_row": 24,
+        "connected_findings_json_record": {
+          "id": "B29",
+          "original_unit": "A",
+          "original_primary_bundle": "CYC-05",
+          "author_proposal": "limited",
+          "original_criteria_pointer": "/findings/154/criterion_refs",
+          "author_source": "A",
+          "author_row_pointers": [
+            {
+              "pointer": "/current_index/24"
+            },
+            {
+              "pointer": "#/current_root_adjudication_20261008/rows/24",
+              "role": "bound_root_row"
+            }
+          ],
+          "flows": [
+            "V",
+            "Q"
+          ],
+          "next_tasks": [
+            "V2",
+            "Q2"
+          ],
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "original_coverage_row_index": 154,
+        "coverage_record": {
+          "id": "B29",
+          "unit": "A",
+          "primary_bundle": "CYC-05",
+          "source_closure_owner_literal": "CYC-05",
+          "companion_bundles": [
+            "CYC-05"
+          ],
+          "ledger_status_historical": "partial",
+          "appendix_c_status_separate": "closed_bounded",
+          "task_refs": [
+            "A.md#task-a6"
+          ],
+          "criterion_refs": [
+            {
+              "criterion_id": "B29",
+              "document": "B_r19",
+              "lines": [
+                565,
+                578
+              ],
+              "sha256": "b8e65549bab11a9d52bdc33a78faf071a96c241730ecb10dfdfe237cf494d8f4",
+              "card": "CYC-05"
+            }
+          ],
+          "closure_now": "not_adjudicated",
+          "criterion_specific_acceptance_not_executed": "stop marker or UI label can collapse budget/frontier into abstention.",
+          "capability_label": "verification_missing"
+        },
+        "original_criterion": {
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "criterion_ref": {
+            "criterion_id": "B29",
+            "document": "B_r19",
+            "lines": [
+              565,
+              578
+            ],
+            "sha256": "b8e65549bab11a9d52bdc33a78faf071a96c241730ecb10dfdfe237cf494d8f4",
+            "card": "CYC-05"
+          },
+          "coverage_json_pointer": "#/findings/154/criterion_refs/0",
+          "sha256_verified_over_exact_raw_lf_span": "b8e65549bab11a9d52bdc33a78faf071a96c241730ecb10dfdfe237cf494d8f4"
+        },
+        "connected_plan_route": {
+          "id": "B29",
+          "original_unit": "A",
+          "original_primary_bundle": "CYC-05",
+          "author_proposal": "limited",
+          "original_criteria_pointer": "/findings/154/criterion_refs",
+          "author_source": "A",
+          "author_row_pointers": [
+            {
+              "pointer": "/current_index/24"
+            },
+            {
+              "pointer": "#/current_root_adjudication_20261008/rows/24",
+              "role": "bound_root_row"
+            }
+          ],
+          "flows": [
+            "V",
+            "Q"
+          ],
+          "next_tasks": [
+            "V2",
+            "Q2"
+          ],
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "A_progress_row": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+          "git_ref": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+          "git_blob": "5beae048efe4b4ffda43583d1f9b93c3298e0d86",
+          "sha256": null,
+          "row_pointer": "#/current_root_adjudication_20261008/rows/24",
+          "root_outcome": "limited",
+          "next_action": "A: original status matrix/readback/Atlas mapping; G: regenerate API after composed freeze, без ручного generated edit.",
+          "leaf_receipt": {
+            "packet": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n6-terminal-projection-history.json",
+              "sha256": "812431bf0b50cc41ba18f1557e353630d67fe81e0f1829d659c96001d6e0827c",
+              "git_blob_at_A": "d1e242341a6193d6d5e7189a1f5cc67b36e960cf"
+            },
+            "candidate_sha": "f029201ee6162065757486b21058ee85badd057f",
+            "candidate_tree": "7d3b1795b7760d6b30ddc37f34426452f63b6415",
+            "implementation_commits": [
+              "0539d6ac1f01614ddb8cbeb7334679bee54231be",
+              "f029201ee6162065757486b21058ee85badd057f"
+            ],
+            "current_root_outcome": "limited",
+            "source_closure": "not_adjudicated",
+            "next_action": "A: original status matrix/readback/Atlas mapping; G: regenerate API after composed freeze, без ручного generated edit.",
+            "existing_footprint_paths": [
+              "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+              "policy-engine/tests/integration/core_runtime/test_e02_terminal_status_readback.py",
+              "policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py",
+              "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py"
+            ],
+            "evidence_note": "Candidate f029201e history suite is bounded; the latest A source freeze 8ec98ad adds per-leaf leaf_terminal_kinds on the typed Core fresh-GET projection. Its positive plus actual-property R1 removal checks are separately pinned below. Atlas/full recursive outcome matrix and generated G surface remain unestablished."
+          }
+        },
+        "criterion_summary": "Keep controller stop distinct from epistemic outcome; grounded partial, frontier-stable, exhausted-budget, and actual abstention remain distinct across readback/history/Atlas.",
+        "Q2_scope": "Q2 must regenerate OpenAPI and the complete typed client family after the selected source freeze, then prove an actual typed/default consumer preserves per-leaf terminal kinds. Existing dashboard checks concern run-level run_terminality/search terminal kind; they do not consume leaf_terminal_kinds."
+      },
+      {
+        "id": "B30",
+        "connected_findings_json_row": 25,
+        "connected_findings_json_record": {
+          "id": "B30",
+          "original_unit": "A",
+          "original_primary_bundle": "CYC-05",
+          "author_proposal": "limited",
+          "original_criteria_pointer": "/findings/155/criterion_refs",
+          "author_source": "A",
+          "author_row_pointers": [
+            {
+              "pointer": "/current_index/25"
+            },
+            {
+              "pointer": "#/current_root_adjudication_20261008/rows/25",
+              "role": "bound_root_row"
+            }
+          ],
+          "flows": [
+            "V",
+            "T",
+            "Q"
+          ],
+          "next_tasks": [
+            "T1",
+            "Q2"
+          ],
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "original_coverage_row_index": 155,
+        "coverage_record": {
+          "id": "B30",
+          "unit": "A",
+          "primary_bundle": "CYC-05",
+          "source_closure_owner_literal": "CYC-05",
+          "companion_bundles": [
+            "CYC-05"
+          ],
+          "ledger_status_historical": "partial",
+          "appendix_c_status_separate": "closed_bounded",
+          "task_refs": [
+            "A.md#task-a6"
+          ],
+          "criterion_refs": [
+            {
+              "criterion_id": "B30",
+              "document": "B_r19",
+              "lines": [
+                579,
+                592
+              ],
+              "sha256": "251d77ebefef25cd01ccd9bf1bcf331725906815dddf47212336198586f99104",
+              "card": "CYC-05"
+            }
+          ],
+          "closure_now": "not_adjudicated",
+          "criterion_specific_acceptance_not_executed": "An absent/unavailable source denominator must not yield an empty successful result; distinguish parse errors from an actual forbidden caller, keep unrelated syntax errors out of the caller set, and verify the controlled source/deployment slice for actually executed code plus relevant loaded dependencies.",
+          "capability_label": "producer_missing"
+        },
+        "original_criterion": {
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "criterion_ref": {
+            "criterion_id": "B30",
+            "document": "B_r19",
+            "lines": [
+              579,
+              592
+            ],
+            "sha256": "251d77ebefef25cd01ccd9bf1bcf331725906815dddf47212336198586f99104",
+            "card": "CYC-05"
+          },
+          "coverage_json_pointer": "#/findings/155/criterion_refs/0",
+          "sha256_verified_over_exact_raw_lf_span": "251d77ebefef25cd01ccd9bf1bcf331725906815dddf47212336198586f99104"
+        },
+        "connected_plan_route": {
+          "id": "B30",
+          "original_unit": "A",
+          "original_primary_bundle": "CYC-05",
+          "author_proposal": "limited",
+          "original_criteria_pointer": "/findings/155/criterion_refs",
+          "author_source": "A",
+          "author_row_pointers": [
+            {
+              "pointer": "/current_index/25"
+            },
+            {
+              "pointer": "#/current_root_adjudication_20261008/rows/25",
+              "role": "bound_root_row"
+            }
+          ],
+          "flows": [
+            "V",
+            "T",
+            "Q"
+          ],
+          "next_tasks": [
+            "T1",
+            "Q2"
+          ],
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "A_progress_row": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+          "git_ref": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+          "git_blob": "5beae048efe4b4ffda43583d1f9b93c3298e0d86",
+          "sha256": null,
+          "row_pointer": "#/current_root_adjudication_20261008/rows/25",
+          "root_outcome": "limited",
+          "next_action": "A: reuse real dependency-bound source census artifact; G review canonical packet. Не привязывать closure к signed N6.",
+          "leaf_receipt": {
+            "packet": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B30-owner-census.json",
+              "sha256": "397544f272b305876f974f3e260007ab523a819bf9a711a8503638a773079c23",
+              "git_blob_at_A": "e4b0c9296c5df6a40d0e3b5bbdfcfd5b92bd57b8"
+            },
+            "candidate_sha": "d273659a117d20c70f2598309fec558c8e753b77",
+            "candidate_tree": "eb27248291194b311689f2ef3244bc738d1628bd",
+            "implementation_commits": [
+              "e2f530b9052abf110c0b8c7dc6eee5c7e664f632",
+              "d273659a117d20c70f2598309fec558c8e753b77"
+            ],
+            "current_root_outcome": "limited",
+            "source_closure": "not_adjudicated",
+            "next_action": "A: reuse real dependency-bound source census artifact; G review canonical packet. Не привязывать closure к signed N6.",
+            "existing_footprint_paths": [
+              "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+              "policy-engine/src/polisyos/runtime/quality/production_invocation.py",
+              "policy-engine/tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+              "policy-engine/tests/unit/remediation/test_e02_source_strangle_owner_resolution.py",
+              "policy-engine/tests/unit/remediation/test_frc_01.py",
+              "policy-engine/tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+              "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py"
+            ],
+            "evidence_note": "Candidate d273659a has the bounded owner-census footprint; independent code review and G acceptance are pending. Current root next action reuses dependency-bound evidence and explicitly does not tie closure to signed N6."
+          }
+        },
+        "criterion_summary": "Missing/unavailable source denominator is not empty success; parse errors are separate from actual forbidden caller; controlled executed/deployment slice and dependency identity support reuse/invalidation.",
+        "Q2_scope": "Do not rerun the full source-tree census as Q2. A package-installed consumer may validate a declared default reader at the selected wheel/sdist origin; do not invent a signed-N6 prerequisite and do not claim universal source/deployment identity from an editable import."
+      },
+      {
+        "id": "B34",
+        "connected_findings_json_row": 29,
+        "connected_findings_json_record": {
+          "id": "B34",
+          "original_unit": "A",
+          "original_primary_bundle": "SEL-01",
+          "author_proposal": "limited",
+          "original_criteria_pointer": "/findings/159/criterion_refs",
+          "author_source": "A",
+          "author_row_pointers": [
+            {
+              "pointer": "/current_index/28"
+            },
+            {
+              "pointer": "#/current_root_adjudication_20261008/rows/28",
+              "role": "bound_root_row"
+            }
+          ],
+          "flows": [
+            "V",
+            "Q"
+          ],
+          "next_tasks": [
+            "Q2"
+          ],
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "original_coverage_row_index": 159,
+        "coverage_record": {
+          "id": "B34",
+          "unit": "A",
+          "primary_bundle": "SEL-01",
+          "source_closure_owner_literal": "SEL-01",
+          "companion_bundles": [
+            "SEL-01"
+          ],
+          "ledger_status_historical": "partial",
+          "appendix_c_status_separate": "closed_bounded",
+          "task_refs": [
+            "A.md#task-a5"
+          ],
+          "criterion_refs": [
+            {
+              "criterion_id": "B34",
+              "document": "B_r19",
+              "lines": [
+                639,
+                663
+              ],
+              "sha256": "b72c038145a8eea6dbec5058fd877f57f9a7f4a2e16d63de9ae67be750158be4",
+              "card": "SEL-01"
+            }
+          ],
+          "closure_now": "not_adjudicated",
+          "criterion_specific_acceptance_not_executed": "one-entry fixture or expected FQN list does not prove set completeness.",
+          "capability_label": "verification_missing"
+        },
+        "original_criterion": {
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "criterion_ref": {
+            "criterion_id": "B34",
+            "document": "B_r19",
+            "lines": [
+              639,
+              663
+            ],
+            "sha256": "b72c038145a8eea6dbec5058fd877f57f9a7f4a2e16d63de9ae67be750158be4",
+            "card": "SEL-01"
+          },
+          "coverage_json_pointer": "#/findings/159/criterion_refs/0",
+          "sha256_verified_over_exact_raw_lf_span": "b72c038145a8eea6dbec5058fd877f57f9a7f4a2e16d63de9ae67be750158be4"
+        },
+        "connected_plan_route": {
+          "id": "B34",
+          "original_unit": "A",
+          "original_primary_bundle": "SEL-01",
+          "author_proposal": "limited",
+          "original_criteria_pointer": "/findings/159/criterion_refs",
+          "author_source": "A",
+          "author_row_pointers": [
+            {
+              "pointer": "/current_index/28"
+            },
+            {
+              "pointer": "#/current_root_adjudication_20261008/rows/28",
+              "role": "bound_root_row"
+            }
+          ],
+          "flows": [
+            "V",
+            "Q"
+          ],
+          "next_tasks": [
+            "Q2"
+          ],
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "A_progress_row": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+          "git_ref": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+          "git_blob": "5beae048efe4b4ffda43583d1f9b93c3298e0d86",
+          "sha256": null,
+          "row_pointer": "#/current_root_adjudication_20261008/rows/28",
+          "root_outcome": "limited",
+          "next_action": "Discovery/install canonical owner: content-bound complete registered source closure; A actual default selector singleton/hidden member controls.",
+          "leaf_receipt": {
+            "packet": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/SEL-bound-registry-discovery.json",
+              "sha256": "060a668b337aa5b5889b6da4fe89b15f0da938808876f96fa47b30175acb6bac",
+              "git_blob_at_A": "164aadda24afaaa907aad796225c9f247235c375"
+            },
+            "candidate_sha": "4912a409278da05a5ec170c55bf0fbbc7b1dba16",
+            "candidate_tree": "8d9c6443020d75cba495d467f0377d0fc98cb36a",
+            "implementation_commits": [
+              "269152fd057a353e69d6144081e6370a99fcc314"
+            ],
+            "current_root_outcome": "limited",
+            "source_closure": "not_adjudicated",
+            "next_action": "Discovery/install canonical owner: content-bound complete registered source closure; A actual default selector singleton/hidden member controls.",
+            "existing_footprint_paths": [
+              "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+              "policy-engine/tests/unit/data_requirement/test_e02_named_profile_context.py",
+              "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py",
+              "policy-engine/tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+              "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py"
+            ],
+            "evidence_note": "Receipt candidate 4912a409 is not the source commit; source 269152fd is the advisor implementation. A review packet records independent code review and G acceptance pending; controlled tests do not establish a bound complete default extension universe/typed transform.",
+            "source_candidate_commit": "269152fd057a353e69d6144081e6370a99fcc314",
+            "source_candidate_tree": "8d0f9849ea71c26e29bd66c09353ed8fec7d6c27"
+          }
+        },
+        "criterion_summary": "A real one-entry default registry is not hardcoding by cardinality; bind the complete default source universe and distinguish explicit single-method request from automatic selection.",
+        "Q2_scope": "The controlled selection probes are owner-side method tests, not Mac evidence. Q2 only qualifies a selected default installed source/catalog consumer after the complete source universe is content-bound; that default source/selector is currently unbound."
+      },
+      {
+        "id": "B35",
+        "connected_findings_json_row": 30,
+        "connected_findings_json_record": {
+          "id": "B35",
+          "original_unit": "A",
+          "original_primary_bundle": "SEL-01",
+          "author_proposal": "limited",
+          "original_criteria_pointer": "/findings/160/criterion_refs",
+          "author_source": "A",
+          "author_row_pointers": [
+            {
+              "pointer": "/current_index/29"
+            },
+            {
+              "pointer": "#/current_root_adjudication_20261008/rows/29",
+              "role": "bound_root_row"
+            }
+          ],
+          "flows": [
+            "V",
+            "Q"
+          ],
+          "next_tasks": [
+            "Q2"
+          ],
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "original_coverage_row_index": 160,
+        "coverage_record": {
+          "id": "B35",
+          "unit": "A",
+          "primary_bundle": "SEL-01",
+          "source_closure_owner_literal": "SEL-01",
+          "companion_bundles": [
+            "SEL-01"
+          ],
+          "ledger_status_historical": "partial",
+          "appendix_c_status_separate": "closed_bounded",
+          "task_refs": [
+            "A.md#task-a5"
+          ],
+          "criterion_refs": [
+            {
+              "criterion_id": "B35",
+              "document": "B_r19",
+              "lines": [
+                664,
+                681
+              ],
+              "sha256": "d68708b6e5c579f97b0e9f3f121f67a477712796fce8dc87371fc93ee91400b4",
+              "card": "SEL-01"
+            }
+          ],
+          "closure_now": "not_adjudicated",
+          "criterion_specific_acceptance_not_executed": "checking one selected FQN misses top-k crowd-out.",
+          "capability_label": "verification_missing"
+        },
+        "original_criterion": {
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "criterion_ref": {
+            "criterion_id": "B35",
+            "document": "B_r19",
+            "lines": [
+              664,
+              681
+            ],
+            "sha256": "d68708b6e5c579f97b0e9f3f121f67a477712796fce8dc87371fc93ee91400b4",
+            "card": "SEL-01"
+          },
+          "coverage_json_pointer": "#/findings/160/criterion_refs/0",
+          "sha256_verified_over_exact_raw_lf_span": "d68708b6e5c579f97b0e9f3f121f67a477712796fce8dc87371fc93ee91400b4"
+        },
+        "connected_plan_route": {
+          "id": "B35",
+          "original_unit": "A",
+          "original_primary_bundle": "SEL-01",
+          "author_proposal": "limited",
+          "original_criteria_pointer": "/findings/160/criterion_refs",
+          "author_source": "A",
+          "author_row_pointers": [
+            {
+              "pointer": "/current_index/29"
+            },
+            {
+              "pointer": "#/current_root_adjudication_20261008/rows/29",
+              "role": "bound_root_row"
+            }
+          ],
+          "flows": [
+            "V",
+            "Q"
+          ],
+          "next_tasks": [
+            "Q2"
+          ],
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "A_progress_row": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+          "git_ref": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+          "git_blob": "5beae048efe4b4ffda43583d1f9b93c3298e0d86",
+          "sha256": null,
+          "row_pointer": "#/current_root_adjudication_20261008/rows/29",
+          "root_outcome": "limited",
+          "next_action": "Discovery/install input+A: actual full universe→filter→rank negative adding nonvalue entries.",
+          "leaf_receipt": {
+            "packet": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/SEL-bound-registry-discovery.json",
+              "sha256": "060a668b337aa5b5889b6da4fe89b15f0da938808876f96fa47b30175acb6bac",
+              "git_blob_at_A": "164aadda24afaaa907aad796225c9f247235c375"
+            },
+            "candidate_sha": "4912a409278da05a5ec170c55bf0fbbc7b1dba16",
+            "candidate_tree": "8d9c6443020d75cba495d467f0377d0fc98cb36a",
+            "implementation_commits": [
+              "269152fd057a353e69d6144081e6370a99fcc314"
+            ],
+            "current_root_outcome": "limited",
+            "source_closure": "not_adjudicated",
+            "next_action": "Discovery/install input+A: actual full universe→filter→rank negative adding nonvalue entries.",
+            "existing_footprint_paths": [
+              "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+              "policy-engine/tests/unit/data_requirement/test_e02_named_profile_context.py",
+              "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py",
+              "policy-engine/tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+              "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py"
+            ],
+            "evidence_note": "Receipt candidate 4912a409 is not the source commit; source 269152fd is the advisor implementation. A review packet records independent code review and G acceptance pending; controlled tests do not establish a bound complete default extension universe/typed transform.",
+            "source_candidate_commit": "269152fd057a353e69d6144081e6370a99fcc314",
+            "source_candidate_tree": "8d0f9849ea71c26e29bd66c09353ed8fec7d6c27"
+          }
+        },
+        "criterion_summary": "Filter eligibility before top-k ranking; adding non-value methods cannot crowd out an eligible value method; preserve refusal/exclusion reason and scope.",
+        "Q2_scope": "Do not rerun the generic eligibility/top-k owner suite as a Mac criterion. Q2 only checks a selected real default consumer after Q1 pins the complete method universe; no default-universe consumer is admitted."
+      },
+      {
+        "id": "B36",
+        "connected_findings_json_row": 31,
+        "connected_findings_json_record": {
+          "id": "B36",
+          "original_unit": "A",
+          "original_primary_bundle": "SEL-01",
+          "author_proposal": "limited",
+          "original_criteria_pointer": "/findings/161/criterion_refs",
+          "author_source": "A",
+          "author_row_pointers": [
+            {
+              "pointer": "/current_index/30"
+            },
+            {
+              "pointer": "#/current_root_adjudication_20261008/rows/30",
+              "role": "bound_root_row"
+            }
+          ],
+          "flows": [
+            "V",
+            "S",
+            "Q"
+          ],
+          "next_tasks": [
+            "S1",
+            "Q2"
+          ],
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "original_coverage_row_index": 161,
+        "coverage_record": {
+          "id": "B36",
+          "unit": "A",
+          "primary_bundle": "SEL-01",
+          "source_closure_owner_literal": "SEL-01",
+          "companion_bundles": [
+            "SEL-01"
+          ],
+          "ledger_status_historical": "partial",
+          "appendix_c_status_separate": "closed_bounded",
+          "task_refs": [
+            "A.md#task-a5"
+          ],
+          "criterion_refs": [
+            {
+              "criterion_id": "B36",
+              "document": "B_r19",
+              "lines": [
+                682,
+                699
+              ],
+              "sha256": "0493e6060257ca8b6680154283ca98ea0abba69172a196664e83a4cc3baad90b",
+              "card": "SEL-01"
+            }
+          ],
+          "closure_now": "not_adjudicated",
+          "criterion_specific_acceptance_not_executed": "selector retaining a requirement is not evidence a transform was produced.",
+          "capability_label": "producer_missing"
+        },
+        "original_criterion": {
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "criterion_ref": {
+            "criterion_id": "B36",
+            "document": "B_r19",
+            "lines": [
+              682,
+              699
+            ],
+            "sha256": "0493e6060257ca8b6680154283ca98ea0abba69172a196664e83a4cc3baad90b",
+            "card": "SEL-01"
+          },
+          "coverage_json_pointer": "#/findings/161/criterion_refs/0",
+          "sha256_verified_over_exact_raw_lf_span": "0493e6060257ca8b6680154283ca98ea0abba69172a196664e83a4cc3baad90b"
+        },
+        "connected_plan_route": {
+          "id": "B36",
+          "original_unit": "A",
+          "original_primary_bundle": "SEL-01",
+          "author_proposal": "limited",
+          "original_criteria_pointer": "/findings/161/criterion_refs",
+          "author_source": "A",
+          "author_row_pointers": [
+            {
+              "pointer": "/current_index/30"
+            },
+            {
+              "pointer": "#/current_root_adjudication_20261008/rows/30",
+              "role": "bound_root_row"
+            }
+          ],
+          "flows": [
+            "V",
+            "S",
+            "Q"
+          ],
+          "next_tasks": [
+            "S1",
+            "Q2"
+          ],
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "A_progress_row": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+          "git_ref": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+          "git_blob": "5beae048efe4b4ffda43583d1f9b93c3298e0d86",
+          "sha256": null,
+          "row_pointer": "#/current_root_adjudication_20261008/rows/30",
+          "root_outcome": "limited",
+          "next_action": "Transform canonical owner: producer+typed artifact+consumer; A explicit transform/unsupported default selection refusal.",
+          "leaf_receipt": {
+            "packet": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/SEL-bound-registry-discovery.json",
+              "sha256": "060a668b337aa5b5889b6da4fe89b15f0da938808876f96fa47b30175acb6bac",
+              "git_blob_at_A": "164aadda24afaaa907aad796225c9f247235c375"
+            },
+            "candidate_sha": "4912a409278da05a5ec170c55bf0fbbc7b1dba16",
+            "candidate_tree": "8d9c6443020d75cba495d467f0377d0fc98cb36a",
+            "implementation_commits": [
+              "269152fd057a353e69d6144081e6370a99fcc314"
+            ],
+            "current_root_outcome": "limited",
+            "source_closure": "not_adjudicated",
+            "next_action": "Transform canonical owner: producer+typed artifact+consumer; A explicit transform/unsupported default selection refusal.",
+            "existing_footprint_paths": [
+              "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+              "policy-engine/tests/unit/data_requirement/test_e02_named_profile_context.py",
+              "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py",
+              "policy-engine/tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+              "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py"
+            ],
+            "evidence_note": "Receipt candidate 4912a409 is not the source commit; source 269152fd is the advisor implementation. A review packet records independent code review and G acceptance pending; controlled tests do not establish a bound complete default extension universe/typed transform.",
+            "source_candidate_commit": "269152fd057a353e69d6144081e6370a99fcc314",
+            "source_candidate_tree": "8d0f9849ea71c26e29bd66c09353ed8fec7d6c27"
+          }
+        },
+        "criterion_summary": "Preserve hard requested modality; unsupported selection must typed-refuse or use a genuinely produced typed transform; never silently weaken/intersect away requirements.",
+        "Q2_scope": "Do not rerun the generic modality owner test as a Mac criterion. Q2 only consumes a selected typed transform/refusal through the declared default; the transform producer+consumer are currently missing."
+      },
+      {
+        "id": "LA-033",
+        "connected_findings_json_row": 28,
+        "connected_findings_json_record": {
+          "id": "LA-033",
+          "original_unit": "A",
+          "original_primary_bundle": "REP-01",
+          "author_proposal": "limited",
+          "original_criteria_pointer": "/findings/257/criterion_refs",
+          "author_source": "A",
+          "author_row_pointers": [
+            {
+              "pointer": "/current_index/31"
+            },
+            {
+              "pointer": "#/current_root_adjudication_20261008/rows/31",
+              "role": "bound_root_row"
+            }
+          ],
+          "flows": [
+            "V",
+            "R",
+            "I",
+            "Q"
+          ],
+          "next_tasks": [
+            "R1",
+            "I4",
+            "Q2"
+          ],
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "original_coverage_row_index": 257,
+        "coverage_record": {
+          "id": "LA-033",
+          "unit": "A",
+          "primary_bundle": "REP-01",
+          "source_closure_owner_literal": "REP-01",
+          "companion_bundles": [
+            "REP-01"
+          ],
+          "ledger_status_historical": "partial",
+          "appendix_c_status_separate": "partial",
+          "task_refs": [
+            "A.md#task-a10"
+          ],
+          "criterion_refs": [
+            {
+              "criterion_id": "LA-033",
+              "document": "LA_r09",
+              "lines": [
+                1994,
+                2028
+              ],
+              "sha256": "60a48ac490a9fe0add1bbecc3bbfb74a011f8038a5dc3f6196f929f9de19739f",
+              "card": "REP-01"
+            }
+          ],
+          "closure_now": "not_adjudicated",
+          "criterion_specific_acceptance_not_executed": "lazy import markers or CAS status can pass despite eager import/engine stub.",
+          "capability_label": "verification_missing"
+        },
+        "original_criterion": {
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "criterion_ref": {
+            "criterion_id": "LA-033",
+            "document": "LA_r09",
+            "lines": [
+              1994,
+              2028
+            ],
+            "sha256": "60a48ac490a9fe0add1bbecc3bbfb74a011f8038a5dc3f6196f929f9de19739f",
+            "card": "REP-01"
+          },
+          "coverage_json_pointer": "#/findings/257/criterion_refs/0",
+          "sha256_verified_over_exact_raw_lf_span": "60a48ac490a9fe0add1bbecc3bbfb74a011f8038a5dc3f6196f929f9de19739f"
+        },
+        "connected_plan_route": {
+          "id": "LA-033",
+          "original_unit": "A",
+          "original_primary_bundle": "REP-01",
+          "author_proposal": "limited",
+          "original_criteria_pointer": "/findings/257/criterion_refs",
+          "author_source": "A",
+          "author_row_pointers": [
+            {
+              "pointer": "/current_index/31"
+            },
+            {
+              "pointer": "#/current_root_adjudication_20261008/rows/31",
+              "role": "bound_root_row"
+            }
+          ],
+          "flows": [
+            "V",
+            "R",
+            "I",
+            "Q"
+          ],
+          "next_tasks": [
+            "R1",
+            "I4",
+            "Q2"
+          ],
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "A_progress_row": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+          "git_ref": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+          "git_blob": "5beae048efe4b4ffda43583d1f9b93c3298e0d86",
+          "sha256": null,
+          "row_pointer": "#/current_root_adjudication_20261008/rows/31",
+          "root_outcome": "limited",
+          "next_action": "B typed optional-read contract+C absent scan state; A rerun authentic7/23 resume without repeated completed nodes. Не подставлять{} как чистый scan.",
+          "leaf_receipt": {
+            "packet": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/owner-contract-REP-20261007.md",
+              "sha256": "bc8fbdc3f32e3d901777c1ac6b7a438bd329e320a16a3fcc78bcdd659bd3a01b",
+              "git_blob_at_A": "a07d26b1ec1115f23326048eaed27010ee9c13b0"
+            },
+            "candidate_sha": "e19fd2c741cbd0398d2cd94f72112bb20b3b3e1f",
+            "candidate_tree": "fd1048a121b6a16ec4a760ae6ff6185d166a345d",
+            "implementation_commits": [],
+            "current_root_outcome": "limited",
+            "source_closure": "not_adjudicated",
+            "next_action": "B typed optional-read contract+C absent scan state; A rerun authentic7/23 resume without repeated completed nodes. Не подставлять{} как чистый scan.",
+            "existing_footprint_paths": [],
+            "evidence_note": "Committed A packet records real default CLI partial checkpoint 7/23 and a refusal before residual execution at params.pii_scan_results; null remains unknown and must not be converted to {}. Q2 excludes repeating this V1 actual-data replay."
+          }
+        },
+        "criterion_summary": "Move the compatibility import path to the canonical replay owner while preserving lazy API/ABI/CLI behavior; a genuine 7/23 default CLI resume must handle missing PII scan as unknown/warning, never as an empty clean scan.",
+        "Q2_scope": "Do not repeat the 7/23 actual-data/V1 replay in Q2. If/when B optional-read and C truthful optional-output contracts are admitted, Q2 may validate only the selected installed CLI/API consumer and unknown-versus-clean projection; current optional-read contract is absent."
+      },
+      {
+        "id": "LA-045",
+        "connected_findings_json_row": 32,
+        "connected_findings_json_record": {
+          "id": "LA-045",
+          "original_unit": "A",
+          "original_primary_bundle": "REQ-01",
+          "author_proposal": "limited",
+          "original_criteria_pointer": "/findings/269/criterion_refs",
+          "author_source": "A",
+          "author_row_pointers": [
+            {
+              "pointer": "/current_index/32"
+            },
+            {
+              "pointer": "#/current_root_adjudication_20261008/rows/32",
+              "role": "bound_root_row"
+            }
+          ],
+          "flows": [
+            "V",
+            "Q"
+          ],
+          "next_tasks": [
+            "Q0",
+            "Q2"
+          ],
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "original_coverage_row_index": 269,
+        "coverage_record": {
+          "id": "LA-045",
+          "unit": "A",
+          "primary_bundle": "REQ-01",
+          "source_closure_owner_literal": "REQ-01",
+          "companion_bundles": [
+            "REQ-01"
+          ],
+          "ledger_status_historical": "partial",
+          "appendix_c_status_separate": "closed_bounded",
+          "task_refs": [
+            "A.md#task-a10"
+          ],
+          "criterion_refs": [
+            {
+              "criterion_id": "LA-045",
+              "document": "LA_r09",
+              "lines": [
+                2999,
+                3033
+              ],
+              "sha256": "56970bcb95cda770929f9d2189bd528c98722300f9e5b80b76c80dcdb115da28",
+              "card": "REQ-01"
+            }
+          ],
+          "closure_now": "not_adjudicated",
+          "criterion_specific_acceptance_not_executed": "rg/static tracked census cannot prove no external/string-built dynamic import.",
+          "capability_label": "verification_missing"
+        },
+        "original_criterion": {
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "criterion_ref": {
+            "criterion_id": "LA-045",
+            "document": "LA_r09",
+            "lines": [
+              2999,
+              3033
+            ],
+            "sha256": "56970bcb95cda770929f9d2189bd528c98722300f9e5b80b76c80dcdb115da28",
+            "card": "REQ-01"
+          },
+          "coverage_json_pointer": "#/findings/269/criterion_refs/0",
+          "sha256_verified_over_exact_raw_lf_span": "56970bcb95cda770929f9d2189bd528c98722300f9e5b80b76c80dcdb115da28"
+        },
+        "connected_plan_route": {
+          "id": "LA-045",
+          "original_unit": "A",
+          "original_primary_bundle": "REQ-01",
+          "author_proposal": "limited",
+          "original_criteria_pointer": "/findings/269/criterion_refs",
+          "author_source": "A",
+          "author_row_pointers": [
+            {
+              "pointer": "/current_index/32"
+            },
+            {
+              "pointer": "#/current_root_adjudication_20261008/rows/32",
+              "role": "bound_root_row"
+            }
+          ],
+          "flows": [
+            "V",
+            "Q"
+          ],
+          "next_tasks": [
+            "Q0",
+            "Q2"
+          ],
+          "next_decision": "resolve_named_residual_then_G_adjudication",
+          "G_closure": "not_adjudicated"
+        },
+        "A_progress_row": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+          "git_ref": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+          "git_blob": "5beae048efe4b4ffda43583d1f9b93c3298e0d86",
+          "sha256": null,
+          "row_pointer": "#/current_root_adjudication_20261008/rows/32",
+          "root_outcome": "limited",
+          "next_action": "A: reconcile supported tracked caller absence with P40 residual; не утверждать dynamic/external caller absence и не удалять active compiler.",
+          "leaf_receipt": {
+            "packet": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/LA045-caller-census.json",
+              "sha256": "763a5cf7ee66fd9c29f6230ea6a99783421c46f5e4de079abe892294c68fa175",
+              "git_blob_at_A": "764a69cd3fbd33cb7a807ba10dbc56a6fe5fcbe8"
+            },
+            "candidate_sha": "1a520b209ce4bac86204137d15e765de05c08a73",
+            "candidate_tree": "1d4b7e814d72248ec96a0b0ec3ad90fe4f97eccb",
+            "implementation_commits": [
+              "1a520b209ce4bac86204137d15e765de05c08a73"
+            ],
+            "current_root_outcome": "limited",
+            "source_closure": "not_adjudicated",
+            "next_action": "A: reconcile supported tracked caller absence with P40 residual; не утверждать dynamic/external caller absence и не удалять active compiler.",
+            "existing_footprint_paths": [
+              "policy-engine/src/polisyos/data_requirement/compiler.py",
+              "policy-engine/tests/unit/data_requirement/test_compiler.py",
+              "policy-engine/tests/unit/data_requirement/test_e02_named_profile_context.py",
+              "policy-engine/tests/unit/fabric/catalog/test_data_requirement_adapter.py",
+              "policy-engine/tests/unit/remediation/test_req_01_installed.py"
+            ],
+            "evidence_note": "Candidate 1a520 adds only the census instrument; the seven-helper source deletion predates that slice (fce9957) and compiler blob is unchanged. An earlier isolated wheel check passed the active compiler plus eight retired-name negatives, but current universal caller absence remains unresolved."
+          }
+        },
+        "criterion_summary": "Remove only the seven specified private family extractors after a complete caller review; preserve active compiler/resolver/fallback, output order, public wrappers, and packaging/import behavior.",
+        "Q2_scope": "Q2 may reuse the narrow isolated installed-wheel reader selector at the exact selected source. Do not repeat the 7,335-file census or claim absence of computed/dynamic/external callers; the 305 reflective sites remain ambiguous."
+      }
+    ]
+  }
+}

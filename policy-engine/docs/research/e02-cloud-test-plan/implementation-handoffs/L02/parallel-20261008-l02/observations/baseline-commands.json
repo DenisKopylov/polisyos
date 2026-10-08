@@ -1,0 +1,43 @@
+[
+  {
+    "name": "results-import-check",
+    "argv": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+      "--check"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "seconds": 0.3967081250157207,
+    "stdout_file": "results-import-check.stdout",
+    "stderr_file": "results-import-check.stderr"
+  },
+  {
+    "name": "results-query-help",
+    "argv": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--help"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "seconds": 0.05505479103885591,
+    "stdout_file": "results-query-help.stdout",
+    "stderr_file": "results-query-help.stderr"
+  },
+  {
+    "name": "results-query-failures30",
+    "argv": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--failures-only",
+      "--limit",
+      "30"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "seconds": 0.11655633302871138,
+    "stdout_file": "results-query-failures30.stdout",
+    "stderr_file": "results-query-failures30.stderr"
+  }
+]

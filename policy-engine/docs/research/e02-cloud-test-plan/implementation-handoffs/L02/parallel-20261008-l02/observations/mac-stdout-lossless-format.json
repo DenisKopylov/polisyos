@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "swift",
+    "-e",
+    "import Foundation\nlet source=URL(fileURLWithPath:CommandLine.arguments[1])\nvar target:NSURL?=nil\ntry FileManager.default.trashItem(at:source,resultingItemURL:&target)\nprint(target!.path!)\n",
+    "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/stdout.txt"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+  "exit_code": 0,
+  "wall_seconds": 1.2067901660338975,
+  "stdout": "/Users/deniskopylov/.Trash/stdout.txt\n",
+  "stderr": "",
+  "source_original_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/stdout.txt",
+  "source_bytes": 606,
+  "source_sha256": "bb5416691116073b8086fcc9fe21b5616c6b756cfa4296572369e72fee9283e0",
+  "trash_path": "/Users/deniskopylov/.Trash/stdout.txt",
+  "trash_full_bytes_reconciled": true,
+  "purpose": "Duplicate receipt-format conversion only; exact raw source output retained at original ignored report and lossless committed gzip; no permanent deletion or ignored-audit move",
+  "lossless_archive_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/mac-refusal/stdout.txt.gz",
+  "original_ignored_report_unchanged": true
+}

@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm",
+    "install",
+    "--frozen-lockfile",
+    "--ignore-scripts",
+    "--offline"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine",
+  "exit_code": 0,
+  "wall_seconds": 3.9768585830461234,
+  "max_children_rss_bytes_macos": 398884864,
+  "timeout_seconds": 180,
+  "purpose": "Satisfy required checkout-local Lefthook binary and repository hooks for ordinary receipt commit/push; no hook bypass",
+  "profile": "Node22.22.2/pnpm10.33.2; frozen offline workspace with dependency scripts disabled per contributor manual bootstrap to preserve source/generated files",
+  "claim_limit": "Dependency bootstrap only, not installed TS consumer or canonical generation proof"
+}

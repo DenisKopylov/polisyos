@@ -1,0 +1,98 @@
+[
+  {
+    "name": "fetch-latest-G",
+    "argv": [
+      "git",
+      "fetch",
+      "origin",
+      "main",
+      "codex/e02-integration"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "seconds": 0.7940252089756541,
+    "stdout": "",
+    "stderr": "From https://github.com/DenisKopylov/polisyos\n * branch                main       -> FETCH_HEAD\n * branch                codex/e02-integration -> FETCH_HEAD\n"
+  },
+  {
+    "name": "latest-G",
+    "argv": [
+      "git",
+      "rev-parse",
+      "origin/codex/e02-integration",
+      "origin/codex/e02-integration^{tree}"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "seconds": 0.006949207978323102,
+    "stdout": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b\nd9a4e73a0e85fa11f865bf643c1b63fbe66c2767\n",
+    "stderr": ""
+  },
+  {
+    "name": "L01-remote",
+    "argv": [
+      "git",
+      "ls-remote",
+      "origin",
+      "refs/heads/codex/e02-L01-custody-20261008"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "seconds": 0.6236081660026684,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "name": "L01-local",
+    "argv": [
+      "git",
+      "rev-parse",
+      "codex/e02-L01-custody-20261008",
+      "codex/e02-L01-custody-20261008^{tree}"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "seconds": 0.016932166006881744,
+    "stdout": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b\nd9a4e73a0e85fa11f865bf643c1b63fbe66c2767\n",
+    "stderr": ""
+  },
+  {
+    "name": "df-after-light-check",
+    "argv": [
+      "df",
+      "-k",
+      "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "seconds": 0.006421916012186557,
+    "stdout": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239362496 161517392  47929656    78% 2844181 479296560    1%   /System/Volumes/Data\n",
+    "stderr": ""
+  },
+  {
+    "name": "scratch-size",
+    "argv": [
+      "du",
+      "-sk",
+      "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/parallel-20261008-l02"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "seconds": 0.00613037496805191,
+    "stdout": "1896\t/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/parallel-20261008-l02\n",
+    "stderr": ""
+  },
+  {
+    "name": "attached",
+    "argv": [
+      "git",
+      "status",
+      "-sb"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "seconds": 0.11007304198574275,
+    "stdout": "## codex/e02-L02-authentic-20261008\n",
+    "stderr": ""
+  }
+]

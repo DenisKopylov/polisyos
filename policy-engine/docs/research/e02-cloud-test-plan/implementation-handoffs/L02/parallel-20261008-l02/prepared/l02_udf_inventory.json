@@ -1,0 +1,538 @@
+{
+  "schema": "policyos.e02.l02.qualified_preparation.v1",
+  "role": "L02",
+  "helper": "l02_udf_inventory",
+  "source_candidate_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "source_candidate_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "preparer_raw_local_ref": {
+    "path": ".tmp/parallel-2026-10-08-l02/prepared/l02_udf_inventory.json",
+    "bytes": 40078,
+    "sha256": "63d20eaf58cf794f93b661b8a0dde097ff3148786a8a1ac00f12de9e8a7490bf"
+  },
+  "delivery_compaction": {
+    "removed_derivable_text_fields": [],
+    "raw_report_preserved": true,
+    "no_semantic_qualification_promoted": true
+  },
+  "preparation": {
+    "schema": "polisyos.e02.l02_prepared_research_receipt.v1",
+    "task": "L02 UDF-05 / LA-032 inventory and four-reader research",
+    "prepared_on": "2026-10-08",
+    "prepared_in": {
+      "repository": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+      "branch": "codex/e02-L02-authentic-20261008",
+      "head": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767"
+    },
+    "scope_and_nonreceipts": {
+      "deliverable": "Research receipt only; no product, test, config, runtime, source-data, or production-data changes.",
+      "actions_not_taken": [
+        "tests",
+        "install/bootstrap",
+        "checkout/ref mutation",
+        "production or private source reads",
+        "finding closure/adjudication"
+      ],
+      "publication": "Prepared file only; root is sole committed publisher."
+    },
+    "finding": {
+      "id": "LA-032",
+      "unit": "C",
+      "accountable_owner": "C-W19 / UDF-05",
+      "current_frozen_G": {
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+        "coverage_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "formal_status": "not_adjudicated",
+        "closure_now": "not_adjudicated",
+        "capability_label": "bridge_missing",
+        "owner_receipt_state": "held / producer_missing + bridge_missing + verification_missing"
+      },
+      "sourceG": {
+        "commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617"
+      },
+      "full_original_criterion": {
+        "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "source_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "lines": [
+          1668,
+          1715
+        ],
+        "criterion_sha256": "5f5c7a56a652a0328e25fd8b6091a2f780750d9eaee8f10c0129b2f9f0609cf2",
+        "wording": "## LA-032. Демографический reader: совместимость по отдельным filename вместо целого снимка\n\n**Объединение / разделение ответственности**\n\n**Точная область:**\n\n`src/polisyos/data_forge/domains/ukraine/demography/__init__.py#load_demography_artifacts`\n\n`src/polisyos/data_forge/read_api/ukraine.py#legacy demographic exports`\n\n**Статус.** Неявный смешанный layout воспроизведён; реальное production-смешение версий не измерено.\n\n**Что установлено и почему это legacy-кандидат.** Targets, priors и optional donor независимо выбирают первый существующий файл из нового hierarchical и старого flat layouts. Затем dicts объединяются и проверяются по форме. Нет единого выбора версии bundle. В полном исходном reader новые targets=[20] из demography/targets.json совместились со старыми priors=[[0.5]] из demography_transition_priors.json; metadata осталась old. Удаление нового targets-файла вернуло старые targets=[10] без изменения API-запроса. Это остаточный режим исторической совместимости, который определяет эксперимент через случайный состав директории.\n\n**Что сохранить.** Типизированные массивы, shape checks, поддержанные старые layouts, optional donor, удобный public read_api и чистый build_static_aging_state. Пригодные исторические данные не должны становиться нечитаемыми. Намеренная композиция разных источников возможна, но требует явного описания состава, а не предположения, что все одноразмерные файлы совместимы.\n\n**Куда перенести / с чем объединить.** Один явный выбор layout и inventory/version-bound bundle у Ukraine reader; existing verified-stage/release read_api содержит полезный механизм content binding и проверки размера/hash. Для demographic-формата нужен отдельный поддержанный adapter/manifest, а не ложное переименование старой папки в готовый D5 receipt. У старых адресов остаётся точный historical reader до завершения миграции.\n\n**Порядок миграции.** Сначала определять полный layout или явно переданный manifest. Для смешанной неоднозначной директории выдавать адресный запрос на выбор, не незаметный fallback. Сохранить объявленные пути, digest и версию каждого входа; преобразование старого bundle выполнять как новую версию, не переписывая source bytes. Не требовать повторной сборки данных, когда совместимый сохранённый снимок доступен. Переиспользование receipt не создаёт governance или method-validity authority.\n\n**Фактическая проверка и приёмка.** P13/P15 проверяют чистые новые/старые layouts; P14 — законное отсутствие donor. P16 воспроизводит смешение; P17 — смену выбранных targets после удаления новой копии. P18/P19 подтверждают действующие отказы при отсутствии targets и несовпадении размерностей. В интеграции нужны идентичность inventory, конфликт версий, недоступный blob, чтение прежнего bundle и сохранность численных полей.\n\n**Приоритет.** Высокая семантическая отдача, средняя цена. Первое ограниченное исправление — явный bundle/layout resolver, без новой универсальной data-platform.\n\n**Граница вывода.** Исполнен полный локально сверенный reader с настоящими Pydantic/NumPy и временными JSON. CAS, native verified receipt, настоящий demographic builder и внешние policy checks не запускались. Одинаковая размерность не доказывает общий снимок, но сама по себе разность источников тоже не запрещена.\n\n**Основания:** E86, E87, E88, E89. Локальные проверки: P13, P14, P15, P16, P17, P18, P19."
+      }
+    },
+    "source_admission_and_receipts": {
+      "connected_closeout_inputs": {
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json",
+        "blob": "749255cd37f93955b176c748d63b2a3a7b7ee214",
+        "scope": "planning; no new source acceptance or finding closure",
+        "selected_source_rule": "receipt/root carrier is not the source freeze; C includes separate writer DAGs",
+        "source_pointers": {
+          "C_current_author_row": {
+            "commit": "980d91b36452307d683283ddcf1e89a653af3ce2",
+            "tree": "a8394f6cfb7196ee0a37d610b26cb4b402d32495",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c5-v1.json",
+            "blob": "98c39eb77e4397bc9a6e95d8e0a210100fa96e5f",
+            "sha256": "a955000a989ec0d2ae3b4956ab42b4f3304659279e6897c29ea42cdc6876a41c",
+            "bytes": 655130
+          },
+          "C5_root": {
+            "commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+            "tree": "7edd87e6730739fbe2d7c7ed0c35d4a4e1e11ba8",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261007-C5.json",
+            "blob": "7310778b273b89341330154ab215b183c79e2e53"
+          },
+          "C5_owner_inputs": {
+            "commit": "2a702c26c047ccafde68523afcd7fc356f2edfb9",
+            "tree": "950e05b6cad1e5f7381627db488b1638b10eb5d6",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/C5-owner-inputs-20261007.json",
+            "blob": "5549b337ecaf567c222f970977f636ed386b2aed",
+            "sha256": "95dfff35eadcd55895b643af217ddaac3a6f176038e6d1b651662c4165b4c385",
+            "bytes": 42442,
+            "json_pointer": "/rows/14",
+            "row_summary": "Held. D3 household/labor manifests do not produce target/prior/donor source-to-state inventory. Missing authoritative state-ID/order/source mapping; target/entrant definitions; prior axes/derivation/time; donor inclusion/omission; versioned source profile. Next action: source-owned producer, persisted inventory, read_api bridge, and all-four-reader missing/forged/swapped refusal."
+          }
+        }
+      },
+      "C54_current_row": {
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c5-v1.json",
+        "source_commit": "980d91b36452307d683283ddcf1e89a653af3ce2",
+        "finding_id": "LA-032",
+        "status": "held; carried from C4, not a new C5 verdict",
+        "current_root_reason": "Four readers/shared immutable selector are bounded; D3 household/labor manifests do not produce target/prior/donor source-to-state inventory.",
+        "g_current": "formal_status=not_adjudicated; capability_label=bridge_missing",
+        "source_pointer": "/rows/40/current_root_verdict",
+        "c5_owner_pointer": "/rows/14",
+        "c2_receipt_pointers": [
+          "/rows/40/deciding_receipts/R15",
+          "/rows/40/deciding_receipts/R202"
+        ]
+      },
+      "C_W19_R15_leaf": {
+        "commit": "705575be73510d40d726c82c5a0af4bf8635a2a8",
+        "tree": "623a5ddd9e9512262f7944885a811930574733f0",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf.json",
+        "blob": "4d134faec14034aa06ae6b5b65bbca7f394dd92e",
+        "sha256": "6dff493387ddf638f68989a9143ce16e9218329d4104c9cd657b915e61595fb2",
+        "bytes": 49032,
+        "receipt_id": "R15",
+        "candidate_commit": "5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+        "candidate_tree": "3602443723a9a57b1a988ae3933b2d1d7c17f2bc",
+        "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "closure_ids": [],
+        "LA_032_state": "held; producer_missing, bridge_missing, verification_missing",
+        "source_census_state": "candidate receipt says no callable producer/materializer, no persisted authoritative inventory, and no producer/read_api bridge; C-W19 owns source/version contract.",
+        "focused_test_result": "Historical candidate suite PASS, exit 0, synthetic/local fixtures; not an independent LA-032 review, not current sourceG evidence, and not a G closure.",
+        "receipt_index": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/receipt-index.json",
+          "blob": "d40c727860384d697dccd599d5ac1953af56579d",
+          "sha256": "6c1e2c4ddc5032a35229d52f69f0e10a87c956bd62cf4b73f55346140ff87a22",
+          "bytes": 31230
+        },
+        "exact_historical_command": [
+          "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "tests/unit/remediation/test_obs_01.py",
+          "tests/unit/remediation/test_obs_02.py",
+          "tests/unit/remediation/test_udf_01.py",
+          "tests/unit/remediation/test_udf_02.py",
+          "tests/unit/remediation/test_udf_04.py",
+          "tests/unit/remediation/test_udf_05.py",
+          "tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py"
+        ],
+        "historical_cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-obs-udf-20261006/polisyos/policy-engine",
+        "historical_environment": "macOS / original policy-engine venv Python 3.14 / synthetic temporary fixtures only",
+        "evidence_bound_to": "5a75b004e0d17c80f1d156df84db7a12a9274c9e; do not reuse as current G/sourceG PASS."
+      },
+      "R202_handoff_transport": {
+        "commit": "48af851db5c0e802c92d9b30226acbc4436c69ba",
+        "tree": "84b6416c9cc84a975ceb2d5d4cd5a8a4f6b3d9e2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/second-ready-topic-push-readback.json",
+        "blob": "9e7c3f3f43a33d3942a8c12d1e16412443b81d43",
+        "sha256": "c55bfea15fda0647fd08843d46efe0d22cceb2d83c2321c8d7e9d004b526fcab",
+        "bytes": 39301,
+        "role": "Root publication/remote readback for BER, SCL, and OBS/UDF final handoffs; evidence transport, not LA-032 runtime or semantic authority."
+      },
+      "source_admission": {
+        "source": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/C-identity.md",
+        "pinned_at_G": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "finding": "C54 C5 candidate is a 19-documentation/handoff/evidence-path delta with zero src, test, or release-fragment paths; independent GO covers source/input/decision-pointer/projection checks, not runtime acceptance or G closure. C continuation is documentation/evidence-only. The code-admission queue names DFK and Legal slices, not UDF.",
+        "implication": "Neither the C54 recommendation nor C-W19 C2 test receipt admits UDF runtime code or changes LA-032's G status."
+      }
+    },
+    "existing_code_path_and_blob_map": {
+      "freeze": {
+        "G": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b / tree d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+        "sourceG": "fe5ccf9ce90c336fff749da48bd0138d321baf23 / tree 17f2b3e019b7ae82b85ad10af52dd9fb14049617",
+        "note": "The listed current-source blobs are identical at G and sourceG."
+      },
+      "four_public_readers": [
+        {
+          "public_read_api_name": "load_demography_artifacts",
+          "canonical_source": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+          "blob": "32d925f0d443ea61c08b16986b87ed053dd8c9a8",
+          "source_line": 285,
+          "behavior": "Composite consumer chooses one in-call new/legacy layout with _select_demography_layout, reads targets/priors and optional donor, validates shapes, returns UkraineDemographyArtifacts. The selector is not persisted and has no source-authority inventory."
+        },
+        {
+          "public_read_api_name": "load_reconciled_targets",
+          "canonical_source": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+          "blob": "32d925f0d443ea61c08b16986b87ed053dd8c9a8",
+          "source_line": 249,
+          "behavior": "Sibling chooses the first existing targets filename independently and reads JSON directly."
+        },
+        {
+          "public_read_api_name": "load_transition_priors",
+          "canonical_source": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+          "blob": "32d925f0d443ea61c08b16986b87ed053dd8c9a8",
+          "source_line": 260,
+          "behavior": "Sibling chooses the first existing priors filename independently and reads JSON directly."
+        },
+        {
+          "public_read_api_name": "load_donor_pool",
+          "canonical_source": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+          "blob": "32d925f0d443ea61c08b16986b87ed053dd8c9a8",
+          "source_line": 271,
+          "behavior": "Sibling chooses the first existing donor filename independently and maps missing donor to an empty mapping; no persisted explicit absent record."
+        }
+      ],
+      "api_forwarding": {
+        "path": "policy-engine/src/polisyos/data_forge/read_api/ukraine.py",
+        "blob": "061441cccf7f52e8fdea33a4c63b47dd95372dad",
+        "source_lines": [
+          55,
+          60
+        ],
+        "behavior": "Lazy _EXPORTS maps all four public forms to the canonical demography module. No shared persisted-inventory admission is performed by these aliases."
+      },
+      "canonical_producer_search_and_nearby_owners": [
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/assets.py",
+          "blob": "e4777998cda09a03d07de261c73835b4433df83d",
+          "role": "Declares targets/priors/donor AssetKeys and schema IDs through AssetSpec/AssetGroup; declarations are not a materializer."
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography.py",
+          "blob": "e22295965423ce472babfe2171b6bd883c1dd537",
+          "role": "build_d3_stage emits household/labor/observation outputs; not targets/prior/donor source snapshot."
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/__init__.py",
+          "blob": "8cfee7df1fbf243b8503622b7058ad94fab25469",
+          "role": "Registered builder map for D0/P0, D1, D2, D3, D4 and D5; no named demographic source-inventory producer."
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/orchestrator.py",
+          "blob": "bdc8a22ebbe22f530c90f3e1759a61f44f2ef17b",
+          "role": "UkraineDataOrchestrator stage bridge; registered stage route does not provide the missing source semantics."
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/models.py",
+          "blob": "3015a5fe19cb40f4bb6bed75e1a9f7249782ccf4",
+          "role": "StageId has bootstrap, validation, d0_p0, d1, d2, d3, d4, d5, full and release; no demographic-inventory stage. Do not relabel unrelated D3/D5 work."
+        }
+      ],
+      "existing_contract_and_mechanics": [
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/manifests.py",
+          "blob": "b112bcd9f0d553d1194ee99599dc73e976fb01f5",
+          "existing_types": {
+            "ArtifactRecord": "strict extra=forbid; path, sha256 defaulting to empty, size_bytes defaulting to zero, row_count, nnz, artifact_id",
+            "BuildRunManifest": "strict extra=forbid; run_id, StageId, status, started_at, finished_at, input/output ArtifactRecords, warnings/errors/findings",
+            "SourceSnapshotManifest": "strict extra=forbid; source_id, adapter_id, status, discovered_at, raw_artifacts, endpoint, notes"
+          },
+          "limitation": "These containers do not bind target/prior/donor roles to authoritative ordered state IDs, versions, donor absence, or prior axes. New inventory member references must reject empty/default hashes and sizes."
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+          "blob": "19ca41eead188afac99ed21cca386c460763e15d",
+          "types_and_functions": [
+            "GenerationBasis",
+            "GenerationBasisMember",
+            "build_generation_basis",
+            "compare_generation_basis"
+          ],
+          "role": "Recomputes digest/member identities from caller-supplied bytes and rule/kind strings; useful content-binding primitive only.",
+          "limitation": "Cannot prove caller supplied the complete source set, source authority, semantic role mapping, data version, or target/prior/donor meaning.",
+          "ownership": "C5 source refs mark this as exclusive DFI/EMB owner; do not edit it in this slice."
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/read_api/ukraine.py",
+          "blob": "061441cccf7f52e8fdea33a4c63b47dd95372dad",
+          "existing_verified_boundary": "load_verified_stage_artifacts and load_verified_stage_output_bytes resolve manifests/outputs, verify paths/status/content, persist bytes to CAS, and report producer-artifact identity/content binding only.",
+          "limits": [
+            "governance_admissibility",
+            "release_acceptance",
+            "legal_compilation",
+            "method_validity"
+          ],
+          "limitation": "The stage verifier needs a real StageId and explicit store/root; no existing stage is established as owner of this inventory. Reuse it only if the source owner identifies a legitimate stage; D3/D5 are not interchangeable with demographic-source authority."
+        },
+        {
+          "path": "policy-engine/tests/unit/data_forge/read_api/test_ukraine_stage_artifacts.py",
+          "blob": "5b688ecaa1817f9e9beaa5717a92551caeb64782",
+          "role": "Tests existing stage/release path, content-binding, CAS readback, drift and path-scope behavior; it does not test a demographic inventory producer."
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+          "blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+          "role": "Existing FileSystemCAS content-addressed byte store used by the Ukraine read_api verification tests; persistence primitive only, not source-semantic authority."
+        }
+      ],
+      "current_tests": [
+        {
+          "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py",
+          "blob": "6105b5626a3845dc846e2063e4548178a42d958f",
+          "current_scope": "Composite artifact/static-aging fixture plus one legacy target shim; not producer-to-inventory-to-four-reader verification."
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_udf_05.py",
+          "blob": "e7d2a6ee74913664d363242d53ea1d0c387c5a2e",
+          "current_scope": "Layout-selection characterization and composite-reader controls; no persisted source-authoritative inventory bridge and no current direct-sibling adversarial matrix."
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/README.md",
+          "blob": "6a71b63a8fbe190a23ad1998229957f31342dc08",
+          "current_scope": "Short package ownership description; suitable companion doc once source semantics are supplied."
+        }
+      ],
+      "historical_C2_changes_not_in_current_source": [
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+          "current_candidate_blob": "74f8ba584834591aec048e98488a597e302cad78",
+          "current_G_blob": "32d925f0d443ea61c08b16986b87ed053dd8c9a8"
+        },
+        {
+          "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py",
+          "current_candidate_blob": "b61760416cd8b901a213dbe02f2a8fa2091cd3c4",
+          "current_G_blob": "6105b5626a3845dc846e2063e4548178a42d958f"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_udf_05.py",
+          "current_candidate_blob": "af27ec40c50407a2ffc1d8b562ccff5ef6bf16cd",
+          "current_G_blob": "e7d2a6ee74913664d363242d53ea1d0c387c5a2e"
+        }
+      ]
+    },
+    "producer_census_receipt": {
+      "evidence_class": "C-W19 historical source-census receipt; cited, not independently rerun/read from raw dump in this task.",
+      "target_commit": "5afffab19c30d88f6522ca397f622ef9a3135646",
+      "target_tree": "133dc65fb915e80d404893a42ec4fd45c9317a4f",
+      "denominator": {
+        "tracked_tree_entries": 13699,
+        "source_code": 7788,
+        "configuration": 3409,
+        "documentation": 2254,
+        "data_or_binary": 21,
+        "other_tracked": 227,
+        "gitlinks": 0,
+        "symlinks": 0
+      },
+      "receipt_reported_findings": [
+        "Six tracked files matching new-layout member paths are baseline/candidate test fixtures under tests/_data/data_forge/ukraine_shadow; no tracked production targets/prior/donor input files.",
+        "Full tracked-tree exact path/payload/AssetKey/schema/four-reader search and producer-expression search found registrations/exports/readers/validators/downstream consumers/tests but no callable producer/materializer.",
+        "AssetSpec/AssetGroup declarations bind no materializer; builders/demography.py produces household/labor/observation contracts."
+      ],
+      "pinned_census_script": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/census/census.py",
+        "sha256": "087b6d6514662eb47d98c5c1318e0dee5a908eaf674e4ffd7c281cc5013a2728",
+        "size_bytes": 8291
+      },
+      "tracked_path_listing": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/census/tracked-tree.stdout.nul",
+        "sha256": "bf30964b32829c87d191f8f0c3b92d2673f2721e1ad47e8b7575a56ba86998f8",
+        "size_bytes": 1779072
+      },
+      "raw_result_not_read": {
+        "path_at_source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/udf-inventory-owner/source-census.json",
+        "sha256": "2c2492df88d84a12f071c5c81de00cca7ce2c44705142fa2b8a35d9a9d2102f5",
+        "size_bytes": 10573776,
+        "note": "Raw dump intentionally not copied or opened; its path/hash/size are cited from the R15 leaf."
+      }
+    },
+    "proposed_smallest_reuse_path": {
+      "decision": "No complete existing demographic inventory capability is present. Reuse the canonical Ukraine manifest/artifact and CAS mechanics, extend the canonical demographic reader/read_api boundary, and require C-W19 to identify the source-owned producer and semantics first. This is a not_established producer/artifact/bridge boundary, not a reason to add a generic inventory platform.",
+      "source_and_contract_paths": {
+        "producer": {
+          "path": null,
+          "state": "not_established",
+          "accountable_owner": "C-W19",
+          "blocker": "No source/data authority or callable target/prior/donor source producer is identified. Do not assign a new producer path or overload the D3 labor/household builder before the source authority and version contract arrive."
+        },
+        "typed_inventory": {
+          "proposed_path": "policy-engine/src/polisyos/data_forge/domains/ukraine/manifests.py",
+          "existing_owner": "Ukraine typed manifest models next to ArtifactRecord/BuildRunManifest",
+          "proposed_model": "strict UkraineDemographySourceInventory (name provisional until C05 source contract)",
+          "constraint": "Do not freeze semantic enum values or source profile constants until source authority supplies them."
+        },
+        "canonical_reader": {
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+          "proposed_change": "Keep one inventory resolver as the only path to member bytes; route composite and all three sibling readers through it; preserve explicit legacy support via a complete, declared old-layout inventory rather than per-file fallback."
+        },
+        "public_bridge": {
+          "path": "policy-engine/src/polisyos/data_forge/read_api/ukraine.py",
+          "proposed_change": "Use the existing public boundary for inventory admission and exact member byte/CAS replay. Keep existing four public names/signatures if possible; implement shared private admission instead of a new generic public API. Reuse load_verified_stage_artifacts only for an actual source-owned registered stage; no such stage is currently established."
+        },
+        "persistence_primitives": [
+          "ArtifactRecord and BuildRunManifest in domains/ukraine/manifests.py, if a legitimate existing producer stage owns the output",
+          "FileSystemCAS and the existing verified read_api content-binding pattern for immutable member bytes"
+        ],
+        "prohibited_shortcuts": [
+          "Do not treat GenerationBasis as producer authority, source completeness, semantic mapping, or source version.",
+          "Do not repurpose the D5 release verifier as a generic demographic inventory receipt.",
+          "Do not label a target/prior/donor inventory as D3 merely to satisfy StageId.",
+          "Do not infer source membership, state mappings, or donor absence from shape, filenames, footer metadata, default values, LLM output, or a census count."
+        ]
+      },
+      "minimum_source_owned_artifact": {
+        "name": "Versioned Ukraine demographic source inventory; final schema and names require C-W19 source-authority input.",
+        "fields_required_before_admission": [
+          "schema_id and schema_version",
+          "source_authority identity plus resolvable/verifier provenance; no self-attested authority",
+          "source_profile/layout id, data/source version, producer identity and producer/rule version",
+          "run_id or generation_id and stable inventory identity",
+          "separate created/ingested/observed and source valid-time roles as actually supplied",
+          "ordered canonical state_ids and explicit state-id/source mapping",
+          "targets member ref (relative path, role, SHA-256, byte size, CAS content ref) and target/entrant definitions and alignment",
+          "priors member ref with origin-state and destination-state ID axes, derivation/version and relevant time",
+          "donor tagged status present or explicitly absent; present binds exact donor member and state mapping, absent binds source-authority declaration/reason/time",
+          "complete member-role set and inventory digest recomputable from the resolved exact bytes",
+          "authority purpose and explicit authoritative_for/may_not_use_for limits; content identity cannot grant governance or method-validity authority"
+        ],
+        "p37_predicate_basis": {
+          "recomputed": [
+            "exact member bytes, size, SHA-256, CAS content refs, inventory digest"
+          ],
+          "independently_reconciled": [
+            "completeness of supplier-declared member roles and state mapping against the admitted source/profile contract"
+          ],
+          "institutionally_supplied": [
+            "source authority, source profile, target/entrant definitions, prior derivation/axes/time, donor present/absent declaration"
+          ],
+          "not_established_now": [
+            "all semantic source mapping/profile/time/donor predicates and authenticated source inventory"
+          ],
+          "fail_closed": [
+            "consumer_asserted or not_established predicates cannot unlock an authority-grade admission gate"
+          ]
+        }
+      },
+      "companion_paths": {
+        "behavioral_test": {
+          "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py",
+          "blob": "6105b5626a3845dc846e2063e4548178a42d958f",
+          "proposal": "Extend this existing mirrored domain test with producer -> persisted inventory -> all four read_api consumers and negative controls; do not duplicate mechanics-only assertions."
+        },
+        "existing_bridge_test_to_extend_only_if_CAS_adapter_changes": {
+          "path": "policy-engine/tests/unit/data_forge/read_api/test_ukraine_stage_artifacts.py",
+          "blob": "5b688ecaa1817f9e9beaa5717a92551caeb64782",
+          "proposal": "Add exact inventory artifact/CAS admission cases only if the existing read_api stage/CAS verifier is actually extended; not a substitute for the four-reader end-to-end test."
+        },
+        "layout_characterization_to_retain": {
+          "path": "policy-engine/tests/unit/remediation/test_udf_05.py",
+          "blob": "e7d2a6ee74913664d363242d53ea1d0c387c5a2e"
+        },
+        "domain_documentation_after_source_semantics_are_admitted": {
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/README.md",
+          "blob": "6a71b63a8fbe190a23ad1998229957f31342dc08"
+        },
+        "conditional_generated_surface_companions_if_a_new_public_symbol_or_schema_is_exported": [
+          {
+            "path": "policy-engine/architecture/public_surface/contract.toml",
+            "blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5"
+          },
+          {
+            "path": "policy-engine/docs/reference/public-surface.md",
+            "blob": "7c66e6c0b3ff8c4dfcfa546178735655b4f5bca8"
+          },
+          {
+            "path": "policy-engine/docs/reference/generated-artifacts.md",
+            "blob": "6f6ee75721dbcec5b63e90c7c6c4f9eab78ccb31"
+          }
+        ],
+        "surface_rule": "Preserve the current four public loader names/signatures and keep the new inventory type internal if possible; if public exports/schema change, update these generated/public companions."
+      }
+    },
+    "semantic_discriminators_and_verification_recipe": {
+      "positive_matching_case": "A genuine source-owned producer emits one immutable versioned inventory plus exact member refs. Independently recompute member hashes and compare the state-ID order, target/entrant meaning, prior axes, donor status, layout/version and consumer values. All four public readers must resolve the same inventory identity and exact source bytes; retain static-aging numeric controls. Synthetic fixtures can demonstrate mechanics only, not production source authority.",
+      "missing_case": "Remove the inventory, required targets or priors ref, the donor present/absent declaration, or the referenced CAS blob. Each of the four reader forms must fail closed with a typed verification refusal and no per-file/legacy fallback. A complete explicitly declared historical layout remains readable.",
+      "forged_case": "Supply a well-shaped inventory with field-name markers but a wrong digest/ref, unavailable content, unverified/self-attested source authority, or a fabricated producer/version. Resolve and recompute bytes, bind verifier provenance, and refuse it; shape and self-attestation cannot grant permission.",
+      "swapped_case": "Use same-shape targets/prior/donor bytes from another generation or layout. Keep the admitted source-authority inventory identity and semantic axes fixed, then swap the member refs/bytes (including a probe that recomputes a candidate digest). Every reader must detect mismatch against the authenticated/independently reconciled membership and refuse. If the producer can rewrite the only inventory and its digest without independent source/verifier provenance, the swap is not distinguishable and the capability remains not_established.",
+      "remove_property_keep_markers_probe": "Disable the shared persisted-inventory resolve/content-bind gate or restore first-existing per-file reads while retaining inventory model fields, marker strings and selector names. The actual four-reader integration test must go red; if it stays green, it tests form (P29/P38), not the guarded property.",
+      "exact_historical_candidate_recipe": {
+        "command": "cd /Users/deniskopylov/.codex/worktrees/e02-c-obs-udf-20261006/polisyos/policy-engine && /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/remediation/test_obs_01.py tests/unit/remediation/test_obs_02.py tests/unit/remediation/test_udf_01.py tests/unit/remediation/test_udf_02.py tests/unit/remediation/test_udf_04.py tests/unit/remediation/test_udf_05.py tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py",
+        "receipt_target": "5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+        "use": "Historical command only; not executed here and not a current G/sourceG acceptance recipe."
+      },
+      "current_documented_domain_recipe": {
+        "command": "cd policy-engine && uv run pytest tests/unit/data_forge/domains/ukraine -q",
+        "source": "policy-engine/tests/unit/data_forge/domains/ukraine/README.md",
+        "source_blob": "1099079feee2a5b6f5a2df5b0e29a3ecd8a5831a",
+        "limitation": "Generic domain suite does not produce or admit the missing source inventory. The coverage.json label `UDF` is not an executable command."
+      },
+      "recommended_future_focused_recipe_after_C05_and_G_lease": {
+        "command": "cd policy-engine && uv run pytest tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py tests/unit/remediation/test_udf_05.py tests/unit/data_forge/read_api/test_ukraine_stage_artifacts.py -q",
+        "status": "Proposed selector only; validate the final owner-selected paths and command at lease/admission; not run in this task."
+      }
+    },
+    "authority_vs_mechanics": {
+      "mechanics_present": [
+        "A composite reader can select a complete new or legacy layout for one call.",
+        "The four lazy public read_api names and typed/shape-validating composite model exist.",
+        "ArtifactRecord/BuildRunManifest and CAS-backed verified-stage/release read mechanics exist.",
+        "GenerationBasis can bind bytes explicitly supplied by its caller.",
+        "C-W19's historical candidate tests exercised per-call layout selection and refusal for mixed/incomplete/corrupt/shape-invalid members."
+      ],
+      "semantics_and_authority_absent": [
+        "Authenticated source/data authority and its canonical producer.",
+        "Persisted complete inventory of target/prior/donor roles and source-to-state-ID mapping.",
+        "Authoritative target/entrant meanings, prior origin/destination axes/derivation/time, and donor inclusion/absence semantics.",
+        "Versioned source profile/data version and independently reconciled complete member set.",
+        "Bridge making all four current public readers resolve/replay that persisted inventory."
+      ],
+      "distinction": "Layout choice, shape validity, footer metadata, filenames, content digests, and repository-census results are factual mechanics. They do not prove that the source inventory is complete or authoritative, or that one same-shaped member belongs to the declared generation. The repository census is not the demographic inventory."
+    },
+    "pattern_pass": {
+      "relevant_ids": [
+        "P01",
+        "P02",
+        "P05",
+        "P06",
+        "P10",
+        "P27",
+        "P29",
+        "P31",
+        "P32",
+        "P37",
+        "P38",
+        "P41"
+      ],
+      "existing_failure_modes": [
+        "P01/P02: consumer/readers exist without a producer-persisted inventory and bridge.",
+        "P06/P31: composite reader uses a shared in-call layout selector while three sibling readers still resolve each role independently.",
+        "P10/P29/P32/P38: current/candidate digest and shape/layout checks can measure selected bytes correctly while missing source completeness and semantic provenance."
+      ],
+      "target_pattern": "Owner-first, source-authorized inventory -> typed persisted artifact -> content-bound read_api bridge -> all four real consumers -> adversarial semantic test. Keep source authority distinct from data-file integrity and from PolicyOS governance/method validity.",
+      "capability_labels": [
+        "producer_missing",
+        "bridge_missing",
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "acceptance_signal": "After source admission and path lease, one producer-created inventory is persisted and read through all four public forms; each returns the bound generation/role mapping; missing, forged, swapped, corrupt, unavailable and mixed-source cases fail closed; static-aging numeric behavior and explicit historical-layout support remain."
+    },
+    "next_boundary_and_lease": {
+      "smallest_next_input": "C-W19 identifies the canonical source/data authority and supplies a verifiable versioned target/prior/donor source inventory (including authoritative donor absence when applicable), source-to-ordered-state mapping, target/entrant semantics, prior axes/derivation/time, profile/data/schema version, provenance, and member bytes/refs.",
+      "after_input": "C05 proposes the actual producer/contract/bridge/test paths and exact owner mapping; classify every gate predicate under P37. Root admits the exact candidate source and grants G path lease before implementation or tests.",
+      "until_then": "Producer/artifact/bridge semantics remain not_established; do not create a parallel producer or commit a code contract from unresolved source questions."
+    }
+  }
+}

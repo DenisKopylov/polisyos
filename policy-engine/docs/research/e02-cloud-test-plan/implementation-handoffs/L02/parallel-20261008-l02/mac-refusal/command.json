@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_default_without_actual_source_context_has_no_backend_witness",
+    "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_selected_profile_does_not_relabel_unsupported_requests",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/parallel-20261008-l02/mac-refusal/pytest-basetemp",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/parallel-20261008-l02/mac-refusal/junit.xml"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine",
+  "explicit_environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine:/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/src",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "JAX_PLATFORMS": "cpu",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "exit_code": 0,
+  "wall_seconds": 10.285480500024278,
+  "children_max_rss_bytes_macos": 537165824,
+  "timeout_seconds": 180,
+  "profile": "Mac arm64 App Python3.14 existing primary venv; exact isolated G SOURCE, not installed wheel",
+  "scope": "Original B212 unavailable-backend limitation and declared-request source-profile refusal; not authentic producer positive, not Mac worker-absence proof, not point-only library/interval closure",
+  "selectors": [
+    "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_default_without_actual_source_context_has_no_backend_witness",
+    "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_selected_profile_does_not_relabel_unsupported_requests"
+  ]
+}

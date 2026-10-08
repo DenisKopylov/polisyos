@@ -1,0 +1,467 @@
+{
+  "schema": "policyos.e02.l02.qualified_preparation.v1",
+  "role": "L02",
+  "helper": "l02_mac_numeric",
+  "source_candidate_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "source_candidate_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "preparer_raw_local_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/.tmp/parallel-20261008-l02/prepared/l02_mac_numeric.json",
+    "bytes": 22642,
+    "sha256": "de2f8c86527172410b26797df8d639266ac207c343508baeb8fa7107ce188358"
+  },
+  "delivery_compaction": {
+    "removed_derivable_text_fields": [],
+    "raw_report_preserved": true,
+    "no_semantic_qualification_promoted": true
+  },
+  "preparation": {
+    "schema": "policyos.e02.l02.mac_numeric_preparation.v1",
+    "role": "L02 / Q2:Mac-only",
+    "state": "prepared_not_executed",
+    "scope": [
+      "LA-053",
+      "B201",
+      "B202",
+      "B212"
+    ],
+    "frozen_source": {
+      "G_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "G_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+      "product_sourceG_commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+      "product_sourceG_tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617",
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+      "branch": "codex/e02-L02-authentic-20261008",
+      "initial_status": "clean at frozen G"
+    },
+    "connected_closeout_inputs": {
+      "inputs_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json",
+      "inputs_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "inputs_blob": "749255cd37f93955b176c748d63b2a3a7b7ee214",
+      "findings_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+      "findings_ref": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "findings_blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e",
+      "declared_integration_base": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+      "declared_published_main_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "coverage_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "coverage_ref": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+      "coverage_blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+      "original_B_r19": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "lines": 5545
+      },
+      "original_LA_r09": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "bytes": 648034,
+        "lines": 4425
+      }
+    },
+    "original_findings": [
+      {
+        "id": "LA-053",
+        "owner": "E / PCL-01",
+        "connected_route": {
+          "author_proposal": "limited",
+          "author_source": "E",
+          "author_row_pointer": "/rows/50",
+          "original_criterion_pointer": "/findings/277/criterion_refs",
+          "flows": [
+            "S",
+            "T",
+            "Q"
+          ],
+          "next_tasks": [
+            "T1",
+            "Q2"
+          ],
+          "G_closure": "not_adjudicated"
+        },
+        "original_card": {
+          "source": "LA_r09_original.md",
+          "lines": [
+            3793,
+            3815
+          ],
+          "sha256": "b8486db456080f21e07d1949996f18748785d02672e511ea8b57c273192d63a4",
+          "property": "Canonical calibration objects and numerical tests migrate while the supported Scientist compatibility alias keeps object and exception identity until its owner-approved compatibility window ends; do not invent a sunset."
+        },
+        "full_owner_row": {
+          "source_commit": "7bf53fd0cf69a568b37d8a881e26bfb16c315653",
+          "source_blob": "502f44eb34c277b11764f89f153df17231864bf6",
+          "historical_status": "partial",
+          "retained_proposal": "limited",
+          "owner_decision": "pending",
+          "formal_G_acceptance": false,
+          "required_input": "Owner-approved compatibility window plus existing public inventory; until then retain alias."
+        }
+      },
+      {
+        "id": "B201",
+        "owner": "E / UQS-01",
+        "connected_route": {
+          "author_proposal": "closed",
+          "author_source": "E",
+          "author_row_pointer": "/rows/45",
+          "original_criterion_pointer": "/findings/121/criterion_refs",
+          "flows": [
+            "S",
+            "Q"
+          ],
+          "next_tasks": [
+            "Q0",
+            "Q2"
+          ],
+          "G_closure": "not_adjudicated"
+        },
+        "original_card": {
+          "source": "B_r19_original.md",
+          "lines": [
+            4978,
+            4991
+          ],
+          "sha256": "8069cd2dfd13bbfca1d2bbf02a7cc761d6614a5e967d7c11b1de299e64960474",
+          "property": "Posterior mean and equal-tail interval are separate functionals: 99 zeros plus 100 gives mean 1 and q05/q95 [0,0]; invalid/nonfinite input refuses."
+        },
+        "full_owner_row": {
+          "source_commit": "7bf53fd0cf69a568b37d8a881e26bfb16c315653",
+          "source_blob": "502f44eb34c277b11764f89f153df17231864bf6",
+          "row_index": 45,
+          "historical_status": "held",
+          "retained_proposal": "closed",
+          "owner_decision": "accepted",
+          "formal_G_acceptance": false
+        }
+      },
+      {
+        "id": "B202",
+        "owner": "E / UQS-01",
+        "connected_route": {
+          "author_proposal": "closed",
+          "author_source": "E",
+          "author_row_pointer": "/rows/46",
+          "original_criterion_pointer": "/findings/122/criterion_refs",
+          "flows": [
+            "S",
+            "Q"
+          ],
+          "next_tasks": [
+            "Q0",
+            "Q2"
+          ],
+          "G_closure": "not_adjudicated"
+        },
+        "original_card": {
+          "source": "B_r19_original.md",
+          "lines": [
+            4992,
+            5005
+          ],
+          "sha256": "8d507abb668fd82e3a58b5b416e8d011d07927198cfae69949d218a6328a16ab",
+          "property": "Exact joint posterior law remains resolvable with content, row order, weights, units and lineage so identical marginals/summaries cannot merge different pairings."
+        },
+        "full_owner_row": {
+          "source_commit": "7bf53fd0cf69a568b37d8a881e26bfb16c315653",
+          "source_blob": "502f44eb34c277b11764f89f153df17231864bf6",
+          "row_index": 46,
+          "historical_status": "held",
+          "retained_proposal": "closed",
+          "owner_decision": "accepted",
+          "formal_G_acceptance": false
+        }
+      },
+      {
+        "id": "B212",
+        "owner": "F / CAU-04",
+        "connected_route": {
+          "author_proposal": "closed",
+          "author_source": "F",
+          "author_row_pointer": "/rows/8",
+          "original_criterion_pointer": "/findings/133/criterion_refs",
+          "flows": [
+            "S",
+            "Q"
+          ],
+          "next_tasks": [
+            "Q0",
+            "Q2"
+          ],
+          "G_closure": "not_adjudicated"
+        },
+        "original_card": {
+          "source": "B_r19_original.md",
+          "lines": [
+            5194,
+            5205
+          ],
+          "sha256": "dd369570f1235d66729b8c5526f88a5968905343594089f5a4c00da90631238f",
+          "property": "Actual backend point without interval remains point-only/partial; a true backend interval remains intact; unavailable optional backend is typed UNRUN/refusal, never a synthetic narrow interval."
+        },
+        "full_owner_row": {
+          "source_commit": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+          "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B212.json",
+          "source_blob": "c7f1a149baabe482e03fc08b2b572b3480ec12dc",
+          "historical_status": "partial",
+          "F_technical_recommendation": "closed",
+          "formal_G_acceptance": false,
+          "consumer": "DoWhyIdentifyEstimate -> actual selected Python 3.12 DoWhy 0.14 worker -> parent report/CAS -> fresh Python 3.14 reader"
+        }
+      }
+    ],
+    "candidate_admission": {
+      "F_source": {
+        "commit": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+        "tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+        "in_G_ancestry": true,
+        "ordinary_merge": "99c7eb501c525912e4142a9ca833f07de3ff6c8e",
+        "merge_tree": "a1faa2717458f9bd330b566404ec1555c47817ac",
+        "acceptance_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/F-acceptance.json",
+        "acceptance_blob": "e0fa02b56ae11735eb9cbea025a82e21e708dbc5",
+        "meaning": "Bounded source/code acceptance only; F-acceptance has no finding-closure IDs and does not adjudicate B212."
+      },
+      "E_source": {
+        "commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+        "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+        "in_G_ancestry": false,
+        "native_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/E-native-receipt.json",
+        "native_receipt_blob": "13d135b3cd4f408edece97357188897f64eaa1a8",
+        "conflicts_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-source-admission/E-conflicts.json",
+        "conflicts_blob": "ba8f50070f1f1ed58b41caa5fb9070a868434107",
+        "conflicts": [
+          "policy-engine/architecture/public_surface/inventory.json",
+          "policy-engine/docs/reference/public-surface.md",
+          "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+          "policy-engine/src/polisyos/foundry/methods/README.md"
+        ],
+        "admission_result": "Not admitted into G; reconcile with canonical owners before E composition. The 165-test source receipt does not establish B201/B202 closure or generated public companions."
+      }
+    },
+    "source_blob_manifest": {
+      "current_sourceG_F_B212": {
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py": "153226bceb53e7e290be03bc9dd068140edbe667",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py": "0473a4280ff55fb23e73cf7c561ae3d7e2149519",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py": "749154a57340793c223da2b40d02bd5bcd8e7fea",
+        "policy-engine/pyproject.toml": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "policy-engine/workers/dowhy-014/README.md": "84528b455b39585aa3e507e4c6697213c7f7365a",
+        "policy-engine/workers/dowhy-014/pyproject.toml": "770a46160a0b13614507d345f729910c9e81acde",
+        "policy-engine/workers/dowhy-014/uv.lock": "77ce3b5392703b452d70da87c0f57372b88e9117",
+        "policy-engine/workers/dowhy-014/.python-version": "e4fba2183587225f216eeada4c78dfab6b2e65f5"
+      },
+      "current_sourceG_LA053": {
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py": "065506a99a5929f9c3d10e3b5228d151af0a230f"
+      },
+      "E_8d_B201_B202_not_in_sourceG": {
+        "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py": "211103b83d6e71aadc314464d799c97eb1ed41f0",
+        "policy-engine/src/polisyos/ir/analytics/uncertainty.py": "6468bf46e3a3dfa341112022eccdfe826aaa04ac",
+        "policy-engine/src/polisyos/calibration/__init__.py": "cf6830efbf67557bb3530bac7d37d71b278d6c92",
+        "policy-engine/tests/unit/calibration/test_evidence_facades.py": "a189fd8d4a2a8d853ddf797b8840dbfd33eec491",
+        "policy-engine/tests/unit/ir/test_posterior_summary.py": "7f8317dd1ed9ced9df07eb6c912dfc199beea603",
+        "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py": "b7205926418c14f2966e7fe199d92c6a89b86892",
+        "policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py": "3bde24469403ce232808a4d58ee2f06eb5d6c770"
+      }
+    },
+    "mac_q2_prepared_commands": [
+      {
+        "finding": "B212",
+        "classification": "sourceG native typed-refusal selector; not an installed consumer and not proof that a Mac Linux-worker profile is absent",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine",
+        "interpreter": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+        "environment": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/tools",
+          "PYTHONDONTWRITEBYTECODE": "1"
+        },
+        "argv": [
+          "-B",
+          "-m",
+          "pytest",
+          "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_default_without_actual_source_context_has_no_backend_witness",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "-p",
+          "no:cacheprovider",
+          "-q",
+          "-s",
+          "--tb=short",
+          "--basetemp=/tmp/e02-L02/mac-B212-refusal",
+          "--junitxml=/tmp/e02-L02/mac-B212-refusal.junit.xml"
+        ],
+        "expected_test_oracle": {
+          "status": "EstimationStatus.NUMERICAL_FAILURE",
+          "metadata.capability": "backend_unavailable",
+          "point_estimate": null
+        },
+        "required_receipt_environment": [
+          "sys.platform=darwin",
+          "platform.machine",
+          "sys.version",
+          "sys.executable",
+          "pytest test path",
+          "module origins for DoWhyIdentifyEstimate and _dowhy_worker under exact L02 sourceG src/"
+        ],
+        "boundary": "No worker context is supplied; the test reaches the producer's typed no-context refusal and makes no backend call. Do not relabel this as the Python 3.12 worker missing/unavailable on Mac."
+      },
+      {
+        "finding": "LA-053",
+        "classification": "narrow native compatibility identity smoke; leaves owner-approved deprecation window/inventory pending",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine",
+        "interpreter": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+        "environment": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/tools",
+          "PYTHONDONTWRITEBYTECODE": "1"
+        },
+        "argv": [
+          "-B",
+          "-m",
+          "pytest",
+          "tests/unit/scientist/methods/backtesting/test_calibration_curve.py::test_canonical_and_compatibility_exports_preserve_identity",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "-p",
+          "no:cacheprovider",
+          "-q",
+          "--tb=short",
+          "--basetemp=/tmp/e02-L02/mac-LA053-identity",
+          "--junitxml=/tmp/e02-L02/mac-LA053-identity.junit.xml"
+        ],
+        "oracle": "CalibrationPoint, CalibrationResult and compute_calibration_curve have identical canonical/curve/Scientist-alias objects.",
+        "boundary": "This is source import/identity evidence only; does not prove installed wheel origin, numerical parity/exception corpus, or authorize alias retirement."
+      },
+      {
+        "finding": "LA-053/B201/B202",
+        "classification": "existing E Mac-native candidate recipe; not runnable on current exact G because E source is not admitted",
+        "source": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c / tree 192e584c646ee6df303b8793e7b92aa741dcaebb",
+        "python": "3.14.3",
+        "dependencies": {
+          "pytest": "9.0.2",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "pydantic": "2.12.5"
+        },
+        "thread_limits": {
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "VECLIB_MAXIMUM_THREADS": "1"
+        },
+        "argv": [
+          "-B",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_collection_probe",
+          "-q",
+          "tests/unit/ir/test_uncertainty_profile_ingress.py",
+          "tests/unit/ir/test_posterior_summary.py",
+          "tests/unit/ir/test_uncertainty_posterior_composition.py"
+        ],
+        "recorded_result": {
+          "passed": 165,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "wall_seconds": 8.057,
+          "peak_sampled_rss_kib": 608624,
+          "junit_sha256": "fe15ea3cd25055dce1262123287816995731098cab96e64c888ba732a2109c4d",
+          "stdout_sha256": "2dd2622599a0ff937604a6aea5bc42089ec265642b8da65ddda4b85c08a64bbe",
+          "receipt_sha256": "c2753a7e7575064ad31fd3e3ec0afc92ec717c22fc163bceaa978aeaccba721e",
+          "module_origin_audit_sha256": "3975236beb9b96110c79c33108325245f40ab4ca1893300aca068d0a7a1f6f5c"
+        },
+        "recorded_host_qualification": "The raw receipt reports a local /Users worktree and VECLIB_NUM_THREADS; it does not serialize OS/architecture. Treat Mac host identity as not established from this receipt alone.",
+        "not_a_g_current_acceptance": true,
+        "replay_rule": "Do not repeat this 165-case suite unchanged. If E is admitted and exact source/environment or Mac qualification changes, run only affected tests on the frozen source; otherwise carry as candidate-specific historical evidence."
+      }
+    ],
+    "installed_consumer_feasibility": {
+      "existing_narrow_selector": "tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py::test_public_canonical_helpers_and_pure_report_factory_identity",
+      "test_blob_at_G": "093d88257fe28274fc01b8ae9daa140c31a2ad77",
+      "consumer_contract": "The test asserts DoWhyIdentifyEstimate/report factory canonical identity and requires bridge.__file__ under sys.prefix/lib/python3.14/site-packages.",
+      "provided_environments_checked_read_only": {
+        "primary_python314": "/Users/deniskopylov/polisyos/policy-engine/.venv; site-packages/polisyos absent",
+        "G_python314": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv; site-packages lacks foundry/methods/catalog/causal/_dowhy_worker.py and dowhy_identify_estimate.py"
+      },
+      "status": "not_runnable_as_installed_consumer with the supplied existing venvs; no build/install authorized",
+      "rule": "PYTHONPATH pointing at candidate src makes source origin explicit but fails this test's installed-site assertion. Do not call the source-native fallback an installed consumer."
+    },
+    "exact_existing_b212_supported_profile_receipt": {
+      "candidate": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+      "receipt_path_at_F852": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+      "receipt_blob_at_F852": "01d6d2d1b662971e5534c3b7cebfcfd15812fb4a",
+      "leaf_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/worker/focused-real-worker-review.json",
+      "leaf_blob_at_F852": "0ba0115e794c70ad49fb0336be4c1afe13a62f4e",
+      "leaf_sha256": "80e55aefd5794b55c494d3efcef0783cde9c7364e4fc545a168338b042f98f40",
+      "status": "3 PASS; 0 failures; 0 errors; 0 skips",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -B -m pytest tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_public_complete_report_builder_abi_and_real_producer_invocation tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_estimate_point_only_survives_parent_cas_and_reader -o addopts= --import-mode=importlib -p no:cacheprovider -q -s --tb=short --basetemp=/tmp/e02-F-graph-profile-20261007/worker/frozen-4ee-native/wait4-replay/frozen-native-cas --junitxml=/tmp/e02-F-graph-profile-20261007/worker/frozen-4ee-native/wait4-replay/frozen-native.junit.xml",
+      "environment": {
+        "application_python": "3.14",
+        "worker_python": "Linux standalone Python 3.12; workers/dowhy-014/.python-version=3.12; DoWhy=0.14",
+        "worker_pyproject_blob": "770a46160a0b13614507d345f729910c9e81acde",
+        "worker_lock_blob": "77ce3b5392703b452d70da87c0f57372b88e9117",
+        "worker_readme_blob": "84528b455b39585aa3e507e4c6697213c7f7365a",
+        "app_pyproject_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "runner_env": {
+          "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+          "E02_TEST_DOWHY_WORKER_PYTHON": "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+          "POLISYOS_METRICS_PORT": "9468",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "MPLCONFIGDIR": "/tmp/e02-F-graph-profile-20261007/worker/frozen-4ee-native/wait4-replay/mpl-native"
+        }
+      },
+      "distinguishing_controls": {
+        "positive_real_interval": "test_real_worker_job_cas_fresh_python314_reader verifies actual interval, CAS binding, and fresh Python 3.14 reader.",
+        "point_only_negative": "test_real_estimate_point_only_survives_parent_cas_and_reader fits actual DoWhy estimator, then controls its CI/SE accessors to None; retained point has no interval/level and is not gate eligible. This is an instrumented real-backend control, not a naturally point-only backend claim.",
+        "unavailable_profile": "The application Python 3.14 DoWhy/EconML in-process extras are excluded by markers. The selected Linux worker is separate. Unselected in-process 3.14 backends are UNRUN; do not convert to PASS/FAIL or manufacture an interval."
+      },
+      "reuse_gate": "test_dowhy_worker.py, _dowhy_worker.py, dowhy_identify_estimate.py and the worker lock/profile blobs match current G/F source for the checked paths. The receipt remains candidate-specific to 4ee and is not a Mac DoWhy run or formal B212 closure."
+    },
+    "minimal_environment_and_provenance": {
+      "mac_app_runtime": "Existing Python 3.14 venv only; root pyproject requires >=3.14,<3.15. No package installs or worker provisioning by L02 helper.",
+      "mac_source_selection": "Set PYTHONPATH to the frozen L02 worktree policy-engine/src and tools before pytest; record that test and product module origins resolve there.",
+      "receipt_host_fields": [
+        "sys.platform",
+        "platform.machine",
+        "sys.version",
+        "sys.executable",
+        "platform.platform",
+        "module origin map"
+      ],
+      "numeric_thread_limits_if_any": [
+        "MKL_NUM_THREADS=1",
+        "NUMEXPR_NUM_THREADS=1",
+        "OMP_NUM_THREADS=1",
+        "OPENBLAS_NUM_THREADS=1",
+        "VECLIB_MAXIMUM_THREADS=1"
+      ],
+      "no_authority_upgrade": "All DoWhy output is candidate computation only; the actual synthetic worker receipt does not establish causal assumptions or production authority."
+    },
+    "pattern_pass": {
+      "ids": [
+        "P10",
+        "P29",
+        "P32",
+        "P33",
+        "P37",
+        "P38",
+        "P40",
+        "P41"
+      ],
+      "diagnosis": "Do not infer installed/native consumer or platform support from a source-only test, a marker, a path, a Python version, or a Linux worker receipt. Freeze module origin and host predicate; distinguish source import/refusal from installed-package consumer and selected backend execution.",
+      "acceptance_signal": "For Mac native sourceG refusal, report actual Darwin/architecture and G module origins plus exact selector/JUnit; for an installed claim, require existing installed-artifact environment and site-packages origin. For B212 positive backend, keep the actual Linux3.12/DoWhy0.14 worker receipt separate; point-only and CI-positive controls must remain distinct. E B201/B202 are not on exact admitted G until E conflicts/companions are resolved."
+    },
+    "preparer_limits": {
+      "tests_run": false,
+      "numeric_workload_run": false,
+      "production_data_read": false,
+      "install_or_environment_change": false,
+      "source_or_test_files_changed": false,
+      "result_importer_or_baseline_query_used": false,
+      "only_written_file": "policy-engine/docs/research/e02-cloud-test-plan/.tmp/parallel-20261008-l02/prepared/l02_mac_numeric.json"
+    }
+  }
+}

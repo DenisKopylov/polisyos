@@ -273,10 +273,7 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
     original_fit = strategy._fit_gp
 
     def observe_fit(x, y_bo):
-        x_rows = tuple(
-            tuple(float(value) for value in row)
-            for row in x.detach().cpu().tolist()
-        )
+        x_rows = tuple(tuple(float(value) for value in row) for row in x.detach().cpu().tolist())
         y_rows = tuple(float(row[0]) for row in y_bo.detach().cpu().tolist())
         observed_corpus.append((x_rows, y_rows))
         return original_fit(x, y_bo)
@@ -296,9 +293,7 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
     assert "warm-unbound" not in observed_ids[0]
     assert len(observed_corpus) == 1
     observed_x, observed_y = observed_corpus[0]
-    expected_by_id = {
-        evaluation.candidate_id: evaluation for evaluation in [*warm, *current]
-    }
+    expected_by_id = {evaluation.candidate_id: evaluation for evaluation in [*warm, *current]}
     expected_evaluations = [expected_by_id[candidate_id] for candidate_id in observed_ids[0]]
     expected_x = tuple(
         tuple(float(value) for value in evaluation.params_normalized)
@@ -355,8 +350,7 @@ def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
     assert strategy._model is not None
     model_before = strategy._model
     learned_before = {
-        name: parameter.detach().clone()
-        for name, parameter in model_before.named_parameters()
+        name: parameter.detach().clone() for name, parameter in model_before.named_parameters()
     }
     transform_state_before = {}
     for attribute in ("input_transform", "outcome_transform"):
@@ -372,7 +366,7 @@ def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
             params={"x": 4.0},
             score=0.25,
             space=simple_space,
-        )
+        ),
     ]
     strategy.suggest(expanded)
 
@@ -382,12 +376,10 @@ def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
     assert model_train_X is not None
     model_train_X = model_train_X.reshape(-1, model_train_X.shape[-1])
     actual_train_rows = tuple(
-        tuple(float(value) for value in row)
-        for row in model_train_X.detach().cpu().tolist()
+        tuple(float(value) for value in row) for row in model_train_X.detach().cpu().tolist()
     )
     expected_train_rows = tuple(
-        tuple(float(value) for value in evaluation.params_normalized)
-        for evaluation in expanded
+        tuple(float(value) for value in evaluation.params_normalized) for evaluation in expanded
     )
     assert len(actual_train_rows) == len(expected_train_rows) == 9
     for actual_row, expected_row in zip(actual_train_rows, expected_train_rows, strict=True):
@@ -412,3 +404,79 @@ def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
     )
     strategy.suggest([*initial, changed_observation])
     assert fit_calls == 2
+
+
+@pytest.mark.skipif(fit_gpytorch_mll is None, reason="BoTorch stack not installed")
+def test_restored_append_preserves_actual_full_refit_boundary_and_learned_basis(
+    simple_space: SearchSpace,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Real GP state continuation conditions before the actual scheduled refit."""
+    from dataclasses import replace
+
+    config = BayesianConfig(
+        n_initial=1,
+        refit_interval=50,
+        num_restarts=3,
+        raw_samples=32,
+        seed=109,
+        fallback_on_failure=False,
+    )
+    actual_fit = bayesian_module.fit_gpytorch_mll
+    fit_sizes = []
+
+    def record_fit(mll):
+        fit_sizes.append(int(mll.model.train_inputs[0].shape[-2]))
+        return actual_fit(mll)
+
+    monkeypatch.setattr(bayesian_module, "fit_gpytorch_mll", record_fit)
+    original = BayesianOptimizer(simple_space, config)
+    observations = [
+        make_evaluation(
+            candidate_id=f"state-{i}",
+            params={"x": -3.5 + i},
+            score=float((i - 3) ** 2),
+            space=simple_space,
+        )
+        for i in range(8)
+    ]
+    assert original.suggest(observations).source_strategy == "bayesian_acquisition"
+    state = original.get_state()
+    learned = {name: value.detach().clone() for name, value in original._model.named_parameters()}
+    restored = BayesianOptimizer(simple_space, config)
+    restored.set_state(state)
+    expanded = [
+        *observations,
+        make_evaluation(
+            candidate_id="state-new", params={"x": 4.0}, score=0.25, space=simple_space
+        ),
+    ]
+    assert restored.suggest(expanded).source_strategy == "bayesian_acquisition"
+    assert fit_sizes == [8]
+    assert restored._last_refit_iteration == original._last_refit_iteration == 8
+    assert restored._last_train_size == original._last_train_size == 8
+    for name, parameter in restored._model.named_parameters():
+        assert restored._torch.equal(parameter.detach(), learned[name])
+    conditioned_state = restored.get_state()
+    assert len(conditioned_state.metadata["gp_continuation"]["fitted_train_X"]) == 9
+    assert conditioned_state.metadata["gp_continuation"]["last_train_size"] == 8
+    second_restore = BayesianOptimizer(simple_space, config)
+    second_restore.set_state(conditioned_state)
+    assert second_restore.suggest(expanded).source_strategy == "bayesian_acquisition"
+    assert fit_sizes == [8]
+    # Original missing counter bytes cannot be inferred from current row count.
+    legacy = replace(
+        state, metadata={k: v for k, v in state.metadata.items() if k != "gp_continuation"}
+    )
+    with pytest.raises(ValueError, match="not established"):
+        BayesianOptimizer(simple_space, config).set_state(legacy)
+    invalid = dict(state.metadata["gp_continuation"], last_train_size=True)
+    with pytest.raises(ValueError, match="invalid full-refit counters"):
+        BayesianOptimizer(simple_space, config).set_state(
+            replace(state, metadata={**state.metadata, "gp_continuation": invalid})
+        )
+    foreign = dict(state.metadata["gp_continuation"], space_fingerprint="foreign")
+    with pytest.raises(ValueError, match="search space differs"):
+        BayesianOptimizer(simple_space, config).set_state(
+            replace(state, metadata={**state.metadata, "gp_continuation": foreign})
+        )

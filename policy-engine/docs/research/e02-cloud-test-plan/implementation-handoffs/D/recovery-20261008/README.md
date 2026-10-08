@@ -54,3 +54,14 @@ while producing bridge_missing/zero effects before the unsupported callback.
 Its old revoke-at-extraction hook is never reached in this profile, so it is not
 claimed as a real authorized commit/revocation positive. The held input packet
 still requires that actual typed owner bridge and corresponding positive/control.
+
+Independent GP conformance measured another owned state gap on unchanged G:
+restoring a fitted model omitted the last full-refit iteration/row count, so an
+append before refit_interval50 triggered a hidden second MLL fit and changed the
+frozen Gaussian posterior basis. The scoped Bayesian state delta persists a
+versioned fitted corpus, exact search-space identity and actual full-refit
+counters separately from the latest requested corpus. Restoration builds the
+model on that fitted corpus and restores the real counters; conditioned rows do
+not rewrite the full-refit boundary. Missing legacy basis/counter bytes produce
+an explicit not-established error, never fabricated state history. Native author
+real-fitspy continuation test passes; independent numerical replay is separate.

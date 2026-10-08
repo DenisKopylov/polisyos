@@ -7,6 +7,10 @@ import platform
 from collections.abc import Mapping
 from dataclasses import dataclass, field, fields
 from pathlib import Path
+from typing import TYPE_CHECKING, cast
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 from polisyos.data_forge.domains.catalog.batch.checkpoints import hash_payload
 from polisyos.data_forge.domains.catalog.batch.material_inputs import _material_file_snapshot
@@ -296,10 +300,10 @@ def _producer_material_input_basis(config: DatasetBatchConfig) -> dict[str, obje
     Profile settings have the explicit header/credential exclusions below.
     """
     from polisyos.data_forge.domains.catalog.batch import harvester
+    from polisyos.data_forge.domains.catalog.batch.core_sources import api as core_api
     from polisyos.data_forge.domains.catalog.batch.core_sources import loaders
     from polisyos.data_forge.domains.catalog.batch.core_sources.api import (
         _legacy_serial_mode_enabled,
-        _seed_alignments_path,
     )
     from polisyos.data_forge.domains.catalog.knowledge import proxy_penalties
 
@@ -307,10 +311,14 @@ def _producer_material_input_basis(config: DatasetBatchConfig) -> dict[str, obje
     wvs_fallback_selected = not harvester._load_wvs_indicator_registry_snapshot(
         harvest_wvs_snapshot
     )
+    # API resolves this canonical locator through its existing dependency map.
+    seed_alignments_path = cast(
+        "Callable[[], Path]", getattr(core_api, "_seed_alignments_path", None)
+    )()
     paths = {
         "source_registry": (config.registry_path or config.default_registry_path, True, True),
         "metrics_map": (config.resolved_metrics_map_path, True, True),
-        "seed_variable_alignments": (_seed_alignments_path(), True, True),
+        "seed_variable_alignments": (seed_alignments_path, True, True),
         "proxy_metric_alignments": (
             proxy_penalties.default_proxy_metric_alignments_path(),
             False,

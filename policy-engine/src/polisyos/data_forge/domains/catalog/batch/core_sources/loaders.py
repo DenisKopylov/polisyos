@@ -299,14 +299,14 @@ def _wvs_registry_path() -> Path:
     )
 
 
-def _load_wvs_registry() -> dict[str, dict]:
+def _load_wvs_registry() -> dict[str, dict[str, Any]]:
     """Load current WVS policy through the shared file-content snapshot."""
     snapshot = _material_file_snapshot(_wvs_registry_path())
     return _load_wvs_registry_snapshot(snapshot)
 
 
 @lru_cache(maxsize=1)
-def _load_wvs_registry_snapshot(snapshot: _MaterialFileSnapshot) -> dict[str, dict]:
+def _load_wvs_registry_snapshot(snapshot: _MaterialFileSnapshot) -> dict[str, dict[str, Any]]:
     if snapshot.raw is None:
         return {}
     try:
@@ -333,7 +333,9 @@ def _wvs_legacy_indicators() -> dict[str, str]:
     return result if result else dict(_LEGACY_WVS_INDICATORS_STATIC)
 
 
-def _wvs_aggregation_method(indicator: str, *, registry: dict[str, dict] | None = None) -> str:
+def _wvs_aggregation_method(
+    indicator: str, *, registry: dict[str, dict[str, Any]] | None = None
+) -> str:
     """Return aggregation method from a current or operation-bound registry."""
     if registry is None:
         registry = _load_wvs_registry()
@@ -343,7 +345,7 @@ def _wvs_aggregation_method(indicator: str, *, registry: dict[str, dict] | None 
     return _WVS_SPECIAL_AGGREGATIONS_STATIC.get(indicator, "weighted_mean")
 
 
-def _wvs_response_type(indicator: str, *, registry: dict[str, dict] | None = None) -> str:
+def _wvs_response_type(indicator: str, *, registry: dict[str, dict[str, Any]] | None = None) -> str:
     """Return response type from a current or operation-bound registry."""
     if registry is None:
         registry = _load_wvs_registry()

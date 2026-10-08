@@ -1,0 +1,617 @@
+{
+  "schema": "policyos.e02.l01.input_custody_packet.v1",
+  "execution_role": "L01",
+  "original_unit": "C",
+  "mode": "read_only_inputs",
+  "product_source_selection": "Each component ref below is an inspected source; it is not G acceptance. Actual G snapshot f00dd7661a8d3329fb1fa1b049decb0d1d2f277b.",
+  "production_input_admission": "not_established",
+  "input_bytes_digest": "withheld_no_disclosure_admission",
+  "formal_G_closure": "not_adjudicated",
+  "original_criteria": [
+    {
+      "id": "B79",
+      "logical_owner": "C",
+      "bundle": "ING-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B79",
+          "document": "B_r19",
+          "lines": [
+            2153,
+            2166
+          ],
+          "sha256": "27bcd616e4c3651c5234684c5f00bfc90929f35b417c71f57e4740fa2afb567d",
+          "card": "ING-01"
+        }
+      ]
+    },
+    {
+      "id": "B80",
+      "logical_owner": "C",
+      "bundle": "ING-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B80",
+          "document": "B_r19",
+          "lines": [
+            2167,
+            2180
+          ],
+          "sha256": "4c1a2181de7a1faab9b419139aacb69af646339f4920a172f21dbe2c4d0cbdad",
+          "card": "ING-01"
+        }
+      ]
+    },
+    {
+      "id": "B83",
+      "logical_owner": "C",
+      "bundle": "ING-03",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B83",
+          "document": "B_r19",
+          "lines": [
+            2209,
+            2222
+          ],
+          "sha256": "33f33619aeda80550a33302bfc571497c218ec5f0f6ea09fa22d447e74d58441",
+          "card": "ING-03"
+        }
+      ]
+    },
+    {
+      "id": "LA-018",
+      "logical_owner": "C",
+      "bundle": "HYG-02",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "LA-018",
+          "document": "LA_r09",
+          "lines": [
+            571,
+            597
+          ],
+          "sha256": "b28c10a9c4c31b5fad21560ddaf3888df77a534d2cb9fdb992853637ccd91421",
+          "card": "HYG-02"
+        }
+      ]
+    },
+    {
+      "id": "LA-024",
+      "logical_owner": "C",
+      "bundle": "SCL-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "LA-024",
+          "document": "LA_r09",
+          "lines": [
+            1084,
+            1113
+          ],
+          "sha256": "ac5148dc11d7ccb7f825d8d672b2be62db9fee78d7c8a0f15150889bd154ef67",
+          "card": "SCL-01"
+        }
+      ]
+    },
+    {
+      "id": "LA-025",
+      "logical_owner": "C",
+      "bundle": "SCL-03",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "LA-025",
+          "document": "LA_r09",
+          "lines": [
+            1114,
+            1149
+          ],
+          "sha256": "2bc4e727677c0b073b03c2cd763b0dc65c25b0917ab5e423ee9f7d4442c05da4",
+          "card": "SCL-03"
+        }
+      ]
+    },
+    {
+      "id": "LA-032",
+      "logical_owner": "C",
+      "bundle": "UDF-05",
+      "historical_ledger_status": "held",
+      "source_occurrences": [
+        {
+          "criterion_id": "LA-032",
+          "document": "LA_r09",
+          "lines": [
+            1668,
+            1715
+          ],
+          "sha256": "5f5c7a56a652a0328e25fd8b6091a2f780750d9eaee8f10c0129b2f9f0609cf2",
+          "card": "UDF-05"
+        }
+      ]
+    },
+    {
+      "id": "LA-036",
+      "logical_owner": "C",
+      "bundle": "BER-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "LA-036",
+          "document": "LA_r09",
+          "lines": [
+            2103,
+            2145
+          ],
+          "sha256": "ebc61d92552c6dfbf538aed17c8a7ed476ee4322fc9df09f7ed3b89e8c530a2a",
+          "card": "BER-01"
+        }
+      ]
+    },
+    {
+      "id": "LA-040",
+      "logical_owner": "C",
+      "bundle": "EMB-03",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "LA-040",
+          "document": "LA_r09",
+          "lines": [
+            2556,
+            2594
+          ],
+          "sha256": "04d9279a2c0e0e0f10649e69a1a06e4e8a4128b384d5b44f2c9cd45fff8ba67a",
+          "card": "EMB-03"
+        }
+      ]
+    }
+  ],
+  "facts": {
+    "schema": "policyos.e02.l01.source_input_facts.v1",
+    "task": "L01 local owner-input facts: C B79/B80/B83 progress/event identity and I4 Legal paired generation/query profile",
+    "as_of": "2026-10-08",
+    "result_kind": "nonsecret_read_only_evidence_packet",
+    "scope": {
+      "write_scope": "scratch packet only",
+      "source_or_test_writes": false,
+      "production_payload_reads": false,
+      "tests_run": [],
+      "formal_G_closure": "not_adjudicated"
+    },
+    "authority_planes": {
+      "source_rule": "L01 separates internal configured owner, externally supplied fact, our admission, and our scoped claim reaction.",
+      "internal_configured_owner": "Configured source and serving code paths are identified below from pinned Git trees.",
+      "externally_supplied_fact": "No source-owned dataset/run/cursor/content/event-version packet was supplied for B79/B80/B83; current Legal generation/assets/served encoder pair is not_established.",
+      "our_admission": "Cursor-confirmed progress remains fail-closed without a verifier binding source evidence to dataset/run/content. Legal serving requires a compatible live query encoder, while the pinned HTTP caller does not supply one.",
+      "claim_reaction": "C's candidate proposals remain limited/held as recorded below; G formal state remains not_adjudicated. Fixture evidence does not establish production inputs."
+    },
+    "source_pins": {
+      "dispatch_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "dispatch_path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json",
+      "dispatch_blob": "f2e8d2096b86148fb93d4eb61520d22002228a1d",
+      "G": {
+        "commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617",
+        "in_G_ancestry": true
+      },
+      "C": {
+        "commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+        "tree": "7edd87e6730739fbe2d7c7ed0c35d4a4e1e11ba8",
+        "in_G_ancestry": false
+      },
+      "C_stream_source": {
+        "commit": "81a4af184d72cd28e7ab4063140432e2af764547",
+        "tree": "c3423c94f28409ec663ec3b161ca85eecfe6207c",
+        "in_G_ancestry": false
+      },
+      "C_Legal_source": {
+        "commit": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+        "in_G_ancestry": false
+      },
+      "Legal_handoff_receipt_source": {
+        "commit": "51609922447716115c22287ac79c218d13cd9067",
+        "tree": "bc8b7ac5989b71aba55d1b4cc646589e85daf0a2",
+        "role": "C handoff report commit; the report refers to C_Legal_source c60e37e, not a separate code source pin"
+      },
+      "C_current_table": {
+        "commit": "980d91b36452307d683283ddcf1e89a653af3ce2",
+        "tree": "a8394f6cfb7196ee0a37d610b26cb4b402d32495",
+        "role": "C root current dispositions; source-qualified, not G acceptance"
+      },
+      "additional_Legal_review": {
+        "commit": "77c5cd319c92e52932b1bf15c342b24a41e7b051",
+        "tree": "751a1a854e2c4332ae68c545c739b4d8046c7149",
+        "role": "independent review of bounded candidate; no production LA-040 closure"
+      }
+    },
+    "input_path_and_recipe_status": {
+      "dispatch_reference": "dispatch.json#/actual_local_data_paths",
+      "status": "not_established",
+      "recipe_status": "No production recipe/input selector was established by the pinned L01 packet; L01 says actual data paths/recipes are not_established and must be resolved before L02 recipe selection.",
+      "C_stream_receipt": "production_inputs.used=false; raw VM archives unavailable; baseline evidence is transfer/navigation only.",
+      "Legal_current_pair": "not_established",
+      "disclosure": "Private production paths are omitted and represented only by logical aliases. No current production bytes, content digests, row values, vectors, or membership digest are claimed."
+    },
+    "findings": [
+      {
+        "id": "B79",
+        "unit": "C",
+        "original_owner": "C/W10; ING-01; next source owner is B connector/cursor evidence owner",
+        "original_criterion": {
+          "document": "B_r19",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            2153,
+            2166
+          ],
+          "coverage_source_commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+          "coverage_json_pointer": "/findings/204/criterion_refs"
+        },
+        "connected_row": {
+          "source_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+          "source_blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e",
+          "pointer": "/rows/129",
+          "C_author_row_pointer": "/rows/1",
+          "author_proposal": "limited",
+          "G_closure": "not_adjudicated",
+          "next_task": "I3"
+        },
+        "coverage": {
+          "bundle": "ING-01",
+          "capability_label": "bridge_missing"
+        },
+        "configured_runtime_chain": "POST /api/v1/control/data/ingest (runtime/http/routes/control.py) -> batch_incremental (runtime/http/services/control/run_lifecycle.py) -> run_batch_incremental (fabric/data_plane/modes.py) loads CursorStore, maps stored cursor to DataVersion, supplies FetchRequest.incremental_since, then invokes orchestrated ingestion.",
+        "bounded_evidence_and_limit": "C's committed fixture/REST receipt reports the exact persisted hint reached the real request and the since-filter persisted independently expected rows. This is bounded candidate evidence, not a source-confirmed production cursor. _save_confirmed_cursors remains a fail-closed no-op because no verifier binds evidence to dataset/run/content.",
+        "minimum_next_input": "B connector/cursor evidence owner supplies source-confirmed evidence binding the exact source dataset, ingestion_run_id, cursor, and resolved evidence content. Then show positive promotion, absent/forged/mismatched binder refusal with markers retained, and same-bound-source restart. B83 identity is not a prerequisite; raw archives/broad replay are not prerequisites.",
+        "next_partner_capability": "Existing CursorStore/incremental request path plus a verifier-backed source-evidence content binder; G performs the scoped admission and finding adjudication."
+      },
+      {
+        "id": "B80",
+        "unit": "C",
+        "original_owner": "C/W10; ING-01; next source owner is B connector/cursor evidence owner",
+        "original_criterion": {
+          "document": "B_r19",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            2167,
+            2180
+          ],
+          "coverage_source_commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+          "coverage_json_pointer": "/findings/205/criterion_refs"
+        },
+        "connected_row": {
+          "source_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+          "source_blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e",
+          "pointer": "/rows/130",
+          "C_author_row_pointer": "/rows/2",
+          "author_proposal": "held",
+          "G_closure": "not_adjudicated",
+          "next_task": "I3"
+        },
+        "coverage": {
+          "bundle": "ING-01",
+          "capability_label": "semantic_test_missing"
+        },
+        "configured_runtime_chain": "Per-source cursor records are persisted through CursorStore/streaming. The incremental caller must bind each source's cursor to that source's verified run/content; a successful source must not advance another source to local now.",
+        "bounded_evidence_and_limit": "Candidate fixture evidence exercises per-source storage and retry/failure behavior; unverified source progress is not promoted. No production A/B datasets, ingestion runs, cursors, or late-event records are established here.",
+        "minimum_next_input": "B connector/cursor evidence owner supplies separately content-bound dataset/run/cursor evidence for sources A and B. Test A confirmation while B fails, then a late B event older than local now; B remains at its confirmed frontier until B itself confirms, with restart parity.",
+        "next_partner_capability": "The same verifier-backed per-source cursor admission as B79 plus an independent two-source progress/late-event semantic test. Do not add B83 event/version identity as a B80 prerequisite."
+      },
+      {
+        "id": "B83",
+        "unit": "C",
+        "original_owner": "C/W10; ING-03; next source owner is B source-contract owner",
+        "original_criterion": {
+          "document": "B_r19",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            2209,
+            2222
+          ],
+          "coverage_source_commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+          "coverage_json_pointer": "/findings/208/criterion_refs"
+        },
+        "connected_row": {
+          "source_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+          "source_blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e",
+          "pointer": "/rows/133",
+          "C_author_row_pointer": "/rows/5",
+          "author_proposal": "held",
+          "G_closure": "not_adjudicated",
+          "next_task": "I3"
+        },
+        "coverage": {
+          "bundle": "ING-03",
+          "capability_label": "semantic_test_missing"
+        },
+        "configured_runtime_chain": "fabric/quality/processing_guarantees.py defines the key/horizon policy; fabric/data_plane/streaming.py and cursor_store.py persist bounded dedupe/checkpoint state. Existing defaults may use synthesized _message_id/message_id/id; these names do not establish source-owned event/version authority.",
+        "bounded_evidence_and_limit": "C's candidate fixtures report a persisted UTC 86,400-second horizon, composite primitive keys, source/partition isolation, and refuse-before-live-key eviction. The connector does not supply source-owned event/version identity; synthetic offset _message_id is not authority. No current production event/version key was observed.",
+        "minimum_next_input": "B source-contract owner supplies a stable source-owned event/version idempotency key, scoped by source and partition and bound to cursor/replay. Test a,b,c,a with in-memory cap 2 across restart, exact UTC expiry after 86,400 seconds, partition isolation, and typed refusal for missing/ambiguous keys; no eviction of live keys.",
+        "next_partner_capability": "A typed source-owned event/version-key contract wired into the existing durable dedupe index and real CursorStore restart path; G admits the source contract and semantic test."
+      },
+      {
+        "id": "LA-040",
+        "unit": "C; I4",
+        "original_owner": "C-W04; EMB-03",
+        "original_criterion": {
+          "document": "LA_r09",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            2556,
+            2594
+          ],
+          "coverage_source_commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+          "coverage_json_pointer": "/findings/264/criterion_refs"
+        },
+        "connected_row": {
+          "source_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+          "source_blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e",
+          "pointer": "/rows/120",
+          "C_author_row_pointer": "/rows/45",
+          "author_proposal": "held",
+          "G_closure": "not_adjudicated",
+          "next_task": "I4"
+        },
+        "coverage": {
+          "bundle": "EMB-03",
+          "capability_label": "producer_missing"
+        },
+        "configured_runtime_chain": "Legal batch/embedder.py and embedding_projection.py produce per-entity/fact/provision embeddings and generation inventory using the existing data_forge/kernel/io/generation_basis.py owner. lex/knowledge/store.py and search.py consume the index and check the live encoder identity. LegalKnowledgeGraph.query_encoder is optional; the pinned runtime/http/services/control/lex_pipeline.py caller creates the graph without a query_encoder, so query serving cannot establish a matched profile on that caller.",
+        "bounded_evidence_and_limit": "C's c60 Legal candidate and 2026-10-07 independent review report GO for bounded fixture/source behavior (including target/decoy/removal and selector checks), but do not close production LA-040. Current paired persisted generation, immutable encoder/model/tokenizer/normalization assets, and actual served query profile are not_established. No present-day production byte facts or encoder-comparability conclusion is asserted.",
+        "historical_receipts": {
+          "presence_receipt": {
+            "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/legal-paired-input-presence.json",
+            "git_blob": "05cac81158a8e6024bb70b94c1dd65054d2bb2a2",
+            "captured_at_utc": "2026-10-07T19:15:57.302080+00:00",
+            "source_reported_operation": "lstat of selected DB/index paths only",
+            "source_reported_path_entries": 11,
+            "source_reported_suffix_counts": {
+              ".duckdb": 1,
+              ".json": 4,
+              ".npz": 3,
+              ".hnsw": 3
+            },
+            "source_reported_db_payload_or_row_reads": false,
+            "source_reported_db_hash_computed": false,
+            "source_reported_profile_assumed": false,
+            "source_reported_membership_digest": "not_established",
+            "interpretation": "Historical source-reported receipt only; does not establish present-day availability, production bytes, a paired generation, or the present-day relationship between producer and query profiles. Private paths are omitted."
+          },
+          "availability_receipt": {
+            "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-availability-20261007.json",
+            "git_blob": "6aa19dbbed07a8ae55a24a1a971a669bb4660b64",
+            "interpretation": "Historical source-reported availability note; not a present-day input read or a present-day producer/query-profile comparison."
+          }
+        },
+        "minimum_next_input": "C-W04/DFI producer owner and served query-profile owner supply a paired persisted production generation, immutable model/weights/tokenizer/normalization assets, and the actual served query profile. Then G performs the bounded read-only membership/projection readback and same-profile consumer check; no corpus export or broad census is required.",
+        "next_partner_capability": "Existing generation-basis producer plus a paired generation-to-query-profile bridge through the named Legal serving caller, with a content/member-bound profile discriminator and consumer verification."
+      }
+    ],
+    "committed_C_receipts": [
+      {
+        "role": "streaming_leaf",
+        "commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ing-streaming-c2.json",
+        "git_blob": "02dd791e0679ea57e739c7a850853f3c3ac5f8e9",
+        "scope": "B79/B80/B83 bounded candidate results and explicit source-evidence limitations"
+      },
+      {
+        "role": "C_current_table",
+        "commit": "980d91b36452307d683283ddcf1e89a653af3ce2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c5-v1.json",
+        "git_blob": "98c39eb77e4397bc9a6e95d8e0a210100fa96e5f",
+        "rows": {
+          "B79": "/rows/1",
+          "B80": "/rows/2",
+          "B83": "/rows/5",
+          "LA-040": "/rows/45"
+        }
+      },
+      {
+        "role": "Legal_query_profile_handoff_report",
+        "commit": "51609922447716115c22287ac79c218d13cd9067",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/legal-query-profile-20261007.json",
+        "git_blob": "677801f5f2979495e0c15493434a0ccd90b1a881",
+        "pointer": "/property"
+      },
+      {
+        "role": "Legal_independent_review",
+        "commit": "77c5cd319c92e52932b1bf15c342b24a41e7b051",
+        "path": "policy-engine/docs/system-design-decisions/reviews/2026-10-07-legal-query-profile-binding/review.json",
+        "git_blob": "15a8e7048497421dab22cfa7269c043539929420",
+        "pointer": "/decision",
+        "scope": "bounded source/fixture review; no production LA-040 closure"
+      },
+      {
+        "role": "Legal_generation_candidate_handoff_receipt",
+        "commit": "51609922447716115c22287ac79c218d13cd9067",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006.json",
+        "git_blob": "397cd862ea08867be42518871da2522463dcbd06",
+        "scope": "bounded candidate receipt; not paired current production evidence"
+      },
+      {
+        "role": "historical_Legal_path_presence",
+        "commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/legal-paired-input-presence.json",
+        "git_blob": "05cac81158a8e6024bb70b94c1dd65054d2bb2a2",
+        "scope": "dated lstat-only receipt; no payload/hash/profile assertion"
+      }
+    ],
+    "source_blobs": [
+      {
+        "source": "C_stream_source",
+        "commit": "81a4af184d72cd28e7ab4063140432e2af764547",
+        "path": "policy-engine/src/polisyos/runtime/http/routes/control.py",
+        "blob": "b525f2601a311f1b47fd97ae429e1647a6c5d993",
+        "role": "ingest API route"
+      },
+      {
+        "source": "C_stream_source",
+        "commit": "81a4af184d72cd28e7ab4063140432e2af764547",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+        "role": "batch_incremental dispatch"
+      },
+      {
+        "source": "C_stream_source",
+        "commit": "81a4af184d72cd28e7ab4063140432e2af764547",
+        "path": "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+        "blob": "9f68fb5c4453789362f0d089b9b4c2b2ceeb7439",
+        "role": "cursor-to-request and confirmation path"
+      },
+      {
+        "source": "C_stream_source",
+        "commit": "81a4af184d72cd28e7ab4063140432e2af764547",
+        "path": "policy-engine/src/polisyos/fabric/data_plane/cursor_store.py",
+        "blob": "31525859297cf05d5c190db00e5389ab0c61b0ff",
+        "role": "persisted cursor/checkpoint state"
+      },
+      {
+        "source": "C_stream_source",
+        "commit": "81a4af184d72cd28e7ab4063140432e2af764547",
+        "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "blob": "08b304cc85885e0a95348b4b2d69bf3459e11e21",
+        "role": "streaming/dedupe runtime"
+      },
+      {
+        "source": "C_stream_source",
+        "commit": "81a4af184d72cd28e7ab4063140432e2af764547",
+        "path": "policy-engine/src/polisyos/fabric/quality/processing_guarantees.py",
+        "blob": "3074055a1cdac38d7031f36158a2a0b33b54620b",
+        "role": "dedupe policy"
+      },
+      {
+        "source": "C_stream_source",
+        "commit": "81a4af184d72cd28e7ab4063140432e2af764547",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+        "blob": "5148d6b6aeaec3ce7a5fc26267189ba0647060d9",
+        "role": "candidate integration/semantic oracle"
+      },
+      {
+        "source": "C_stream_source",
+        "commit": "81a4af184d72cd28e7ab4063140432e2af764547",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_processing_guarantees.py",
+        "blob": "29b6bb20ae307f10a379b69522934886fefde6dc",
+        "role": "dedupe tests"
+      },
+      {
+        "source": "C_stream_source",
+        "commit": "81a4af184d72cd28e7ab4063140432e2af764547",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_cursor_store.py",
+        "blob": "035ccd38c5e6448f5bb9db14c507fc12c96c5b30",
+        "role": "cursor persistence tests"
+      },
+      {
+        "source": "C_stream_source",
+        "commit": "81a4af184d72cd28e7ab4063140432e2af764547",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "blob": "a944f83978c6b970d0dab9a9b3209059006e630e",
+        "role": "streaming runtime tests"
+      },
+      {
+        "source": "C_stream_source",
+        "commit": "81a4af184d72cd28e7ab4063140432e2af764547",
+        "path": "policy-engine/pyproject.toml",
+        "blob": "e0d245da4b5053f2adcac560cb872f6baedaf07a",
+        "role": "candidate config companion"
+      },
+      {
+        "source": "C_stream_source",
+        "commit": "81a4af184d72cd28e7ab4063140432e2af764547",
+        "path": "policy-engine/uv.lock",
+        "blob": "2079b832b13fe6c907e39d9eed3f095363079a1b",
+        "role": "candidate lock companion"
+      },
+      {
+        "source": "C_Legal_source",
+        "commit": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+        "blob": "48c6f4e1e899613962e984ffd25d4bd7baa8230e",
+        "role": "Legal embedding producer"
+      },
+      {
+        "source": "C_Legal_source",
+        "commit": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "path": "policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py",
+        "blob": "ee526dd88b8acf41931793010ac7a81b7b64329c",
+        "role": "Legal text projection"
+      },
+      {
+        "source": "C_Legal_source",
+        "commit": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+        "blob": "b1b60eefd5513ebdf717bdd4eb39b1bbd9538eac",
+        "role": "existing generation-basis owner"
+      },
+      {
+        "source": "C_Legal_source",
+        "commit": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+        "blob": "95c2ab216c5c4bd60c71bf13eb1e0c1596d8df8a",
+        "role": "Legal index consumer"
+      },
+      {
+        "source": "C_Legal_source",
+        "commit": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "path": "policy-engine/src/polisyos/lex/knowledge/search.py",
+        "blob": "a25674788cf0d7305cbb60db5172aa113fd5c8cf",
+        "role": "Legal query consumer"
+      },
+      {
+        "source": "G",
+        "commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py",
+        "blob": "5c1f8bba235764741a64aca54f953846bccddc25",
+        "role": "pinned serving caller; no query_encoder supplied"
+      },
+      {
+        "source": "C_Legal_source",
+        "commit": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+        "blob": "27f18067fc33723a4d147df1f1bff2d5c1dcece5",
+        "role": "Legal profile-binding tests"
+      },
+      {
+        "source": "C_Legal_source",
+        "commit": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-07-legal-query-profile-binding.toml",
+        "blob": "9f057bb060c4eaa5610efddb5bd251ada28b203d",
+        "role": "release companion"
+      },
+      {
+        "source": "C_Legal_source",
+        "commit": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/README.md",
+        "blob": "53dba0eafa2bfd807ccaee471dd54e47411a1d76",
+        "role": "producer companion docs"
+      },
+      {
+        "source": "C_Legal_source",
+        "commit": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "path": "policy-engine/src/polisyos/lex/knowledge/README.md",
+        "blob": "58b9f6782d3592f1d49fd2b1d28b02acec1c6232",
+        "role": "consumer companion docs"
+      }
+    ]
+  }
+}

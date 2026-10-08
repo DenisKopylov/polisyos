@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="0.077" timestamp="2026-10-08T12:21:10.963824+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.ddm.test_full_acceptance" name="test_registry_rebind_rejects_tampered_validity_projection[report_digest-0000000000000000000000000000000000000000000000000000000000000000]" time="0.004"><failure message="AssertionError: assert True is False&#10; +  where True = RegistryGateDecision(model_id='model', model_version='v1', promotion_allowed=True, reason='R4_promotion_allowed', required_actions=['continue_monitoring']).promotion_allowed">field = 'report_digest'
+value = '0000000000000000000000000000000000000000000000000000000000000000'
+
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [
+            ("report_digest", "0" * 64),
+            ("calibration_id", "foreign-calibration"),
+            ("detector_id", "foreign-detector"),
+            ("stationarity_regime_id", "foreign-regime"),
+        ],
+    )
+    def test_registry_rebind_rejects_tampered_validity_projection(
+        field: str,
+        value: str,
+    ) -&gt; None:
+        """Tampered public identity or digest cannot restore checker authority."""
+    
+        report, audit, record = _registry_context(observed_triggers=[])
+        payload = record.model_dump(mode="json")
+        assert payload["calibration_validity"] is not None
+        payload["calibration_validity"][field] = value
+        tampered = ModelRegistryReadinessRecord.model_validate(payload)
+    
+        rebound = rebind_calibration_validity(
+            tampered,
+            report=report,
+            calibration_audit=audit,
+            now=datetime(2026, 4, 26, tzinfo=UTC),
+            observed_invalidation_triggers=[],
+        )
+    
+        gate = evaluate_registry_gate(rebound)
+&gt;       assert gate.promotion_allowed is False
+E       AssertionError: assert True is False
+E        +  where True = RegistryGateDecision(model_id='model', model_version='v1', promotion_allowed=True, reason='R4_promotion_allowed', required_actions=['continue_monitoring']).promotion_allowed
+
+tests/unit/ddm/test_full_acceptance.py:694: AssertionError</failure></testcase><testcase classname="tests.unit.ddm.test_full_acceptance" name="test_registry_rebind_rejects_tampered_validity_projection[calibration_id-foreign-calibration]" time="0.001"><failure message="AssertionError: assert True is False&#10; +  where True = RegistryGateDecision(model_id='model', model_version='v1', promotion_allowed=True, reason='R4_promotion_allowed', required_actions=['continue_monitoring']).promotion_allowed">field = 'calibration_id', value = 'foreign-calibration'
+
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [
+            ("report_digest", "0" * 64),
+            ("calibration_id", "foreign-calibration"),
+            ("detector_id", "foreign-detector"),
+            ("stationarity_regime_id", "foreign-regime"),
+        ],
+    )
+    def test_registry_rebind_rejects_tampered_validity_projection(
+        field: str,
+        value: str,
+    ) -&gt; None:
+        """Tampered public identity or digest cannot restore checker authority."""
+    
+        report, audit, record = _registry_context(observed_triggers=[])
+        payload = record.model_dump(mode="json")
+        assert payload["calibration_validity"] is not None
+        payload["calibration_validity"][field] = value
+        tampered = ModelRegistryReadinessRecord.model_validate(payload)
+    
+        rebound = rebind_calibration_validity(
+            tampered,
+            report=report,
+            calibration_audit=audit,
+            now=datetime(2026, 4, 26, tzinfo=UTC),
+            observed_invalidation_triggers=[],
+        )
+    
+        gate = evaluate_registry_gate(rebound)
+&gt;       assert gate.promotion_allowed is False
+E       AssertionError: assert True is False
+E        +  where True = RegistryGateDecision(model_id='model', model_version='v1', promotion_allowed=True, reason='R4_promotion_allowed', required_actions=['continue_monitoring']).promotion_allowed
+
+tests/unit/ddm/test_full_acceptance.py:694: AssertionError</failure></testcase><testcase classname="tests.unit.ddm.test_full_acceptance" name="test_registry_rebind_rejects_tampered_validity_projection[detector_id-foreign-detector]" time="0.001"><failure message="AssertionError: assert True is False&#10; +  where True = RegistryGateDecision(model_id='model', model_version='v1', promotion_allowed=True, reason='R4_promotion_allowed', required_actions=['continue_monitoring']).promotion_allowed">field = 'detector_id', value = 'foreign-detector'
+
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [
+            ("report_digest", "0" * 64),
+            ("calibration_id", "foreign-calibration"),
+            ("detector_id", "foreign-detector"),
+            ("stationarity_regime_id", "foreign-regime"),
+        ],
+    )
+    def test_registry_rebind_rejects_tampered_validity_projection(
+        field: str,
+        value: str,
+    ) -&gt; None:
+        """Tampered public identity or digest cannot restore checker authority."""
+    
+        report, audit, record = _registry_context(observed_triggers=[])
+        payload = record.model_dump(mode="json")
+        assert payload["calibration_validity"] is not None
+        payload["calibration_validity"][field] = value
+        tampered = ModelRegistryReadinessRecord.model_validate(payload)
+    
+        rebound = rebind_calibration_validity(
+            tampered,
+            report=report,
+            calibration_audit=audit,
+            now=datetime(2026, 4, 26, tzinfo=UTC),
+            observed_invalidation_triggers=[],
+        )
+    
+        gate = evaluate_registry_gate(rebound)
+&gt;       assert gate.promotion_allowed is False
+E       AssertionError: assert True is False
+E        +  where True = RegistryGateDecision(model_id='model', model_version='v1', promotion_allowed=True, reason='R4_promotion_allowed', required_actions=['continue_monitoring']).promotion_allowed
+
+tests/unit/ddm/test_full_acceptance.py:694: AssertionError</failure></testcase><testcase classname="tests.unit.ddm.test_full_acceptance" name="test_registry_rebind_rejects_tampered_validity_projection[stationarity_regime_id-foreign-regime]" time="0.000"><failure message="AssertionError: assert True is False&#10; +  where True = RegistryGateDecision(model_id='model', model_version='v1', promotion_allowed=True, reason='R4_promotion_allowed', required_actions=['continue_monitoring']).promotion_allowed">field = 'stationarity_regime_id', value = 'foreign-regime'
+
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [
+            ("report_digest", "0" * 64),
+            ("calibration_id", "foreign-calibration"),
+            ("detector_id", "foreign-detector"),
+            ("stationarity_regime_id", "foreign-regime"),
+        ],
+    )
+    def test_registry_rebind_rejects_tampered_validity_projection(
+        field: str,
+        value: str,
+    ) -&gt; None:
+        """Tampered public identity or digest cannot restore checker authority."""
+    
+        report, audit, record = _registry_context(observed_triggers=[])
+        payload = record.model_dump(mode="json")
+        assert payload["calibration_validity"] is not None
+        payload["calibration_validity"][field] = value
+        tampered = ModelRegistryReadinessRecord.model_validate(payload)
+    
+        rebound = rebind_calibration_validity(
+            tampered,
+            report=report,
+            calibration_audit=audit,
+            now=datetime(2026, 4, 26, tzinfo=UTC),
+            observed_invalidation_triggers=[],
+        )
+    
+        gate = evaluate_registry_gate(rebound)
+&gt;       assert gate.promotion_allowed is False
+E       AssertionError: assert True is False
+E        +  where True = RegistryGateDecision(model_id='model', model_version='v1', promotion_allowed=True, reason='R4_promotion_allowed', required_actions=['continue_monitoring']).promotion_allowed
+
+tests/unit/ddm/test_full_acceptance.py:694: AssertionError</failure></testcase></testsuite></testsuites>

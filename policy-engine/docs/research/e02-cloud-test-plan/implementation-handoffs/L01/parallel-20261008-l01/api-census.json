@@ -1,0 +1,524 @@
+{
+  "schema": "e02_l01_c13_api_census_draft_v1",
+  "status": "read_only_draft",
+  "scope": "T1 API census supporting L01; no source/test edits and no test execution by this leaf.",
+  "scoped_tracked_source_denominators": [
+    {
+      "source_commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+      "scope_dirs": [
+        "policy-engine/src/polisyos/scientist/orchestration/llm",
+        "policy-engine/src/polisyos/core/security",
+        "policy-engine/src/polisyos/core/artifacts",
+        "policy-engine/src/polisyos/core/llm"
+      ],
+      "tracked_files": 99,
+      "file_types": {
+        "py": 95,
+        "md": 4
+      },
+      "absence_bound": "No concrete B67 cache-reuse owner implementation was identified inside this closure. This does not assert no deployment issuer exists outside it."
+    },
+    {
+      "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+      "scope_dirs": [
+        "policy-engine/src/polisyos/lex",
+        "policy-engine/src/polisyos/fabric/world",
+        "policy-engine/src/polisyos/scholar",
+        "policy-engine/src/polisyos/core/security",
+        "policy-engine/src/polisyos/core/contracts"
+      ],
+      "tracked_files": 187,
+      "file_types": {
+        "py": 173,
+        "md": 12,
+        "cypher": 1,
+        "sql": 1
+      },
+      "absence_bound": "No source-specific rights grant/consumer was identified inside this closure. Generic runtime security modules outside these owner paths are not treated as source-rights authority."
+    },
+    {
+      "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "scope_dirs": [
+        "policy-engine/src/polisyos/scientist/methods/search",
+        "policy-engine/src/polisyos/scientist/methods/autotune",
+        "policy-engine/src/polisyos/core/security",
+        "policy-engine/src/polisyos/core/artifacts"
+      ],
+      "tracked_files": 166,
+      "file_types": {
+        "py": 159,
+        "md": 7
+      },
+      "absence_bound": "No B131/B137/B164 purpose-specific owner verifier was identified inside this closure; this does not assert no deployment owner exists outside it."
+    },
+    {
+      "source_commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+      "scope_dirs": [
+        "policy-engine/src/polisyos/ddm"
+      ],
+      "tracked_files": 36,
+      "file_types": {
+        "py": 19,
+        "json": 9,
+        "yaml": 5,
+        "md": 3
+      },
+      "absence_bound": "Internal DDM checker/gate exists; no external current invalidation-feed producer or identity-bound R2 signoff issuer was identified inside DDM."
+    }
+  ],
+  "api_census": [
+    {
+      "finding_ids": [
+        "B67"
+      ],
+      "classification": "Reusable consumer contract; configured deployment issuer not established within the scoped B closure.",
+      "symbols": [
+        "CacheReuseEvidence",
+        "CacheReuseRequest",
+        "CacheReuseDecision",
+        "CacheReuseAuthorizer.authorize_reuse",
+        "CachingLLMClient._reuse_admission",
+        "CachingLLMClient._require_current_reuse",
+        "create_traced_gateway_client(cache_reuse_authorizer=...)"
+      ],
+      "source_refs": [
+        {
+          "source_commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+          "git_blob": "e4aece7bace8cc969a0c896727c09cd80cef25bf",
+          "lines": "69-147,454-510"
+        },
+        {
+          "source_commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+          "git_blob": "311b66e54dea6c49c4a295121f3ece57aa4a30b9",
+          "lines": "148-156,241"
+        },
+        {
+          "source_commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+          "path": "policy-engine/src/polisyos/core/security/access_scope.py",
+          "git_blob": "817c95dd9901b7b7a9c996a5052d4cf5abbd15dd"
+        },
+        {
+          "source_commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+          "path": "policy-engine/src/polisyos/core/security/tenant_context.py",
+          "git_blob": "5645cf0bf4f8633dc02e800ae28f4496f8d421a9"
+        },
+        {
+          "source_commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+          "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+          "git_blob": "02e3253de23db5d64c21b69ce4cc85daa4f0778c"
+        },
+        {
+          "source_commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+          "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+          "git_blob": "a21bca5b1280069d6852bad0b5437d9783925886"
+        },
+        {
+          "source_commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+          "path": "policy-engine/src/polisyos/core/security/authz.py",
+          "git_blob": "d04561f6007172f5cf457d4438d6c6b77aad61b2"
+        }
+      ],
+      "producer_bridge_consumer": "The cache consumer recomputes request parameters and exact snapshot content/hash and rechecks the injected owner decision for consumption. The canonical factory exposes an optional authorizer. The concrete owner in tests is fixture-only; no configured producer was found in the scoped owner closure.",
+      "minimal_reuse": "Wire the existing authorizer through the canonical factory to an appointed, current owner decision bound to actor/tenant/scope/purpose/model/parameters and exact CAS ref/version/hash; preserve per-read and emission rechecks.",
+      "counterfeit_stale_revoked_falsifier": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_owner_permission_rechecked_actor_epoch_and_exact_cas_ref (positive cached hit, changed epoch, denied owner, foreign actor, substituted ref). Fixture issuer is not deployment authority."
+    },
+    {
+      "finding_ids": [
+        "LA018",
+        "LA024",
+        "LA025"
+      ],
+      "classification": "Technical evidence/fetch/CAS chain exists; source-rights purpose issuer and verifier-consumer bridge absent within the scoped C owner paths.",
+      "symbols": [
+        "load_world_facts (canonical Fabric owner)",
+        "SourceSpec.license",
+        "fetch_raw",
+        "fetch_open_page",
+        "WebEvidenceBundle",
+        "ArtifactStore/CAS acquisition path"
+      ],
+      "source_refs": [
+        {
+          "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+          "path": "policy-engine/src/polisyos/lex/factlog.py",
+          "git_blob": "2d66860c054b275e0713441510086cda53e0f1e5"
+        },
+        {
+          "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+          "path": "policy-engine/src/polisyos/fabric/world/__init__.py",
+          "git_blob": "0bebca4271e7a9173a3ed0c3c7623bd6f70e956c"
+        },
+        {
+          "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+          "path": "policy-engine/src/polisyos/fabric/world/store/provenance.py",
+          "git_blob": "cb60758fc1bc9d6a037f93731266a96d45b213cd"
+        },
+        {
+          "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+          "path": "policy-engine/src/polisyos/scholar/discover/transport.py",
+          "git_blob": "e86955f02afbb77fb6b14a9bfe2fe75d069a6d10"
+        },
+        {
+          "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+          "path": "policy-engine/src/polisyos/scholar/discover/http_fetch.py",
+          "git_blob": "45241802a96459ea0c3ce4b7fe4b00b35fe049a1"
+        },
+        {
+          "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+          "path": "policy-engine/src/polisyos/scholar/search/fetcher.py",
+          "git_blob": "4a8a6e5e30ec0c0fedbebc18f699a99099e2c0b5"
+        },
+        {
+          "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+          "path": "policy-engine/src/polisyos/scholar/search/service.py",
+          "git_blob": "406e42b3c64ee6d4ae0bed2dba851a1283f5da67"
+        },
+        {
+          "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+          "path": "policy-engine/src/polisyos/scholar/orchestrator/enrich.py",
+          "git_blob": "53d3309c145fc2b0eb4a34389008418b02da22cb"
+        },
+        {
+          "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+          "path": "policy-engine/src/polisyos/core/contracts/scholar.py",
+          "git_blob": "d0c984304a2d81831cd7f0753c719720cec02cc1",
+          "lines": "37-70"
+        },
+        {
+          "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+          "path": "policy-engine/src/polisyos/core/security/authz.py",
+          "git_blob": "d04561f6007172f5cf457d4438d6c6b77aad61b2"
+        },
+        {
+          "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+          "path": "policy-engine/src/polisyos/core/security/chronology_anchor.py",
+          "git_blob": "ea88a46c608718e90c79cf7106b41863a6dbc02c",
+          "lines": "524-526,810-825"
+        }
+      ],
+      "producer_bridge_consumer": "Fetchers enforce technical URL/network/MIME/size/time conditions and CAS persists bytes/provenance. License/source-authority strings are descriptive. OPA/AuthzInput and signed-evidence/appointment APIs exist generically but are not called by the scoped source-rights consumers.",
+      "minimal_reuse": "Use the existing exact-byte CAS carrier and, if an external source owner supplies a source/version/purpose grant, an existing cryptographic verifier as a verifier component. Do not infer permission from public-web, license text, source_authority, or a valid signature alone.",
+      "unit_leaf_refs": [
+        {
+          "selector": "tests/unit/lex/test_fabric_provenance.py::test_lex_evidence_path_uses_fabric_raw_refs_and_replay_state",
+          "ref": {
+            "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+            "path": "policy-engine/tests/unit/lex/test_fabric_provenance.py",
+            "git_blob": "d9c02917116e06196a0cfa302412fed846def47f"
+          }
+        },
+        {
+          "selector": "tests/unit/scholar/search/test_fetcher_security_cache.py::test_shared_raw_transport_preserves_bytes_headers_and_identity",
+          "ref": {
+            "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+            "path": "policy-engine/tests/unit/scholar/search/test_fetcher_security_cache.py",
+            "git_blob": "a1e28e173a58d6a4793c69275bc5345438beee54"
+          }
+        },
+        {
+          "selector": "tests/unit/scholar/search/test_fetcher_security_cache.py::test_fetch_open_page_blocks_private_redirect_targets",
+          "ref": {
+            "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+            "path": "policy-engine/tests/unit/scholar/search/test_fetcher_security_cache.py",
+            "git_blob": "a1e28e173a58d6a4793c69275bc5345438beee54"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/nodes/test_enrich_knowledge_node_freshness.py::test_enrich_node_refreshes_stale_bundle",
+          "ref": {
+            "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+            "path": "policy-engine/tests/unit/scientist/nodes/test_enrich_knowledge_node_freshness.py",
+            "git_blob": "2728a8e04fe4ee2474cd1345e354cc940e227509"
+          }
+        }
+      ],
+      "falsifier_limit": "These tests establish technical fetch/provenance/freshness behavior, not source-owner permission."
+    },
+    {
+      "finding_ids": [
+        "B131"
+      ],
+      "classification": "Technical transfer identity and content binding exists; institutional transfer permission and measurement authority not established within scoped D closure.",
+      "symbols": [
+        "NumericTransferBasis",
+        "TransferLearningManager._resolved_artifact",
+        "get_warm_start_evaluations",
+        "admit_warm_start"
+      ],
+      "source_refs": [
+        {
+          "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+          "git_blob": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+          "lines": "33-68,93-99,211-230,629-687"
+        }
+      ],
+      "minimal_reuse": "Reuse exact CAS role-reference and basis reconciliation. Require the appointed owner to supply separate current transfer-purpose authority; basis fields themselves do not confer it.",
+      "unit_leaf_refs": [
+        {
+          "selector": "tests/unit/scientist/methods/search/strategies/test_transfer.py::test_each_complete_target_basis_identity_is_required",
+          "ref": {
+            "source_commit": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+            "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+            "git_blob": "1a7e97f9b558f1a27c6977661b6797fcbbb38278"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/methods/search/strategies/test_transfer.py::test_candidate_content_not_ref_markers_binds_the_physical_input",
+          "ref": {
+            "source_commit": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+            "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+            "git_blob": "1a7e97f9b558f1a27c6977661b6797fcbbb38278"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/methods/search/strategies/test_transfer.py::test_checkpoint_replay_re_resolves_original_artifacts_on_cache_hit",
+          "ref": {
+            "source_commit": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+            "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+            "git_blob": "1a7e97f9b558f1a27c6977661b6797fcbbb38278"
+          }
+        },
+        {
+          "selector": "tests/unit/scientist/methods/search/strategies/test_transfer.py::test_every_role_ref_is_resolved_again_on_checkpoint_restore",
+          "ref": {
+            "source_commit": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+            "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+            "git_blob": "1a7e97f9b558f1a27c6977661b6797fcbbb38278"
+          }
+        }
+      ]
+    },
+    {
+      "finding_ids": [
+        "B137"
+      ],
+      "classification": "Retention and evidence-age handling exists; a current external verifier/reissue producer is absent within scoped D closure.",
+      "symbols": [
+        "LessonRegistry.query",
+        "_touch_access",
+        "_activity_anchor",
+        "_evidence_anchor",
+        "_demoted_entry"
+      ],
+      "source_refs": [
+        {
+          "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+          "git_blob": "0520a440f0b5285d3976f152dad5a0dbfe9c35cb",
+          "lines": "971-987,1041-1060"
+        }
+      ],
+      "minimal_reuse": "Keep retention timestamps separate from evidence time and preserve the existing low-confidence result until an actual owner-issued revalidation creates a new evidence version.",
+      "unit_leaf_refs": [
+        {
+          "selector": "tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_access_writes_no_cas_snapshot_and_repeated_reads_cannot_refresh_evidence",
+          "ref": {
+            "source_commit": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+            "path": "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+            "git_blob": "32827cc8e4f267b9d9e6d4bf86eb0ffb0c3ed216"
+          }
+        }
+      ]
+    },
+    {
+      "finding_ids": [
+        "B164"
+      ],
+      "classification": "Fail-closed bridge-missing behavior exists; no positive promotion permit issuer/verifier is integrated within scoped D closure.",
+      "symbols": [
+        "Level6PromotionStage.evaluate",
+        "_owner_recheck_failure_card",
+        "_owner_recheck_allows_write"
+      ],
+      "source_refs": [
+        {
+          "source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+          "git_blob": "5154ebfe71891ca5a3046a05e0b03cb79a755a4a",
+          "lines": "21-43,72-88,296-309"
+        }
+      ],
+      "minimal_reuse": "Retain the current fail-closed writer boundary; integrate only an appointed writer-issued current permit with revocation serialized at effectful commit.",
+      "unit_leaf_refs": [
+        {
+          "selector": "tests/unit/scientist/search/funnel/test_level6_promotion.py::test_revoke_after_true_preflight_barrier_has_zero_effects",
+          "ref": {
+            "source_commit": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+            "path": "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py",
+            "git_blob": "a5d97c881ffb1f56d770f0d77b0f39729f1c089e"
+          }
+        }
+      ],
+      "falsifier_limit": "Negative-only bridge falsifier; there is no positive valid-permit path to test."
+    },
+    {
+      "finding_ids": [
+        "LA054"
+      ],
+      "classification": "Internal checker, projection, registry rebind and consumer gate exist; live trigger-feed producer/admission is not established within DDM.",
+      "symbols": [
+        "check_calibration_validity",
+        "build_calibration_validity_projection",
+        "_check_bound_calibration_validity",
+        "DriftAndDegradationMonitor.evaluate_window",
+        "rebind_calibration_validity",
+        "evaluate_registry_gate"
+      ],
+      "source_refs": [
+        {
+          "source_commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+          "path": "policy-engine/src/polisyos/ddm/calibration/audit.py",
+          "git_blob": "dec891c1f629559e556671b371bd6aeca5e4e79c",
+          "lines": "90-158,161-222"
+        },
+        {
+          "source_commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+          "path": "policy-engine/src/polisyos/ddm/integration/events.py",
+          "git_blob": "a487e4fc7364de5761091e969ccb5deec0ba221a"
+        },
+        {
+          "source_commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+          "path": "policy-engine/src/polisyos/ddm/integration/monitor.py",
+          "git_blob": "feb098b379486e71f9fc7e2cd4b4556830cc0ef1",
+          "lines": "64-80,131-150"
+        },
+        {
+          "source_commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+          "git_blob": "2e6796867c4811868e291bc526a9c3c5999f7183",
+          "lines": "174-270,273-344,347-444"
+        },
+        {
+          "source_commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+          "path": "policy-engine/src/polisyos/ddm/readiness/readiness_mapper.py",
+          "git_blob": "6be49d5fa8a9bff11bf37ec6c3f531919c11bd76"
+        }
+      ],
+      "producer_bridge_consumer": "The checker recomputes expiry/report digest and matched configured triggers; monitor/registry can bind and consume exact report context. Trigger observations remain caller supplied; unavailable is fail-closed, but caller-supplied observed-empty is accepted as valid.",
+      "minimal_reuse": "Reuse the internal checker and registry rebind; appoint and wire the actual current invalidation feed, freeze its provenance/currentness, and provide exact report/application subject at the consumer.",
+      "unit_leaf_refs": [
+        {
+          "selector": "tests/unit/ddm/test_full_acceptance.py::test_registry_public_round_trip_rebinds_with_exact_context",
+          "ref": {
+            "source_commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+            "path": "policy-engine/tests/unit/ddm/test_full_acceptance.py",
+            "git_blob": "544adc5be28ed6d403098ca2b555099a231265b2"
+          }
+        },
+        {
+          "selector": "tests/unit/ddm/test_full_acceptance.py::test_registry_rebind_refreshes_projection_for_current_context",
+          "ref": {
+            "source_commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+            "path": "policy-engine/tests/unit/ddm/test_full_acceptance.py",
+            "git_blob": "544adc5be28ed6d403098ca2b555099a231265b2"
+          }
+        },
+        {
+          "selector": "tests/unit/ddm/test_full_acceptance.py::test_registry_rebind_rejects_tampered_validity_projection",
+          "ref": {
+            "source_commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+            "path": "policy-engine/tests/unit/ddm/test_full_acceptance.py",
+            "git_blob": "544adc5be28ed6d403098ca2b555099a231265b2"
+          }
+        },
+        {
+          "selector": "tests/unit/ddm/test_full_acceptance.py::test_registry_distinguishes_unavailable_from_observed_empty_triggers",
+          "ref": {
+            "source_commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+            "path": "policy-engine/tests/unit/ddm/test_full_acceptance.py",
+            "git_blob": "544adc5be28ed6d403098ca2b555099a231265b2"
+          }
+        }
+      ],
+      "execution_status": "These are E-source candidate selectors, not the G-run result below."
+    },
+    {
+      "finding_ids": [
+        "LA055"
+      ],
+      "classification": "Internal readiness state and gate exist; identity-bound current signoff issuer is absent within DDM.",
+      "symbols": [
+        "ReadinessStateEvent.promotion_allowed",
+        "build_model_registry_record",
+        "evaluate_registry_gate(owner_signoff: bool)",
+        "rebind_calibration_validity"
+      ],
+      "source_refs": [
+        {
+          "source_commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+          "git_blob": "2e6796867c4811868e291bc526a9c3c5999f7183",
+          "lines": "174-270,347-425"
+        }
+      ],
+      "minimal_reuse": "Preserve the R2 limited exception and R4/R3 veto rules, but replace the boolean input at the owning boundary with identity/purpose/currentness-bound signoff evidence before any expansion consumer.",
+      "unit_leaf_refs": [
+        {
+          "selector": "tests/unit/ddm/test_full_acceptance.py::test_registry_gate_preserves_r2_owner_signoff_exception_after_veto",
+          "ref": {
+            "source_commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+            "path": "policy-engine/tests/unit/ddm/test_full_acceptance.py",
+            "git_blob": "544adc5be28ed6d403098ca2b555099a231265b2"
+          }
+        }
+      ],
+      "falsifier_limit": "This test proves synthetic boolean branch composition only; it does not prove an institutional signatory."
+    }
+  ],
+  "generic_apis_not_equivalent_to_target_authority": [
+    {
+      "api": "OPAClient/AuthzInput",
+      "scope": "Generic HTTP/resource authorization; no source-rights/transfer/promotion policy binding was identified in the scoped C/D owner consumers.",
+      "refs": [
+        {
+          "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+          "path": "policy-engine/src/polisyos/core/security/authz.py",
+          "git_blob": "d04561f6007172f5cf457d4438d6c6b77aad61b2"
+        },
+        {
+          "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+          "path": "policy-engine/src/polisyos/runtime/http/authz_middleware.py",
+          "git_blob": "5da671b59988086999f5ce333f52c21c165d9a31"
+        },
+        {
+          "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+          "path": "policy-engine/src/polisyos/runtime/http/deployment_security.py",
+          "git_blob": "753288739e0087c877eb62579115d44364174276"
+        },
+        {
+          "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+          "path": "policy-engine/src/polisyos/runtime/http/routes/review.py",
+          "git_blob": "edada2a7c7d3b204952a0b7decfafecd44b3ec2e"
+        }
+      ]
+    },
+    {
+      "api": "verify_signed_evidence / appointment verifiers",
+      "scope": "Cryptographic chronology/epoch evidence verification; signatures alone do not assert source rights, reuse purpose, current permission, or revocation state.",
+      "refs": [
+        {
+          "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+          "path": "policy-engine/src/polisyos/core/security/chronology_anchor.py",
+          "git_blob": "ea88a46c608718e90c79cf7106b41863a6dbc02c",
+          "lines": "524-526,670-825"
+        },
+        {
+          "source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+          "path": "policy-engine/src/polisyos/runtime/quality/epoch_deployment.py",
+          "git_blob": "83e6031f4ae0d74b48ee64c4deb75f15d0d753c0"
+        }
+      ]
+    }
+  ],
+  "integrity_notes": {
+    "tracked_source_denominator_method": "Counted complete tracked path sets with git ls-tree -r --name-only at each exact source commit; counts are limited to listed directories.",
+    "claim_limit": "Absence claims are scoped to the enumerated owner/component paths and stated purpose; no blanket assertion is made about deployment issuers or APIs outside those scopes.",
+    "factual_admission": "UNRUN",
+    "test_execution_by_this_leaf": "none",
+    "source_or_test_mutations_by_this_leaf": "none",
+    "raw_payloads_or_data_digests": "not included"
+  }
+}

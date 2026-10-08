@@ -1,0 +1,173 @@
+R1: remove immutable projection content reconciliation in-process; keep DTO fields, verifier labels and production files unchanged
+FFFF
+=================================== FAILURES ===================================
+_ test_registry_rebind_rejects_tampered_validity_projection[report_digest-0000000000000000000000000000000000000000000000000000000000000000] _
+
+field = 'report_digest'
+value = '0000000000000000000000000000000000000000000000000000000000000000'
+
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [
+            ("report_digest", "0" * 64),
+            ("calibration_id", "foreign-calibration"),
+            ("detector_id", "foreign-detector"),
+            ("stationarity_regime_id", "foreign-regime"),
+        ],
+    )
+    def test_registry_rebind_rejects_tampered_validity_projection(
+        field: str,
+        value: str,
+    ) -> None:
+        """Tampered public identity or digest cannot restore checker authority."""
+    
+        report, audit, record = _registry_context(observed_triggers=[])
+        payload = record.model_dump(mode="json")
+        assert payload["calibration_validity"] is not None
+        payload["calibration_validity"][field] = value
+        tampered = ModelRegistryReadinessRecord.model_validate(payload)
+    
+        rebound = rebind_calibration_validity(
+            tampered,
+            report=report,
+            calibration_audit=audit,
+            now=datetime(2026, 4, 26, tzinfo=UTC),
+            observed_invalidation_triggers=[],
+        )
+    
+        gate = evaluate_registry_gate(rebound)
+>       assert gate.promotion_allowed is False
+E       AssertionError: assert True is False
+E        +  where True = RegistryGateDecision(model_id='model', model_version='v1', promotion_allowed=True, reason='R4_promotion_allowed', required_actions=['continue_monitoring']).promotion_allowed
+
+tests/unit/ddm/test_full_acceptance.py:694: AssertionError
+_ test_registry_rebind_rejects_tampered_validity_projection[calibration_id-foreign-calibration] _
+
+field = 'calibration_id', value = 'foreign-calibration'
+
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [
+            ("report_digest", "0" * 64),
+            ("calibration_id", "foreign-calibration"),
+            ("detector_id", "foreign-detector"),
+            ("stationarity_regime_id", "foreign-regime"),
+        ],
+    )
+    def test_registry_rebind_rejects_tampered_validity_projection(
+        field: str,
+        value: str,
+    ) -> None:
+        """Tampered public identity or digest cannot restore checker authority."""
+    
+        report, audit, record = _registry_context(observed_triggers=[])
+        payload = record.model_dump(mode="json")
+        assert payload["calibration_validity"] is not None
+        payload["calibration_validity"][field] = value
+        tampered = ModelRegistryReadinessRecord.model_validate(payload)
+    
+        rebound = rebind_calibration_validity(
+            tampered,
+            report=report,
+            calibration_audit=audit,
+            now=datetime(2026, 4, 26, tzinfo=UTC),
+            observed_invalidation_triggers=[],
+        )
+    
+        gate = evaluate_registry_gate(rebound)
+>       assert gate.promotion_allowed is False
+E       AssertionError: assert True is False
+E        +  where True = RegistryGateDecision(model_id='model', model_version='v1', promotion_allowed=True, reason='R4_promotion_allowed', required_actions=['continue_monitoring']).promotion_allowed
+
+tests/unit/ddm/test_full_acceptance.py:694: AssertionError
+_ test_registry_rebind_rejects_tampered_validity_projection[detector_id-foreign-detector] _
+
+field = 'detector_id', value = 'foreign-detector'
+
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [
+            ("report_digest", "0" * 64),
+            ("calibration_id", "foreign-calibration"),
+            ("detector_id", "foreign-detector"),
+            ("stationarity_regime_id", "foreign-regime"),
+        ],
+    )
+    def test_registry_rebind_rejects_tampered_validity_projection(
+        field: str,
+        value: str,
+    ) -> None:
+        """Tampered public identity or digest cannot restore checker authority."""
+    
+        report, audit, record = _registry_context(observed_triggers=[])
+        payload = record.model_dump(mode="json")
+        assert payload["calibration_validity"] is not None
+        payload["calibration_validity"][field] = value
+        tampered = ModelRegistryReadinessRecord.model_validate(payload)
+    
+        rebound = rebind_calibration_validity(
+            tampered,
+            report=report,
+            calibration_audit=audit,
+            now=datetime(2026, 4, 26, tzinfo=UTC),
+            observed_invalidation_triggers=[],
+        )
+    
+        gate = evaluate_registry_gate(rebound)
+>       assert gate.promotion_allowed is False
+E       AssertionError: assert True is False
+E        +  where True = RegistryGateDecision(model_id='model', model_version='v1', promotion_allowed=True, reason='R4_promotion_allowed', required_actions=['continue_monitoring']).promotion_allowed
+
+tests/unit/ddm/test_full_acceptance.py:694: AssertionError
+_ test_registry_rebind_rejects_tampered_validity_projection[stationarity_regime_id-foreign-regime] _
+
+field = 'stationarity_regime_id', value = 'foreign-regime'
+
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [
+            ("report_digest", "0" * 64),
+            ("calibration_id", "foreign-calibration"),
+            ("detector_id", "foreign-detector"),
+            ("stationarity_regime_id", "foreign-regime"),
+        ],
+    )
+    def test_registry_rebind_rejects_tampered_validity_projection(
+        field: str,
+        value: str,
+    ) -> None:
+        """Tampered public identity or digest cannot restore checker authority."""
+    
+        report, audit, record = _registry_context(observed_triggers=[])
+        payload = record.model_dump(mode="json")
+        assert payload["calibration_validity"] is not None
+        payload["calibration_validity"][field] = value
+        tampered = ModelRegistryReadinessRecord.model_validate(payload)
+    
+        rebound = rebind_calibration_validity(
+            tampered,
+            report=report,
+            calibration_audit=audit,
+            now=datetime(2026, 4, 26, tzinfo=UTC),
+            observed_invalidation_triggers=[],
+        )
+    
+        gate = evaluate_registry_gate(rebound)
+>       assert gate.promotion_allowed is False
+E       AssertionError: assert True is False
+E        +  where True = RegistryGateDecision(model_id='model', model_version='v1', promotion_allowed=True, reason='R4_promotion_allowed', required_actions=['continue_monitoring']).promotion_allowed
+
+tests/unit/ddm/test_full_acceptance.py:694: AssertionError
+=============================== warnings summary ===============================
+../../../e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/ddm/test_full_acceptance.py::test_registry_rebind_rejects_tampered_validity_projection[report_digest-0000000000000000000000000000000000000000000000000000000000000000]
+FAILED tests/unit/ddm/test_full_acceptance.py::test_registry_rebind_rejects_tampered_validity_projection[calibration_id-foreign-calibration]
+FAILED tests/unit/ddm/test_full_acceptance.py::test_registry_rebind_rejects_tampered_validity_projection[detector_id-foreign-detector]
+FAILED tests/unit/ddm/test_full_acceptance.py::test_registry_rebind_rejects_tampered_validity_projection[stationarity_regime_id-foreign-regime]
+4 failed, 1 warning in 0.08s

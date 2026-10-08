@@ -1,0 +1,794 @@
+{
+  "schema": "policyos.e02.l01.input_custody_packet.v1",
+  "execution_role": "L01",
+  "original_unit": "A",
+  "mode": "read_only_inputs",
+  "product_source_selection": "Each component ref below is an inspected source; it is not G acceptance. Actual G snapshot f00dd7661a8d3329fb1fa1b049decb0d1d2f277b.",
+  "production_input_admission": "not_established",
+  "input_bytes_digest": "withheld_no_disclosure_admission",
+  "formal_G_closure": "not_adjudicated",
+  "original_criteria": [
+    {
+      "id": "B01",
+      "logical_owner": "A",
+      "bundle": "CYC-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B01",
+          "document": "B_r19",
+          "lines": [
+            205,
+            216
+          ],
+          "sha256": "515ee67aec37de92c27b20c9ddd90cc61c95c41608b1daf4eddc88d640c78759",
+          "card": "CYC-01"
+        }
+      ]
+    },
+    {
+      "id": "B02",
+      "logical_owner": "A",
+      "bundle": "CYC-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B02",
+          "document": "B_r19",
+          "lines": [
+            217,
+            228
+          ],
+          "sha256": "6b6265c0da20f55356b1a97a791c6d2e909fd1a38c32b8ccd8375bce507c1f38",
+          "card": "CYC-01"
+        }
+      ]
+    },
+    {
+      "id": "B03",
+      "logical_owner": "A",
+      "bundle": "CYC-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B03",
+          "document": "B_r19",
+          "lines": [
+            229,
+            240
+          ],
+          "sha256": "9dcbf9befc0921cfe71e8cb743417b59cc9faec769ae21342ff874c21260314d",
+          "card": "CYC-01"
+        }
+      ]
+    },
+    {
+      "id": "B09",
+      "logical_owner": "A",
+      "bundle": "CYC-03",
+      "historical_ledger_status": "open",
+      "source_occurrences": [
+        {
+          "criterion_id": "B09",
+          "document": "B_r19",
+          "lines": [
+            301,
+            312
+          ],
+          "sha256": "62b0ba80257fe40aee4e48fda73caf00a617fa55d29c54693185e6996b0ce64c",
+          "card": "CYC-03"
+        }
+      ]
+    },
+    {
+      "id": "B12",
+      "logical_owner": "A",
+      "bundle": "ACQ-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B12",
+          "document": "B_r19",
+          "lines": [
+            337,
+            348
+          ],
+          "sha256": "06171b3b04ee5503cea6193347c3299e0016b1f54a96564e3dc5e439feb85798",
+          "card": "ACQ-01"
+        }
+      ]
+    },
+    {
+      "id": "B15",
+      "logical_owner": "A",
+      "bundle": "CYC-05",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B15",
+          "document": "B_r19",
+          "lines": [
+            375,
+            386
+          ],
+          "sha256": "aee22bfdeaa32d69566dcb038984da712ead8849f625524bc4e6eb7e535fa3b1",
+          "card": "CYC-05"
+        }
+      ]
+    },
+    {
+      "id": "B27",
+      "logical_owner": "A",
+      "bundle": "CYC-03",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B27",
+          "document": "B_r19",
+          "lines": [
+            537,
+            550
+          ],
+          "sha256": "052dfe6a01330cee3d1975a69adaed578a7c1d3259c9c9889c09ce9e867ecc44",
+          "card": "CYC-03"
+        }
+      ]
+    },
+    {
+      "id": "B28",
+      "logical_owner": "A",
+      "bundle": "CYC-03",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B28",
+          "document": "B_r19",
+          "lines": [
+            551,
+            564
+          ],
+          "sha256": "24bde0d2e6c00856b28cf4cc5bc1be23c22e6395760df1a5c615bc74ab99b343",
+          "card": "CYC-03"
+        }
+      ]
+    },
+    {
+      "id": "B29",
+      "logical_owner": "A",
+      "bundle": "CYC-05",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B29",
+          "document": "B_r19",
+          "lines": [
+            565,
+            578
+          ],
+          "sha256": "b8e65549bab11a9d52bdc33a78faf071a96c241730ecb10dfdfe237cf494d8f4",
+          "card": "CYC-05"
+        }
+      ]
+    },
+    {
+      "id": "B34",
+      "logical_owner": "A",
+      "bundle": "SEL-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B34",
+          "document": "B_r19",
+          "lines": [
+            639,
+            663
+          ],
+          "sha256": "b72c038145a8eea6dbec5058fd877f57f9a7f4a2e16d63de9ae67be750158be4",
+          "card": "SEL-01"
+        }
+      ]
+    },
+    {
+      "id": "B35",
+      "logical_owner": "A",
+      "bundle": "SEL-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B35",
+          "document": "B_r19",
+          "lines": [
+            664,
+            681
+          ],
+          "sha256": "d68708b6e5c579f97b0e9f3f121f67a477712796fce8dc87371fc93ee91400b4",
+          "card": "SEL-01"
+        }
+      ]
+    },
+    {
+      "id": "B36",
+      "logical_owner": "A",
+      "bundle": "SEL-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "B36",
+          "document": "B_r19",
+          "lines": [
+            682,
+            699
+          ],
+          "sha256": "0493e6060257ca8b6680154283ca98ea0abba69172a196664e83a4cc3baad90b",
+          "card": "SEL-01"
+        }
+      ]
+    },
+    {
+      "id": "LA-033",
+      "logical_owner": "A",
+      "bundle": "REP-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "LA-033",
+          "document": "LA_r09",
+          "lines": [
+            1994,
+            2028
+          ],
+          "sha256": "60a48ac490a9fe0add1bbecc3bbfb74a011f8038a5dc3f6196f929f9de19739f",
+          "card": "REP-01"
+        }
+      ]
+    },
+    {
+      "id": "LA-046",
+      "logical_owner": "A",
+      "bundle": "ACQ-01",
+      "historical_ledger_status": "partial",
+      "source_occurrences": [
+        {
+          "criterion_id": "LA-046",
+          "document": "LA_r09",
+          "lines": [
+            3034,
+            3068
+          ],
+          "sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38",
+          "card": "REQ-01"
+        },
+        {
+          "criterion_id": "LA-046",
+          "document": "LA_r09",
+          "lines": [
+            3034,
+            3068
+          ],
+          "sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38",
+          "card": "ACQ-01"
+        }
+      ]
+    }
+  ],
+  "facts": {
+    "role": "L01 read-only inputs",
+    "source_pins": {
+      "G": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "G_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+      "A": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+      "A_tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+      "A_current_leaf": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-current-index.json",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "2a14fa091eb1b1d1f8ab0b9aa0d4757baddddcb0"
+      }
+    },
+    "evidence_scope": {
+      "inspection": "Read-only source, criteria, and current-A-leaf review. No test command or production-data execution was run in this helper turn.",
+      "runtime_config": "Both POLISYOS_PRODUCTION_DATA_ROOT and POLISYOS_CAPABILITY_INDEX_PATH are unset in this shell; only presence booleans were inspected.",
+      "confidentiality": "No production payload census; no production path or payload digest is included. Fixture evidence is explicitly distinguished from authentic data-owner evidence.",
+      "formal_status": "A outcomes are provisional/historical; G connected-closeout findings remain not_adjudicated. This input does not make a G closure ruling."
+    },
+    "areas": [
+      {
+        "area": "L6 served intervention inputs",
+        "criteria": [
+          "B01",
+          "B02",
+          "B03"
+        ],
+        "four_planes": {
+          "internal_owner": "PolicyOS runtime owns the loader, HTTP-to-cycle context propagation, N5 request construction, and N8 served projection.",
+          "external_fact": "The original Ukraine intervention bundle and its manifest/root binding require a custodian, artifact/version, revision/time, and reason; local candidate bytes do not establish those facts.",
+          "admission": "production_data.py resolves the configured root/manifest alias; intervention_substrate.py loads the intervention knob dictionary, Lex map, and observation-to-contract manifest, hashes loaded JSON, and binds the substrate; run_lifecycle.py and generation_cycle.py consume the bound context.",
+          "claim_reaction": "Without matching custodian-bound input and an authentic served route run, no B01-B03 claim that the exact context reaches N5 and a fresh N8 GET is admissible."
+        },
+        "existing_recipe": [
+          "POLISYOS_PRODUCTION_DATA_ROOT or params.production_data_root; manifest aliases ukraine_intervention_bundle_dir/intervention_bundle_dir with intervention_bundle_v1 fallback.",
+          "load_l6_intervention_substrate -> lifecycle context admission -> generation cycle; A has a fixture-backed served-cycle custody test."
+        ],
+        "exact_missing_fact": "A8b leaf reports a historical paired-byte mismatch. L01 did not open or hash that pair and does not assert a current mismatch. Current custodian-bound matching pair or legitimate versioned replacement is not established; authentic ordinary POST/N5/CAS/fresh GET is UNRUN.",
+        "state": [
+          "verification_missing",
+          "semantic_test_missing"
+        ],
+        "negative_oracle": [
+          {
+            "selector": "policy-engine/tests/unit/runtime/quality/test_intervention_substrate.py::test_phase5_supplied_manifest_cannot_disappear_from_selection_or_context",
+            "proves": "source-bound manifest cannot be silently dropped from selection/context",
+            "limit": "does not prove custodian identity or current production bytes"
+          },
+          {
+            "selector": "policy-engine/tests/integration/core_runtime/test_e02_served_cycle_custody.py::test_served_candidate_value_is_recomputed_from_n5_cas_on_fresh_get",
+            "proves": "fixture route exercises N5 persistence and fresh served-value recomputation",
+            "limit": "fixture-backed only; not the authentic intervention input"
+          }
+        ],
+        "footprint": {
+          "config": [
+            "POLISYOS_PRODUCTION_DATA_ROOT",
+            "params.production_data_root",
+            "ukraine_intervention_bundle_dir/intervention_bundle_dir"
+          ],
+          "companions": [
+            "coverage.json B01-B03",
+            "findings.json connected closeout",
+            "source custodian and ratified source/version receipt; no production digest copied"
+          ]
+        }
+      },
+      {
+        "area": "Configured acquisition / N7 and LA-046",
+        "criteria": [
+          "B12",
+          "LA-046 / ACQ-01"
+        ],
+        "four_planes": {
+          "internal_owner": "PolicyOS owns N7 resolver/orchestration, the typed gap/action bridge, permission verification, re-entry, and downstream world-model update; it does not own the data owner's act.",
+          "external_fact": "A source owner must accept/provide the permitted, budgeted source action and actual data; a capability-index release is a discovery fact, not source-owner permission or world growth.",
+          "admission": "The configured release loader validates a persisted capability-index release and produces RequirementToCapabilityResolver; current native L1 route accepts exact canonical_variable_observations:<variable> plus source-entry/provision/connector/attempt evidence and BoundActionPermissionVerification.",
+          "claim_reaction": "Only an admitted action followed by re-entry and dependent WMR change can support acquisition/world-growth claims; an unavailable resolver is a typed error, and a plan alone is not progress."
+        },
+        "existing_recipe": [
+          "POLISYOS_CAPABILITY_INDEX_PATH -> load_default_capability_index_release -> RequirementToCapabilityResolver.from_capability_index; typed errors for absent/bad release.",
+          "A route consumes exact ValueOwnerAccessError.owner_gap_evidence into L1VariableAvailability; N7 orchestration has a plan-only typed requirement_gap branch and a separate action path."
+        ],
+        "exact_missing_fact": "The generic DataRequirementSpec/construct/facet compiler does not map to C's exact L1 canonical-variable/source route. The remaining bridge input is an exact supported L1 variable gap plus source-owner permission/accepted observation; current A leaf does not establish an admitted N7 action or dependent WMR change. Generic profile controls in LA-046 do not close ACQ-01.",
+        "state": [
+          "bridge_missing",
+          "semantic_test_missing"
+        ],
+        "negative_oracle": [
+          {
+            "selector": "policy-engine/tests/unit/runtime/quality/test_e02_configured_n7_resolver.py::test_unavailable_configured_release_is_a_typed_n7_error",
+            "proves": "bad or unavailable release cannot silently yield a resolver"
+          },
+          {
+            "selector": "policy-engine/tests/unit/runtime/quality/test_e02_configured_n7_resolver.py::test_unavailable_n7_index_is_routed_without_minting_a_receipt",
+            "proves": "missing resolver does not mint an acquisition receipt"
+          },
+          {
+            "selector": "policy-engine/tests/integration/core_runtime/test_acquisition_route_execution_binding.py::test_missing_authority_owner_refuses_before_attempt_reservation",
+            "proves": "missing authority owner is rejected before a protected attempt"
+          },
+          {
+            "selector": "policy-engine/tests/integration/core_runtime/test_acquisition_route_execution_binding.py::test_bridge_resume_rechecks_mutated_promotion_store_before_reentry_effects",
+            "proves": "resume rechecks the promotion artifact before re-entry effects"
+          }
+        ],
+        "footprint": {
+          "config": [
+            "POLISYOS_CAPABILITY_INDEX_PATH",
+            "manifest-checked persisted DuckDB capability-index release",
+            "exact C route canonical_variable_observations:<variable>"
+          ],
+          "companions": [
+            "coverage.json B12 and LA-046",
+            "findings.json ACQ-01 occurrence distinct from REQ-01",
+            "source-owner acceptance, action permission, accepted data artifact, re-entry event, downstream WMR evidence"
+          ]
+        }
+      },
+      {
+        "area": "Meaningful child / recursive served path",
+        "criteria": [
+          "B15",
+          "B27",
+          "B28",
+          "B29"
+        ],
+        "four_planes": {
+          "internal_owner": "PolicyOS owns child graph construction, context rebinding, budgeted recursion, partial artifact persistence, and API projection.",
+          "external_fact": "C10 owns meaningful-child semantics against the actual DesignProblem/module/interface supplier. Candidate fixtures need no invented institutional grant. Protected factual/coupling claims additionally need their exact admitted source; manual node IDs do not produce content-distinct children.",
+          "admission": "The recursive controller validates graph/status and can preserve a partial frontier; current ordinary HTTP generation-cycle composition passes empty module_refs and parent_child_edges.",
+          "claim_reaction": "The ordinary POST must produce two semantically meaningful children, and a budget stop must persist completed-child plus pending-sibling state to CAS and expose it on fresh GET; stop and abstain must stay distinct."
+        },
+        "existing_recipe": [
+          "recursive_generation_cycle.py supplies controller-level recursion, total-node budget, and partial-frontier validation.",
+          "A integration fixtures exercise a hand-built two-child graph and a manually inserted controller artifact/readback, not a child producer on the ordinary HTTP route."
+        ],
+        "exact_missing_fact": "No production child provider/route bridge emits a two-child graph from C10-approved meaning and admitted context. Default HTTP composition explicitly supplies empty module_refs and parent_child_edges; the total graph cap is checked before work and is not the post-child partial-stop condition.",
+        "state": [
+          "producer_missing",
+          "bridge_missing",
+          "semantic_test_missing"
+        ],
+        "negative_oracle": [
+          {
+            "selector": "policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py::test_partial_v2_rejects_self_asserted_internal_parent_terminal",
+            "proves": "a self-asserted terminal parent cannot substitute for valid child/frontier evidence"
+          },
+          {
+            "selector": "policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py::test_budget_stopped_child_keeps_completed_child_and_pending_sibling",
+            "proves": "controller-level partial semantics for a constructed graph",
+            "limit": "does not prove ordinary HTTP production or an admitted meaningful-child predicate"
+          },
+          {
+            "selector": "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py::test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_get",
+            "proves": "fixture route for owned CAS/fresh GET; A leaf identifies manual controller-fixture insertion, so it cannot close the missing POST producer"
+          }
+        ],
+        "footprint": {
+          "config": [
+            "ordinary HTTP route currently supplies module_refs=[] and parent_child_edges=[]"
+          ],
+          "companions": [
+            "coverage.json B15/B27-B29",
+            "C10 meaning rule and admitted context/coupling input",
+            "CAS persistence plus fresh GET projection",
+            "B214 is not an L01 blocker"
+          ]
+        }
+      },
+      {
+        "area": "Catalog discovery and typed discovery-transform",
+        "criteria": [
+          "B34",
+          "B35",
+          "B36"
+        ],
+        "four_planes": {
+          "internal_owner": "Foundry owns registry intake, complete value denominator, eligibility/order, and selection receipt; a transform owner must produce the typed transform artifact and consumer binding.",
+          "external_fact": "A complete source discovery manifest/report and bound bytes enumerate the external registry universe; local registry membership or its own self-attestation is insufficient.",
+          "admission": "select_value_method_for_problem calls _admit_complete_value_method_registry and validates a content-bound discovery manifest; ensure_all_methods_registered still bootstraps with require_bound_discovery_manifest=False, so the default source intake remains unresolved.",
+          "claim_reaction": "Existing selection path filters the complete denominator and required modalities before top-k, but absent default source binding and absent typed-transform producer/consumer prevent a discovery-transform recommendation or claim."
+        },
+        "existing_recipe": [
+          "foundry/methods/catalog bootstrap -> bound discovery manifest/content admission -> value selector -> catalog snapshot/selection receipt.",
+          "Selector negatives cover hidden/mutated registry members, and composition tests cover eligibility-before-top-k and required modality."
+        ],
+        "exact_missing_fact": "Current A leaf says default extension source bytes remain unbound and the complete default-universe positive was not reached; no typed transform producer/consumer integration was found. The missing chain is source-bound complete discovery -> typed transform inputs/output/artifact -> ordinary bridge -> actual consumer and semantic test.",
+        "state": [
+          "verification_missing",
+          "producer_missing",
+          "artifact_missing",
+          "bridge_missing",
+          "consumer_missing",
+          "semantic_test_missing"
+        ],
+        "negative_oracle": [
+          {
+            "selector": "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py::test_value_selection_refuses_a_registry_member_hidden_after_bound_intake",
+            "proves": "membership added after source-bound intake is refused"
+          },
+          {
+            "selector": "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py::test_value_selection_refuses_registry_metadata_mutated_after_bound_intake",
+            "proves": "registry metadata mutation after intake is refused"
+          },
+          {
+            "selector": "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py::test_leading_non_value_entries_cannot_hide_an_eligible_value_method_before_top_k",
+            "proves": "eligible value entries are selected before top-k truncation"
+          },
+          {
+            "selector": "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py::test_required_panel_modality_is_preserved_and_only_real_runnable_value_owner_is_selected",
+            "proves": "required modality and real runnable owner are preserved"
+          },
+          {
+            "selector": "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py::test_value_selection_refuses_a_warmed_registry_without_retained_source_report",
+            "proves": "warmed registry without retained source report is refused"
+          }
+        ],
+        "footprint": {
+          "config": [
+            "bound discovery manifest/source report and registry snapshot; no typed transform producer config/consumer is present in this chain"
+          ],
+          "companions": [
+            "coverage.json B34-B36",
+            "findings.json connected closeout",
+            "complete source inventory with bound bytes; transform owner, typed input/output contract, persisted artifact, orchestration bridge, consumer, verifier"
+          ]
+        }
+      },
+      {
+        "area": "pii_scan_results optional persisted output and public CLI resume",
+        "criteria": [
+          "LA-033 / REP-01"
+        ],
+        "four_planes": {
+          "internal_owner": "C owns the snapshot producer/output truth; B owns the NodeSpec/checkpoint/adapter read contract; A owns authentic public default CLI resume acceptance; G owns formal closeout.",
+          "external_fact": "A persisted PII scan summary is supplied by the ingestion/Fabric scan owner and can legitimately be absent; absence means unknown/not scanned, never zero PII.",
+          "admission": "DataSnapshot.pii_scan_summary is nullable; build_data_snapshot declares params.pii_scan_results in state_writes but writes it only when a real summary is present; PIICheckPass maps absence to PII_SCAN_MISSING. NodeSpec has state_reads/state_writes/produces only, and the workspace adapter maps every state_read to a hard required input.",
+          "claim_reaction": "Resume should proceed with a typed optional input while the downstream PII gate retains its missing-scan warning; null/empty output must never be interpreted as a successful zero-PII scan."
+        },
+        "existing_recipe": [
+          "Fabric snapshot -> nullable pii_scan_summary -> build_data_snapshot conditionally sets params.pii_scan_results -> governance reads it.",
+          "Checkpoint stores/restores state and workspace adapter treats state_reads as hard required ports; optional-read semantics are not modeled across NodeSpec, checkpoint, and adapter."
+        ],
+        "exact_missing_fact": "The source/consumer contract cannot distinguish an optional read whose producer legitimately has no value from an unavailable required input. Minimal joint change: optional-read declaration/subset validation in NodeSpec and checkpoint/adapter handling, while preserving state_reads for idempotency hashing and unordered access conflicts; C confirms producer output truth; A runs authentic public default CLI partial-checkpoint resume after B/C admission. No fake {} or null scan result may masquerade as clearance.",
+        "state": [
+          "bridge_missing",
+          "verification_missing",
+          "semantic_test_missing"
+        ],
+        "negative_oracle": [
+          {
+            "selector": "policy-engine/tests/unit/scientist/governance/test_pii_check_pass.py::test_missing_scan_results_warns",
+            "proves": "missing scan result remains an explicit warning, not a clean scan"
+          },
+          {
+            "selector": "policy-engine/tests/unit/scientist/nodes/builtins/data/test_build_data_snapshot.py::test_snapshot_pii_summary_load_failure_degrades",
+            "proves": "snapshot summary load failure degrades rather than fabricates successful output"
+          },
+          {
+            "selector": "public default CLI resume from the authentic partial checkpoint (LA-033 acceptance selector in REP-01)",
+            "proves": "required end-to-end acceptance after B/C changes",
+            "limit": "no existing current test independently covers the missing optional read from a completed writer; this is the required semantic test, not an already-run result"
+          }
+        ],
+        "footprint": {
+          "config": [
+            "NodeSpec currently has state_reads/state_writes/produces; adapter maps state_reads to required_inputs/hard preconditions; no optional-read field"
+          ],
+          "companions": [
+            "coverage.json LA-033/REP-01",
+            "findings.json LA-033 G_closure not_adjudicated",
+            "B contract/checkpoint/async conflict/idempotency and adapter changes",
+            "C nullable producer confirmation",
+            "A authentic CLI partial-checkpoint acceptance"
+          ]
+        }
+      }
+    ],
+    "test_execution": "No tests were executed in this helper turn; selector names were verified against A tree via git grep.",
+    "source_footprint": [
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/fabric.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "cca74f769735987af10b0a38cdc93581fc364042"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_requirement/compiler.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "d91823b593427fe275b4b0b6d4f14c499a12aa2d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/__init__.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "fc0d42c98ad03193b11e69cd053845ef718b78fb"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/snapshot.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "39afd41e5b87c407f0e740b39aa4fcd8d4eee906"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/discovery.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "3f1f6a5304673b8889095bb60dc6494f831cd403"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "5c5ee9e26c0e82745ba6a53d11e488f9ceb3c1b1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "36ffa3565869a4d0e4f0ab731714300abe65aa9a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "1e735f2322a1f15fc8cb6a439d8231b2dc19c898"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "09f1d3ab8b1f0e2daef0f022e3d56f090a08ccc1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/production_data.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "2a07d333f6272328e171a5c9f641420c2c419abf"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "e874398449b7abffa4be665e00b4bc36a1a2001f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "da680b58a7d4bde1ddba87944f82912c52e9faa9"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/capability_discovery.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "234f381f03013cc610493845af9168481da713e6"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/capability_index_compiler.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "1a3315a0ccc37dbb27c8cad9eea28eab84dd3efd"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "a5a90eafe30e7c6f8c89c5cf50c7a25a00d68033"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "18f6cbc8cf3fe2e44ba6d0ed944bf6420d970d0d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/intervention_substrate.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "4fbc772508cc7183a95301556608a6c7101b2f15"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/production_invocation.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "71794d380c565e12f5fdba6b12286921c0a7e0b1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "f21c3fa9b2eb9735b6503f442c0db0ac70ff21f5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/workspace/scientist_node_adapters.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "18fe5c73cf59efad6be53fbb5951ee25db73649f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/adapters/fabric_bridge.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "66f041adfc98171ca6bbd98eee358af9dd2e018e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/governance/passes/pii_check_pass.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "145741eb6075b8f443ced92d4c425a124b4f839d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/data/build_data_snapshot.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "473096fa28879eb70c0ce3986294eb06f6e73e2c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/governance/data_plane_gate.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "5e4003bb43c2814d4ffe429c8f7c5460dced427f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_governance.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "c79d451b334438fee16b8d3ec7582b5171bdbc70"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "8756fd0a66cdf91c18e8b7c3bb60872926af05be"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "d00feba0e10023fbbc7c3c55b5ce18c6701e4931"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "849fbb6b236d77809089791b3359922dc00f2eea"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "260f34e3a52fcf3b82aec43023f45a392b5bdf6f"
+      },
+      {
+        "path": "policy-engine/tests/integration/core_runtime/test_acquisition_route_execution_binding.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "00c24f2f7260e0e3726b7d421e6c7a208c186f0b"
+      },
+      {
+        "path": "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "5b3235660b6e56afb1063f3d6842e33861e0ec45"
+      },
+      {
+        "path": "policy-engine/tests/integration/core_runtime/test_e02_served_cycle_custody.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "89a97b359d3abac4e52dfc06f331ec49dbebba3d"
+      },
+      {
+        "path": "policy-engine/tests/integration/runtime_quality/test_data_state_substrate.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "bae992dfe8986d82559a1898cf4f1076632a977d"
+      },
+      {
+        "path": "policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "13e8fb09eb2a99249ef167967f29d80e9d4cf547"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/phase0/test_cli_resume.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "6a9e33cdc3cedaf59c54c5d1dd99587d6ef35ed7"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "9e8acfa90e994ba1efcbd057c983792102e09e08"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/validation/test_phase2_judge_stack.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "897953a39a695c4726fb0c2bde23783a0610a96e"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_e02_configured_n7_resolver.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "c399ead7eb9de3e8ba585e40142425359c1a1a3b"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_intervention_substrate.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "85eeadb8f262acc9524a9757fc203f4fc090609c"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_workspace_scientist_node_adapters.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "540ed24f21e3260e7bd84f7c60b239f8188bd272"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/governance/test_pii_check_pass.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "5f6e668e40b620422a785b9815f28a371f0674cb"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/data/test_build_data_snapshot.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "cda3d66449b0cc12e745d7dc0202ac3f521ba9b9"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/test_data_plane_gate_node.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "4ea16b79ca95609d6a0cf5ac3403d61f9d189ae2"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "fd8f898025c3e77cc0f8a1d36a1babfdd5f4f453"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/test_phase_b_policy_runtime.py",
+        "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "blob": "72714f78c14adcff1f5ec83f570eb188cccfd1bf"
+      }
+    ],
+    "REQ_occurrence_boundary": "LA-046 REQ tests the generic compiler against named profile, opaque scenario ID, explicit request/text, jurisdiction/date and negation. It does not require an N7 positive; the ACQ occurrence is separate.",
+    "semantic_reentry_facts": {
+      "ids": [
+        "B09",
+        "B27"
+      ],
+      "internal_owner": "A same-candidate basis/N5/history consumer; C/F own admitted observation-to-WMR meaning. C10 owns actual recursive/reentry bridge.",
+      "externally_supplied_fact": "For the observation path only: exact versioned ObservationToWMRRule/source/profile, selected row content and coverage, population/geography/denominator, measure/unit/transform, quality and provenance, permitted update and valid/as-of versus transaction/ingestion time. No such admitted local alias/packet established by L01.",
+      "our_admission": "A8b leaf reports ordinary automatic reentry absent; trial/reissue history is not an active consumer. Semantic basis must bind actual rule+content or genuine model/method/constraint change; UUID/order/transaction-time-only metadata does not establish a new basis.",
+      "claim_reaction": "Observation-dependent positive and ordinary same-candidate reentry remain UNRUN. Generic model/method/constraint discriminators need only their own sufficient runtime inputs. No blanket production gate; no owner rule synthesized.",
+      "next_input": "C05/C08/C10 exact supplier rule+two scoped factual versions and identity-only control; C10 existing consumer must produce a second N5 occurrence with old occurrence replayable."
+    }
+  }
+}

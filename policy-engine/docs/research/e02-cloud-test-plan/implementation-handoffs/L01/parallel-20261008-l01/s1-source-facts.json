@@ -1,0 +1,230 @@
+{
+  "schema": "policyos.e02.l01_s1_source_facts.v1",
+  "source_identity": {
+    "carrier_commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "G_source_commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+    "C_connected_source_commit": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+    "basis": "Source facts below were read from the pinned commits. The inspected G source/tests are unchanged between the G source commit and carrier; parent reports the complete fe5-to-f00 source delta as 32 prompt/document paths and zero src/tests/config/lock paths.",
+    "local_branch_state": "The current checkout branch is not used as authority for these source facts."
+  },
+  "committed_C_leaves": {
+    "LA-032": {
+      "C5_owner_input_row": "C@b886665a26b318b2fdd136cae0248cdea7b9226d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/C5-owner-inputs-20261007.json#/rows/14",
+      "C5_root_owner_route": "C@b886665a26b318b2fdd136cae0248cdea7b9226d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261007-C5.json#/remaining_inputs_and_owners/G_UDF_C_W19",
+      "source_fact_carried": "C5 records the four readers/shared immutable selector as bounded, but says D3 household/labor manifests do not produce the targets/prior/donor source-to-state inventory. Missing inputs are authoritative state-ID/order/source mapping; target/entrant definitions; prior axes/derivation/time; donor inclusion/omission and versioned source profile.",
+      "status_boundary": "C5 proposal is held; it is not G adjudication or source admission."
+    },
+    "LA-036": {
+      "C5_owner_input_row": "C@b886665a26b318b2fdd136cae0248cdea7b9226d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/C5-owner-inputs-20261007.json#/rows/16",
+      "C5_root_owner_route": "C@b886665a26b318b2fdd136cae0248cdea7b9226d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261007-C5.json#/remaining_inputs_and_owners/E_F_BERL",
+      "source_fact_carried": "C5 says E posterior-parameter corpus and F graph/SCM rows are not the observed-feature conditional law; marginal replacement is not conditional Shapley. The missing input includes content-bound feature law, population/cohort/time, schema/order, epoch/support and model identity, plus a nonlinear bound verifier if precision is claimed.",
+      "status_boundary": "C5 proposal is held; it is not G adjudication or scientific positive."
+    }
+  },
+  "findings": [
+    {
+      "id": "LA-032",
+      "existing_rule_version_refs": [
+        "UkraineDemographyArtifacts.contract_id = data_forge.ukraine.demography.artifacts.v1",
+        "VerifiedUkraineStageArtifacts.schema_version = policyos.data_forge.ukraine.verified_stage.v2",
+        "VerifiedUkraineStageArtifacts.verification_rule_version = ukraine-stage-artifacts.v2",
+        "GenerationBasis schema_version = policyos.generation_basis.v1; generator_rule_version is supplied per basis",
+        "VerifiedUkraineReleaseArtifacts schema_version = policyos.data_forge.ukraine.verified_release.v1; verification_rule_version = ukraine-release-artifacts.v1; authority is non-authoritative release artifact admission"
+      ],
+      "source_result": "The pinned composite loader enforces a single complete selected layout and shape checks. The three sibling readers still independently choose first-existing filenames. No authoritative source-to-state inventory producer/artifact/bridge is present in the inspected G source. This is a bounded source finding, not G adjudication.",
+      "four_planes": {
+        "internal_configured_owner": {
+          "status": "partially_configured",
+          "fact": "Ukraine AssetSpecs name separate targets, priors and donor-pool assets and a static-aging asset depending on them. No inventory asset is declared there. The asset owner field is team-data-forge.",
+          "refs": [
+            "G@fe5: policy-engine/src/polisyos/data_forge/domains/ukraine/assets.py#UKRAINE_ASSET_GROUP (lines 8-79)"
+          ]
+        },
+        "external_fact": {
+          "status": "not_established",
+          "fact": "No admitted supplier packet in this source scope establishes state-ID/order/source mapping; target and entrant definitions; prior axes, derivation and time; donor inclusion/intentional omission; or a versioned source profile.",
+          "required_supplier_fields": [
+            "state identifiers with explicit order and their source mapping",
+            "target and entrant definitions and source/member refs",
+            "prior origin/destination axes, derivation and time semantics",
+            "donor present versus intentionally absent, with member/source mapping when present",
+            "producer identity, source profile, schema/rule version, relevant epoch/time and content-bound member refs"
+          ]
+        },
+        "our_admission": {
+          "status": "content_binding_primitive_exists_domain_admission_missing",
+          "fact": "VerifiedUkraineStageArtifacts recomputes path scope and content binding and records producer-stage provenance; its authority is limited to producer artifact identity/content binding. GenerationBasis can bind supplied members to bytes and a rule version, but neither proves demographic inventory completeness or source semantics. No Ukraine demographic source-inventory use is wired in this path.",
+          "refs": [
+            "G@fe5: policy-engine/src/polisyos/data_forge/read_api/ukraine.py#VerifiedUkraineStageArtifacts (lines 89-128)",
+            "G@fe5: policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py#GenerationBasis,build_generation_basis,compare_generation_basis (lines 12-144)"
+          ]
+        },
+        "claim_reaction": {
+          "status": "shape_checked_not_source_admitted",
+          "fact": "UkraineDemographyArtifacts checks nonempty state IDs, numerical dimensions, nonnegative values and donor-array alignment. Static-aging maps those arrays into its state. Neither path consumes an authoritative source-to-state inventory or provenance admission.",
+          "refs": [
+            "G@fe5: policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py#UkraineDemographyArtifacts._validate_shapes (lines 151-246)",
+            "G@fe5: policy-engine/src/polisyos/data_forge/domains/ukraine/static_aging.py#build_static_aging_state (lines 20-39)"
+          ]
+        }
+      },
+      "current_reader_contracts": [
+        {
+          "reader": "load_reconciled_targets",
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py#load_reconciled_targets",
+          "behavior": "Selects first existing new-layout or legacy target filename independently."
+        },
+        {
+          "reader": "load_transition_priors",
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py#load_transition_priors",
+          "behavior": "Selects first existing new-layout or legacy prior filename independently."
+        },
+        {
+          "reader": "load_donor_pool",
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py#load_donor_pool",
+          "behavior": "Selects first existing donor filename independently and returns an empty object when absent."
+        },
+        {
+          "reader": "load_demography_artifacts",
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py#load_demography_artifacts",
+          "behavior": "Selects one complete new or legacy layout before reading required targets/priors; donor is optional within the selected layout."
+        }
+      ],
+      "exact_consumers": [
+        "policy-engine/src/polisyos/data_forge/read_api/ukraine.py#_EXPORTS (all four readers are public lazy exports, lines 27-62)",
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/static_aging.py#build_static_aging_state",
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py#UkraineDemographyArtifacts"
+      ],
+      "smallest_existing_capability_option": {
+        "strategy": "extend-existing",
+        "producer": {
+          "status": "not_identified_in_G_source; C05_exact_C-W19_path_required",
+          "do_not_relabel": "domains/ukraine/builders/demography.py contains D3 household/labor observation transforms, not a source-to-state target/prior/donor inventory producer.",
+          "next_owner_action": "C05 supplies the exact existing producer path and schema/profile proposal under C-W19. G confirms the code lease before any source edit."
+        },
+        "artifact_contract": {
+          "path_to_extend": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py#UkraineDemographyArtifacts and its canonical loader",
+          "proposal": "A strict typed, versioned inventory ref plus an entry set for ordered state IDs, target/entrant members, origin/destination prior axes, and donor-present versus intentionally-absent membership. Bind the producer/rule/schema version, source profile, source/member refs, relevant times/epoch and verifier provenance. The schema/rule version values remain for the source owner to assign; this packet does not invent or ratify them."
+        },
+        "bridge_and_verification": {
+          "paths_to_extend": [
+            "policy-engine/src/polisyos/data_forge/read_api/ukraine.py#VerifiedUkraineStageArtifacts and public exports",
+            "policy-engine/src/polisyos/data_forge/domains/ukraine/assets.py#UKRAINE_ASSET_GROUP",
+            "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py#load_reconciled_targets,load_transition_priors,load_donor_pool,load_demography_artifacts"
+          ],
+          "reuse_boundary": "Reuse existing stage/CAS or GenerationBasis mechanisms only for resolved byte identity and content binding. Add domain inventory completeness/semantic verification; a D5 release receipt or generic digest is not a demographic certificate.",
+          "acceptance": "All four readers resolve through the same admitted inventory; missing, forged, swapped, incomplete, wrong-order and stale-rule inputs fail closed; optional donor absence is explicit and versioned."
+        }
+      },
+      "capability_labels_now": [
+        "producer_missing",
+        "artifact_missing",
+        "bridge_missing",
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "bounded_discriminator": {
+        "status": "executed_on_f00",
+        "kind": "synthetic existing-consumer probe",
+        "path": "policy-engine/_build/e02-L01-20261008/agents/s1/probe_la032_four_readers.py",
+        "command": "cd policy-engine && PYTHONPATH=src uv run --no-sync python _build/e02-L01-20261008/agents/s1/probe_la032_four_readers.py",
+        "input": "Temporary synthetic mixed layout: new targets plus legacy priors and donor; no production data or payload census.",
+        "property": "All four entry points must consume one admitted versioned inventory.",
+        "predicted_distinguishing_case_from_pinned_code": "The three sibling readers return synthetic origins new_targets, legacy_priors and legacy_donor, while the composite reader refuses the mixed/incomplete layout.",
+        "interpretation_limit": "This distinguishes current reader behavior only. It cannot establish supplier authority, inventory completeness, production prevalence or scientific validity.",
+        "existing_selector_for_root": "cd policy-engine && uv run --no-sync pytest -q tests/unit/remediation/test_udf_05.py::test_mixed_targets_and_priors_fail_before_component_composition",
+        "future_admission_negative": "After C05 identifies and G admits an exact supplier, run the same four public consumers against missing, forged and swapped inventory variants; those are not current-source positive results.",
+        "output": "evidence/la032-stdout.txt",
+        "interpretation": "PASS observational discriminator; all-four inventory property remains unmet. No supplier authority or production input admitted. Fixture retained under ignored scratch; no permanent cleanup."
+      },
+      "next_action": "Root may execute the prepared synthetic discriminator and existing selector on the pinned source. In parallel, obtain C05's exact C-W19 producer path/contract; then G chooses the smallest reader lease. Keep source inventory authority not established until exact supplier resolution, content binding, completeness verification and all-four consumer negatives are evidenced."
+    },
+    {
+      "id": "LA-036",
+      "existing_rule_version_refs": [
+        "ExplanationBundle schema_version default = 1.0.0",
+        "Runtime and Scientist call validate_explanation_bundle; their source does not carry a conditional-law schema/rule version or law-verifier provenance ref"
+      ],
+      "source_result": "The pinned bundle and both named consumers validate declared ExplanationBundle structure and BERL validation results, but no typed content-bound observed-feature conditional-law input is admitted by those consumers. The conditional method ID maps to the same KernelSHAPAdapter implementation; posterior parameter rows and SCM hashes cannot establish the needed feature law.",
+      "four_planes": {
+        "internal_configured_owner": {
+          "status": "bundle_and_consumers_exist",
+          "fact": "ExplanationBundle 1.0.0 carries model, prediction, feature schema/value ref, declared dependence policy, background ref, methods, assumptions and audit refs. It has no typed observed-feature conditional-law ref or law-admission provenance field. Runtime and Scientist have existing validators.",
+          "refs": [
+            "G@fe5: policy-engine/src/polisyos/berl/contracts/explanation_bundle.py#ExplanationBundle (lines 201-222)",
+            "G@fe5: policy-engine/src/polisyos/runtime/quality/explanation_reliability.py#_validate_bundle_record (lines 374-413)",
+            "G@fe5: policy-engine/src/polisyos/scientist/validation/phase5_preflight.py#_run_berl_validation (lines 1081-1095)"
+          ]
+        },
+        "external_fact": {
+          "status": "not_established",
+          "fact": "No exact admitted supplier in this scope supplies the observed-feature conditional law, model identity, population/cohort/time, feature schema/order, support/epoch and verification provenance. A posterior-parameter corpus or graph/SCM rows are not that law.",
+          "required_supplier_fields": [
+            "content-bound observed-feature conditional law and population/cohort",
+            "time semantics and epoch",
+            "feature schema and feature order",
+            "support definition",
+            "model identity and version",
+            "producer/rule version and verifier provenance",
+            "if nonlinear bound precision is claimed: structurally verified bound method plus admitted draw process and applicable fixed-N rule"
+          ]
+        },
+        "our_admission": {
+          "status": "declaration_validated_law_not_admitted",
+          "fact": "The bundle schema validates the declared FeatureDependencePolicy and BackgroundData fields, while Runtime and Scientist call validate_explanation_bundle on the bundle. The connected source contains no conditional-law resolution, content-bind, support/epoch match or law-verifier provenance gate in these consumers.",
+          "refs": [
+            "G@fe5: policy-engine/src/polisyos/berl/contracts/explanation_bundle.py#FeatureDependencePolicy,BackgroundData,ExplanationAssumptions (lines 60-83)",
+            "G@fe5: policy-engine/src/polisyos/runtime/quality/explanation_reliability.py#_validate_bundle_record (lines 381-414)",
+            "G@fe5: policy-engine/src/polisyos/scientist/validation/phase5_preflight.py#_run_berl_validation (lines 1081-1095)"
+          ]
+        },
+        "claim_reaction": {
+          "status": "self_declared_conditional_posture_can_validate_without_law_evidence",
+          "fact": "The Scientist integration fixture declares conditional_observational and kernel_shap_conditional, then expects the ExplanationBundle reliability component to pass; this proves the fixture's validation contract is about the bundle/infidelity rules, not admitted conditional-law evidence. The test source itself is not a test execution receipt.",
+          "refs": [
+            "G@fe5: policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py#test_scientist_preflight_uses_berl_validation_for_explanation_reliability and _explanation_bundle (lines 35-55, 76-130)"
+          ]
+        }
+      },
+      "exact_consumers": [
+        "C10 / G source: policy-engine/src/polisyos/runtime/quality/explanation_reliability.py#_validate_bundle_record",
+        "C11 / G source: policy-engine/src/polisyos/scientist/validation/phase5_preflight.py#_run_berl_validation",
+        "C07 companion: typed IR law query/consumer refs must be assigned by C07; this packet does not define their semantics.",
+        "C09 law producer and C08 model are upstream suppliers, not substituted by the two consumer validators."
+      ],
+      "smallest_existing_capability_option": {
+        "strategy": "extend-existing",
+        "supplier": "C09 proposes the exact law artifact/producer; C08 binds the model. Current posterior-parameter rows/SCM hashes do not satisfy the property.",
+        "artifact_contract": "Extend the existing ExplanationBundle/readback with a typed ref to an admitted observed-feature conditional law and explicit model/support/epoch/order/provenance links. C09/C08 decide the schema and law semantics; no new schema value is assigned here.",
+        "bridge_and_consumers": [
+          "Resolve and content-bind the exact supplier through the existing artifact/readback boundary.",
+          "Wire law/model/support/epoch checks into Runtime explanation_reliability and Scientist phase5_preflight.",
+          "Use C07 IR companions and C10/C11 consumers as assigned; compare law-removal/mismatch negatives at both consumers."
+        ],
+        "semantic_boundary": "A bundle declaration, method string, posterior row or SCM digest cannot prove the conditional feature law or conditional Shapley semantics."
+      },
+      "capability_labels_now": [
+        "producer_missing",
+        "artifact_missing",
+        "bridge_missing",
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "existing_discriminator_refs": [
+        {
+          "path": "policy-engine/src/polisyos/berl/service.py#default_adapters (lines 426-449)",
+          "fact": "kernel_shap_conditional is registered with KernelSHAPAdapter(method_id='kernel_shap_conditional')."
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_ber_01.py#test_aliases_preserve_requested_ids_and_share_effective_identity,test_aliases_share_one_raw_calculation_and_are_not_disagreement_methods (lines 413-450)",
+          "fact": "Existing tests assert the conditional requested ID shares effective identity and one raw calculation with kernel_shap; they do not establish conditional-law computation."
+        },
+        {
+          "path": "policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py#test_scientist_preflight_uses_berl_validation_for_explanation_reliability",
+          "fact": "Existing synthetic consumer fixture expects a bundle with declared conditional_observational posture to pass; it has no admitted law input."
+        }
+      ],
+      "next_action": "C09/C08 provide an exact content-bound law/model/support/epoch input and schema/version references; C10/C11 then connect it to Runtime and Scientist consumer gates with C07 IR companions and law-removal/mismatch negatives. Until that exact supplier is admitted, report the property as not_established and do not emit a conditional-law positive."
+    }
+  ]
+}

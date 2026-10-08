@@ -47,6 +47,7 @@ matrix scoring, empirical forecast evidence and calibration promotion all consum
 check. Missing or positive metadata labels cannot turn a partial interval roster into a complete
 one; retained producer limitations also remain blocking. Conditional coverage and valid point
 errors stay readable while an incomplete interval basis is unavailable for scoring or promotion.
+Caller annotations cannot replace the recomputed temporal summary; unrelated annotations remain.
 
 `CalibrationValidationRunner` injects its existing CAS into `CalibrationLeaderboard`.
 The optional constructor store argument is additive: callers without a store may still obtain

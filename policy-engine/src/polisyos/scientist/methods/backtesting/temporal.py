@@ -433,8 +433,8 @@ def build_temporal_backtest_report(
         degraded_reasons=interval_reasons,
         trust_eligible=bool(scenarios) and not interval_reasons,
         metadata={
-            "temporal_summary": summary,
             **dict(metadata or {}),
+            "temporal_summary": summary,
         },
     )
 

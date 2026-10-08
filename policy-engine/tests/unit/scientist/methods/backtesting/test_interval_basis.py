@@ -142,11 +142,16 @@ def test_real_orchestrator_scenario_cannot_escape_temporal_persisted_projection(
         matches_expected_outcome=True,
         passes=True,
     )
-    result = build_temporal_backtest_report(report_id="projection", evaluations=[carrier])
+    result = build_temporal_backtest_report(
+        report_id="projection",
+        evaluations=[carrier],
+        metadata={"temporal_summary": {"passes_all": True}, "annotation": "keep"},
+    )
     ref = persist_backtest_report(cas_store, result)
     reopened = load_backtest_report(cas_store, ref)
     assert reopened.degraded and not reopened.trust_eligible
     assert reopened.metadata["temporal_summary"]["passes_all"] is False
+    assert reopened.metadata["annotation"] == "keep"
     assert reopened.scenarios[0].interval_requested_count == 3
     assert reopened.scenarios[0].coverage_probability == 1.0
 

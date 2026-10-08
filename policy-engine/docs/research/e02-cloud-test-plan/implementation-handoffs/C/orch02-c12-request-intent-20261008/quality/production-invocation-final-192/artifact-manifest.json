@@ -1,0 +1,49 @@
+{
+  "scope": "Complete command/resource/stdout/stderr/origin and exact bounded raw-diagnostic extraction; large raw receipt remains ignored local and is not published.",
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/invocation.command.json",
+      "bytes": 13956,
+      "sha256": "63d280860fde313d71be0badc655780eebd64bfbbf0acc3e133096acd90efc3b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/invocation.receipt.json",
+      "bytes": 14949,
+      "sha256": "8a16f2d9220c13939c1e6db20257c1ffdd79c9410e1a93d92afb0ac554078f98"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/invocation.stdout.txt",
+      "bytes": 1752,
+      "sha256": "a8ae012fc84ad7b38779847a578a583d3b392e87acb308426661fc5c1d3a1ba3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/invocation.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/origin.stdout.txt",
+      "bytes": 346,
+      "sha256": "b8593a8cd3626e4cd9d932870f6000c6c7ce8052be41808ff5221d0ded3f9a48"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/origin.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/diagnostic-extract.json",
+      "bytes": 27613,
+      "sha256": "459fc6d25f18f481e0028cce8e501548e1d8a8eb94a2699d50cbee04268a9db3"
+    }
+  ],
+  "raw_local_receipt": {
+    "path": "/workspace/orch02-c12/policy-engine/_build/e02-C-orch02-c12-recovery/production-invocation-192.json",
+    "bytes": 170816679,
+    "sha256": "406c54d77d7547d60b4443ccbb40f18f040e97a5359243f5e3d0237c07fb3934",
+    "gitignored": true,
+    "publication": "raw remains ignored local; metadata and bounded source-diagnostic extract only"
+  },
+  "source_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+  "actual_whole_execution_head": "77be2bb933d26363fb163ae5f36623a3bddaf061"
+}

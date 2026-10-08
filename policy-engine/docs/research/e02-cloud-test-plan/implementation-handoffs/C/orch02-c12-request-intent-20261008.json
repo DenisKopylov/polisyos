@@ -362,6 +362,39 @@
       "complete_default_required_freshness": true,
       "optional_generated_checks": false,
       "standalone_Atlas_status_retirement": false
+    },
+    {
+      "name": "production-invocation-final-192",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python3.14",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--base",
+        "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "--receipt",
+        "/workspace/orch02-c12/policy-engine/_build/e02-C-orch02-c12-recovery/production-invocation-192.json"
+      ],
+      "cwd": "/workspace/orch02-c12/policy-engine",
+      "target_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+      "target_tree": "46d748c61419ea4093cae25bc4111935b41f1a58",
+      "lane_base": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "actual_whole_execution_head": "77be2bb933d26363fb163ae5f36623a3bddaf061",
+      "actual_whole_execution_tree": "9c24d5ddafcd1796377440dec82edf61ade82628",
+      "outcome": "FAIL",
+      "diagnostic_status": "UNRESOLVED",
+      "measurement_completed": true,
+      "coverage": "partial",
+      "exit_code": 3,
+      "wall_seconds": 327.74465620499996,
+      "maxrss_kib": 8371260,
+      "resource_scope": "exact child command wait4; not summed host memory",
+      "timeout_seconds": null,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/invocation.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/invocation.stderr.txt",
+      "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/invocation.receipt.json",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/diagnostic-extract.json",
+      "artifact_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/artifact-manifest.json",
+      "runtime_invocation_established": false
     }
   ],
   "native_denominator": {
@@ -450,6 +483,11 @@
       "gate": "architecture guardrails final-required",
       "outcome": "FAIL",
       "details": "Fresh full default required gate on actual427 docs/evidence tree with exact192 source completes with no UNRUN/escapes: baseline drift1,154newedges vscheckedbaseline,2generateddrifts; client3/dashboard1 outputs freshnessclean. Prior677UNRUN preserved. No P41 inherited-green, optional/Atlas/native/production claim; see separate original-C followup."
+    },
+    {
+      "gate": "production invocation required diagnostic",
+      "outcome": "FAIL: completed UNRESOLVED partial static model",
+      "details": "Exact required wrapper once on source192/whole77be/basec60 exits3, no regressions and5new unresolved_by_construction candidates. Complete5908tracked Python inputs,13106public concrete candidates; no runtime invocation established. See separate original-C followup; C10/G served caller/terminus remains deferred, no invented diagnostic-clearing deferrals or runtime/production claim."
     }
   ],
   "source_acceptance": "not_admitted_by_G",
@@ -527,9 +565,10 @@
   },
   "cleanup": "No permanent cleanup; unique source/outputs preserved; no venv/nativefixtureDB/index/assets copied to Git.",
   "receipt_footprint": {
-    "complete_new_path_count": 73,
+    "complete_new_path_count": 82,
     "paths": [
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-architecture-followup-20261008.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-invocation-followup-20261008.json",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008.json",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/G-preimages.json",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/README.md",
@@ -588,6 +627,14 @@
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/mypy.receipt.json",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/mypy.stderr.txt",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/mypy.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/artifact-manifest.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/diagnostic-extract.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/invocation.command.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/invocation.receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/invocation.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/invocation.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/origin.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/origin.stdout.txt",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/ruff-final.receipt.json",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/ruff-final.stderr.txt",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/ruff-final.stdout.txt",
@@ -667,6 +714,14 @@
         ],
         "input_chain_limit": "Client/dashboard clean outputs consume copied committed OpenAPI snapshot SHA25673d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a, not separate regenerated drifted OpenAPI. Own-family byte freshness does not prove a refreshed cross-family chain."
       }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-invocation-followup-20261008.json",
+      "source_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+      "actual_checked_whole_head": "77be2bb933d26363fb163ae5f36623a3bddaf061",
+      "outcome": "FAIL",
+      "diagnostic_status": "UNRESOLVED",
+      "runtime_invocation_established": false
     }
   ]
 }

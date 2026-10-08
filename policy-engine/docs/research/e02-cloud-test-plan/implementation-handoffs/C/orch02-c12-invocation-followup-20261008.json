@@ -1,0 +1,125 @@
+{
+  "schema": "policyos.e02.c12.production_invocation_followup.v1",
+  "date": "2026-10-08",
+  "unit": "C",
+  "original_owner": "C-W04/EMB-03",
+  "execution_role": "canonical C12 owner; docs-only append of exact mandatory invocation diagnostic",
+  "branch": "codex/e02-C-orch02-c12-recovery",
+  "candidate_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+  "candidate_tree_sha": "46d748c61419ea4093cae25bc4111935b41f1a58",
+  "lane_base_sha": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+  "lane_base_tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+  "actual_checked_whole_head": "77be2bb933d26363fb163ae5f36623a3bddaf061",
+  "actual_checked_whole_tree": "9c24d5ddafcd1796377440dec82edf61ade82628",
+  "requirement": {
+    "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+    "line": 337,
+    "git_blob": "7f4cc9ab9541a44c26e4648a2c08326e53743492",
+    "rule": "For mechanism deltas run python -m polisyos.runtime.quality.production_invocation --base <lane-base> --receipt <gitignored-raw-path>; source-derived static paths are diagnostics, wired claims also require real run/persisted readback/unchanged-negative call-removal."
+  },
+  "prior_published_handoff": {
+    "commit": "77be2bb933d26363fb163ae5f36623a3bddaf061",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008.json",
+    "git_blob": "79eb95b1e24a50efa524a6a3630d3ffe3b7f7f9c"
+  },
+  "check": {
+    "name": "production-invocation-final-192",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python3.14",
+      "-m",
+      "polisyos.runtime.quality.production_invocation",
+      "--base",
+      "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "--receipt",
+      "/workspace/orch02-c12/policy-engine/_build/e02-C-orch02-c12-recovery/production-invocation-192.json"
+    ],
+    "cwd": "/workspace/orch02-c12/policy-engine",
+    "target_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+    "target_tree": "46d748c61419ea4093cae25bc4111935b41f1a58",
+    "lane_base": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+    "actual_whole_execution_head": "77be2bb933d26363fb163ae5f36623a3bddaf061",
+    "actual_whole_execution_tree": "9c24d5ddafcd1796377440dec82edf61ade82628",
+    "outcome": "FAIL",
+    "diagnostic_status": "UNRESOLVED",
+    "measurement_completed": true,
+    "coverage": "partial",
+    "exit_code": 3,
+    "wall_seconds": 327.74465620499996,
+    "maxrss_kib": 8371260,
+    "resource_scope": "exact child command wait4; not summed host memory",
+    "timeout_seconds": null,
+    "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/invocation.stdout.txt",
+    "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/invocation.stderr.txt",
+    "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/invocation.receipt.json",
+    "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/diagnostic-extract.json",
+    "artifact_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/artifact-manifest.json",
+    "runtime_invocation_established": false
+  },
+  "raw_ignored_receipt": {
+    "path": "/workspace/orch02-c12/policy-engine/_build/e02-C-orch02-c12-recovery/production-invocation-192.json",
+    "bytes": 170816679,
+    "sha256": "406c54d77d7547d60b4443ccbb40f18f040e97a5359243f5e3d0237c07fb3934",
+    "gitignored": true,
+    "publication": "raw remains ignored local; metadata and bounded source-diagnostic extract only"
+  },
+  "instrument_denominator": {
+    "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+    "current_files": 5908,
+    "base_files": 5908,
+    "source_files": 2702,
+    "current_sha256": "da838073e817b176522d23e1cd0322f8114d16b325e2351c53dca515b5efcea5",
+    "base_sha256": "b58230a633e0e3deaaf939b20c1d2c8502d267cedd4601a7a40ba635db23afb8"
+  },
+  "public_candidate_mechanism_denominator": {
+    "total": 13106,
+    "status_counts": {
+      "unresolved_by_construction": 9216,
+      "uninvoked": 2156,
+      "static_path": 1734
+    },
+    "static_root_count": 401,
+    "unresolved_receiver_calls": 139838
+  },
+  "regressions": [],
+  "new_unresolved_by_construction": [
+    "polisyos.lex.knowledge.search.LegalKnowledgeGraph.hybrid_search",
+    "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_entities_by_vector",
+    "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_facts_by_vector",
+    "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_provisions_by_vector",
+    "polisyos.lex.knowledge.store.LegalQueryProfile.from_generation"
+  ],
+  "changed_or_lost_candidate_count": 5,
+  "measured": "Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.",
+  "unmeasured": [
+    "HTTP router dispatch",
+    "dependency injection/container dispatch",
+    "event-bus dispatch",
+    "registered callback invocation",
+    "deferred lambda/coroutine execution and generator resumption",
+    "reflection and dynamic receiver/factory resolution",
+    "runtime execution, persisted business receipts, and gate substance"
+  ],
+  "predicate_basis": "recomputed source diagnostic; independent full tracked-input reconciliation matches both raw denominator hashes",
+  "served_caller_and_terminus": {
+    "state": "deferred/not_established",
+    "owners": [
+      "C10/A actual incoming request/context/profile consumer",
+      "G exact selected shared contract/caller/public companion leases",
+      "L01 authentic local tuple; L02 admitted authentic read-only consumer"
+    ],
+    "named_current_G_caller": "runtime/http/services/control/lex_pipeline.py#search_lex_graph remains text-only; served typed profile and canonical encoder bridge is required separately",
+    "required_terminus": "actual incoming request/effective purpose/profile -> retained expected relevant Legal generation -> matching canonical query encoder -> fresh reader and actual response/persisted readback with discriminating unchanged-negative call-removal",
+    "reason": "This direct-call model leaves HTTP/DI/callback/reflection/deferred execution unresolved. Fixture/native tests and static diagnostics do not establish ordinary served production vector invocation. No invented default profile, parallel producer/caller or diagnostic-clearing deferrals added."
+  },
+  "limitations": [
+    "Exit3/UNRESOLVED is a completed non-green required diagnostic, not UNRUN or proof of actual runtime non-invocation.",
+    "Five changed candidates all have status unresolved_by_construction and lost_path=false; source_callers=[] is only within this static resolution model.",
+    "The complete tracked Python denominator is5908 current/base (2702src+445tools+2761tests). The public concrete callable denominator is13106; it does not claim full dynamic/external runtime closure.",
+    "All prior source/native/architecture/type/review evidence unchanged; no source/lock/generated writes or native/graph replay after this one exact required wrapper.",
+    "Raw170816679B receipt remains ignored local; moderate exact extract and all emitted stdout/stderr/command/resource/origin bytes are tracked."
+  ],
+  "source_acceptance": "not_admitted_by_G",
+  "formal_G_closure": false,
+  "closure_ids": [],
+  "independent_review": "pending immutable compact docs followup review before publication"
+}

@@ -1,0 +1,9 @@
+{
+  "summary": {
+    "file_backed_polisyos_modules": 971,
+    "mismatches": 0
+  },
+  "ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1159/E-required-kind-r3/origins.json",
+  "bytes": 272539,
+  "sha256": "5fe713864fca09671c9e21b9930dd44e1db9f434499c68bce9ec24e44a289f0b"
+}

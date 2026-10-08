@@ -1,0 +1,22 @@
+{
+  "source_sha": "b3df9b6d84c67b48e91ea9227cadb89f5010b2a2",
+  "source_tree": "9d6577fe7dfc4e238f106e2f0bd22815e1d57e4e",
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1159/E-required-kind-probe-r3.py",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1159/E-exact/input",
+    "b3df9b6d84c67b48e91ea9227cadb89f5010b2a2",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1159/E-required-kind-r3"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1159/E-exact/input/policy-engine",
+  "start_utc": "2026-10-08T12:30:44.608091+00:00",
+  "returncode": 1,
+  "timeout_s": 120,
+  "timed_out": false,
+  "wall_s": 5.986447916016914,
+  "free_GiB": 45.51007843017578,
+  "isolation": "actual matrix/CAS/leaderboard, unique retained fixture stores; equal existing typed fixture channels, no source mutation/production data",
+  "prior_attempts": "r1 harness AttributeError; r2 all profiles withheld for missing three unrelated channels, matching-positive assert failed; both full outputs retained, neither proves escape",
+  "expected_property": "required-kind absent cannot be admitted by empty ok kind-row"
+}

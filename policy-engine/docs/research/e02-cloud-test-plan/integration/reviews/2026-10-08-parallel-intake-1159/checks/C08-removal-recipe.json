@@ -1,0 +1,9 @@
+{
+  "source": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+  "function": "polisyos.ir.analytics.causal._partial_proof_graph_input",
+  "removed": "    if actual_bytes_hash != expected or typed_payload_hash != expected:\n        raise ValueError(\"Partial graph proof original graph content does not match its basis.\")\n",
+  "in_memory_only": true,
+  "actual_source_files_unchanged": true,
+  "remaining": "Actual graph/CAS/type/hash derivation and markers/lineage stay; only rejection on content mismatch removed",
+  "expected": "one stale-hash test assertion FAIL and unchanged correct-graph positive PASS"
+}

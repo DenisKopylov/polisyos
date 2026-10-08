@@ -1,0 +1,21 @@
+{
+  "source_sha": "b3df9b6d84c67b48e91ea9227cadb89f5010b2a2",
+  "source_tree": "9d6577fe7dfc4e238f106e2f0bd22815e1d57e4e",
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1159/E-required-kind-probe.py",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1159/E-exact/input",
+    "b3df9b6d84c67b48e91ea9227cadb89f5010b2a2",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1159/E-required-kind"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1159/E-exact/input/policy-engine",
+  "start_utc": "2026-10-08T12:15:53.530732+00:00",
+  "returncode": 1,
+  "timeout_s": 120,
+  "timed_out": false,
+  "wall_s": 7.355172667012084,
+  "free_GiB": 45.51076889038086,
+  "isolation": "actual existing source/fixtures, unique retained CAS, no source file mutation or production data",
+  "expected_property": "required-kind absent cannot be admitted by an empty ok kind-row"
+}

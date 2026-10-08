@@ -1,0 +1,11 @@
+{
+  "summary": {
+    "source_sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+    "pytest_returncode": 1,
+    "loaded_file_backed_polisyos_module_denominator": 785,
+    "source_mismatch_count": 0
+  },
+  "ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1159/C08-exact/origins.json",
+  "bytes": 219458,
+  "sha256": "63277a263c602afa164e1d93c5a718a3be5ce574497c0b2a5d6cf335bfa359c8"
+}

@@ -1,0 +1,126 @@
+{
+  "schema": "policyos.e02.G.delta_intake.v1",
+  "utc": "2026-10-08T12:38:34.477977+00:00",
+  "entry_G": "a139e9d076231e2762477f7ac7a1f0d7b0a57dba",
+  "new_heads": {
+    "origin/codex/e02-E-c09-20261008": "02a75f2b7a4846bcf5b6a8f301d2d4d20b9a99b2",
+    "origin/codex/e02-F-c08-20261008": "222d0867d47428bdb1835c6e6a68c2787bc05be9"
+  },
+  "census": {
+    "utc": "2026-10-08T11:59:44.521254+00:00",
+    "own_head": "a139e9d076231e2762477f7ac7a1f0d7b0a57dba",
+    "own_tree": "dbeadaeefd8f34097a097a7faadd78a897d680c9",
+    "ref_count": 138,
+    "open_pr_count": 47,
+    "e02_pr_count": 46,
+    "new_heads": {
+      "origin/codex/e02-E-c09-20261008": "02a75f2b7a4846bcf5b6a8f301d2d4d20b9a99b2",
+      "origin/codex/e02-F-c08-20261008": "222d0867d47428bdb1835c6e6a68c2787bc05be9"
+    },
+    "new_pr_heads": [],
+    "free_GiB": 45.874114990234375,
+    "transport": "PASS"
+  },
+  "code_acceptance": [],
+  "formal_closure_ids": [],
+  "E": {
+    "carrier": "02a75f2b7a4846bcf5b6a8f301d2d4d20b9a99b2",
+    "candidate": "b3df9b6d84c67b48e91ea9227cadb89f5010b2a2",
+    "candidate_tree": "9d6577fe7dfc4e238f106e2f0bd22815e1d57e4e",
+    "runtime_source": "adb66080e3ac64d73b3faa85d693a47c6c284427",
+    "incoming_mechanism_paths": 22,
+    "code_decision": "BLOCKED",
+    "blocker": "actual missing required-kind evidence can be replaced by an empty ok matrix row and cleared matrix gaps to permit promotion",
+    "property_check": "FAIL on actual CAS/report/leaderboard, after complete positive and natural missing negative pass",
+    "actual_observations": {
+      "missing_kind": "distress",
+      "actual_report_scenarios": 4,
+      "complete_fixture_eligible": true,
+      "natural_missing_fixture_eligible": false,
+      "forged_missing_fixture_eligible": true,
+      "forged_gap_flags": []
+    },
+    "source_origins": {
+      "count": 971,
+      "mismatches": 0
+    },
+    "P40_bucket": "same basis/evidence completeness class one required-kind partition deeper",
+    "prior_probe_states": {
+      "r1": "ERROR: wrong attribute before property observation",
+      "r2": "matching positive FAIL because three unrelated fixture channels absent; does not establish escape",
+      "r3": "same complete typed fixture channels in all controls; target missing-kind assertion FAIL"
+    },
+    "prior_author_results": "adb54PASS2FAIL and b3fixture2PASS remain separate; no G full56 wave performed on this blocked candidate",
+    "law_label": "independent bounded GO, not accepted separately through blocked inseparable source ancestry",
+    "remaining": "C10 authentic ordered-row/currentness and S10/authority work, E trust purpose and B172/B173 remain independently scoped; no scientific/production authority from fixtures"
+  },
+  "C08": {
+    "carrier": "222d0867d47428bdb1835c6e6a68c2787bc05be9",
+    "candidate": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+    "candidate_tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+    "runtime_test_source": "5e3f2cdfe700186bec621d8b7e6ed48f8af6098d",
+    "incoming_mechanism_paths": 14,
+    "code_decision": "HOLD",
+    "math": "bounded static observed DAG g-formula correct; finite CPDAG common/conditional math remains candidate scope",
+    "fresh_ordinary": {
+      "selectors": 5,
+      "cases": 123,
+      "PASS": 121,
+      "FAIL": 2,
+      "ERROR": 0,
+      "SKIP": 0,
+      "wall_s": 12.552722041029483,
+      "source_origins": {
+        "source_sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+        "pytest_returncode": 1,
+        "loaded_file_backed_polisyos_module_denominator": 785,
+        "source_mismatch_count": 0
+      }
+    },
+    "actual_failure_nodeids": [
+      "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_x_empty_emits_rule1_step",
+      "test_id_engine_extensions.py::TestIdentificationResultProofSteps::test_ancestral_collapse_emits_step"
+    ],
+    "matched_graph_hash_removal": {
+      "PASS": 1,
+      "expected_semantic_FAIL": 1,
+      "ERROR": 0,
+      "SKIP": 0,
+      "wall_s": 7.176806583011057,
+      "source_origins": {
+        "source_sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+        "pytest_returncode": 1,
+        "loaded_file_backed_polisyos_module_denominator": 762,
+        "source_mismatch_count": 0
+      },
+      "mutated_source_files": false
+    },
+    "author_interruptions": "four -9 scopes remain recorded historical ERROR/incomplete; G new source-qualified results do not rewrite them",
+    "quality": "scoped formatFAIL two files retained P41not_established; no inherited claim",
+    "remaining": [
+      "C06 exact selected-manifest ref/lineage/currentness",
+      "C11 actual Level2 graph producer/reader adoption",
+      "C10 protected admission",
+      "C01/Scientist actual shared B56 workload"
+    ]
+  },
+  "transport": {
+    "E": "181 direct manifest refs,8 archives/2075 members,all identities MATCH; transport only",
+    "C08": "177 stored/decoded gzip entries,complete11-path slice footprint,all identities MATCH; transport only",
+    "carriers_merged": false
+  },
+  "baseline_results": "import_results --check PASS; full verification transfer/navigation only; raw archive0 and product closure not_established",
+  "continuation_leases": "continuation-leases.json",
+  "runtime_inputs": "exact isolated source archives + existing Mac G3.14.3 environment, no installs; full loaded module-origin checks; synthetic approval/context fixtures explicit; no production payload reads/exports",
+  "prior_acceptance": "B190 f2 bounded supplier acceptance, B190 limited decision and L02 metadata acceptance retained; prior pending queues not rewritten",
+  "global_replay": "UNRUN; deferred until selected source freeze and independent reviews, then one broad portable replay plus scoped authentic local checks",
+  "resources": {
+    "free_GiB": 45.54310989379883,
+    "attention_threshold_GiB": 18,
+    "cleanup": "none",
+    "local_compute_slot": "idle"
+  },
+  "main_publication_authorized": false,
+  "global_closeout": false,
+  "independent_direct_source_reviewers": 6
+}

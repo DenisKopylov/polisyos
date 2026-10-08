@@ -1,0 +1,20 @@
+[
+  {
+    "manifest": "policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1159/E-required-kind-r3/required-kind-hc1cdkqw/cas/artifacts/sha256/1e/15/1e15bc187cb35109b5eb2a34167d0ad3d171ca4055e514560adeaca1ef2ae281.manifest.json",
+    "manifest_sha256": "b8f45c8f5d09aa63513b518431cf20ff773158f398cce886a5eea33b85cf4495",
+    "blob": "policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1159/E-required-kind-r3/required-kind-hc1cdkqw/cas/artifacts/sha256/1e/15/1e15bc187cb35109b5eb2a34167d0ad3d171ca4055e514560adeaca1ef2ae281.blob",
+    "blob_sha256": "1e15bc187cb35109b5eb2a34167d0ad3d171ca4055e514560adeaca1ef2ae281",
+    "payload_bytes": 12193,
+    "report_id": "BTM_6cd7c9c76dfb",
+    "actual_scenarios": 5
+  },
+  {
+    "manifest": "policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1159/E-required-kind-r3/required-kind-hc1cdkqw/cas/artifacts/sha256/2f/93/2f93dfc56898b5a06441b9d5526a67ad19ce9042d128a9a7acf965264733c7e5.manifest.json",
+    "manifest_sha256": "607e837b5517baa8420a9db0a75f1c4d030c07b7450c950b6157573ff2479337",
+    "blob": "policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1159/E-required-kind-r3/required-kind-hc1cdkqw/cas/artifacts/sha256/2f/93/2f93dfc56898b5a06441b9d5526a67ad19ce9042d128a9a7acf965264733c7e5.blob",
+    "blob_sha256": "2f93dfc56898b5a06441b9d5526a67ad19ce9042d128a9a7acf965264733c7e5",
+    "payload_bytes": 10037,
+    "report_id": "BTM_64ce5b0ba05e",
+    "actual_scenarios": 4
+  }
+]

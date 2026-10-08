@@ -1,0 +1,11 @@
+{
+  "command": [
+    "python3",
+    "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+    "--check"
+  ],
+  "returncode": 0,
+  "verification_blob": "b4d46edbd185add382dbc3a86f762274a3c5e781",
+  "verification_read": "full JSON read after untruncated retry",
+  "verification_grade": "transfer_and_navigation_only; raw_archives_received0; product_closure not_established"
+}

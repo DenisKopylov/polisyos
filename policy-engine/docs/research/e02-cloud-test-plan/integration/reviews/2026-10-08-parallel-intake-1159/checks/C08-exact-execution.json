@@ -1,0 +1,28 @@
+{
+  "source_sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+  "source_tree": "a00144afb36fedb25a263ac112964ea7323cb470",
+  "start_utc": "2026-10-08T12:13:27.448987+00:00",
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1025/exact_pytest.py",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1159/C08-exact/input",
+    "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1159/C08-exact",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1159/C08-exact/selectors.json"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1159/C08-exact/input/policy-engine",
+  "selectors": [
+    "tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py",
+    "tests/unit/foundry/methods/catalog/causal/test_id_engine_native_query_marginal.py",
+    "tests/unit/ir/analytics/test_causal_proof_graph_binding.py",
+    "tests/unit/foundry/methods/catalog/causal/test_id_engine_characterization.py",
+    "tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py"
+  ],
+  "timeout_s": 180,
+  "wall_s": 12.552722041029483,
+  "returncode": 1,
+  "timed_out": false,
+  "free_GiB": 45.5157585144043,
+  "isolation": "exact archive, existing G3.14 environment; no installs/source mutation/production reads"
+}

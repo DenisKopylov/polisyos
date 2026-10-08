@@ -1,0 +1,11 @@
+{
+  "summary": {
+    "source_sha": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+    "pytest_returncode": 1,
+    "loaded_file_backed_polisyos_module_denominator": 762,
+    "source_mismatch_count": 0
+  },
+  "ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1159/C08-graph-hash-removal/origins.json",
+  "bytes": 213009,
+  "sha256": "afc0ad5b51909da64c182f9a1cc2364415c940f8c32f21c9e54d97c602271e44"
+}

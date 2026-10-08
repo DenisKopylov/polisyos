@@ -1,0 +1,81 @@
+{
+  "schema": "policyos.e02.G.continuation_lease_supplement.v1",
+  "source_entry_G": "a139e9d076231e2762477f7ac7a1f0d7b0a57dba",
+  "grant_scope": "One-time exact test companions for the named C09 required-basis and C08 native-query/proof-trace slices; no general expansion of dispatch, adjacent-source or authority permission.",
+  "no_new_product_authority": true,
+  "dispatch_conflict_check": {
+    "dispatch_blob": "f2e8d2096b86148fb93d4eb61520d22002228a1d",
+    "all_roles": [
+      "C01",
+      "C02",
+      "C03",
+      "C04",
+      "C05",
+      "C06",
+      "C07",
+      "C08",
+      "C09",
+      "C10",
+      "C11",
+      "C12",
+      "C13",
+      "L01",
+      "L02"
+    ],
+    "writer_fields_checked": [
+      "source_scopes",
+      "companion_paths",
+      "explicit_test_writer_paths"
+    ],
+    "test_start_paths_are_selectors_only": true,
+    "exact_companion_targets": [
+      "policy-engine/tests/unit/scientist/governance/test_calibration_validation.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_characterization.py"
+    ],
+    "writer_matches": [],
+    "navigation_selector_matches": []
+  },
+  "C09": {
+    "canonical_writer": "existing ORCH03 /root/c09",
+    "topic": "codex/e02-E-c09-20261008",
+    "existing_path": "/dev/shm/e02-orch03-20261008/c09",
+    "additional_test_companion_paths": [
+      "policy-engine/tests/unit/scientist/governance/test_calibration_validation.py"
+    ],
+    "existing_paths": "d408 exact interval mechanism/source/test/README/release grant remains unchanged",
+    "required_property": "Reconcile every required kind against actual persisted report scenarios and producer completeness/gap evidence; an empty ok matrix row or cleared matrix gaps cannot establish a missing required kind. Use a generic required-set predicate; preserve complete point-only and complete interval diagnostics.",
+    "P40_bucket": "SAME evidence/basis completeness class at required-kind partition level; widen the actual basis mechanism rather than patch the observed enum.",
+    "receipt_fixture_companion": "b3 real CAS candidate fixture change is acknowledged as the canonical validation test companion; it does not repair the promotion blocker or grant code acceptance.",
+    "affected_check": "After forward source freeze and independent review, one affected consumer wave including generic missing/empty/forged kind basis, complete/point/partial/refusal controls and matched removal. Preserve old adb54/2 and b3two selectors as source-qualified history."
+  },
+  "C08": {
+    "canonical_writer": "existing ORCH03 /root/c08",
+    "topic": "codex/e02-F-c08-20261008",
+    "existing_path": "/dev/shm/e02-orch03-20261008/c08",
+    "additional_test_companion_paths": [
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_characterization.py"
+    ],
+    "existing_paths": "a139 exact IR proof reader and existing causal catalog/id_engine source/test/README/release grant remain unchanged",
+    "required_property": "Reconcile the actual supported native original-query implementation and its proof-trace expectations, keeping independently correct full observed static-DAG law and original treatment/query. Do not emit fictional RULE1/ANCESTRAL_COLLAPSE markers just to satisfy a snapshot; if the accepted algorithm changes a trace, its companion must prove the actual law/trace and keep the original query discriminator.",
+    "quality": "Resolve scoped two-file formatter debt in owned files; current P41 attribution not_established, not inherited. No global format waiver.",
+    "carry": "Graph-binding source/test and G matched guard-removal evidence carry only if those actual files/inputs remain unchanged; new ID delta and affected callers/proof-step evidence require separate review."
+  },
+  "exclusions": [
+    "C07 shared DTO/schema/ref/facade",
+    "C06 selected manifest adapter",
+    "C10 served/S10 and scientific/currentness admission",
+    "C11 actual Level2/Runtime registration/MethodJob bridge",
+    "G generated/global inventories and lockfiles"
+  ],
+  "resume_contract": [
+    "Reuse exact existing matching lane, no new checkout per wake.",
+    "Fresh exact branch/path resume check plus attachment/HEAD/status readback on actual cloud host immediately before mutation; previous snapshot is not reservation.",
+    "Unexpected state stops without reset/rebase/force/switch.",
+    "Freeze forward source, nonauthor review, affected checks with source/environment/input pins, separate committed handoff and normal topic push/readback.",
+    "Use tracked Git handoffs; no foreign human-chat message authorization."
+  ],
+  "source_acceptance": false,
+  "formal_closure_ids": []
+}

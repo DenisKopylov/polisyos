@@ -23,7 +23,8 @@
   },
   "new_outputs": [
     "evidence/L6-content-domain.json",
-    "evidence/Legal-stat-reconciliation.json"
+    "evidence/Legal-stat-reconciliation.json",
+    "evidence/time-role-qualification.json"
   ],
   "first_task_publication": "c3f3b71ebf2e2f9b3f8a4cc38f6f4239ce880002 published and remote-read-back before remaining packet delivery; its two prior pointers were subsequently corrected append-only",
   "checks": {
@@ -47,5 +48,6 @@
   },
   "semantic_scope_retained": "LA032 original layout/source→state; LA036 original requested/effective/fallback; B201/B202 E decisions not reopened",
   "publication": "own L01 topic only; final exact remote HEAD/tree/changed-byte readback retained local",
-  "final_readback_receipt": "policy-engine/_build/e02-L01-custody-version-20261008/final-remote-readback.json"
+  "final_readback_receipt": "policy-engine/_build/e02-L01-custody-version-20261008/final-remote-readback.json",
+  "time_role_qualification": "evidence/time-role-qualification.json; mandatory overlay for controls observer and prior Legal stat time"
 }

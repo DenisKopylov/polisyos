@@ -106,5 +106,6 @@
   "independent_review": "../evidence/independent-reviews.md",
   "supported_profile_limits": "Local metadata/cached-content/stat-receipt reconciliation only; no authentic tests, old probes or production payload census",
   "currentness_question": "Specific source-owned release/replacement/custodian/currentness ref pending; authentic positive UNRUN.",
-  "hash_domain_precision": "Pinned GY volatile/operational-field-stripped canonical JSON, including runtime_metrics exclusions; no byte identity or scientific adequacy implied."
+  "hash_domain_precision": "Pinned GY volatile/operational-field-stripped canonical JSON, including runtime_metrics exclusions; no byte identity or scientific adequacy implied.",
+  "time_role_qualification": "../evidence/time-role-qualification.json; must accompany packet/deciding output"
 }

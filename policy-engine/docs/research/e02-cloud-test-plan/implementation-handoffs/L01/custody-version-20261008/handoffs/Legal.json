@@ -116,5 +116,6 @@
       "current_G_blob": null
     }
   ],
-  "owner_ref_availability": "Both exact C5 commits were fetched successfully from origin; all three nominated owner paths/blobs are absent from this pinned G tree."
+  "owner_ref_availability": "Both exact C5 commits were fetched successfully from origin; all three nominated owner paths/blobs are absent from this pinned G tree.",
+  "time_role_qualification": "../evidence/time-role-qualification.json; must accompany packet/deciding output"
 }

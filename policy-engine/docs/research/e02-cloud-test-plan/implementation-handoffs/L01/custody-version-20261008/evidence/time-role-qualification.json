@@ -1,0 +1,47 @@
+{
+  "schema": "policyos.e02.l01.time_role_qualification.v1",
+  "qualified_source_candidate": "9f6841f877566a70aa559fc490c382a437f5619c",
+  "qualification_recorded_at": "2026-10-08T18:30:55.799518+00:00",
+  "class": "source/time qualification; no runtime or input-admission change",
+  "root_manifest_observer": {
+    "alias": "L01_ROOT_MANIFEST_20261008",
+    "observed_at": "2026-10-08T15:41:45.962265+00:00",
+    "purpose": "root manifest observation only"
+  },
+  "selected_control_observers": [
+    {
+      "alias": "L01_L6_KNOBS_01",
+      "observed_at": "2026-10-08T15:45:24.159812+00:00"
+    },
+    {
+      "alias": "L01_L6_LEXMAP_01",
+      "observed_at": "2026-10-08T15:45:24.160442+00:00"
+    },
+    {
+      "alias": "L01_L6_OBSERVATION_ROUTES_01",
+      "observed_at": "2026-10-08T15:45:24.160654+00:00"
+    }
+  ],
+  "affected_L6_fields": [
+    "packets/L6.json#/minimum_tuple/time/input_observed_at",
+    "evidence/L6-content-domain.json#/input_scope"
+  ],
+  "L6_effective_qualification": "The root timestamp in those fields is not the control observer timestamp. Use the three source-recorded control times above; content-domain matches are unchanged.",
+  "Legal_stat_observer": {
+    "alias": "L01_CONFIGURED_LEX_DB_01",
+    "prior_DB_stat_observer_timestamp": "not_established; the prior stat receipt did not capture its observer time",
+    "root_manifest_timestamp_is_not_DB_stat_time": true
+  },
+  "affected_Legal_field": "evidence/Legal-stat-reconciliation.json#/prior_local_observation",
+  "Legal_effective_qualification": "That value is only the root manifest observation time; no exact prior DB-stat observation time is established. C5 captured_at remains owner-supplied receipt time, not valid/as-of time.",
+  "other_task_time_scope": "I3 publication time and B194 bundle/time aliases remain owner-declared metadata, not live source/event/evaluator observation; no new currentness inference.",
+  "private_source_refs": [
+    "policy-engine/_build/e02-L01-restart-20261008/private/root-manifest.json",
+    "policy-engine/_build/e02-L01-restart-20261008/private/l6-selected-bindings.json",
+    "policy-engine/_build/e02-L01-restart-20261008/agents/legal/private.json"
+  ],
+  "old_outputs": "immutable; this overlay qualifies reading them",
+  "numeric_outcomes_changed": false,
+  "fresh_production_reads_or_hashes": false,
+  "source_authority_or_currentness": "not_established"
+}

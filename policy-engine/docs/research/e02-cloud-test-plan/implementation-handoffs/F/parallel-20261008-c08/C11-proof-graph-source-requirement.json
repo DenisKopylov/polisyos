@@ -6,7 +6,7 @@
   "g_feedback": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
   "prior_source": "2dd8339c210caf973586f7ddec69b6b0a48f1df7",
   "canonical_writer_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level2_causal.py",
-  "existing_producer": "Level2CausalFilter identify_with_fallback -> _persist_proof_bundle -> existing IR persist_proof_bundle",
+  "existing_producer": "Level2CausalPlausibility identify_with_fallback -> _persist_proof_bundle -> existing IR persist_proof_bundle",
   "minimum_change": [
     "For a proof carrying partial_graph_query, persist the exact graph supplied for that original identification using persist_causal_graph_model.",
     "Bind its returned artifact_id to existing ProofBundle.graph_ref; refuse any supplied conflicting ref. Do not change legitimate bounded mathematical status or ranking.",

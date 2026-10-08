@@ -154,7 +154,10 @@
   ],
   "implementation_lineage": [
     "b6c3201aca6f8a94f05479269e13cde2dd3e7119",
-    "03a7c5d5e206f87097a18480dcf6091eb2af3d93"
+    "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+    "bf3580aed1127fbb5c4e14d9ec8c50de073bfc89",
+    "cfe46cfa8428d4388a44d2d68828ad1a5a19b256",
+    "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8"
   ],
   "independent_blocking_finding": {
     "source": "b6c3201aca6f8a94f05479269e13cde2dd3e7119",
@@ -212,5 +215,47 @@
     "prior_native_deciding": "cfe affectedwholeepoch37=34PASS3FAIL (strictCASidentity plus2sharedguard/Core diagnostics), retained raw; finalaffectedrun pending",
     "review": "independent reviewer diagnosed realowned route wiring omission; immutable delta review pending",
     "frontends_allother_paths_exact_unchanged": true
-  }
+  },
+  "historical_partial_implementation_lineage_at_03a": [
+    "b6c3201aca6f8a94f05479269e13cde2dd3e7119",
+    "03a7c5d5e206f87097a18480dcf6091eb2af3d93"
+  ],
+  "implementation_lineage_records": [
+    {
+      "commit": "b6c3201aca6f8a94f05479269e13cde2dd3e7119",
+      "tree": "c23929bdd3f28fee4074123ceb4f29a60f0a6630",
+      "parents": [
+        "0321633c0e6d9a87bccfbbe889a4998934c52dd3"
+      ]
+    },
+    {
+      "commit": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+      "tree": "46aab0ec802b239da47d4fab5ee1d7e1f616045a",
+      "parents": [
+        "b6c3201aca6f8a94f05479269e13cde2dd3e7119"
+      ]
+    },
+    {
+      "commit": "bf3580aed1127fbb5c4e14d9ec8c50de073bfc89",
+      "tree": "a24374c2e41817f45da85ce825c5c7a05ec6fa9c",
+      "parents": [
+        "03a7c5d5e206f87097a18480dcf6091eb2af3d93"
+      ]
+    },
+    {
+      "commit": "cfe46cfa8428d4388a44d2d68828ad1a5a19b256",
+      "tree": "3313e6e84959cd7d43ad18aa083baf26563a0c86",
+      "parents": [
+        "bf3580aed1127fbb5c4e14d9ec8c50de073bfc89"
+      ]
+    },
+    {
+      "commit": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+      "tree": "6506a68152d7a957fc7762e9846a72e7ab98d557",
+      "parents": [
+        "cfe46cfa8428d4388a44d2d68828ad1a5a19b256"
+      ]
+    }
+  ],
+  "metadata_clarification": "Complete final implementation lineage clarified in this receipt manifest. Exact native/review input manifest bytes at each freeze remain separately preserved in outputs with original hashes."
 }

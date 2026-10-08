@@ -1,0 +1,44 @@
+{
+  "schema": "polisyos.e02.l02.directory_correction_review.v1",
+  "reviewer_role": "independent narrow L02 final correction reviewer",
+  "observed_at_utc": "2026-10-08 11:11:53 UTC",
+  "reviewed_candidate": {
+    "commit": "90fa69a55b47459644e4aaca9c6bcf360b0d8dd9",
+    "tree": "ebb259fa566630a8f8e3ddf5d7c7ec43b7af2686",
+    "parent": "3d5cd1b5390ebb7c0dad7664a1468a75bee0585b",
+    "branch": "codex/e02-L02-authentic-20261008"
+  },
+  "delta_review": {
+    "paths_changed_from_3d5": 8,
+    "file_types": {
+      "json": 7,
+      "md": 1
+    },
+    "outside_policy_engine_docs": 0,
+    "changed_surfaces": "README availability/I4 boundary, each A–F data_and_permission_boundary, and final-delivery index/correction disposition.",
+    "six_leaf_bindings": "Each A–F leaf changed only data_and_permission_boundary; all retain exact prior ca78 source-qualified leaf references and exact 5c3 L01 packet references, whose bytes are identical in G d23.",
+    "closure_state": "All six remain formal_G_closure=not_adjudicated and closure_ids=[]. final-delivery retains final_source_closure_ids=[] and G_formal_status=not_adjudicated.",
+    "payload_index": {
+      "entries": 28,
+      "all_paths_bytes_and_sha256_match_90fa": true
+    },
+    "historical_review": "closeout/delivery-independent-review.json retained at 12,887 bytes / SHA-256 429f7b443ecec9430acc739caffcbe4f90f314074055c4342a3cf3e580289fb5.",
+    "prior_3d5_blocking_review": "Preserved byte-identically at policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_final_correction_review.json; 7,070 bytes / SHA-256 ec3c106f1b7cae5421938ae96cbf6f8afebd6a770da007c4be459aeb5bd0445a."
+  },
+  "correction_assessment": {
+    "previous_finding": "The 3d5 README and six A–F leaves equated opaque directory existence with local data existence.",
+    "corrected_boundary": "README and all six leaves now say only an opaque directory location is observed; task-specific payload bytes, content, profile and admission remain not_established.",
+    "permission_and_scope": "The prior criterion-specific minimal read-only authorization remains in force; withheld digest is disclosure status, not a reading ban. The wording does not assert global data absence and imposes no document-merge, global-freeze, or all-input gate.",
+    "I4_context": "README treats earlier user-confirmed DB availability as historical and separate from current Legal membership/profile evidence.",
+    "L01_and_G": "Current G is d23ea5e9dd252214fc9e0c5c941a8a3789cead0a / tree 2239b2c97f840ab28ee4b921e964618548dd2c25. All 43 paths in L01’s f00-to-5c3 delta are blob-identical in G; another document merge is not a prerequisite."
+  },
+  "scope_and_execution": {
+    "candidate_delta_source_test_config_lock_or_production_payload_changes": false,
+    "tests_installs_mac7_or_G77_runs": false,
+    "production_or_private_payload_reads": false,
+    "branch_switch_merge_cherry_pick_or_push": false,
+    "diff_check": "PASS",
+    "remote_L02_observation": "At 2026-10-08 11:11:53 UTC, refs/heads/codex/e02-L02-authentic-20261008 still pointed to 3d5cd1b5390ebb7c0dad7664a1468a75bee0585b; 90fa is reviewed as the local append-only candidate, not reported as remotely published."
+  },
+  "verdict": "GO_BOUNDED_FOR_90FA_APPEND_ONLY_CORRECTION"
+}

@@ -1,0 +1,123 @@
+{
+  "schema": "polisyos.e02.l02.final_correction_review.v1",
+  "reviewer_role": "independent narrow L02 final correction reviewer",
+  "reviewed_at_utc": "2026-10-08 11:10:31 UTC",
+  "immutable_candidate": {
+    "commit": "3d5cd1b5390ebb7c0dad7664a1468a75bee0585b",
+    "tree": "ea5648a6e3b9bd4d94ad31f39caae670214f4cc9",
+    "parent": "ca78ef245e592f8adfbeb273f7a404c8e84a6ae8",
+    "branch": "codex/e02-L02-authentic-20261008",
+    "remote_branch_readback": "refs/heads/codex/e02-L02-authentic-20261008 -> 3d5cd1b5390ebb7c0dad7664a1468a75bee0585b"
+  },
+  "source_and_G_pins": {
+    "source_under_test": {
+      "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767"
+    },
+    "published_L01": {
+      "commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+      "tree": "31198f8d6e8268db5eab7e89169c351741161d21",
+      "remote_branch_readback": "refs/heads/codex/e02-L01-custody-20261008"
+    },
+    "latest_G": {
+      "commit": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+      "tree": "2239b2c97f840ab28ee4b921e964618548dd2c25",
+      "remote_branch_readback": "refs/heads/codex/e02-integration"
+    },
+    "L01_delta_import": "All 43 paths added from f00 by published L01 are byte/blob-identical in d23; L01’s packet facts are present in current G without requiring another document merge."
+  },
+  "narrow_delta_verification": {
+    "candidate_delta_from_ca78": {
+      "files": 29,
+      "file_types": {
+        "gz": 4,
+        "json": 24,
+        "md": 1
+      },
+      "outside_policy_engine_docs": 0,
+      "diff_check": "PASS"
+    },
+    "final_delivery_payload_index": {
+      "indexed_payloads": 28,
+      "unique_paths": true,
+      "exact_changed_paths_excluding_manifest": true,
+      "all_blob_bytes_and_sha256_match_candidate": true
+    },
+    "six_late_unit_leaves": {
+      "paths": "late-unit-leaf-paths.json enumerates exactly six A–F paths.",
+      "source_binding": "Each leaf retains the original source-qualified leaf at ca78 with matching exact byte length and SHA-256.",
+      "published_packet_binding": "Each leaf binds its corresponding A–F L01 packet at 5c3, including Git blob, byte length and SHA-256; each packet’s bytes match d23.",
+      "closure": "All six state formal_G_closure=not_adjudicated and closure_ids=[]."
+    },
+    "stderr_archives_lossless": [
+      {
+        "path": "closeout/first-push.stderr.gz",
+        "uncompressed_bytes": 372,
+        "uncompressed_sha256": "652f1924455dbd5b2ff5a827c2879cfb07969efd7cd0372abc9d6af80f99fa39",
+        "matches_transport_receipt": true
+      },
+      {
+        "path": "closeout/leaf-push.stderr.gz",
+        "uncompressed_bytes": 150,
+        "uncompressed_sha256": "74f926d214639b47f5867fd2e71f17fe5643547e9cca17fef0c7482998783fdb",
+        "matches_transport_receipt": true
+      }
+    ],
+    "prior_independent_review": "closeout/delivery-independent-review.json remains byte-identical at 12,887 bytes, SHA-256 429f7b443ecec9430acc739caffcbe4f90f314074055c4342a3cf3e580289fb5; final-delivery records the historical correction disposition rather than rewriting that reviewer artifact.",
+    "closure_state": {
+      "final_source_closure_ids": [],
+      "G_formal_status": "not_adjudicated",
+      "new_finding_closure_or_C54_reaccounting": false
+    },
+    "source_delta": "The 29-file delta is documentation only; no source, test, configuration, lockfile or production payload was added. Original f00 source remains the exact source under review."
+  },
+  "availability_correction_review": {
+    "prior_overclaim_corrected": "README now says the L01 packet is published and the matching task-bound authentic tuples remain not_established. The correction disposition explicitly labels the prior G71 absence as historical, binds the preserved earlier review, and rejects a document-merge/read-permission/global-freeze gate.",
+    "remaining_blocker": {
+      "finding_id": "L02-FINAL-LOCAL-DATA-EXISTENCE-01",
+      "class": "same availability-overclaim class; source-bound content/admission asserted from directory metadata",
+      "locations": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/README.md",
+          "line": 5,
+          "claim": "Local data existence is established."
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/parallel-20261008-l02-late-input-qualification.json",
+          "field": "data_and_permission_boundary"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/parallel-20261008-l02-late-input-qualification.json",
+          "field": "data_and_permission_boundary"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/parallel-20261008-l02-late-input-qualification.json",
+          "field": "data_and_permission_boundary"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/parallel-20261008-l02-late-input-qualification.json",
+          "field": "data_and_permission_boundary"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-l02-late-input-qualification.json",
+          "field": "data_and_permission_boundary"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-l02-late-input-qualification.json",
+          "field": "data_and_permission_boundary"
+        }
+      ],
+      "why": "L01 host metadata establishes one opaque directory location exists. L01 host-inventory.json and README explicitly say no payload was enumerated, opened or hashed, and that the directory is not mapped to a named source/profile or content admission. Directory existence does not establish that an authentic input dataset or paired artifact bytes exist there.",
+      "bounded_correction": "Change these claims to say an opaque local directory location exists; the named authentic input bytes, content, source/profile mapping, and admission remain not_established. Preserve the existing no-global-absence statement and the user’s prior criterion-specific minimal read-only authorization; do not introduce a new read ban."
+    }
+  },
+  "nonexecution_and_scope": {
+    "tests_installs_or_numeric_runs": false,
+    "production_or_private_payload_reads": false,
+    "source_test_config_or_generated_writes": false,
+    "branch_switch_merge_cherry_pick_or_push": false,
+    "review_scope": "Only immutable 3d5 correction and its 29-file delta, payload index, six late leaf bindings, transport stderr archives and availability wording. No full58 matrix re-review.",
+    "followup": "Review the forthcoming append-only correction delta for the directory-versus-data wording and six repeated bindings; no rerun of Mac7/G77 or broad matrix review is warranted."
+  },
+  "verdict": "FOLLOWUP_CORRECTION_REQUIRED"
+}

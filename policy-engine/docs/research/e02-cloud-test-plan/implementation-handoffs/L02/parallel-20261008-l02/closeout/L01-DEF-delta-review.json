@@ -1,0 +1,659 @@
+{
+  "schema": "policyos.e02.l02_l01_def_delta.v1",
+  "role": "L02",
+  "helper": "l02_law_intake",
+  "purpose": "Delta-only supplement to the earlier six-row L02 preparation. It incorporates the released L01 D/E/F and S1 evidence without replacing the earlier source/criterion bindings, accepting source, executing tests, reading production payloads, or changing finding status.",
+  "pins": {
+    "l02_checkout": {
+      "branch": "codex/e02-L02-authentic-20261008",
+      "head": "ca78ef245e592f8adfbeb273f7a404c8e84a6ae8",
+      "tree": "85a08af3359ed11302d2a355e514793ecb136989",
+      "status_note": "Expected root-owned receipt state. Root-owned untracked L02 README and closeout paths were left untouched."
+    },
+    "current_G": {
+      "commit": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+      "tree": "2239b2c97f840ab28ee4b921e964618548dd2c25",
+      "prior_G_reviewed": {
+        "commit": "71ec2e0758cd7cd93423d3a91afe1a07cef61401",
+        "tree": "cede297dae4ab3a5a8b46dfeaaeb606ce6e8217e"
+      },
+      "frozen_product_source": {
+        "commit": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767"
+      },
+      "dispatch_source_pin": {
+        "commit": "fe5ccf9ce90c336fff749da48bd0138d321baf23",
+        "tree": "17f2b3e019b7ae82b85ad10af52dd9fb14049617"
+      },
+      "source_delta_check": "Read-only diff from f00dd to d23ea has no policy-engine/src, policy-engine/tests, policy-engine/pyproject.toml, or policy-engine/uv.lock paths. The d23ea advance is documentation/receipt-only for these product paths; findings below remain about G source f00dd."
+    },
+    "L01": {
+      "published_head": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+      "published_tree": "31198f8d6e8268db5eab7e89169c351741161d21",
+      "packet_source_commit": "72b9a568fc53dfb89c364749d94b1519648c55af",
+      "packet_source_tree": "e916c747c3599a45ba2ab83e907c8a4f72637c59",
+      "source_qualified_leaf_commit": "6ca4ebed8037a1b478e1cba53d352dd30d9070fd",
+      "source_qualified_leaf_tree": "e716acdec2349eff3c4e38037f141789422d08ff",
+      "product_footprint": "L01 explicitly records docs/evidence only, zero product source/test/config/lock/generated changes. Component source observations are not G acceptance.",
+      "acceptance": "L01 is bounded factual owner-input/custody documentation. production_input_admission=not_established; input_bytes_digest=withheld_no_disclosure_admission; formal_G_closure=not_adjudicated."
+    },
+    "prior_L02_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_law_intake.json",
+      "commit": "ca78ef245e592f8adfbeb273f7a404c8e84a6ae8",
+      "blob": "be032c6fc26d2729c4600048c5bfdef6d51f01a7",
+      "local_preparer_ref": ".tmp/parallel-20261008-l02/prepared/l02_law_intake.json",
+      "local_bytes": 41400,
+      "local_sha256": "7220cfc08f27ed0f93f0a994cb87aea2269572d8982dabfe270312c67f65aa2c",
+      "treatment": "Retain as the full original criterion/source/method/recipe binding. This file is a historical supplement for the L01 delta, not a rewrite."
+    }
+  },
+  "immutable_L01_refs": [
+    {
+      "commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/README.md",
+      "blob": "1010e780ec008b3193c850fc3a03d8966814acf2",
+      "bytes": 3780
+    },
+    {
+      "commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/delivery.json",
+      "blob": "ac2c2ac95f06da4049e1b95cb7734707523c36f9",
+      "bytes": 2406
+    },
+    {
+      "commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/inventory.json",
+      "blob": "b3029251e704cb88f3cea8da19ec82a48d4e651f",
+      "bytes": 13970
+    },
+    {
+      "commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/D.json",
+      "blob": "72e308ddcb908233e1104ae3e584cdca4340b8a0",
+      "bytes": 48923
+    },
+    {
+      "commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/E.json",
+      "blob": "f231760f768124688854f904c69ab0fe434b61e5",
+      "bytes": 32418
+    },
+    {
+      "commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/F.json",
+      "blob": "a468c484aa5016eb5d378074523b121639f56413",
+      "bytes": 18574
+    },
+    {
+      "commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/s1-source-facts.json",
+      "blob": "ade3547eaff26ac6b4acaca861e4e92becaeae74",
+      "bytes": 19963
+    },
+    {
+      "commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/api-census.json",
+      "blob": "f9e3175401844b0336553ed89df269441c53fbad",
+      "bytes": 25151
+    },
+    {
+      "commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/parallel-20261008-l01-inputs.json",
+      "blob": "09338d4b333ca680914ed29faf78e2472194cee9",
+      "bytes": 10249
+    },
+    {
+      "commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-l01-inputs.json",
+      "blob": "3bd73767221ab32f3adcfb03d5bfbe210c73b598",
+      "bytes": 12479
+    },
+    {
+      "commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-l01-inputs.json",
+      "blob": "018faef9ee99bab91364989be6e5c5a1fcaee8f7",
+      "bytes": 10597
+    },
+    {
+      "commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-removal-junit.xml",
+      "blob": "fe2374c2d53ec9f59594ddb89582c9ddb5f91945",
+      "bytes": 8180
+    },
+    {
+      "commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-fresh-stdout.txt",
+      "blob": "c006de8659691424869997b10f0ca89e1422eaad",
+      "bytes": 591
+    },
+    {
+      "commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/la036-junit.xml",
+      "blob": "c013c73d920b965856203463e1943bd41f678536",
+      "bytes": 554
+    },
+    {
+      "commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-junit.xml",
+      "blob": "b9c89fa61699ecdaf21f93204780de58c0e8ab3f",
+      "bytes": 1284
+    }
+  ],
+  "source_qualification": {
+    "explicit_leaf_packet_commit": "72b9a568fc53dfb89c364749d94b1519648c55af",
+    "source_qualified_leaf_refs_commit": "6ca4ebed8037a1b478e1cba53d352dd30d9070fd",
+    "handoff_semantics": "The D/E/F handoffs attach owner-row and source pins to the frozen L01 documentation packet. They describe source observations and bounded tests; they do not import candidate component code into G or establish production input admission.",
+    "candidate_sources": {
+      "D": {
+        "production_leaf_source_commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "latest_execution_source_commit": "a30c140eedc5c0514a93409d4b4040a715231d28",
+        "qualification": "Outside the inspected G ancestry; static/current-D observations only. The L01 packet did not rerun or admit this source."
+      },
+      "E": {
+        "source_commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+        "qualification": "Candidate code refs in E facts identify inspected producer/consumer options; they are not accepted G code or owner-admitted factual source/law/fit inputs."
+      },
+      "F": {
+        "criterion_source_commit": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+        "qualification": "A B56 default-pool diagnostic is not a named Runtime workload witness. No production roster is a universal prerequisite for L02."
+      }
+    },
+    "source_status": "L01 packet is now present in G as qualified fact/input metadata, through the d23ea documentation intake. This improves packet availability only: no product source acceptance, finding closure, production input admission, or external factual positive is created. The original named issuer/evaluator/law/lineage/calibration boundaries below remain not_established.",
+    "L01_E_receipt_bindings": {
+      "current_rows_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final54-current-and-independent-joins/003/current-all-54-b2-final-v4-normal.json@7bf53fd0cf69a568b37d8a881e26bfb16c315653#blob:95d2203524f51e6b849166230811b1d0b3170469",
+      "delta_associations_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries/full54/all54-delta-associations-v2-source11082.json@7bf53fd0cf69a568b37d8a881e26bfb16c315653#blob:502f44eb34c277b11764f89f153df17231864bf6",
+      "row_map": {
+        "B190": "/rows/34 and /external_owner_inputs/3",
+        "B194": "/rows/38 and /external_owner_inputs/4",
+        "B197": "/rows/41 and /external_owner_inputs/5",
+        "B200": "/rows/44 and /external_owner_inputs/6"
+      },
+      "E_source_code_refs_are_candidate_only": {
+        "B190": [
+          "jacobian.py@fc4fd1fe5120b881bff922dfbf470b8f503412b0",
+          "dispatcher.py@fff6eab6ca8c42e6c4eae9c91a6adda38bd82d31",
+          "propagate_uncertainty.py@b2abde4969018769d81dbf41f249ca0eb82fb453"
+        ],
+        "B194": [
+          "monte_carlo.py@d638aa6ed9a591a9c685cbd318a45c36e202bf9a",
+          "sampling_admission.py@7de7727e16cc6dcc25340ef583ff05764bc3882b",
+          "propagate_welfare.py@3c8d7b1c1c7ae4aeffba622b6fb452388afa8687"
+        ],
+        "B197": [
+          "calibrator.py@c0811821f814a05eaa001450beee9aba3e73bb7e",
+          "report.py@c3f7eebffcc214235e01804ebafd4aeadf7f83ad",
+          "uncertainty_adapter.py@211103b83d6e71aadc314464d799c97eb1ed41f0"
+        ],
+        "B200": [
+          "aggregator.py@c4e3ab88c7b1a4f4c096a84f5be0d59a707f76ae",
+          "uncertainty.py@6468bf46e3a3dfa341112022eccdfe826aaa04ac",
+          "sampling_admission.py@7de7727e16cc6dcc25340ef583ff05764bc3882b"
+        ]
+      },
+      "qualification": "These refs document existing candidate mechanisms/options and current gaps. They do not mean E source commit 8d8e7b3 is G-accepted or that any factual producer input was admitted."
+    },
+    "L01_D_owner_input_update": {
+      "commit": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+      "owner_inputs_update_blob": "93e4d6f1bf73839d1db40ad9ac0839a3cc9ab4ee",
+      "B157_held3_minimum_inputs_blob": "1b8e078af28c7d2f3cc66ce1f3b3558bece401e0",
+      "qualified_by": "D leaf HANDOFF and criterion overlay; these remain D/source-candidate evidence, not G acceptance or a native draw witness."
+    }
+  },
+  "criterion_bindings": [
+    {
+      "id": "LA-036",
+      "original_source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "original_source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "original_source_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+      "lines": [
+        2103,
+        2145
+      ],
+      "criterion_sha256": "ebc61d92552c6dfbf538aed17c8a7ed476ee4322fc9df09f7ed3b89e8c530a2a",
+      "card": "BER-01@66ebe42781cff6735748b067c25474a7734978c7",
+      "coverage_row": "closure-decisions/coverage.json#/rows[id=LA-036]",
+      "author_binding": "C@b886665a26b318b2fdd136cae0248cdea7b9226d:C54-current-root-20261007-c5-v1.json#/rows/42",
+      "owner_input_binding": "C@b886665a26b318b2fdd136cae0248cdea7b9226d:C5-owner-inputs-20261007.json#/rows/16; blob 5549b337ecaf567c222f970977f636ed386b2aed; SHA256 95dfff35eadcd55895b643af217ddaac3a6f176038e6d1b651662c4165b4c385",
+      "L01_source_facts": "5c3afde4833e8ee0314fe6e003070a29b649ad5b:.../L01/parallel-20261008-l01/s1-source-facts.json#/findings[id=LA-036]",
+      "status": "C5 proposal held; no admitted conditional-law input or scientific positive."
+    },
+    {
+      "id": "B157",
+      "original_source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "original_source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "original_source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        4117,
+        4128
+      ],
+      "criterion_sha256": "c27f7a7ba4108a5f8f2027bed47b3d3bfa56955f30034c1ede266fc07d7c8284",
+      "card": "FUN-02@8111de32d5167f1fd1c91b1cac1f64267398d8db",
+      "coverage_row": "closure-decisions/coverage.json#/rows[id=B157]",
+      "connected_plan_pointer": "findings.json#/findings/72/criterion_refs",
+      "D_overlay_pointer": "criterion-overlay.json#/rows/33 (B157@FUN-02)",
+      "D_owner_input_pointer": "prior D owner-inputs.json#/packets/2 (native_draw_producer)",
+      "L01_packet_row": "D packet facts.findings[id=B157]",
+      "L01_leaf_handoff": "D@5c3afde4833e8ee0314fe6e003070a29b649ad5b:implementation-handoffs/D/parallel-20261008-l01-inputs.json"
+    },
+    {
+      "id": "B190",
+      "original_source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "original_source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "original_source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        4752,
+        4761
+      ],
+      "criterion_sha256": "bb28f0e65d6317465c37bae99ed3a0bd89a03a3194f111e0f3faf24553724d53",
+      "card": "UQP-01@8522630fba017eee65c6b12d96c618f0eadbdc01",
+      "coverage_row": "closure-decisions/coverage.json#/rows[id=B190]",
+      "connected_plan_pointer": "findings.json#/findings/109/criterion_refs",
+      "E_row_pointer": "E packet facts.rows.B190; original row /rows/34",
+      "E_owner_input_pointer": "E receipt all54-delta-associations-v2-source11082.json#/external_owner_inputs/3",
+      "E_receipt_source": "7bf53fd0cf69a568b37d8a881e26bfb16c315653"
+    },
+    {
+      "id": "B194",
+      "original_source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "original_source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "original_source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        4792,
+        4801
+      ],
+      "criterion_sha256": "47058d366d7ff7e11ed2348e96b2f56659a999f1f0839a02edc92804b295711e",
+      "card": "UQP-03@1d1d1d6add4711247edf5e99cde67a62df954e6e",
+      "coverage_row": "closure-decisions/coverage.json#/rows[id=B194]",
+      "connected_plan_pointer": "findings.json#/findings/113/criterion_refs",
+      "E_row_pointer": "E packet facts.rows.B194; original row /rows/38",
+      "E_owner_input_pointer": "E receipt all54-delta-associations-v2-source11082.json#/external_owner_inputs/4",
+      "E_receipt_source": "7bf53fd0cf69a568b37d8a881e26bfb16c315653"
+    },
+    {
+      "id": "B197",
+      "original_source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "original_source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "original_source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        4922,
+        4935
+      ],
+      "criterion_sha256": "2f5e64ff7238ff5a340224382fa2875b57ea9e960e0e50bfea7f349c6a83ff3d",
+      "card": "CAL-06@20103522e2b512847eee272a8354633a2b94d650",
+      "coverage_row": "closure-decisions/coverage.json#/rows[id=B197]",
+      "connected_plan_pointer": "findings.json#/findings/116/criterion_refs",
+      "E_row_pointer": "E packet facts.rows.B197; original row /rows/41",
+      "E_owner_input_pointer": "E receipt all54-delta-associations-v2-source11082.json#/external_owner_inputs/5",
+      "E_receipt_source": "7bf53fd0cf69a568b37d8a881e26bfb16c315653"
+    },
+    {
+      "id": "B200",
+      "original_source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "original_source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "original_source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        4964,
+        4977
+      ],
+      "criterion_sha256": "721775dd6bad0fdd3c7392ef5030fcba3032c7f31094b189d99dce422ecc7b2d",
+      "card": "UQS-01@cf08b17c89b6ae300b432c18da7d01cbd9a1b51b",
+      "coverage_row": "closure-decisions/coverage.json#/rows[id=B200]",
+      "connected_plan_pointer": "findings.json#/findings/120/criterion_refs",
+      "E_row_pointer": "E packet facts.rows.B200; original row /rows/44",
+      "E_owner_input_pointer": "E receipt all54-delta-associations-v2-source11082.json#/external_owner_inputs/6",
+      "E_receipt_source": "7bf53fd0cf69a568b37d8a881e26bfb16c315653"
+    }
+  ],
+  "method_decision_binding": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+    "frozen_G_blob": "8a3c23e48bf1defbbc3d5da3b364e49fa7ca4aea",
+    "sections": {
+      "C-M1": "Lines 48-70: verified Gaussian joint law, exact/approximate expectation boundary, and source/model binding.",
+      "C-M2": "Lines 72-83: finite-support empirical conditional law and exact aligned-row requirements."
+    }
+  },
+  "per_finding_L01_delta": [
+    {
+      "id": "LA-036",
+      "current_G_state": "producer_missing; ExplanationBundle 1.0.0 and two validators exist, but there is no typed content-bound observed-feature conditional-law reference/provenance and no admitted law producer/bridge.",
+      "L01_fact_delta": "S1 pins C5 row 16: E posterior parameter rows and F graph/SCM rows are not an observed-feature conditional law; marginal replacement is not conditional Shapley. No admitted source supplies law, population/cohort, time/epoch, feature schema/order, support, model identity, or verifier provenance.",
+      "current_G_source_divergence": [
+        "BERL service maps kernel_shap_conditional and kernel_shap_marginal to KernelSHAPAdapter with distinct requested IDs.",
+        "The adapter overwrites coalition-present features in background rows and averages; effective calculation is replacement/marginal, not conditional sampling.",
+        "ExplanationBundle is returned in memory; Runtime explanation_reliability and Scientist phase5_preflight validate the declared bundle but do not admit a law."
+      ],
+      "existing_selectors_and_oracle": {
+        "selectors": [
+          "tests/unit/remediation/test_ber_01.py::test_aliases_preserve_requested_ids_and_share_effective_identity",
+          "tests/unit/remediation/test_ber_01.py::test_aliases_share_one_raw_calculation_and_are_not_disagreement_methods"
+        ],
+        "selector_status": "Two L01 alias cases PASS in the committed fixture receipt; they prove shared identity/calculation only, not a conditional-law positive.",
+        "exact_oracle": "Under Gaussian rho=0.8, f=x1 and x=(1,1), conditional coalition values (0,1,0.8,1) imply Shapley (0.6,0.4). The marginal/replacement answer (1,0) must fail. At rho=0 both are (1,0). For empirical support, enumerate weighted aligned rows in the exact conditioning stratum.",
+        "fresh_consumers": [
+          "Runtime explanation_reliability",
+          "Scientist phase5_preflight"
+        ]
+      },
+      "negative_and_removal_controls": [
+        "Same caller law ID with changed law bytes, wrong feature order/schema, stale cohort epoch, unsupported support, model/source mismatch, or covariance-only input must refuse with no marginal fallback.",
+        "Remove law-bound sampler/verifier while keeping conditional method/schema markers; persisted bundle plus both fresh consumers must refuse.",
+        "For any optional nonlinear certified-precision claim, require an independently verified structural bound and frozen estimator budget; do not supply a default bound or precision."
+      ],
+      "exact_missing_packet_and_owner": {
+        "owners": "C09 law supplier and C08 model binding; C10 Runtime and C11 Scientist consumers; C07 IR companions; G integrates/adjudicates.",
+        "minimum_packet": "One content-resolved observed-feature joint law with model identity/version, feature variables/order, population/cohort and time/epoch, schema/support, producer/rule version, and verifier provenance. Bound fields to the fresh consumer request; use C-M1 or C-M2 applicable profile.",
+        "next_boundary": "No authentic positive is ready. Keep unsupported/refusal until that exact owner packet is supplied and admitted."
+      },
+      "connected_tasks": [
+        "S1",
+        "S2"
+      ]
+    },
+    {
+      "id": "B157",
+      "current_G_state": "The G runtime configures L3 reduced values and L4 full fidelity, but config echo does not establish observed native draw/work counts. Historical connected proposal remains held; no G acceptance.",
+      "L01_fact_delta": "D leaf explicitly keeps B157 proposal held, capability_state=producer_missing, bounded assertions PASS, required owner positive UNRUN, whole candidate execution UNRUN, formal_closed=false, accepted_in_G=false. The canonical numerical sample/draw-stage owner is not appointed.",
+      "current_G_or_candidate_boundary": "The L01 packet describes a D production source commit outside G ancestry and a later execution source; it did not rerun either. Existing G is f00dd. Do not treat an E/D candidate reference, feedback configuration echo, or Foundry sample count as the native witness.",
+      "existing_selectors_and_positive_recipe": {
+        "selectors": [
+          "tests/unit/scientist/search/funnel/test_level3_medium.py::TestLevel3MediumFidelity::test_fidelity_config_in_feedback",
+          "tests/unit/remediation/test_fun_03.py::test_native_execute_restores_report_corpus_into_actual_funnel_then_preserves_guards"
+        ],
+        "positive": "One authentic native candidate/input/seed/backend run: direct L4 and L3-to-L4 on the same run/evaluation/attempt. Record actual L3 reduced request and measured work/cost, then both paths' effective full L4 request/output; bind source/input/basis/result refs and caller before/after; prove L3 cheaper, L4 equivalence, and caller immutability.",
+        "state": "No native positive is in L01; exact recipe is a request to the real numerical draw owner, not an executed witness."
+      },
+      "negative_and_removal_controls": [
+        "Keep fidelity labels/caller markers while removing actual L3 reduction; an independent executed-work oracle must fail.",
+        "Mutate owned nested L3 config and verify it cannot mutate caller or direct L4 configuration.",
+        "Reject mismatched candidate/input/seed/run/evaluation/attempt lineage; synthetic config-only tests and sibling sample counts are not native work proof."
+      ],
+      "exact_missing_packet_and_owner": {
+        "owner": "Actual A/B numerical sample/draw-stage owner, not yet appointed; D/FUN-02 consumes through FunnelOrchestrator.",
+        "minimum_packet": "Candidate/input/seed/backend and basis refs; native terminal draw/sample/work and result ref; effective L3 reduced and L4 full configs for both paths; same-run/evaluation/attempt IDs, full-L4 outputs, caller state before/after, measured cheaper L3 work.",
+        "consumer": "FunnelOrchestrator.evaluate/advance plus Level3MediumFidelity, Level4FullFidelity, and runtime builder."
+      },
+      "connected_tasks": [
+        "S2",
+        "V5"
+      ]
+    },
+    {
+      "id": "B190",
+      "current_G_state": "The G propagation Node reads a numeric propagation_sensitivity map. Existing finite_difference_jacobian returns a numeric square map without source/axis/unit bindings; explicit additive response preserves variance at a zero baseline. Producer/artifact/bridge are missing.",
+      "L01_fact_delta": "E row /rows/34 says owner decision pending, proposal limited, G closure not adjudicated. New E source refs are inspected candidate code only; no owner-bound response/Jacobian or source law was admitted.",
+      "existing_selectors_and_oracle": {
+        "selectors": [
+          "tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py::test_build_propagation_fn_keeps_unknown_sensitivity_unmapped",
+          "tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py::test_build_propagation_fn_preserves_zero_baseline_effect"
+        ],
+        "oracle": "For y=x-2 at x0=2 and Var(x)=1, the additive response preserves output variance 1; no baseline division may erase it.",
+        "route": "Configured response/Jacobian producer -> source/axis/unit bound artifact -> E propagation adapter/Node -> persisted report and fresh read.",
+        "source_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4"
+      },
+      "negative_and_removal_controls": [
+        "Missing sensitivity stays unknown; partial mappings resolve only mapped outputs; wrong units/axes, fake identity or changed model/objective/source must not gain authority.",
+        "Remove the producer/source-axis-unit binding while retaining propagation_sensitivity field names; fresh consumer must not treat the raw map as verified."
+      ],
+      "exact_missing_packet_and_owner": {
+        "owner": "Scientist response/Jacobian/execution producer with E propagation adapter.",
+        "minimum_packet": "Actual configured response or source-bound Jacobian; named input/output axes and units; immutable model/objective/source refs or declared affine response with content-bound provenance.",
+        "state": "Source exists for computing a map, but the factual producer/artifact/bridge is not present in G."
+      },
+      "connected_tasks": [
+        "S2"
+      ]
+    },
+    {
+      "id": "B194",
+      "current_G_state": "Generic Monte Carlo tracks requested, attempted, success, unattempted, failures and conditional mean; incomplete results remain candidate_only/gate false. It does not supply the actual served evaluator/law/model/config or served-domain binding.",
+      "L01_fact_delta": "E row /rows/38 remains held with owner decision pending and G closure not adjudicated. L01 explicitly identifies served evaluator route bridge_missing, owner-admitted source law/model/config artifact_missing, and served-domain binding consumer_missing.",
+      "existing_selectors_and_oracle": {
+        "selectors": [
+          "tests/unit/foundry/uncertainty/test_sampling_admission.py::test_uniform_failed_support_keeps_all_outcomes_and_conditional_mean",
+          "tests/unit/foundry/uncertainty/test_sampling_admission.py::test_unattempted_support_marks_every_output_incomplete",
+          "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_real_node_persists_aggregate_draw_report_and_exact_missing_set"
+        ],
+        "prepared_generic_recipe": "The old recipe is support [0,1], weights [3,1], seed 31415, N=128, 92 successes and 36 failures, conditional W=2. It is an unexecuted generic discriminator, not a factual law/model or new receipt.",
+        "invariant": "Every requested draw must terminate as success, failure/refusal, or explicitly unattempted; success-only mean stays conditional and cannot be promoted to unconditional authority.",
+        "source_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4#/recipes/1"
+      },
+      "negative_and_removal_controls": [
+        "A missing, duplicated, forged, or unattempted addressed outcome changes the denominator and must fail reconciliation.",
+        "Remove a failed/refused terminal outcome or addressed denominator reconciliation while retaining report/status markers; fresh served consumer must refuse unconditional promotion.",
+        "Retry only the same draw for a declared transient class when the admitted profile requests it; do not invent global retry behavior."
+      ],
+      "exact_missing_packet_and_owner": {
+        "owners": "Scientist served evaluator/domain owner and Foundry actual source-law/model issuer.",
+        "minimum_packet": "Exact served model/evaluator/config/joint law/output domain/requested draw population and immutable source/run refs; addressed draw IDs and support; same-input transient classification only if its profile requests retry.",
+        "state": "No actual served evaluator or admitted source law; current generic attempt accounting is reusable mechanics only."
+      },
+      "connected_tasks": [
+        "S2"
+      ]
+    },
+    {
+      "id": "B197",
+      "current_G_state": "Typed J Sigma J-transpose projection and report/read APIs exist. A source-qualified configured fit/noise law, split/time/unit/source join, and verified trainable-field-to-coordinate map do not.",
+      "L01_fact_delta": "E row /rows/41 remains held, owner decision pending, scientific source fit/noise/authority not established, gate_eligible=false. Actual CalibratorInputs and likelihood/noise assumptions are not supplied.",
+      "existing_selectors_and_oracle": {
+        "selectors": [
+          "tests/unit/remediation/test_cal_06.py::test_incomplete_normal_fit_fails_closed_without_interval_guess",
+          "tests/unit/remediation/test_cal_06.py::test_missing_hessian_std_stays_unrepresented",
+          "tests/unit/scientist/nodes/test_calibration_report_consumer.py::test_invalid_explicit_report_cannot_hide_behind_valid_snapshot"
+        ],
+        "technical_fixture_only": "Known-noise H=diag(1/4,1/9), covariance=diag(4,9) yields standard errors 2 and 3; tied coordinate covariance 0.0025*ones gives zero contrast variance. These are mechanism oracles, not real source-fit evidence.",
+        "route": "Actual Calibrator inputs/fit -> CalibrationReport v2 with coordinate projection/config lineage -> strict load -> fresh configured Node/Welfare.",
+        "source_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4#/recipes/2"
+      },
+      "negative_and_removal_controls": [
+        "Independently reconcile J axes/units/tie addresses, cross-covariance and null space; reject guessed/string-parsed mapping.",
+        "Reject wrong artifact kind/schema/config/objective/model/source/target time/unit/split or absent likelihood/noise assumptions.",
+        "Remove actual report-reader/fit binding while retaining covariance/calibration markers; fresh configured consumer must not claim a calibrated law."
+      ],
+      "exact_missing_packet_and_owner": {
+        "owners": "Foundry actual Calibrator/source-fit/noise issuer and Scientist configured welfare consumer.",
+        "minimum_packet": "Actual CalibratorInputs; target/model/objective and source-time/unit/split join; declared likelihood/noise/fit assumptions; trainable field/tie-coordinate map; configured CAS/report refs and schema/config identity.",
+        "state": "Projection API is readiness for reuse, not evidence that the factual calibration producer/artifact exists."
+      },
+      "connected_tasks": [
+        "S2"
+      ]
+    },
+    {
+      "id": "B200",
+      "current_G_state": "G collapses repeated origins and blocks precision-style formulas for unknown dependencies, but source-like strings and boolean/string independence markers can proxy for a source relationship. Gate remains false in the described output.",
+      "L01_fact_delta": "E row /rows/44 remains partial with owner decision pending and proposal limited. The actual source relationship, same-measurement versus independent-replicate identity, shared data/covariance and posterior lineage are absent.",
+      "existing_selectors_and_oracle": {
+        "selectors": [
+          "tests/unit/remediation/test_uqs_01.py::test_unbound_origins_do_not_enable_formula",
+          "tests/unit/remediation/test_uqs_01.py::test_unknown_dependency_does_not_narrow_or_remain_gate_eligible",
+          "tests/unit/foundry/uncertainty/test_sampling_admission.py::test_boolean_independence_cannot_promote_aggregation_or_ten_copies"
+        ],
+        "technical_oracle_only": "Four exact duplicate copies remain effective n=1 and SD=1. For paired joint law (g,g), difference variance is 0; independent marginals with variance 0.0025 each produce difference variance 0.005. These distinguish relation semantics; they do not establish a real relationship.",
+        "route": "Information-relationship producer -> content-bound CAS relationship artifact -> fresh aggregator read; compute effective information count and gate eligibility from verified relation.",
+        "source_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4#/recipes/3"
+      },
+      "negative_and_removal_controls": [
+        "Equal values, repeated origin strings, or independence=true/independent alone cannot establish independent information.",
+        "Four byte-identical copies remain one information unit; same-origin changed content is a conflict.",
+        "Remove source identity/content resolution while retaining origin, joint_sample_id, and independence markers; aggregation must remain non-authoritative and must not narrow uncertainty."
+      ],
+      "exact_missing_packet_and_owner": {
+        "owners": "Foundry/Scientist information-relationship producer with E aggregator and IR contract owner.",
+        "minimum_packet": "Content-bound source identities; same versus distinct measurement/replicate; shared data/covariance; prior/likelihood/posterior lineage; common estimand and unit.",
+        "state": "Existing aggregator is reusable; relationship producer/artifact/verification are missing."
+      },
+      "connected_tasks": [
+        "S2"
+      ]
+    }
+  ],
+  "connected_tasks_and_scope": {
+    "direct_authentic_input_task": "S2 supplies the configured evaluator/law/Jacobian/calibration/lineage inputs and fresh-consumer checks for these exact rows; it is not a blanket gate for unrelated mechanics.",
+    "row_routes": {
+      "LA-036": [
+        "S1",
+        "S2"
+      ],
+      "B157": [
+        "S2",
+        "V5"
+      ],
+      "B190": [
+        "S2"
+      ],
+      "B194": [
+        "S2"
+      ],
+      "B197": [
+        "S2"
+      ],
+      "B200": [
+        "S2"
+      ]
+    },
+    "task_boundaries": {
+      "T2": "Request a specific owner/admission/revalidation fact only where the row's protected positive requires it; not a universal all-of approval barrier.",
+      "V4": "Separate forecast/empirical adoption lane requiring compatible method, estimand, purpose, time and fresh CAS/source grade; predictive coverage is not causal calibration.",
+      "V7": "Separate paired prediction/observation lane with same estimand/design/time/purpose, measured counts, persisted evidence and fresh S10/default HTTP consumer; predictive-only evidence is not causal.",
+      "S2": "Needed for factual positives in the six rows, not for independent synthetic falsifiers or generic mechanism review."
+    },
+    "no_global_barrier": "L01 and L02 packets are now present in G as qualified metadata, so their prior absence from G is not a release gate. This does not accept product source or close findings. Continue independent source/code reviews and generic synthetic controls; do not require every T2/S2/V4/V7 lane, all production data, or B56 roster evidence before unrelated L02 work. Authentic row positives remain UNRUN at their individual named packet/bridge."
+  },
+  "bounded_evidence_and_nontransfer": {
+    "DDM": {
+      "recipe_ref": {
+        "commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-recipe.md",
+        "blob": "35dd0c9c4b21b438142f176c25bd5cfa8d9ec8a3",
+        "source_manifest_blob": "b159f751b857e8d86d82da2f0fecd0a5d8d8ad5c"
+      },
+      "observations": [
+        "Six maintained synthetic JUnit cases PASS.",
+        "Four matched property-removal cases FAIL when the reconciliation property is removed while markers remain.",
+        "Three fresh-process synthetic modes distinguish valid, tampered, and missing context."
+      ],
+      "qualification": "These outputs overlap and must not be summed. They prove bounded registry/rebind mechanics only, not live invalidation feed, currentness, deployment consumer or identity-bound R2 institutional signoff. L01 did not read, enumerate or hash production payloads."
+    },
+    "LA036_aliases": {
+      "junit_ref": "5c3afde4833e8ee0314fe6e003070a29b649ad5b:.../L01/parallel-20261008-l01/evidence/la036-junit.xml@c013c73d920b965856203463e1943bd41f678536",
+      "observation": "Two synthetic alias identity/shared-calculation cases PASS; they establish that conditional and kernel_shap IDs share the existing calculation, not a conditional law."
+    },
+    "S1_LA032": "The committed synthetic LA-032 discriminator shows siblings can accept mixed origins while the composite refuses; it is not an authoritative source inventory and is not LA-036 law evidence.",
+    "F_B56": "The pool-default diagnostic is a bounded configured-slot observation only. It does not prove actual Runtime shared workload/capacity; B56 remains its own owner-scoped request and is no global prerequisite for L02."
+  },
+  "separate_C09_interval_hold": {
+    "candidate_commit": "ee0b2c85289d8c5537ba4e01713d9be71e2f557e",
+    "candidate_tree": "072e8906ac69f5b3589550a8bd9d57b4cb41b4a3",
+    "status": "HOLD/unmerged; not an ancestor of G d23ea",
+    "current_reviewed_G_commit": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+    "G_review_refs_at_71ec_unchanged_in_d23": [
+      "integration/reviews/2026-10-08-parallel-intake-0932/README.md@42b14d2121a32b5e05c5f377551ded589deca73a",
+      "integration/reviews/2026-10-08-parallel-intake-0932/verdict.json@4913c6915432cf9be6698ee44c2d607793cc1896",
+      "integration/reviews/2026-10-08-parallel-intake-0932/reviews/C09-G-verdict-review.md@a27b9bbcf78cef04f3d80cc7529b839321170d60",
+      "integration/reviews/2026-10-08-parallel-intake-0932/checks/C09-consumer-probe.result.json@326dde37df71678175c781550c5e32092aa5abf9",
+      "integration/reviews/2026-10-08-parallel-intake-0932/checks/C09-affected.execution.json@a9ef2af689fb6bd3782deb39bae988737fa2fc8b"
+    ],
+    "observed_divergence": "The 77-case affected execution PASS is not closure. The actual BacktestOrchestrator/CAS consumer probe has 3 requested, 1 evaluated, conditional coverage 1.0, trust=false and degraded=true; the public temporal builder with a fixture-constructed carrier persist/fresh-load returns trust=true and degraded=false. The upstream temporal trajectory producer was not executed. The separate full leaderboard and S10 gate were not run.",
+    "relevance": "This is a distinct limited-interval temporal trust propagation leak, retained in C09's repair lease. Do not conflate this C09 with the LA-036 C09 conditional-law supplier role, and do not use it as an L02-wide or global freeze barrier.",
+    "current_G_review_refs_at_71ec_unchanged_in_d23": true
+  },
+  "B201_B202_existing_decision": {
+    "appointment_commit": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+    "tracked_E_decision": "7bf53fd0cf69a568b37d8a881e26bfb16c315653:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/decision.json@2f82a8036975efe358f9fc810fd5ee787609dc4b",
+    "status": "E accepted bounded mechanical choices for the original criterion on 3932. Formal G intake pending; no ledger change; no C/F consumer acceptance. No repeat semantic approval is needed.",
+    "choices": [
+      "Identification bounds remain distinct from statistical/model uncertainty, joined only by exact admitted estimand/unit/scale.",
+      "Name weighted mean separately from median point and equal-tail inverse-CDF interval; do not widen interval to include mean.",
+      "Reuse UncertaintyEnvelope wire v1.1 with strict versioned posterior-summary profile; do not add Envelope v2.",
+      "Use inline PosteriorSamplesCarrier plus existing envelope CAS ref, preserving ordered axes/parameters/shared draw IDs/weights/content binding and requiring fresh reader admission; unsupported multivariate Welfare keeps typed refusal."
+    ],
+    "boundary": "This scoped E owner decision is separate from B200's missing information-relationship artifact and does not accept G code or C/F consumers."
+  },
+  "final_readiness": {
+    "factual_readiness": "L01 is now present in G as qualified metadata, but no authentic owner-admitted positive is newly ready for these six rows. The intake adds no admitted external law, issuer, served evaluator, native draw denominator, calibration fit/noise, or relationship lineage. G explicitly accepts no source implementation and closes no findings here.",
+    "minimum_next_action": "For each desired authentic positive, obtain only that row's named owner packet listed above, content-bind it through the existing artifact/CAS boundary, then run the existing exact selector plus semantic mismatch/removal control on accepted G source and a fresh consumer. Do not fabricate missing profiles, bounds, law, noise, covariance, independence, model identity, or attempted counts. The new metadata availability removes packet-location absence as a gate; it does not remove the per-row factual boundary.",
+    "no_test_execution_by_this_helper": true,
+    "no_source_or_test_writes": true,
+    "no_private_production_reads_or_payload_disclosure": true,
+    "no_finding_disposition_or_G_acceptance_changed": true
+  },
+  "current_G_metadata_availability": {
+    "checkpoint": {
+      "commit": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+      "tree": "2239b2c97f840ab28ee4b921e964618548dd2c25"
+    },
+    "intake_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/README.md",
+      "blob": "d765c0282ffcb225fcf4b0dcc1913a5b62c294ec",
+      "bytes": 8210
+    },
+    "verdict": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1025/verdict.json",
+      "blob": "86827f011c2ac4a6b93c9bdbd6b7f8404c99d28e",
+      "bytes": 6879,
+      "input_G": "71ec2e0758cd7cd93423d3a91afe1a07cef61401",
+      "source_implementation_accepted": [],
+      "formal_closure_ids": [],
+      "main_authorized": false
+    },
+    "metadata_history": [
+      {
+        "unit": "L01",
+        "input_commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+        "merge_commit": "43f38e51a81bb8c27dc187332aab0664c0211a46",
+        "disposition": "qualified fact/input metadata only"
+      },
+      {
+        "unit": "L02",
+        "input_commit": "45c82745292baeeb5414b7367dde931872ee0417",
+        "merge_commit": "65c6afc8b345369966d7c2ab33bf7727f8d7ae69",
+        "disposition": "qualified Mac missing-context refusal evidence only"
+      }
+    ],
+    "L01_verdict_facts": {
+      "full_diff_paths": 43,
+      "criterion_records": 41,
+      "original_occurrences": 42,
+      "production_payload_reads": false,
+      "external_authority": "not_established where packet lists unavailable inputs"
+    },
+    "L02_verdict_facts": {
+      "full_diff_paths": 49,
+      "payloads_verified": 48,
+      "seven_case_Mac_result": "PASS",
+      "native_DoWhy_installed_or_authentic_positive": "UNRUN",
+      "fake_point_control": "returned-report property discriminator, not source/backend-resolution removal"
+    },
+    "release_effect": "L01 and L02 are available to readers in G; absent-from-G is no longer the boundary. Source composition, authentic owner inputs, and formal closure remain separate."
+  },
+  "adjacent_G_lane_statuses": {
+    "C07": {
+      "candidate": "741af2a08a8dc5fa36340bf700c092c7fb51f651",
+      "state": "bounded_library_GO_source_acceptance_pending_G_composition",
+      "exact_run": "62 PASS, 832 loaded modules, zero source byte mismatches",
+      "remaining": "canonical schema/public-family composition; C06 selected/automatic manifest views; C10 actual complete/current basis and fresh ValuePort",
+      "non_transfer": "Does not supply L02 source relationship or producer authority."
+    },
+    "C08": {
+      "candidate": "2dd8339c210caf973586f7ddec69b6b0a48f1df7",
+      "state": "bounded_algorithm_GO_source_acceptance_pending_graph_bound_readback",
+      "exact_run": "18 PASS, 782 loaded modules, zero source byte mismatches",
+      "remaining": "resolve/content-compare exact original graph in fresh common/conditional proof readers; protected consumer composition remains incomplete",
+      "non_transfer": "Valid IDENTIFIED/ranking is mathematical output, not protected authority, nor L02 conditional feature-law evidence."
+    },
+    "C09mean": {
+      "candidate": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+      "tree": "7a4ee9e71c793827abef998540dcd12ab129c4ba",
+      "state": "HOLD",
+      "witness": "constructed typed PosteriorSamplesCarrier bootstrap fixture with weights [0.9, 0.1], 100 requested/attempted/finite outputs, persisted envelope and fresh CAS readback",
+      "property_failure": "implementation labels sampling_law=implemented_product_of_typed_normal_fits; expected property assertion FAIL; SEM unavailable, value null, gate_eligible=false, source_law_authority=not_established",
+      "non_transfer": "This is a product metadata mismatch and not an authentic empirical law or precision-authority escape. It does not satisfy B194 served evaluator/source-law inputs."
+    },
+    "C09_interval": {
+      "candidate": "ee0b2c85289d8c5537ba4e01713d9be71e2f557e",
+      "state": "HOLD/unmerged; distinct limited-interval temporal trust propagation issue",
+      "non_transfer": "Keep the limited interval and C09mean lanes distinct; neither is the LA-036 C09 conditional-law supplier task, and neither is a global L02 barrier."
+    }
+  }
+}

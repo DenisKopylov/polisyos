@@ -1,0 +1,197 @@
+{
+  "schema": "policyos.e02.l02.final_source_qualified_closeout.v1",
+  "role": "L02",
+  "write_mode": "read_only_verification",
+  "branch": "codex/e02-L02-authentic-20261008",
+  "slice_base_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "slice_base_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "implementation_role": "Own receipt documentation only; no production/test source authored.",
+  "implementation_commits": [
+    "45c82745292baeeb5414b7367dde931872ee0417",
+    "ca78ef245e592f8adfbeb273f7a404c8e84a6ae8",
+    "3d5cd1b5390ebb7c0dad7664a1468a75bee0585b",
+    "90fa69a55b47459644e4aaca9c6bcf360b0d8dd9"
+  ],
+  "frozen_document_candidate": "90fa69a55b47459644e4aaca9c6bcf360b0d8dd9",
+  "frozen_document_tree": "ebb259fa566630a8f8e3ddf5d7c7ec43b7af2686",
+  "checked_runtime_source": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "checked_runtime_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "source_acceptance": "Only existing scoped G acceptance, including unchanged F852, is reused. Gd23 accepts L01/L02 as qualified evidence only and no new code/finding closure.",
+  "latest_fetched_G": {
+    "sha": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+    "tree": "2239b2c97f840ab28ee4b921e964618548dd2c25"
+  },
+  "criterion_binding": "Original61 occurrences/58 selected findings from complete282 rows with68 memberships, Q2=21; original wording/owner hashes and per-property prepared consumer/oracle/negative pointers in manifest@45 and separate A\u2013F source-qualified leaves@ca78. No C54 reaccounting.",
+  "source_test_config_lock_generated_changed_paths": [],
+  "property_measured": "Seven Darwinarm64 AppPy3.14 source-path refusals; missing context has no backend witness/point; unsupported requests have no point/confidence.",
+  "deciding_output": "mac-refusal/ command/environment/time/RSS/stdout.gz/stderr/JUnit @45c827; markers-kept point7 returned-report injection REJECTED_EXPECTED, genuine refusal restored; not actual source/backend-resolution removal.",
+  "authentic_consumer_boundary": "Targeted authentic POST\u2192owned context\u2192producer\u2192CAS/history\u2192fresh GET/selected progress/Legal/evaluator positives UNRUN. Each exact minimal tuple/bridge and original owner is recorded per task/unit; absent packet location is no gate because L015c is present in Gd23.",
+  "installed_Mac_boundary": "Real selected native DoWhy point-only/interval/parentCAS/fresh-reader and exact non-editable artifact-installed positives remain UNRUN; source-origin imports/old wheels not substitutes.",
+  "independent_reviews": "Mac source-refusal boundedGO; ca78 payload/58row binding boundedGO;3d5 same-class availability overclaim corrected in90fa;90fa eight-path docs-only correction boundedGO, all28 payloads and six original-unit bindings independently reconciled. Prior blocking reviewer bytes are preserved; final directory correction review is the deciding current verdict.",
+  "P37": "Git/doc identities recomputed; refusal context recomputed for this invocation; exact authentic profile/law/evaluator/issuer facts not_established; fixtures remain bounded.",
+  "P38": "Status/capability markers can coexist with fabricated point; point7 discriminator fails. Directory presence is distinct from payload/profile admission; current wording is limited to observed location.",
+  "P40": "Second availability-overclaim finding corrected across shared statement/all six leaf bindings; no invented factual tuple or production mechanism. Remaining actual input boundary is declared and source-owned.",
+  "P41": "No inherited product-red attribution. Copied stderr whitespace and ignored Finder metadata were own receipt-harness issues, fully retained and corrected without source/test changes.",
+  "unit_handoffs": [
+    {
+      "unit": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/parallel-20261008-l02-late-input-qualification.json",
+      "commit": "90fa69a55b47459644e4aaca9c6bcf360b0d8dd9",
+      "bytes": 3793,
+      "sha256": "435225e99e57bd4455dd85849a488c39c1679558ebd3d100168f09afb72b6751"
+    },
+    {
+      "unit": "B",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/parallel-20261008-l02-late-input-qualification.json",
+      "commit": "90fa69a55b47459644e4aaca9c6bcf360b0d8dd9",
+      "bytes": 3453,
+      "sha256": "391afbae39545a6a171012219f3472d40cd27c75e17d291be28bdeecf8443372"
+    },
+    {
+      "unit": "C",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/parallel-20261008-l02-late-input-qualification.json",
+      "commit": "90fa69a55b47459644e4aaca9c6bcf360b0d8dd9",
+      "bytes": 4110,
+      "sha256": "76e27a4558242e65196cc8487b5e1d171bcd1b24101f3bead8f09bba50c8e54e"
+    },
+    {
+      "unit": "D",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/parallel-20261008-l02-late-input-qualification.json",
+      "commit": "90fa69a55b47459644e4aaca9c6bcf360b0d8dd9",
+      "bytes": 3507,
+      "sha256": "af43f21fd74fbb931cb6ee84ed325f54f789a3147e00ca594ecfe273d602b1e3"
+    },
+    {
+      "unit": "E",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-l02-late-input-qualification.json",
+      "commit": "90fa69a55b47459644e4aaca9c6bcf360b0d8dd9",
+      "bytes": 3793,
+      "sha256": "9304b9db6949041959ddd6a293c55174be31af2050ac122b8ab56df460a6cb92"
+    },
+    {
+      "unit": "F",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-l02-late-input-qualification.json",
+      "commit": "90fa69a55b47459644e4aaca9c6bcf360b0d8dd9",
+      "bytes": 3586,
+      "sha256": "7f7ba034637570fc8f32c450d9b2446838eecf70d0d972aad7b68c3e1c240c43"
+    }
+  ],
+  "supporting_receipt_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/final-publication/closing-attempt-03.commands.json",
+      "bytes": 7505,
+      "sha256": "0acbd040e75d51d98248d611c4ce75a18555bfefc49f0029173b198d7568ad10"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/final-publication/closing03-branch-readback.json",
+      "bytes": 654,
+      "sha256": "a4980f54ef17665a1e197399f2def858c7e12db52421cb11f1e1136068226363"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/final-publication/closing03-commit.stderr.gz",
+      "bytes": 205,
+      "sha256": "16de8fe5e82b99c7793b78cee5f13dc59f37ed97fc698185bfdae40813ebfeb0",
+      "compression": "gzip",
+      "uncompressed_bytes": 653,
+      "uncompressed_sha256": "03e96c5a7329079a36d327d091e57563970a4b0206c2c5e1896f87a6f812c6f6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/final-publication/closing03-commit.stdout.gz",
+      "bytes": 522,
+      "sha256": "3e833cf1c106ab753e066b1e9ca0db49e653f2c681b4f3cdacdd995feda9eee6",
+      "compression": "gzip",
+      "uncompressed_bytes": 4541,
+      "uncompressed_sha256": "ba2abf963f1256f23a8a7d6fca1b8ccc3214dc6771a46cb6383f4019a38920e9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/final-publication/closing03-publication.commands.json",
+      "bytes": 2481,
+      "sha256": "a346830405c5486c8f92481a83c58c15c6e0dd645103de043bfe4692e8eeabc6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/final-publication/closing03-push.stderr.gz",
+      "bytes": 131,
+      "sha256": "a30200b3fec6008494e315475aea599e5e9b6bbcfd4a26a201d98e727fa7c717",
+      "compression": "gzip",
+      "uncompressed_bytes": 114,
+      "uncompressed_sha256": "eabaec3a217817d63527e644ebb401dc12b947e8532efa9868109f800dc3ce41"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/final-publication/closing03-push.stdout.gz",
+      "bytes": 158,
+      "sha256": "fc6d01e81c2e54a97bb36456f520725380331db657cb5f0ac0a632af29f18f80",
+      "compression": "gzip",
+      "uncompressed_bytes": 486,
+      "uncompressed_sha256": "afb31dc11a3e7d56a7e91d7e36ba07fbdb0b38b464fdfd1785b7100b40a73788"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/final-publication/closing03-remote-readback.json",
+      "bytes": 440,
+      "sha256": "2491d21603623c6f454ce726d87a9d5ef2909953ac6dc42fef346aa7ef26394a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/final-publication/directory-commit.stderr.gz",
+      "bytes": 206,
+      "sha256": "a07e6a517626cfbe5055bfe465adc08828ccd0d3a844a42210962bda3eeb1a9a",
+      "compression": "gzip",
+      "uncompressed_bytes": 653,
+      "uncompressed_sha256": "4b07c9ded5c6b363cf13e82c56dfe4a13f3c909ea34c83f21a6ddd5045510295"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/final-publication/directory-commit.stdout.gz",
+      "bytes": 152,
+      "sha256": "2149e008fe9c264f89f206c89cd6690bd09c95c03cc060407e51fad42393e14b",
+      "compression": "gzip",
+      "uncompressed_bytes": 161,
+      "uncompressed_sha256": "82557f10bfc0b625c556567ac535c74ed7ae1fae1f6cf3cce5ff6bc5a67fae1d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/final-publication/directory-publication.commands.json",
+      "bytes": 2482,
+      "sha256": "8571c30c5760a9e6e408a91e0c94e20a8f314bf8a751ed866f15e3c2f63e825a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/final-publication/directory-push.stderr.gz",
+      "bytes": 130,
+      "sha256": "df1d70414dafea7ae12bcdf4e47bee509ab8c77a1f602355087818e500c0cdcc",
+      "compression": "gzip",
+      "uncompressed_bytes": 114,
+      "uncompressed_sha256": "30c86c14f6624100ec08d2fbb35f3358ec971e3616c4b8464bcc0cff31641385"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/final-publication/directory-push.stdout.gz",
+      "bytes": 158,
+      "sha256": "d394da899afbe88c7aa54b85fa02fbb1a7d678915c0cec0f5a0f015240b4e89d",
+      "compression": "gzip",
+      "uncompressed_bytes": 486,
+      "uncompressed_sha256": "a03d05b82a4dc1c976a166cbb3f79166570563bcdec2d4453f1e695751274f09"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/final-publication/directory-qualification.commands.json",
+      "bytes": 4495,
+      "sha256": "77aa3407c971c41d958e83b5efdad59c98f0b7eb419544dcc2ddc5377be1ead3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/final-publication/directory-remote-readback.json",
+      "bytes": 440,
+      "sha256": "1f0ddc847c42231b8da436cc5ae6f7fdb4b3b5e2c810d2e49a6c59c874c66831"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/directory-correction-independent-review.json",
+      "bytes": 3328,
+      "sha256": "422458c5b47b7d91c10a36744dcd7efe56676c69fa9e97c936cd1d9f8d142baa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_final_correction_review.json",
+      "bytes": 7070,
+      "sha256": "ec3c106f1b7cae5421938ae96cbf6f8afebd6a770da007c4be459aeb5bd0445a"
+    }
+  ],
+  "formal_G_closure": "not_adjudicated",
+  "closure_ids": [],
+  "data_boundary": "Prior minimal local read-only criterion authorization remains. L01 observes opaque directory only; bytes/content/profile/admission not_established by that packet. Earlier user-confirmed DB availability is separate history. No raw secrets/rows/text/vectors/weights read/export in this L02 slice.",
+  "cleanup": "Six inactive own Node dependency dirs and lossless-format copied transport text moved only via native Trash with inode/bytes readback; original ignored audits/production/source/docs/unique inputs retained. Genuine locked hook tool retained for normal final publication; Trash not emptied.",
+  "publication": "Own topic only, append-only, normalhooks,90fa remote SHA/tree/bytes verified. Final handoff commit remote readback follows ordinary push; no main/integration writes or other-chat messages.",
+  "next_owner": "Use task-specific smallest existing supplier/consumer options in six leaves and prepared reports; C05 exact existing inventory producer proposal/Glease for LA032; C13/G later broad frozen replay; no universal production-corpus/all-of/source-freeze barrier.",
+  "created_at_utc": "2026-10-08T11:14:32.861948+00:00"
+}

@@ -1,0 +1,33 @@
+{
+  "schema": "policyos.e02.l02.lossless_transport_output.v1",
+  "cause": "Full copied GitHub push stderr has trailing whitespace; no product/test failure. First staged-diff command exited2 before commit. All copied closeout stderr outputs losslessly encoded consistently.",
+  "records": [
+    {
+      "original_copied_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/first-push.stderr",
+      "gzip_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/first-push.stderr.gz",
+      "uncompressed_bytes": 372,
+      "uncompressed_sha256": "652f1924455dbd5b2ff5a827c2879cfb07969efd7cd0372abc9d6af80f99fa39",
+      "native_trash_path": "/Users/deniskopylov/.Trash/first-push.stderr",
+      "same_device_inode": true,
+      "original_ignored_audit_preserved": true,
+      "osascript_exit": 0,
+      "stdout": "document file first-push.stderr of item .Trash of folder deniskopylov of folder Users of startup disk\n",
+      "stderr": ""
+    },
+    {
+      "original_copied_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/leaf-push.stderr",
+      "gzip_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/leaf-push.stderr.gz",
+      "uncompressed_bytes": 150,
+      "uncompressed_sha256": "74f926d214639b47f5867fd2e71f17fe5643547e9cca17fef0c7482998783fdb",
+      "native_trash_path": "/Users/deniskopylov/.Trash/leaf-push.stderr",
+      "same_device_inode": true,
+      "original_ignored_audit_preserved": true,
+      "osascript_exit": 0,
+      "stdout": "document file leaf-push.stderr of item .Trash of folder deniskopylov of folder Users of startup disk\n",
+      "stderr": ""
+    }
+  ],
+  "trash_emptied": false,
+  "permanent_delete": false,
+  "created_at_utc": "2026-10-08T11:06:24.452281+00:00"
+}

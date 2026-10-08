@@ -1,0 +1,53 @@
+{
+  "schema": "policyos.e02.l02.late_input_unit_qualification.v1",
+  "original_unit": "A",
+  "execution_role": "L02",
+  "mode": "read_only_verification",
+  "branch": "codex/e02-L02-authentic-20261008",
+  "slice_base_sha": "ca78ef245e592f8adfbeb273f7a404c8e84a6ae8",
+  "slice_base_tree": "85a08af3359ed11302d2a355e514793ecb136989",
+  "checked_source_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "checked_source_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "latest_G_sha": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+  "latest_G_tree": "2239b2c97f840ab28ee4b921e964618548dd2c25",
+  "prior_source_qualified_leaf": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/parallel-20261008-l02-authentic-source-qualified.json",
+    "commit": "ca78ef245e592f8adfbeb273f7a404c8e84a6ae8",
+    "bytes": 38157,
+    "sha256": "71e6e17a9fdbbb2ff5527572442e627bdb3699e1a313a42e678d73ab02b4b915",
+    "criterion_rows_and_exact_source_consumer_receipts": "Original row wording/refs, oracle/removal/consumer decisions are retained in this immutable leaf and its prepared refs."
+  },
+  "published_L01_unit_packet": {
+    "unit": "A",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/A.json",
+    "L01_commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+    "G_commit": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+    "git_blob": "b5f9840ecaad86ff502628843490f91af01c567c",
+    "bytes": 38339,
+    "sha256": "09be5b5b98e9daeb61f0704e7f50f247f1e17db924c535ee8a0ec4a564597b38",
+    "identical_in_fetched_G": true
+  },
+  "task_parts": [
+    "I4",
+    "Q2",
+    "T2",
+    "V1",
+    "V3",
+    "V4",
+    "V7"
+  ],
+  "availability_update": "L01 factual packet is published and byte-identical in latest fetched G, accepted as qualified metadata only. Matching authentic task-bound inputs are not established; document presence or absence is not the consumer-release predicate.",
+  "minimum_remaining_input_and_consumer": [
+    "V1/V6: custodian-bound matching L6/catalog or acquisition/profile pair and source/context/tenant/run tuple; owned-context POST\u2192N5\u2192CAS\u2192fresh GET remains UNRUN.",
+    "V3: substantive content before/after and identity/time-only control, source-owned action and dependent WMR effect; row-count/hash is not relevance.",
+    "V4/V7: compatible model/estimand/purpose/time profile and actual predictions/held-out observations with paired outcome discriminator.",
+    "T2: exact protected-action source owner fact, issuer/verifier, currentness and effect consumer per original row."
+  ],
+  "exact_next_owner": "Canonical partner/consumer named by each original row in prior leaf and prepared task receipt; L01 identifies factual owner/supplier boundaries, G admits only the affected composition/slot. No blanket all-of input or external-census prerequisite.",
+  "checks": "Delta-only Git/doc/packet byte reconciliation. No fresh runtime tests or production payload reads; source/test/config/lock unchanged from checked source. Existing Mac deciding output remains valid within its refusal scope.",
+  "authority_basis": "Document identity recomputed; required actual profile/law/evaluator/issuer tuples not_established; bounded fixture observations remain fixture-bound.",
+  "data_and_permission_boundary": "Existing criterion-specific minimal local read-only authorization stands; withheld digest is disclosure status, not a reading ban. L01 observes an opaque directory location only; task-specific payload bytes/content/profile/admission remain not_established. No global production-data absence is inferred and no secrets/payload exported.",
+  "formal_G_closure": "not_adjudicated",
+  "closure_ids": [],
+  "created_at_utc": "2026-10-08T11:03:58.843813+00:00"
+}

@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "git",
+    "ls-remote",
+    "origin",
+    "refs/heads/codex/e02-L02-authentic-20261008"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+  "exit_code": 0,
+  "stdout": "ca78ef245e592f8adfbeb273f7a404c8e84a6ae8\trefs/heads/codex/e02-L02-authentic-20261008\n",
+  "stderr": ""
+}

@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "git",
+    "push",
+    "origin",
+    "ca78ef245e592f8adfbeb273f7a404c8e84a6ae8:refs/heads/codex/e02-L02-authentic-20261008"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+  "exit_code": 0,
+  "wall_seconds": 2.3178641670383513,
+  "hook_mode": "Normal required hooks"
+}

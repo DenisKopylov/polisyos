@@ -1,0 +1,40 @@
+[
+  {
+    "argv": [
+      "git",
+      "fetch",
+      "origin",
+      "main",
+      "codex/e02-integration"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "From https://github.com/DenisKopylov/polisyos\n * branch                main       -> FETCH_HEAD\n * branch                codex/e02-integration -> FETCH_HEAD\n"
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "origin/main",
+      "origin/codex/e02-integration",
+      "origin/codex/e02-integration^{tree}"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "stdout": "198076863e143dea9f89f02734b13d50dae3eed5\n71ec2e0758cd7cd93423d3a91afe1a07cef61401\ncede297dae4ab3a5a8b46dfeaaeb606ce6e8217e\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "ls-remote",
+      "origin",
+      "refs/heads/codex/e02-L01-custody-20261008"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+    "exit_code": 0,
+    "stdout": "5c3afde4833e8ee0314fe6e003070a29b649ad5b\trefs/heads/codex/e02-L01-custody-20261008\n",
+    "stderr": ""
+  }
+]

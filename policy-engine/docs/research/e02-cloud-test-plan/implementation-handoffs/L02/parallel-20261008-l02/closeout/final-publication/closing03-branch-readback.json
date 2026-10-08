@@ -1,0 +1,26 @@
+{
+  "schema": "policyos.e02.l02.closing_branch_readback.v1",
+  "commit": "3d5cd1b5390ebb7c0dad7664a1468a75bee0585b",
+  "tree": "ea5648a6e3b9bd4d94ad31f39caae670214f4cc9",
+  "checked_payloads": 28,
+  "closing_delta_paths": 29,
+  "closing_file_types": {
+    "json": 24,
+    "md": 1,
+    "gz": 4
+  },
+  "complete_L02_receipt_delta_paths": 85,
+  "complete_L02_file_types": {
+    "json": 59,
+    "md": 1,
+    "stderr": 9,
+    "stdout": 9,
+    "gz": 5,
+    "xml": 1,
+    "txt": 1
+  },
+  "source_test_config_lock_generated_changes": 0,
+  "historical_review_bytes_preserved": true,
+  "G_status": "not_adjudicated",
+  "time": "2026-10-08T11:08:12.068018+00:00"
+}

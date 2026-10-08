@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "git",
+    "push",
+    "origin",
+    "45c82745292baeeb5414b7367dde931872ee0417:refs/heads/codex/e02-L02-authentic-20261008"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+  "exit_code": 0,
+  "wall_seconds": 3.2151236669742502,
+  "max_children_rss_bytes_macos": 37519360,
+  "timeout_seconds": 180,
+  "hook_mode": "Normal required Git pre-push; no core.hooksPath override, no LEFTHOOK skip"
+}

@@ -14,8 +14,15 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.common import serialization
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.kernel.units import RateUnit, UnitSpecType
 from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
-from polisyos.ir.registry.refs import ArtifactRefModel, UncertaintyEnvelopeRef
+from polisyos.ir.registry.refs import (
+    ArtifactRefModel,
+    EstimandASTRef,
+    UncertaintyEnvelopeRef,
+    ValueArtifactSubjectRef,
+    ValueSubjectRelationRef,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
@@ -2142,6 +2149,296 @@ def load_uncertainty_envelope(
     return UncertaintyEnvelope.model_validate(payload)
 
 
+class ValueArtifactSubject(BaseModel):
+    """Producer-owned quantity identity for separate value uncertainty channels.
+
+    This subject is a declared input to actual producers, not a certificate of
+    identification or source rights. Only identity-scale quantities and exact
+    ratio/percent conversion are supported by the relation below.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    estimand_ref: EstimandASTRef
+    estimand_id: str = Field(min_length=1)
+    outcome: str = Field(min_length=1)
+    control_value: float
+    treatment_value: float
+    population: str = Field(min_length=1)
+    unit: UnitSpecType
+    scale: Literal["identity"] = "identity"
+    time_horizon: str = Field(min_length=1)
+    prediction_origin: str | None = None
+    epoch: str = Field(min_length=1)
+    source_refs: tuple[ArtifactRefModel, ...] = Field(min_length=1)
+    model_ref: ArtifactRefModel | None = None
+
+    @model_validator(mode="after")
+    def _validate_subject(self) -> ValueArtifactSubject:
+        if not all(math.isfinite(x) for x in (self.control_value, self.treatment_value)):
+            raise ValueError("value_subject_nonfinite_contrast")
+        ids = [str(ref.artifact_id) for ref in self.source_refs]
+        if len(set(ids)) != len(ids):
+            raise ValueError("value_subject_duplicate_source")
+        return self
+
+
+class ValueSubjectArtifactIdentity(BaseModel):
+    """Recomputed bytes and manifest identity of one resolved input."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    ref: ArtifactRefModel
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    manifest_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class ValueSubjectRelation(BaseModel):
+    """Persist separate exact value artifacts joined on their resolved subjects.
+
+    Reader recomputation, rather than this constructible record, establishes
+    content consistency. Scientific/Runtime admission stays with its existing
+    owner; this relation never promotes either channel to authority.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    authority_scope: Literal["resolved_content_join_only"] = "resolved_content_join_only"
+    production_value_eligible: Literal[False] = False
+    identification: ValueSubjectArtifactIdentity
+    native_uncertainty: ValueSubjectArtifactIdentity
+    identification_subject: ValueSubjectArtifactIdentity
+    native_subject: ValueSubjectArtifactIdentity
+    resolved_subject: ValueArtifactSubject
+    native_to_identification_factor: Literal[0.01, 1.0, 100.0]
+    verifier_provenance: Literal["cas_bytes_manifest_lineage_recomputed.v1"] = (
+        "cas_bytes_manifest_lineage_recomputed.v1"
+    )
+    predicate_basis: Literal["recomputed"] = "recomputed"
+
+
+def _value_subject_identity(
+    store: ArtifactStore,
+    ref: ArtifactRefModel,
+) -> tuple[ValueSubjectArtifactIdentity, dict[str, Any]]:
+    """Resolve and hash actual content/manifest, without trusting supplied labels."""
+    if getattr(ref, "manifest_profile_sha256", None) is not None:
+        raise ValueError("value_subject_selected_manifest_view_unsupported")
+    raw = store.get_bytes(str(ref.artifact_id))
+    observed_hash = content_hash(raw, prefix=True)
+    if observed_hash != str(ref.artifact_id):
+        raise ValueError("value_subject_artifact_content_mismatch")
+    manifest = store.get_manifest(str(ref.artifact_id))
+    payload = manifest.model_dump(mode="json") if isinstance(manifest, BaseModel) else manifest
+    if not isinstance(payload, dict) or (
+        str(payload.get("artifact_id")) != str(ref.artifact_id)
+        or payload.get("kind") != ref.kind
+        or payload.get("media_type") != ref.media_type
+    ):
+        raise ValueError("value_subject_artifact_manifest_mismatch")
+    return ValueSubjectArtifactIdentity(
+        ref=ArtifactRefModel.model_validate(ref.model_dump(mode="python")),
+        content_hash=observed_hash,
+        manifest_content_hash=content_hash(
+            to_canonical_bytes(payload, CanonSpec(forbid_floats=False)),
+            prefix=True,
+        ),
+    ), payload
+
+
+def _value_subject_for_artifact(
+    store: ArtifactStore,
+    ref: ArtifactRefModel,
+) -> tuple[ValueSubjectArtifactIdentity, ValueSubjectArtifactIdentity, ValueArtifactSubject]:
+    artifact_identity, manifest = _value_subject_identity(store, ref)
+    inputs = manifest.get("inputs") or []
+    if not isinstance(inputs, list):
+        raise ValueError("value_subject_lineage_malformed")
+    if any(
+        isinstance(item, dict) and item.get("manifest_profile_sha256") is not None
+        for item in inputs
+    ):
+        raise ValueError("value_subject_selected_manifest_view_unsupported")
+    subjects = [
+        item for item in inputs if isinstance(item, dict) and item.get("role") == "value_subject"
+    ]
+    if len(subjects) != 1:
+        raise ValueError("value_subject_lineage_missing_or_duplicate")
+    subject_ref = ValueArtifactSubjectRef(artifact_id=subjects[0]["artifact_id"])
+    subject_identity, _ = _value_subject_identity(store, subject_ref)
+    subject = ValueArtifactSubject.model_validate(get_json_artifact(store, subject_ref.artifact_id))
+    expected = [
+        ("value_subject", str(subject_ref.artifact_id)),
+        ("value_estimand", str(subject.estimand_ref.artifact_id)),
+        *(("value_source", str(item.artifact_id)) for item in subject.source_refs),
+    ]
+    if subject.model_ref is not None:
+        expected.append(("value_model", str(subject.model_ref.artifact_id)))
+    actual = [
+        (item.get("role"), str(item.get("artifact_id")))
+        for item in inputs
+        if isinstance(item, dict)
+    ]
+    if len(actual) != len(inputs) or sorted(actual) != sorted(expected):
+        raise ValueError("value_subject_complete_lineage_mismatch")
+    from polisyos.ir.analytics.estimand import load_estimand_ast
+
+    _value_subject_identity(store, subject.estimand_ref)
+    estimand = load_estimand_ast(store, subject.estimand_ref)
+    if estimand.outcome != subject.outcome or estimand.object_kind != "scalar":
+        raise ValueError("value_subject_estimand_mismatch")
+    for dependency in (*subject.source_refs, *((subject.model_ref,) if subject.model_ref else ())):
+        _value_subject_identity(store, dependency)
+    return artifact_identity, subject_identity, subject
+
+
+def _value_subject_unit_factor(
+    native: ValueArtifactSubject, identified: ValueArtifactSubject
+) -> float:
+    """Compare the complete quantity identity, allowing only typed rate scaling."""
+    if native.model_dump(exclude={"unit"}) != identified.model_dump(exclude={"unit"}):
+        raise ValueError("value_subject_quantity_mismatch")
+    if native.unit == identified.unit:
+        return 1.0
+    if isinstance(native.unit, RateUnit) and isinstance(identified.unit, RateUnit):
+        return 100.0 if native.unit.base == "ratio" else 0.01
+    raise ValueError("value_subject_unit_mismatch")
+
+
+def resolve_value_subject_relation(
+    store: ArtifactStore,
+    *,
+    identification_ref: ArtifactRefModel,
+    native_uncertainty_ref: UncertaintyEnvelopeRef,
+) -> ValueSubjectRelation:
+    """Recompute a complete producer-lineage join of separate persisted channels."""
+    identified, identified_subject, subject = _value_subject_for_artifact(store, identification_ref)
+    native, native_subject, native_quantity = _value_subject_for_artifact(
+        store, native_uncertainty_ref
+    )
+    # The native owner validates its own interval; this boundary does not invent
+    # a width or project a point-identification set into statistical precision.
+    load_uncertainty_envelope(store, native_uncertainty_ref)
+    factor = _value_subject_unit_factor(native_quantity, subject)
+    return ValueSubjectRelation(
+        identification=identified,
+        native_uncertainty=native,
+        identification_subject=identified_subject,
+        native_subject=native_subject,
+        resolved_subject=subject,
+        native_to_identification_factor=factor,
+    )
+
+
+def persist_value_artifact_subject(
+    store: ArtifactStore,
+    subject: ValueArtifactSubject,
+) -> ValueArtifactSubjectRef:
+    """Persist the quantity input before its actual producing artifacts execute."""
+    subject = ValueArtifactSubject.model_validate(
+        subject.model_dump(mode="python", round_trip=True)
+    )
+    ref = put_json_artifact(
+        store,
+        subject.model_dump(mode="python", round_trip=True),
+        kind="ir.value_artifact_subject",
+        schema_name="ir.value_artifact_subject",
+        schema_version="1.0",
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return ValueArtifactSubjectRef.model_validate(ref)
+
+
+def value_subject_producer_inputs(
+    subject: ValueArtifactSubject,
+    subject_ref: ValueArtifactSubjectRef,
+) -> list[InputRef]:
+    """Return the exact input roster the producer must stamp in its CAS manifest."""
+    inputs = [
+        InputRef(artifact_id=subject_ref.artifact_id, role="value_subject"),
+        InputRef(artifact_id=subject.estimand_ref.artifact_id, role="value_estimand"),
+    ]
+    inputs.extend(
+        InputRef(artifact_id=ref.artifact_id, role="value_source") for ref in subject.source_refs
+    )
+    if subject.model_ref is not None:
+        inputs.append(InputRef(artifact_id=subject.model_ref.artifact_id, role="value_model"))
+    return inputs
+
+
+def persist_value_subject_relation(
+    store: ArtifactStore,
+    *,
+    identification_ref: ArtifactRefModel,
+    native_uncertainty_ref: UncertaintyEnvelopeRef,
+) -> ValueSubjectRelationRef:
+    """Persist a recomputed relation; constructible marker payloads are not admitted."""
+    relation = resolve_value_subject_relation(
+        store,
+        identification_ref=identification_ref,
+        native_uncertainty_ref=native_uncertainty_ref,
+    )
+    inputs = [
+        InputRef(artifact_id=identity.ref.artifact_id, role=role)
+        for role, identity in (
+            ("identification", relation.identification),
+            ("native_uncertainty", relation.native_uncertainty),
+            ("identification_subject", relation.identification_subject),
+            ("native_subject", relation.native_subject),
+        )
+    ]
+    ref = put_json_artifact(
+        store,
+        relation.model_dump(mode="python", round_trip=True),
+        kind="ir.value_subject_relation",
+        schema_name="ir.value_subject_relation",
+        schema_version="1.0",
+        inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return ValueSubjectRelationRef.model_validate(ref)
+
+
+def load_value_subject_relation(
+    store: ArtifactStore,
+    ref: ValueSubjectRelationRef,
+) -> ValueSubjectRelation:
+    """Resolve both exact artifacts and revalidate the persisted complete join."""
+    _, manifest = _value_subject_identity(store, ref)
+    relation = ValueSubjectRelation.model_validate(get_json_artifact(store, ref.artifact_id))
+    expected_inputs = [
+        (role, str(identity.ref.artifact_id))
+        for role, identity in (
+            ("identification", relation.identification),
+            ("native_uncertainty", relation.native_uncertainty),
+            ("identification_subject", relation.identification_subject),
+            ("native_subject", relation.native_subject),
+        )
+    ]
+    actual_inputs = manifest.get("inputs") or []
+    if (
+        not isinstance(actual_inputs, list)
+        or any(
+            not isinstance(item, dict) or item.get("manifest_profile_sha256") is not None
+            for item in actual_inputs
+        )
+        or sorted((item.get("role"), str(item.get("artifact_id"))) for item in actual_inputs)
+        != sorted(expected_inputs)
+    ):
+        raise ValueError("value_subject_relation_lineage_mismatch")
+    recomputed = resolve_value_subject_relation(
+        store,
+        identification_ref=relation.identification.ref,
+        native_uncertainty_ref=UncertaintyEnvelopeRef.model_validate(
+            relation.native_uncertainty.ref.model_dump(mode="python")
+        ),
+    )
+    if relation != recomputed:
+        raise ValueError("value_subject_relation_stale_or_forged")
+    return recomputed
+
 __all__ = [
     "CertificateKind",
     "ComposedFlavour",
@@ -2177,6 +2474,9 @@ __all__ = [
     "UncertaintyEnvelope",
     "UncertaintySource",
     "UncertaintyType",
+    "ValueArtifactSubject",
+    "ValueSubjectArtifactIdentity",
+    "ValueSubjectRelation",
     "ValueUncertaintyProjectionKind",
     "build_composition_provenance",
     "combine_envelopes",
@@ -2184,9 +2484,14 @@ __all__ = [
     "envelope_meets_trust_policy",
     "join_envelopes",
     "load_uncertainty_envelope",
+    "load_value_subject_relation",
     "persist_uncertainty_envelope",
+    "persist_value_artifact_subject",
+    "persist_value_subject_relation",
     "pull_back_envelope",
     "push_forward_envelope",
+    "resolve_value_subject_relation",
     "supports_value_uncertainty_projection_contract",
+    "value_subject_producer_inputs",
     "value_uncertainty_output_contract",
 ]

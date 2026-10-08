@@ -77,6 +77,30 @@ from both `polisyos.ir` and `polisyos.ir.analytics`.
 See [structural causal models](../../../../docs/reference/foundry/structural-causal-models.md)
 for selected backend, historical replay and refit-bootstrap limitations.
 
+## Separate value uncertainty channels
+
+`ValueArtifactSubject` and `ValueSubjectRelation` schema 1.0 join exact persisted
+identification and native uncertainty artifacts through the existing CAS input
+lineage. Producers persist their complete typed subject before either output
+and stamp the roster from `value_subject_producer_inputs`. The relation reader
+resolves both artifacts, manifests, estimand, sources and optional model again;
+matching metadata or a caller-built binding does not replace this check.
+
+Identification `[4,4]` remains distinct from a native asymmetric interval
+`[1,10]`. The only supported cross-unit conversion is typed rate ratio/percent
+scaling; no arbitrary proxy width, currency conversion or temporal law is
+inferred. This initial IR route explicitly refuses selected nondefault manifest
+views before selectors can be lost by the existing IR adapter. Core already
+supports those views; its exact adapter companion belongs to C06.
+
+These models and their typed refs are available from `polisyos.ir` and
+`polisyos.ir.analytics`. Helpers live in `analytics.uncertainty`. A successfully
+resolved relation is content consistency, with `production_value_eligible=False`;
+C10 owns actual producer/ValuePort adoption and separate scientific/Runtime
+admission. The unchanged Envelope 1.1 remains its own native semantic channel.
+The uncomposed E Profile2 supplier requires its own selected-source/G companion;
+this additive G-based relation does not claim that supplier's tests or exports.
+
 ## Depends on / depended on by
 
 - Depends on: [`../artifacts/README.md`](../artifacts/README.md), [`../world/README.md`](../world/README.md), [`../observation/README.md`](../observation/README.md), `polisyos.ir.kernel`.

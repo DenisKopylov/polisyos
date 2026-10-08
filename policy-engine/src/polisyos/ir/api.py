@@ -185,6 +185,27 @@ IR_NAMING_CONVENTIONS: dict[str, str] = {
 }
 
 ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
+    "ValueArtifactSubject": (
+        "polisyos.ir.analytics.uncertainty",
+        "ValueArtifactSubject",
+    ),
+    "ValueSubjectArtifactIdentity": (
+        "polisyos.ir.analytics.uncertainty",
+        "ValueSubjectArtifactIdentity",
+    ),
+    "ValueSubjectRelation": (
+        "polisyos.ir.analytics.uncertainty",
+        "ValueSubjectRelation",
+    ),
+    "ValueArtifactSubjectRef": (
+        "polisyos.ir.registry.refs",
+        "ValueArtifactSubjectRef",
+    ),
+    "ValueSubjectRelationRef": (
+        "polisyos.ir.registry.refs",
+        "ValueSubjectRelationRef",
+    ),
+
     "AccessTier": ("polisyos.ir.analytics.data_views", "AccessTier"),
     "AdmittedClaimAdjudicationBatch": (
         "polisyos.ir.analytics.literature",

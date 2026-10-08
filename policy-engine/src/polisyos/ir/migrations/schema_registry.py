@@ -12,6 +12,13 @@ from polisyos.ir.migrations.base import CompatibilityMode, register_schema_versi
 def register_default_schema_rules() -> None:
     """Register built-in IR schema compatibility declarations."""
 
+    for schema in ("value_artifact_subject", "value_subject_relation"):
+        register_schema_version(
+            schema,
+            "1.0",
+            compatibility=CompatibilityMode.NONE,
+            notes=("Default-view content join only; scientific admission remains separate.",),
+        )
     register_schema_version(
         "structural_causal_model_spec",
         "1.0",

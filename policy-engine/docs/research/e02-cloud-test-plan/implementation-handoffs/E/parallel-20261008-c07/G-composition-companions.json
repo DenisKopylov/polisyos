@@ -1,0 +1,57 @@
+{
+  "schema": "policyos.e02.dependency_packet.v1",
+  "role": "C07",
+  "owner": "G canonical composition/generated family",
+  "source_unit": "E",
+  "original_finding_owner": "A",
+  "finding_id": "B31",
+  "status": "request not accepted composition",
+  "E_Profile2_selected_decisions": "B201/B202 already selected: weighted-median v1.1 compatibility plus named weighted-mean/inverse-CDF equal-tail; exact joint axes/weights/content. No renewed normative appointment requested.",
+  "uncomposed_supplier": {
+    "source_sha": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+    "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+    "paths": [
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "G_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+        "E_blob": "6468bf46e3a3dfa341112022eccdfe826aaa04ac"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "G_blob": null,
+        "E_blob": "48eb8c09bd2470977fb7f86258d739a80738362c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py",
+        "G_blob": "9b9d21fa3dc89f00fe809a095b57156c9c46891d",
+        "E_blob": "1ba700ad5ab23dcd1ec1c55af8a0483a51ec56a9"
+      }
+    ]
+  },
+  "C07_forward_semantics": "Additive subject relation on G Envelope1.1 only. Existing native reader validates native payload without altering interval/point/functionals. No Profile2 source, tests or PASSES copied into this candidate. G ordinary history composition must retain E-owned Profile2/raw-type/joint-law/nonlinear/multi-envelope refusals when selected.",
+  "generated_requirement": {
+    "new_types": [
+      "ValueArtifactSubject",
+      "ValueSubjectArtifactIdentity",
+      "ValueSubjectRelation",
+      "ValueArtifactSubjectRef",
+      "ValueSubjectRelationRef"
+    ],
+    "schema_versions": {
+      "value_artifact_subject": "1.0",
+      "value_subject_relation": "1.0"
+    },
+    "actual_source_owners": [
+      "polisyos.ir.analytics.uncertainty",
+      "polisyos.ir.registry.refs"
+    ],
+    "manual_facades": [
+      "polisyos.ir",
+      "polisyos.ir.analytics"
+    ],
+    "G_work": "After selected composition freeze, recompute canonical schema/public inventory/reference family and corruption drift. C07 does not hand-edit generated snapshots/global inventories/lock."
+  },
+  "C06_specific_requirement": "Only if C10 selects a nondefault manifest view: preserve exact Core ArtifactRef/InputRef manifest_profile_sha256 through IR adapter/ref/lineage normalization and reload chosen manifest. Current C07 default-view-only route refuses it explicitly.",
+  "fresh_consumer_requirement": "C10 actual persisted identification/native/subject/relation+admitted provenance readback, exact source and specific generated companions; execution EvalSafety alone is not scientific identification.",
+  "checks": "Current G-based defining/default-view checks independent of Profile2 supplier composition; composed Profile2/current generated-family verification UNRUN until exact G supplier inputs."
+}

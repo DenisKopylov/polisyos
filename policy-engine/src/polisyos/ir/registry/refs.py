@@ -57,6 +57,20 @@ class UncertaintyEnvelopeRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class ValueArtifactSubjectRef(ArtifactRefModel):
+    """Reference a producer-persisted typed value subject."""
+
+    kind: Literal["ir.value_artifact_subject"] = "ir.value_artifact_subject"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ValueSubjectRelationRef(ArtifactRefModel):
+    """Reference a resolved content join, without scientific admission authority."""
+
+    kind: Literal["ir.value_subject_relation"] = "ir.value_subject_relation"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class ForecastingUncertaintyBundleRef(ArtifactRefModel):
     """Stable handle for persisted multi-horizon forecasting uncertainty bundles."""
 
@@ -1003,6 +1017,8 @@ __all__ = [
     "TwinNetworkResultRef",
     "UncertaintyEnvelopeRef",
     "ValidationReportRef",
+    "ValueArtifactSubjectRef",
+    "ValueSubjectRelationRef",
     "VariableAlignmentCertificateRef",
     "WelfareBundleRef",
     "WelfareSampleBundleRef",

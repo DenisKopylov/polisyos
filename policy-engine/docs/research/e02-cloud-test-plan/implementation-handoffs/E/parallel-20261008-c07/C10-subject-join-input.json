@@ -52,5 +52,6 @@
     "composed_B31_ValuePort_positive": "UNRUN pending exact C10 packet",
     "G_source_acceptance": "not_issued",
     "G_finding_closure": "not_issued"
-  }
+  },
+  "supported_IR_view": "Default-view only. Nonnull selected manifest_profile_sha256 on incoming refs or producer lineage is typed-refused before ID normalization; Core supports exact selected views but current IR adapters do not preserve them. C06 supplies that companion if chosen admitted supplier needs it."
 }

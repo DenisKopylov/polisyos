@@ -1,0 +1,22 @@
+{
+  "command": [
+    "uv",
+    "run",
+    "--no-sync",
+    "polisyos-tools",
+    "workspace",
+    "doctor",
+    "--worktree-admission",
+    "resume",
+    "--branch",
+    "codex/e02-F-closeout-20261006",
+    "--path",
+    "/workspace/e02-F-closeout-20261006"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "head": "46cc03546f2572986962555ddf04d858163c1cf6",
+  "tree": "bb2ceacff846b68466a03fce767f7d300b18240e",
+  "returncode": 0,
+  "wall_seconds": 2.182682886981638,
+  "full_stdout_bytes": 147971
+}

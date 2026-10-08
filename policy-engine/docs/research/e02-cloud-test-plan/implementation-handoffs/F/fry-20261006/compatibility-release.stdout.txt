@@ -1,0 +1,34 @@
+{
+  "breaking_classes_checked": [],
+  "contract_error_count": 2,
+  "contract_errors": [
+    {
+      "check": "public-surface-review",
+      "detail": "",
+      "message": "python public API change requires public_surface_inventory_reviewed=true",
+      "severity": "error",
+      "subject": "/workspace/e02-F-fry-20261006/policy-engine/release-fragments/unreleased/2026-08-27-lex-intervention-ownership.toml:lex-intervention-execution-ownership"
+    },
+    {
+      "check": "public-surface-review",
+      "detail": "",
+      "message": "python public API change requires public_surface_inventory_reviewed=true",
+      "severity": "error",
+      "subject": "/workspace/e02-F-fry-20261006/policy-engine/release-fragments/unreleased/2026-09-13-acquisition-movement.toml:native-chronology-positive-custody"
+    }
+  ],
+  "finding_count": 0,
+  "findings": [],
+  "fragment_count": 82,
+  "fragments_dir": "release-fragments/unreleased",
+  "mode": "report_only",
+  "phase": "repository-best-in-class-phase-5.10",
+  "policy": "architecture/gates/compatibility_release.toml",
+  "status": "contract_errors",
+  "structured_compatibility_change_count": 108,
+  "summary": {
+    "compatibility_surfaces": 5,
+    "generated_families": 6,
+    "promotion_checks": 4
+  }
+}

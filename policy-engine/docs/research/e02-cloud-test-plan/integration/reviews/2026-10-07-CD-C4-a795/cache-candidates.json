@@ -1,0 +1,91 @@
+{
+  "audit_time_utc": "2026-10-07T17:10:18+00:00",
+  "repo": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+  "branch": "codex/e02-integration",
+  "head": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+  "tracked_or_untracked_state_observed": "Pre-existing modified C/D continuation prompts and untracked C4 review outputs were present; not edited or staged.",
+  "scope": "Bounded refresh of previously identified old app-cache and completed C source-archive candidates only. No broad cache/home scan, no worktree/session inventory, no production_data access, no symlink traversal, no file moves, no ref changes.",
+  "filesystem_available_kib": 20843088,
+  "filesystem_available_gib": 19.88,
+  "fresh_candidates": [],
+  "already_transferred_candidates": {
+    "C2_source_archives": [
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/wheel_source.tar",
+        "trash_destination": "/Users/deniskopylov/.Trash/wheel_source.tar",
+        "receipt_native_success": true,
+        "receipt_source_exists": false,
+        "receipt": "policy-engine/_build/e02-g-continuation-20261006/R/cleanup-20261007/C-archives-dist-1158-native.json",
+        "bytes_from_prior_audit": 459878400
+      },
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/wheel_source.tar",
+        "trash_destination": "/Users/deniskopylov/.Trash/wheel_source.tar 15-02-37-328.tar",
+        "receipt_native_success": true,
+        "receipt_source_exists": false,
+        "receipt": "policy-engine/_build/e02-g-continuation-20261006/R/cleanup-20261007/C-archives-dist-1158-native.json",
+        "bytes_from_prior_audit": 459878400
+      },
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/sdist_source.tar",
+        "trash_destination": "/Users/deniskopylov/.Trash/sdist_source.tar",
+        "receipt_native_success": true,
+        "receipt_source_exists": false,
+        "receipt": "policy-engine/_build/e02-g-continuation-20261006/R/cleanup-20261007/C-archives-dist-1158-native.json",
+        "bytes_from_prior_audit": 459911168
+      },
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/sdist_source.tar",
+        "trash_destination": "/Users/deniskopylov/.Trash/sdist_source.tar 15-02-37-626.tar",
+        "receipt_native_success": true,
+        "receipt_source_exists": false,
+        "receipt": "policy-engine/_build/e02-g-continuation-20261006/R/cleanup-20261007/C-archives-dist-1158-native.json",
+        "bytes_from_prior_audit": 459911168
+      }
+    ],
+    "bifrost_cache": {
+      "path": "/Users/deniskopylov/Library/Caches/bifrost",
+      "trash_destination": "/Users/deniskopylov/.Trash/bifrost",
+      "receipt_native_success": true,
+      "receipt_source_exists": false,
+      "bytes_from_prior_audit": 110092288,
+      "receipt": "policy-engine/_build/e02-g-continuation-20261006/R/cleanup-20261007/cache-trash-actions.json"
+    }
+  },
+  "current_path_presence_checks": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/wheel_source.tar",
+      "exists": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/wheel_source.tar",
+      "exists": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/sdist_source.tar",
+      "exists": false
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/sdist_source.tar",
+      "exists": false
+    },
+    {
+      "path": "/Users/deniskopylov/Library/Caches/bifrost",
+      "exists": false
+    }
+  ],
+  "handle_snapshot": {
+    "matched_archive_or_bifrost_paths": [],
+    "method": "lsof -nP -Fpcfn filtered in-memory to only the exact old archive directory and Bifrost cache path"
+  },
+  "process_snapshot": {
+    "pgrep_x_bifrost": [],
+    "active_sparkle_pids": [
+      "83520",
+      "83521"
+    ],
+    "playwright_mcp_clients": "protected per parent preflight; not rescanned"
+  },
+  "boundary_decision": "No fresh path in this bounded candidate set merits a Trash recommendation: the four large C2 tar leaves and the 110,092,288-byte Bifrost cache are already absent at source and have native-Trash success receipts. Their archive contents are recoverable from Git-pinned candidates; prior deciding outputs/logs are recorded as preserved in the archive audit. Other previously inventoried caches either remain explicitly protected by the parent (Sparkle/runtime, Playwright/MCP, npm/pnpm) or were small/low-yield and were not refreshed here.",
+  "trash_not_emptied": true
+}

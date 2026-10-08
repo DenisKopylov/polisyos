@@ -1,0 +1,18 @@
+2026-10-06 16:40:25 [debug    ] method_dispatch_start          backend=numpy fqn=causal.inference.regression_discontinuity@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 16:40:25 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=21.53 fqn=causal.inference.regression_discontinuity@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{"candidate_report_ref": "sha256:c796a18c8d07f128014eca2d1c20e892dd616fad2b08624cefcf0a63572d5baa", "case": "missing", "confidence_interval": [2.5206142540732452, 2.6318544224186207], "envelope_gate_eligible": false, "native_numerical_status": "success", "native_report_ref": "sha256:2c92b70f8d7d10242001dc230f0019830ce6768859c1a4075c32935cae525d04", "proof_authority": "not_established", "retained_marker": true, "value_consumer_refusal": "method_output_contract_unresolved", "value_guard_312_reached": false}
+.{"candidate_report_ref": "sha256:f1024d5b127ef00499ab5fb1ed3997daa4075da5faf9c62b185d882f39ba0a72", "case": "present_fake", "confidence_interval": [2.5206142540732452, 2.6318544224186207], "envelope_gate_eligible": false, "native_numerical_status": "success", "native_report_ref": "sha256:2c92b70f8d7d10242001dc230f0019830ce6768859c1a4075c32935cae525d04", "proof_authority": "consumer_asserted", "retained_marker": true, "value_consumer_refusal": "method_output_contract_unresolved", "value_guard_312_reached": false}
+.{"candidate_report_ref": "sha256:4c2c22ce78cb48a2ce940eb68f6bb201bfe91ec5a28e8e07f723ca4b6e5e298b", "case": "swapped_real_cas", "confidence_interval": [2.5206142540732452, 2.6318544224186207], "envelope_gate_eligible": false, "native_numerical_status": "success", "native_report_ref": "sha256:2c92b70f8d7d10242001dc230f0019830ce6768859c1a4075c32935cae525d04", "proof_authority": "consumer_asserted", "retained_marker": true, "value_consumer_refusal": "method_output_contract_unresolved", "value_guard_312_reached": false}
+.2026-10-06 16:40:25 [debug    ] method_dispatch_start          backend=numpy fqn=econometrics.timeseries.time_series@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 16:40:26 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=385.16 fqn=econometrics.timeseries.time_series@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{"actual_consumer": "contract_projection_ready", "artifact_ref": "sha256:1ab5064a510d5a085fb91787a9df21398bbff1ad51dfd23a05862b301717129d", "case": "native_statsmodels_arima", "coverage_tier": null, "interval": [1.957046664520197, 2.117009227536857], "production_value_eligible": false, "projection_basis": "caller_constructible_contract_only", "value_guard_312_reached": true}
+.{"actual_consumer": "method_uncertainty_not_gate_eligible", "artifact_ref": "sha256:4cd1c5ee419dd901781752b25ac7b077512fcb16321d53c057271b98f6654e71", "case": "native_statsmodels_arima", "coverage_tier": "HEURISTIC_POST_SELECTION", "interval": [1.957046664520197, 2.117009227536857], "production_value_eligible": false, "projection_basis": "caller_constructible_contract_only", "value_guard_312_reached": true}
+................
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+20 passed, 1 warning in 5.66s

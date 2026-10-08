@@ -1,0 +1,27 @@
+{
+  "outcome": "ERROR",
+  "scope": "author trace guessed CompileResult.program_graph_ref instead of actual derived_refs; canonical compile.ok already true",
+  "source_unchanged": true,
+  "artifacts": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/trace_fiscal_precision.fifth.py",
+      "bytes": 11524,
+      "sha256": "b63a9848ef606ade496ebd1dc64f7483c9ac7afc7f64474cf07126ea920e7125"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-precision-trace-fifth.stdout",
+      "bytes": 1536,
+      "sha256": "9bf4dc3b99d58c7ce5be665d1d4db1a6234d507457be3b548f6465a5336c5c8b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-precision-trace-fifth.stderr",
+      "bytes": 658,
+      "sha256": "894971119c0a51a8ff03fa39c0303f686f7c6cc2676c32f65715259d431ed40f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-precision-trace-fifth-spec.json",
+      "bytes": 768,
+      "sha256": "c7943c69ab647ed3e10acb9ffc2ba9d3f40e5a7a776698aa7fa518047ce19d86"
+    }
+  ]
+}

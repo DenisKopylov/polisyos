@@ -1,0 +1,67 @@
+{
+  "native": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+    "tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+    "tests/unit/remediation/test_api_01.py",
+    "tests/unit/foundry/methods/catalog/causal/test__causal_engine_contracts.py",
+    "tests/unit/foundry/methods/catalog/causal/test__interference_contracts.py",
+    "tests/unit/foundry/contracts/test_layout.py",
+    "tests/unit/foundry/methods/catalog/mechanism/test_families.py"
+  ],
+  "build": [
+    "uv",
+    "build",
+    "--wheel",
+    "--sdist",
+    "--out-dir",
+    "/workspace/e02-F-20261006-receipts/api/candidate-dist"
+  ],
+  "census": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",
+    "--root",
+    "/workspace/e02-F-api-20261006",
+    "--ref",
+    "729d13727",
+    "--output",
+    "/workspace/e02-F-20261006-receipts/api/census-candidate.json"
+  ],
+  "architecture": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "tools.cli",
+    "architecture",
+    "guardrails",
+    "check"
+  ],
+  "wheel-installed": [
+    "/workspace/e02-F-20261006-receipts/api/wheel-env/bin/python",
+    "-I",
+    "/workspace/e02-F-20261006-receipts/api/installed_launch.py",
+    "wheel"
+  ],
+  "sdist-installed": [
+    "/workspace/e02-F-20261006-receipts/api/sdist-env/bin/python",
+    "-I",
+    "/workspace/e02-F-20261006-receipts/api/installed_launch.py",
+    "sdist"
+  ],
+  "clone-removal": [
+    "/workspace/e02-F-20261006-receipts/api/wheel-env/bin/python",
+    "-I",
+    "/workspace/e02-F-20261006-receipts/api/removal_replayer.py",
+    "clone"
+  ],
+  "bridge-removal": [
+    "/workspace/e02-F-20261006-receipts/api/wheel-env/bin/python",
+    "-I",
+    "/workspace/e02-F-20261006-receipts/api/removal_replayer.py",
+    "bridge"
+  ]
+}

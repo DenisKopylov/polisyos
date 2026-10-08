@@ -1,0 +1,24 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--cached",
+    "--check"
+  ],
+  "cwd": "/workspace/e02-F-tmle-20261006",
+  "exit_code": 2,
+  "outcome": "FAIL",
+  "target_sha": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+  "index_tree_at_observation": "cff5fa97deccc4a2765f0d101b25ca5862f498a8",
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/tmle/staged-raw-diff-check.stdout.txt",
+    "bytes": 330,
+    "sha256": "d9fab99bce94f6a95c1dd67686cc979de14798c200c2f633be60b58a3587e847"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/tmle/staged-raw-diff-check.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "statement": "Raw stdout/stderr artifact whitespace retained verbatim; no source defect or inherited-red/global verdict is inferred."
+}

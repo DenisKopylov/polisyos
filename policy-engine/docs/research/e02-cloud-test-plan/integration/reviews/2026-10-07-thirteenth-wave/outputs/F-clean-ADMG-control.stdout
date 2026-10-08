@@ -1,0 +1,122 @@
+2026-10-07 21:10:34 [info     ] method_registered              backend=numpy fqn=causal.prior.reconcile_causal_graph@1.0.0 lazy=False namespace=causal.prior override=True tags=['causal', 'estimation', 'prior', 'reconciliation', 'structural'] version=1.0.0
+2026-10-07 21:10:34 [debug    ] method_dispatch_start          backend=numpy fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 21:10:34 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=6.98 fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{
+  "canonical_extract": {
+    "exception_type": "ValueError",
+    "message": "extract_mgraph_metadata requires graph_type=MGRAPH, got GraphType.ADMG",
+    "result": "raised"
+  },
+  "cas_artifact_id": "sha256:9d2c83f1ebf6efbac5e3bec04a4d38f2555628665a41aac471438ff46d653619",
+  "input_edges": [
+    {
+      "combined_confidence": 0.9,
+      "data_confidence": 0.9,
+      "dst": "Y",
+      "evidence_refs": [],
+      "expert_confidence": null,
+      "lag": null,
+      "literature_confidence": null,
+      "llm_confidence": null,
+      "mark_dst": "arrow",
+      "mark_src": "arrow",
+      "metadata": {},
+      "p_value": null,
+      "simulation_confidence": null,
+      "sources": [
+        "data"
+      ],
+      "src": "X",
+      "unsupported_by_evidence": false
+    }
+  ],
+  "input_graph_type": "admg",
+  "input_metadata": {},
+  "job_issues": [],
+  "method_result_ref_present": true,
+  "mgraph_metadata_key_present": false,
+  "node_artifacts_count": 1,
+  "node_status": "ok",
+  "reopened_edges": [
+    {
+      "combined_confidence": 0.9,
+      "data_confidence": 0.9,
+      "dst": "Y",
+      "evidence_refs": [],
+      "expert_confidence": null,
+      "lag": null,
+      "literature_confidence": null,
+      "llm_confidence": null,
+      "mark_dst": "arrow",
+      "mark_src": "arrow",
+      "metadata": {},
+      "p_value": null,
+      "simulation_confidence": null,
+      "sources": [
+        "data"
+      ],
+      "src": "X",
+      "unsupported_by_evidence": false
+    }
+  ],
+  "reopened_graph_type": "admg",
+  "reopened_metadata": {
+    "llm_prior_constants": {
+      "LLM_OVERLAP_DISCOUNT": 0.5,
+      "LLM_PRIOR_CEILING": 0.3,
+      "LLM_REPLICATION_BONUS": 0.05
+    },
+    "needs_expert_review": false,
+    "reconciliation_diagnostics": {
+      "curl_norm": 0.0,
+      "cyclic_inconsistency_norm": 0.0,
+      "d0_shape": [
+        1,
+        2
+      ],
+      "d1_shape": [
+        0,
+        1
+      ],
+      "delta0_shape": [
+        2,
+        1
+      ],
+      "delta1_shape": [
+        1,
+        0
+      ],
+      "diagnostics_truncated": false,
+      "gradient_norm": 0.8999999999999999,
+      "harmonic_norm": 1.1102230246251565e-16,
+      "irreducible_conflict_norm": 1.1102230246251565e-16,
+      "n_components": 1,
+      "n_edges": 1,
+      "n_sources": 1,
+      "n_triangles": 0,
+      "operators": {
+        "D0": [
+          [
+            -1.0,
+            1.0
+          ]
+        ],
+        "D1": [],
+        "delta^0": [
+          [
+            -1.0
+          ],
+          [
+            1.0
+          ]
+        ],
+        "delta^1": []
+      },
+      "truncation_reason": null
+    },
+    "reconciliation_input_sha256": "23c35593e9aba29c2a5c14c58c93f4b18dc99447262d73f7069ad4a21cbc9941",
+    "reconciliation_warnings": []
+  },
+  "same_as_input": false,
+  "scope": "synthetic clean ADMG with an actual bidirected edge and no MGraph metadata; no authority/classification claim"
+}

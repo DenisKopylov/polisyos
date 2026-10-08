@@ -1,0 +1,308 @@
+{
+  "finding_id": "B54",
+  "primary_owner_from_full_TSV": {
+    "finding_id": "B54",
+    "unit": "F",
+    "docx_analytical_package": "P14",
+    "source_closure_owner": "FIT-01",
+    "source_bundle_ids": "FIT-01",
+    "source_status": "partial"
+  },
+  "bundle_owner_from_full_TSV": {
+    "bundle_id": "FIT-01",
+    "unit": "F",
+    "initial_writer_family": "F-W04",
+    "title": "Nuisance fit-core, актуальная диагностика и ограниченные folds"
+  },
+  "original_card_refs": [
+    {
+      "criterion_id": "B54",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        1379,
+        1394
+      ],
+      "bytes": 5315,
+      "sha256": "ea5c3023d7b4bec4ee7a1a32b5a258dcceb5c67e3e4f47d28dac84b84f149c9d",
+      "title": "## B54. Кэш вспомогательной оценки сохраняет старую политику диагностики и возвращает общий изменяемый объект",
+      "byte_binding_check": "PASS"
+    }
+  ],
+  "original_text": "## B54. Кэш вспомогательной оценки сохраняет старую политику диагностики и возвращает общий изменяемый объект\n\n**Происхождение:** C04-06. **Основание:** `tmle_core` — контракт, fingerprint, bundle, get/put, fit и diagnostics; NU1–NU4. **Приоритет:** высокий при reuse между анализами; охват M. [C04.K05]\n\n**Проблема.** Автоматический ключ shared nuisance cache правильно хэширует полные массивы X/T/Y и существенные поля обучения. Однако fingerprint не включает некоторые поля следующего анализа: например, `min_effective_sample_size` и `coverage_guard`. Это может быть правильной экономией обучения. Но кэшируемый `ATENuisanceBundle` содержит весь прежний `contract`, а его `diagnostics()` читает порог, режим и связанные оценки именно из `self.contract`. При hit возвращается прежний bundle, без привязки к новому контракту.\n\nВ модели NU1 одинаковый fit-key для нового порога 100 и режима off вернул metadata прежних 48/ess_aware. Холодная сборка metadata отражала новый контракт. Контроль отделил текущую привязку без повторного fit. Это не запуск TMLE и не доказательство неверности всего доверительного интервала: `_interval_from_eif` отдельно использует текущий контракт для ряда проверок. Диагностическую устарелость нельзя расширительно назвать ошибкой каждого численного вывода.\n\n**Второй аспект.** `_cache_get` возвращает ту же mutable dataclass с массивами, списками и вложенными records. Lock защищает словарь кэша, а не содержимое выданного объекта. В модели мутация данных одним тестовым потребителем изменила следующее чтение. Реальный production-потребитель, выполняющий такую мутацию, в этом проходе не установлен; это условный риск владения, а не сообщение о произошедшей порче данных.\n\n**Рекомендуемое решение.** Разделить неизменяемое ядро fit — predictions, splits, scaler, конфигурацию обучения и его provenance — и дешёвое аналитическое представление с текущей политикой диагностики. При hit пересчитать нужные diagnostics на текущем контракте; не переобучать модели только ради изменения порога/режима вывода. Не менять старый выданный bundle на месте. Общие массивы сделать read-only на согласованной границе; там, где потребитель действительно должен менять значения, использовать отдельную копию/результат. Read-only одного контейнера не обеспечивает автоматически неизменность всех вложенных объектов.\n\n**Чего не делать.** Добавлять весь контракт в ключ и каждый раз повторять cross-fitting — дорогое устранение симптома. Считать любой одинаковый explicit-key доказательством одинаковых данных — неверно: private-путь `__shared_nuisance_key` не хэширует массивы в этой функции. Его реальный вызывающий путь не установлен, поэтому это не отдельный доказанный дефект; при использовании он требует истинной source-bound идентичности, не строкового обещания агента.\n\n**Приёмка.** Изменение только диагностической политики сохраняет fit, но обновляет вывод и его контракт; изменение данных, seed, splits или fitting-параметра требует нужной новой оценки. Один потребитель не меняет последующие hits. Существующие полные хэши данных не удаляются ради скорости; разрешённое использование результата и область доступа проверяются отдельно.\n\n",
+  "primary_acceptance_scope": "Issued nuisance core/input identity immutable; policy-only refresh reuses nuisance, actual data/seed/splits/fitter changes refit; explicit keys are not complete identity.",
+  "source_chain": {
+    "producer": "fit_crossfit_nuisance_bundle / TMLEEstimator",
+    "artifact": "issued immutable nuisance core + actual result/report/envelope",
+    "bridge": "native fitter/public factory → real MethodJob/CAS",
+    "consumer": "fresh result/report reader; actual study common-budget route distinct"
+  },
+  "actual_recorded_consumer": "fit_crossfit_nuisance_bundle → controlled issued fit core → fit_tmle_ate/TMLEEstimator",
+  "surface": "TMLE issued nuisance/core and public result/report/envelope factory; shared actual Runtime study/fold resource consumer distinct",
+  "deciding_receipt_refs": [
+    {
+      "git_ref": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+      "head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json",
+      "bytes": 28486,
+      "sha256": "5870aaedd4d4eb83a1f40c392c5cec79660d28927a5846981e8a363702945429",
+      "git_blob": "2a197a789fbbc38b2d47cc594caa3fc17c6d6924",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B54"
+      ]
+    },
+    {
+      "git_ref": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+      "head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json",
+      "bytes": 28486,
+      "sha256": "5870aaedd4d4eb83a1f40c392c5cec79660d28927a5846981e8a363702945429",
+      "git_blob": "2a197a789fbbc38b2d47cc594caa3fc17c6d6924",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B54"
+      ],
+      "json_pointer": "/finding_decisions/0"
+    },
+    {
+      "git_ref": "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4",
+      "head": "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json",
+      "bytes": 125989,
+      "sha256": "53688e8d8ea8bc96ecdcf52a6e6d57bd0f4203ca6d23dca276cd45753f299056",
+      "git_blob": "72b83947ab21741984d7cce17946c06862311a3a",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B54"
+      ],
+      "json_pointer": "/per_id/0"
+    },
+    {
+      "git_ref": "27f172d56b59c3157275e90e50b1d00cc5219a91",
+      "head": "27f172d56b59c3157275e90e50b1d00cc5219a91",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json",
+      "bytes": 81022,
+      "sha256": "e6bdc12b130a81b2f9f5d7b7261d0ba20809a2ebcb620c8bec17f420a7d95a9d",
+      "git_blob": "30a429a6b3d553921cca1534ecdbe8a34c934081",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B54"
+      ],
+      "json_pointer": "/per_id/0"
+    },
+    {
+      "git_ref": "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a",
+      "head": "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json",
+      "bytes": 91876,
+      "sha256": "0818e463b5e8c942eba6d9f696932b3a0ad3deab79657199ae692f2e39c9fe5d",
+      "git_blob": "a2da462debca3e52296256085ca457f2baec9fda",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B54"
+      ],
+      "json_pointer": "/per_id/B54"
+    },
+    {
+      "git_ref": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+      "bytes": 60843,
+      "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8",
+      "git_blob": "0ebf3b625085f6521f7430b3d919e8e11848fc21",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B54"
+      ]
+    }
+  ],
+  "deciding_per_ID_carrier_ref": {
+    "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B54.json",
+    "bytes": 29339,
+    "sha256": "b9c8def0fa7998140665c55cf724e2d9365c3a3b1bf737519c5c8fe78805c693",
+    "git_blob": "79593e1fc07eeca3f661bcc983d5d6e0a83d1541"
+  },
+  "scientific_implementation": {
+    "sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+    "tree": "4d87ce0690e001967b245ce18217cb36fff3c988",
+    "not_receipt_carrier": true
+  },
+  "recorded_independent_oracle_and_negative": "All32contractfields/currentfitcalls; changeddata/seed/splits invalidates; reader/cache/precomputed identity removals FAIL",
+  "complete_raw_receipt_checks_refs": [
+    "f460bd81b8124be58f890f59a53e2aba9e7ceb76:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json#/checks/0",
+    "f460bd81b8124be58f890f59a53e2aba9e7ceb76:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json#/checks/1",
+    "f460bd81b8124be58f890f59a53e2aba9e7ceb76:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json#/checks/2",
+    "f460bd81b8124be58f890f59a53e2aba9e7ceb76:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json#/checks/3",
+    "f460bd81b8124be58f890f59a53e2aba9e7ceb76:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json#/checks/4",
+    "f460bd81b8124be58f890f59a53e2aba9e7ceb76:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json#/checks/5",
+    "f460bd81b8124be58f890f59a53e2aba9e7ceb76:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json#/checks/6",
+    "f460bd81b8124be58f890f59a53e2aba9e7ceb76:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json#/checks/7",
+    "f460bd81b8124be58f890f59a53e2aba9e7ceb76:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json#/checks/8",
+    "f460bd81b8124be58f890f59a53e2aba9e7ceb76:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json#/checks/9",
+    "f460bd81b8124be58f890f59a53e2aba9e7ceb76:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json#/checks/10",
+    "f460bd81b8124be58f890f59a53e2aba9e7ceb76:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json#/checks/11",
+    "f460bd81b8124be58f890f59a53e2aba9e7ceb76:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json#/checks/12",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/0",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/1",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/2",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/3",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/4",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/5",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/6",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/7",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/8",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/9",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/10",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/11",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/12",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/13",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/14",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/15",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/16",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/17",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/18",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/19",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/20",
+    "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json#/checks/21",
+    "27f172d56b59c3157275e90e50b1d00cc5219a91:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json#/checks/0",
+    "27f172d56b59c3157275e90e50b1d00cc5219a91:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json#/checks/1",
+    "27f172d56b59c3157275e90e50b1d00cc5219a91:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json#/checks/2",
+    "27f172d56b59c3157275e90e50b1d00cc5219a91:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json#/checks/3",
+    "27f172d56b59c3157275e90e50b1d00cc5219a91:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json#/checks/4",
+    "27f172d56b59c3157275e90e50b1d00cc5219a91:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json#/checks/5",
+    "27f172d56b59c3157275e90e50b1d00cc5219a91:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json#/checks/6",
+    "27f172d56b59c3157275e90e50b1d00cc5219a91:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json#/checks/7",
+    "27f172d56b59c3157275e90e50b1d00cc5219a91:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json#/checks/8",
+    "27f172d56b59c3157275e90e50b1d00cc5219a91:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json#/checks/9",
+    "27f172d56b59c3157275e90e50b1d00cc5219a91:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json#/checks/10",
+    "27f172d56b59c3157275e90e50b1d00cc5219a91:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json#/checks/11",
+    "27f172d56b59c3157275e90e50b1d00cc5219a91:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json#/checks/12",
+    "27f172d56b59c3157275e90e50b1d00cc5219a91:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json#/checks/13",
+    "27f172d56b59c3157275e90e50b1d00cc5219a91:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json#/checks/14",
+    "27f172d56b59c3157275e90e50b1d00cc5219a91:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json#/checks/15",
+    "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json#/checks/0",
+    "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json#/checks/1",
+    "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json#/checks/2",
+    "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json#/checks/3",
+    "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json#/checks/4",
+    "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json#/checks/5",
+    "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json#/checks/6",
+    "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json#/checks/7",
+    "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json#/checks/8",
+    "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json#/checks/9",
+    "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json#/checks/10",
+    "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json#/checks/11",
+    "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json#/checks/12",
+    "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json#/checks/13",
+    "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json#/checks/14",
+    "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json#/checks/15",
+    "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json#/checks/16",
+    "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json#/checks/17",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/0",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/1",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/2",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/3",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/4",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/5",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/6",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/7",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/8",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/9",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/10",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/11",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/12",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/13"
+  ],
+  "historical_ROOT072": {
+    "check": "PASS",
+    "outcome": "closed",
+    "technical_original_criterion_recommendation": "closed",
+    "current_continuation_outcome_recommendation": "closed",
+    "original_criterion_remainder": "Finite original native cache/reader property.",
+    "actual_consumer": "fit_crossfit_nuisance_bundle → controlled issued fit core → fit_tmle_ate/TMLEEstimator",
+    "oracle_and_negative": "All32contractfields/currentfitcalls; changeddata/seed/splits invalidates; reader/cache/precomputed identity removals FAIL",
+    "separate_unavailable_inputs_or_authority": "Untrusted externally supplied prediction provenance is not accepted; production causal authority separate."
+  },
+  "independent_original_criterion_recommendation": {
+    "check": "PASS",
+    "outcome": "closed",
+    "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+    "scientific_rerun": false,
+    "review_scope": "independent criterion/evidence reconciliation; not an independently rerun estimator measurement",
+    "missing_actual_original_criterion": null,
+    "new_owner_review_pending": false,
+    "not_formal_G_closure": true
+  },
+  "separate_unavailable_inputs_or_authority": "Untrusted externally supplied prediction provenance is not accepted; production causal authority separate.",
+  "existing_author_or_reviewer_conflict": null,
+  "schema": "e02.F.original-finding.v3",
+  "primary_bundle": "FIT-01",
+  "criterion_short": "Issued nuisance core/input identity immutable; policy-only refresh reuses nuisance, actual data/seed/splits/fitter changes refit; explicit keys are not complete identity.",
+  "check_result": "PASS",
+  "F_finding_outcome": "closed",
+  "F_technical_recommendation": "closed",
+  "F_rationale": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+  "code_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+  "code_tree": "4d87ce0690e001967b245ce18217cb36fff3c988",
+  "consumer": "fit_crossfit_nuisance_bundle → controlled issued fit core → fit_tmle_ate/TMLEEstimator",
+  "oracle_and_negative": "All32contractfields/currentfitcalls; changeddata/seed/splits invalidates; reader/cache/precomputed identity removals FAIL",
+  "G_finding_acceptance": {
+    "status": "not_issued",
+    "formal_G_closed": false
+  },
+  "G_code_acceptance": {
+    "status": "not_inferred",
+    "source_sha": null,
+    "basis": "Independent F GO/code-ready is not G code acceptance"
+  },
+  "original_missing_input": null,
+  "original_next_owner": null,
+  "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+  "root_assembled_source": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "not_new_numerical_proof": true
+  },
+  "new_property_followups_not_automatically_original_reopen": [
+    {
+      "git_ref": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007.json",
+      "bytes": 98035,
+      "sha256": "1b1b6cdb6af5b8c5e314ddc30eb6025f4e349a219c3cc7d165826c596678ab63",
+      "git_blob": "e29544e99ffbab0bb6e6b40f9d061d690a4e1d6c",
+      "tree": "13736344f761ab911a1607fc2ebb9d722395ec68",
+      "lane": "FIT",
+      "code_candidate_sha": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+      "code_candidate_tree": "00dcef92dcf711833750e842dec19188df69b74b",
+      "role": "Source-bound bounded delta/consumer evidence; no formal G closure"
+    },
+    {
+      "lane": "Installed-b5-failed",
+      "git_ref": "c22786dfce8308bb7d48a177ccb1b109843262b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007.json",
+      "bytes": 31855,
+      "sha256": "f4cd659e42b8db8000a918f528d231cab1e8e70f95dd598d645e45acdc2d6fc5",
+      "git_blob": "de88da9f324d9657fe6feb28210f3c2419ce715a",
+      "tree": "2a13485d2b198b51643f78929a15d920b58e8e86",
+      "code_candidate_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "code_candidate_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+      "role": "Complete failed immutable installed checkpoint: each130PASS32GraphFAIL/0ERROR0SKIP; API2/FIT53/ECO28 passed unchanged. Full warnings/harness mistakes/decoded raw/source custody retained; no closure or final-candidate PASS."
+    },
+    {
+      "lane": "Installed-resource-forward",
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007.json",
+      "bytes": 47204,
+      "sha256": "d4cef17e72100250f5162b3642654882f1864c576e895ca8903b7b4f24e66f05",
+      "git_blob": "aede76d8e164702cab5b4d1da3a3aa3b0ef57b77",
+      "tree": "a4fad43369eb6ca56514591e27f70fb9033df4a5",
+      "code_candidate_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "code_candidate_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "role": "Full immutable deciding component outputs; evidence carrier distinct from measured product source; no G acceptance"
+    }
+  ],
+  "new_combined_consumer": "Native actual TMLE persisted report→fresh ConfidencePass retains causal blocker across missing/corrupt sibling simulation refs while SUCCESS/CI/markers remain. Value projection refuses absent upstream contract; no invented identification authority positive."
+}

@@ -1,0 +1,112 @@
+{
+  "schema": "e02.F.layout.docs_build.v1",
+  "source_sha": "6beacc8b42dacabff214901919203323f07d1fef",
+  "source_tree": "64dc785b6bf29659e94acdd7cf3100c02179e2c0",
+  "argv": [
+    "/tmp/e02-F-continuation-20261006/foundry/docs-venv/bin/python",
+    "-m",
+    "mkdocs",
+    "build",
+    "--config-file",
+    "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs.yml",
+    "--clean"
+  ],
+  "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+  "environment_argv": [
+    "/tmp/e02-F-continuation-20261006/foundry/docs-venv/bin/python",
+    "-c",
+    "import sys,importlib.metadata,json;print(json.dumps({\"Python\":sys.version,\"packages\":{n:importlib.metadata.version(n) for n in [\"mkdocs\",\"mkdocs-material\",\"mkdocstrings\",\"mkdocstrings-python\"]}}))"
+  ],
+  "environment": {
+    "Python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "packages": {
+      "mkdocs": "1.6.1",
+      "mkdocs-material": "9.7.6",
+      "mkdocstrings": "1.0.3",
+      "mkdocstrings-python": "2.0.3"
+    },
+    "PYTHONPATH": "/workspace/e02-F-fry-20261006/policy-engine/src:/workspace/e02-F-fry-20261006/policy-engine/tools",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "shared_environment_mutated": false,
+    "compute_quota": false
+  },
+  "input_closure": "Full maintained state page and native API directives; repository actual theme/plugins/Markdown options inherited, only page/navigation scope narrowed.",
+  "source_inputs": [
+    {
+      "path": "/workspace/e02-F-fry-20261006/policy-engine/mkdocs.yml",
+      "bytes": 221,
+      "sha256": "6c0f5281f0d25246dde5a3963dfcbfa1c6f7d6e6ae9df36fd457973bb6d4e567"
+    },
+    {
+      "path": "/workspace/e02-F-fry-20261006/policy-engine/architecture/tooling/mkdocs/generated.yml",
+      "bytes": 29832,
+      "sha256": "c121a8014d24456bc9158b63af0d69fc14401b329d4806021ba6606b638c1851"
+    },
+    {
+      "path": "/workspace/e02-F-fry-20261006/policy-engine/docs/reference/foundry/state.md",
+      "bytes": 5289,
+      "sha256": "82e6ff5fa530806371e4e1f67b3120bff1fd229e4855a715be4f20d9c79027c8"
+    },
+    {
+      "path": "/workspace/e02-F-fry-20261006/policy-engine/src/polisyos/foundry/methods/README.md",
+      "bytes": 10519,
+      "sha256": "b3f7cc5ad1317a969b8b9215544566036defc6db64d72973d81a4f1842772edc"
+    },
+    {
+      "path": "/workspace/e02-F-fry-20261006/policy-engine/src/polisyos/foundry/methods/compiler/README.md",
+      "bytes": 1865,
+      "sha256": "0d8f02ab3ddc41a4d507e6b7ebe374209d5b6217bd3cb1688da88c6b279263b0"
+    },
+    {
+      "path": "/workspace/e02-F-fry-20261006/policy-engine/src/polisyos/ir/kernel/slots.py",
+      "bytes": 18445,
+      "sha256": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81"
+    },
+    {
+      "path": "/workspace/e02-F-fry-20261006/policy-engine/src/polisyos/foundry/methods/layout.py",
+      "bytes": 350,
+      "sha256": "fb528428135bf40ddf36336bbdac7043b049d4ef9bf7e954ada1c9727100a69b"
+    },
+    {
+      "path": "/workspace/e02-F-fry-20261006/policy-engine/src/polisyos/foundry/methods/compiler/layout.py",
+      "bytes": 220,
+      "sha256": "d0f981b9d24ed767107a9238f5bc9a16c6f5b45ed533a01adf0c35e52cd6f1b7"
+    },
+    {
+      "path": "/workspace/e02-F-fry-20261006/policy-engine/architecture/public_surface/contract.toml",
+      "bytes": 19715,
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+    }
+  ],
+  "config": {
+    "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs.yml",
+    "bytes": 309,
+    "sha256": "6e6396b01a501f06746e9256a33b44f59dd50a5c5bda1596145e1b9bda091933"
+  },
+  "exit_code": 0,
+  "wall_seconds": 29.920032611989882,
+  "outcome": "PASS",
+  "stdout": {
+    "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs.stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs.stderr.txt",
+    "bytes": 1579,
+    "sha256": "949582608c8f1462589b237eb9c6a93d8e0e84dab9c02078b9bc8e57ea713caa"
+  },
+  "complete_native_layout_anchors": [
+    "polisyos.ir.kernel.slots.SlotLayout",
+    "polisyos.ir.kernel.slots.SlotFamily",
+    "polisyos.ir.kernel.slots.SlotFamilyManifest",
+    "polisyos.ir.kernel.slots.build_slot_layout",
+    "polisyos.ir.kernel.slots.build_slot_family_manifest"
+  ],
+  "html": {
+    "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs-site/reference/foundry/state/index.html",
+    "bytes": 423355,
+    "sha256": "33286ff53aa7888e2f7ba21a679ecb1087e3b9945e70f3c78ee3b7ff7f899396"
+  },
+  "limits": "Scoped actual docs build; full strict docs/project quality not inferred. All original warnings retained; no plugin/backend suppression or fake module."
+}

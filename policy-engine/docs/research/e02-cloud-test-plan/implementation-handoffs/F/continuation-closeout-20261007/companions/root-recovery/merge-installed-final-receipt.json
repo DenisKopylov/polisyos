@@ -1,0 +1,16 @@
+{
+  "command": [
+    "git",
+    "merge",
+    "--no-ff",
+    "-m",
+    "E02 F: carry published merge-installed-final-receipt evidence without runtime changes",
+    "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c"
+  ],
+  "base": "29ae62ae950b23365ea43ca14a4761e84358d506",
+  "source_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+  "returncode": 0,
+  "wall_seconds": 0.1471300879784394,
+  "head": "a7fb790d79207bbb17deaa3f9ea1431a6c40e614",
+  "tree": "ff50738e85ccf91a03aecd569a5e96e891011663"
+}

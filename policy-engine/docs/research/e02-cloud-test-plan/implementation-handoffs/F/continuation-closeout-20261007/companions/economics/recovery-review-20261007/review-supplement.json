@@ -1,0 +1,29 @@
+{
+  "schema": "policyos.e02.F.economics.review-supplement.v1",
+  "retry_source": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "G_source": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+  "prior_native": {
+    "actual_full_Git_output": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/existing244-full-native-stdout.txt",
+      "bytes": 36108,
+      "sha256": "6ec3837d5fd47180c8aad45fcdca24d87dbb37827e08fb49f4d356004b32be9d"
+    },
+    "declared_original_raw_output": {
+      "path": "/workspace/e02-F-20261006-receipts/economics/economic-native-final-candidate.txt",
+      "bytes": 36108,
+      "sha256": "6ec3837d5fd47180c8aad45fcdca24d87dbb37827e08fb49f4d356004b32be9d"
+    },
+    "stored_exact_declared_rawsha": true,
+    "role": "Existing244source532 completeoriginalnativeoutput, re-readonly; no newnativeexecution or broad244transfer to8236/519/G855.",
+    "command": [
+      "git",
+      "show",
+      "8236d9c368336a5ea20c1586f29aea7321db6536:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-native-final-candidate.txt"
+    ],
+    "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+    "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-native-final-candidate.txt"
+  },
+  "own_harness_errors": "First expectedtwo193testsat8236 erroneously; secondscientific193treeassertion versus actualdocc008receipt; thirdmetadata-insertion NameError. Exactstderrretained, corrected sourceclaims; no productfailure or scientifictestexecution.",
+  "latest_script_stderr": "ExplicitmissingG/sourcehistorypaths preserved, notproducterrors; actualpresent/missingpaths recordedinmetadata.",
+  "no_new_math_oracle_or_scanner_replay": true
+}

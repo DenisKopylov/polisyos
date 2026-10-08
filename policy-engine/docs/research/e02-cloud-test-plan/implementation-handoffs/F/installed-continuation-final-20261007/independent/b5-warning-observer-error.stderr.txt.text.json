@@ -1,0 +1,6 @@
+{
+  "schema": "policyos.e02.lossless_utf8_text.v1",
+  "decoded_bytes": 328,
+  "decoded_sha256": "f0e76ac9a504d5f975f179c9610360652414f63127fb2f499a268a472f871a9c",
+  "text": "Traceback (most recent call last):\n  File \"/tmp/e02-F-continuation-20261007/api/installed-final-independent/finish_b5_review.py\", line 23, in <module>\n    assert warn==36 and prom==36 and stderr.count('jax.pure_callback failed')==2\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+}

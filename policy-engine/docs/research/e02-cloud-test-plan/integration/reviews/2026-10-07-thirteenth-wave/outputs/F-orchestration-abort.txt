@@ -1,0 +1,12 @@
+Observed complete traceback from the first wrapper command (functions.exec tool result); no child DiD process was launched by that wrapper:
+
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/run_f_checks.py", line 292, in <module>
+    raise SystemExit(main())
+  File "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/run_f_checks.py", line 268, in main
+    did = run_one('did', did_argv, 120, 'did-origin-audit.json', json_path=did_json)
+  File "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/run_f_checks.py", line 113, in run_one
+    raise RuntimeError('source closure failed before ' + name + ': ' + repr(before['failures']))
+RuntimeError: source closure failed before did: ['unmanifested files: policy-engine/src/_build/benchmark-results/foundry/selection_history/executions.jsonl']
+
+Classification: harness inventory stop caused by the preceding graph test's generated runtime output. The later DiD-only wrapper verified all 2,942 manifested Git blobs/modes and permitted only this known output (same SHA-256 before/after), then ran the authorized DiD smoke successfully. This event is not a product test failure.

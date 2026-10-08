@@ -1,0 +1,64 @@
+{
+  "scope": "Only own synthetic metadata aliases/custody, not scientific/domain fixtures",
+  "outcome": "PASS",
+  "changed_original_retains_complete_old_gzip_bytes": true,
+  "unchanged_old_alias_rebinds_to_complete_prior_stream": true,
+  "new_input_binds_new_bytes": true,
+  "selection_transport_nonrecursive": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+    "bytes": 5880,
+    "sha256": "8880f5b233a1c6e7ccf9f35e24ee67ed3294256232b95a1ceb68431408ef6001"
+  },
+  "source_or_Git_writes": false,
+  "commands": [
+    [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/prior-manifest.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/prior-stage",
+      "--repository",
+      "/workspace/e02-F-closeout-20261006",
+      "--final-source-sha",
+      "d8334672f44d24dd32113264f96ca3f7954dace4",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/refreshed.json"
+    ],
+    [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v2.py",
+      "--selection",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/refreshed.json",
+      "--repository",
+      "/workspace/e02-F-closeout-20261006",
+      "--materialize",
+      "--destination",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/staged-v2"
+    ]
+  ],
+  "raw_outputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/refresh.stdout.json",
+      "bytes": 534,
+      "sha256": "c0f6e5ea50077630fb38e629971d7a16cc79f0cbca8509639987866583bbe1f7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/publish.stdout.json",
+      "bytes": 786,
+      "sha256": "c9c8cf293552a02200d6d99d4dec172bb586313bb16e0e2c49dada54433ac6a7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______ test_informative_voi_candidate_core_readback_and_preview_refusal _______
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-676/test_informative_voi_candidate0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10a0dd0f0>
+
+    @pytest.mark.asyncio
+    async def test_informative_voi_candidate_core_readback_and_preview_refusal(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Read back actual B11 values, then assert the unowned preview is refused.
+    
+        The B11 N6 producer run is real. This fixture manually dispatches a Core
+        control-job lease callback to persist that run through the canonical
+        compiled-recursive artifact writer; it does not claim an ordinary NL
+        request invokes this B11 generator. The recursive wrapper is explicitly
+        contract-testing scoped, and the generic content route's refusal is the
+        expected boundary until an artifact owner supplies preview authority.
+        """
+    
+        pytest.importorskip("fastapi.testclient")
+        from fastapi.testclient import TestClient
+    
+        from polisyos.core import canon
+        from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+        from polisyos.core.security.tenant_context import tenant_scope
+        from polisyos.data_forge.read_api import catalog as catalog_api
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.http import dev_identity_middleware
+>       from polisyos.runtime.http.app import create_runtime_api_app
+
+tests/integration/core_runtime/test_e02_voi_artifact_projection.py:43: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/app.py:20: in <module>
+    from polisyos.runtime.http.authz_middleware import AuthzMiddleware
+src/polisyos/runtime/http/authz_middleware.py:51: in <module>
+    from polisyos.runtime.http.resource_binding import (
+src/polisyos/runtime/http/resource_binding.py:28: in <module>
+    from polisyos.runtime.http.container import (
+src/polisyos/runtime/http/container.py:15: in <module>
+    from polisyos.runtime.http.services.acquisition_action_service import AcquisitionActionService
+src/polisyos/runtime/http/services/acquisition_action_service.py:32: in <module>
+    from .control import ControlPlaneService
+src/polisyos/runtime/http/services/control/__init__.py:16: in __getattr__
+    return import_module(child_module)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <sitecustomize._CandidateOnlyFinder object at 0x1017267b0>
+fullname = 'polisyos.runtime.http.services.control.ControlPlaneService'
+path = ['/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/candidate/policy-engine/src/polisyos/runtime/http/services/control']
+
+    def find_spec(self, fullname, path=None, target=None):
+        del target
+        if fullname == "polisyos" or fullname.startswith("polisyos."):
+            root = SOURCE_ROOT
+        elif fullname == "benchmarks" or fullname.startswith("benchmarks."):
+            root = CANDIDATE
+        elif fullname == "tests" or fullname.startswith("tests."):
+            root = TESTS_ROOT
+        elif fullname == "_helpers" or fullname.startswith("_helpers."):
+            root = TEST_HELPERS_ROOT
+        else:
+            return None
+        if path is None:
+            search = [str(root)]
+        else:
+            search = [str(Path(item).resolve()) for item in path if _inside(Path(item), root)]
+            if not search:
+                raise ModuleNotFoundError(f"candidate-only import blocked {fullname}: {path}")
+        spec = importlib.machinery.PathFinder.find_spec(fullname, search)
+        if spec is None:
+>           raise ModuleNotFoundError(f"module {fullname!r} absent from exact candidate export")
+E           ModuleNotFoundError: module 'polisyos.runtime.http.services.control.ControlPlaneService' absent from exact candidate export
+
+../../harness/sitecustomize.py:82: ModuleNotFoundError
+=============================== warnings summary ===============================
+../../../../../../../.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/core_runtime/test_e02_voi_artifact_projection.py::test_informative_voi_candidate_core_readback_and_preview_refusal
+1 failed, 1 warning in 38.22s

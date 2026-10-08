@@ -1,0 +1,1454 @@
+{
+  "schema": "policyos.e02.explicit_transport_selection.v1",
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/adapt-owner-selection.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/adapt-owner-selection.stdout.json",
+      "bytes": 628,
+      "sha256": "41a42fa1362af7eb7d7d00d5a2d74c16613e4f0e60343b8741ac831ef0cd945f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/adapt_owner_selection.py",
+      "bytes": 5175,
+      "sha256": "d281115595f4804cd356ce25b5416155b6a940c5bb2d66951142957bd99c9f02"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/build-final-cli.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/build-final-cli.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/build_final_cli.py",
+      "bytes": 5880,
+      "sha256": "0cfa76de1ca46dc89ada3f90241c366041321fd43394152b1e215b0433b7ba8d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/design-review.json",
+      "bytes": 6351,
+      "sha256": "65de9d25b51e6bac3ca20feacb0bfd120995fb6ee7a87b7fd0f0ae499c020211"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/design.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/design.stdout.json",
+      "bytes": 1475,
+      "sha256": "6846d7d9abbe6cb8b1b91a7938344dc1d066a90857c34d05887b7e3907ee22fa"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/design_selection.py",
+      "bytes": 9299,
+      "sha256": "9564644b17b9ff5d5ac93980eaacce40a3a27fcb8b2de26b55d4144fde6b76a6"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/economic-quality-pure-git-final-cdf-spec.json",
+      "bytes": 13833,
+      "sha256": "8732a3d172455fcdbc7e0388118d6ead3bfb5eaa19c4a3d47c13e5f84da744f2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/economic-quality-pure-git-spec.json",
+      "bytes": 13454,
+      "sha256": "354466dd59a4a74ec68649f86463a85f15884e17f077c49f0b2873a7aed244ed"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/economic-quality-v3-adapter.json",
+      "bytes": 19677,
+      "sha256": "0ce97407b588aa26b7d4ce92bd9eb98347c5092b6423526114501bf4178b8a7a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/extension-review.json",
+      "bytes": 6451,
+      "sha256": "487b724ff029b0b9ac3ec74dfab9e836f20503057468bfbd54e0b3fafdeac85c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-published-byte-readback.json",
+      "bytes": 90773,
+      "sha256": "3a16390b9f6a0eca88dbf1873af9a4520df7e88a0699bc20bcd86a766e2af5ae"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/finish_design.py",
+      "bytes": 4523,
+      "sha256": "93396cb42602f0723dba0a7c8d3f88fd5c36e61ee2a46ed4d20e97f3d592556d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/materialize.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/materialize.stdout.json",
+      "bytes": 780,
+      "sha256": "18396cfd9a5a020ffe6fa3e0d86f42bf4cef85528f59ee68e045768139310778"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/prepare-final-published-specs.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/prepare-final-published-specs.stdout.json",
+      "bytes": 1157,
+      "sha256": "73b375b76ea476d392a7d59744a4edc8cad5088aa09c00d5275fe3837bbab6e0"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/prepare-published-installed.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/prepare-published-installed.stdout.json",
+      "bytes": 309,
+      "sha256": "18685ffdf5698d8467135c41e42ed2936db632b29fcfd9519ccd473fc489e2b4"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/prepare-recovered-inputs.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/prepare-recovered-inputs.stdout.json",
+      "bytes": 548,
+      "sha256": "866b404a6a6aaf36cc7bef05108841c7716751bd236fa80a60a96acac566c96c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/prepare_final_published_specs.py",
+      "bytes": 4531,
+      "sha256": "f1ea19738ed56198605a2875aa5e376213b1ceeae7a9b07306d6f936f65c1ba9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/prepare_published_installed_inputs.py",
+      "bytes": 2682,
+      "sha256": "020635dbf4741a2d9c3f632afe5b27a871b70f73f40be3dce83780d978beb06b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/prepare_recovered_inputs.py",
+      "bytes": 5652,
+      "sha256": "b12f65970ef846c32fb6d26bce7acc13b759b7228131365c8356a6fbf96fcf93"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/probe_refresh_custody.py",
+      "bytes": 3832,
+      "sha256": "b8944a9f93adefd952e0e506d13e8843430a3f0273728f7582b8ea199c221a88"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/probe_v4_codec.py",
+      "bytes": 3950,
+      "sha256": "1692731bd0e6a3b98c424d4792bdf1893db052c3df7efb2cdde6e12435701e0a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/probe_v5_codec.py",
+      "bytes": 6182,
+      "sha256": "873fc431ae1ef30faee396b291b6a49f58d3284605424ff82072a22585020d1d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_draft.py",
+      "bytes": 9096,
+      "sha256": "cdd70cb5f494c7dc0e0ce7e6d37a701b551ff39f0f3d13725013faa271081bbb"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v2.py",
+      "bytes": 10833,
+      "sha256": "a02b2b74f47a3baa0d7a9b5ae867f679e7e890a4ede4e28d75c4efe8e06d86aa"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v3.py",
+      "bytes": 11196,
+      "sha256": "c55ab809c690634feb93b4b819d58f3b64518b9d15220742261805180bec41f4"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "bytes": 11741,
+      "sha256": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py.diff.command.json",
+      "bytes": 380,
+      "sha256": "9507fc6466c400aa72577fd25fef4a97ab8384e17481789a41b795b9067bbbf2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py.diff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py.full.diff",
+      "bytes": 4500,
+      "sha256": "9cc0773fb98ef8f67bf4122537dfb772ba8680750fe9464340c7d34fe8442649"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/published-graph-ffae-spec.json",
+      "bytes": 3512,
+      "sha256": "52d0f3a1825ec47b0b341f0f0af2a376ef3877841fcaf4f49b33d1d124b2bbbd"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/published-installed-c4dd-final-cdf-spec.json",
+      "bytes": 27927,
+      "sha256": "f924875dbc41ec324400ca0e488592906eedf2d03407b23a924ebf829e8c6866"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/published-installed-de197-final-cdf-spec.json",
+      "bytes": 70635,
+      "sha256": "1b6fc1836dfc6c82b8fe295e87605d63ed5c00ae71a636d840a3d35832768b28"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/published-installed-de197-spec.json",
+      "bytes": 70256,
+      "sha256": "4979fe507b3c7613c8bd118ae00b65dcdac7a23aafdef15b5242f4b8ff98d6b6"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/published-output-byte-audit.json",
+      "bytes": 1700,
+      "sha256": "79e4009249668a3fef6eb2d8d2e6e1650cd2ca26509f645aaafe23895cd1a759"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/published-output-byte-audit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/published-output-byte-audit.stdout.json",
+      "bytes": 1705,
+      "sha256": "4d44239893c65dfb60c369ca7fc0508c9826318ff5047fff8d3839f8268b9684"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/quality-519-execution-selection.json",
+      "bytes": 6781,
+      "sha256": "49483b15148f8c8186d9419b80f9a97fbb412b494f3dd3098dd2082a3fcf9253"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/recovered-519-cli-inputs.json",
+      "bytes": 3768,
+      "sha256": "78704d666d70af85a030a45f7f5acd7d5d02a11dbba610fb92e5b772649bc1db"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/recovered-transfer-selection.json",
+      "bytes": 5475,
+      "sha256": "c4319918647ff2e820e1c7b853c46ee30d4e0c19218cb5b93caf2cdeb458756b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/recovered-validation.json",
+      "bytes": 230617,
+      "sha256": "7cea307f6acbe0600a49770d5f596e8f8e40ac61d6d80d9f9cbe04ea63fb0e1a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/recovered-validation.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/recovered-validation.stdout.json",
+      "bytes": 457,
+      "sha256": "3599a113bda00776b3b5768acb5870c37d60ee8ac771f1eaccc6c5d0bbe99601"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/recovered_validate.py",
+      "bytes": 4747,
+      "sha256": "5a052c6d2f804f38b1b6b32d2fd268539984f73808692f9317185ef8999565f9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh-current-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh-current-v2.stdout.json",
+      "bytes": 1453,
+      "sha256": "307bde4b79cc4a4c3eeb04abaa9e7d549f8aac38db8a2295eaff2d0cc7492722"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh-current-v3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh-current-v3.stdout.json",
+      "bytes": 1453,
+      "sha256": "297d015b2eb9899916a5bc3318f35ba08f4b7cbb66a5ae7ddda00bb23c3a40ad"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh-current.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh-current.stdout.json",
+      "bytes": 1464,
+      "sha256": "1541a82efcf989032e792aed464a80d62143ea2c14ceaa27265016d87095b63f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh-help.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh-help.stdout.txt",
+      "bytes": 1566,
+      "sha256": "4eaf133fb86b1db177aaa8c2a3dbc45723011333ac91094802906e7c9f515b54"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh-recovered-519.execution.json",
+      "bytes": 2235,
+      "sha256": "5b6786d5f3381b5fb56e7c29c09a9dfc8fad931392102f55c3c1fbe3c4bca63d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh-recovered-519.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh-recovered-519.stdout.json",
+      "bytes": 1059,
+      "sha256": "8151cc900a6fea5c7bc84100dad6617720b909674da859aa8b10aee41228a73d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection.py",
+      "bytes": 13769,
+      "sha256": "6138ed98addff08997b823c2d5d5341d1e403cf6b7a6835b95fb8106cc4ec247"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v3.py",
+      "bytes": 14155,
+      "sha256": "4df1398167268650297f6a27acffe472759a3bd4829e741273bc10256a94d05a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py",
+      "bytes": 15451,
+      "sha256": "3df0d51dffda5c4ad5f6232c759d830efd23bd5c5ce3b43cf6a56050fb8d63a7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "bytes": 17081,
+      "sha256": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py.diff.command.json",
+      "bytes": 380,
+      "sha256": "dd0060b0a0a17a54d7c51caba80dafc58a964919d11c832809503f1a454a8961"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py.diff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py.full.diff",
+      "bytes": 5726,
+      "sha256": "5417458b15e7e1185e7888532242b201a0b4171497db2d8ece23fdcf003a4660"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-draft.json",
+      "bytes": 304062,
+      "sha256": "5b502dc4136bd9ea962e6daa9a6feed3dd39bedf89ba4b17b5a353eab2cd0546"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-recovered-519-v3.json",
+      "bytes": 381441,
+      "sha256": "30bd6f4cbd52ee55e1a25e8f3b94977785b1e4c5548a7a1c069ceaf131b5e0db"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-refreshed-current-demonstration.json",
+      "bytes": 238527,
+      "sha256": "0f183387ced5dd42e83a5abed67ae7e77e39eaf6e9b30fc74627ca92470a80a9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-refreshed-current-v2.json",
+      "bytes": 238527,
+      "sha256": "39ce17acf2dbf2edd022910e454da84d74fd401adfa2aeb1ad6941e9810c47a7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-refreshed-current-v3.json",
+      "bytes": 287012,
+      "sha256": "f0e3da878cd3a684baff5f7d0c23eab884dabd0ce5a91b9dbfec79789db4fc1e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "bytes": 1375,
+      "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe.stdout.json",
+      "bytes": 2996,
+      "sha256": "1e2e6aca15c1855355cc11ff23eda6f25981948b390921d9f07282693a736e74"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v2-final-validation.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v2-final-validation.stdout.json",
+      "bytes": 1066,
+      "sha256": "ec8a2c9394f202b285cbcc8f12fcd899cc5c0ccc0181a058cb239e57e941a7fd"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v2-validation.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v2-validation.stdout.json",
+      "bytes": 1066,
+      "sha256": "ec8a2c9394f202b285cbcc8f12fcd899cc5c0ccc0181a058cb239e57e941a7fd"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v3-extension-review.json",
+      "bytes": 9185,
+      "sha256": "f7a3b1f1278e26d6313203a8bd638ebf56e4d4c949a4e1c5e09e53cf016455c2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v3-validation.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v3-validation.stdout.json",
+      "bytes": 1066,
+      "sha256": "05bac49ec6b3861381794c1e20ef123aecada1e10e5a8a6cb857e2feb80b9674"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe.stdout.json",
+      "bytes": 979,
+      "sha256": "3bfe53087dc238bf78e8097a82f2982fa8f4924194740382cd9fd21652c7a48c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-v3.command.json",
+      "bytes": 450,
+      "sha256": "98b66b5e249886bb91aa12a4cbe9cd9a9ea8e7dd736b4f07430a988651d52cf1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-v3.full.diff",
+      "bytes": 3432,
+      "sha256": "368379a4eb2f647fb98fb867a46edd17b850e9a3c95c5b34f848e07dfb814fc4"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-v3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe.stdout.json",
+      "bytes": 1572,
+      "sha256": "f1aac4d4072709a1284f9de6435edff893846800e27fb8fb90e092e955d4becb"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/validate-recovered-519.execution.json",
+      "bytes": 504,
+      "sha256": "0fbaa0f9085e674ffff1739d01f2e97c0452b10941282ff04700348481de38ca"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/validate-recovered-519.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/validate-recovered-519.stdout.json",
+      "bytes": 676,
+      "sha256": "31612c31adf27e238fe1236ffbe5267e4594fe179675003bbc97902de181f375"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/verify_published_outputs.py",
+      "bytes": 2859,
+      "sha256": "4e0cdd7b3b280b94ac636d3fdcec0ec2d43147620d769c5b7b4360c51a936335"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/inputs/alpha.txt",
+      "bytes": 4,
+      "sha256": "7aa7a5359173d05b63cfd682e3c38487f3cb4f7f1d60659fe59fab1505977d4c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/inputs/beta.txt",
+      "bytes": 4,
+      "sha256": "01d09d19c2139a46aebfb577780d123d7396e97201bc7ead210a2ebff8239dee"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/prior-manifest.json",
+      "bytes": 799,
+      "sha256": "f34640c6c59b8a1b5d7572b74ac4806725103e09ef87f6711409f3b120d8f179"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/publish.stdout.json",
+      "bytes": 786,
+      "sha256": "c9c8cf293552a02200d6d99d4dec172bb586313bb16e0e2c49dada54433ac6a7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/refresh.stdout.json",
+      "bytes": 534,
+      "sha256": "c0f6e5ea50077630fb38e629971d7a16cc79f0cbca8509639987866583bbe1f7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/refreshed.json",
+      "bytes": 5880,
+      "sha256": "8880f5b233a1c6e7ccf9f35e24ee67ed3294256232b95a1ceb68431408ef6001"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/seed.json",
+      "bytes": 1120,
+      "sha256": "234938d778abca7e6cb6f6545667955ddeee6b7497a31c1b218ac8e4f2ba349d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/staged-v2/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "bytes": 6342,
+      "sha256": "27821dfd67a2cddbf81ca705bb92fb47403e52e7b73e6f27939562df1c3acc32"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/staged-v2/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v2.py",
+      "bytes": 10833,
+      "sha256": "a02b2b74f47a3baa0d7a9b5ae867f679e7e890a4ede4e28d75c4efe8e06d86aa"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/staged-v2/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection.py",
+      "bytes": 13769,
+      "sha256": "6138ed98addff08997b823c2d5d5341d1e403cf6b7a6835b95fb8106cc4ec247"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/staged-v2/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/utility-probe/inputs/alpha.txt",
+      "bytes": 4,
+      "sha256": "7aa7a5359173d05b63cfd682e3c38487f3cb4f7f1d60659fe59fab1505977d4c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/staged-v2/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/prior-draft/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/alpha.txt.gz",
+      "bytes": 24,
+      "sha256": "000c5edfa113518abb57e1b0c120330b4458e7f2ebb3b7e136d4c4af981772b9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/staged-v2/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+      "bytes": 5880,
+      "sha256": "8880f5b233a1c6e7ccf9f35e24ee67ed3294256232b95a1ceb68431408ef6001"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/ambiguous.execution.json",
+      "bytes": 1160,
+      "sha256": "72cfce913eca1083f8298e09987d729b62a76c6fbac7e4e70d5d1d1265bf31fe"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/ambiguous.json",
+      "bytes": 801,
+      "sha256": "783cfd26c08302656b52764ab3417e8ac486dbcf4a6ef592b434e603a1f62b87"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/ambiguous.stderr",
+      "bytes": 650,
+      "sha256": "fac16ce36621a65540904efc17e26faaeb9e8edc87ef22d55125a960f31cb57b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/ambiguous.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/bad-decoded.execution.json",
+      "bytes": 1164,
+      "sha256": "1a6a5da33410d4be967aa15b658a3e090687f6212054de59267a9ed3c277d3af"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/bad-decoded.json",
+      "bytes": 400,
+      "sha256": "88e529766bff546cfb66c082b4e537601665a935cfcacc3653a0ea892044a568"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/bad-decoded.stderr",
+      "bytes": 669,
+      "sha256": "fc13960f58892afcb46448e3fecab127f29c247d7dbd89a254d4c79197f2a8fb"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/bad-decoded.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/bad-stored.execution.json",
+      "bytes": 1162,
+      "sha256": "035e3fb4ed67598d79b6a2fb947a9a5ce746a677b89d37d75f1796c70ff79ce0"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/bad-stored.json",
+      "bytes": 400,
+      "sha256": "5cbcda41bcbd4c22e5ebceb888acb7b799b80dc393ed380a4d971d22113a4d3e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/bad-stored.stderr",
+      "bytes": 623,
+      "sha256": "57117ad8b47b5161c43c0522ec963afbc1e13623e052ff5aab58cf46f8460ffa"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/bad-stored.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/files-output.json",
+      "bytes": 6138,
+      "sha256": "a2dc03482921252bd773886c754f126c99b56f5ac61f274d3b50c7ea6b0f4fd6"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/files-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "bytes": 5921,
+      "sha256": "0d920f591e770207433a6fc948b7ce1f8093263f80488fa123c9bc1517510837"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/files-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+      "bytes": 6138,
+      "sha256": "a2dc03482921252bd773886c754f126c99b56f5ac61f274d3b50c7ea6b0f4fd6"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/files.json",
+      "bytes": 400,
+      "sha256": "479ea622db6459d099005efca16bfc5e2c10860bcf409ac3ebe95dcf49a9166e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/fixture.stdout.gz",
+      "bytes": 73,
+      "sha256": "61ecf38b8c76c8091efa4c4f6f8c434abaf5134267fc051867f1c2a20305f642"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/items-output.json",
+      "bytes": 6138,
+      "sha256": "0e4c2016b2286692715872e6c52439d5fae8ff2efd62d168c1fd6d834a0b8b3b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/items-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "bytes": 5921,
+      "sha256": "86ea8a471106a7b14dfcca2f66c35ed4a927319d412f0f92866b1e37b5a5dc2e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/items-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+      "bytes": 6138,
+      "sha256": "0e4c2016b2286692715872e6c52439d5fae8ff2efd62d168c1fd6d834a0b8b3b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/items.json",
+      "bytes": 400,
+      "sha256": "0fbd16df700efd424f0123e7519aa44eb090762c08de6c6c58443a5896b3134e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/prior.json",
+      "bytes": 63,
+      "sha256": "3918bb79d2170297285cf8e319f99154106c93a7e70a0ddc8a438031ae7617ca"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/publish-files.execution.json",
+      "bytes": 709,
+      "sha256": "37d1f191b17d98bf1e28becf43b7b723cfef3dbe46ac3d95e72c13a5fefa93f5"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/publish-files.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/publish-files.stdout",
+      "bytes": 792,
+      "sha256": "e65893c020f89a7070017d4365d667e3c95a0e306056fd1d9e79b5e4c9513542"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/publish-items.execution.json",
+      "bytes": 709,
+      "sha256": "7290b9bf304c1e84b38d8eb620347bedcf09e959ed88d992d2c199e4de728c83"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/publish-items.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/publish-items.stdout",
+      "bytes": 792,
+      "sha256": "3eda00481f75b083d86052848aae99982d0c51cf8d55bdbed9aa3161cea8e7ab"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/publish-selection.execution.json",
+      "bytes": 717,
+      "sha256": "18a848445ba22cd3fea9bf2d1bd61eb01dcbba3cb89ce54342ce7f6cc638e5ad"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/publish-selection.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/publish-selection.stdout",
+      "bytes": 800,
+      "sha256": "f84cf5240d331a0c262eaeeee4546fc7648c5a4bd01c4b97f4afae56f34df6ec"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/refresh-files.execution.json",
+      "bytes": 1152,
+      "sha256": "fab198aa6e2f457d06a1e5ca04e7f1ad110b5159fc2aa591eda922340ca4dbd5"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/refresh-files.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/refresh-files.stdout",
+      "bytes": 538,
+      "sha256": "848d9218c14322fc0159488877a5ee2e098bbdf821034ba07f100aaebffaa1d2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/refresh-items.execution.json",
+      "bytes": 1152,
+      "sha256": "74bb84547956b6ca3fc019dc764eb54099d4c23644cd8b2f9ce7ac246c839354"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/refresh-items.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/refresh-items.stdout",
+      "bytes": 538,
+      "sha256": "143e2364b4d23a5d87979918729b2abc085699adb6cc13e4bfe8cb1b7f595d44"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/refresh-selection.execution.json",
+      "bytes": 1160,
+      "sha256": "e4a0c277de57d08d39e76096e3543a0ecade178e8d0b5e64438cb6fb2d875bbb"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/refresh-selection.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/refresh-selection.stdout",
+      "bytes": 542,
+      "sha256": "4083b4e587b8250b3bdff43ddfda0409890aed16af496255f41539b17c59d0d2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/results.json",
+      "bytes": 1034,
+      "sha256": "00b54734d928ed521af2bb1d2019116b3a0e494eb497c6b5c00ec8b2c29386e3"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/seed.json",
+      "bytes": 317,
+      "sha256": "ee394c4d6a674af447c638c81fc9bd0e95d559dae4eb01dd94645a411a21968d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/selection-output.json",
+      "bytes": 6154,
+      "sha256": "58be57013c1af72a31a2300ae26f133764a2881b1cb8c79b7c37558ccb85f2d3"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/selection-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "bytes": 5937,
+      "sha256": "f7ee8a0b9617fb5b67700973e2d731b00e582249ced5456f6f2bb02882ae8361"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/selection-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+      "bytes": 6154,
+      "sha256": "58be57013c1af72a31a2300ae26f133764a2881b1cb8c79b7c37558ccb85f2d3"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/selection.json",
+      "bytes": 418,
+      "sha256": "6b416983b36734f2542598ce765694b3a102d025bcd14575719a67cd82cdcf17"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/ambiguous.execution.json",
+      "bytes": 1158,
+      "sha256": "22bf759464ddc60f4c796716a54a02b5764bdce776e8300b3c6f5d69e3cf5523"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/ambiguous.json",
+      "bytes": 801,
+      "sha256": "f43dc384c219e89f03593ea8253df53cfb810b07e55ff07e02e5f548b7439909"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/ambiguous.stderr",
+      "bytes": 650,
+      "sha256": "ec7080899fce98f8220342decb0c4c0afb234a79c5aa8672dce8f6580ae67a17"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/ambiguous.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/bad-decoded.execution.json",
+      "bytes": 1164,
+      "sha256": "6f0db149317582d888e9d6377c7a0fe209ddeceecedadec816486877ff75acdc"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/bad-decoded.json",
+      "bytes": 400,
+      "sha256": "e894fdb97e0948d8ac4c46a23403503d49d06307d02b5065ae4c47d4cb8118f1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/bad-decoded.stderr",
+      "bytes": 669,
+      "sha256": "c6b6b353c6b685430c4f5ac629e13ed64c9f4630e133802cd0cba367a27a92f1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/bad-decoded.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/bad-stored.execution.json",
+      "bytes": 1162,
+      "sha256": "d914382e6542a024771db0ff73fde3dc76889ee82ad40cef11222ba9c12f92c9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/bad-stored.json",
+      "bytes": 400,
+      "sha256": "026c8ef7ddd01a2a4d9aacb4293674127cbeb6f23982064a01876145d03f5902"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/bad-stored.stderr",
+      "bytes": 623,
+      "sha256": "ff5e92c69cb8ff5dee147b9aff8ec3f0747f2c740ef686eae042a0534da7f58e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/bad-stored.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/codec-only.execution.json",
+      "bytes": 1162,
+      "sha256": "b634edcd803130c9e1165a9aacb3e1b204c4cb2089e611a37909b5ca4edcb2a6"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/codec-only.json",
+      "bytes": 406,
+      "sha256": "6563a3897bc0b440cf858658f2fb19a100b259142380b1d0aa7919b6a48c08b9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/codec-only.stderr",
+      "bytes": 625,
+      "sha256": "84c9894c2fcda2be2a0b510fb92f92230b566f45fd96a0e088dee8993b6015b7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/codec-only.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/contradictory-codec.execution.json",
+      "bytes": 1180,
+      "sha256": "6bc060790b97b646aba6510284b0bcc704b1fcbde1d9d5412b263fbc3ce810f9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/contradictory-codec.json",
+      "bytes": 427,
+      "sha256": "077249d4e2897bc7017c7e9bab01ead77ff5a12af4849dbdc9a405c32a7b1ee8"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/contradictory-codec.stderr",
+      "bytes": 625,
+      "sha256": "db8085b288d0d6defedc0461ff144cfa5de3f501b1c138d5fd6e365bb6ce5349"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/contradictory-codec.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/different-containers-output.json",
+      "bytes": 7151,
+      "sha256": "9bfc3adcdebac11c5dc9664349e6ef9d5881202820f7f23f4ccb03853165e980"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/different-containers-publish.execution.json",
+      "bytes": 739,
+      "sha256": "403aa6e35f06f5bf694e5905ea7665ce38411f9cbf4e4afc8810384df83d5160"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/different-containers-publish.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/different-containers-publish.stdout",
+      "bytes": 822,
+      "sha256": "cb80d83f97d2d9283282756d711f2184179117fbb8b2c67fe6afc5d224462040"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/different-containers-refresh.execution.json",
+      "bytes": 1182,
+      "sha256": "5ddbdbc5a025a5c59c60372f701aa8b9666b879cd0ae53d0eee2ebd9e0c0ef80"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/different-containers-refresh.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/different-containers-refresh.stdout",
+      "bytes": 553,
+      "sha256": "071faf0f995d0531a3e3384948e3f39ca0a2b5752d8725205a0ee5d08fd1e10a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/different-containers-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "bytes": 7054,
+      "sha256": "f63f7244eec8e5c414e71ad4bb561d07b6c9c16256c79ccde6c963f4f09191fc"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/different-containers-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+      "bytes": 7151,
+      "sha256": "9bfc3adcdebac11c5dc9664349e6ef9d5881202820f7f23f4ccb03853165e980"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/different-containers.json",
+      "bytes": 791,
+      "sha256": "a91c5f47a9026b12500f1c763af2c97b438d4027e96fde5628ef195fdf7da467"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/files-output.json",
+      "bytes": 6138,
+      "sha256": "696f5301c3afa70d6c08db6c31e497bc86b3deaab30c8c0325af2bac5c32a998"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/files-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "bytes": 6117,
+      "sha256": "aeec33629ef36c0642974aef8dd4f04a4719a5d94aa8c58c1d0c7e8830be0c28"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/files-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+      "bytes": 6138,
+      "sha256": "696f5301c3afa70d6c08db6c31e497bc86b3deaab30c8c0325af2bac5c32a998"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/files.json",
+      "bytes": 400,
+      "sha256": "8db30c38a0203f300d61f854731e5b3e4a2ca4fac5334d44a77973366e0dffd2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/fixture.stdout.gz",
+      "bytes": 73,
+      "sha256": "61ecf38b8c76c8091efa4c4f6f8c434abaf5134267fc051867f1c2a20305f642"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/forged-alias.execution.json",
+      "bytes": 563,
+      "sha256": "7da5fac007a6f0e7113b13d689d8ddc37eab2ca14abfff892a9e96bfe1066591"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/forged-alias.json",
+      "bytes": 7286,
+      "sha256": "1139e0aa9a77cbe32722a8ed407d4ab7c9a6600e49307cd1cac8646b098b2f9f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/forged-alias.stderr",
+      "bytes": 503,
+      "sha256": "59939b230906a97816fd1b3097beabe47ac25ff0a8a1910d0f0cb2044638bf20"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/forged-alias.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/items-output.json",
+      "bytes": 6138,
+      "sha256": "7472a012665da1e04765b190e9cf6721c93d1e1f9cee23e80ad68f96764fdddf"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/items-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "bytes": 6117,
+      "sha256": "e5ab13bd95e4987802c796b9f6d501e56c628a52afdf62b5bd50675c7f338463"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/items-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+      "bytes": 6138,
+      "sha256": "7472a012665da1e04765b190e9cf6721c93d1e1f9cee23e80ad68f96764fdddf"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/items.json",
+      "bytes": 400,
+      "sha256": "f6ef14fbdd1ae0ff160b6bb77bf79db714eabfcc1756e1d74224f8c5f85f02d8"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/prior.json",
+      "bytes": 63,
+      "sha256": "3918bb79d2170297285cf8e319f99154106c93a7e70a0ddc8a438031ae7617ca"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/publish-files.execution.json",
+      "bytes": 709,
+      "sha256": "328d59700962dbcc60963ca7e818dc8f82884af6f448507cd82e3c439230ddef"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/publish-files.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/publish-files.stdout",
+      "bytes": 792,
+      "sha256": "631fd0edd07c3b5c0aa4c81177b1cdbc7f7742384b70be84148f169dfa7558c8"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/publish-items.execution.json",
+      "bytes": 709,
+      "sha256": "44824b965358621d016d98f96e1bdac886c85df3544cc0807aae5a746377e6bc"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/publish-items.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/publish-items.stdout",
+      "bytes": 792,
+      "sha256": "2a210e7c422563833be4963392217ec3d49a36a8ed95d5d781e8197c1c3c4456"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/publish-selection.execution.json",
+      "bytes": 717,
+      "sha256": "e501a18bc35206f18e147056f61205d6b176369f757d511f9e850e9b90bd9ab1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/publish-selection.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/publish-selection.stdout",
+      "bytes": 800,
+      "sha256": "0957203b8de737a5e6231519af37fd95da256f92a1d0a59281b7fde37334b418"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/refresh-files.execution.json",
+      "bytes": 1152,
+      "sha256": "5c1b4c15ae76551701c068cc16ac6044fa7cd95a9e1963123ffb7e3cc8cf2c33"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/refresh-files.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/refresh-files.stdout",
+      "bytes": 538,
+      "sha256": "e3215bfe4b383576d293d9e8bb25568b52cad9fd37cbeced2c01e025e75eeef2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/refresh-items.execution.json",
+      "bytes": 1152,
+      "sha256": "1a35f8eda5c2ceedad4ed21df48cdcace2a6d14c1cb700d4debcf4ccb6768085"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/refresh-items.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/refresh-items.stdout",
+      "bytes": 538,
+      "sha256": "953a13df9e7fdafc5376dc107efe7ac69260df628f278466179942c14bb96dcc"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/refresh-selection.execution.json",
+      "bytes": 1160,
+      "sha256": "f9c2ea4ad51c37c9c6d73bb40e00982d6049be2ebcd6dec17d6c1f16fac5e213"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/refresh-selection.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/refresh-selection.stdout",
+      "bytes": 542,
+      "sha256": "659712a453feb0a0c7b86462ed9cac35395bbe5f6840e2e1e9c882a0245de349"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/results.json",
+      "bytes": 1627,
+      "sha256": "b7fa5d15eb1664343bc962488b39234ad109d11e9b0fa73623cd4eff6ed6d655"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/second-container.gz",
+      "bytes": 73,
+      "sha256": "107e4b0b5326f1d445389e3f9b54aaa31ef20a9b9b364bf0f9c35fcc6bc4beee"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/seed.json",
+      "bytes": 317,
+      "sha256": "ee394c4d6a674af447c638c81fc9bd0e95d559dae4eb01dd94645a411a21968d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/selection-output.json",
+      "bytes": 6154,
+      "sha256": "8c82ca79aa53b38a503ca6affcc1b4a34149ab76f86539e5dacd19862d02b6c2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/selection-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "bytes": 6133,
+      "sha256": "c3e1fc70905f432feedd80523969b6223a718c490a712783242e0fa64d97cd79"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/selection-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+      "bytes": 6154,
+      "sha256": "8c82ca79aa53b38a503ca6affcc1b4a34149ab76f86539e5dacd19862d02b6c2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/selection.json",
+      "bytes": 418,
+      "sha256": "21cef2645e1158263384f16d364acffcd927f51a39202257b384e06a0e6a7d32"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/unknown-codec.execution.json",
+      "bytes": 1168,
+      "sha256": "0bfb47e1670c6a3e8349721aea6a3d4d616eb8d49ddcbecc72f3dc2e18d29659"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/unknown-codec.json",
+      "bytes": 431,
+      "sha256": "f41696e1460193409d6b5832958c90affe999c02e311274341eeb78fd2acbeb7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/unknown-codec.stderr",
+      "bytes": 644,
+      "sha256": "1f78ebca809164c040aedd0e61c7034ed687fd46b335125ee9d666199da9fadd"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/unknown-codec.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/staged-draft/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+      "bytes": 325734,
+      "sha256": "5c9ded97c345a87d3f9ac0d6b2a262d2c414bc14cf9d5af2f8c3d6b60abfd683"
+    }
+  ],
+  "explicit_skipped_tiny_materialized_duplicate_bodies": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/prior-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/alpha.txt.gz",
+      "binding": {
+        "bytes": 24,
+        "sha256": "000c5edfa113518abb57e1b0c120330b4458e7f2ebb3b7e136d4c4af981772b9"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/files-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v3.py",
+      "binding": {
+        "bytes": 11196,
+        "sha256": "c55ab809c690634feb93b4b819d58f3b64518b9d15220742261805180bec41f4"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/files-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection_v4.py",
+      "binding": {
+        "bytes": 15451,
+        "sha256": "3df0d51dffda5c4ad5f6232c759d830efd23bd5c5ce3b43cf6a56050fb8d63a7"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/files-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "binding": {
+        "bytes": 1375,
+        "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/files-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/v4-codec-probe/files.json",
+      "binding": {
+        "bytes": 400,
+        "sha256": "479ea622db6459d099005efca16bfc5e2c10860bcf409ac3ebe95dcf49a9166e"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/files-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/v4-codec-probe/fixture.stdout.gz",
+      "binding": {
+        "bytes": 73,
+        "sha256": "61ecf38b8c76c8091efa4c4f6f8c434abaf5134267fc051867f1c2a20305f642"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/items-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v3.py",
+      "binding": {
+        "bytes": 11196,
+        "sha256": "c55ab809c690634feb93b4b819d58f3b64518b9d15220742261805180bec41f4"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/items-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection_v4.py",
+      "binding": {
+        "bytes": 15451,
+        "sha256": "3df0d51dffda5c4ad5f6232c759d830efd23bd5c5ce3b43cf6a56050fb8d63a7"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/items-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "binding": {
+        "bytes": 1375,
+        "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/items-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/v4-codec-probe/fixture.stdout.gz",
+      "binding": {
+        "bytes": 73,
+        "sha256": "61ecf38b8c76c8091efa4c4f6f8c434abaf5134267fc051867f1c2a20305f642"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/items-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/v4-codec-probe/items.json",
+      "binding": {
+        "bytes": 400,
+        "sha256": "0fbd16df700efd424f0123e7519aa44eb090762c08de6c6c58443a5896b3134e"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/selection-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v3.py",
+      "binding": {
+        "bytes": 11196,
+        "sha256": "c55ab809c690634feb93b4b819d58f3b64518b9d15220742261805180bec41f4"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/selection-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection_v4.py",
+      "binding": {
+        "bytes": 15451,
+        "sha256": "3df0d51dffda5c4ad5f6232c759d830efd23bd5c5ce3b43cf6a56050fb8d63a7"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/selection-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "binding": {
+        "bytes": 1375,
+        "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/selection-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/v4-codec-probe/fixture.stdout.gz",
+      "binding": {
+        "bytes": 73,
+        "sha256": "61ecf38b8c76c8091efa4c4f6f8c434abaf5134267fc051867f1c2a20305f642"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/selection-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/v4-codec-probe/selection.json",
+      "binding": {
+        "bytes": 418,
+        "sha256": "6b416983b36734f2542598ce765694b3a102d025bcd14575719a67cd82cdcf17"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/different-containers-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "binding": {
+        "bytes": 11741,
+        "sha256": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/different-containers-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "binding": {
+        "bytes": 17081,
+        "sha256": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/different-containers-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "binding": {
+        "bytes": 1375,
+        "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/different-containers-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/v5-codec-probe/different-containers.json",
+      "binding": {
+        "bytes": 791,
+        "sha256": "a91c5f47a9026b12500f1c763af2c97b438d4027e96fde5628ef195fdf7da467"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/different-containers-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/v5-codec-probe/fixture.stdout.gz",
+      "binding": {
+        "bytes": 73,
+        "sha256": "61ecf38b8c76c8091efa4c4f6f8c434abaf5134267fc051867f1c2a20305f642"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/different-containers-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/v5-codec-probe/second-container.gz",
+      "binding": {
+        "bytes": 73,
+        "sha256": "107e4b0b5326f1d445389e3f9b54aaa31ef20a9b9b364bf0f9c35fcc6bc4beee"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/files-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "binding": {
+        "bytes": 11741,
+        "sha256": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/files-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "binding": {
+        "bytes": 17081,
+        "sha256": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/files-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "binding": {
+        "bytes": 1375,
+        "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/files-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/v5-codec-probe/files.json",
+      "binding": {
+        "bytes": 400,
+        "sha256": "8db30c38a0203f300d61f854731e5b3e4a2ca4fac5334d44a77973366e0dffd2"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/files-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/v5-codec-probe/fixture.stdout.gz",
+      "binding": {
+        "bytes": 73,
+        "sha256": "61ecf38b8c76c8091efa4c4f6f8c434abaf5134267fc051867f1c2a20305f642"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/items-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "binding": {
+        "bytes": 11741,
+        "sha256": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/items-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "binding": {
+        "bytes": 17081,
+        "sha256": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/items-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "binding": {
+        "bytes": 1375,
+        "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/items-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/v5-codec-probe/fixture.stdout.gz",
+      "binding": {
+        "bytes": 73,
+        "sha256": "61ecf38b8c76c8091efa4c4f6f8c434abaf5134267fc051867f1c2a20305f642"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/items-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/v5-codec-probe/items.json",
+      "binding": {
+        "bytes": 400,
+        "sha256": "f6ef14fbdd1ae0ff160b6bb77bf79db714eabfcc1756e1d74224f8c5f85f02d8"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/selection-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "binding": {
+        "bytes": 11741,
+        "sha256": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/selection-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "binding": {
+        "bytes": 17081,
+        "sha256": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/selection-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "binding": {
+        "bytes": 1375,
+        "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/selection-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/v5-codec-probe/fixture.stdout.gz",
+      "binding": {
+        "bytes": 73,
+        "sha256": "61ecf38b8c76c8091efa4c4f6f8c434abaf5134267fc051867f1c2a20305f642"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/selection-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/v5-codec-probe/selection.json",
+      "binding": {
+        "bytes": 418,
+        "sha256": "21cef2645e1158263384f16d364acffcd927f51a39202257b384e06a0e6a7d32"
+      },
+      "reason": "Tiny materialized duplicate body; full original helper/fixture input + deciding manifest/recipe retained. No scientific source or output dropped."
+    }
+  ],
+  "scope": "Complete original/refreshed helper scripts, commands, actual stdout/stderr and fixture bytes; old V4 NO-GO and old draft scopes unchanged. Prior staging is not recursively scanned; original171MB is a single existing raw input plus old verified gzip custody."
+}

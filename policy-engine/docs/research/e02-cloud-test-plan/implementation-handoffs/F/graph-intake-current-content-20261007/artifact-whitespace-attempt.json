@@ -1,0 +1,49 @@
+{
+  "raw_artifact_attempt": {
+    "outcome": "FAIL",
+    "exit": 2,
+    "command": "git diff --cached --check",
+    "stdout_bytes": 52566,
+    "stdout_sha256": "40062e85668e0341de8f21685c3dfae6ef8da784030d0ec2c751b444c0b63d96",
+    "stderr_bytes": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "offending_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-fragment.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-native.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/correction-development.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/correction-development2.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/correction-development3.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/correction.patch",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/development-native.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/development-native2.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/development-native3.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-fragment.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-native.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/full-implementation.patch",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/implementation.patch",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/adversarial-corrected.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/adversarial.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/exec.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/first-adversarial-setup/adversarial.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/native.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/finish_review.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/full-delta.diff",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/native.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/inputs/B214-original.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/inputs/B218-original.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-composition-result.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-current-content.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-early-profile.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-endpoint-identity.stdout.txt"
+    ]
+  },
+  "source_seven_paths": {
+    "outcome": "PASS",
+    "exit": 0,
+    "command": "git diff --check d78e88f039035d18e58f09bb0de6e1beddd26272 647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+    "stdout_bytes": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_bytes": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

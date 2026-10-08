@@ -1,0 +1,229 @@
+{
+  "candidate": {
+    "export": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate",
+    "pin_file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/frozen-candidate.json",
+    "pin_sha256": "f4c2c3898dc454fecf2c44160a6d362cc665b2fe5df1a35a11b1cf46b515520d",
+    "sha": "556329c9cdd183197e644299381550f81f061620",
+    "tree": "a7a581044ee5c9e91b8c514c9aad4ff3051ce6a5"
+  },
+  "canonical_recipe": "README.md: uv sync --project workers/dowhy-014 --python 3.12 --frozen; this single attempt appends --offline per authorization.",
+  "command": [
+    "/opt/homebrew/bin/uv",
+    "sync",
+    "--project",
+    "workers/dowhy-014",
+    "--python",
+    "3.12",
+    "--frozen",
+    "--offline"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate/policy-engine",
+  "disk_after": {
+    "free_bytes": 44714782720,
+    "free_delta_bytes": -114688
+  },
+  "disk_before": {
+    "free_bytes": 44714897408
+  },
+  "final_classification": {
+    "online_or_other_install_attempted": false,
+    "product_failure_claimed": false,
+    "product_test": "UNRUN",
+    "provisioning": "ERROR_OFFLINE_SYNC"
+  },
+  "finished_utc": "2026-10-07T22:10:06.262355+00:00",
+  "offline_cache_failure": {
+    "additional_attempts_permitted": false,
+    "dependency_chain": [
+      "polisyos-dowhy-worker==1.0.0",
+      "dowhy==0.14",
+      "numba==0.68.0",
+      "llvmlite==0.50.0"
+    ],
+    "package": "llvmlite",
+    "stderr_exact": "Using CPython 3.12.12\nCreating virtual environment at: workers/dowhy-014/.venv\n  \u00d7 Failed to download `llvmlite==0.50.0`\n  \u2570\u2500\u25b6 Network connectivity is disabled, but the\n      requested data wasn't found in the cache for:\n      `https://files.pythonhosted.org/packages/d9/1f/2576416b3e9b73f77b8331b7f2e41ce5ae7bbff0489eb16d98099a71693c/llvmlite-0.50.0-cp312-cp312-macosx_12_0_arm64.whl`\n  help: `llvmlite` (v0.50.0) was included because `polisyos-dowhy-worker`\n        (v1.0.0) depends on `dowhy` (v0.14) which depends on `numba` (v0.68.0)\n        which depends on `llvmlite`\n",
+    "summary": "Offline cache lacks the exact locked llvmlite wheel; sync stopped after this single attempt.",
+    "version": "0.50.0",
+    "wheel": "llvmlite-0.50.0-cp312-cp312-macosx_12_0_arm64.whl"
+  },
+  "protected_receipts": {
+    "D10_receipt_sha256_before": "09fd530e8d123a86329c6b3f12d64a69ce88b492de4bc211912d1ffad4e2e155",
+    "prior_F_UNRUN_receipt_sha256_before": "928b61f109fc57219266baf41c8e60696954d5eace616ca2ebd9138542620157"
+  },
+  "protected_receipts_after": {
+    "D10_receipt_sha256": "09fd530e8d123a86329c6b3f12d64a69ce88b492de4bc211912d1ffad4e2e155",
+    "D10_unchanged": true,
+    "prior_F_UNRUN_receipt_sha256": "928b61f109fc57219266baf41c8e60696954d5eace616ca2ebd9138542620157",
+    "prior_F_UNRUN_unchanged": true
+  },
+  "protected_receipts_final": {
+    "D10_receipt_sha256": "09fd530e8d123a86329c6b3f12d64a69ce88b492de4bc211912d1ffad4e2e155",
+    "D10_unchanged": true,
+    "prior_F_UNRUN_receipt_sha256": "928b61f109fc57219266baf41c8e60696954d5eace616ca2ebd9138542620157",
+    "prior_F_UNRUN_unchanged": true
+  },
+  "python312": "Python 3.12.12",
+  "returncode": 1,
+  "runtime_test": {
+    "reason": "Required locked DoWhy runtime could not be provisioned offline; test was not invoked. No worker child ran and no JUnit exists.",
+    "selector": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_query_consumer_binds_complete_cas_projection_and_original_request",
+    "status": "UNRUN"
+  },
+  "schema": "policyos.e02.g.local-worker-provision.v1",
+  "source_inputs": {
+    "policy-engine/workers/dowhy-014/.python-version": {
+      "export_blob": "e4fba2183587225f216eeada4c78dfab6b2e65f5",
+      "git_blob": "e4fba2183587225f216eeada4c78dfab6b2e65f5",
+      "matches": true
+    },
+    "policy-engine/workers/dowhy-014/README.md": {
+      "export_blob": "84528b455b39585aa3e507e4c6697213c7f7365a",
+      "git_blob": "84528b455b39585aa3e507e4c6697213c7f7365a",
+      "matches": true
+    },
+    "policy-engine/workers/dowhy-014/pyproject.toml": {
+      "export_blob": "770a46160a0b13614507d345f729910c9e81acde",
+      "git_blob": "770a46160a0b13614507d345f729910c9e81acde",
+      "matches": true
+    },
+    "policy-engine/workers/dowhy-014/uv.lock": {
+      "export_blob": "77ce3b5392703b452d70da87c0f57372b88e9117",
+      "git_blob": "77ce3b5392703b452d70da87c0f57372b88e9117",
+      "matches": true
+    }
+  },
+  "source_inputs_after": {
+    "policy-engine/workers/dowhy-014/.python-version": {
+      "export_blob": "e4fba2183587225f216eeada4c78dfab6b2e65f5",
+      "git_blob": "e4fba2183587225f216eeada4c78dfab6b2e65f5",
+      "matches": true
+    },
+    "policy-engine/workers/dowhy-014/README.md": {
+      "export_blob": "84528b455b39585aa3e507e4c6697213c7f7365a",
+      "git_blob": "84528b455b39585aa3e507e4c6697213c7f7365a",
+      "matches": true
+    },
+    "policy-engine/workers/dowhy-014/pyproject.toml": {
+      "export_blob": "770a46160a0b13614507d345f729910c9e81acde",
+      "git_blob": "770a46160a0b13614507d345f729910c9e81acde",
+      "matches": true
+    },
+    "policy-engine/workers/dowhy-014/uv.lock": {
+      "export_blob": "77ce3b5392703b452d70da87c0f57372b88e9117",
+      "git_blob": "77ce3b5392703b452d70da87c0f57372b88e9117",
+      "matches": true
+    }
+  },
+  "source_inputs_match": true,
+  "source_inputs_unchanged": true,
+  "started_utc": "2026-10-07T22:10:06.106077+00:00",
+  "status": "ERROR_OFFLINE_SYNC",
+  "stderr": {
+    "bytes": 582,
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/offline-provision-attempt-1/stderr.txt",
+    "sha256": "693a32703d9947170db96c0fac74f21f8e9450a6090cb3a1a123c2b2beda738c"
+  },
+  "stdout": {
+    "bytes": 0,
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/offline-provision-attempt-1/stdout.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "timed_out": false,
+  "timeout_seconds": 600,
+  "uv_cache_dir": "/Users/deniskopylov/.cache/uv",
+  "uv_related_env": {},
+  "uv_version": "uv 0.10.6 (Homebrew 2026-02-24)",
+  "wall_seconds": 0.09,
+  "worker_venv_after": {
+    "complete_environment": false,
+    "du_kib": "68",
+    "exists": true,
+    "files": [
+      {
+        "bytes": 0,
+        "path": ".lock"
+      },
+      {
+        "bytes": 214,
+        "path": "pyvenv.cfg"
+      },
+      {
+        "bytes": 43,
+        "path": "CACHEDIR.TAG"
+      },
+      {
+        "bytes": 1,
+        "path": ".gitignore"
+      },
+      {
+        "bytes": 2854,
+        "path": "bin/activate.bat"
+      },
+      {
+        "bytes": 2804,
+        "path": "bin/activate.ps1"
+      },
+      {
+        "bytes": 4397,
+        "path": "bin/activate.fish"
+      },
+      {
+        "bytes": 1217,
+        "path": "bin/pydoc.bat"
+      },
+      {
+        "bytes": 2404,
+        "path": "bin/activate_this.py"
+      },
+      {
+        "bytes": 4295,
+        "path": "bin/activate"
+      },
+      {
+        "bytes": 3967,
+        "path": "bin/activate.nu"
+      },
+      {
+        "bytes": 1730,
+        "path": "bin/deactivate.bat"
+      },
+      {
+        "bytes": 2825,
+        "path": "bin/activate.csh"
+      },
+      {
+        "bytes": 4342,
+        "path": "lib/python3.12/site-packages/_virtualenv.py"
+      },
+      {
+        "bytes": 18,
+        "path": "lib/python3.12/site-packages/_virtualenv.pth"
+      }
+    ],
+    "identity": null,
+    "python_exists": true,
+    "python_version_command_returncode": 0,
+    "python_version_stderr": "",
+    "python_version_stdout": "Python 3.12.12",
+    "regular_file_bytes": 31111,
+    "regular_file_count": 15,
+    "size_bytes": 31111,
+    "symlink_count": 3,
+    "symlinks": [
+      {
+        "path": "bin/python3",
+        "target": "python"
+      },
+      {
+        "path": "bin/python",
+        "target": "/Users/deniskopylov/.local/share/uv/python/cpython-3.12-macos-aarch64-none/bin/python3.12"
+      },
+      {
+        "path": "bin/python3.12",
+        "target": "python"
+      }
+    ]
+  },
+  "worker_venv_existed_before": false,
+  "worker_venv_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate/policy-engine/workers/dowhy-014/.venv"
+}

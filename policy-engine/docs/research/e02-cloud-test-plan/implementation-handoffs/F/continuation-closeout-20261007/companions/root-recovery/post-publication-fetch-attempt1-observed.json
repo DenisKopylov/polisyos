@@ -1,0 +1,7 @@
+{
+  "exec_session": 85776,
+  "returncode": 128,
+  "check": "ERROR",
+  "observed_output": "remote: upstream connect error or disconnect/reset before headers. reset reason: connection timeout\nfatal: unable to access 'https://github.com/DenisKopylov/polisyos.git/': The requested URL returned error: 503\n",
+  "not_product_failure": true
+}

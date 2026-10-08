@@ -1,0 +1,34 @@
+{
+  "source_start": "7450e7ece415490cbf70a59871bdf1e17fb25abd",
+  "tree_start": "36f5f6dfc94e0990069204a90d539685e75864cb",
+  "status_start": "",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_public_source_bound_validation_facade_identity_invocation_and_pickle",
+    "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_query_consumer_binds_complete_cas_projection_and_original_request"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "source_sha": "7450e7ece415490cbf70a59871bdf1e17fb25abd",
+  "tree": "36f5f6dfc94e0990069204a90d539685e75864cb",
+  "status": "",
+  "exit": 1,
+  "wall_s": 9.466599721999955,
+  "pythonpath": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/final-dependency-native.stdout",
+      "sha256": "a8537d305dcc7f293f7a657d7f82fe0e91acc0f11e9422cf2a35c42d99dedfb9",
+      "bytes": 1266
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/final-dependency-native.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

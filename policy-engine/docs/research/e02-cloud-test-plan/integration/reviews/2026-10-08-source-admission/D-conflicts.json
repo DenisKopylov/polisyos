@@ -1,0 +1,15 @@
+{
+  "G": "99c7eb501c525912e4142a9ca833f07de3ff6c8e",
+  "D": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+  "preview_exit": 1,
+  "virtual_conflicted_tree": "2637d87cac64fc37fb12520fcb5194309a69ee99",
+  "conflicts": [
+    "CONFLICT (content): Merge conflict in policy-engine/architecture/public_surface/inventory.json",
+    "CONFLICT (content): Merge conflict in policy-engine/docs/reference/public-surface.md"
+  ],
+  "owner": "G canonical shared generated companions",
+  "action": "canonical generation on frozen composed source, then exact service owner budget factory check; D not merged",
+  "deciding_output": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/D-after-F-merge-tree.stdout.txt",
+  "sha256": "5df1215bc1c61483c38166eb31b3a55d0232197c725af8012df0c0a3d1e96d97",
+  "formal_closure_ids": []
+}

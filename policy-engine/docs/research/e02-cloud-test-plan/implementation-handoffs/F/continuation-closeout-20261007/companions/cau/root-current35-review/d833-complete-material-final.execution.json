@@ -1,0 +1,41 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/tmp/e02-F-continuation-20261007/cau/root-current35-review/validate_root_current35.py",
+    "--repo",
+    "/workspace/e02-F-closeout-20261006",
+    "--target",
+    "d8334672f44d24dd32113264f96ca3f7954dace4",
+    "--output",
+    "/tmp/e02-F-continuation-20261007/cau/root-current35-review/d833-complete-material-final-review.json",
+    "--negative-controls"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261007/cau/root-current35-review",
+  "exit": 0,
+  "elapsed_s": 9.116182804107666,
+  "environment": {
+    "python": "3.12.14",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "purpose": "stdlib immutable Git metadata verification only"
+  },
+  "target": {
+    "sha": "d8334672f44d24dd32113264f96ca3f7954dace4",
+    "tree": "a68dbc3ecf4ccf9a5a59fa4b830464e32d81dd8f"
+  },
+  "replayer": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/validate_root_current35.py",
+    "bytes": 21486,
+    "sha256": "8ed487013cf0a43ca5c4c5fa752e86cf161b300037aaa96f6cb39829340d5297"
+  },
+  "scope_guard": "All deciding reads immutabletargetGitshow; no repo writes",
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/d833-complete-material-final.stdout",
+    "bytes": 1667,
+    "sha256": "6d33fb0b5e4bc6724af655449e5e19cb230eafd084dd79e1c257e9bfa5f90043"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/d833-complete-material-final.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

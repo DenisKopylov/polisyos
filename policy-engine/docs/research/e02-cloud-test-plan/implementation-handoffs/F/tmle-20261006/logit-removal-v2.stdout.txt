@@ -1,0 +1,45 @@
+{"mode": "logit", "module": "/workspace/e02-F-tmle-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py", "function": "fit_tmle_ate", "original_function_sha256": "f78d082d6ade96b07727a6427fcb2cc91fb7bb8a744976e70d5d655259a21ec0", "mutated_function_sha256": "bb498ac84abca5b98bc9aa439c5c13abd904003a3a2280951725bb8ff2aa579f", "selector": "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_poor_bounded_initial_predictions_use_logit_not_clipped_identity", "mutation_scope": "memory-only; markers and test unchanged"}
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-F-tmle-20261006/policy-engine
+configfile: pytest.ini
+plugins: langsmith-0.6.0, jaxtyping-0.3.4, xdist-3.8.0, anyio-4.12.0, asyncio-1.3.0, benchmark-5.2.3, hypothesis-6.151.2
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 1 item
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py F
+
+=================================== FAILURES ===================================
+_____ test_poor_bounded_initial_predictions_use_logit_not_clipped_identity _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fa62518cfc0>
+
+    def test_poor_bounded_initial_predictions_use_logit_not_clipped_identity(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        x, a, y = _dgp()
+        contract = core.ATENuisanceContract.from_params(_params())
+        native = core.fit_crossfit_nuisance_bundle(x, a, y, contract)
+        native.mu1 = np.full(y.size, 0.01)
+        native.mu0 = np.full(y.size, 0.99)
+        monkeypatch.setattr(core, "fit_crossfit_nuisance_bundle", lambda *args: native)
+        result, _ = core.fit_tmle_ate(x, a, y, _params(outcome_family="bounded"))
+        summary = result.targeting_summary
+        assert summary["fluctuation_link"] == "logit"
+>       assert abs(summary["targeting_score"]) < 1e-8
+E       assert 9.158321197885948 < 1e-08
+E        +  where 9.158321197885948 = abs(-9.158321197885948)
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:164: AssertionError
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_poor_bounded_initial_predictions_use_logit_not_clipped_identity
+========================= 1 failed, 1 warning in 0.79s =========================

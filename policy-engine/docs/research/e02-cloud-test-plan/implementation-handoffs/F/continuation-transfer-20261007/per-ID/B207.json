@@ -1,0 +1,188 @@
+{
+  "finding_id": "B207",
+  "primary_owner_from_full_TSV": {
+    "finding_id": "B207",
+    "unit": "F",
+    "docx_analytical_package": "P33",
+    "source_closure_owner": "CAU-02",
+    "source_bundle_ids": "CAU-02",
+    "source_status": "partial"
+  },
+  "bundle_owner_from_full_TSV": {
+    "bundle_id": "CAU-02",
+    "unit": "F",
+    "initial_writer_family": "F-W02",
+    "title": "Staggered DiD: единицы, H0 и anticipation"
+  },
+  "original_card_refs": [
+    {
+      "criterion_id": "B207",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        5132,
+        5145
+      ],
+      "bytes": 3913,
+      "sha256": "5b23dffbebbbaafe40934fedd710b77b0143fffb0073bbf58d1c5ca57d6ad6ca",
+      "title": "## B207. Bootstrap готовых ATT(g,t) не восстанавливает неопределённость панельных наблюдений",
+      "byte_binding_check": "PASS"
+    }
+  ],
+  "original_text": "## B207. Bootstrap готовых ATT(g,t) не восстанавливает неопределённость панельных наблюдений\n\n**Приоритет:** высокий; содержательная замена уровня повторной выборки, не увеличение n_bootstrap. **Основание:** _cohort_time_att и _run_staggered_did; SB01–SB05. [C20.R02, C20.E01]\n\n**Проблема.** После расчёта ATT по когортам и времени повторно выбираются индексы этих уже агрегированных ячеек. Исходные единицы, их внутрипанельная зависимость и общие контрольные наблюдения в bootstrap не участвуют. Поэтому получаемый разброс относится не к принятой процедуре наблюдения данных.\n\n**Воспроизведение.** Одна когорта, один post-период, treated-изменения [2,4,6,8], control-изменения 0. ATT=5, но любая повторная выборка единственной ячейки даёт 5. При 200 и 2000 повторениях интервал [5,5]. Эффект сохраняется при 80 единицах и 160 панельных строках. Полный перебор 256 стратифицированных повторных выборок четырёх treated-единиц даёт разброс средних, SD=1,118033988750 и процентильный интервал [3,7]. Это контроль механизма, не утверждение о номинальном покрытии на этой малой выборке.\n\n**Рекомендуемое исправление.** Сохранять влияние каждой независимой единицы на набор ATT(g,t), затем повторно выбирать единицы/кластеры либо применять совместный multiplier-bootstrap к этим вкладам. Один draw должен согласованно действовать на все ячейки, имеющие общие наблюдения. Агрегируемый estimand, веса когорт и горизонтов объявляются отдельно: нынешнее взвешивание размера когорты по ячейкам не названо универсально ошибочным.\n\n**Экономный путь.** Один подготовленный panel-view, заранее рассчитанные допустимые группы, исходные разности и score-вклады; далее пакетная линейная алгебра. Это может быть значительно дешевле повторной сборки и подгонки всех моделей на каждом bootstrap. Поисковые проходы с point-only результатом остаются возможными, но не получают выдуманный интервал.\n\n**Приёмка.** Одна ячейка с варьирующими единицами не вырождается только из-за числа ячеек; постоянный модельный эффект сохраняется; идентичности единиц и повторов записаны. Затем нужны независимые симуляционные проверки покрытия при серийной корреляции и нескольких когортах. Официальная реализация did использует единичные influence-вклады и multiplier/cluster-процедуры; она не запускалась здесь. [C20.E01]\n\n",
+  "primary_acceptance_scope": "Unit-level resampling/ratio IF for the declared selected cohort-horizon estimand: nondegenerate one-cell variation, constant-model control, serial/multicohort calibration, unit/repeat identities.",
+  "source_chain": {
+    "producer": "StaggeredDifferenceInDifferences.pure_step",
+    "artifact": "selected theta_sel/share IF/bootstrap law + CausalEffectReport",
+    "bridge": "real MethodJob/CAS and canonical report projections",
+    "consumer": "fresh native report reader; actual current diagnostic/target checks"
+  },
+  "actual_recorded_consumer": "StaggeredDifferenceInDifferences → genuine MethodJob/CAS → fresh report reader",
+  "surface": "Declared Standard/Staggered DiD or RDD method parameters and typed CausalEffectReport/envelope consumer ABI",
+  "deciding_receipt_refs": [
+    {
+      "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+      "bytes": 216928,
+      "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+      "git_blob": "0ec1597eb6f77d833cb10103513c1d16aa6d682a",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B207"
+      ]
+    },
+    {
+      "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+      "bytes": 216928,
+      "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+      "git_blob": "0ec1597eb6f77d833cb10103513c1d16aa6d682a",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B207"
+      ],
+      "json_pointer": "/per_finding/B207"
+    },
+    {
+      "git_ref": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+      "head": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+      "bytes": 162688,
+      "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+      "git_blob": "52e8ce5c1ad6f4fc5d43f01d47f46f48ca4890f9",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B207"
+      ],
+      "json_pointer": "/per_finding/B207"
+    }
+  ],
+  "deciding_per_ID_carrier_ref": {
+    "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B207.json",
+    "bytes": 49840,
+    "sha256": "939df466ab1b5a207470853fd1c1d766fe3e8ea2ce44d47602c49294e9c49824",
+    "git_blob": "99942eda9ff76811728016d95fea5ee75065f9e9"
+  },
+  "scientific_implementation": {
+    "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+    "tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+    "not_receipt_carrier": true
+  },
+  "recorded_independent_oracle_and_negative": "Independent share derivative and shared-unit law; single-cell variance, serial multi-cohort MC160 retained, share-IF removal FAIL",
+  "complete_raw_receipt_checks_refs": [
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/0",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/1",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/2",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/3",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/4",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/5",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/6",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/7",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/8",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/9",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/10",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/11",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/12",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/13",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/14",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/15",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/16",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/17",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/18",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/19",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/20",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/0",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/1",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/2",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/3",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/4",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/5",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/6",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/7",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/8",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/9",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/10",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/11",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/12",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/13",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/14",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/15",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/16",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/17"
+  ],
+  "historical_ROOT072": {
+    "check": "PASS",
+    "outcome": "limited",
+    "technical_original_criterion_recommendation": "closed",
+    "current_continuation_outcome_recommendation": "limited",
+    "original_criterion_remainder": "Original selected iid-unit scientific discriminator is established; final composition source must stay distinct.",
+    "actual_consumer": "StaggeredDifferenceInDifferences → genuine MethodJob/CAS → fresh report reader",
+    "oracle_and_negative": "Independent share derivative and shared-unit law; single-cell variance, serial multi-cohort MC160 retained, share-IF removal FAIL",
+    "separate_unavailable_inputs_or_authority": "Full production EvalSafety/admitted units/real graph and parallel trends remain UNRUN separately."
+  },
+  "independent_original_criterion_recommendation": {
+    "check": "PASS",
+    "outcome": "closed",
+    "basis": "Published selected iid-unit ratio-IF/Mammen/native/MC and actual CAS reader meet original finite property. Missing whole Runtime institutional admission is a separate residual, not a condition of this original criterion.",
+    "scientific_rerun": false,
+    "review_scope": "independent criterion/evidence reconciliation; not an independently rerun estimator measurement",
+    "missing_actual_original_criterion": null,
+    "new_owner_review_pending": false,
+    "not_formal_G_closure": true
+  },
+  "separate_unavailable_inputs_or_authority": "Full production EvalSafety/admitted units/real graph and parallel trends remain UNRUN separately.",
+  "existing_author_or_reviewer_conflict": "Reviewer previously authored CAU and graph-intake provider; current independent role is ROOT original-criterion reconciliation. Prior scientific validation uses source-bound independent economics/graph/API receipts, not self-claimed fresh independent math.",
+  "schema": "e02.F.original-finding.v3",
+  "primary_bundle": "CAU-02",
+  "criterion_short": "Unit-level resampling/ratio IF for the declared selected cohort-horizon estimand: nondegenerate one-cell variation, constant-model control, serial/multicohort calibration, unit/repeat identities.",
+  "check_result": "PASS",
+  "F_finding_outcome": "closed",
+  "F_technical_recommendation": "closed",
+  "F_rationale": "Published selected iid-unit ratio-IF/Mammen/native/MC and actual CAS reader meet original finite property. Missing whole Runtime institutional admission is a separate residual, not a condition of this original criterion.",
+  "code_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+  "code_tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+  "consumer": "StaggeredDifferenceInDifferences → genuine MethodJob/CAS → fresh report reader",
+  "oracle_and_negative": "Independent share derivative and shared-unit law; single-cell variance, serial multi-cohort MC160 retained, share-IF removal FAIL",
+  "G_finding_acceptance": {
+    "status": "not_issued",
+    "formal_G_closed": false
+  },
+  "G_code_acceptance": {
+    "status": "not_inferred",
+    "source_sha": null,
+    "basis": "Independent F GO/code-ready is not G code acceptance"
+  },
+  "original_missing_input": null,
+  "original_next_owner": null,
+  "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+  "root_assembled_source": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "not_new_numerical_proof": true
+  },
+  "new_property_followups_not_automatically_original_reopen": []
+}

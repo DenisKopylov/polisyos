@@ -1,0 +1,41 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/foundry/agent_sim/distributions.py",
+    "src/polisyos/foundry/agent_sim/state.py",
+    "tests/unit/foundry/agent_sim/test_gini_science.py",
+    "tests/unit/foundry/plugins/test_economic_profiles.py"
+  ],
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "head": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+  "head_tree": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+  "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "source_diff_bytes": 0,
+  "pythonpath": "src:tools:.",
+  "start_unix": 1791281627.890161,
+  "wall_seconds": 0.050272226333618164,
+  "maximum_child_rss_kib": 21896,
+  "returncode": 0,
+  "output": {
+    "path": "/workspace/e02-F-20261006-receipts/economics/source-lint-final-candidate.txt",
+    "bytes": 19,
+    "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  },
+  "input_hashes_before": {
+    "src/polisyos/foundry/agent_sim/distributions.py": "d70bf04939c6227326ce37212693a7d39b6c8a9515ac39f987e908d2cb3bcfc3",
+    "src/polisyos/foundry/agent_sim/state.py": "5984b26f6ecda6f1449c78d879dc57cfd13e61ce0d53f58dff8a1302f9ad5be0",
+    "tests/unit/foundry/agent_sim/test_gini_science.py": "dd9a30ae48f61f88464a0aaa8b9536e3f90ac36df4f91a9cb04d35298294d49f",
+    "tests/unit/foundry/plugins/test_economic_profiles.py": "02eda95ab8abe859f08e44aa5c56417b992f6985199417480ef621fd64c03b5b"
+  },
+  "input_hashes_after": {
+    "src/polisyos/foundry/agent_sim/distributions.py": "d70bf04939c6227326ce37212693a7d39b6c8a9515ac39f987e908d2cb3bcfc3",
+    "src/polisyos/foundry/agent_sim/state.py": "5984b26f6ecda6f1449c78d879dc57cfd13e61ce0d53f58dff8a1302f9ad5be0",
+    "tests/unit/foundry/agent_sim/test_gini_science.py": "dd9a30ae48f61f88464a0aaa8b9536e3f90ac36df4f91a9cb04d35298294d49f",
+    "tests/unit/foundry/plugins/test_economic_profiles.py": "02eda95ab8abe859f08e44aa5c56417b992f6985199417480ef621fd64c03b5b"
+  },
+  "input_bytes_stable": true,
+  "head_after": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6"
+}

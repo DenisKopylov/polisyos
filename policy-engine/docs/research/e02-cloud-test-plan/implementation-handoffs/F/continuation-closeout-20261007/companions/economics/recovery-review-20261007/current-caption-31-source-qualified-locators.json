@@ -1,0 +1,1992 @@
+{
+  "old31_classification_by_ref": {
+    "path": "/tmp/e02-F-continuation-20261007/economics/current-caption-role-classification.json",
+    "bytes": 60099,
+    "sha256": "b07d5e20d32701b4e969a3f6bf9e96080a68c8d8fda36f2e180b26c70753af6b"
+  },
+  "denominator": 31,
+  "rows": [
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md",
+      "source_role": "historical_E02R2_dated_source_decision_snapshot",
+      "action": "Retain original2026-10-02/earlier residual/principaldecision/sourceprobe bytes. Oldoptimizerretirement premise is not controlling originalLA035 underCOMMON9a; newROOTcurrentrecord supersedes it for unchangedrelocation. If futureR2maintainer consumescurrentstate, provide explicit source-qualified currentlink via owner, not F blanketrewrite.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md",
+          "git_blob": "9faa409a5ccf25ac10789051e311792c666043b4",
+          "bytes": 80842,
+          "sha256": "b8ff2ae232572a8a57ddadc52038010a5306d9b41629788045ab2cfad0d0116d",
+          "matches": [
+            {
+              "line": 286,
+              "text": "| LA-004 | ECO-01 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |"
+            },
+            {
+              "line": 317,
+              "text": "| LA-035 | ECO-01 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |"
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md",
+          "git_blob": "e3b78def26d2b741487661ddb51679f04e959d7c",
+          "bytes": 81303,
+          "sha256": "55694d449e03cb01fd8d759322715a9ccb2763705f5709547341b9d6ed0e4803",
+          "matches": [
+            {
+              "line": 288,
+              "text": "| LA-004 | ECO-01 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |"
+            },
+            {
+              "line": 319,
+              "text": "| LA-035 | ECO-01 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |"
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/OPEN_PREMISES.md",
+      "source_role": "historical_E02R2_dated_source_decision_snapshot",
+      "action": "Retain original2026-10-02/earlier residual/principaldecision/sourceprobe bytes. Oldoptimizerretirement premise is not controlling originalLA035 underCOMMON9a; newROOTcurrentrecord supersedes it for unchangedrelocation. If futureR2maintainer consumescurrentstate, provide explicit source-qualified currentlink via owner, not F blanketrewrite.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/OPEN_PREMISES.md",
+          "git_blob": "9aafc9f9c0347f7cf80ba4c7f56a51143d247793",
+          "bytes": 551666,
+          "sha256": "32f82053d3b25b62734729a573eaeffed2506dd81398b321b021ead899907e10",
+          "matches": [
+            {
+              "line": 452,
+              "text": "| LA-004/LA-035 — principal decision; partial | Fiscal and labor profiles are non-equivalent (LA-004); live `policy_loss_fn` baseline has no proven modern optimizer caller (LA-035). | Principal compatibility/retirement boundary pending. | Separate selectors/units/effects/convergence, real caller evidence, and a falsifier for claimed equivalence. | Preserve distinct profiles and shared owner; do not delete compatibility based on names. |"
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/OPEN_PREMISES.md",
+          "git_blob": "6f660d7a6564618449abcf3187b906f6c2491bd4",
+          "bytes": 552127,
+          "sha256": "e0e6e57613e1779da51ee5bff34d3933be0c59d5d479933bcea4b4515d238825",
+          "matches": [
+            {
+              "line": 454,
+              "text": "| LA-004/LA-035 — principal decision; partial | Fiscal and labor profiles are non-equivalent (LA-004); live `policy_loss_fn` baseline has no proven modern optimizer caller (LA-035). | Principal compatibility/retirement boundary pending. | Separate selectors/units/effects/convergence, real caller evidence, and a falsifier for claimed equivalence. | Preserve distinct profiles and shared owner; do not delete compatibility based on names. |"
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md",
+      "source_role": "historical_E02R2_dated_source_decision_snapshot",
+      "action": "Retain original2026-10-02/earlier residual/principaldecision/sourceprobe bytes. Oldoptimizerretirement premise is not controlling originalLA035 underCOMMON9a; newROOTcurrentrecord supersedes it for unchangedrelocation. If futureR2maintainer consumescurrentstate, provide explicit source-qualified currentlink via owner, not F blanketrewrite.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md",
+          "git_blob": "478fcba12a67e15990292e637358fbb1f5821f0b",
+          "bytes": 127327,
+          "sha256": "dce5ff7a006cccf29f0d597c875d2c341d7a8f438a77f6bdfbe2c1999f2c436e",
+          "matches": [
+            {
+              "line": 84,
+              "text": "| LA-004 | b — principal decision | Principal (Denis) | ECO-01: fiscal/labor profiles non-equivalent; optimizer/caller retirement open | — | Choose separate fiscal/labor profile compatibility and optimizer/caller retirement scope; cost both options and write a falsifier. | policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-004 | /Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#LA-004 | [draft](P_DECISION_DRAFTS.md#la-004) | — |"
+            },
+            {
+              "line": 85,
+              "text": "| LA-035 | b — principal decision | Principal (Denis) | ECO-01: fiscal/labor profiles non-equivalent; optimizer/caller retirement open | — | Choose separate fiscal/labor profile compatibility and optimizer/caller retirement scope; cost both options and write a falsifier. | policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-035 | /Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#LA-035 | [draft](P_DECISION_DRAFTS.md#la-035) | — |"
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md",
+          "git_blob": "478fcba12a67e15990292e637358fbb1f5821f0b",
+          "bytes": 127327,
+          "sha256": "dce5ff7a006cccf29f0d597c875d2c341d7a8f438a77f6bdfbe2c1999f2c436e",
+          "matches": [
+            {
+              "line": 84,
+              "text": "| LA-004 | b — principal decision | Principal (Denis) | ECO-01: fiscal/labor profiles non-equivalent; optimizer/caller retirement open | — | Choose separate fiscal/labor profile compatibility and optimizer/caller retirement scope; cost both options and write a falsifier. | policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-004 | /Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#LA-004 | [draft](P_DECISION_DRAFTS.md#la-004) | — |"
+            },
+            {
+              "line": 85,
+              "text": "| LA-035 | b — principal decision | Principal (Denis) | ECO-01: fiscal/labor profiles non-equivalent; optimizer/caller retirement open | — | Choose separate fiscal/labor profile compatibility and optimizer/caller retirement scope; cost both options and write a falsifier. | policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-035 | /Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#LA-035 | [draft](P_DECISION_DRAFTS.md#la-035) | — |"
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md",
+      "source_role": "historical_E02R2_dated_source_decision_snapshot",
+      "action": "Retain original2026-10-02/earlier residual/principaldecision/sourceprobe bytes. Oldoptimizerretirement premise is not controlling originalLA035 underCOMMON9a; newROOTcurrentrecord supersedes it for unchangedrelocation. If futureR2maintainer consumescurrentstate, provide explicit source-qualified currentlink via owner, not F blanketrewrite.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md",
+          "git_blob": "a81d66e0d6bc57d01e5869a1da3d72821f61ad98",
+          "bytes": 56354,
+          "sha256": "6bb56be3f370027ee08fdf9e1286b79e289cca063852e47519232d93a993455f",
+          "matches": [
+            {
+              "line": 11,
+              "text": "Keep these decisions distinct even if reviewed together: B116/B117 bind comparison cohort vs publication concurrency; B169/B170 bind forecast-value semantics vs simulation-count/seed semantics; LA-004/LA-035 bind economics-profile identity vs objective identity. The separate options and binding seams remain per finding."
+            },
+            {
+              "line": 256,
+              "text": "**Audit card and package mapping.** Card: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-004`. Mapping source: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/legacy_to_bundles.json@sha256:5390bc21cab5901487c00b2fa68b6396294a5b95e809fd91bc2053d9f2ab6a8e`; Declared bundle(s): `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/ECO-01.md@sha256:907f9484c95dd34716dd3fef73d4b0f3025a22739c4515df506843c7ff7900bc`."
+            },
+            {
+              "line": 261,
+              "text": "E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#LA-004`."
+            },
+            {
+              "line": 267,
+              "text": "**Question.** Should the existing normalized policy_loss_fn remain a named baseline, or should a distinct revenue-maximizing objective be added?"
+            },
+            {
+              "line": 285,
+              "text": "**Triage next step and card reconciliation.** The recorded triage step is: “Choose separate fiscal/labor profile compatibility and optimizer/caller retirement scope; cost both options and write a falsifier.” The card and draft address the identity and naming of the normalized `policy_loss_fn` baseline versus a distinct income objective. The shared triage step also names fiscal/labor profile compatibility and optimizer/caller retirement; those are separate from objective identity and remain unresolved."
+            },
+            {
+              "line": 287,
+              "text": "**Audit card and package mapping.** Card: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-035`. Mapping source: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/legacy_to_bundles.json@sha256:5390bc21cab5901487c00b2fa68b6396294a5b95e809fd91bc2053d9f2ab6a8e`; Declared bundle(s): `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/ECO-01.md@sha256:907f9484c95dd34716dd3fef73d4b0f3025a22739c4515df506843c7ff7900bc`."
+            },
+            {
+              "line": 292,
+              "text": "E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#LA-035`."
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md",
+          "git_blob": "a81d66e0d6bc57d01e5869a1da3d72821f61ad98",
+          "bytes": 56354,
+          "sha256": "6bb56be3f370027ee08fdf9e1286b79e289cca063852e47519232d93a993455f",
+          "matches": [
+            {
+              "line": 11,
+              "text": "Keep these decisions distinct even if reviewed together: B116/B117 bind comparison cohort vs publication concurrency; B169/B170 bind forecast-value semantics vs simulation-count/seed semantics; LA-004/LA-035 bind economics-profile identity vs objective identity. The separate options and binding seams remain per finding."
+            },
+            {
+              "line": 256,
+              "text": "**Audit card and package mapping.** Card: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-004`. Mapping source: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/legacy_to_bundles.json@sha256:5390bc21cab5901487c00b2fa68b6396294a5b95e809fd91bc2053d9f2ab6a8e`; Declared bundle(s): `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/ECO-01.md@sha256:907f9484c95dd34716dd3fef73d4b0f3025a22739c4515df506843c7ff7900bc`."
+            },
+            {
+              "line": 261,
+              "text": "E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#LA-004`."
+            },
+            {
+              "line": 267,
+              "text": "**Question.** Should the existing normalized policy_loss_fn remain a named baseline, or should a distinct revenue-maximizing objective be added?"
+            },
+            {
+              "line": 285,
+              "text": "**Triage next step and card reconciliation.** The recorded triage step is: “Choose separate fiscal/labor profile compatibility and optimizer/caller retirement scope; cost both options and write a falsifier.” The card and draft address the identity and naming of the normalized `policy_loss_fn` baseline versus a distinct income objective. The shared triage step also names fiscal/labor profile compatibility and optimizer/caller retirement; those are separate from objective identity and remain unresolved."
+            },
+            {
+              "line": 287,
+              "text": "**Audit card and package mapping.** Card: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-035`. Mapping source: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/legacy_to_bundles.json@sha256:5390bc21cab5901487c00b2fa68b6396294a5b95e809fd91bc2053d9f2ab6a8e`; Declared bundle(s): `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/ECO-01.md@sha256:907f9484c95dd34716dd3fef73d4b0f3025a22739c4515df506843c7ff7900bc`."
+            },
+            {
+              "line": 292,
+              "text": "E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#LA-035`."
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/RESIDUAL_LEDGER.md",
+      "source_role": "historical_E02R2_dated_source_decision_snapshot",
+      "action": "Retain original2026-10-02/earlier residual/principaldecision/sourceprobe bytes. Oldoptimizerretirement premise is not controlling originalLA035 underCOMMON9a; newROOTcurrentrecord supersedes it for unchangedrelocation. If futureR2maintainer consumescurrentstate, provide explicit source-qualified currentlink via owner, not F blanketrewrite.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/RESIDUAL_LEDGER.md",
+          "git_blob": "016e311d1a22f8b02a07d182ca067d9a1eb5ff61",
+          "bytes": 744114,
+          "sha256": "2d0caf74e27745f31781e5ce280cca28d9c0b6fb664c5591859de9671c0bbfee",
+          "matches": [
+            {
+              "line": 449,
+              "text": "| LA-004 | ECO-01 | partial | partial | — | b: Choose separate fiscal/labor profile compatibility and optimizer/caller retirement scope; cost both options and write a falsifier. | The legacy fiscal and labor profiles are non-equivalent; preserve their selectors, units, effect types and convergence semantics until a real optimizer/caller equivalence is shown. The caller/retirement seam is still open. | principal_decision: Principal (Denis) (decision draft only; principal ruling pending) | not_measured: Residual transcribed; current behavior not independently measured. | policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/finding_record_probe.json@sha256:603dba72e8515a558f28c1820c65551308401b51026dc71c01dcea2f54b01063#rows/LA-004; policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@4bdf76e99f0c26e40bc2a71e76d4940c23712260#L167; policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@4bdf76e99f0c26e40bc2a71e76d4940c23712260 | UNRUN |"
+            },
+            {
+              "line": 480,
+              "text": "| LA-035 | ECO-01 | partial | partial | — | b: Choose separate fiscal/labor profile compatibility and optimizer/caller retirement scope; cost both options and write a falsifier. | `policy_loss_fn` is a live early economic baseline under the shared method owner. No equivalent modern economic objective or production optimizer caller is proven. Residual is objective/profile/compatibility equivalence and an actual optimizer consumer, not merely ECO fiscal/labor profile difference. | principal_decision: Principal (Denis) (decision draft only; principal ruling pending) | not_measured: Residual transcribed; current behavior not independently measured. | policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/finding_record_probe.json@sha256:603dba72e8515a558f28c1820c65551308401b51026dc71c01dcea2f54b01063#rows/LA-035; policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@4bdf76e99f0c26e40bc2a71e76d4940c23712260#L2066; policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@4bdf76e99f0c26e40bc2a71e76d4940c23712260 | UNRUN |"
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/RESIDUAL_LEDGER.md",
+          "git_blob": "faf37519cf96956c0a5b034645d9704ccdd430b1",
+          "bytes": 744575,
+          "sha256": "8fd6f0edb1f3d8338bb782600f4fcf62fcb0ea86e08ff63a38934cd3d962f894",
+          "matches": [
+            {
+              "line": 451,
+              "text": "| LA-004 | ECO-01 | partial | partial | — | b: Choose separate fiscal/labor profile compatibility and optimizer/caller retirement scope; cost both options and write a falsifier. | The legacy fiscal and labor profiles are non-equivalent; preserve their selectors, units, effect types and convergence semantics until a real optimizer/caller equivalence is shown. The caller/retirement seam is still open. | principal_decision: Principal (Denis) (decision draft only; principal ruling pending) | not_measured: Residual transcribed; current behavior not independently measured. | policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/finding_record_probe.json@sha256:603dba72e8515a558f28c1820c65551308401b51026dc71c01dcea2f54b01063#rows/LA-004; policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@4bdf76e99f0c26e40bc2a71e76d4940c23712260#L167; policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@4bdf76e99f0c26e40bc2a71e76d4940c23712260 | UNRUN |"
+            },
+            {
+              "line": 482,
+              "text": "| LA-035 | ECO-01 | partial | partial | — | b: Choose separate fiscal/labor profile compatibility and optimizer/caller retirement scope; cost both options and write a falsifier. | `policy_loss_fn` is a live early economic baseline under the shared method owner. No equivalent modern economic objective or production optimizer caller is proven. Residual is objective/profile/compatibility equivalence and an actual optimizer consumer, not merely ECO fiscal/labor profile difference. | principal_decision: Principal (Denis) (decision draft only; principal ruling pending) | not_measured: Residual transcribed; current behavior not independently measured. | policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/finding_record_probe.json@sha256:603dba72e8515a558f28c1820c65551308401b51026dc71c01dcea2f54b01063#rows/LA-035; policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@4bdf76e99f0c26e40bc2a71e76d4940c23712260#L2066; policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@4bdf76e99f0c26e40bc2a71e76d4940c23712260 | UNRUN |"
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/finding_record_probe.json",
+      "source_role": "historical_E02R2_dated_source_decision_snapshot",
+      "action": "Retain original2026-10-02/earlier residual/principaldecision/sourceprobe bytes. Oldoptimizerretirement premise is not controlling originalLA035 underCOMMON9a; newROOTcurrentrecord supersedes it for unchangedrelocation. If futureR2maintainer consumescurrentstate, provide explicit source-qualified currentlink via owner, not F blanketrewrite.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/finding_record_probe.json",
+          "git_blob": "cbd03d45bf07b6d35eb99b0b37754a9807a7c397",
+          "bytes": 412100,
+          "sha256": "603dba72e8515a558f28c1820c65551308401b51026dc71c01dcea2f54b01063",
+          "matches": [
+            {
+              "line": 6045,
+              "text": "      \"id\": \"LA-004\","
+            },
+            {
+              "line": 6047,
+              "text": "      \"mapping_ref\": \"policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/legacy_to_bundles.json@329f101acca8dac6708b4e557cd07fd58f5facb7#LA-004\","
+            },
+            {
+              "line": 6473,
+              "text": "      \"id\": \"LA-035\","
+            },
+            {
+              "line": 6475,
+              "text": "      \"mapping_ref\": \"policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/legacy_to_bundles.json@329f101acca8dac6708b4e557cd07fd58f5facb7#LA-035\","
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/finding_record_probe.json",
+          "git_blob": "cbd03d45bf07b6d35eb99b0b37754a9807a7c397",
+          "bytes": 412100,
+          "sha256": "603dba72e8515a558f28c1820c65551308401b51026dc71c01dcea2f54b01063",
+          "matches": [
+            {
+              "line": 6045,
+              "text": "      \"id\": \"LA-004\","
+            },
+            {
+              "line": 6047,
+              "text": "      \"mapping_ref\": \"policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/legacy_to_bundles.json@329f101acca8dac6708b4e557cd07fd58f5facb7#LA-004\","
+            },
+            {
+              "line": 6473,
+              "text": "      \"id\": \"LA-035\","
+            },
+            {
+              "line": 6475,
+              "text": "      \"mapping_ref\": \"policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/legacy_to_bundles.json@329f101acca8dac6708b4e557cd07fd58f5facb7#LA-035\","
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json",
+      "source_role": "historical_E02R2_dated_source_decision_snapshot",
+      "action": "Retain original2026-10-02/earlier residual/principaldecision/sourceprobe bytes. Oldoptimizerretirement premise is not controlling originalLA035 underCOMMON9a; newROOTcurrentrecord supersedes it for unchangedrelocation. If futureR2maintainer consumescurrentstate, provide explicit source-qualified currentlink via owner, not F blanketrewrite.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json",
+          "git_blob": "e6603cfc30d178d836d02af6b6558702ffe04fdb",
+          "bytes": 227121,
+          "sha256": "d5fcd61afc22951ad25324b0bc0a2ec9b5f768a689d4dabffc748985dc7e19ad",
+          "matches": [
+            {
+              "line": 1146,
+              "text": "      \"finding_id\": \"LA-004\","
+            },
+            {
+              "line": 1153,
+              "text": "      \"finding_source_ref\": \"policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-004\","
+            },
+            {
+              "line": 1162,
+              "text": "          \"finding_id\": \"LA-004\""
+            },
+            {
+              "line": 1189,
+              "text": "      \"finding_id\": \"LA-035\","
+            },
+            {
+              "line": 1196,
+              "text": "      \"finding_source_ref\": \"policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-035\","
+            },
+            {
+              "line": 1205,
+              "text": "          \"finding_id\": \"LA-035\""
+            },
+            {
+              "line": 1211,
+              "text": "        \"question\": \"Should the existing normalized policy_loss_fn remain a named baseline, or should a distinct revenue-maximizing objective be added?\","
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json",
+          "git_blob": "e6603cfc30d178d836d02af6b6558702ffe04fdb",
+          "bytes": 227121,
+          "sha256": "d5fcd61afc22951ad25324b0bc0a2ec9b5f768a689d4dabffc748985dc7e19ad",
+          "matches": [
+            {
+              "line": 1146,
+              "text": "      \"finding_id\": \"LA-004\","
+            },
+            {
+              "line": 1153,
+              "text": "      \"finding_source_ref\": \"policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-004\","
+            },
+            {
+              "line": 1162,
+              "text": "          \"finding_id\": \"LA-004\""
+            },
+            {
+              "line": 1189,
+              "text": "      \"finding_id\": \"LA-035\","
+            },
+            {
+              "line": 1196,
+              "text": "      \"finding_source_ref\": \"policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-035\","
+            },
+            {
+              "line": 1205,
+              "text": "          \"finding_id\": \"LA-035\""
+            },
+            {
+              "line": 1211,
+              "text": "        \"question\": \"Should the existing normalized policy_loss_fn remain a named baseline, or should a distinct revenue-maximizing objective be added?\","
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json",
+      "source_role": "historical_E02R2_dated_source_decision_snapshot",
+      "action": "Retain original2026-10-02/earlier residual/principaldecision/sourceprobe bytes. Oldoptimizerretirement premise is not controlling originalLA035 underCOMMON9a; newROOTcurrentrecord supersedes it for unchangedrelocation. If futureR2maintainer consumescurrentstate, provide explicit source-qualified currentlink via owner, not F blanketrewrite.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json",
+          "git_blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+          "bytes": 2067905,
+          "sha256": "610255c2c8718b997b114357c93df7fd6001e83de209f079a481d16768b357f1",
+          "matches": [
+            {
+              "line": 19466,
+              "text": "      \"id\": \"LA-004\","
+            },
+            {
+              "line": 19496,
+              "text": "        \"source_ref\": \"policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:478fcba12a67e15990292e637358fbb1f5821f0b#LA-004\""
+            },
+            {
+              "line": 19501,
+              "text": "          \"identity\": \"source_record_inspection:LA-004\","
+            },
+            {
+              "line": 19502,
+              "text": "          \"path_at_sha\": \"policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/finding_record_probe.json@sha256:603dba72e8515a558f28c1820c65551308401b51026dc71c01dcea2f54b01063#rows/LA-004\","
+            },
+            {
+              "line": 19511,
+              "text": "          \"identity\": \"LA-004 source-card discriminator and P38 seam; candidate identity is proposed unless explicitly named as a prior receipt\","
+            },
+            {
+              "line": 19513,
+              "text": "          \"candidate_test_identity\": \"proposed:LA004_fiscal_labor_profiles_are_not_interchangeable\","
+            },
+            {
+              "line": 21824,
+              "text": "      \"id\": \"LA-035\","
+            },
+            {
+              "line": 21826,
+              "text": "      \"source_title\": \"policy_loss_fn: ранний экономический baseline у общего method-владельца\","
+            },
+            {
+              "line": 21840,
+              "text": "      \"residual\": \"`policy_loss_fn` is a live early economic baseline under the shared method owner. No equivalent modern economic objective or production optimizer caller is proven. Residual is objective/profile/compatibility equivalence and an actual optimizer consumer, not merely ECO fiscal/labor profile difference.\","
+            },
+            {
+              "line": 21854,
+              "text": "        \"source_ref\": \"policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:478fcba12a67e15990292e637358fbb1f5821f0b#LA-035\""
+            },
+            {
+              "line": 21859,
+              "text": "          \"identity\": \"source_record_inspection:LA-035\","
+            },
+            {
+              "line": 21860,
+              "text": "          \"path_at_sha\": \"policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/finding_record_probe.json@sha256:603dba72e8515a558f28c1820c65551308401b51026dc71c01dcea2f54b01063#rows/LA-035\","
+            },
+            {
+              "line": 21869,
+              "text": "          \"identity\": \"LA-035 source-card discriminator and P38 seam; candidate identity is proposed unless explicitly named as a prior receipt\","
+            },
+            {
+              "line": 21871,
+              "text": "          \"candidate_test_identity\": \"proposed:LA035_policy_loss_baseline_and_optimizer_caller\","
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json",
+          "git_blob": "6dc3e7a2ba9abc0370fe7dcc733550079b87e47d",
+          "bytes": 2068181,
+          "sha256": "5b0b109695ac0366a253800340a5371c867108dcc28f6b6625c5fa78849d17ef",
+          "matches": [
+            {
+              "line": 19466,
+              "text": "      \"id\": \"LA-004\","
+            },
+            {
+              "line": 19496,
+              "text": "        \"source_ref\": \"policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:478fcba12a67e15990292e637358fbb1f5821f0b#LA-004\""
+            },
+            {
+              "line": 19501,
+              "text": "          \"identity\": \"source_record_inspection:LA-004\","
+            },
+            {
+              "line": 19502,
+              "text": "          \"path_at_sha\": \"policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/finding_record_probe.json@sha256:603dba72e8515a558f28c1820c65551308401b51026dc71c01dcea2f54b01063#rows/LA-004\","
+            },
+            {
+              "line": 19511,
+              "text": "          \"identity\": \"LA-004 source-card discriminator and P38 seam; candidate identity is proposed unless explicitly named as a prior receipt\","
+            },
+            {
+              "line": 19513,
+              "text": "          \"candidate_test_identity\": \"proposed:LA004_fiscal_labor_profiles_are_not_interchangeable\","
+            },
+            {
+              "line": 21824,
+              "text": "      \"id\": \"LA-035\","
+            },
+            {
+              "line": 21826,
+              "text": "      \"source_title\": \"policy_loss_fn: ранний экономический baseline у общего method-владельца\","
+            },
+            {
+              "line": 21840,
+              "text": "      \"residual\": \"`policy_loss_fn` is a live early economic baseline under the shared method owner. No equivalent modern economic objective or production optimizer caller is proven. Residual is objective/profile/compatibility equivalence and an actual optimizer consumer, not merely ECO fiscal/labor profile difference.\","
+            },
+            {
+              "line": 21854,
+              "text": "        \"source_ref\": \"policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:478fcba12a67e15990292e637358fbb1f5821f0b#LA-035\""
+            },
+            {
+              "line": 21859,
+              "text": "          \"identity\": \"source_record_inspection:LA-035\","
+            },
+            {
+              "line": 21860,
+              "text": "          \"path_at_sha\": \"policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/finding_record_probe.json@sha256:603dba72e8515a558f28c1820c65551308401b51026dc71c01dcea2f54b01063#rows/LA-035\","
+            },
+            {
+              "line": 21869,
+              "text": "          \"identity\": \"LA-035 source-card discriminator and P38 seam; candidate identity is proposed unless explicitly named as a prior receipt\","
+            },
+            {
+              "line": 21871,
+              "text": "          \"candidate_test_identity\": \"proposed:LA035_policy_loss_baseline_and_optimizer_caller\","
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/BUNDLE_INDEX.md",
+      "source_role": "immutable_original_requirement_or_queue_mapping",
+      "action": "Preserve cards/queue/crosswalk/bundlemanifest/template and fullsourcebinding. These assign owner/originalcriteria, not currenttechnicaloutcomes. No correction/newGiniID needed.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/BUNDLE_INDEX.md",
+          "git_blob": "e2ea3bf597ba07b78692e76fa05c23e1be1d25e2",
+          "bytes": 24751,
+          "sha256": "7c1664a8f1eb46fae8ae9c7a83a834025a55084bee5b5f687d2e652b23a71e60",
+          "matches": [
+            {
+              "line": 69,
+              "text": "| [ECO-01](bundles/ECO-01.md) | Два economic профиля и предметный baseline objective | — | LA-004, LA-035 | FRY-03 | CP4/N |"
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/BUNDLE_INDEX.md",
+          "git_blob": "e2ea3bf597ba07b78692e76fa05c23e1be1d25e2",
+          "bytes": 24751,
+          "sha256": "7c1664a8f1eb46fae8ae9c7a83a834025a55084bee5b5f687d2e652b23a71e60",
+          "matches": [
+            {
+              "line": 69,
+              "text": "| [ECO-01](bundles/ECO-01.md) | Два economic профиля и предметный baseline objective | — | LA-004, LA-035 | FRY-03 | CP4/N |"
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/LEGACY_CROSSWALK.md",
+      "source_role": "immutable_original_requirement_or_queue_mapping",
+      "action": "Preserve cards/queue/crosswalk/bundlemanifest/template and fullsourcebinding. These assign owner/originalcriteria, not currenttechnicaloutcomes. No correction/newGiniID needed.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/LEGACY_CROSSWALK.md",
+          "git_blob": "f74c4e87b00f00600e4aba336a080814088fc0c5",
+          "bytes": 11648,
+          "sha256": "d0abc94c9efff165c0b139b3cdf922a0fca16054ea586540900562c63cac42c7",
+          "matches": [
+            {
+              "line": 10,
+              "text": "| LA-004 | M | Две экономические реализации: согласовать, но не подменять | [ECO-01](bundles/ECO-01.md) | ECO-01 |"
+            },
+            {
+              "line": 41,
+              "text": "| LA-035 | R | policy_loss_fn: ранний экономический baseline у общего method-владельца | [ECO-01](bundles/ECO-01.md) | ECO-01 |"
+            },
+            {
+              "line": 69,
+              "text": "**AM02 · LA-004.** LA-004 — уточнение r02; source строки 1158–1161. Полный текст приложен ко всем связанным packet."
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/LEGACY_CROSSWALK.md",
+          "git_blob": "f74c4e87b00f00600e4aba336a080814088fc0c5",
+          "bytes": 11648,
+          "sha256": "d0abc94c9efff165c0b139b3cdf922a0fca16054ea586540900562c63cac42c7",
+          "matches": [
+            {
+              "line": 10,
+              "text": "| LA-004 | M | Две экономические реализации: согласовать, но не подменять | [ECO-01](bundles/ECO-01.md) | ECO-01 |"
+            },
+            {
+              "line": 41,
+              "text": "| LA-035 | R | policy_loss_fn: ранний экономический baseline у общего method-владельца | [ECO-01](bundles/ECO-01.md) | ECO-01 |"
+            },
+            {
+              "line": 69,
+              "text": "**AM02 · LA-004.** LA-004 — уточнение r02; source строки 1158–1161. Полный текст приложен ко всем связанным packet."
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/PolicyOS_Combined_Remediation_E02_Agent_Bundles.md",
+      "source_role": "immutable_original_requirement_or_queue_mapping",
+      "action": "Preserve cards/queue/crosswalk/bundlemanifest/template and fullsourcebinding. These assign owner/originalcriteria, not currenttechnicaloutcomes. No correction/newGiniID needed.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/PolicyOS_Combined_Remediation_E02_Agent_Bundles.md",
+          "git_blob": "9311787fa52e3e92dbed96076ee934f51f0fc0c2",
+          "bytes": 2916150,
+          "sha256": "573eaf02ba5c70435a67893de13b742c69591ecba2fc8b13428a7f7f6d13a88b",
+          "matches": [
+            {
+              "line": 4718,
+              "text": "**B:** Нет; пакет миграции LA. **LA:** LA-004 (M), LA-035 (R)."
+            },
+            {
+              "line": 4726,
+              "text": "Составить конечную таблицу GlobalState/PatchMap и EconomicState: units, timestep, tax base, RNG, balances. Сохранить неэквивалентные модели под явными профилями, выделять только доказанно общий primitive. Перенести старый normalized-income/budget policy_loss_fn в economic baseline owner без смены формулы и держать unsupported substitutions явными."
+            },
+            {
+              "line": 4736,
+              "text": "**LA-004:** Полная область карточки с конечной проверкой применимости/совместимости; исходный текст и ограничения обязательны. Accountable closure: **ECO-01**; необходимые пакеты: ECO-01."
+            },
+            {
+              "line": 4738,
+              "text": "**LA-035:** Полная область карточки с конечной проверкой применимости/совместимости; исходный текст и ограничения обязательны. Accountable closure: **ECO-01**; необходимые пакеты: ECO-01."
+            },
+            {
+              "line": 4770,
+              "text": "## Исходное решение LA-004"
+            },
+            {
+              "line": 4774,
+              "text": "<!-- SOURCE_BEGIN LA:LA-004 -->"
+            },
+            {
+              "line": 4775,
+              "text": "## LA-004. Две экономические реализации: согласовать, но не подменять"
+            },
+            {
+              "line": 4806,
+              "text": "<!-- SOURCE_END LA:LA-004 -->"
+            },
+            {
+              "line": 4808,
+              "text": "## Обязательное позднее уточнение LA-004"
+            },
+            {
+              "line": 4811,
+              "text": "## LA-004 — уточнение r02"
+            },
+            {
+              "line": 4817,
+              "text": "## Исходное решение LA-035"
+            },
+            {
+              "line": 4821,
+              "text": "<!-- SOURCE_BEGIN LA:LA-035 -->"
+            },
+            {
+              "line": 4822,
+              "text": "## LA-035. policy_loss_fn: ранний экономический baseline у общего method-владельца"
+            },
+            {
+              "line": 4834,
+              "text": "**Что установлено.** За общим именем `policy_loss_fn` находится критерий по `GlobalState.agents.income` и `government_balance`, с default `min_balance=-1000` и коэффициентом штрафа `10`. Это не функция потерь arbitrary method и не общий интерфейс политического предпочтения. Физическое помещение в `methods/_internal` сохранило старую предметную обязанность. Старый публичный `methods/loss.py` только открывает её через reexport-helper. [E106–E109]"
+            },
+            {
+              "line": 4844,
+              "text": "Прочитанные `GDPObjective`, `SocialWelfareObjective`, `UtilitarianWelfare` и другие работают по **EconomicState** и выражают другие критерии. Они не drop-in successor старого normalized-income/budget loss. LA-004 сохраняет силу: соседство экономических моделей не доказывает их равенство. [E110]"
+            },
+            {
+              "line": 4859,
+              "text": "<!-- SOURCE_END LA:LA-035 -->"
+            },
+            {
+              "line": 18616,
+              "text": "| LA-004 | M | Две экономические реализации: согласовать, но не подменять | Общий предмет, но разные законы и ABI. |"
+            },
+            {
+              "line": 18664,
+              "text": "Для LA-004 сначала доказать пересечение операций и составить отображение состояний. Если формулы различаются содержательно, правильное решение — два именованных профиля, а не общий helper с большим набором неявных флагов. Меньше файлов не всегда означает меньше вариантов поведения."
+            },
+            {
+              "line": 18967,
+              "text": "**Foundry, LA-022 ↔ LA-023 и прежний LA-004:** общая инфраструктура discovery не означает единый ABI всех plugins. Обучение подключается только там, где определены observations, actions, rewards, сброс состояния и влияние policy на rollout. Не переносить каждую функцию domain package в каталог методов ради одной структуры папок."
+            },
+            {
+              "line": 19414,
+              "text": "| LA-035 | R | `policy_loss_fn` — конкретный income/budget baseline, не общий method loss | Сам baseline, ограничения чисел и полезные numeric tests |"
+            },
+            {
+              "line": 19437,
+              "text": "**LA-004:** прочитаны современные economic objectives. Их другой State/criterion подтверждает прежний запрет механического слияния по слову «экономика». LA-035 добавляет конкретный generic-address baseline; она не закрывает LA-004."
+            },
+            {
+              "line": 19462,
+              "text": "**LA-035:** сначала явный economic baseline и characterization, затем перенос. Изменение objective/ранжирования — отдельно от relocation и отдельно от публичного alias retirement."
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/PolicyOS_Combined_Remediation_E02_Agent_Bundles.md",
+          "git_blob": "9311787fa52e3e92dbed96076ee934f51f0fc0c2",
+          "bytes": 2916150,
+          "sha256": "573eaf02ba5c70435a67893de13b742c69591ecba2fc8b13428a7f7f6d13a88b",
+          "matches": [
+            {
+              "line": 4718,
+              "text": "**B:** Нет; пакет миграции LA. **LA:** LA-004 (M), LA-035 (R)."
+            },
+            {
+              "line": 4726,
+              "text": "Составить конечную таблицу GlobalState/PatchMap и EconomicState: units, timestep, tax base, RNG, balances. Сохранить неэквивалентные модели под явными профилями, выделять только доказанно общий primitive. Перенести старый normalized-income/budget policy_loss_fn в economic baseline owner без смены формулы и держать unsupported substitutions явными."
+            },
+            {
+              "line": 4736,
+              "text": "**LA-004:** Полная область карточки с конечной проверкой применимости/совместимости; исходный текст и ограничения обязательны. Accountable closure: **ECO-01**; необходимые пакеты: ECO-01."
+            },
+            {
+              "line": 4738,
+              "text": "**LA-035:** Полная область карточки с конечной проверкой применимости/совместимости; исходный текст и ограничения обязательны. Accountable closure: **ECO-01**; необходимые пакеты: ECO-01."
+            },
+            {
+              "line": 4770,
+              "text": "## Исходное решение LA-004"
+            },
+            {
+              "line": 4774,
+              "text": "<!-- SOURCE_BEGIN LA:LA-004 -->"
+            },
+            {
+              "line": 4775,
+              "text": "## LA-004. Две экономические реализации: согласовать, но не подменять"
+            },
+            {
+              "line": 4806,
+              "text": "<!-- SOURCE_END LA:LA-004 -->"
+            },
+            {
+              "line": 4808,
+              "text": "## Обязательное позднее уточнение LA-004"
+            },
+            {
+              "line": 4811,
+              "text": "## LA-004 — уточнение r02"
+            },
+            {
+              "line": 4817,
+              "text": "## Исходное решение LA-035"
+            },
+            {
+              "line": 4821,
+              "text": "<!-- SOURCE_BEGIN LA:LA-035 -->"
+            },
+            {
+              "line": 4822,
+              "text": "## LA-035. policy_loss_fn: ранний экономический baseline у общего method-владельца"
+            },
+            {
+              "line": 4834,
+              "text": "**Что установлено.** За общим именем `policy_loss_fn` находится критерий по `GlobalState.agents.income` и `government_balance`, с default `min_balance=-1000` и коэффициентом штрафа `10`. Это не функция потерь arbitrary method и не общий интерфейс политического предпочтения. Физическое помещение в `methods/_internal` сохранило старую предметную обязанность. Старый публичный `methods/loss.py` только открывает её через reexport-helper. [E106–E109]"
+            },
+            {
+              "line": 4844,
+              "text": "Прочитанные `GDPObjective`, `SocialWelfareObjective`, `UtilitarianWelfare` и другие работают по **EconomicState** и выражают другие критерии. Они не drop-in successor старого normalized-income/budget loss. LA-004 сохраняет силу: соседство экономических моделей не доказывает их равенство. [E110]"
+            },
+            {
+              "line": 4859,
+              "text": "<!-- SOURCE_END LA:LA-035 -->"
+            },
+            {
+              "line": 18616,
+              "text": "| LA-004 | M | Две экономические реализации: согласовать, но не подменять | Общий предмет, но разные законы и ABI. |"
+            },
+            {
+              "line": 18664,
+              "text": "Для LA-004 сначала доказать пересечение операций и составить отображение состояний. Если формулы различаются содержательно, правильное решение — два именованных профиля, а не общий helper с большим набором неявных флагов. Меньше файлов не всегда означает меньше вариантов поведения."
+            },
+            {
+              "line": 18967,
+              "text": "**Foundry, LA-022 ↔ LA-023 и прежний LA-004:** общая инфраструктура discovery не означает единый ABI всех plugins. Обучение подключается только там, где определены observations, actions, rewards, сброс состояния и влияние policy на rollout. Не переносить каждую функцию domain package в каталог методов ради одной структуры папок."
+            },
+            {
+              "line": 19414,
+              "text": "| LA-035 | R | `policy_loss_fn` — конкретный income/budget baseline, не общий method loss | Сам baseline, ограничения чисел и полезные numeric tests |"
+            },
+            {
+              "line": 19437,
+              "text": "**LA-004:** прочитаны современные economic objectives. Их другой State/criterion подтверждает прежний запрет механического слияния по слову «экономика». LA-035 добавляет конкретный generic-address baseline; она не закрывает LA-004."
+            },
+            {
+              "line": 19462,
+              "text": "**LA-035:** сначала явный economic baseline и characterization, затем перенос. Изменение objective/ранжирования — отдельно от relocation и отдельно от публичного alias retirement."
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+      "source_role": "immutable_original_requirement_or_queue_mapping",
+      "action": "Preserve cards/queue/crosswalk/bundlemanifest/template and fullsourcebinding. These assign owner/originalcriteria, not currenttechnicaloutcomes. No correction/newGiniID needed.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+          "git_blob": "130ba865f6df9b1e7cd3bec5ce868df85e9b918c",
+          "bytes": 602186,
+          "sha256": "5abd40cc31570b26747c36ca2f782503e066c5df0195574452535943626b2b87",
+          "matches": [
+            {
+              "line": 3948,
+              "text": "        \"LA-004\","
+            },
+            {
+              "line": 3949,
+              "text": "        \"LA-035\""
+            },
+            {
+              "line": 3951,
+              "text": "      \"work\": \"Составить конечную таблицу GlobalState/PatchMap и EconomicState: units, timestep, tax base, RNG, balances. Сохранить неэквивалентные модели под явными профилями, выделять только доказанно общий primitive. Перенести старый normalized-income/budget policy_loss_fn в economic baseline owner без смены формулы и держать unsupported substitutions явными.\","
+            },
+            {
+              "line": 3983,
+              "text": "        \"LA-004\": \"Полная область карточки с конечной проверкой применимости/совместимости; исходный текст и ограничения обязательны.\","
+            },
+            {
+              "line": 3984,
+              "text": "        \"LA-035\": \"Полная область карточки с конечной проверкой применимости/совместимости; исходный текст и ограничения обязательны.\""
+            },
+            {
+              "line": 4022,
+              "text": "          \"id\": \"LA-004\","
+            },
+            {
+              "line": 4032,
+              "text": "          \"id\": \"LA-035\","
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+          "git_blob": "130ba865f6df9b1e7cd3bec5ce868df85e9b918c",
+          "bytes": 602186,
+          "sha256": "5abd40cc31570b26747c36ca2f782503e066c5df0195574452535943626b2b87",
+          "matches": [
+            {
+              "line": 3948,
+              "text": "        \"LA-004\","
+            },
+            {
+              "line": 3949,
+              "text": "        \"LA-035\""
+            },
+            {
+              "line": 3951,
+              "text": "      \"work\": \"Составить конечную таблицу GlobalState/PatchMap и EconomicState: units, timestep, tax base, RNG, balances. Сохранить неэквивалентные модели под явными профилями, выделять только доказанно общий primitive. Перенести старый normalized-income/budget policy_loss_fn в economic baseline owner без смены формулы и держать unsupported substitutions явными.\","
+            },
+            {
+              "line": 3983,
+              "text": "        \"LA-004\": \"Полная область карточки с конечной проверкой применимости/совместимости; исходный текст и ограничения обязательны.\","
+            },
+            {
+              "line": 3984,
+              "text": "        \"LA-035\": \"Полная область карточки с конечной проверкой применимости/совместимости; исходный текст и ограничения обязательны.\""
+            },
+            {
+              "line": 4022,
+              "text": "          \"id\": \"LA-004\","
+            },
+            {
+              "line": 4032,
+              "text": "          \"id\": \"LA-035\","
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/ECO-01.md",
+      "source_role": "immutable_original_requirement_or_queue_mapping",
+      "action": "Preserve cards/queue/crosswalk/bundlemanifest/template and fullsourcebinding. These assign owner/originalcriteria, not currenttechnicaloutcomes. No correction/newGiniID needed.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/ECO-01.md",
+          "git_blob": "9112b8ff94b3732d18508302491fd962006e47fe",
+          "bytes": 19726,
+          "sha256": "907f9484c95dd34716dd3fef73d4b0f3025a22739c4515df506843c7ff7900bc",
+          "matches": [
+            {
+              "line": 5,
+              "text": "**B:** Нет; пакет миграции LA. **LA:** LA-004 (M), LA-035 (R)."
+            },
+            {
+              "line": 13,
+              "text": "Составить конечную таблицу GlobalState/PatchMap и EconomicState: units, timestep, tax base, RNG, balances. Сохранить неэквивалентные модели под явными профилями, выделять только доказанно общий primitive. Перенести старый normalized-income/budget policy_loss_fn в economic baseline owner без смены формулы и держать unsupported substitutions явными."
+            },
+            {
+              "line": 23,
+              "text": "**LA-004:** Полная область карточки с конечной проверкой применимости/совместимости; исходный текст и ограничения обязательны. Accountable closure: **ECO-01**; необходимые пакеты: ECO-01."
+            },
+            {
+              "line": 25,
+              "text": "**LA-035:** Полная область карточки с конечной проверкой применимости/совместимости; исходный текст и ограничения обязательны. Accountable closure: **ECO-01**; необходимые пакеты: ECO-01."
+            },
+            {
+              "line": 57,
+              "text": "## Исходное решение LA-004"
+            },
+            {
+              "line": 61,
+              "text": "<!-- SOURCE_BEGIN LA:LA-004 -->"
+            },
+            {
+              "line": 62,
+              "text": "## LA-004. Две экономические реализации: согласовать, но не подменять"
+            },
+            {
+              "line": 93,
+              "text": "<!-- SOURCE_END LA:LA-004 -->"
+            },
+            {
+              "line": 95,
+              "text": "## Обязательное позднее уточнение LA-004"
+            },
+            {
+              "line": 98,
+              "text": "## LA-004 — уточнение r02"
+            },
+            {
+              "line": 104,
+              "text": "## Исходное решение LA-035"
+            },
+            {
+              "line": 108,
+              "text": "<!-- SOURCE_BEGIN LA:LA-035 -->"
+            },
+            {
+              "line": 109,
+              "text": "## LA-035. policy_loss_fn: ранний экономический baseline у общего method-владельца"
+            },
+            {
+              "line": 121,
+              "text": "**Что установлено.** За общим именем `policy_loss_fn` находится критерий по `GlobalState.agents.income` и `government_balance`, с default `min_balance=-1000` и коэффициентом штрафа `10`. Это не функция потерь arbitrary method и не общий интерфейс политического предпочтения. Физическое помещение в `methods/_internal` сохранило старую предметную обязанность. Старый публичный `methods/loss.py` только открывает её через reexport-helper. [E106–E109]"
+            },
+            {
+              "line": 131,
+              "text": "Прочитанные `GDPObjective`, `SocialWelfareObjective`, `UtilitarianWelfare` и другие работают по **EconomicState** и выражают другие критерии. Они не drop-in successor старого normalized-income/budget loss. LA-004 сохраняет силу: соседство экономических моделей не доказывает их равенство. [E110]"
+            },
+            {
+              "line": 146,
+              "text": "<!-- SOURCE_END LA:LA-035 -->"
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/ECO-01.md",
+          "git_blob": "9112b8ff94b3732d18508302491fd962006e47fe",
+          "bytes": 19726,
+          "sha256": "907f9484c95dd34716dd3fef73d4b0f3025a22739c4515df506843c7ff7900bc",
+          "matches": [
+            {
+              "line": 5,
+              "text": "**B:** Нет; пакет миграции LA. **LA:** LA-004 (M), LA-035 (R)."
+            },
+            {
+              "line": 13,
+              "text": "Составить конечную таблицу GlobalState/PatchMap и EconomicState: units, timestep, tax base, RNG, balances. Сохранить неэквивалентные модели под явными профилями, выделять только доказанно общий primitive. Перенести старый normalized-income/budget policy_loss_fn в economic baseline owner без смены формулы и держать unsupported substitutions явными."
+            },
+            {
+              "line": 23,
+              "text": "**LA-004:** Полная область карточки с конечной проверкой применимости/совместимости; исходный текст и ограничения обязательны. Accountable closure: **ECO-01**; необходимые пакеты: ECO-01."
+            },
+            {
+              "line": 25,
+              "text": "**LA-035:** Полная область карточки с конечной проверкой применимости/совместимости; исходный текст и ограничения обязательны. Accountable closure: **ECO-01**; необходимые пакеты: ECO-01."
+            },
+            {
+              "line": 57,
+              "text": "## Исходное решение LA-004"
+            },
+            {
+              "line": 61,
+              "text": "<!-- SOURCE_BEGIN LA:LA-004 -->"
+            },
+            {
+              "line": 62,
+              "text": "## LA-004. Две экономические реализации: согласовать, но не подменять"
+            },
+            {
+              "line": 93,
+              "text": "<!-- SOURCE_END LA:LA-004 -->"
+            },
+            {
+              "line": 95,
+              "text": "## Обязательное позднее уточнение LA-004"
+            },
+            {
+              "line": 98,
+              "text": "## LA-004 — уточнение r02"
+            },
+            {
+              "line": 104,
+              "text": "## Исходное решение LA-035"
+            },
+            {
+              "line": 108,
+              "text": "<!-- SOURCE_BEGIN LA:LA-035 -->"
+            },
+            {
+              "line": 109,
+              "text": "## LA-035. policy_loss_fn: ранний экономический baseline у общего method-владельца"
+            },
+            {
+              "line": 121,
+              "text": "**Что установлено.** За общим именем `policy_loss_fn` находится критерий по `GlobalState.agents.income` и `government_balance`, с default `min_balance=-1000` и коэффициентом штрафа `10`. Это не функция потерь arbitrary method и не общий интерфейс политического предпочтения. Физическое помещение в `methods/_internal` сохранило старую предметную обязанность. Старый публичный `methods/loss.py` только открывает её через reexport-helper. [E106–E109]"
+            },
+            {
+              "line": 131,
+              "text": "Прочитанные `GDPObjective`, `SocialWelfareObjective`, `UtilitarianWelfare` и другие работают по **EconomicState** и выражают другие критерии. Они не drop-in successor старого normalized-income/budget loss. LA-004 сохраняет силу: соседство экономических моделей не доказывает их равенство. [E110]"
+            },
+            {
+              "line": 146,
+              "text": "<!-- SOURCE_END LA:LA-035 -->"
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/legacy_to_bundles.json",
+      "source_role": "immutable_original_requirement_or_queue_mapping",
+      "action": "Preserve cards/queue/crosswalk/bundlemanifest/template and fullsourcebinding. These assign owner/originalcriteria, not currenttechnicaloutcomes. No correction/newGiniID needed.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/legacy_to_bundles.json",
+          "git_blob": "329f101acca8dac6708b4e557cd07fd58f5facb7",
+          "bytes": 28761,
+          "sha256": "5390bc21cab5901487c00b2fa68b6396294a5b95e809fd91bc2053d9f2ab6a8e",
+          "matches": [
+            {
+              "line": 32,
+              "text": "  \"LA-004\": {"
+            },
+            {
+              "line": 347,
+              "text": "  \"LA-035\": {"
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/legacy_to_bundles.json",
+          "git_blob": "329f101acca8dac6708b4e557cd07fd58f5facb7",
+          "bytes": 28761,
+          "sha256": "5390bc21cab5901487c00b2fa68b6396294a5b95e809fd91bc2053d9f2ab6a8e",
+          "matches": [
+            {
+              "line": 32,
+              "text": "  \"LA-004\": {"
+            },
+            {
+              "line": 347,
+              "text": "  \"LA-035\": {"
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/templates/run_ledger.json",
+      "source_role": "immutable_original_requirement_or_queue_mapping",
+      "action": "Preserve cards/queue/crosswalk/bundlemanifest/template and fullsourcebinding. These assign owner/originalcriteria, not currenttechnicaloutcomes. No correction/newGiniID needed.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/templates/run_ledger.json",
+          "git_blob": "80ce87563fbb7187b77b598ddb3f04c7f8eecf1a",
+          "bytes": 24573,
+          "sha256": "7ead4a3f3066c9f3e545cffbcd538ec3aa3b1167591e6a166879aa2c9a4dab10",
+          "matches": [
+            {
+              "line": 1001,
+              "text": "    \"LA-004\": \"planned\","
+            },
+            {
+              "line": 1032,
+              "text": "    \"LA-035\": \"planned\","
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/templates/run_ledger.json",
+          "git_blob": "80ce87563fbb7187b77b598ddb3f04c7f8eecf1a",
+          "bytes": 24573,
+          "sha256": "7ead4a3f3066c9f3e545cffbcd538ec3aa3b1167591e6a166879aa2c9a4dab10",
+          "matches": [
+            {
+              "line": 1001,
+              "text": "    \"LA-004\": \"planned\","
+            },
+            {
+              "line": 1032,
+              "text": "    \"LA-035\": \"planned\","
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+      "source_role": "owned_current_profile_corrected",
+      "action": "Already corrected explicitly in doc-onlyc008, independentlyreviewed; originaltechnicalclosed, dated072heldliteral, newobjective/version onlyfuturefollowup. No further mutation needed.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+          "git_blob": "781e8d960361e0e06d95d1533f91502c8d7cbd87",
+          "bytes": 3819,
+          "sha256": "15adc343cc2f252c82d94bd026d5a6fa0384af0c597fb19698b3c5722fd12922",
+          "matches": [
+            {
+              "line": 3,
+              "text": "`polisyos.foundry.plugins.economics.baselines.normalized_income_budget_loss`"
+            },
+            {
+              "line": 5,
+              "text": "`polisyos.foundry.methods.loss.policy_loss_fn` and the corresponding internal"
+            },
+            {
+              "line": 23,
+              "text": "welfare or income-maximizing objective. The original LA035 acceptance concerns"
+            },
+            {
+              "line": 30,
+              "text": "The original LA035 equivalent relocation is technically closed by the native"
+            },
+            {
+              "line": 44,
+              "text": "LA004 compares deliberately matched and divergent fiscal/labor regimes,"
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "present": false
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/development-programs/2026-09-30-post-e02/decisions.md",
+      "source_role": "other_program_derived_historical_source_view",
+      "action": "Preserve reported source/date/selector provenance; source-disposition/decisionrow may be consumed by laterprogramowner. Provide neworiginalcriterion/source-qualified currentlink to thatowner if reused; not authorized F current35 rewrite.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/research/development-programs/2026-09-30-post-e02/decisions.md",
+          "git_blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "bytes": 30973,
+          "sha256": "4392e72be659a20a88cfe834627b669d9581b96a638bbfde1f2f8988f9d2491e",
+          "matches": [
+            {
+              "line": 117,
+              "text": "| LA-004 | Только доказанный общий accounting kernel, другие profiles раздельно | Caller/optimizer retirement |"
+            },
+            {
+              "line": 118,
+              "text": "| LA-035 | Existing normalized objective под честным именем; income objective отдельно при нужде | Calibration и migration каждого настоящего caller |"
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/research/development-programs/2026-09-30-post-e02/decisions.md",
+          "git_blob": "2049dade76a2d494fbc30449d8c5c3d8597c33e1",
+          "bytes": 30973,
+          "sha256": "4392e72be659a20a88cfe834627b669d9581b96a638bbfde1f2f8988f9d2491e",
+          "matches": [
+            {
+              "line": 117,
+              "text": "| LA-004 | Только доказанный общий accounting kernel, другие profiles раздельно | Caller/optimizer retirement |"
+            },
+            {
+              "line": 118,
+              "text": "| LA-035 | Existing normalized objective под честным именем; income objective отдельно при нужде | Calibration и migration каждого настоящего caller |"
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/development-programs/2026-09-30-post-e02/source_disposition.json",
+      "source_role": "other_program_derived_historical_source_view",
+      "action": "Preserve reported source/date/selector provenance; source-disposition/decisionrow may be consumed by laterprogramowner. Provide neworiginalcriterion/source-qualified currentlink to thatowner if reused; not authorized F current35 rewrite.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/research/development-programs/2026-09-30-post-e02/source_disposition.json",
+          "git_blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "bytes": 3288529,
+          "sha256": "4eebb19545e3508bc89fe3403cfee7f9b122d8ea9feec69ea62c9607e3806f1d",
+          "matches": [
+            {
+              "line": 44674,
+              "text": "      \"source_qualified_id\": \"E02:LA-004\","
+            },
+            {
+              "line": 44675,
+              "text": "      \"id\": \"LA-004\","
+            },
+            {
+              "line": 44691,
+              "text": "      \"source_selector\": \"/rows[id=LA-004]\","
+            },
+            {
+              "line": 44704,
+              "text": "          \"selector\": \"/rows[id=LA-004]/residual_owner\","
+            },
+            {
+              "line": 44708,
+              "text": "          \"path_at_version\": \"docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:478fcba12a67e15990292e637358fbb1f5821f0b#LA-004\","
+            },
+            {
+              "line": 45997,
+              "text": "      \"source_qualified_id\": \"E02:LA-035\","
+            },
+            {
+              "line": 45998,
+              "text": "      \"id\": \"LA-035\","
+            },
+            {
+              "line": 45999,
+              "text": "      \"title\": \"policy_loss_fn: ранний экономический baseline у общего method-владельца\","
+            },
+            {
+              "line": 46012,
+              "text": "      \"residual_scope\": \"`policy_loss_fn` is a live early economic baseline under the shared method owner. No equivalent modern economic objective or production optimizer caller is proven. Residual is objective/profile/compatibility equivalence and an actual optimizer consumer, not merely ECO fiscal/labor profile difference.\","
+            },
+            {
+              "line": 46014,
+              "text": "      \"source_selector\": \"/rows[id=LA-035]\","
+            },
+            {
+              "line": 46027,
+              "text": "          \"selector\": \"/rows[id=LA-035]/residual_owner\","
+            },
+            {
+              "line": 46031,
+              "text": "          \"path_at_version\": \"docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:478fcba12a67e15990292e637358fbb1f5821f0b#LA-035\","
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/research/development-programs/2026-09-30-post-e02/source_disposition.json",
+          "git_blob": "8e449669e3ea57f6afe5493e778694c27f2b4576",
+          "bytes": 3288529,
+          "sha256": "4eebb19545e3508bc89fe3403cfee7f9b122d8ea9feec69ea62c9607e3806f1d",
+          "matches": [
+            {
+              "line": 44674,
+              "text": "      \"source_qualified_id\": \"E02:LA-004\","
+            },
+            {
+              "line": 44675,
+              "text": "      \"id\": \"LA-004\","
+            },
+            {
+              "line": 44691,
+              "text": "      \"source_selector\": \"/rows[id=LA-004]\","
+            },
+            {
+              "line": 44704,
+              "text": "          \"selector\": \"/rows[id=LA-004]/residual_owner\","
+            },
+            {
+              "line": 44708,
+              "text": "          \"path_at_version\": \"docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:478fcba12a67e15990292e637358fbb1f5821f0b#LA-004\","
+            },
+            {
+              "line": 45997,
+              "text": "      \"source_qualified_id\": \"E02:LA-035\","
+            },
+            {
+              "line": 45998,
+              "text": "      \"id\": \"LA-035\","
+            },
+            {
+              "line": 45999,
+              "text": "      \"title\": \"policy_loss_fn: ранний экономический baseline у общего method-владельца\","
+            },
+            {
+              "line": 46012,
+              "text": "      \"residual_scope\": \"`policy_loss_fn` is a live early economic baseline under the shared method owner. No equivalent modern economic objective or production optimizer caller is proven. Residual is objective/profile/compatibility equivalence and an actual optimizer consumer, not merely ECO fiscal/labor profile difference.\","
+            },
+            {
+              "line": 46014,
+              "text": "      \"source_selector\": \"/rows[id=LA-035]\","
+            },
+            {
+              "line": 46027,
+              "text": "          \"selector\": \"/rows[id=LA-035]/residual_owner\","
+            },
+            {
+              "line": 46031,
+              "text": "          \"path_at_version\": \"docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:478fcba12a67e15990292e637358fbb1f5821f0b#LA-035\","
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/bundle-catalog.md",
+      "source_role": "historical_research697_test_navigation",
+      "action": "Headerpins69780761 and explicitly establishes noexecution/semanticadequacy. Preserve reported narrowmapping/gaps; optionally add currentrecord link, never rewrite selectedtestscope into fresh83 or closure.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/bundle-catalog.md",
+          "git_blob": "ccaf817d9f6ebacd65930fee4e187bc5a6fc60d1",
+          "bytes": 405390,
+          "sha256": "d63c6183839d00d026a6376ddf2133059cf762b1f023c3f415e58ac9182ad6a1",
+          "matches": [
+            {
+              "line": 1345,
+              "text": "**Записи:** LA-004, LA-035. **Реестр:** LA-004=partial, LA-035=partial."
+            },
+            {
+              "line": 1365,
+              "text": "- For the legacy normalized-income objective, assert the positive-income gradient behavior described by LA-035 (scale-normalized positive regime can be constant -1); current JIT/gradient test uses mixed negative/positive values and only asserts finite gradient."
+            },
+            {
+              "line": 1367,
+              "text": "- Check other state dimensions enumerated in LA-004's mapping table (units, timestep, RNG, balances and PatchMap/EconomicState fields) before any mechanism consolidation; current remediation differentiates representative tax and labor cases, not the full state crosswalk."
+            },
+            {
+              "line": 1369,
+              "text": "- Ограничение: The LA-004 state/unit/timestep/RNG/balance crosswalk is not covered end to end by the selected test nodes."
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/bundle-catalog.md",
+          "git_blob": "ccaf817d9f6ebacd65930fee4e187bc5a6fc60d1",
+          "bytes": 405390,
+          "sha256": "d63c6183839d00d026a6376ddf2133059cf762b1f023c3f415e58ac9182ad6a1",
+          "matches": [
+            {
+              "line": 1345,
+              "text": "**Записи:** LA-004, LA-035. **Реестр:** LA-004=partial, LA-035=partial."
+            },
+            {
+              "line": 1365,
+              "text": "- For the legacy normalized-income objective, assert the positive-income gradient behavior described by LA-035 (scale-normalized positive regime can be constant -1); current JIT/gradient test uses mixed negative/positive values and only asserts finite gradient."
+            },
+            {
+              "line": 1367,
+              "text": "- Check other state dimensions enumerated in LA-004's mapping table (units, timestep, RNG, balances and PatchMap/EconomicState fields) before any mechanism consolidation; current remediation differentiates representative tax and labor cases, not the full state crosswalk."
+            },
+            {
+              "line": 1369,
+              "text": "- Ограничение: The LA-004 state/unit/timestep/RNG/balance crosswalk is not covered end to end by the selected test nodes."
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+      "source_role": "mandatory_current_ROOT_operating_view",
+      "action": "ROOT forward-correct LA035 held-optimizer/norm prerequisite to original equivalent-relocation technicalclosed, preserving dated history; LA004 remains distinctmodelsclosed. Link new recommendation/receipt and separate Gacceptance.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+          "git_blob": "bfe0e18813d014b977005f62ffe91ff4363fc387",
+          "bytes": 26857,
+          "sha256": "724f37608e3f3cbd3ff3445f7bcbd26f90c916c51bb50016ce7389a0c1fd77f4",
+          "matches": [
+            {
+              "line": 46,
+              "text": "| LA-004 | DISTINCT economic models, paired regimes and deliberate divergence; closed | ECO412 checks0/4/6/8; state/units/step/taxbase/RNG/budget/outputs. Welfare norm не prerequisite. |"
+            },
+            {
+              "line": 52,
+              "text": "| LA-035 | Equivalent normalized-income/budget historical baseline relocation; closed | ECO532/412 + new193; actual GlobalState formula/aliases/native guards/JIT/gradient/callers match original. New optimizer/normative objective не prerequisite unchanged relocation. |"
+            },
+            {
+              "line": 65,
+              "text": "| <a id=\"bundle-eco-01\"></a> ECO-01 | Distinct real native/plugin profiles; canonical current Gini/domain; preserved normalized baseline. | LA-004 finite inequivalence и LA-035 equivalent historical relocation recommended closed; signed active Gini отдельно typed-refuses на actual C/PPO route. |"
+            },
+            {
+              "line": 98,
+              "text": "- **ECOfa53**: `F/economic-baseline-consumer-proof-20261007.json@fa53da2812eaa8578f79ec914b3b2abe4c491f3d`; scientific test candidate `193b3582a72c640c1d06a131f93502654a77a36a`, doc-only `c0084cd530c1dbe01eedfb9b5c24f055954a97be`. Original LA-035 equivalence/guards/JIT/grad and actual C/PPO signed-wealth→requested Gini refusal: author83PASS; independent28+55PASS,64Fraction cases/2analytic gradients, actual property removalsFAIL. No runtime economic law or objective changed; LA-004 distinct model criterion is preserved."
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+          "git_blob": "c370f70e8d63e05cf5dea80544e9f4f0f2eefb73",
+          "bytes": 37207,
+          "sha256": "0ce262811ae316de4d493477f7894a76066c0b906baa266dd969a25aee58c454",
+          "matches": [
+            {
+              "line": 32,
+              "text": "| <a id=\"bundle-eco-01\"></a> ECO-01 / LA-004, LA-035 | Frozen F receipts cover the 60-case JAX hard-Gini/median dtype branch and a bounded paired comparison of the legacy and plugin fiscal/labor profiles. The profiles differ in state, units, tax base, balance and stochastic law; selected matched and deliberately divergent regimes test that boundary. No whole-model or production-caller equivalence is established. A possible C/PPO negative-wealth input into strict Gini is a separate cross-edge without a combined runtime witness. | Preserve profile identity. LA-004 is the bounded comparison of declared state/units, timestep, tax, balance and RNG semantics across matched and divergent regimes; it does not require Gini or welfare sign-off. LA-035 concerns relocation of the unchanged historical score with its native state, guards, JIT/gradient path and aliases; a normative owner is needed only for a changed score/ranking or new objective. Keep compatibility aliases while external/computed caller retirement remains unestablished. cd policy-engine && uv run pytest tests/unit/foundry/plugins/test_economics_dtype.py tests/unit/foundry/plugins/test_economics.py -q plus exact fiscal/labor tests. |"
+            },
+            {
+              "line": 58,
+              "text": "**ECO/FRY/Lex/API.** Dtype correctness≠normative welfare. `normalized_income_budget_loss` divides `-mean(income)` by `max(mean(abs(income)),1)` and adds a budget penalty; for nonnegative mean income ≥1 the income term is exactly `-1`, independent of scale. Preserve it as the unchanged historical score on its native `GlobalState` formula, retaining the legacy aliases and guards/JIT/gradient path; moving the same score does not require new normative approval. A normative owner is required for a changed score/ranking or new welfare objective. The frozen F comparison covers selected matched and divergent legacy/plugin fiscal-labor regimes, not whole-model or production-caller equivalence. External/computed caller retirement remains unestablished. A possible C/PPO negative-wealth input into strict Gini is a separate cross-edge, with no combined runtime witness. In the compiler, `ExecPlan.random_seed=17` can coexist with `TreasuryPlan.root_seed=0`; persisted salts are not evidence a runtime mechanism consumes the same seed. Catalog descriptor≠kernel/certificate. LA-007/019 placeholders are absent in G97, but packages remain; external loader and installed distribution are unverified. Slot layout ends in `ir/kernel/slots.py`; full public addresses/defaults/docs need mapping. Lex legal diff/pass is useful; `affected_kpis` is topic similarity, not an effect or legal authority. Synthetic packs/StubBackend do not attest real law."
+            },
+            {
+              "line": 87,
+              "text": "Exact finding set: B54, B56, B204, B205, B206, B207, B208, B209, B210, B211, B212, B213, B214, B215, B216, B217, B218, B219, B220, B221, B222, B223, B224, B225, LA-001, LA-002, LA-003, LA-004, LA-007, LA-016, LA-017, LA-019, LA-020, LA-035, LA-037 (35 IDs: 24 B and 11 LA). Полные canonical cards, включая exact line ranges/byte hashes, доступны по coverage.json:criterion_refs. Source/receipt pins — в input-identity.json. Исходный workflow — [F execution prompt](../execution-prompts/F.md) и [HANDOFF](../execution-prompts/HANDOFF.md); новые выбранные архитектурные профили оформлены как конкретное продолжение поручения пользователя. Patterns P02, P04–05, P08, P10, P14, P29, P32–38, P40–41 apply."
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "source_role": "immutable_G97_planned_criterion_baseline",
+      "action": "Preserve runtime_source97 and criterion_specific_acceptance_not_executed baseline/36binding identity. Add/link currentseparateclosure record only if ROOT needsnavigation; do not overwrite historical scope/state as present acceptance.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+          "git_blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+          "bytes": 549568,
+          "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2",
+          "matches": [
+            {
+              "line": 646,
+              "text": "        \"LA-004\","
+            },
+            {
+              "line": 647,
+              "text": "        \"LA-035\""
+            },
+            {
+              "line": 9748,
+              "text": "      \"id\": \"LA-004\","
+            },
+            {
+              "line": 9762,
+              "text": "          \"criterion_id\": \"LA-004\","
+            },
+            {
+              "line": 11004,
+              "text": "      \"id\": \"LA-035\","
+            },
+            {
+              "line": 11018,
+              "text": "          \"criterion_id\": \"LA-035\","
+            },
+            {
+              "line": 11029,
+              "text": "      \"criterion_specific_acceptance_not_executed\": \"`policy_loss_fn` is a live early economic baseline under the shared method owner. No equivalent modern economic objective or production optimizer caller is proven. Residual is objective/profile/compatibility equivalence and an actual optimizer consumer, not merely ECO fiscal/labor profile difference.\","
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+          "git_blob": "fa766a86b8bc6f0f60937001b7addc438fa55418",
+          "bytes": 551054,
+          "sha256": "03481f3fef76c5f6eab78a64febe95cb61d7c79555e18dcfc846c505c96d3bce",
+          "matches": [
+            {
+              "line": 646,
+              "text": "        \"LA-004\","
+            },
+            {
+              "line": 647,
+              "text": "        \"LA-035\""
+            },
+            {
+              "line": 9748,
+              "text": "      \"id\": \"LA-004\","
+            },
+            {
+              "line": 9762,
+              "text": "          \"criterion_id\": \"LA-004\","
+            },
+            {
+              "line": 9773,
+              "text": "      \"criterion_specific_acceptance_not_executed\": \"The frozen F paired-profile receipts cover a bounded comparison of the declared legacy and plugin fiscal/labor profiles across selected matched and divergent regimes, including state/units, timestep, tax, balance and RNG semantics. This is not whole-model or production-caller equivalence. Formal closure remains not adjudicated; no Gini/welfare sign-off or optimizer caller is required by LA-004. A possible C/PPO negative-wealth input into strict Gini remains a separate cross-edge without a combined runtime witness.\","
+            },
+            {
+              "line": 11004,
+              "text": "      \"id\": \"LA-035\","
+            },
+            {
+              "line": 11018,
+              "text": "          \"criterion_id\": \"LA-035\","
+            },
+            {
+              "line": 11029,
+              "text": "      \"criterion_specific_acceptance_not_executed\": \"The unchanged historical `normalized_income_budget_loss` is preserved on its native `GlobalState` formula with legacy internal/public aliases and its guards/JIT/gradient behavior; frozen compatibility receipts cover the selected formula/import path. No normative-owner approval is required for this unchanged relocation. Formal closure remains not adjudicated. Production optimizer use and external/computed caller retirement are unestablished and remain a separate census/compatibility question; owner review is required only for a changed score/ranking or new objective.\","
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/execution-sequence.md",
+      "source_role": "current_ROOT_routing_view_already_criterion_coherent",
+      "action": "ExactECOIDs/lanes and distinctprofiles are correct; no obsoleteLA035hold stated onmatchinglines. No mandatory prose correction; optionalnewrecordnavigation only.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/execution-sequence.md",
+          "git_blob": "9e51765727debc87bb0a3a1ea7686f557d718b0a",
+          "bytes": 33201,
+          "sha256": "920498645c448bbcf656236dcaed6b9a4aae8961f6ebb9913c54ad1664151f82",
+          "matches": [
+            {
+              "line": 104,
+              "text": "- **F3 public/economic/legal:** ECO-01 LA-004/LA-035; LEX-01 LA-017; API-01 LA-020; FRY-01 LA-001/LA-002/LA-037; FRY-03 LA-003. Keep economic units/objectives distinct where profiles differ; manual/DGP oracle then actual IR consumer. Bounded Lex expr_ast/plan/CAS does not establish current-law source or KPI authority. Test supported facade consumers, not reflection. Selectors tests/unit/remediation/test_eco_01.py, tests/unit/remediation/test_lex_01.py, tests/unit/remediation/test_api_01.py, tests/unit/foundry/compile/test_randomization.py, tests/unit/remediation/test_fry_03.py. Actual law input is local-only if source criterion requires it."
+            },
+            {
+              "line": 145,
+              "text": "- **F (17 / 35):** CAU-01 B204–206, CAU-02 B207–209, CAU-03 B210/B211, CAU-04 B212/B213, CAU-05 LA-016 → F1; FIT-01 B54/B56, GRF-01 B216/B217/LA-007/LA-019, GRF-02 B219/B220, GRF-03 B214/B218, SCM-01 B221/B222, SCM-02 B215/B223, SCM-03 B224/B225 → F2; ECO-01 LA-004/LA-035, LEX-01 LA-017, API-01 LA-020, FRY-01 LA-001/LA-002/LA-037, FRY-03 LA-003 → F3. B219 held."
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/execution-sequence.md",
+          "git_blob": "6f5a4645af20ec00e449032de30b706f39d2770a",
+          "bytes": 34412,
+          "sha256": "a3fb633cbf2cd767538c76d90a5070ba678d67a23a4370eef4c0ed3909d955ef",
+          "matches": [
+            {
+              "line": 106,
+              "text": "- **F3 public/economic/legal:** ECO-01 LA-004/LA-035; LEX-01 LA-017; API-01 LA-020; FRY-01 LA-001/LA-002/LA-037; FRY-03 LA-003. Keep economic units/objectives distinct where profiles differ; manual/DGP oracle then actual IR consumer. Bounded Lex expr_ast/plan/CAS does not establish current-law source or KPI authority. Test supported facade consumers, not reflection. Selectors tests/unit/remediation/test_eco_01.py, tests/unit/remediation/test_lex_01.py, tests/unit/remediation/test_api_01.py, tests/unit/foundry/compile/test_randomization.py, tests/unit/remediation/test_fry_03.py. Actual law input is local-only if source criterion requires it."
+            },
+            {
+              "line": 147,
+              "text": "- **F (17 / 35):** CAU-01 B204–206, CAU-02 B207–209, CAU-03 B210/B211, CAU-04 B212/B213, CAU-05 LA-016 → F1; FIT-01 B54/B56, GRF-01 B216/B217/LA-007/LA-019, GRF-02 B219/B220, GRF-03 B214/B218, SCM-01 B221/B222, SCM-02 B215/B223, SCM-03 B224/B225 → F2; ECO-01 LA-004/LA-035, LEX-01 LA-017, API-01 LA-020, FRY-01 LA-001/LA-002/LA-037, FRY-03 LA-003 → F3. B219 held."
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+      "source_role": "mandatory_current_ROOT_operating_view",
+      "action": "ROOT forward-correct LA035 held-optimizer/norm prerequisite to original equivalent-relocation technicalclosed, preserving dated history; LA004 remains distinctmodelsclosed. Link new recommendation/receipt and separate Gacceptance.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+          "git_blob": "6cf49c2adff9d3f42c1f79c424295ac052ba7e9b",
+          "bytes": 106381,
+          "sha256": "1dce4ad02656b5c9d873c2ed6066264a7b3ec3f02766001f437920a789e3f3ca",
+          "matches": [
+            {
+              "line": 594,
+              "text": "**Current evidence.** ECO412 actual registry→compile→CAS→execute→apply_patch_map/load snapshot and adapter→native consumers compare complete patches/masks/accounting/count/key under finite equivalent fixtures; deliberate plugin-law divergences are LA-004, not relocation failure. Fiscal debit removal5FAIL/2outsidecontrolsPASS. Historical decimal .10 escape1000.0000149011612 vs1000 corrected FISCAL132 by incoming-state dtype at actual ParamDecimal/compiler/CAS consumer. Original bounded relocation recommended closed; 24defaultfloat32 profiles byte-identical, separate40lower/int/x64 profiles disclose dtype/reduction differences. ABM diagnostic FAIL и P41 not_established сохраняются, law/tolerance не изменены для сокрытия результата."
+            },
+            {
+              "line": 600,
+              "text": "### F-M14 — LA-004 distinct models; LA-035 equivalent historical baseline"
+            },
+            {
+              "line": 602,
+              "text": "**LA-004 original acceptance, closed finite profile.** Native reported-income flat tax updates income/government.balance and threshold labor/employer/count/key; EconomicsPlugin progressive wealth tax and find/separation/wage dynamics operate on EconomicState. ECO412 full state/units/time-step/taxbase/RNG/budget mapping, deliberately equal regimes **and** deliberate divergence, accounting/seed/observables actual producer→consumer proofs satisfy this criterion. Richer plugin is not drop-in replacement; no welfare normative choice is needed to establish inequivalence."
+            },
+            {
+              "line": 604,
+              "text": "**LA-035 original equivalent relocation, recommended closed.** Original `-mean(income)/max(mean(abs(income)),1)+10·budget_penalty`, min_balance−1000, all population entries, aliases/nativeGlobalState/JIT/grad/numeric guards preserved. Positive income≥1 remains exactly−1 at every scale; это normalized historical baseline, не raw-income maximization. ECO193 actual state/guard/JIT/gradient/literal caller tests: author83PASS, independent28+55PASS, 64Fraction evaluations/2analytic gradients and actual sign/guard removals FAIL. Existing formula unchanged; new optimizer or normative welfare packet не требуется исходной карточкой. New ranking/objective intent, если будет запрошен, требует отдельного owner decision/version. ROOT072 hold сохранён исторически."
+            },
+            {
+              "line": 606,
+              "text": "**Separate Gini property, no new ID.** Existing @foundry-owners numeric-guardrails decision admits classical Gini only on finite nonnegative active resources. Current canonical hard calculator/admission used by aggregate/PureExecutor, objectives, plugin/report API and enumerated live readers; signed simulations remain allowed with Gini disabled. Stale finite cache does not license current[-2,1]/[-1,2]. Dated DistributionAwareExecutor snapshot retains last_update_step and historical meaning. Current dtype metadata/float32storage precision preserved, equations/norm/weights/RNG unchanged. New193 actual EconomicsTrainingAdapter→actor/temporal consumption→registered labor/tax/transfers/savings→active signed wealth проверен: eager bridge и requested JIT PPO metrics refuse classical Gini before aggregate/API; nonnegative active population positive. Plain trajectory without requested Gini may retain signed wealth. Это отдельная property, не новый ID, welfare convention или замена historical LA-035."
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+          "git_blob": "f55769e2d4dafd9b90aecc6b1167017747b7d8ab",
+          "bytes": 146346,
+          "sha256": "490dd9f23d5b82b9ae5f3243fb3e66886217f29eae19c0b1365cdc8c0d2aa612",
+          "matches": [
+            {
+              "line": 820,
+              "text": "**Finding IDs.** LA-004; LA-035"
+            },
+            {
+              "line": 824,
+              "text": "**Сегодняшнее расхождение.** `normalized_income_budget_loss` uses `-mean(income)/max(mean(abs(income)),1)+10*budget_penalty`. For nonnegative mean income >=1 the income term is exactly -1 at every income scale. The frozen F receipts compare selected legacy and plugin fiscal/labor profiles across matched and divergent regimes; the state, units, tax/balance path and stochastic semantics differ, so the comparison does not establish whole-model or production-caller equivalence."
+            },
+            {
+              "line": 826,
+              "text": "**Выбранная реализация.** Keep the unchanged formula canonical as the historical `normalized_income_budget_loss` on its native `GlobalState`, preserving the existing `_internal.loss.policy_loss_fn` and public `methods.loss` aliases plus its guards/JIT/gradient behavior. No normative-owner approval is required to preserve or relocate that same score. Require a named normative owner and actual consumer only for changing its sign/scale/ranking or introducing a new welfare/income objective. Keep the plugin and world-execution profiles distinct where their laws differ."
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+      "source_role": "mandatory_current_ROOT_operating_view",
+      "action": "ROOT forward-correct LA035 held-optimizer/norm prerequisite to original equivalent-relocation technicalclosed, preserving dated history; LA004 remains distinctmodelsclosed. Link new recommendation/receipt and separate Gacceptance.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+          "git_blob": "13e5721ee56793000c206e67c42fa3d0e8c9dab2",
+          "bytes": 35578,
+          "sha256": "ad7b68c4f9a35086e7492bfe84fb4f6a854e1d4f27f6addef07d562c06bd42d1",
+          "matches": [
+            {
+              "line": 124,
+              "text": "FAMILY7f/docs3e181 real four-family IC service/certificate CAS, five runtime descriptors, typed missing mappings, native IR compiler/patch/state/page consumer and reconciled byte-identical installed wrappers satisfy original LA-002/037. A family specification is not required to be a new executable kernel. ECO412 distinct native/plugin profiles close original LA-004 without welfare norm; FISCAL132 closes bounded LA-003 actual decimal/CAS precision with declared x64 boundary; LA-035 original unchanged normalized baseline relocation recommended closed on ECO193 state/guard/JIT/gradient/caller proof. No new optimizer/normative review prerequisite. Requested Gini on actual signed C/PPO wealth typed-refuses; signed trajectory without Gini remains supported. CARRYc003 native37/independent37 actual temporal/train/ES storage/carry tests have own source; they do not change fiscal law or cause a broad97PASS."
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+          "git_blob": "e939b0ef5f8ee2553648e1537268c70dc29a2b20",
+          "bytes": 46944,
+          "sha256": "35e15ee0f92a76df0af8cbef16cda9bc3d6b21838a7f81c868c71db3e1d317f0",
+          "matches": [],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "source_role": "immutable_allocation_source_owner_mapping",
+      "action": "Preserve TSV source_statuspartial and ECO01allocation/originalIDs. Currenttechnicaloutcome belongsnewROOTledger, not allocation rewrite.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+          "git_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "bytes": 9504,
+          "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+          "matches": [
+            {
+              "line": 230,
+              "text": "LA-004\tF\tP36\tECO-01\tECO-01\tpartial"
+            },
+            {
+              "line": 261,
+              "text": "LA-035\tF\tP36\tECO-01\tECO-01\tpartial"
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+          "git_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+          "bytes": 9504,
+          "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+          "matches": [
+            {
+              "line": 230,
+              "text": "LA-004\tF\tP36\tECO-01\tECO-01\tpartial"
+            },
+            {
+              "line": 261,
+              "text": "LA-035\tF\tP36\tECO-01\tECO-01\tpartial"
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/F-resume-after-pr65.md",
+      "source_role": "historical_executed_instruction_checkpoint",
+      "action": "Preserve executedOct6prompt literally. COMMON9aOct7 controls newtask and supersedes optimizer/norm prerequisite; futureprompt maylinknewdecision but doesnot retrospectivelyalter instructions.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/F-resume-after-pr65.md",
+          "git_blob": "ac1757f4eb8e649ee357c252043a3860d6b1b28e",
+          "bytes": 28164,
+          "sha256": "84000a521ca3717cfd764a315a91fbf7333590c5e50ba22ef9f689fb4273ad23",
+          "matches": [
+            {
+              "line": 30,
+              "text": "| FRY-01, FRY-03, ECO-01 | LA-001–LA-004, LA-035, LA-037 | Catalog/IC-service/profile/wrapper consumers; optional execution и temporal-law вопросы отдельно. |"
+            },
+            {
+              "line": 73,
+              "text": "**LA-004 original** — сравнить distinct native/plugin fiscal/labor модели, state/units/timestep/tax base/RNG/budget и запретить ложную drop-in equivalence. F short row ошибочно назначает этому ID Gini hold. Receipt532ca уже содержит narrow equal-regime comparison и deliberate divergence, значит сначала re-adjudicate exact original lines167–197, не требовать welfare norm как prerequisite к доказательству неэквивалентности. Сохрани обе laws, общий kernel только там, где contract действительно совпадает; update index/REPORT/per-ID receipt/complete audit/references, не только описание. Не выдумывай новый finding ID для соседней Gini работы."
+            },
+            {
+              "line": 77,
+              "text": "LA-035 canonicalized historical normalized-income/budget loss/aliases/JIT/grad — baseline, не income maximization; требуется actual optimizer caller и normative unit/population/time/sign intent. Owner versioned objective после решения; сохранить old replay/aliases. Hand-calculated scenario → real optimizer ranking/gradient/readback; не заменить GlobalState более богатым EconomicState по имени."
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/F-resume-after-pr65.md",
+          "git_blob": "43525d1ffd3ccf274a67ad65164c5090f5becd3a",
+          "bytes": 28459,
+          "sha256": "dc853158e83d3f768845764648cf1cc11ea5a2dc8d428b260549f45c53935bfa",
+          "matches": [
+            {
+              "line": 32,
+              "text": "| FRY-01, FRY-03, ECO-01 | LA-001–LA-004, LA-035, LA-037 | Catalog/IC-service/profile/wrapper consumers; optional execution и temporal-law вопросы отдельно. |"
+            },
+            {
+              "line": 75,
+              "text": "**LA-004 original** — сравнить distinct native/plugin fiscal/labor модели, state/units/timestep/tax base/RNG/budget и запретить ложную drop-in equivalence. F short row ошибочно назначает этому ID Gini hold. Receipt532ca уже содержит narrow equal-regime comparison и deliberate divergence, значит сначала re-adjudicate exact original lines167–197, не требовать welfare norm как prerequisite к доказательству неэквивалентности. Сохрани обе laws, общий kernel только там, где contract действительно совпадает; update index/REPORT/per-ID receipt/complete audit/references, не только описание. Не выдумывай новый finding ID для соседней Gini работы."
+            },
+            {
+              "line": 79,
+              "text": "LA-035 canonicalized historical normalized-income/budget loss/aliases/JIT/grad — baseline, не income maximization; требуется actual optimizer caller и normative unit/population/time/sign intent. Owner versioned objective после решения; сохранить old replay/aliases. Hand-calculated scenario → real optimizer ranking/gradient/readback; не заменить GlobalState более богатым EconomicState по имени."
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/F.md",
+      "source_role": "historical_executed_instruction_checkpoint",
+      "action": "Preserve executedOct6prompt literally. COMMON9aOct7 controls newtask and supersedes optimizer/norm prerequisite; futureprompt maylinknewdecision but doesnot retrospectivelyalter instructions.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/F.md",
+          "git_blob": "39f0ea06f7c5dec2121b89d5072ee5315351106e",
+          "bytes": 14670,
+          "sha256": "abeb9509f01fce62922070bc7ce642c00ec88a5fdef1bcfd65e73717bc48d97b",
+          "matches": [
+            {
+              "line": 37,
+              "text": "Полный inventory: CAU-01 B204–206; CAU-02 B207–209; CAU-03 B210–211; CAU-04 B212–213; CAU-05 LA-016; FIT-01 B54/B56; GRF-01 B216/B217/LA-007/LA-019; GRF-02 B219/B220; GRF-03 B214/B218; SCM-01 B221/B222; SCM-02 B215/B223; SCM-03 B224/B225; ECO-01 LA-004/LA-035; LEX-01 LA-017; API-01 LA-020; FRY-01 LA-001/002/037; FRY-03 LA-003. Финальный отчёт — строка на каждый из 35 IDs."
+            },
+            {
+              "line": 50,
+              "text": "- ECO-01: не выдумывай welfare norm; historical normalized-income score при income≥1 равен −1 при любом масштабе. Помимо dtype, проверь Gini независимой pairwise формулой: [1e−12,2e−12,3e−12] должно дать 2/9; текущий +1e−8 denominator даёт −1.33053836. Проверь scale invariance и typed behavior при нулевом среднем. Исправь реальный Gini defect как scientific-function работу, а не dtype patch; closure LA-004/035 только если это совпадает с исходным критерием — нового finding ID не создавай."
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/F.md",
+          "git_blob": "39f0ea06f7c5dec2121b89d5072ee5315351106e",
+          "bytes": 14670,
+          "sha256": "abeb9509f01fce62922070bc7ce642c00ec88a5fdef1bcfd65e73717bc48d97b",
+          "matches": [
+            {
+              "line": 37,
+              "text": "Полный inventory: CAU-01 B204–206; CAU-02 B207–209; CAU-03 B210–211; CAU-04 B212–213; CAU-05 LA-016; FIT-01 B54/B56; GRF-01 B216/B217/LA-007/LA-019; GRF-02 B219/B220; GRF-03 B214/B218; SCM-01 B221/B222; SCM-02 B215/B223; SCM-03 B224/B225; ECO-01 LA-004/LA-035; LEX-01 LA-017; API-01 LA-020; FRY-01 LA-001/002/037; FRY-03 LA-003. Финальный отчёт — строка на каждый из 35 IDs."
+            },
+            {
+              "line": 50,
+              "text": "- ECO-01: не выдумывай welfare norm; historical normalized-income score при income≥1 равен −1 при любом масштабе. Помимо dtype, проверь Gini независимой pairwise формулой: [1e−12,2e−12,3e−12] должно дать 2/9; текущий +1e−8 denominator даёт −1.33053836. Проверь scale invariance и typed behavior при нулевом среднем. Исправь реальный Gini defect как scientific-function работу, а не dtype patch; closure LA-004/035 только если это совпадает с исходным критерием — нового finding ID не создавай."
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checkpoint-06.json",
+      "source_role": "immutable_dated_G_acceptance_or_audit",
+      "action": "Preserve exactOct5/6source/candidate/acceptedhead/reviewer/outcome snapshot. Earlier held caption is historical; freshROOTrecommendation/Gfutureadoption is a separate record. No retrospectivecurrentclosure rewrite.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checkpoint-06.json",
+          "git_blob": "024248af2b0891d2fbb797d01c97091706ccd42d",
+          "bytes": 24287,
+          "sha256": "5cbb269f8d4f72351b8a6cf6966d3408ade230cc0ffa7ef2f94fe37a1705b75b",
+          "matches": [
+            {
+              "line": 50,
+              "text": "        \"LA-003 remains limited; LA-004/LA-035 remain held; no normative inequality convention, DoWhy/EconML, or architecture completeness claim.\""
+            },
+            {
+              "line": 54,
+              "text": "        \"LA-004\","
+            },
+            {
+              "line": 55,
+              "text": "        \"LA-035\""
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checkpoint-06.json",
+          "git_blob": "024248af2b0891d2fbb797d01c97091706ccd42d",
+          "bytes": 24287,
+          "sha256": "5cbb269f8d4f72351b8a6cf6966d3408ade230cc0ffa7ef2f94fe37a1705b75b",
+          "matches": [
+            {
+              "line": 50,
+              "text": "        \"LA-003 remains limited; LA-004/LA-035 remain held; no normative inequality convention, DoWhy/EconML, or architecture completeness claim.\""
+            },
+            {
+              "line": 54,
+              "text": "        \"LA-004\","
+            },
+            {
+              "line": 55,
+              "text": "        \"LA-035\""
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/f-economic-dtype.json",
+      "source_role": "immutable_dated_G_acceptance_or_audit",
+      "action": "Preserve exactOct5/6source/candidate/acceptedhead/reviewer/outcome snapshot. Earlier held caption is historical; freshROOTrecommendation/Gfutureadoption is a separate record. No retrospectivecurrentclosure rewrite.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/f-economic-dtype.json",
+          "git_blob": "af4760848f34407a8fcd7900cbd23186651a49bd",
+          "bytes": 14832,
+          "sha256": "98dfecd84bdf3f2c0d1d7a394bd6bd484d52e06f5bc6c639faddfdf2b9af65d4",
+          "matches": [
+            {
+              "line": 205,
+              "text": "    \"authority_limits\": \"LA-003 limited; LA-004/LA-035 held. No dataset, normative inequality convention, DoWhy/EconML or architecture completeness claim.\""
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/f-economic-dtype.json",
+          "git_blob": "af4760848f34407a8fcd7900cbd23186651a49bd",
+          "bytes": 14832,
+          "sha256": "98dfecd84bdf3f2c0d1d7a394bd6bd484d52e06f5bc6c639faddfdf2b9af65d4",
+          "matches": [
+            {
+              "line": 205,
+              "text": "    \"authority_limits\": \"LA-003 limited; LA-004/LA-035 held. No dataset, normative inequality convention, DoWhy/EconML or architecture completeness claim.\""
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-third-wave.md",
+      "source_role": "immutable_dated_G_acceptance_or_audit",
+      "action": "Preserve exactOct5/6source/candidate/acceptedhead/reviewer/outcome snapshot. Earlier held caption is historical; freshROOTrecommendation/Gfutureadoption is a separate record. No retrospectivecurrentclosure rewrite.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-third-wave.md",
+          "git_blob": "0622597eac5ab7f32464e818dc7a2a9b648e695c",
+          "bytes": 13957,
+          "sha256": "8db3d48fcff73d4b87d39b902c9fe03d2d149099f39da87e8fe15f27a3c5eb3a",
+          "matches": [
+            {
+              "line": 46,
+              "text": "| F ECO fb515 / FRY f4fa / worker e9bd | Scale-correct Gini and selected CAS Treasury/installed worker have real bounded proofs. Marked Treasury repeats per-node draws across steps; owner ratifies intended temporal law before trajectory claims. Wheel/sdist worker proof retains 14 actual runner warnings and incomplete gates; no production authority or installed-sdist independent PASS inferred. LA-004/035 held, other family/source inputs limited. |"
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-third-wave.md",
+          "git_blob": "0622597eac5ab7f32464e818dc7a2a9b648e695c",
+          "bytes": 13957,
+          "sha256": "8db3d48fcff73d4b87d39b902c9fe03d2d149099f39da87e8fe15f27a3c5eb3a",
+          "matches": [
+            {
+              "line": 46,
+              "text": "| F ECO fb515 / FRY f4fa / worker e9bd | Scale-correct Gini and selected CAS Treasury/installed worker have real bounded proofs. Marked Treasury repeats per-node draws across steps; owner ratifies intended temporal law before trajectory claims. Wheel/sdist worker proof retains 14 actual runner warnings and incomplete gates; no production authority or installed-sdist independent PASS inferred. LA-004/035 held, other family/source inputs limited. |"
+            }
+          ],
+          "present": true
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/F-pr65-continuation-audit-2026-10-06.md",
+      "source_role": "immutable_dated_G_acceptance_or_audit",
+      "action": "Preserve exactOct5/6source/candidate/acceptedhead/reviewer/outcome snapshot. Earlier held caption is historical; freshROOTrecommendation/Gfutureadoption is a separate record. No retrospectivecurrentclosure rewrite.",
+      "source_versions": {
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/F-pr65-continuation-audit-2026-10-06.md",
+          "git_blob": "50b61edf2525ab2964fe17c75aed9d4710939573",
+          "bytes": 16042,
+          "sha256": "adc970b3c9180afb065af4f420a89938113f696053d42d544766dde32fb95ac9",
+          "matches": [
+            {
+              "line": 42,
+              "text": "**LA-004 semantic binding.** Original card `LA_r09_original.md:167–197` — «Две экономические реализации: согласовать, но не подменять». F short row/hold вместо этого говорит Gini norm. Economics receipt содержит реальные native/plugin equal-regime comparisons и deliberate divergences; adjudicate именно их по исходной карточке. Welfare norm не обязательный вход для доказательства неэквивалентности моделей. Gini evidence сохраняется отдельно без выдуманного ID. Signed active populations ещё могут дать finite out-of-domain coefficient (`[-2,1]`→−1.5): domain owner выбирает nonnegative standard Gini admission либо отдельную именованную functional, затем typed limitation до aggregate/API; нельзя выпустить просто scalar с неверным смыслом."
+            },
+            {
+              "line": 44,
+              "text": "**Legacy и stochastic law.** LA-001 seed/salt relocation реально работает; v1 intentionally одинаковый per-node draw на steps0/1. Это disclosed temporal law. Вопрос desired fresh innovation — отдельный non-blocking profile follow-up только при именованном temporal consumer, не prerequisite LA-001 relocation closure; owner подтверждает law либо отдельно версионирует step-fold trajectory. LA-002 исходно требует catalog/IC-service/reexport migration и supported methods/certificate calls. Four family→state mappings отсутствуют только у optional execution extension: catalog/certificate не executable method, а отсутствие дополнительной capability не блокирует исходную migration. Необходимый execution consumer отказывает до legitimate owner map. LA-003 сохраняет два profile contracts, не требует механически слить laws. LA-035 baseline loss/aliases/JIT доказаны, actual optimizer+normative objective не appointed. LA-019 два пустых sibling файла уже отсутствуют на base198; не удалять same-named packages и не создавать фиктивную задачу удаления. LA-007/016/020/037 требуют закончить конкретный supported loader/FQN/wrapper migration denominator, не global assertion об отсутствии всех возможных external users."
+            }
+          ],
+          "present": true
+        },
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738": {
+          "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/F-pr65-continuation-audit-2026-10-06.md",
+          "git_blob": "50b61edf2525ab2964fe17c75aed9d4710939573",
+          "bytes": 16042,
+          "sha256": "adc970b3c9180afb065af4f420a89938113f696053d42d544766dde32fb95ac9",
+          "matches": [
+            {
+              "line": 42,
+              "text": "**LA-004 semantic binding.** Original card `LA_r09_original.md:167–197` — «Две экономические реализации: согласовать, но не подменять». F short row/hold вместо этого говорит Gini norm. Economics receipt содержит реальные native/plugin equal-regime comparisons и deliberate divergences; adjudicate именно их по исходной карточке. Welfare norm не обязательный вход для доказательства неэквивалентности моделей. Gini evidence сохраняется отдельно без выдуманного ID. Signed active populations ещё могут дать finite out-of-domain coefficient (`[-2,1]`→−1.5): domain owner выбирает nonnegative standard Gini admission либо отдельную именованную functional, затем typed limitation до aggregate/API; нельзя выпустить просто scalar с неверным смыслом."
+            },
+            {
+              "line": 44,
+              "text": "**Legacy и stochastic law.** LA-001 seed/salt relocation реально работает; v1 intentionally одинаковый per-node draw на steps0/1. Это disclosed temporal law. Вопрос desired fresh innovation — отдельный non-blocking profile follow-up только при именованном temporal consumer, не prerequisite LA-001 relocation closure; owner подтверждает law либо отдельно версионирует step-fold trajectory. LA-002 исходно требует catalog/IC-service/reexport migration и supported methods/certificate calls. Four family→state mappings отсутствуют только у optional execution extension: catalog/certificate не executable method, а отсутствие дополнительной capability не блокирует исходную migration. Необходимый execution consumer отказывает до legitimate owner map. LA-003 сохраняет два profile contracts, не требует механически слить laws. LA-035 baseline loss/aliases/JIT доказаны, actual optimizer+normative objective не appointed. LA-019 два пустых sibling файла уже отсутствуют на base198; не удалять same-named packages и не создавать фиктивную задачу удаления. LA-007/016/020/037 требуют закончить конкретный supported loader/FQN/wrapper migration denominator, не global assertion об отсутствии всех возможных external users."
+            }
+          ],
+          "present": true
+        }
+      }
+    }
+  ],
+  "scope": "Entiredeclared31caption-pathsetatbothimmutable519and855; originalcards/history/allocations retained. Additional new currentviews/reviewfiles enumerated separately below; not globalallpossibletextabsence."
+}

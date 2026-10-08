@@ -1,0 +1,139 @@
+{
+  "required_by": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md:38",
+  "schema": "e02.F.property_slice_handoff.v1",
+  "canonical_schema_match": false,
+  "missing_minimum_fields": [
+    "slice",
+    "closure_ids",
+    "bundle_ids",
+    "slice_base_sha",
+    "candidate_tree_sha",
+    "pull_request",
+    "changed_paths",
+    "baseline_cells",
+    "predicate_basis",
+    "capability_state_or_finding_state",
+    "limitations_and_next_owner"
+  ],
+  "checks": [
+    {
+      "index": 0,
+      "missing": [
+        "command",
+        "target_sha",
+        "environment",
+        "input_closure",
+        "outcome"
+      ],
+      "output_is_string": false
+    },
+    {
+      "index": 1,
+      "missing": [
+        "command",
+        "target_sha",
+        "environment",
+        "input_closure",
+        "outcome"
+      ],
+      "output_is_string": false
+    },
+    {
+      "index": 2,
+      "missing": [
+        "command",
+        "target_sha",
+        "environment",
+        "input_closure",
+        "outcome"
+      ],
+      "output_is_string": false
+    },
+    {
+      "index": 3,
+      "missing": [
+        "command",
+        "target_sha",
+        "environment",
+        "input_closure",
+        "outcome"
+      ],
+      "output_is_string": false
+    },
+    {
+      "index": 4,
+      "missing": [
+        "command",
+        "target_sha",
+        "environment",
+        "input_closure",
+        "outcome"
+      ],
+      "output_is_string": false
+    },
+    {
+      "index": 5,
+      "missing": [
+        "command",
+        "target_sha",
+        "environment",
+        "input_closure",
+        "outcome"
+      ],
+      "output_is_string": false
+    },
+    {
+      "index": 6,
+      "missing": [
+        "command",
+        "target_sha",
+        "environment",
+        "input_closure",
+        "outcome"
+      ],
+      "output_is_string": false
+    },
+    {
+      "index": 7,
+      "missing": [
+        "command",
+        "target_sha",
+        "environment",
+        "input_closure",
+        "outcome"
+      ],
+      "output_is_string": false
+    },
+    {
+      "index": 8,
+      "missing": [
+        "command",
+        "target_sha",
+        "environment",
+        "input_closure",
+        "outcome",
+        "output"
+      ],
+      "output_is_string": false
+    },
+    {
+      "index": 9,
+      "missing": [
+        "command",
+        "target_sha",
+        "environment",
+        "input_closure",
+        "outcome",
+        "output"
+      ],
+      "output_is_string": false
+    }
+  ],
+  "property_missing": [
+    "statement",
+    "runtime_path",
+    "proxy_divergence",
+    "negative_controls"
+  ],
+  "verdict": "BLOCK_CANONICAL_PROTOCOL_ONLY"
+}

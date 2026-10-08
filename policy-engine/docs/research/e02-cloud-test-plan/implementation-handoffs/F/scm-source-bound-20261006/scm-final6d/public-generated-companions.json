@@ -1,0 +1,21 @@
+{
+  "source_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "source_tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+  "check": "PASS",
+  "canonical_generator": "tools.devx.architecture.guardrails.build_public_surface_inventory/render_public_surface_json/render_public_surface_markdown",
+  "outputs": [
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "bytes": 221406,
+      "sha256": "ddcb1ae0f632c5e9e59aa55852a47d07b04034aac6a6cdeac8457e8ac4995ecb"
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "bytes": 153173,
+      "sha256": "939a51eb09207225f6ccf71c6b6f63f12980146a8707329566077c7f6d6c66b1"
+    }
+  ],
+  "owner_record_delta": "0b modifies only polisyos.ir four types and polisyos.foundry four canonical helper aliases; other package records preserved"
+}

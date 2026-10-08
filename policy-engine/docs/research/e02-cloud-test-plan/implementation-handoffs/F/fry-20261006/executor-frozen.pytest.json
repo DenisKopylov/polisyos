@@ -1,0 +1,1136 @@
+{
+  "exitstatus": 1,
+  "collected": 59,
+  "collected_nodeids": [
+    "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_dependency_boundary_flushes_visible_state_for_mechanism_chain",
+    "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_method_nodes_see_visible_state_on_dependency_edges",
+    "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_independent_writers_keep_batched_merge_semantics",
+    "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_method_nodes_get_unique_but_deterministic_child_seeds",
+    "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_execute_facade_honors_exec_plan_seed_and_request_override",
+    "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_execute_facade_surfaces_posture_notes_and_blocks_on_max_steps",
+    "tests/unit/foundry/runtime/test_executor_provenance.py::TestProvenanceFields::test_provenance_default_empty",
+    "tests/unit/foundry/runtime/test_executor_provenance.py::TestProvenanceFields::test_provenance_accepts_dict",
+    "tests/unit/foundry/runtime/test_executor_provenance.py::TestProvenanceFields::test_provenance_multi_writer_same_slot",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_type_error_is_fatal",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_value_error_is_fatal",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_shape_mismatch_is_fatal",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_contract_violation_is_fatal",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_selector_error_is_fatal",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_backend_adaptation_error_is_fatal",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_module_not_found_is_recoverable",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_import_error_is_recoverable",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_timeout_is_recoverable",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_floating_point_error_is_degraded",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_unknown_exception_defaults_to_fatal",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestHashTraceback::test_produces_hex_string",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestFailureCard::test_failure_card_fields_populated",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestFailureCard::test_failure_card_immutable",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestFailureCard::test_failure_card_forbids_extra_fields",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestFailureCard::test_failure_card_collection_is_bounded",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestMethodExecutionAbortError::test_carries_card",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestExecutionStrictness::test_values",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestNodeDispatch::test_unsupported_op_returns_failure_card_in_research_mode",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestNodeDispatch::test_unsupported_op_aborts_in_fail_closed_mode",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestNodeDispatch::test_unknown_exec_plan_node_returns_structured_card_in_research_mode",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestPathTraversal::test_invalid_state_path_raises_context_rich_error",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestLifecycleHardening::test_invalid_transition_raises_even_in_non_strict_mode",
+    "tests/unit/foundry/runtime/test_executor_fail_semantics.py::test_execute_program_graph_fail_closes_on_unclassified_method_dispatch_error",
+    "tests/unit/foundry/runtime/test_execute_input_bindings.py::test_execute_supports_input_bindings_ref",
+    "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[>-5.0-1.0-True]",
+    "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[>-0.0-1.0-False]",
+    "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[<--1.0-0.0-True]",
+    "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[<-1.0-0.0-False]",
+    "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[==-2.0-2.0-True]",
+    "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[==-2.0-3.0-False]",
+    "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[!=-2.0-3.0-True]",
+    "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[!=-2.0-2.0-False]",
+    "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[>=-1.0-1.0-True]",
+    "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[<=-1.0-1.0-True]",
+    "tests/unit/foundry/runtime/test_constraints_executor.py::test_soft_constraint_violation_persists_penalty_without_failing_execute",
+    "tests/unit/foundry/agent_sim/test_graph_mechanisms.py::test_social_influence_updates_only_active_targets",
+    "tests/unit/foundry/agent_sim/test_graph_mechanisms.py::test_information_diffusion_is_bounded_and_preserves_inactive_agents",
+    "tests/unit/foundry/agent_sim/test_graph_mechanisms.py::test_network_lending_conserves_active_wealth_and_records_borrower_debt",
+    "tests/unit/foundry/agent_sim/test_graph_mechanisms.py::test_labor_network_uses_neighbor_referrals",
+    "tests/unit/remediation/test_emp_01.py::test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed",
+    "tests/unit/remediation/test_emp_01.py::test_scope_filter_excludes_other_regions_before_profile_limit",
+    "tests/unit/remediation/test_emp_01.py::test_cross_period_mixed_dataset_units_fail_closed",
+    "tests/unit/remediation/test_emp_01.py::test_non_country_region_refuses_country_code_binding",
+    "tests/unit/remediation/test_emp_01.py::test_owner_row_cap_refuses_truncated_profile",
+    "tests/unit/remediation/test_emp_01.py::test_empty_selected_profile_returns_no_profile_before_unit_binding",
+    "tests/unit/remediation/test_emp_01.py::test_identification_set_and_statistical_uncertainty_remain_separate",
+    "tests/unit/remediation/test_emp_01.py::test_asymmetric_interval_is_preserved_by_value_projection",
+    "tests/unit/remediation/test_emp_01.py::test_selection_diagram_requires_verified_causal_artifact",
+    "tests/unit/remediation/test_emp_01.py::test_raw_graph_without_artifact_bridge_fails_closed"
+  ],
+  "counts": {
+    "setup:passed": 59,
+    "call:passed": 54,
+    "teardown:passed": 59,
+    "call:failed": 5
+  },
+  "reports": [
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_dependency_boundary_flushes_visible_state_for_mechanism_chain",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.005246386004728265
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_dependency_boundary_flushes_visible_state_for_mechanism_chain",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.6588918199995533
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_dependency_boundary_flushes_visible_state_for_mechanism_chain",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00024105799093376845
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_method_nodes_see_visible_state_on_dependency_edges",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0007424899959005415
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_method_nodes_see_visible_state_on_dependency_edges",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.2677097850100836
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_method_nodes_see_visible_state_on_dependency_edges",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0001915159955387935
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_independent_writers_keep_batched_merge_semantics",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0006961839972063899
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_independent_writers_keep_batched_merge_semantics",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.1897270280023804
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_independent_writers_keep_batched_merge_semantics",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0002305790112586692
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_method_nodes_get_unique_but_deterministic_child_seeds",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0006466109916800633
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_method_nodes_get_unique_but_deterministic_child_seeds",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.6208648639876628
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_method_nodes_get_unique_but_deterministic_child_seeds",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00018398200336378068
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_execute_facade_honors_exec_plan_seed_and_request_override",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0006938990118214861
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_execute_facade_honors_exec_plan_seed_and_request_override",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.8156600209913449
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_execute_facade_honors_exec_plan_seed_and_request_override",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0002544529997976497
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_execute_facade_surfaces_posture_notes_and_blocks_on_max_steps",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0009597930038580671
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_execute_facade_surfaces_posture_notes_and_blocks_on_max_steps",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.6621729589969618
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_runtime_semantics.py::test_execute_facade_surfaces_posture_notes_and_blocks_on_max_steps",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00019526299729477614
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_provenance.py::TestProvenanceFields::test_provenance_default_empty",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00022138100757729262
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_provenance.py::TestProvenanceFields::test_provenance_default_empty",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00037268298910930753
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_provenance.py::TestProvenanceFields::test_provenance_default_empty",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 9.612899157218635e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_provenance.py::TestProvenanceFields::test_provenance_accepts_dict",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00022243299463298172
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_provenance.py::TestProvenanceFields::test_provenance_accepts_dict",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00032095600909087807
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_provenance.py::TestProvenanceFields::test_provenance_accepts_dict",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.941598935052752e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_provenance.py::TestProvenanceFields::test_provenance_multi_writer_same_slot",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00015211300342343748
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_provenance.py::TestProvenanceFields::test_provenance_multi_writer_same_slot",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0002731569984462112
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_provenance.py::TestProvenanceFields::test_provenance_multi_writer_same_slot",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 9.397498797625303e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_type_error_is_fatal",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00014701299369335175
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_type_error_is_fatal",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00011547499161679298
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_type_error_is_fatal",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 7.872701098676771e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_value_error_is_fatal",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0001432670105714351
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_value_error_is_fatal",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00011426200217101723
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_value_error_is_fatal",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 7.785500201862305e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_shape_mismatch_is_fatal",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0001362830080324784
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_shape_mismatch_is_fatal",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00017018600192386657
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_shape_mismatch_is_fatal",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.071000047493726e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_contract_violation_is_fatal",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00018590499530546367
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_contract_violation_is_fatal",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00012618499749805778
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_contract_violation_is_fatal",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00011711700062733144
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_selector_error_is_fatal",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0001339190057478845
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_selector_error_is_fatal",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00012587400851771235
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_selector_error_is_fatal",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 7.621099939569831e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_backend_adaptation_error_is_fatal",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00016479600162710994
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_backend_adaptation_error_is_fatal",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0001235899981111288
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_backend_adaptation_error_is_fatal",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 7.56009976612404e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_module_not_found_is_recoverable",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0001333980035269633
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_module_not_found_is_recoverable",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0001070180005626753
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_module_not_found_is_recoverable",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00011253899720031768
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_import_error_is_recoverable",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00013072299771010876
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_import_error_is_recoverable",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00010447399108670652
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_import_error_is_recoverable",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 7.47090089134872e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_timeout_is_recoverable",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00012917000276502222
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_timeout_is_recoverable",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.000113720991066657
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_timeout_is_recoverable",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 7.46589939808473e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_floating_point_error_is_degraded",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0001805159990908578
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_floating_point_error_is_degraded",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00010714899690356106
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_floating_point_error_is_degraded",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00011715698929037899
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_unknown_exception_defaults_to_fatal",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00013130399747751653
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_unknown_exception_defaults_to_fatal",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00010450498666614294
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestClassifyFailure::test_unknown_exception_defaults_to_fatal",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 7.790500239934772e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestHashTraceback::test_produces_hex_string",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00013129400031175464
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestHashTraceback::test_produces_hex_string",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0005190239899093285
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestHashTraceback::test_produces_hex_string",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.652100223116577e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestFailureCard::test_failure_card_fields_populated",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00017616699915379286
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestFailureCard::test_failure_card_fields_populated",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0001440780033590272
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestFailureCard::test_failure_card_fields_populated",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 7.852599082980305e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestFailureCard::test_failure_card_immutable",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00013231500633992255
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestFailureCard::test_failure_card_immutable",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00024757999926805496
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestFailureCard::test_failure_card_immutable",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.163100574165583e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestFailureCard::test_failure_card_forbids_extra_fields",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0001831599947763607
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestFailureCard::test_failure_card_forbids_extra_fields",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00015064999752212316
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestFailureCard::test_failure_card_forbids_extra_fields",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00011625600745901465
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestFailureCard::test_failure_card_collection_is_bounded",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0001337589928880334
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestFailureCard::test_failure_card_collection_is_bounded",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0001503790117567405
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestFailureCard::test_failure_card_collection_is_bounded",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.056999649852514e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestMethodExecutionAbortError::test_carries_card",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00017338200996164232
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestMethodExecutionAbortError::test_carries_card",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0001492369920015335
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestMethodExecutionAbortError::test_carries_card",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.027898729778826e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestExecutionStrictness::test_values",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0001328570069745183
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestExecutionStrictness::test_values",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.00010729899804573506
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestExecutionStrictness::test_values",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.237299334723502e-05
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestNodeDispatch::test_unsupported_op_returns_failure_card_in_research_mode",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0004881469940301031
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestNodeDispatch::test_unsupported_op_returns_failure_card_in_research_mode",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.11824043699016329
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestNodeDispatch::test_unsupported_op_returns_failure_card_in_research_mode",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00018690699653234333
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestNodeDispatch::test_unsupported_op_aborts_in_fail_closed_mode",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0006786010053474456
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestNodeDispatch::test_unsupported_op_aborts_in_fail_closed_mode",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.08440496199182235
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestNodeDispatch::test_unsupported_op_aborts_in_fail_closed_mode",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00016567700367886573
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestNodeDispatch::test_unknown_exec_plan_node_returns_structured_card_in_research_mode",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0006682019884465262
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestNodeDispatch::test_unknown_exec_plan_node_returns_structured_card_in_research_mode",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.10751218699442688
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestNodeDispatch::test_unknown_exec_plan_node_returns_structured_card_in_research_mode",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00015166100638452917
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestPathTraversal::test_invalid_state_path_raises_context_rich_error",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00020015198970213532
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestPathTraversal::test_invalid_state_path_raises_context_rich_error",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0038858629995957017
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestPathTraversal::test_invalid_state_path_raises_context_rich_error",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00013556198973674327
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestLifecycleHardening::test_invalid_transition_raises_even_in_non_strict_mode",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00016755099932197481
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestLifecycleHardening::test_invalid_transition_raises_even_in_non_strict_mode",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.04528630699496716
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::TestLifecycleHardening::test_invalid_transition_raises_even_in_non_strict_mode",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0001027309917844832
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::test_execute_program_graph_fail_closes_on_unclassified_method_dispatch_error",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0007094779866747558
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::test_execute_program_graph_fail_closes_on_unclassified_method_dispatch_error",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.05780362100631464
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_executor_fail_semantics.py::test_execute_program_graph_fail_closes_on_unclassified_method_dispatch_error",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00013004199718125165
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_execute_input_bindings.py::test_execute_supports_input_bindings_ref",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0004915039899060503
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_execute_input_bindings.py::test_execute_supports_input_bindings_ref",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 1.342662063005264
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_execute_input_bindings.py::test_execute_supports_input_bindings_ref",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00020128300820942968
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[>-5.0-1.0-True]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0008839720103424042
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[>-5.0-1.0-True]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.42184450299828313
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[>-5.0-1.0-True]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00018273000023327768
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[>-0.0-1.0-False]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.000794706997112371
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[>-0.0-1.0-False]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.38638448299025185
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[>-0.0-1.0-False]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00018552500114310533
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[<--1.0-0.0-True]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0008919770043576136
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[<--1.0-0.0-True]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.3870612230093684
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[<--1.0-0.0-True]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.000186786986887455
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[<-1.0-0.0-False]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.000876457997947
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[<-1.0-0.0-False]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.34201002700137906
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[<-1.0-0.0-False]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0001796930009732023
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[==-2.0-2.0-True]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.000918175996048376
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[==-2.0-2.0-True]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.37273110999376513
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[==-2.0-2.0-True]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0002246369986096397
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[==-2.0-3.0-False]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0015451809886144474
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[==-2.0-3.0-False]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.410383088994422
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[==-2.0-3.0-False]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00018238899065181613
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[!=-2.0-3.0-True]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0010574640036793426
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[!=-2.0-3.0-True]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.4124908840021817
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[!=-2.0-3.0-True]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00020788599795196205
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[!=-2.0-2.0-False]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00101483499747701
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[!=-2.0-2.0-False]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.3517561990011018
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[!=-2.0-2.0-False]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00017074699280783534
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[>=-1.0-1.0-True]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0009603039943613112
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[>=-1.0-1.0-True]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.3512606869917363
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[>=-1.0-1.0-True]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00017239099543076009
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[<=-1.0-1.0-True]",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.000857122999150306
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[<=-1.0-1.0-True]",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.31844640099734534
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_constraint_operators[<=-1.0-1.0-True]",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00018220899801235646
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_soft_constraint_violation_persists_penalty_without_failing_execute",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0006278259970713407
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_soft_constraint_violation_persists_penalty_without_failing_execute",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.3262660429900279
+    },
+    {
+      "nodeid": "tests/unit/foundry/runtime/test_constraints_executor.py::test_soft_constraint_violation_persists_penalty_without_failing_execute",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00016024798969738185
+    },
+    {
+      "nodeid": "tests/unit/foundry/agent_sim/test_graph_mechanisms.py::test_social_influence_updates_only_active_targets",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00021118299628142267
+    },
+    {
+      "nodeid": "tests/unit/foundry/agent_sim/test_graph_mechanisms.py::test_social_influence_updates_only_active_targets",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 1.0893580250121886
+    },
+    {
+      "nodeid": "tests/unit/foundry/agent_sim/test_graph_mechanisms.py::test_social_influence_updates_only_active_targets",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0001654679945204407
+    },
+    {
+      "nodeid": "tests/unit/foundry/agent_sim/test_graph_mechanisms.py::test_information_diffusion_is_bounded_and_preserves_inactive_agents",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0002420999953756109
+    },
+    {
+      "nodeid": "tests/unit/foundry/agent_sim/test_graph_mechanisms.py::test_information_diffusion_is_bounded_and_preserves_inactive_agents",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.711644184004399
+    },
+    {
+      "nodeid": "tests/unit/foundry/agent_sim/test_graph_mechanisms.py::test_information_diffusion_is_bounded_and_preserves_inactive_agents",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00014280500181484967
+    },
+    {
+      "nodeid": "tests/unit/foundry/agent_sim/test_graph_mechanisms.py::test_network_lending_conserves_active_wealth_and_records_borrower_debt",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00019145601254422218
+    },
+    {
+      "nodeid": "tests/unit/foundry/agent_sim/test_graph_mechanisms.py::test_network_lending_conserves_active_wealth_and_records_borrower_debt",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.2993803590070456
+    },
+    {
+      "nodeid": "tests/unit/foundry/agent_sim/test_graph_mechanisms.py::test_network_lending_conserves_active_wealth_and_records_borrower_debt",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00014814599126111716
+    },
+    {
+      "nodeid": "tests/unit/foundry/agent_sim/test_graph_mechanisms.py::test_labor_network_uses_neighbor_referrals",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0002372009912505746
+    },
+    {
+      "nodeid": "tests/unit/foundry/agent_sim/test_graph_mechanisms.py::test_labor_network_uses_neighbor_referrals",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.2764789689972531
+    },
+    {
+      "nodeid": "tests/unit/foundry/agent_sim/test_graph_mechanisms.py::test_labor_network_uses_neighbor_referrals",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00013496099563781172
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.000650720001431182
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed",
+      "when": "call",
+      "outcome": "failed",
+      "duration": 0.0021306400012690574
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0001674410013947636
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_scope_filter_excludes_other_regions_before_profile_limit",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0005509640031959862
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_scope_filter_excludes_other_regions_before_profile_limit",
+      "when": "call",
+      "outcome": "failed",
+      "duration": 0.0010461740021128207
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_scope_filter_excludes_other_regions_before_profile_limit",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.0002720060001593083
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_cross_period_mixed_dataset_units_fail_closed",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0007080549985403195
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_cross_period_mixed_dataset_units_fail_closed",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0008654190023662522
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_cross_period_mixed_dataset_units_fail_closed",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00010707900219131261
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_non_country_region_refuses_country_code_binding",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0005657519941451028
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_non_country_region_refuses_country_code_binding",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0002634090051287785
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_non_country_region_refuses_country_code_binding",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 9.840300481300801e-05
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_owner_row_cap_refuses_truncated_profile",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0005068419995950535
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_owner_row_cap_refuses_truncated_profile",
+      "when": "call",
+      "outcome": "failed",
+      "duration": 0.006210191000718623
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_owner_row_cap_refuses_truncated_profile",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00011839000217150897
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_empty_selected_profile_returns_no_profile_before_unit_binding",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.0005198259896133095
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_empty_selected_profile_returns_no_profile_before_unit_binding",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0001979280059458688
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_empty_selected_profile_returns_no_profile_before_unit_binding",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 9.835300443228334e-05
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_identification_set_and_statistical_uncertainty_remain_separate",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 9.589799446985126e-05
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_identification_set_and_statistical_uncertainty_remain_separate",
+      "when": "call",
+      "outcome": "failed",
+      "duration": 0.00048700500337872654
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_identification_set_and_statistical_uncertainty_remain_separate",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.528800390195101e-05
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_asymmetric_interval_is_preserved_by_value_projection",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 9.191999561153352e-05
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_asymmetric_interval_is_preserved_by_value_projection",
+      "when": "call",
+      "outcome": "failed",
+      "duration": 0.0003809280024142936
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_asymmetric_interval_is_preserved_by_value_projection",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.53689998621121e-05
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_selection_diagram_requires_verified_causal_artifact",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00018902099691331387
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_selection_diagram_requires_verified_causal_artifact",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0004985959967598319
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_selection_diagram_requires_verified_causal_artifact",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 8.842399984132499e-05
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_raw_graph_without_artifact_bridge_fails_closed",
+      "when": "setup",
+      "outcome": "passed",
+      "duration": 0.00013403900084085763
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_raw_graph_without_artifact_bridge_fails_closed",
+      "when": "call",
+      "outcome": "passed",
+      "duration": 0.0003386699972907081
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_emp_01.py::test_raw_graph_without_artifact_bridge_fails_closed",
+      "when": "teardown",
+      "outcome": "passed",
+      "duration": 0.00030925500323064625
+    }
+  ],
+  "warnings": []
+}

@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="34" time="57.180" timestamp="2026-10-08T02:28:09.740332+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.remediation.test_emp_01" name="test_default_cycle_preserves_simulation_only_result_and_history" time="3.709" /><testcase classname="tests.unit.runtime.quality.test_e02_interaction_history_epoch" name="test_actual_default_n5_n8_interaction_history_is_versioned_and_replayable" time="2.769" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_v5_history_preserves_typed_conditional_interaction_evidence" time="0.001" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_prepared_n5_ignores_unconsumed_candidate_input_for_ksim" time="2.370" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_joint_port_two_refusals_persist_no_run_and_n8_refuses" time="1.787" /><testcase classname="tests.integration.core_runtime.test_e02_manual_n5_interaction_readback" name="test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get[conditional-result]" time="6.201" /><testcase classname="tests.integration.core_runtime.test_e02_manual_n5_interaction_readback" name="test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get[static-engine-refusal]" time="12.375" /><testcase classname="tests.integration.core_runtime.test_e02_served_cycle_custody" name="test_served_candidate_value_fresh_get_with_candidate_only_substrate" time="0.852"><failure message="AssertionError: assert (ControlJobRecord(job_id='6c9a5e7957c347ea87b19f354bca542d', kind='natural_language_run', state='failed', run_id='R_906..._terminal_status': 'error', 'manifest_ref': 'sha256:5ecbe3125115b5bfc310dd7b191f0d823a80b171dcf68ca15732eb23ea1a9fff'}) is not None and 'failed' == 'completed'&#10;  &#10;  - completed&#10;  + failed)">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/results/positive-attempt3/pytest-tmp/test_served_candidate_value_fr0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13e381a50&gt;
+
+    def test_served_candidate_value_fresh_get_with_candidate_only_substrate(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """The same served path works with explicit synthetic candidate-only inputs."""
+    
+        pytest.importorskip("fastapi.testclient")
+&gt;       _exercise_served_candidate_value_fresh_get(
+            tmp_path,
+            monkeypatch,
+            intervention_substrate=_candidate_only_procurement_intervention_bundle(),
+            bind_bounded_catalog=True,
+        )
+
+tests/integration/core_runtime/test_e02_served_cycle_custody.py:40: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/results/positive-attempt3/pytest-tmp/test_served_candidate_value_fr0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13e381a50&gt;
+
+    def _exercise_served_candidate_value_fresh_get(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        *,
+        intervention_substrate: object | None = None,
+        bind_bounded_catalog: bool = False,
+    ) -&gt; None:
+        """Exercise the served candidate path for the supplied substrate fixture."""
+    
+        pytest.importorskip("fastapi.testclient")
+        from fastapi.testclient import TestClient
+    
+        from polisyos.core import canon
+        from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+        from polisyos.core.security.tenant_context import tenant_scope
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.http import jwt_auth_middleware
+        from polisyos.runtime.http.app import create_runtime_api_app
+        from polisyos.runtime.http.container import RuntimeContainerOverrides
+        from polisyos.runtime.http.dependencies import build_runtime_api_context
+        from polisyos.runtime.http.security import PolicyOSRole, build_fixture_identity_claims
+        from polisyos.runtime.http.services.control import generation_cycle as generation_cycle_service
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            CompiledRecursiveGenerationCycleRun,
+        )
+        from polisyos.runtime.http.services.control_plane_store import (
+            _control_job_execution_scope_from_event,
+        )
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextHandoff,
+            CandidateSimulationN5InputV5,
+            CandidateSimulationScenarioProfile,
+            CandidateSimulationSyntheticModelDeclarationV1,
+            candidate_simulation_profile_ref,
+        )
+        from polisyos.runtime.quality.conditional_simulation_replay import (
+            replay_conditional_simulation_values,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContextArtifactOwner,
+            cycle_job_profile_selection_ref,
+        )
+        from polisyos.runtime.quality.generation_cycle import (
+            JointSimulationPort,
+            _DefaultSimulationBoundFoundryValuePort,
+            load_joint_simulation_result,
+            persist_joint_simulation_result,
+        )
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+            N4CandidateScenarioSourceRecordV2,
+            N4CandidateScenarioSourceRecordV3,
+        )
+        from polisyos.runtime.quality.intervention_atom_binding import (
+            derive_candidate_scenario_atom,
+        )
+        from polisyos.runtime.quality.joint_simulation_horizon import (
+            JointSimulationResult,
+            build_content_bound_simulation_receipt,
+        )
+        from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
+        from polisyos.scientist.orchestration.llm import factory as llm_factory
+        from tests._helpers.control_worker import dispatch_one_control_job
+        from tests.unit.runtime.http.test_control_job_execution_intent import (
+            _valid_intake_for_mode,
+        )
+        from tests.unit.runtime.http.test_nl_pipeline_materialization import (
+            _DeterministicSpanSupportClient,
+            _FakeDesignProblemGateway,
+        )
+    
+        monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+        monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+        monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+        monkeypatch.setenv("POLISYOS_CONTROL_SQLITE_PATH", (tmp_path / "control.sqlite3").as_posix())
+        monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+        monkeypatch.setenv("JAX_PLATFORMS", "cpu")
+        monkeypatch.setenv("OMP_NUM_THREADS", "1")
+        if bind_bounded_catalog:
+            from tests._helpers.bounded_run_catalog import bind_bounded_run_api_catalog
+    
+            bind_bounded_run_api_catalog(tmp_path=tmp_path, monkeypatch=monkeypatch)
+    
+        recording = next(
+            item
+            for item in n4_contract._load_recordings(REPO_ROOT)
+            if item.get("design_problem_id") == _RECORDING_ID
+        )
+        recorded_problem = _current_compiler_problem(recording)
+        controlled_recording = _controlled_procurement_recording(
+            recording,
+            outcome_variable=recorded_problem.outcome_of_interest.target_variable,
+        )
+        raw_request = recorded_problem.nl_provenance.raw_request
+        model_id = str(recording["model_id"])
+        compiler_gateway = _FakeDesignProblemGateway(
+            models=[model_id],
+            arguments=recorded_problem.model_dump(mode="json"),
+        )
+        cas_root = tmp_path / ".polisyos"
+        first_context = build_runtime_api_context(
+            cas_root=cas_root,
+            core_runs_root=cas_root / "runs",
+        )
+        profile, model_declaration = _configured_procurement_profile(
+            recorded_problem=recorded_problem,
+            artifact_store=first_context.store,
+            tenant_id=_TENANT_ID,
+            cell_id=_CELL_ID,
+            intervention_substrate=intervention_substrate,
+        )
+        assert profile.profile_selection_ref == cycle_job_profile_selection_ref(recorded_problem)
+    
+        original_compiler = generation_cycle_service.build_design_problem_from_nl_request
+        compiled_problems: list[Any] = []
+    
+        async def run_real_compiler(**kwargs: Any) -&gt; Any:
+            kwargs["gateway_client"] = compiler_gateway
+            kwargs["span_support_client"] = _DeterministicSpanSupportClient()
+            problem = await original_compiler(**kwargs)
+            compiled_problems.append(problem)
+            return problem
+    
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "build_design_problem_from_nl_request",
+            run_real_compiler,
+        )
+        monkeypatch.setattr(
+            llm_factory,
+            "create_traced_gateway_client",
+            lambda **_kwargs: n4_contract.RecordedGenerationReplayClient(controlled_recording),
+        )
+    
+        n5_calls: list[tuple[object, object]] = []
+        n8_calls: list[dict[str, object]] = []
+        n9_calls: list[str] = []
+        original_n5 = JointSimulationPort.__call__
+        original_n8 = _DefaultSimulationBoundFoundryValuePort.__call__
+        original_n9 = CanonicalN9PromotionPort.__call__
+    
+        def observe_n5(port: object, *args: Any, **kwargs: Any) -&gt; object:
+            observation = original_n5(port, *args, **kwargs)
+            input_record = kwargs.get("candidate_simulation_input")
+            if input_record is not None:
+                n5_calls.append((input_record, observation))
+            return observation
+    
+        def observe_n8(port: object, *args: Any, **kwargs: Any) -&gt; object:
+            observation = original_n8(port, *args, **kwargs)
+            n8_calls.append(
+                {
+                    "candidate": kwargs.get("candidate"),
+                    "simulation": kwargs.get("simulation"),
+                    "problem": kwargs.get("problem"),
+                    "cycle_index": kwargs.get("cycle_index"),
+                    "observation": observation,
+                }
+            )
+            return observation
+    
+        def observe_n9(port: object, *args: Any, **kwargs: Any) -&gt; object:
+            n9_calls.append(type(port).__qualname__)
+            return original_n9(port, *args, **kwargs)
+    
+        monkeypatch.setattr(JointSimulationPort, "__call__", observe_n5)
+        monkeypatch.setattr(_DefaultSimulationBoundFoundryValuePort, "__call__", observe_n8)
+        monkeypatch.setattr(CanonicalN9PromotionPort, "__call__", observe_n9)
+    
+        first_app = create_runtime_api_app(
+            cas_root=cas_root,
+            container_overrides=RuntimeContainerOverrides(runtime_api_context=first_context),
+            allow_fixture_identity=True,
+            candidate_simulation_profiles=(profile,),
+            candidate_simulation_model_declarations=(model_declaration,),
+        )
+        with TestClient(first_app) as client:
+            accepted_response = client.post(
+                "/api/v1/control/runs/nl",
+                json={
+                    "request": raw_request,
+                    "llm_model": model_id,
+                    "context": {
+                        "evaluation_safety_attempt": _valid_intake_for_mode("simulate_only").model_dump(
+                            mode="json"
+                        )
+                    },
+                },
+            )
+            assert accepted_response.status_code == 200, accepted_response.text
+            accepted = accepted_response.json()
+            assert accepted["status"] == "accepted"
+            service = first_app.state._control_service
+            assert service._cycle_substrate_context_admission_owner is not None
+            assert service._cycle_substrate_context_admission_owner.store is first_context.store
+            assert (
+                dispatch_one_control_job(
+                    store=service._control_store,
+                    handler=service._process_control_job,
+                    expected_job_id=accepted["job_id"],
+                )
+                == accepted["job_id"]
+            )
+    
+            completed = service._control_store.get_job(accepted["job_id"])
+&gt;           assert completed is not None and completed.state == "completed"
+E           AssertionError: assert (ControlJobRecord(job_id='6c9a5e7957c347ea87b19f354bca542d', kind='natural_language_run', state='failed', run_id='R_906..._terminal_status': 'error', 'manifest_ref': 'sha256:5ecbe3125115b5bfc310dd7b191f0d823a80b171dcf68ca15732eb23ea1a9fff'}) is not None and 'failed' == 'completed'
+E             
+E             - completed
+E             + failed)
+
+tests/integration/core_runtime/test_e02_served_cycle_custody.py:253: AssertionError</failure></testcase><testcase classname="tests.integration.core_runtime.test_e02_recursive_partial_readback" name="test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_get" time="0.889" /><testcase classname="tests.integration.core_runtime.test_e02_terminal_status_readback" name="test_n6_terminal_decision_and_iteration_survive_history_readback[frontier-stable]" time="0.042" /><testcase classname="tests.integration.core_runtime.test_e02_terminal_status_readback" name="test_n6_terminal_decision_and_iteration_survive_history_readback[budget-exhausted]" time="0.032" /><testcase classname="tests.integration.core_runtime.test_e02_terminal_status_readback" name="test_n6_terminal_decision_and_iteration_survive_history_readback[actual-abstention]" time="0.032" /><testcase classname="tests.integration.runtime_quality.test_e02_required_numeric_container_intake" name="test_registered_ncm_output_damage_is_refused_with_distinct_reasons[empty-result-package]" time="0.806" /><testcase classname="tests.integration.runtime_quality.test_e02_required_numeric_container_intake" name="test_registered_ncm_output_damage_is_refused_with_distinct_reasons[one-selected-output-missing]" time="0.802" /><testcase classname="tests.integration.runtime_quality.test_e02_required_numeric_container_intake" name="test_registered_ncm_output_damage_is_refused_with_distinct_reasons[malformed-result-container]" time="0.794" /><testcase classname="tests.integration.runtime_quality.test_e02_required_numeric_container_intake" name="test_registered_ncm_output_damage_is_refused_with_distinct_reasons[malformed-summary-container]" time="0.802" /><testcase classname="tests.integration.runtime_quality.test_e02_required_numeric_container_intake" name="test_registered_ncm_output_damage_is_refused_with_distinct_reasons[malformed-selected-output-structure]" time="0.800" /><testcase classname="tests.integration.runtime_quality.test_e02_required_numeric_container_intake" name="test_registered_ncm_output_damage_is_refused_with_distinct_reasons[nan-selected-output]" time="0.805" /><testcase classname="tests.integration.runtime_quality.test_e02_required_numeric_container_intake" name="test_registered_ncm_output_damage_is_refused_with_distinct_reasons[infinite-selected-output]" time="0.891" /><testcase classname="tests.integration.runtime_quality.test_e02_required_numeric_container_intake" name="test_registered_ncm_direct_zero_remains_a_numeric_zero" time="0.812" /><testcase classname="tests.integration.runtime_quality.test_e02_required_numeric_container_intake" name="test_registered_coupled_queue_output_damage_is_refused[missing-required-queue-trajectory]" time="0.267" /><testcase classname="tests.integration.runtime_quality.test_e02_required_numeric_container_intake" name="test_registered_coupled_queue_output_damage_is_refused[malformed-queue-container]" time="0.108" /><testcase classname="tests.integration.runtime_quality.test_e02_required_numeric_container_intake" name="test_registered_coupled_queue_output_damage_is_refused[non-finite-queue-value]" time="0.105" /><testcase classname="tests.integration.runtime_quality.test_e02_required_numeric_container_intake" name="test_registered_coupled_queue_output_damage_is_refused[empty-result-package]" time="0.108" /><testcase classname="tests.integration.runtime_quality.test_e02_required_numeric_container_intake" name="test_registered_coupled_queue_output_damage_is_refused[malformed-result-package]" time="0.106" /><testcase classname="tests.integration.runtime_quality.test_e02_required_numeric_container_intake" name="test_registered_coupled_queue_output_damage_is_refused[scalar-array-queue-container]" time="0.106" /><testcase classname="tests.integration.runtime_quality.test_e02_required_numeric_container_intake" name="test_registered_coupled_queue_output_damage_is_refused[matrix-array-queue-container]" time="0.106" /><testcase classname="tests.integration.runtime_quality.test_e02_required_numeric_container_intake" name="test_registered_coupled_direct_zero_queue_remains_numeric_zero" time="0.119" /><testcase classname="tests.integration.runtime_quality.test_e02_required_numeric_container_intake" name="test_malformed_owner_ncm_reason_survives_n6_cas_history" time="0.930" /><testcase classname="tests.integration.runtime_quality.test_e02_registered_engine_applicability" name="test_registered_stock_flow_valid_slots_reach_the_real_producer" time="0.107" /><testcase classname="tests.integration.runtime_quality.test_e02_registered_engine_applicability" name="test_expected_applicability_rejects_a_changed_request_before_producer[horizon]" time="0.199" /><testcase classname="tests.integration.runtime_quality.test_e02_registered_engine_applicability" name="test_expected_applicability_rejects_a_changed_request_before_producer[state]" time="0.200" /><testcase classname="tests.integration.core_runtime.test_e02_terminal_status_readback" name="test_repeated_candidate_hash_stop_block_projection_survives_history_readback" time="0.025" /><testcase classname="tests.integration.core_runtime.test_e02_terminal_status_readback" name="test_workspace_partial_admissible_projects_as_stop_not_abstention" time="2.445" /></testsuite></testsuites>

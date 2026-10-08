@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-F-20261006-receipts/cau/removal-probe.py",
+    "share"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+  "source_before": {
+    "sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+    "tree": "82edaa3a3c8413c211e3b6aa9bc1bc3ba32aa059",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_after": {
+    "sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "exit": 1,
+  "duration_seconds": 39.06826043128967,
+  "maxrss_kib": 586016,
+  "environment": {
+    "PYTHONPATH": "src:.:tools",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "thread_cpu_quotas": "none"
+  },
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-removal-share.stdout.txt",
+      "bytes": 3269,
+      "sha256": "120357b583116e97808253a3267f887f71253c2a76bab2fdd1aa8d9bc5049f0c"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-removal-share.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "G_head": "c75eb7125ae0b4b296fc469b13bba9653f1dd42d",
+  "G_head_tree": "1aa2e587332108de1b60d9d9eb5a1d1fcae46ff6",
+  "archive": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/exact-source.tar",
+  "archive_bytes": 57344000,
+  "archive_sha256": "0a571bbcb86a4e2aecb86b75cdd15f421d71a5fdbd0294e1cf72cf5a21517385",
+  "branch": "codex/e02-integration",
+  "candidate": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+  "candidate_is_ancestor_of_G": false,
+  "candidate_tree": "ed4a4fd6864e8b60cb45124fb8e6fa9b7c503b66",
+  "checkout_clean": true,
+  "disk_free_bytes_after_materialization": 22150356992,
+  "existing_python": "python 3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]\npydantic 2.12.5\nnetworkx None\nnumpy /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py\n",
+  "existing_python_stderr": "",
+  "expected_G_head": "c75eb7125ae0b4b296fc469b13bba9653f1dd42d",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "prepared_utc": "2026-10-07T14:32:19Z",
+  "root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+  "source_bytes": 54939306,
+  "source_commit": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "source_compare_critical_blobs": {
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": {
+      "candidate_blob": "6b148f720d7fb7aa978fb46bbca722615cf433cf",
+      "equal": true,
+      "source_519e_blob": "6b148f720d7fb7aa978fb46bbca722615cf433cf"
+    },
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py": {
+      "candidate_blob": "2d35616ebe69a23b820cca258c77cf296d155bef",
+      "equal": true,
+      "source_519e_blob": "2d35616ebe69a23b820cca258c77cf296d155bef"
+    },
+    "policy-engine/src/polisyos/ir/analytics/causal_graph.py": {
+      "candidate_blob": "f2635665550259d20323d29a784faf11dc8896b7",
+      "equal": true,
+      "source_519e_blob": "f2635665550259d20323d29a784faf11dc8896b7"
+    },
+    "policy-engine/src/polisyos/ir/analytics/mgraph.py": {
+      "candidate_blob": "9e7308b213ce90be5033bf8077c357c8e38617eb",
+      "equal": true,
+      "source_519e_blob": "9e7308b213ce90be5033bf8077c357c8e38617eb"
+    },
+    "policy-engine/src/polisyos/scientist/compute/runner.py": {
+      "candidate_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+      "equal": true,
+      "source_519e_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb"
+    },
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": {
+      "candidate_blob": "70ccfd46c42253861c31210ac176e22df3119e15",
+      "equal": true,
+      "source_519e_blob": "70ccfd46c42253861c31210ac176e22df3119e15"
+    }
+  },
+  "source_file_count": 2914,
+  "source_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/candidate/policy-engine/src",
+  "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d"
+}

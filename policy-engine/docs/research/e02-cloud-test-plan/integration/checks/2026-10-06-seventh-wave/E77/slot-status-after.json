@@ -1,0 +1,10 @@
+{
+  "query_argv": [
+    "ps",
+    "-axo",
+    "pid,etime,%cpu,%mem,comm"
+  ],
+  "query_exit_status": 0,
+  "matching_active_processes": [],
+  "no_matching_runner_active": true
+}

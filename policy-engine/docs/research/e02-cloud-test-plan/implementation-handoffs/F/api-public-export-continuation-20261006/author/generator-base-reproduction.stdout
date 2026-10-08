@@ -1,0 +1,29 @@
+{
+  "baseline_source_sha": "449d32909928caf39382f4ff02ac74b0adf277eb",
+  "candidate_source_sha": "5484db7a25014953bdab7cb2418df735f972ff93",
+  "exact_baseline_code": {
+    "path": "policy-engine/tools/devx/architecture/guardrails.py",
+    "bytes": 103077,
+    "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+    "compile_filename": "449d32909928caf39382f4ff02ac74b0adf277eb:policy-engine/tools/devx/architecture/guardrails.py",
+    "filesystem_selector_root": "/workspace/e02-F-api-20261006/policy-engine"
+  },
+  "same_inputs": [
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+      "bytes": 1152,
+      "sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174",
+      "same_slice_base_and_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "bytes": 47862,
+      "sha256": "50eef6b0cb043705d1bd03069e6e1ecd5cfe995575faedb2c5af1fd4e544e384",
+      "same_slice_base_and_candidate": true
+    }
+  ],
+  "original_quantity": 0,
+  "candidate_quantity": 278,
+  "actual_runtime_quantity": 278,
+  "scope": "Original static instrument falsifier on identical selected source bytes, not a whole P41 attribution or scientific/backend/authority claim."
+}

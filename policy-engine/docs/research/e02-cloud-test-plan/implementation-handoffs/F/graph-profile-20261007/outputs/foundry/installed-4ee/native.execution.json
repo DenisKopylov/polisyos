@@ -1,0 +1,30 @@
+{
+  "name": "native",
+  "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "argv": [
+    "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-env/bin/python",
+    "-I",
+    "/tmp/e02-F-graph-profile-20261007/foundry/launch_narrow_installed.py",
+    "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/installed-config.json",
+    "native"
+  ],
+  "cwd": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_METRICS_PORT": "9466"
+  },
+  "PYTHONPATH": "absent",
+  "exit_code": 0,
+  "seconds": 15.417950944975019,
+  "stdout": {
+    "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/native.stdout.txt",
+    "bytes": 13554,
+    "sha256": "2f31a920fdc5001abe734c08974e8ab0cef6f26bf93354274f29cc29d64cb19c"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/native.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

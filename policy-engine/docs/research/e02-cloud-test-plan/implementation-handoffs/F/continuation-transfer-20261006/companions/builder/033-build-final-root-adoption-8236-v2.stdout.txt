@@ -1,0 +1,2 @@
+{"path": "/tmp/e02-F-continuation-20261006/root-ledger-draft/builder-result.json", "bytes": 11822, "sha256": "82cb48e26a4f709d1263b1d8805079e3a8ad51fd88786d7e68462ed22375b363"}
+{"builder_checks": "PASS", "denominator": {"35": 35, "17": 17, "36": 36}, "components": 37, "topics": 12, "complete_material_records": 3387, "draft_outcomes": {"closed": 25, "limited": 9, "held": 1}, "publication_state": "resolved", "independent_validation": "UNRUN"}

@@ -1,0 +1,905 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "canonical-output-monitor-20261006",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "LA-001",
+    "LA-002",
+    "LA-037"
+  ],
+  "bundle_ids": [
+    "FRY-01"
+  ],
+  "slice_base_sha": "f4fa51e6dd247cfd967450263579d67233a743d6",
+  "implementation_commits": [
+    "ec6944c8c5b4807f291c96919309472de60de127"
+  ],
+  "candidate_tree_sha": "e7474ad799ce0c0e754e54ef35b05653c414477d",
+  "branch": "codex/e02-F-fry-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/60",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-foundry-canonical-output-monitor.toml",
+    "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+    "policy-engine/src/polisyos/foundry/methods/lifecycle/README.md",
+    "policy-engine/src/polisyos/foundry/methods/lifecycle/output_monitor.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_dispatch_output_contract.py"
+  ],
+  "mandatory_companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor-v2.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor-v2.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor-v3.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor-v3.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-corrected-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-corrected-stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-corrected-stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-candidate-v2.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-candidate-v2.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-candidate.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-candidate.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-format.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-format.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-fragment-v2.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-fragment-v2.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-fragment.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-fragment.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-frozen-checks.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-frozen-native.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-frozen-native.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-frozen-native.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-frozen-run.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-frozen-run.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-metadata_float.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-metadata_float.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-metadata_float.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_array_types.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_array_types.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_array_types.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_flags.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_flags.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_flags.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_raw_numeric.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_raw_numeric.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_raw_numeric.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_slot_keys.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_slot_keys.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_slot_keys.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-raw_keys.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-raw_keys.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-raw_keys.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-ruff.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-ruff.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor_fragment_check.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor_removal_replay.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/run_monitor_checks.py"
+  ],
+  "baseline_cells": [
+    "F08-P070",
+    "F14-P076"
+  ],
+  "baseline_caveat": "Historical routed Foundry PASS summaries have unavailable raw archives; they are navigation, not monitor candidate evidence.",
+  "checks": [
+    {
+      "name": "monitor-frozen-native",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/methods/backends/test_dispatch_output_contract.py",
+        "tests/unit/foundry/methods/test_output_monitor.py",
+        "tests/unit/foundry/methods/backends/test_backends.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261006/foundry/monitor-frozen-tmp"
+      ],
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/methods/backends/test_dispatch_output_contract.py tests/unit/foundry/methods/test_output_monitor.py tests/unit/foundry/methods/backends/test_backends.py -o addopts= -q -ra --basetemp /tmp/e02-F-continuation-20261006/foundry/monitor-frozen-tmp",
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "after_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "wall_seconds": 12.404563888005214,
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "outcome": "PASS",
+      "deciding_expectation_met": true,
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/environment.json",
+      "input_closure": "Frozen native source and committed synthetic tests; removal changes Python objects in memory only.",
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/monitor-frozen-native.stdout.txt",
+        "sha256": "7c02d148dc39c5ed77abbb0094c13d25c379d39919b320b83f4dc75eb1013689",
+        "bytes": 99
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/monitor-frozen-native.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-frozen-native.stdout.txt",
+      "observed_environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools",
+        "shared_venv_read_only": true
+      },
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-frozen-native.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-frozen-native.stderr.txt"
+      ],
+      "census": {
+        "passed": 58,
+        "failed": 0,
+        "skipped": 0,
+        "errors": 0,
+        "warnings": 0
+      }
+    },
+    {
+      "name": "monitor-removal-raw_keys",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/monitor_removal_replay.py",
+        "raw_keys"
+      ],
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/monitor_removal_replay.py raw_keys",
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "after_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "wall_seconds": 21.945781764006824,
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "outcome": "FAIL",
+      "deciding_expectation_met": true,
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/environment.json",
+      "input_closure": "Frozen native source and committed synthetic tests; removal changes Python objects in memory only.",
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-raw_keys.stdout.txt",
+        "sha256": "c4b8de838e2d91e135fdf1b975d9b7aaec5446a3f6f0eff4e4362105e6224b61",
+        "bytes": 63626
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-raw_keys.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-raw_keys.stdout.txt",
+      "observed_environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools",
+        "shared_venv_read_only": true
+      },
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-raw_keys.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-raw_keys.stderr.txt"
+      ],
+      "removal_control": "Actual measured property removed in memory; markers/signatures/backend runners retained. FAIL is the observation, not a PASS result."
+    },
+    {
+      "name": "monitor-removal-no_raw_numeric",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/monitor_removal_replay.py",
+        "no_raw_numeric"
+      ],
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/monitor_removal_replay.py no_raw_numeric",
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "after_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "wall_seconds": 17.25897644899669,
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "outcome": "FAIL",
+      "deciding_expectation_met": true,
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/environment.json",
+      "input_closure": "Frozen native source and committed synthetic tests; removal changes Python objects in memory only.",
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-no_raw_numeric.stdout.txt",
+        "sha256": "d1b7d675daffe2b3c0ba564c8d9329ff367db22f7544839020d2078b30331b89",
+        "bytes": 3200
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-no_raw_numeric.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_raw_numeric.stdout.txt",
+      "observed_environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools",
+        "shared_venv_read_only": true
+      },
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_raw_numeric.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_raw_numeric.stderr.txt"
+      ],
+      "removal_control": "Actual measured property removed in memory; markers/signatures/backend runners retained. FAIL is the observation, not a PASS result."
+    },
+    {
+      "name": "monitor-removal-no_slot_keys",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/monitor_removal_replay.py",
+        "no_slot_keys"
+      ],
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/monitor_removal_replay.py no_slot_keys",
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "after_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "wall_seconds": 15.31110525999975,
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "outcome": "FAIL",
+      "deciding_expectation_met": true,
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/environment.json",
+      "input_closure": "Frozen native source and committed synthetic tests; removal changes Python objects in memory only.",
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-no_slot_keys.stdout.txt",
+        "sha256": "c1ffb13cea4ec362afc7cbc7fa51a46c25dc6c6da9fbb284f34901e988a82d32",
+        "bytes": 1306
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-no_slot_keys.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_slot_keys.stdout.txt",
+      "observed_environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools",
+        "shared_venv_read_only": true
+      },
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_slot_keys.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_slot_keys.stderr.txt"
+      ],
+      "removal_control": "Actual measured property removed in memory; markers/signatures/backend runners retained. FAIL is the observation, not a PASS result."
+    },
+    {
+      "name": "monitor-removal-no_array_types",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/monitor_removal_replay.py",
+        "no_array_types"
+      ],
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/monitor_removal_replay.py no_array_types",
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "after_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "wall_seconds": 17.33579984800599,
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "outcome": "FAIL",
+      "deciding_expectation_met": true,
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/environment.json",
+      "input_closure": "Frozen native source and committed synthetic tests; removal changes Python objects in memory only.",
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-no_array_types.stdout.txt",
+        "sha256": "62aa12addde8977dab068cefad54805ea56d8a38969451bc4651f5919b15f293",
+        "bytes": 1596
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-no_array_types.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_array_types.stdout.txt",
+      "observed_environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools",
+        "shared_venv_read_only": true
+      },
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_array_types.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_array_types.stderr.txt"
+      ],
+      "removal_control": "Actual measured property removed in memory; markers/signatures/backend runners retained. FAIL is the observation, not a PASS result."
+    },
+    {
+      "name": "monitor-removal-metadata_float",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/monitor_removal_replay.py",
+        "metadata_float"
+      ],
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/monitor_removal_replay.py metadata_float",
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "after_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "wall_seconds": 22.498178306996124,
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "outcome": "FAIL",
+      "deciding_expectation_met": true,
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/environment.json",
+      "input_closure": "Frozen native source and committed synthetic tests; removal changes Python objects in memory only.",
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-metadata_float.stdout.txt",
+        "sha256": "ca9385ff7958f970b270c639f2fcb6e6a9ba90811e50dae89f49e8a29efec7dd",
+        "bytes": 56641
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-metadata_float.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-metadata_float.stdout.txt",
+      "observed_environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools",
+        "shared_venv_read_only": true
+      },
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-metadata_float.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-metadata_float.stderr.txt"
+      ],
+      "removal_control": "Actual measured property removed in memory; markers/signatures/backend runners retained. FAIL is the observation, not a PASS result."
+    },
+    {
+      "name": "monitor-removal-no_flags",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/monitor_removal_replay.py",
+        "no_flags"
+      ],
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/monitor_removal_replay.py no_flags",
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "after_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "wall_seconds": 21.66532890200324,
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "outcome": "FAIL",
+      "deciding_expectation_met": true,
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/environment.json",
+      "input_closure": "Frozen native source and committed synthetic tests; removal changes Python objects in memory only.",
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-no_flags.stdout.txt",
+        "sha256": "faf5a6ccab030ac848cd8675ff88d2c9178f91f9c8bfbe246ed42606f6996e3b",
+        "bytes": 6578
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-no_flags.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_flags.stdout.txt",
+      "observed_environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools",
+        "shared_venv_read_only": true
+      },
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_flags.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_flags.stderr.txt"
+      ],
+      "removal_control": "Actual measured property removed in memory; markers/signatures/backend runners retained. FAIL is the observation, not a PASS result."
+    },
+    {
+      "name": "independent-root-native",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -o addopts= -q -o cache_dir=/tmp/e02-F-continuation-20261006/root-review-monitor/pytest-cache --basetemp /tmp/e02-F-continuation-20261006/root-review-monitor/tmp tests/unit/foundry/methods/backends/test_dispatch_output_contract.py tests/unit/foundry/methods/test_output_monitor.py tests/unit/foundry/methods/backends/test_backends.py",
+      "target_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/environment.json",
+      "input_closure": "Same committed native source and full three-file synthetic test denominator; independent root reviewer.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 12.220701555008418,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-corrected-stdout",
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-corrected-stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-corrected-stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-corrected-receipt.json"
+      ],
+      "census": {
+        "passed": 58,
+        "failed": 0,
+        "skipped": 0,
+        "errors": 0,
+        "warnings": 0
+      }
+    },
+    {
+      "name": "monitor-ruff",
+      "command": "python -m ruff check src/polisyos/foundry/methods/backends/dispatch.py src/polisyos/foundry/methods/lifecycle/output_monitor.py tests/unit/foundry/methods/backends/test_dispatch_output_contract.py",
+      "target_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/environment.json",
+      "input_closure": "Frozen owned files; fragment validator scoped only to owned fragment.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-ruff.stdout.txt",
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-ruff.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-ruff.stderr.txt"
+      ]
+    },
+    {
+      "name": "monitor-format",
+      "command": "python -m ruff format --check src/polisyos/foundry/methods/backends/dispatch.py src/polisyos/foundry/methods/lifecycle/output_monitor.py tests/unit/foundry/methods/backends/test_dispatch_output_contract.py",
+      "target_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/environment.json",
+      "input_closure": "Frozen owned files; fragment validator scoped only to owned fragment.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-format.stdout.txt",
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-format.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-format.stderr.txt"
+      ]
+    },
+    {
+      "name": "monitor-fragment-v2",
+      "command": "PYTHONPATH=src:tools:. python /tmp/e02-F-continuation-20261006/foundry/monitor_fragment_check.py",
+      "target_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/environment.json",
+      "input_closure": "Frozen owned files; fragment validator scoped only to owned fragment.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-fragment-v2.stdout.txt",
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-fragment-v2.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-fragment-v2.stderr.txt"
+      ]
+    },
+    {
+      "name": "base-monitor",
+      "command": "python -m pytest tests/unit/foundry/methods/backends/test_dispatch_output_contract.py -o addopts= -q -ra (historical author test revision)",
+      "target_sha": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/environment.json",
+      "input_closure": "Initial test constructor omitted required MethodSignature arguments; harness collection error, not product verdict.",
+      "outcome": "ERROR",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor.stdout.txt",
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor.stderr.txt"
+      ],
+      "source_binding_limit": "Uncommitted historical test/source revisions; retained deciding bytes, not an exact replay of final frozen tests or a P41 attribution proof."
+    },
+    {
+      "name": "base-monitor-v2",
+      "command": "python -m pytest tests/unit/foundry/methods/backends/test_dispatch_output_contract.py -o addopts= -q -ra (historical author test revision)",
+      "target_sha": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/environment.json",
+      "input_closure": "3FAIL4PASS: two actual monitor regressions and a test assertion using the wrong historical DiD canonical slot name.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor-v2.stdout.txt",
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor-v2.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor-v2.stderr.txt"
+      ],
+      "source_binding_limit": "Uncommitted historical test/source revisions; retained deciding bytes, not an exact replay of final frozen tests or a P41 attribution proof."
+    },
+    {
+      "name": "base-monitor-v3",
+      "command": "python -m pytest tests/unit/foundry/methods/backends/test_dispatch_output_contract.py -o addopts= -q -ra (historical author test revision)",
+      "target_sha": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/environment.json",
+      "input_closure": "Corrected historical seven-case test set:3FAIL4PASS; alias, raw diagnostic and real DiD false warnings.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor-v3.stdout.txt",
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor-v3.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor-v3.stderr.txt"
+      ],
+      "source_binding_limit": "Uncommitted historical test/source revisions; retained deciding bytes, not an exact replay of final frozen tests or a P41 attribution proof."
+    },
+    {
+      "name": "monitor-candidate",
+      "command": "python -m pytest tests/unit/foundry/methods/backends/test_dispatch_output_contract.py -o addopts= -q -ra (historical author test revision)",
+      "target_sha": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/environment.json",
+      "input_closure": "1FAIL33PASS intermediate candidate: valid empty DiD warning sequence incorrectly inferred numeric; second escape.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-candidate.stdout.txt",
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-candidate.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-candidate.stderr.txt"
+      ],
+      "source_binding_limit": "Uncommitted historical test/source revisions; retained deciding bytes, not an exact replay of final frozen tests or a P41 attribution proof."
+    },
+    {
+      "name": "independent-initial-harness",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -q -o cache_dir=/tmp/e02-F-continuation-20261006/root-review-monitor/pytest-cache tests/unit/foundry/methods/backends/test_dispatch_output_contract.py tests/unit/foundry/methods/lifecycle/test_output_monitor.py",
+      "target_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/environment.json",
+      "input_closure": "Independent review initially named a nonexistent lifecycle test selector; corrected native command separately PASS.",
+      "outcome": "ERROR",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-stdout",
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-receipt.json"
+      ]
+    },
+    {
+      "name": "installed-wheel-sdist-warning-denominator",
+      "command": "exact deciding continuation command to be supplied by named root owner",
+      "target_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/environment.json",
+      "input_closure": "Fresh composed installed replay is root-owned and pending; original installed5cd and slice-basef4 share exact dispatcher and monitor blobs. Native author tests do not establish all14 installed occurrences eliminated.",
+      "outcome": "UNRUN",
+      "output": "Fresh composed installed replay is root-owned and pending; original installed5cd and slice-basef4 share exact dispatcher and monitor blobs. Native author tests do not establish all14 installed occurrences eliminated."
+    },
+    {
+      "name": "composed-current-GCM-sibling",
+      "command": "exact deciding continuation command to be supplied by named root owner",
+      "target_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/environment.json",
+      "input_closure": "Current f4 GCM query/fit raw aliases fail normalization before monitoring; graph6d current producer dependency needed for real positive root replay. No producer shim or copied cumulative source carried.",
+      "outcome": "UNRUN",
+      "output": "Current f4 GCM query/fit raw aliases fail normalization before monitoring; graph6d current producer dependency needed for real positive root replay. No producer shim or copied cumulative source carried."
+    },
+    {
+      "name": "full-architecture-docs-production",
+      "command": "exact deciding continuation command to be supplied by named root owner",
+      "target_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/environment.json",
+      "input_closure": "Full architecture/docs/production invocation and whole Node admitted production inputs are unrun on this monitor candidate; no inherited waiver or product acceptance claim.",
+      "outcome": "UNRUN",
+      "output": "Full architecture/docs/production invocation and whole Node admitted production inputs are unrun on this monitor candidate; no inherited waiver or product acceptance claim."
+    }
+  ],
+  "property": {
+    "statement": "Shared dispatcher validates declared slot keys on canonical normalized output and retains real numeric raw diagnostic warnings/metrics, distinguishing untyped empty metadata from declared numeric array empties.",
+    "runtime_path": [
+      "registered real method",
+      "native Numpy/JAX/solver backend runner",
+      "canonical dematerialization",
+      "MethodResult.slot_outputs + raw diagnostic view",
+      "shared typed monitor flags",
+      "warnings + anomaly metric"
+    ],
+    "proxy_divergence": "Raw aliases can lack declared names while the canonical slot exists; catalog membership/signature markers do not establish output correctness.",
+    "negative_controls": [
+      "Actual missing output, malformed rank and shape fail native runner",
+      "NaN/Inf sidecars keep error warnings and telemetry",
+      "Wrong canonical keys stay missing/extra flags",
+      "Empty vector list and typed empty array keep warning",
+      "Six retained-marker memory-only property removals fail tests"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "limited",
+  "bounded_property_outcome": "closed",
+  "finding_closure_effect": "none; continuation family/layout outcomes are a separate receipt",
+  "review": {
+    "reviewer": "root independent of author",
+    "source_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+    "outcome": "GO for bounded shared native monitor property",
+    "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-corrected-receipt.json"
+  },
+  "source_equivalence": {
+    "installed_base": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+    "slice_base": "f4fa51e6dd247cfd967450263579d67233a743d6",
+    "dispatcher_git_blob_both": "4cfd8b80c70984171a4aa40ac1435b7074dcf5eb",
+    "monitor_git_blob_both": "80180c6bbbf2f846dbad3a472dbb75e1fe070944"
+  },
+  "limitations_and_next_owner": [
+    "Root composes current graph producers and installed wheel/sdist warning denominator; native58 is not installed14 coverage.",
+    "Monitoring establishes representation/diagnostics, not causal identification, CI authority, admitted real-data validity or production acceptance.",
+    "LA002/LA037 original migration criteria will be evaluated independently; optional family-state activation does not block those original criteria.",
+    "No global gate attribution: full checks UNRUN on this source and P41 not_established."
+  ],
+  "content_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor-v2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor-v2.stdout.txt",
+      "sha256": "7d3f994544130855a10e8fb54f265462c8dd2c19383f65be018b547bfdd59ec3",
+      "bytes": 57016
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor-v3.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor-v3.stdout.txt",
+      "sha256": "9662ba97ee086bd951ed743c507ede6c9b7b39aa5a8e84af003b594ff6e8b63d",
+      "bytes": 57417
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor.stdout.txt",
+      "sha256": "7f5b93eccdc2b4e36f112ad52f9b84e8ee269b365d746a70338c8fb3bfb4eb5d",
+      "bytes": 835
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/environment.json",
+      "sha256": "ed52ee8502ff7f784b6ed30d2b3b533896b16f30309b8bc4a54ea70dd6f36fa8",
+      "bytes": 669
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-corrected-receipt.json",
+      "sha256": "e43a6cf61d2966e9cddefe7d3b619d151f30b2bb75e218117fe5a9119f7ce144",
+      "bytes": 1104
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-corrected-stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-corrected-stdout",
+      "sha256": "cb7ce11d55de1baf6785ade61abea470ab390fc2cae4296134a221a257888ddb",
+      "bytes": 99
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-receipt.json",
+      "sha256": "0927d477817c92083c9e76fce8fa7abc063c56264bac195e997c75b7573c0358",
+      "bytes": 848
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-stderr",
+      "sha256": "a1ee01a615bdddb547e9581551fde3d195ae905ac1f379daed068e1fc70015fd",
+      "bytes": 97
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-stdout",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "bytes": 1
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-candidate-v2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-candidate-v2.stdout.txt",
+      "sha256": "bfcbc0b3c67ab5e03ebcc7b9042262a00e8bfc3a42127e80d4f0edd6edcc0231",
+      "bytes": 99
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-candidate.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-candidate.stdout.txt",
+      "sha256": "a01b3bc93ea8b5f02a8caa84754d9a57b330e83146ef8a91848c4bc4523f167c",
+      "bytes": 53637
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-format.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-format.stdout.txt",
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+      "bytes": 26
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-fragment-v2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-fragment-v2.stdout.txt",
+      "sha256": "00b9c5cfe74ff2421a213e45ac93d03347d5c12972a78c76477d0862fe8bdf4e",
+      "bytes": 257
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-fragment.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-fragment.stdout.txt",
+      "sha256": "00b9c5cfe74ff2421a213e45ac93d03347d5c12972a78c76477d0862fe8bdf4e",
+      "bytes": 257
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-frozen-checks.json",
+      "sha256": "de369f527a5dc4037da87b617171ee74cbbb239c85055432eaa02b37563f8ff9",
+      "bytes": 14248
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-frozen-native.json",
+      "sha256": "01c0b30e3c467208945a2bd753bc2c69a322c34ca570cc24f5a79a23b90c0b8b",
+      "bytes": 1938
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-frozen-native.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-frozen-native.stdout.txt",
+      "sha256": "7c02d148dc39c5ed77abbb0094c13d25c379d39919b320b83f4dc75eb1013689",
+      "bytes": 99
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-frozen-run.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-frozen-run.stdout.txt",
+      "sha256": "1c0209247888263bd68c358d58b7b38d5c84838caf5066f63cfe0022be02763c",
+      "bytes": 1008
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-metadata_float.json",
+      "sha256": "264a719241ebfbf2702220d3827936397dfdb6f3af81e963eac709dd6a2cfbad",
+      "bytes": 1534
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-metadata_float.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-metadata_float.stdout.txt",
+      "sha256": "ca9385ff7958f970b270c639f2fcb6e6a9ba90811e50dae89f49e8a29efec7dd",
+      "bytes": 56641
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_array_types.json",
+      "sha256": "f6cf27b4f08b512feb2c5e11aee58fab5d6eae82edb7d2051928f01d8076f2db",
+      "bytes": 1532
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_array_types.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_array_types.stdout.txt",
+      "sha256": "62aa12addde8977dab068cefad54805ea56d8a38969451bc4651f5919b15f293",
+      "bytes": 1596
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_flags.json",
+      "sha256": "b2ac399968970008dd0b472fa8186ba2a8dffa63c659e1a889806b330b890582",
+      "bytes": 1496
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_flags.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_flags.stdout.txt",
+      "sha256": "faf5a6ccab030ac848cd8675ff88d2c9178f91f9c8bfbe246ed42606f6996e3b",
+      "bytes": 6578
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_raw_numeric.json",
+      "sha256": "dde96370ea9b3d98437d4bc50d86da5c3d1d1425ba205419dbb864fe16aea835",
+      "bytes": 1532
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_raw_numeric.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_raw_numeric.stdout.txt",
+      "sha256": "d1b7d675daffe2b3c0ba564c8d9329ff367db22f7544839020d2078b30331b89",
+      "bytes": 3200
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_slot_keys.json",
+      "sha256": "4bb9d77275aacd23bc753a7fc476ad77c6217e88b2e86da7d0a6f85098cfd5f8",
+      "bytes": 1520
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_slot_keys.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_slot_keys.stdout.txt",
+      "sha256": "c1ffb13cea4ec362afc7cbc7fa51a46c25dc6c6da9fbb284f34901e988a82d32",
+      "bytes": 1306
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-raw_keys.json",
+      "sha256": "7bc28871b85b47c8f9b0ac8e96ab980861820a018783d7fb388d3f5d958f1931",
+      "bytes": 1498
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-raw_keys.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-raw_keys.stdout.txt",
+      "sha256": "c4b8de838e2d91e135fdf1b975d9b7aaec5446a3f6f0eff4e4362105e6224b61",
+      "bytes": 63626
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-ruff.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-ruff.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor_fragment_check.py",
+      "sha256": "96ac30ffb63540036553705f3e8a6e8f37e8d48668b5fd76753edf113f72eae8",
+      "bytes": 947
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor_removal_replay.py",
+      "sha256": "159ab9707b06bd8cb5fa807271db28db30728bb22f67fc33d3a68e4d0d9dd68e",
+      "bytes": 1906
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/run_monitor_checks.py",
+      "sha256": "a5c8d5d8336c2401a93308b420968df72e7b9801fd90dec54a8fcc56edab809f",
+      "bytes": 4829
+    }
+  ],
+  "scratch_to_git_transport": {
+    "/tmp/e02-F-continuation-20261006/foundry/base-monitor-v2.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor-v2.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/base-monitor-v2.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor-v2.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/base-monitor-v3.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor-v3.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/base-monitor-v3.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor-v3.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/base-monitor.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/base-monitor.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/base-monitor.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-candidate-v2.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-candidate-v2.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-candidate-v2.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-candidate-v2.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-candidate.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-candidate.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-candidate.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-candidate.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-format.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-format.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-format.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-format.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-fragment-v2.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-fragment-v2.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-fragment-v2.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-fragment-v2.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-fragment.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-fragment.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-fragment.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-fragment.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-frozen-checks.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-frozen-checks.json",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-frozen-native.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-frozen-native.json",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-frozen-native.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-frozen-native.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-frozen-native.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-frozen-native.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-frozen-run.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-frozen-run.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-frozen-run.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-frozen-run.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-metadata_float.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-metadata_float.json",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-metadata_float.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-metadata_float.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-metadata_float.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-metadata_float.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-no_array_types.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_array_types.json",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-no_array_types.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_array_types.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-no_array_types.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_array_types.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-no_flags.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_flags.json",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-no_flags.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_flags.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-no_flags.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_flags.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-no_raw_numeric.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_raw_numeric.json",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-no_raw_numeric.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_raw_numeric.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-no_raw_numeric.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_raw_numeric.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-no_slot_keys.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_slot_keys.json",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-no_slot_keys.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_slot_keys.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-no_slot_keys.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-no_slot_keys.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-raw_keys.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-raw_keys.json",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-raw_keys.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-raw_keys.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-removal-raw_keys.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-removal-raw_keys.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-ruff.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-ruff.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor-ruff.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor-ruff.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor_fragment_check.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor_fragment_check.py",
+    "/tmp/e02-F-continuation-20261006/foundry/monitor_removal_replay.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor_removal_replay.py",
+    "/tmp/e02-F-continuation-20261006/foundry/run_monitor_checks.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/run_monitor_checks.py",
+    "/tmp/e02-F-continuation-20261006/root-review-monitor/corrected-receipt.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-corrected-receipt.json",
+    "/tmp/e02-F-continuation-20261006/root-review-monitor/corrected-stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-corrected-stderr",
+    "/tmp/e02-F-continuation-20261006/root-review-monitor/corrected-stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-corrected-stdout",
+    "/tmp/e02-F-continuation-20261006/root-review-monitor/receipt.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-receipt.json",
+    "/tmp/e02-F-continuation-20261006/root-review-monitor/stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-stderr",
+    "/tmp/e02-F-continuation-20261006/root-review-monitor/stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/independent-stdout"
+  },
+  "portable_replay": {
+    "cwd": "policy-engine",
+    "environment": "Use admitted interpreter matching environment.json; PYTHONPATH=src:tools.",
+    "native": "python -m pytest tests/unit/foundry/methods/backends/test_dispatch_output_contract.py tests/unit/foundry/methods/test_output_monitor.py tests/unit/foundry/methods/backends/test_backends.py -o addopts= -q -ra",
+    "removal": "python docs/research/e02-cloud-test-plan/implementation-handoffs/F/canonical-output-monitor-20261006/monitor_removal_replay.py CONTROL"
+  }
+}

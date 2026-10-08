@@ -1,0 +1,19 @@
+{
+  "check": "PASS",
+  "outcome": "GO_BOUNDED",
+  "actual_merge": "ea9a606f06dad1f94c0f841ec1ec7a53fc694f5c",
+  "G_delta_paths": 42,
+  "G_whole_blob_equal": 41,
+  "shared_method_C_E_equal": true,
+  "ROOT_F_method_equal": true,
+  "F_findings_unchanged": 35,
+  "criterion_occurrences_unchanged": 36,
+  "F_bundles_unchanged": 17,
+  "protected_F_inputs": 43,
+  "coverage_changed_fields": 6,
+  "new_product_delta": 0,
+  "actual_diff_check": "FAIL",
+  "P41": "not_established",
+  "fresh_science": "UNRUN",
+  "report": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/actual-ea9a-review.json"
+}

@@ -1,0 +1,222 @@
+commit 3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77
+Author:     Денис Копылов <skvidvard167m@gmail.com>
+AuthorDate: Tue Oct 6 15:38:07 2026 +0000
+Commit:     Денис Копылов <skvidvard167m@gmail.com>
+CommitDate: Tue Oct 6 15:38:07 2026 +0000
+
+    fix(scientist): preserve selected causal CAS views through readers and lineage
+
+diff --git a/policy-engine/docs/reference/scientist/causal-selected-consumers.md b/policy-engine/docs/reference/scientist/causal-selected-consumers.md
+index 81805860f..fdca8f02c 100644
+--- a/policy-engine/docs/reference/scientist/causal-selected-consumers.md
++++ b/policy-engine/docs/reference/scientist/causal-selected-consumers.md
+@@ -13,6 +13,11 @@ extra or duplicated offered input identities cannot reach the verifier or job.
+ This profile projects the verified byte digest into the PDC input hash; it does
+ not infer a semantic hash from an arbitrary payload field. A source owner using
+ a distinct semantic content hash must supply its supported resolver contract.
++Every subsequent causal input and output-contract read keeps the selected typed
++reference, including its manifest profile. Method and refusal lineage uses the
++existing Core reference-to-lineage projection. Reading by physical ID alone can
++select a different manifest for the same bytes and is insufficient for this
++contract.
+ 
+ Binding tests are `test_causal_input_byte_binding.py` beside the node tests.
+ They use actual persisted CAS sources for input identity and untrusted contexts
+diff --git a/policy-engine/release-fragments/unreleased/2026-10-06-causal-input-byte-binding.toml b/policy-engine/release-fragments/unreleased/2026-10-06-causal-input-byte-binding.toml
+index a3dc42518..3ced53f92 100644
+--- a/policy-engine/release-fragments/unreleased/2026-10-06-causal-input-byte-binding.toml
++++ b/policy-engine/release-fragments/unreleased/2026-10-06-causal-input-byte-binding.toml
+@@ -3,7 +3,7 @@ title = "Resolve the complete causal input set before evaluation admission"
+ type = "fixed"
+ component = "scientist"
+ owner = "team-policyos-scientist"
+-summary = "The existing causal node reconciles exact typed CAS bytes and manifests before consulting evaluation admission."
++summary = "The existing causal node reconciles exact typed CAS bytes and manifests before admission and preserves the selected manifest view through readers and lineage."
+ evidence = ["tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py", "docs/reference/scientist/causal-selected-consumers.md"]
+ change_class = "internal-only"
+ surface_classification = "internal: causal node input identity projection"
+diff --git a/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py b/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py
+index df36243d5..09237b897 100644
+--- a/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py
++++ b/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py
+@@ -445,12 +445,12 @@ def _build_sensitivity_params(
+ def _append_input_ref(
+     refs: list[core_artifacts.InputRef],
+     *,
+-    artifact_id: object | None,
++    artifact_ref: object | None,
+     role: str,
+ ) -> None:
+-    if artifact_id is None:
+-        return
+-    refs.append(core_artifacts.InputRef(artifact_id=str(artifact_id), role=role))
++    ref = _to_core_artifact_ref(artifact_ref)
++    if ref is not None:
++        refs.append(core_artifacts.input_ref_from_artifact_ref(ref, role=role))
+ 
+ 
+ def _run_primary_causal_job(
+@@ -626,8 +626,8 @@ def _load_observational_data(
+         raise ValueError("observational_data_ref is required for causal evaluation")
+     ref = _to_core_artifact_ref(state.observational_data_ref)
+     assert ref is not None
+-    payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+-    manifest = ctx.store.get_manifest(ref.artifact_id)
++    payload = from_canonical_bytes(ctx.store.get_bytes(ref))
++    manifest = ctx.store.get_manifest(ref)
+     envelope_fields = ObservationMethodInputEnvelope.model_fields
+     schema_namespace = envelope_fields["schema_version"].default.rsplit(".", 1)[0] + "."
+     discriminator = payload.get("schema_version") if isinstance(payload, dict) else None
+@@ -646,7 +646,7 @@ def _load_observational_data(
+             or manifest.kind != ref.kind
+             or ref.media_type != "application/json"
+             or manifest.media_type != ref.media_type
+-            or not ctx.store.verify(ref.artifact_id).ok
++            or not ctx.store.verify(ref).ok
+         ):
+             raise ValueError("observational_envelope_artifact_identity_mismatch")
+         envelope = ObservationMethodInputEnvelope.model_validate(payload)
+@@ -726,12 +726,12 @@ def _load_output_contract_json(
+     ctx: ExecutionContext, ref: core_artifacts.ArtifactRef
+ ) -> dict[str, Any]:
+     ref = core_artifacts.ArtifactRef.model_validate(ref)
+-    if not ctx.store.verify(ref.artifact_id).ok:
++    if not ctx.store.verify(ref).ok:
+         raise ValueError("output_contract_cas_integrity_failed")
+-    manifest = ctx.store.get_manifest(ref.artifact_id)
++    manifest = ctx.store.get_manifest(ref)
+     if manifest.kind != ref.kind or manifest.media_type != ref.media_type:
+         raise ValueError("output_contract_ref_identity_mismatch")
+-    payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
++    payload = from_canonical_bytes(ctx.store.get_bytes(ref))
+     if not isinstance(payload, dict):
+         raise ValueError("output_contract_source_object_required")
+     return payload
+@@ -907,7 +907,7 @@ def _persist_output_refusal(
+                 component=refusal.node_id, version="polisyos.scientist.causal_output.v1"
+             ),
+             inputs=[
+-                core_artifacts.InputRef(artifact_id=ref.artifact_id, role=f"source:{index}")
++                core_artifacts.input_ref_from_artifact_ref(ref, role=f"source:{index}")
+                 for index, ref in enumerate(refusal.source_refs)
+             ],
+         ),
+@@ -1009,7 +1009,7 @@ class RunCausalEvaluationNode:
+             )
+             if actual != expected:
+                 raise ValueError(f"causal_output_refusal_content_mismatch:{key}")
+-            manifest = ctx.store.get_manifest(row.artifact_ref.artifact_id)
++            manifest = ctx.store.get_manifest(row.artifact_ref)
+             if (
+                 manifest.kind != "scientist.node_output_refusal"
+                 or manifest.artifact_schema
+@@ -1022,7 +1022,7 @@ class RunCausalEvaluationNode:
+                 )
+                 or manifest.inputs
+                 != [
+-                    core_artifacts.InputRef(artifact_id=ref.artifact_id, role=f"source:{index}")
++                    core_artifacts.input_ref_from_artifact_ref(ref, role=f"source:{index}")
+                     for index, ref in enumerate(expected.source_refs)
+                 ]
+             ):
+@@ -1166,13 +1166,13 @@ class RunCausalEvaluationNode:
+         if result.method_result_ref is not None:
+             _append_input_ref(
+                 input_refs,
+-                artifact_id=result.method_result_ref.artifact_id,
++                artifact_ref=result.method_result_ref,
+                 role="causal_method_result",
+             )
+         if result.method_evidence_ref is not None:
+             _append_input_ref(
+                 input_refs,
+-                artifact_id=result.method_evidence_ref.artifact_id,
++                artifact_ref=result.method_evidence_ref,
+                 role="causal_method_evidence",
+             )
+ 
+@@ -1213,13 +1213,13 @@ class RunCausalEvaluationNode:
+                 if refutation_result.method_result_ref is not None:
+                     _append_input_ref(
+                         input_refs,
+-                        artifact_id=refutation_result.method_result_ref.artifact_id,
++                        artifact_ref=refutation_result.method_result_ref,
+                         role="causal_refutation_method_result",
+                     )
+                 if refutation_result.method_evidence_ref is not None:
+                     _append_input_ref(
+                         input_refs,
+-                        artifact_id=refutation_result.method_evidence_ref.artifact_id,
++                        artifact_ref=refutation_result.method_evidence_ref,
+                         role="causal_refutation_method_evidence",
+                     )
+                 if refutation_result.issues:
+@@ -1309,13 +1309,13 @@ class RunCausalEvaluationNode:
+                 if sensitivity_job.method_result_ref is not None:
+                     _append_input_ref(
+                         input_refs,
+-                        artifact_id=sensitivity_job.method_result_ref.artifact_id,
++                        artifact_ref=sensitivity_job.method_result_ref,
+                         role="causal_sensitivity_method_result",
+                     )
+                 if sensitivity_job.method_evidence_ref is not None:
+                     _append_input_ref(
+                         input_refs,
+-                        artifact_id=sensitivity_job.method_evidence_ref.artifact_id,
++                        artifact_ref=sensitivity_job.method_evidence_ref,
+                         role="causal_sensitivity_method_evidence",
+                     )
+                 supporting_artifacts["causal_sensitivity_attempt"] = ctx.store.put_json(
+diff --git a/policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py b/policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py
+index 2d23389fa..6c31a14df 100644
+--- a/policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py
++++ b/policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py
+@@ -11,7 +11,48 @@ from polisyos.core.canon import CanonSpec
+ from polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation import (
+     RunCausalEvaluationNode,
+     _actual_causal_input_identities,
++    _append_input_ref,
++    _load_observational_data,
+ )
++
++
++def test_selected_typed_view_survives_resolver_loader_and_lineage(execution_context, minimal_state):
++    import numpy as np
++
++    from polisyos.foundry.methods.causal import PanelObservationalData
++    from polisyos.ir.observation import OBSERVATION_METHOD_INPUT_KIND
++
++    data = PanelObservationalData(
++        outcome=np.arange(12, dtype=float).reshape(4, 3),
++        treatment=np.array([1, 1, 0, 0]),
++        time_treatment=1,
++    )
++    store = execution_context.store
++    first = store.put_json(
++        data.model_dump(mode="json"),
++        PutOptions(kind=OBSERVATION_METHOD_INPUT_KIND, media_type="application/json"),
++        canon_spec=CanonSpec(forbid_floats=False),
++    )
++    selected = store.put_json(
++        data.model_dump(mode="json"),
++        PutOptions(kind="ir.observational_data", media_type="application/json"),
++        canon_spec=CanonSpec(forbid_floats=False),
++    )
++    assert first.artifact_id == selected.artifact_id
++    assert store.get_manifest(selected.artifact_id).kind == first.kind
++    assert store.get_manifest(selected).kind == selected.kind
++    state = _state(minimal_state, selected)
++    assert _actual_causal_input_identities(state, store=store)
++    loaded = _load_observational_data(
++        execution_context, state, "causal.inference.did.standard@1.0.0"
++    )
++    np.testing.assert_array_equal(loaded.outcome, data.outcome)
++    lineage = []
++    _append_input_ref(lineage, artifact_ref=selected, role="selected-source")
++    assert lineage[0].manifest_profile_sha256 == selected.manifest_profile_sha256
++    assert lineage[0].artifact_id == selected.artifact_id
++
++
+ from polisyos.scientist.nodes.builtins.state_keys import (
+     INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF,
+     INPUT_UKRAINE_SELECTED_METHOD_CONTRACT_REF,

@@ -1,0 +1,45 @@
+{
+  "candidate_sha": "556329c9cdd183197e644299381550f81f061620",
+  "candidate_tree": "a7a581044ee5c9e91b8c514c9aad4ff3051ce6a5",
+  "public_output_drift_baseline": "none",
+  "canonical_public_companion_consistency": "PASS",
+  "drift_negative": "expected public-inventory drift failure",
+  "baseline_aggregate_exit": 1,
+  "baseline_aggregate_verdict": "FAIL; exact full output preserved, P41 not established",
+  "skip_generated_freshness": true,
+  "source_frozen_and_unmodified": true,
+  "checks": [
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+        "tools/devx/architecture/guardrails.py",
+        "check",
+        "--skip-generated-checks",
+        "--generated-md",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate/policy-engine/_build/e02-D-composition/generated-artifacts.md"
+      ],
+      "exit": 1,
+      "wall_seconds": 14.915831500024069,
+      "stdout_sha256": "632efa26654ddea6319b7276c221494d350a7b97e96b4a42b4bd59a3ed0f99a9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "peak_child_RSS_platform_units": 119209984
+    },
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+        "tools/devx/architecture/guardrails.py",
+        "check",
+        "--skip-generated-checks",
+        "--generated-md",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate/policy-engine/_build/e02-D-composition/generated-artifacts.md",
+        "--public-json",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate/policy-engine/_build/e02-D-composition/inventory-drift.json"
+      ],
+      "exit": 1,
+      "wall_seconds": 14.837626875028946,
+      "stdout_sha256": "34ed1a00fbf3d86590b8ebeb55b8bb5e36f09e0a8f7b7cd3ca2d6dd3b9ff43d2",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "peak_child_RSS_platform_units": 119209984
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-env/bin/python",
+    "-I",
+    "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/fresh_graph_bridge.py",
+    "--reader"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/neutral-reader-cwd",
+  "environment": {
+    "PYTHONPATH": "absent",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "exit_code": 0,
+  "seconds": 0.8402787969971541,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/fresh-reader.stdout.txt",
+    "bytes": 275,
+    "sha256": "b9c41d5d548fde8e1cf35decf781b06d2dde9c652bf509dd40ce8c732e679b35"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/fresh-reader.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

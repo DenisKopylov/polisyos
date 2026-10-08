@@ -1,0 +1,248 @@
+{
+  "schema": "e02.foundry.existing-authority-input-packet.v1",
+  "scope": "read-only exact existing APIs; no new admission system, issuer, provider implementation or normative authority",
+  "source": {
+    "published_G_sha": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+    "published_G_tree": "f27a36aa7eae9d6e329e0602ea40b6169a5bcf35",
+    "product_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+    "product_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+    "evidence_carrier": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "intake_ref": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/intake-audit.json",
+      "bytes": 48837,
+      "sha256": "41fe806e96497b00f09a4b6fd9746f249a73775b6f74c377afa0aeb164da8045"
+    },
+    "source_comparison_rule": "13 paths fully source-bound in intake audit; C/PDC/Runtime authority paths byte-equal G9a vs8236; six F producer/consumer paths differ and are read at8236, not relabelled as G9a"
+  },
+  "contracts": [
+    {
+      "path": "policy-engine/src/polisyos/pdc/_impl/evaluation_safety.py",
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "contracts_checked": [
+        "class EvaluationExecutionContext",
+        "class EvalSafetyAdmissionChallenge",
+        "class EvalSafetyVerifierPort",
+        "def evaluation_safety_consumer_admission_is_verified"
+      ],
+      "lines": {
+        "class EvaluationExecutionContext": 123,
+        "class EvalSafetyAdmissionChallenge": 168,
+        "class EvalSafetyVerifierPort": 226,
+        "def evaluation_safety_consumer_admission_is_verified": 237
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "contracts_checked": [
+        "class _ControlEvaluationSafetyAuthorityResolver",
+        "class _ControlEvaluationSafetyAppointmentResolver",
+        "class _ControlEvaluationSafetyVerifierRegistry",
+        "def _admit_evaluation_safety_attempt"
+      ],
+      "lines": {
+        "class _ControlEvaluationSafetyAuthorityResolver": 908,
+        "class _ControlEvaluationSafetyAppointmentResolver": 921,
+        "class _ControlEvaluationSafetyVerifierRegistry": 935,
+        "def _admit_evaluation_safety_attempt": 4264
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/evaluation_safety.py",
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "contracts_checked": [
+        "class EvaluationSafetyPersistenceService",
+        "def _read_model",
+        "def require_admission"
+      ],
+      "lines": {
+        "class EvaluationSafetyPersistenceService": 299,
+        "def _read_model": 1510,
+        "def require_admission": 1707
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/evaluation_safety.py",
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "contracts_checked": [
+        "def replay_evaluation_safety_authority",
+        "def verify_evaluation_safety_consumer_admission"
+      ],
+      "lines": {
+        "def replay_evaluation_safety_authority": 1906,
+        "def verify_evaluation_safety_consumer_admission": 2037
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "contracts_checked": [
+        "def _actual_causal_input_identities",
+        "def _causal_evaluation_safety_blockers"
+      ],
+      "lines": {
+        "def _actual_causal_input_identities": 206,
+        "def _causal_evaluation_safety_blockers": 259
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "contracts_checked": [
+        "class ConfidencePass",
+        "CONFIDENCE_SIM_RESULT_LOAD_FAILED",
+        "CONFIDENCE_GATE_ELIGIBILITY_LOW"
+      ],
+      "lines": {
+        "class ConfidencePass": 20,
+        "CONFIDENCE_SIM_RESULT_LOAD_FAILED": 101,
+        "CONFIDENCE_GATE_ELIGIBILITY_LOW": 58
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "contracts_checked": [
+        "def project_method_value_evidence",
+        "method_output_contract_unresolved",
+        "if not envelope.gate_eligible or envelope.is_heuristic_ci:"
+      ],
+      "lines": {
+        "def project_method_value_evidence": 188,
+        "method_output_contract_unresolved": 202,
+        "if not envelope.gate_eligible or envelope.is_heuristic_ci:": 312
+      }
+    }
+  ],
+  "operational_context_fields": [
+    "intake_ref",
+    "evaluator_owner_id",
+    "design_problem_ref",
+    "evaluation_mode",
+    "candidate_ref",
+    "world_model_record_ref",
+    "target_population_scope_ref",
+    "rule_version",
+    "intended_start_at",
+    "evaluation_input_refs",
+    "evaluation_input_provenance",
+    "eval_safety_certificate_ref",
+    "eval_safety_revision_head_ref"
+  ],
+  "producer_consumer_chain": [
+    "Core typed manifest verification and embedded semantic identity \u2192 Runtime persistence service strict artifact/schema/provenance reader",
+    "Actual complete causal source/contract/bundle/intake bytes \u2192 ExecutionContext full input/provenance identity equality",
+    "Runtime current material/revision resolver \u2192 authority replay of full certificate/intake/request and accepted requirements",
+    "Consumer fresh UUID4 challenge \u2192 require_admission \u2192 Runtime private-sealed exact context/hash/challenge receipt \u2192 neutral PDC verified predicate",
+    "Scientist allowed substantive work remains separate from statistical causal identification and value projection"
+  ],
+  "input_packets": [
+    {
+      "plane": "operational EvalSafety current-state admission",
+      "status": "held_missing_input",
+      "supplier": "Runtime canonical owner with institutionally accepted authority resolver, appointment issuer/roster and evidence verifier provider; F does not appoint itself",
+      "exact_existing_contracts": [
+        "EvaluationSafetyAttemptAuthorities",
+        "EvaluationSafetyPersistenceService.compose_and_persist_attempt",
+        "EvaluationSafetyAdmissionVerifier.require_admission",
+        "EvalSafetyVerifierPort",
+        "EvaluationExecutionContext"
+      ],
+      "required_artifact_families": {
+        "kinds": [
+          "policyos.runtime.eval_safety.pack_admission",
+          "policyos.runtime.eval_safety.intake",
+          "policyos.runtime.eval_safety.request",
+          "policyos.runtime.eval_safety.decision",
+          "policyos.runtime.eval_safety.certificate",
+          "policyos.runtime.eval_safety.certificate_revision"
+        ],
+        "schema_rule": "kind + .v1; schema_version1.0; exact authority-envelope and embedded semantic identity",
+        "also_required": "accepted mode basis, DomainPack/facet-denominator admission, appointed verifier contract registry, complete current revision denominator and actual evaluation-input provenance"
+      },
+      "current_absence_evidence": "Actual control defaults authority_unresolved / verifier_unappointed / registry None; _admit_evaluation_safety_attempt mode_basis_ref/pack/facet-denominator None and evidence empty. Same exact bytes G9a/8236.",
+      "positive_scenario": "Genuine appointed providers compose/persist accepted current-context attempt; actual canonical Node binds observed source/contract/bundle/intake bytes, freshly challenges live verifier, then consumes produced current-state receipt. Not yet run.",
+      "negative_scenarios": [
+        "missing provider",
+        "unappointed verifier",
+        "fake public verified receipt",
+        "context/source hash swap",
+        "old/revoked/noncurrent revision",
+        "reused challenge"
+      ],
+      "expected_bytes_profile": "actual Core-owned content-bound refs + full exact EvaluationExecutionContext; receipt must be live Runtime-private-sealed after all fresh checks. A serialized/public assertion does not restore the private seal.",
+      "reason_unavailable": "No genuine appointed provider/roster/evidence supplied on accepted default route; test-injected authority is only verifier-mechanics fixture."
+    },
+    {
+      "plane": "statistical causal identification for common report/Confidence",
+      "status": "held_missing_input_and_contract",
+      "supplier": "accepted causal-identification semantic owner and verifier/input provider; institutional appointment and existing positive bridge not supplied to F",
+      "exact_existing_contracts": [
+        "CausalEffectReport.to_uncertainty_envelope",
+        "ConfidencePass.validate"
+      ],
+      "required_artifact_contract": "Accepted source/graph/estimand/contrast/target-population/current-revision identification proof and bound issuer/verifier, through an owner-approved existing report intake. Current report has no accepted identification-verifier bridge. No new artifact/schema is defined in this packet.",
+      "positive_scenario": "Actual producer report from admitted observed inputs with accepted independent identification binding reaches common consumer without a causal-role blocker. UNRUN.",
+      "negative_scenarios": [
+        "SUCCESS+CI only",
+        "producer gate_eligible True",
+        "source relabelled ensemble",
+        "minimum ratio0",
+        "missing/corrupt sibling simulation",
+        "swapped source/graph/estimand/target basis"
+      ],
+      "expected_bytes_profile": "The same persisted typed report/envelope and native MethodJob lineage; actual accepted independent proof is additional input, not replacement SUCCESS/CI markers.",
+      "reason_unavailable": "Current causal report deliberately gate_false; consumer always preserves causal-purpose blocker. Operational EvalSafety admission is not statistical identification."
+    },
+    {
+      "plane": "causal native value projection capability",
+      "status": "held_missing_contract",
+      "supplier": "canonical native output contract/estimand owner; F consumer review does not grant normative value authority",
+      "exact_existing_contracts": [
+        "SlotSpec.contract_id and contract_capabilities",
+        "OutputContractDeclaration",
+        "NativeValueEstimandBinding",
+        "project_method_value_evidence"
+      ],
+      "required_artifact_contract": "An already accepted native output owner/capability and exact estimand binding for the selected causal report slot, then genuine uncertainty eligibility. None is declared on the native TMLE report slot.",
+      "positive_scenario": "Supported native causal report contract matches owner/estimand and eligible nonheuristic envelope; separate production-value admission remains owner-controlled. UNRUN.",
+      "negative_scenarios": [
+        "missing output contract",
+        "wrong owner/capability",
+        "swapped estimand binding",
+        "non-gating envelope"
+      ],
+      "expected_bytes_profile": "Exact selected SlotSpec + native type/declaration identity and report CAS lineage; no mapping aliases used to invent a capability.",
+      "reason_unavailable": "Actual TMLE report returns method_output_contract_unresolved before gate predicate at312. The53-case refusal proves this upstream boundary, not gate312 execution."
+    },
+    {
+      "plane": "B56 common admitted competing-study resource accounting",
+      "status": "limited_verification_missing_input",
+      "supplier": "maintained Runtime/Scientist common study admission/resource owner",
+      "exact_existing_contracts": [
+        "ATENuisanceContract",
+        "maintained common study workload and outer admission budget"
+      ],
+      "required_artifact_contract": "Named admitted study job plan, competing actual jobs, unchanged folds/repeats/seeds/models, accepted aggregate resource budget and measured wait/worker/RSS/time/outputs.",
+      "positive_scenario": "Same admitted study plan with parallelism metamorphism under actual shared resource admission; numerical result/uncertainty and all scientific tasks preserved. UNRUN.",
+      "negative_scenarios": [
+        "aggregate cap violated",
+        "outputs lost on wait",
+        "fold/repeat silently dropped",
+        "nested deadlock"
+      ],
+      "expected_bytes_profile": "Actual common Runtime intake and worker admission receipts, not replaced test Node/pool or metadata-only cap.",
+      "reason_unavailable": "Configured2-fold producer in this slice proves native same-lineage consumption only; prior configured6/default15 counts do not supply an admitted competing-study packet."
+    }
+  ],
+  "review_outcomes": {
+    "actual_native_TMLE_consumer": "PASS bounded independent53 + mixed refs and removal discriminator; independent review published by FIT",
+    "genuine_operational_positive": "UNRUN",
+    "genuine_statistical_positive": "UNRUN",
+    "causal_value_positive": "UNRUN",
+    "whole_Node_production_authority": "UNRUN",
+    "B56_admitted_competing_study": "UNRUN"
+  },
+  "closure_ids": [],
+  "G_acceptance": "not_assumed"
+}

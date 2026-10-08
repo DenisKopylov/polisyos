@@ -1,0 +1,15 @@
+...................................                                      [100%]
+=============================== warnings summary ===============================
+../../../../../../../.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: asyncio_mode
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+../../../../../../../.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+35 passed, 2 warnings in 8.89s
+C_CANON_RESULT={"all_loaded_polisyos_modules_candidate_exact": true, "candidate_sha": "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e", "candidate_tree": "70ed14e004063536ff3a12d30d14d9bdd79a4916", "loaded_polisyos_module_count": 1460, "origin_violation_count": 0, "origin_violation_preview": [], "probe": {"CanonInfo_json_separators_type": "list", "CanonInfo_model_dump_mode_json_separators": [",", ":"], "actual_file_cas_bytes": "{\"profile_probe\":\"canonical-ir-json-mapping\",\"value\":17}", "cas_artifact_id": "sha256:3d119a70170d7d2786ad81bbfd6567f5907fe1f8b7eba4711174d0f6b5eb03d0", "json_mapping_exception": "unsupported_ir_canon_profile", "json_mapping_exception_type": "polisyos.ir.model_layer.canon.CanonViolation", "json_mapping_profile_roundtrip": "FAIL", "public_typed_manifest_roundtrip": "PASS", "real_cas_manifest_profile_type": "CanonInfo", "typed_manifest_type": "polisyos.core.artifacts.manifest.ArtifactManifest"}, "pytest_argv": ["--noconftest", "-o", "addopts=", "-p", "no:cacheprovider", "-q", "--junitxml", "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/results/attempt2/pytest.junit.xml", "--basetemp", "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/results/attempt2/pytest-temp", "tests/unit/core/artifacts/test_ir_adapter.py", "tests/unit/ir/analytics/test_ncm.py", "tests/unit/fabric/test_entity_resolution.py::test_probabilistic_entity_resolution_is_explainable_and_reversible"], "pytest_exit": 0, "pytest_junit_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/results/attempt2/pytest.junit.xml", "pytest_wall_seconds": 10.596341457974631, "selectors": ["tests/unit/core/artifacts/test_ir_adapter.py", "tests/unit/ir/analytics/test_ncm.py", "tests/unit/fabric/test_entity_resolution.py::test_probabilistic_entity_resolution_is_explainable_and_reversible"]}

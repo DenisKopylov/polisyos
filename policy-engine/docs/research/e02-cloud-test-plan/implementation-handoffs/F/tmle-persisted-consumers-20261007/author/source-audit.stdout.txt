@@ -1,0 +1,1 @@
+{"provider_byte_equivalence": 9, "runtime_byte_equivalence": 3, "metadata_only_delta": ["policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml"], "missing_positive_packets": 4}

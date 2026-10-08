@@ -1,0 +1,16 @@
+{
+  "adapter": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/economic-quality-v3-adapter.json",
+    "bytes": 19677,
+    "sha256": "0ce97407b588aa26b7d4ce92bd9eb98347c5092b6423526114501bf4178b8a7a"
+  },
+  "existing_git_spec": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/economic-quality-pure-git-spec.json",
+    "bytes": 13454,
+    "sha256": "354466dd59a4a74ec68649f86463a85f15884e17f077c49f0b2873a7aed244ed"
+  },
+  "owner_rows": 73,
+  "reconstructible_source_card_rows": 2,
+  "actual_pure_git_equal_rows": 17,
+  "scientific_or_Git_writes": false
+}

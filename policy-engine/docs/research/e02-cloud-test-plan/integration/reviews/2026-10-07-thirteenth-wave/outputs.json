@@ -1,0 +1,180 @@
+{
+  "schema": "policyos.e02.deciding_outputs.v1",
+  "scope": "complete moderate deciding output bytes; no tracked source copies or module-origin inventories",
+  "files": [
+    {
+      "file": "outputs/F-graph.stdout",
+      "bytes": 642,
+      "sha256": "51f57e440d69026e270082a68063d592ccb9842c58df0773285dd046d2e3f431",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/graph.stdout"
+    },
+    {
+      "file": "outputs/F-graph.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/graph.stderr"
+    },
+    {
+      "file": "outputs/F-graph.junit.xml",
+      "bytes": 2804,
+      "sha256": "640cbc2f3198ac758eb051472666e912007679c54b663fe225059f6652717fa1",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/graph-current-content.junit.xml"
+    },
+    {
+      "file": "outputs/F-DiD.stdout",
+      "bytes": 2296,
+      "sha256": "be38f4db17055ee0fe392ea270b5bccb9e4ef68fad59e03740aa558e37dea13d",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/did.stdout"
+    },
+    {
+      "file": "outputs/F-DiD.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/did.stderr"
+    },
+    {
+      "file": "outputs/F-DiD-result.json",
+      "bytes": 26246,
+      "sha256": "63514d5c02e88e9ebab75228f00fae314956f080abef168355ea518256ff2088",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/did-pretrend-smoke.json"
+    },
+    {
+      "file": "outputs/F-orchestration-abort.txt",
+      "bytes": 1499,
+      "sha256": "36f02ef71edc2f579d3f69e273226fae47eacae715143435a439fd2954ef1925",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/orchestration-abort.txt"
+    },
+    {
+      "file": "outputs/F-existing-positive.stdout",
+      "bytes": 627,
+      "sha256": "ca9a5e768e1eb85f85baf6b5296ceca78309e82c7d17aec1ec71fbe9d3353bc7",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/existing-positive.stdout"
+    },
+    {
+      "file": "outputs/F-existing-positive.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/existing-positive.stderr"
+    },
+    {
+      "file": "outputs/F-existing-positive.junit.xml",
+      "bytes": 530,
+      "sha256": "41fc2185eb707a0c85438035e5137fcd363dab44845f5145a4b954b3acf30fb7",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/existing-positive.junit.xml"
+    },
+    {
+      "file": "outputs/F-direct-attempt1.stdout",
+      "bytes": 688,
+      "sha256": "4f4db166ef465a29d08aa2696f5ea9c560b0ea7297353582d0b4b95509bece41",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/direct.stdout"
+    },
+    {
+      "file": "outputs/F-direct-attempt1.stderr",
+      "bytes": 715,
+      "sha256": "b4a7d0a58af44673e978cdc943d98ec55b95b5ef8e746ba50f4245b003ceecc3",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/direct.stderr"
+    },
+    {
+      "file": "outputs/F-direct-attempt2.stdout",
+      "bytes": 1120,
+      "sha256": "0a9ced7f978bdadf0da32dba07a67ed56779fcfc1559d1652c41ebd43f081518",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/direct-attempt2.stdout"
+    },
+    {
+      "file": "outputs/F-direct-attempt2.stderr",
+      "bytes": 1421,
+      "sha256": "e90a22bc0cceb4255f89916c4b6fdbb9a3223340786edbcd873a4492d6b6201f",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/direct-attempt2.stderr"
+    },
+    {
+      "file": "outputs/F-direct-attempt3.stdout",
+      "bytes": 4329,
+      "sha256": "588d29ccf509462a313a7dc236e7da57080473d65ce8c780310d5ac8479449c0",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/direct-attempt3.stdout"
+    },
+    {
+      "file": "outputs/F-direct-attempt3.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/direct-attempt3.stderr"
+    },
+    {
+      "file": "outputs/F-clean-ADMG-control.stdout",
+      "bytes": 3588,
+      "sha256": "d832edf08c4634be83a7af32cb84d1f1aeb9e1b70e5b69bf345fef4e8defeca5",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/clean-admg-attempt4.stdout"
+    },
+    {
+      "file": "outputs/F-clean-ADMG-control.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/clean-admg-attempt4.stderr"
+    },
+    {
+      "file": "outputs/E-attempt1.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/e-profile-diagnostics.stdout.txt"
+    },
+    {
+      "file": "outputs/E-attempt1.stderr",
+      "bytes": 5473,
+      "sha256": "f9a24959f6e4178565ca0d0b8b6498acbd42e52a6628fa89ee51a2f39981adf5",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/e-profile-diagnostics.stderr.txt"
+    },
+    {
+      "file": "outputs/E-attempt2.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/closure-repair1/e-profile-diagnostics.stdout.txt"
+    },
+    {
+      "file": "outputs/E-attempt2.stderr",
+      "bytes": 1631,
+      "sha256": "71d1c40b033ea5ee440bbbf8b8a5541cedd4c551c6458954032d89ea60a6b3e7",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/closure-repair1/e-profile-diagnostics.stderr.txt"
+    },
+    {
+      "file": "outputs/E-final.stdout.json",
+      "bytes": 59989,
+      "sha256": "3bd22b3b7cc1b4d3d27f40f5c8aa0c3899251f0f5f8f090a31fdf6104fae6058",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/closure-repair2/e-profile-diagnostics.stdout.txt"
+    },
+    {
+      "file": "outputs/E-final.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/closure-repair2/e-profile-diagnostics.stderr.txt"
+    },
+    {
+      "file": "outputs/E-execution-receipt.json",
+      "bytes": 5520,
+      "sha256": "3c65178ecff8e4611dd064b85e4aae7052a28231decdab82d10d06168c4e0282",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/closure-repair2/execution-receipt.json"
+    },
+    {
+      "file": "outputs/F-summary-receipt.json",
+      "bytes": 8700,
+      "sha256": "31d29d98ff8359542dbb41539d2c741ca5e5987b2e609b1a2e501e464088071d",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/summary-receipt.json"
+    },
+    {
+      "file": "outputs/F-scoped-receipt.json",
+      "bytes": 9502,
+      "sha256": "2191b622d1122a505597fb4f592649260fa4858585cfa8f71c3645141e2ce299",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/receipt.json"
+    },
+    {
+      "file": "outputs/E-diagnostic-summary.json",
+      "bytes": 11648,
+      "sha256": "8dce671be3d1b3e7595366ef7e1db4d7d710a0db1c19cd9a34b3e4fe4d291774",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/diagnostic-summary.json"
+    },
+    {
+      "file": "outputs/F-DiD-semantic-verification.json",
+      "bytes": 1202,
+      "sha256": "cd273a0cd91fcc7a37af02c7eee5fec83d7170235746aaba91bef8cd19545c27",
+      "original_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/did-semantic-verification.json"
+    }
+  ]
+}

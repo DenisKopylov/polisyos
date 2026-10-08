@@ -1,0 +1,17 @@
+{
+  "utc": "2026-10-07T20:21:25.060787+00:00",
+  "policy": "Native Trash only; never empty; preserve Git and deciding receipts.",
+  "actions": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/candidate",
+      "inode": 174366737,
+      "device": 16777231,
+      "mtime_ns": 1791402631173490114,
+      "state": "verified_in_native_Trash",
+      "native_exit": 0,
+      "native_stdout": "{\"native_success\":true,\"source_exists\":false,\"matches\":[{\"path\":\"/Users/deniskopylov/.Trash/candidate\",\"inode\":174366737,\"device\":16777231}]}\n",
+      "native_stderr": "",
+      "destination": "/Users/deniskopylov/.Trash/candidate"
+    }
+  ]
+}

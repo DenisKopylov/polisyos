@@ -1,0 +1,26 @@
+{
+  "audit": {
+    "path": "/tmp/e02-F-graph-profile-20261007/api-review/installed4ee/packet-audit.json",
+    "bytes": 1375205,
+    "sha256": "9e4114c1737b117e1086ff8bed5346438c4d1ee437a4977aacf43023a523f9b8"
+  },
+  "outcome": "PASS",
+  "full_files": 3464,
+  "resources": 11,
+  "actual_python": 3147,
+  "carrier": 28,
+  "native16": {
+    "tests": 16,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "child_different_pid": true,
+  "removal1": {
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  "inspected_execution_records": 12
+}

@@ -1,0 +1,107 @@
+{
+  "schema": "policyos.e02.G.source_intake_decision.v1",
+  "unit": "A",
+  "candidate_sha": "ab93e222381372c54056b9f05e6c8cd7aedf2f2c",
+  "candidate_tree": "ee92f0719be5b02e212947dcd35f90a1276e875f",
+  "integration_source_base": "c7adfde6d039e47b1f304eff79340e31a9426270",
+  "new_accepted_source_commits": [],
+  "formal_closure": false,
+  "closure_ids": [],
+  "code_acceptance": "HOLD full ancestry; bounded delta source reviews GO",
+  "finding_state_changes": [],
+  "native": {
+    "executed_case_denominator": 34,
+    "outcomes": {
+      "passed": 33,
+      "failure": 1,
+      "error": 0,
+      "skipped": 0
+    },
+    "raw_status": "ERROR_SOURCE_AFTER",
+    "raw_failure_retained": true,
+    "unreached_property": "served candidate-only substrate requires missing read-only LEX; UNRUN/input-limited",
+    "selected_source_input_count": 7499,
+    "selected_source_blobs_modes_unchanged": true,
+    "inside_export_outputs": "nine empty CAS coordination root.lock files; tracked separately from source integrity",
+    "receipt": "outputs/native/receipt.json"
+  },
+  "api": {
+    "check_outcome": "FAIL_OpenAPI_drift",
+    "client_dashboard_checks": "UNRUN; old schema-input carry rejected by current drift",
+    "generated_schema": {
+      "bytes": 2823668,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/results/api-python-render/schemas/runtime_api_v1.openapi.json",
+      "sha256": "371515b097745f004e0fe3bf9e4b331f5ab5d9d8ed358a3b044115104281c6b4"
+    },
+    "tracked_schema": {
+      "bytes": 2820741,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/candidate/policy-engine/schemas/runtime_api_v1.openapi.json",
+      "sha256": "5abe0da8a54f9490a6f3154168cd5c0661906ec4f8bef506860712a29bc2ca15"
+    },
+    "complete_diff": "outputs/api-render/openapi.diff",
+    "render_outcome": "PASS_export_only; not API contract PASS",
+    "confidence_example_dependencies": {
+      "before": 1492,
+      "render_observed": 1654,
+      "kind": "runtime_observed_dependency_bindings",
+      "individual_path_map": "unavailable",
+      "increase_cause": "not_established",
+      "is_Git_file_count": false
+    },
+    "raw_check_runner_status": "ERROR_SOURCE_AFTER",
+    "raw_check_exit_code": 1,
+    "selected_source_input_integrity": "PASS all7499Gitrows; zero loaded-origin errors",
+    "additional_inside_export_outputs": {
+      "count": 6,
+      "kind": "three CAS payload/manifest files plus three empty coordination locks",
+      "all_recorded_in_raw_receipt": true
+    },
+    "raw_render_runner_status": "PASS",
+    "raw_render_product_verdict": "PASS (canonical export only)"
+  },
+  "integration_conflicts": [
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "kind": "content",
+      "G_blob": "7c91d9d6ea92b65c0e0696ecccbed54f6c45214a",
+      "A_blob": "f3aadb9390a6a66684d02ef4d4efddd43f0172f4",
+      "resolution": "Regenerate on the final composed source tree; neither branch copy is authoritative for the merge."
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "kind": "content",
+      "G_blob": "7c66e6c0b3ff8c4dfcfa546178735655b4f5bca8",
+      "A_blob": "3d14b9133983b762175d5ce9a6610643e5eba810",
+      "resolution": "Regenerate on the final composed source tree; neither branch page is authoritative for the merge."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+      "kind": "add/add",
+      "G_blob": "d9ff9803aebf2641ed4e2bd8680a50a8edcf95ba",
+      "A_blob": "6e1691922fc512180d933f4fd8e6af4c94c41810",
+      "G_add_commit": "43644bb6d80831890f18bd696a560f23688867ab",
+      "A_delta_commit": "1a520b209ce4bac86204137d15e765de05c08a73",
+      "resolution": "Owner delta review: A adds lexical-scope/alias handling after G's earlier installed-compiler slice; not already accepted byte-equivalently."
+    }
+  ],
+  "limitations": [
+    "No global regression replay; no production data mounted or transferred",
+    "No P41 inherited-red attribution for the retained failures",
+    "Three old physical-cache provenance files unavailable; source-reported results navigation only",
+    "Author row proposals and historical ledger remain separate from G closure",
+    "v6 source-limited producer and Atlas/ordinary L6/global authority boundaries not established here"
+  ],
+  "next_owner": "A compiler canonical writer and applicable API/client/dashboard owners; G generated public outputs after frozen composition",
+  "remaining_verification": [
+    "A compiler global/nonlocal correction on published exact head + bounded census",
+    "Canonical API schema and full applicable client/dashboard family regeneration and freshness",
+    "Canonical G public-surface regeneration on frozen composed source",
+    "Criterion-dependent served LEX/Atlas/production/history/authority checks remain held or limited",
+    "Single broad integration replay only after source freeze"
+  ],
+  "documentation_checks": {
+    "independent_alias_and_link_review": "GO; unchanged parts carried, duplicate origin-payload delta reviewed separately",
+    "git_whitespace_check": "FAIL only byte-exact original pytest stdout/JUnit whitespace; full output retained ignored; no inherited attribution",
+    "repository_commit_hooks": "ordinary hooks required at publication; no bypass"
+  }
+}

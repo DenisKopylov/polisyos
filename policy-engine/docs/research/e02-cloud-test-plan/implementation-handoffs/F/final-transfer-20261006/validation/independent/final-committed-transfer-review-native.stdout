@@ -1,0 +1,22 @@
+{
+  "check": "PASS",
+  "candidate_sha": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+  "candidate_tree": "86845947252bee585eb7293d49f3d0b333a5c6f0",
+  "finding_count": 35,
+  "bundle_count": 17,
+  "original_card_bindings": 36,
+  "unique_original_card_blocks": 35,
+  "topics": 12,
+  "current_handoff_components": 15,
+  "complete_transports": 137,
+  "outcomes": {
+    "closed": 17,
+    "limited": 16,
+    "held": 2,
+    "open": 0
+  },
+  "all_reference_custody_check": "UNRUN",
+  "current_deciding_reference_check": "PASS",
+  "formal_G_acceptance": "pending",
+  "P41": "not_established"
+}

@@ -1,0 +1,34 @@
+{
+  "selected_source": {
+    "tracked_file_count": 2946,
+    "tracked_payload_logical_bytes": 55497795,
+    "extracted_source_files": {
+      "unique_files": 2946,
+      "logical_bytes": 55497795,
+      "allocated_bytes": 62005248
+    },
+    "logical_payload_within_100_MiB": true
+  },
+  "candidate_source_archive": {
+    "sha256": "93accd8d4582e6958c6a30d3c376caae16ecca0fa4342efc7cc01f938b458bb9",
+    "archive_tar_bytes": 57927680,
+    "archive_file_allocation": {
+      "unique_files": 1,
+      "logical_bytes": 57927680,
+      "allocated_bytes": 57929728
+    }
+  },
+  "generated_test_outputs_and_receipts_excluding_source_and_archive": {
+    "unique_files": 20,
+    "logical_bytes": 1659201,
+    "allocated_bytes": 1703936,
+    "limit_allocated_bytes": 524288000,
+    "within_limit": true
+  },
+  "task_root_total_unique_inode_allocation_including_source_archive": {
+    "unique_files": 2967,
+    "logical_bytes": 115084676,
+    "allocated_bytes": 121638912
+  },
+  "extracted_tree_extra_files": []
+}

@@ -1,0 +1,249 @@
+{
+  "candidate": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+  "candidate_tree": "3e654b07a3228d1b3d2d0bb2a3a91ae792068090",
+  "cases": {
+    "control": {
+      "decision": "accepted",
+      "outputs": [
+        0.0,
+        1.3333333333333333
+      ],
+      "result": {
+        "failed_runs": 0,
+        "metadata": {
+          "analysis_id": "54748fe57f1d0d618740782cc11c6025f4f971e0d6884f03681e590e950081d4",
+          "analyzer": "SALib@1.5.2:morris",
+          "analyzer_seed": 2392636306,
+          "authority_purpose": "exploratory_parameter_experiment",
+          "design_id": "0ddffce1f884d1f4680b4e6f69db76812db7a87fb31a5c683e1cbd1e743c5be9",
+          "design_order_basis": "geometry_validated_provenance_not_established",
+          "distribution_mapping_fingerprint": "5644a05b507fcddb8b3fddd43210b2c2e2b3bf3ace4cc662c3c2518c2003a079",
+          "distribution_schema_version": "doe-distribution-v1",
+          "effective_run_count": 2,
+          "effective_trajectory_ids": [
+            0
+          ],
+          "estimated_runs": 2,
+          "failed_row_indices": [],
+          "failed_row_reasons": [],
+          "input_law": "unknown",
+          "input_law_basis": "consumer_asserted",
+          "morris_trajectory_size": 2,
+          "n_trajectories": 1,
+          "ordered_outputs_sha256": "a82605eefea922e7b83aa4b9e17b103104ba17e0119f21d7f3dbe0b2e80a77a8",
+          "ordered_parameter_names": [
+            "x"
+          ],
+          "ordered_samples_sha256": "bcf149bb841ec85a0ba250c2ac3b70e95cf637e10560aa6a0d460c5d51dec4d2",
+          "original_total_runs": 2,
+          "original_trajectory_ids": [
+            0
+          ],
+          "parameter_units": {
+            "x": "unspecified"
+          },
+          "plan_seed": 23,
+          "point_effect_scale": "unit_coordinate_full_range",
+          "population_law_status": "not_established",
+          "run_failure_policy": "fail_fast",
+          "salib_backend": "SALib@1.5.2",
+          "uncertainty_status": "point_only_incomplete"
+        },
+        "mu_star": {
+          "x": 2.0
+        },
+        "sigma": {
+          "x": NaN
+        },
+        "successful_runs": 2,
+        "total_runs": 2
+      },
+      "samples": [
+        [
+          0.0
+        ],
+        [
+          0.6666666666666666
+        ]
+      ],
+      "supplied_rows": 2,
+      "supplied_trajectories_by_block_size": 1,
+      "warnings": [
+        "Degrees of freedom <= 0 for slice",
+        "invalid value encountered in divide"
+      ]
+    },
+    "excess": {
+      "decision": "accepted",
+      "outputs": [
+        0.0,
+        1.3333333333333333,
+        0.6666666666666666,
+        2.0
+      ],
+      "result": {
+        "failed_runs": 0,
+        "metadata": {
+          "analysis_id": "dac6598eb42b422d99df26dd9fd419987b3b9068baf17b6900952110d11a15ef",
+          "analyzer": "SALib@1.5.2:morris",
+          "analyzer_seed": 2392636306,
+          "authority_purpose": "exploratory_parameter_experiment",
+          "design_id": "98057b432f29259457a37b31361a455c27a90e598d51d4e8442749b8cc258a6b",
+          "design_order_basis": "geometry_validated_provenance_not_established",
+          "distribution_mapping_fingerprint": "5644a05b507fcddb8b3fddd43210b2c2e2b3bf3ace4cc662c3c2518c2003a079",
+          "distribution_schema_version": "doe-distribution-v1",
+          "effective_run_count": 4,
+          "effective_trajectory_ids": [
+            0,
+            1
+          ],
+          "estimated_runs": 2,
+          "failed_row_indices": [],
+          "failed_row_reasons": [],
+          "input_law": "unknown",
+          "input_law_basis": "consumer_asserted",
+          "morris_trajectory_size": 2,
+          "n_trajectories": 1,
+          "ordered_outputs_sha256": "964bc87b64a8e7a548e0eb5b32194b1efda8356ede5b102129430245172d98b5",
+          "ordered_parameter_names": [
+            "x"
+          ],
+          "ordered_samples_sha256": "77238ccc1c6976b249561e4fe71d0baeac52b00356a90a61b90c3b8a5e753d3f",
+          "original_total_runs": 4,
+          "original_trajectory_ids": [
+            0,
+            1
+          ],
+          "parameter_units": {
+            "x": "unspecified"
+          },
+          "plan_seed": 23,
+          "point_effect_scale": "unit_coordinate_full_range",
+          "population_law_status": "not_established",
+          "run_failure_policy": "fail_fast",
+          "salib_backend": "SALib@1.5.2",
+          "uncertainty_status": "point_only_incomplete"
+        },
+        "mu_star": {
+          "x": 2.0
+        },
+        "sigma": {
+          "x": 4.440892098500626e-16
+        },
+        "successful_runs": 4,
+        "total_runs": 4
+      },
+      "samples": [
+        [
+          0.0
+        ],
+        [
+          0.6666666666666666
+        ],
+        [
+          0.3333333333333333
+        ],
+        [
+          1.0
+        ]
+      ],
+      "supplied_rows": 4,
+      "supplied_trajectories_by_block_size": 2,
+      "warnings": []
+    }
+  },
+  "checkout": {
+    "branch": "codex/e02-integration",
+    "candidate_tree_actual": "3e654b07a3228d1b3d2d0bb2a3a91ae792068090",
+    "head": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+    "porcelain_status": "",
+    "source_pins": [
+      {
+        "archive_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+        "bytes": 15037,
+        "git_blob": "3596f6b96d37dd2d256b43f11c980f23279f2043",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+        "matches_candidate_blob": true,
+        "sha256": "983304e49dda38688ea1f87e44775f67129fcf9337444c8458ef95ebaf04513c"
+      },
+      {
+        "archive_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+        "bytes": 19431,
+        "git_blob": "964c3c5910956a59f053fdd7b73af628a1f13e9d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+        "matches_candidate_blob": true,
+        "sha256": "41ed0c540fd4b304455112261bded3797e2407bfc911d69ddf77ec152abafe60"
+      },
+      {
+        "archive_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+        "bytes": 5426,
+        "git_blob": "8e75b7d9fdccaba0c564bb49874056dd20a8bba0",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+        "matches_candidate_blob": true,
+        "sha256": "c10fa072989243cd6352aac4db867d34b17b4cbb68fad175571d0ce93df99a6e"
+      },
+      {
+        "archive_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+        "bytes": 4019,
+        "git_blob": "a6487dd0f7d36d7c989ae916705a4db75952dc0a",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+        "matches_candidate_blob": true,
+        "sha256": "863384fc13da74d72d9bb7b5c4285c2103b2fc7f2a3895b6b6b383324515d574"
+      }
+    ]
+  },
+  "declared": {
+    "estimated_runs": 2,
+    "max_estimated_runs": 2,
+    "method": "morris",
+    "n_trajectories": 1,
+    "num_levels": 4,
+    "num_parameters": 1,
+    "parameters": [
+      "x"
+    ]
+  },
+  "elapsed_seconds": 2.357117,
+  "environment": {
+    "BLIS_NUM_THREADS": "1",
+    "CANDIDATE_SOURCE": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OVERLAY": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHASHSEED": "0",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "inputs_sha256": "02e3b25797ce6f468efe1da748b5da73ef8e4f6d24846e75b1c49d459d571f8c",
+  "peak_rss_bytes": 173948928,
+  "pre_analysis_peak_rss_bytes": 173948928,
+  "process": {
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine",
+    "python": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "python_version": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]"
+  },
+  "property_outcome": {
+    "declared_trajectories": 1,
+    "finding": "valid excess Morris trajectory rows are accepted beyond the admitted plan cap",
+    "plan_estimated_runs": 2,
+    "plan_max_estimated_runs": 2,
+    "reported_estimated_runs": 2,
+    "reported_n_trajectories": 1,
+    "reported_total_runs": 4,
+    "supplied_complete_trajectories": 2,
+    "supplied_rows": 4
+  },
+  "resource_cap_bytes": 402653184,
+  "runtime": {
+    "analysis_module": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+    "designs_module": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+    "numpy": "2.3.5",
+    "salib": "1.5.2",
+    "salib_morris_module": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/SALib/analyze/morris.py"
+  },
+  "status": "completed"
+}

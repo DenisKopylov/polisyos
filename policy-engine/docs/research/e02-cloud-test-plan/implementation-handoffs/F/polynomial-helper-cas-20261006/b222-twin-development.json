@@ -1,0 +1,35 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "--tb=short",
+    "tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_fit_helper_shared_residual_twin_cas_and_fresh_reader"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "source_sha": "c225e0d125ab9978ccf7b54022564811dfd0e293",
+  "source_tree_sha": "30e2027e8ed258013bf5fdb6125d0f8294e08d06",
+  "exit_code": 1,
+  "wall_s": 9.02212473200052,
+  "rss_kib": 590324,
+  "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+  "outputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/b222-twin-development.stdout.txt",
+      "bytes": 3003,
+      "sha256": "28a3c46aadd7b093247d9c6fe80b19f74be7519c186997db2d6b97833d188880"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/b222-twin-development.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "check": "FAIL"
+}

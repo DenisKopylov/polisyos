@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "python3",
+    "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+    "--cell",
+    "F13-P030",
+    "--details",
+    "--limit",
+    "1000",
+    "--block-limit",
+    "1000"
+  ],
+  "cwd": "/workspace/e02-F-fry-20261006",
+  "exit_code": 0,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/baseline-F13-P030.stdout.txt",
+    "size_bytes": 6157,
+    "sha256": "f3887d12e5a148f10ed5cd31da8f3bf36be7f6480789897e072dd69923ddc839"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/baseline-F13-P030.stderr.txt",
+    "size_bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

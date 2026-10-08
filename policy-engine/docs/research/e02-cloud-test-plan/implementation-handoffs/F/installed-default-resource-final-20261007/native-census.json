@@ -1,0 +1,1054 @@
+{
+  "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+  "outcome": "PASS",
+  "profiles": {
+    "wheel": {
+      "actual_cases": 91,
+      "outcomes": {
+        "PASS": 91
+      },
+      "by_module": {
+        "test_installed_catalog_defaults": {
+          "PASS": 12
+        },
+        "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation": {
+          "PASS": 24
+        },
+        "tests.unit.scientist.methods.causal.test_graph_intake_current_content": {
+          "PASS": 38
+        },
+        "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node": {
+          "PASS": 9
+        },
+        "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph": {
+          "PASS": 8
+        }
+      },
+      "actual_graph79_membership_identical_to_b5_subset": true,
+      "graph_b5_counts": {
+        "PASS": 47,
+        "FAIL": 32
+      },
+      "graph_current_counts": {
+        "PASS": 79
+      },
+      "complete_graph_membership_transition": [
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph0-expected0]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph1-expected1]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph2-expected2]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph3-expected3]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_current_real_producer_direction_supersedes_cache",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_current_parameters_recompute_full_content",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_supplied_bad_data_is_not_absence_or_producer_fallback[None]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_supplied_bad_data_is_not_absence_or_producer_fallback[malformed1]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_supplied_bad_data_is_not_absence_or_producer_fallback[malformed2]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_supplied_data_and_actual_producer_must_agree",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks0-None-pag]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks1-None-pag]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks2-None-pag]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks3-None-cpdag]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks4-1-dag]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks5-2-dag]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_missing_cache_is_not_admitted_even_with_valid_current_source",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_graph_shaped_wrong_actual_kind_is_not_admitted",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_real_cache_without_current_basis_is_not_source_authority",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_actual_cache_blob_corruption_is_refused",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_supplied_malformed_sources_refuse_before_graph_admission[scm_fragment_refs-value0]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_supplied_malformed_sources_refuse_before_graph_admission[scm_fragment_refs-None]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_supplied_malformed_sources_refuse_before_graph_admission[scm_fragments-value2]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_supplied_malformed_sources_refuse_before_graph_admission[scm_fragments-None]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_supplied_malformed_sources_refuse_before_graph_admission[llm_structural_hints-None]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_supplied_malformed_sources_refuse_before_graph_admission[llm_structural_hints-value5]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_cached_graph_schema_is_actual_not_ref_label",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_graph_body_version_must_match_actual_schema",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_query_only_replay_recomputes_operational_cache",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_query_only_replay_reconciles_current_alignment_result",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_query_only_replay_reconciles_complete_certificate_projection[update0]",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_query_only_replay_reconciles_complete_certificate_projection[update1]",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_query_only_replay_reconciles_complete_certificate_projection[update2]",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_query_only_replay_reconciles_complete_certificate_projection[update3]",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_query_only_replay_reconciles_complete_certificate_projection[update4]",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_query_only_replay_reconciles_complete_certificate_projection[update5]",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_query_only_replay_resolves_selected_source_view",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_query_only_replay_reconciles_persisted_failure_card_body",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+          "name": "test_reconcile_causal_graph_node_persists_graph_and_params",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+          "name": "test_reconcile_causal_graph_node_skips_without_data_graph",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+          "name": "test_reconcile_causal_graph_node_composes_fragments_and_persists_artifacts",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+          "name": "test_reconcile_causal_graph_node_recomputes_content_mismatched_precomputed_alignment",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+          "name": "test_reconcile_causal_graph_node_updates_query_preservation_cache_without_recomposing",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+          "name": "test_reconcile_causal_graph_node_persists_latent_projection_certificate_artifacts",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+          "name": "test_reconcile_causal_graph_node_persists_negative_certificate_for_latent_hedge",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+          "name": "test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_composition",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+          "name": "test_reconcile_causal_graph_node_rejects_disconnected_fragment_topology",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+          "name": "test_skip_when_no_data_causal_graph",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+          "name": "test_already_reconciled_returns_ok",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+          "name": "test_fail_when_reconcile_pure_step_returns_incomplete",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+          "name": "test_fail_when_pure_step_raises",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+          "name": "test_fail_when_pure_step_returns_graph_but_no_diagnostics",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+          "name": "test_reconcile_fragment_load_assertion_is_not_swallowed",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+          "name": "test_reconcile_literature_prior_assertion_is_not_swallowed",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+          "name": "test_reconcile_causal_graph_uses_branch_state_for_declared_outputs",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_literature_and_data_agreement_increases_combined_confidence",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_data_wins_when_direction_conflicts_with_literature",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_llm_only_hint_is_marked_unsupported_and_capped",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_simple_cycle_converts_min_confidence_edge_to_lagged_edge",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_more_than_eight_cycles_triggers_fallback_removal_warning",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_cycle_edge_with_lag_depth_limit_is_removed",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_triangle_conflict_produces_positive_cyclic_inconsistency_norm",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_irreducible_conflict_triggers_expert_review_flag",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_diagnostics_truncated_when_hard_limits_exceeded",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_preserves_exact_observed_interface",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_defers_when_cycle_contract_requires_review",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_blocks_research_only_cycle_contracts",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_allows_supported_internal_cyclic_scc",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_blocks_cross_fragment_cyclic_scc",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_promotes_output_to_admg_when_any_fragment_is_admg",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_allows_asymmetric_output_input_stitch",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_allows_chain_topology",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_rejects_disconnected_fragment_topology",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_rejects_unobserved_or_latent_pending_interfaces",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_allows_proxy_but_marks_deferred",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_promotes_human_verified_proxy_to_preserved",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_blocks_explicit_incompatible_pair_labels",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_defers_pending_latent_bridge_and_rejects_cycles",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_allows_human_verified_latent_bridge",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        }
+      ],
+      "origin_count": 990,
+      "origin_violations": {},
+      "literal_warning_counts": {
+        "PytestUnknownMarkWarning": 1,
+        "actual_AnomalyFlag_format_matches": 0,
+        "LightGBM_literal": 0,
+        "Prometheus_bootstrap_failure_literal": 0,
+        "load_simulation_result_degraded_path_literal": 0
+      },
+      "stderr_bytes": 0
+    },
+    "sdist": {
+      "actual_cases": 91,
+      "outcomes": {
+        "PASS": 91
+      },
+      "by_module": {
+        "test_installed_catalog_defaults": {
+          "PASS": 12
+        },
+        "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation": {
+          "PASS": 24
+        },
+        "tests.unit.scientist.methods.causal.test_graph_intake_current_content": {
+          "PASS": 38
+        },
+        "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node": {
+          "PASS": 9
+        },
+        "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph": {
+          "PASS": 8
+        }
+      },
+      "actual_graph79_membership_identical_to_b5_subset": true,
+      "graph_b5_counts": {
+        "PASS": 47,
+        "FAIL": 32
+      },
+      "graph_current_counts": {
+        "PASS": 79
+      },
+      "complete_graph_membership_transition": [
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph0-expected0]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph1-expected1]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph2-expected2]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph3-expected3]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_current_real_producer_direction_supersedes_cache",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_current_parameters_recompute_full_content",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_supplied_bad_data_is_not_absence_or_producer_fallback[None]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_supplied_bad_data_is_not_absence_or_producer_fallback[malformed1]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_supplied_bad_data_is_not_absence_or_producer_fallback[malformed2]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_supplied_data_and_actual_producer_must_agree",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks0-None-pag]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks1-None-pag]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks2-None-pag]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks3-None-cpdag]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks4-1-dag]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks5-2-dag]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_missing_cache_is_not_admitted_even_with_valid_current_source",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_graph_shaped_wrong_actual_kind_is_not_admitted",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_real_cache_without_current_basis_is_not_source_authority",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_actual_cache_blob_corruption_is_refused",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_supplied_malformed_sources_refuse_before_graph_admission[scm_fragment_refs-value0]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_supplied_malformed_sources_refuse_before_graph_admission[scm_fragment_refs-None]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_supplied_malformed_sources_refuse_before_graph_admission[scm_fragments-value2]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_supplied_malformed_sources_refuse_before_graph_admission[scm_fragments-None]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_supplied_malformed_sources_refuse_before_graph_admission[llm_structural_hints-None]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_supplied_malformed_sources_refuse_before_graph_admission[llm_structural_hints-value5]",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_cached_graph_schema_is_actual_not_ref_label",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_graph_body_version_must_match_actual_schema",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_query_only_replay_recomputes_operational_cache",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_query_only_replay_reconciles_current_alignment_result",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_query_only_replay_reconciles_complete_certificate_projection[update0]",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_query_only_replay_reconciles_complete_certificate_projection[update1]",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_query_only_replay_reconciles_complete_certificate_projection[update2]",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_query_only_replay_reconciles_complete_certificate_projection[update3]",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_query_only_replay_reconciles_complete_certificate_projection[update4]",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_query_only_replay_reconciles_complete_certificate_projection[update5]",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_query_only_replay_resolves_selected_source_view",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+          "name": "test_query_only_replay_reconciles_persisted_failure_card_body",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+          "name": "test_reconcile_causal_graph_node_persists_graph_and_params",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+          "name": "test_reconcile_causal_graph_node_skips_without_data_graph",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+          "name": "test_reconcile_causal_graph_node_composes_fragments_and_persists_artifacts",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+          "name": "test_reconcile_causal_graph_node_recomputes_content_mismatched_precomputed_alignment",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+          "name": "test_reconcile_causal_graph_node_updates_query_preservation_cache_without_recomposing",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+          "name": "test_reconcile_causal_graph_node_persists_latent_projection_certificate_artifacts",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+          "name": "test_reconcile_causal_graph_node_persists_negative_certificate_for_latent_hedge",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+          "name": "test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_composition",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+          "name": "test_reconcile_causal_graph_node_rejects_disconnected_fragment_topology",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+          "name": "test_skip_when_no_data_causal_graph",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+          "name": "test_already_reconciled_returns_ok",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+          "name": "test_fail_when_reconcile_pure_step_returns_incomplete",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+          "name": "test_fail_when_pure_step_raises",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+          "name": "test_fail_when_pure_step_returns_graph_but_no_diagnostics",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+          "name": "test_reconcile_fragment_load_assertion_is_not_swallowed",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+          "name": "test_reconcile_literature_prior_assertion_is_not_swallowed",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+          "name": "test_reconcile_causal_graph_uses_branch_state_for_declared_outputs",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_literature_and_data_agreement_increases_combined_confidence",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_data_wins_when_direction_conflicts_with_literature",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_llm_only_hint_is_marked_unsupported_and_capped",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_simple_cycle_converts_min_confidence_edge_to_lagged_edge",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_more_than_eight_cycles_triggers_fallback_removal_warning",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_cycle_edge_with_lag_depth_limit_is_removed",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_triangle_conflict_produces_positive_cyclic_inconsistency_norm",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_irreducible_conflict_triggers_expert_review_flag",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_diagnostics_truncated_when_hard_limits_exceeded",
+          "b5_outcome": "PASS",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_preserves_exact_observed_interface",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_defers_when_cycle_contract_requires_review",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_blocks_research_only_cycle_contracts",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_allows_supported_internal_cyclic_scc",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_blocks_cross_fragment_cyclic_scc",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_promotes_output_to_admg_when_any_fragment_is_admg",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_allows_asymmetric_output_input_stitch",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_allows_chain_topology",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_rejects_disconnected_fragment_topology",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_rejects_unobserved_or_latent_pending_interfaces",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_allows_proxy_but_marks_deferred",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_promotes_human_verified_proxy_to_preserved",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_blocks_explicit_incompatible_pair_labels",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_defers_pending_latent_bridge_and_rejects_cycles",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        },
+        {
+          "module": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+          "name": "test_compose_scm_fragments_allows_human_verified_latent_bridge",
+          "b5_outcome": "FAIL",
+          "current_outcome": "PASS"
+        }
+      ],
+      "origin_count": 990,
+      "origin_violations": {},
+      "literal_warning_counts": {
+        "PytestUnknownMarkWarning": 1,
+        "actual_AnomalyFlag_format_matches": 0,
+        "LightGBM_literal": 0,
+        "Prometheus_bootstrap_failure_literal": 0,
+        "load_simulation_result_degraded_path_literal": 0
+      },
+      "stderr_bytes": 0
+    }
+  },
+  "expected_negative_controls_actual_FAIL": 6,
+  "expected_negative_property_detection": "PASS",
+  "historical_warning_denominator": {
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+    "git_sha": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+    "bytes": 60843,
+    "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8",
+    "denominator": "Original historical15=14 runtime+1 instrumentation; repaired8236 old selectedprofile0runtime with90optionalLightGBM separate. Current91 scope omits that old expensivewave; not freshly remeasured. Current warningmembership is exact unitmark only per rawnative stdout.",
+    "scope": "Prior profile/source bound evidence only; this resource-only delta does not revalidate all historical runtime consumers."
+  },
+  "scientific_limits": "Native Graph/default data-resource consumers and synthetic inputs only; genuine operational/statistical/value authority and admitted B56 aggregate competingstudy budget remain UNRUN. No TMLE refit/backend inference here.",
+  "baseline_attribution": "Complete actualcurrent79Graph IDs match b5subset; observed47PASS32FAIL then79PASS. No whole global/invocation inherited-red/P41 claim.",
+  "source_only_tests": "22 source-resource cases intentionally omitted because checkout-derived NAMES is empty in neutral installations. Four exact bytes+native six-owner defaults/custom/missing/unknown/publicPath ABI are actual12 installedcases, noempty-paramSKIP."
+}

@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/tmle-common-report/check_metadata.py"
+  ],
+  "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+  "exit_code": 1,
+  "wall_seconds": 2.165415926006972,
+  "scope": "Reproduced snapshot-description comparator ERROR; current source provider description equals admitted base. Enum addition and numerical report fields checked separately by v2."
+}

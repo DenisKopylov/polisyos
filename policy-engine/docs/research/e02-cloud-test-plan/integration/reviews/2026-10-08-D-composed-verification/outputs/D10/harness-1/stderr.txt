@@ -1,0 +1,4 @@
+ImportError while loading conftest '/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate/policy-engine/tests/conftest.py'.
+../../harness/sitecustomize.py:50: in find_spec
+    raise ModuleNotFoundError(f'candidate-only import blocked {fullname}: {path}',name=fullname)
+E   ModuleNotFoundError: candidate-only import blocked tests: ['/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate/policy-engine']

@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/audit.py", line 75, in <module>
+    assert len({b['git_blob'] for b in copies}) == 1, path
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: policy-engine/src/polisyos/foundry/agent_sim/metrics.py

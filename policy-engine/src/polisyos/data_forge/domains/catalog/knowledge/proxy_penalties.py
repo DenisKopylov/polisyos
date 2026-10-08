@@ -6,6 +6,8 @@ from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
 
+from polisyos.data_forge.domains.catalog._resources import catalog_default_resource_path
+
 try:
     import yaml
 except ModuleNotFoundError:  # pragma: no cover - optional dependency guard
@@ -36,12 +38,7 @@ class ProxyMetricAlignmentSpec:
 
 def default_proxy_metric_alignments_path() -> Path:
     """Default proxy metric alignments path helper."""
-    return (
-        Path(__file__).resolve().parents[6]
-        / "data"
-        / "dataset_catalog"
-        / "proxy_metric_alignments.yaml"
-    )
+    return Path(catalog_default_resource_path("proxy_metric_alignments.yaml"))
 
 
 @lru_cache(maxsize=4)

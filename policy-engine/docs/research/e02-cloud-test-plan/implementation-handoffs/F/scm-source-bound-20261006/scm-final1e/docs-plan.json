@@ -1,0 +1,285 @@
+{
+  "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "source_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+  "actual_changed_paths": [
+    "docs/reference/foundry/structural-causal-models.md",
+    "docs/reference/ir/schema-catalog.md",
+    "docs/reference/schemas.md",
+    "docs/reference/scientist/structural-causal-queries.md",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006.json",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/do_operator.json",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/do_operator.stderr.txt",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/do_operator.stdout.txt",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01-base198.txt",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01.json",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01.stderr.txt",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01.stdout.txt",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/independent-review.json",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/m_separation.json",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/m_separation.stderr.txt",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/m_separation.stdout.txt",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/native.json",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/native.stderr.txt",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/native.stdout.txt",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/removal_replayer.py",
+    "release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+    "release-fragments/unreleased/structural-causal-result-semantics.toml",
+    "schemas/snapshots/ir/_manifest.json",
+    "schemas/snapshots/ir/causal_query_result.schema.json",
+    "schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+    "src/polisyos/foundry/methods/README.md",
+    "src/polisyos/foundry/methods/api.py",
+    "src/polisyos/foundry/methods/catalog/causal/README.md",
+    "src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+    "src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+    "src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+    "src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+    "src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+    "src/polisyos/ir/README.md",
+    "src/polisyos/ir/__init__.py",
+    "src/polisyos/ir/analytics/README.md",
+    "src/polisyos/ir/analytics/causal_queries.py",
+    "src/polisyos/ir/analytics/structural_causal_model.py",
+    "src/polisyos/ir/analytics/twin_network.py",
+    "src/polisyos/ir/api.py",
+    "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+    "tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+    "tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py",
+    "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+    "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+    "tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+    "tests/unit/foundry/methods/catalog/causal/test_scm_result_semantics.py",
+    "tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py",
+    "tests/unit/ir/test_causal_graph_networkx_roundtrip.py",
+    "tests/unit/ir/test_causal_queries_contract.py",
+    "tests/unit/remediation/test_cau_04.py",
+    "tests/unit/remediation/test_scm_01.py",
+    "tests/unit/remediation/test_scm_02.py",
+    "tests/unit/scientist/nodes/builtins/causal/test_run_causal_queries.py",
+    "workers/dowhy-014/.python-version",
+    "workers/dowhy-014/README.md",
+    "workers/dowhy-014/protocol.py",
+    "workers/dowhy-014/pyproject.toml",
+    "workers/dowhy-014/tests/test_worker.py",
+    "workers/dowhy-014/uv.lock",
+    "workers/dowhy-014/worker.py"
+  ],
+  "before_changed_paths": [
+    "docs/reference/foundry/structural-causal-models.md",
+    "docs/reference/ir/schema-catalog.md",
+    "docs/reference/schemas.md",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006.json",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/do_operator.json",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/do_operator.stderr.txt",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/do_operator.stdout.txt",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01-base198.txt",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01.json",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01.stderr.txt",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01.stdout.txt",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/independent-review.json",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/m_separation.json",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/m_separation.stderr.txt",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/m_separation.stdout.txt",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/native.json",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/native.stderr.txt",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/native.stdout.txt",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/removal_replayer.py",
+    "release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+    "release-fragments/unreleased/structural-causal-result-semantics.toml",
+    "schemas/snapshots/ir/_manifest.json",
+    "schemas/snapshots/ir/causal_query_result.schema.json",
+    "schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+    "src/polisyos/foundry/methods/catalog/causal/README.md",
+    "src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+    "src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+    "src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+    "src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+    "src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+    "src/polisyos/ir/__init__.py",
+    "src/polisyos/ir/analytics/README.md",
+    "src/polisyos/ir/analytics/causal_queries.py",
+    "src/polisyos/ir/analytics/structural_causal_model.py",
+    "src/polisyos/ir/analytics/twin_network.py",
+    "src/polisyos/ir/api.py",
+    "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+    "tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+    "tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py",
+    "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+    "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+    "tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+    "tests/unit/foundry/methods/catalog/causal/test_scm_result_semantics.py",
+    "tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py",
+    "tests/unit/ir/test_causal_graph_networkx_roundtrip.py",
+    "tests/unit/ir/test_causal_queries_contract.py",
+    "tests/unit/remediation/test_cau_04.py",
+    "tests/unit/remediation/test_scm_01.py",
+    "tests/unit/remediation/test_scm_02.py",
+    "workers/dowhy-014/.python-version",
+    "workers/dowhy-014/README.md",
+    "workers/dowhy-014/protocol.py",
+    "workers/dowhy-014/pyproject.toml",
+    "workers/dowhy-014/tests/test_worker.py",
+    "workers/dowhy-014/uv.lock",
+    "workers/dowhy-014/worker.py"
+  ],
+  "plans": {
+    "before": {
+      "findings": [
+        {
+          "rule_id": "scientist_docs",
+          "message": "Scientist workflow/governance/causal changes require Scientist reference docs or an impact note. Touched: `src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py`. Expected one of: `docs/reference/scientist/**`, `docs/reference/documentation-inventory.md`."
+        },
+        {
+          "rule_id": "readme_freshness",
+          "message": "Public package-facade changes require the matching package README to stay fresh or an impact note to be recorded. Expected one of: `src/polisyos/ir/README.md`, `docs/reference/documentation-inventory.md`."
+        }
+      ],
+      "commands": [
+        "public_surface",
+        "schema_docs",
+        "docs_accuracy",
+        "strict_docs_build",
+        "semantic_docstrings"
+      ]
+    },
+    "after": {
+      "findings": [],
+      "commands": [
+        "public_surface",
+        "schema_docs",
+        "docs_accuracy",
+        "strict_docs_build",
+        "semantic_docstrings"
+      ]
+    },
+    "removed_scientist_doc": {
+      "findings": [
+        {
+          "rule_id": "scientist_docs",
+          "message": "Scientist workflow/governance/causal changes require Scientist reference docs or an impact note. Touched: `src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py`. Expected one of: `docs/reference/scientist/**`, `docs/reference/documentation-inventory.md`."
+        }
+      ],
+      "commands": [
+        "public_surface",
+        "schema_docs",
+        "docs_accuracy",
+        "strict_docs_build",
+        "semantic_docstrings"
+      ]
+    },
+    "removed_foundry_doc": {
+      "findings": [
+        {
+          "rule_id": "foundry_docs",
+          "message": "Foundry compile/execute/method/calibration changes require Foundry reference, benchmark docs, or an impact note. Touched: `src/polisyos/foundry/methods/README.md`, `src/polisyos/foundry/methods/api.py`, `src/polisyos/foundry/methods/catalog/causal/README.md`, `src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py`, and 4 more. Expected one of: `docs/reference/foundry/**`, `docs/benchmarks/**`, `docs/explanation/causal-engine.md`, `docs/reference/documentation-inventory.md`."
+        }
+      ],
+      "commands": [
+        "public_surface",
+        "schema_docs",
+        "docs_accuracy",
+        "strict_docs_build",
+        "semantic_docstrings"
+      ]
+    },
+    "remove_src/polisyos/ir/README.md": {
+      "findings": [
+        {
+          "rule_id": "readme_freshness",
+          "message": "Public package-facade changes require the matching package README to stay fresh or an impact note to be recorded. Expected one of: `src/polisyos/ir/README.md`, `docs/reference/documentation-inventory.md`."
+        }
+      ],
+      "commands": [
+        "public_surface",
+        "schema_docs",
+        "docs_accuracy",
+        "strict_docs_build",
+        "semantic_docstrings"
+      ]
+    },
+    "remove_src/polisyos/foundry/methods/README.md": {
+      "findings": [],
+      "commands": [
+        "public_surface",
+        "schema_docs",
+        "docs_accuracy",
+        "strict_docs_build",
+        "semantic_docstrings"
+      ]
+    }
+  },
+  "actual_commands": [
+    {
+      "key": "public_surface",
+      "label": "verify public-surface and README freshness guardrails",
+      "argv": [
+        "uv",
+        "run",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check"
+      ]
+    },
+    {
+      "key": "schema_docs",
+      "label": "verify schema snapshots and IR reference docs",
+      "argv": [
+        "uv",
+        "run",
+        "--extra",
+        "ml",
+        "python",
+        "tools/quality/diagnostics/gen_schema.py",
+        "--check"
+      ]
+    },
+    {
+      "key": "docs_accuracy",
+      "label": "verify docs freshness baseline",
+      "argv": [
+        "uv",
+        "run",
+        "polisyos-tools",
+        "validation",
+        "check-docs-freshness-baseline"
+      ]
+    },
+    {
+      "key": "strict_docs_build",
+      "label": "build documentation site in strict mode",
+      "argv": [
+        "uv",
+        "run",
+        "--extra",
+        "docs",
+        "python",
+        "-m",
+        "mkdocs",
+        "build",
+        "--strict"
+      ]
+    },
+    {
+      "key": "semantic_docstrings",
+      "label": "verify semantic public-surface docstrings for changed modules",
+      "argv": [
+        "uv",
+        "run",
+        "polisyos-tools",
+        "validation",
+        "check-docstring-quality",
+        "--repo-root",
+        ".",
+        "--allowlist",
+        "tools/quality/validation/docstring_quality_allowlist.txt",
+        "--coverage-scope",
+        "public-surface",
+        "--minimum-coverage",
+        "85",
+        "--module-prefix",
+        "polisyos.ir"
+      ]
+    }
+  ]
+}

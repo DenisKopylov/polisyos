@@ -1,0 +1,203 @@
+{
+  "base_sha": "2605d13916f4dd38f216419562c04718ba4c2028",
+  "candidate_sha": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+  "candidate_tree": "4e21c90467913c6dae1c85b84b8c7a42a1dc9124",
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-repair1-registry/junit.xml",
+    "tests/integration/core_runtime/test_e02_voi_artifact_projection.py::test_informative_voi_candidate_core_readback_and_preview_refusal"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/candidate/policy-engine",
+  "environment_keys_present": [
+    "A02_CANDIDATE_ROOT",
+    "A02_GROOT",
+    "A02_ORIGIN_AUDIT_PATH",
+    "A02_SOURCE_MANIFEST",
+    "BROWSER_USE_ACCESS_VERIFYING_IDENTITY",
+    "CODEX_APP_TOOLS_PIPE_PATH",
+    "CODEX_CI",
+    "CODEX_CLI_PATH",
+    "CODEX_INTERNAL_ORIGINATOR_OVERRIDE",
+    "CODEX_MCP_NODE_PATH",
+    "CODEX_PERMISSION_PROFILE",
+    "CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE",
+    "CODEX_SESSION_ID",
+    "CODEX_SHELL",
+    "CODEX_TASK_WORKSPACE_VERIFYING_IDENTITY",
+    "CODEX_TECTONIC_PATH",
+    "CODEX_THREAD_ID",
+    "CODEX_VERSION",
+    "COLORTERM",
+    "COMMAND_MODE",
+    "DISABLE_AUTO_UPDATE",
+    "FPATH",
+    "GH_PAGER",
+    "GIT_PAGER",
+    "HOME",
+    "HOMEBREW_CELLAR",
+    "HOMEBREW_PREFIX",
+    "HOMEBREW_REPOSITORY",
+    "INFOPATH",
+    "LANG",
+    "LC_ALL",
+    "LC_CTYPE",
+    "LOGNAME",
+    "LOG_FORMAT",
+    "MKL_NUM_THREADS",
+    "MallocNanoZone",
+    "NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S",
+    "NO_COLOR",
+    "NUMEXPR_NUM_THREADS",
+    "OLDPWD",
+    "OMP_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "OSLogRateLimit",
+    "PAGER",
+    "PATH",
+    "PWD",
+    "PYTHONDONTWRITEBYTECODE",
+    "PYTHONNOUSERSITE",
+    "PYTHONPATH",
+    "RUST_LOG",
+    "SHELL",
+    "SHLVL",
+    "SSH_AUTH_SOCK",
+    "TERM",
+    "TMPDIR",
+    "TOKENIZERS_PARALLELISM",
+    "USER",
+    "VECLIB_MAXIMUM_THREADS",
+    "XPC_FLAGS",
+    "XPC_SERVICE_NAME",
+    "ZSH_TMUX_AUTOSTART",
+    "ZSH_TMUX_AUTOSTARTED",
+    "_",
+    "__CF_USER_TEXT_ENCODING"
+  ],
+  "import_origin_audit": {
+    "errors": [],
+    "module_count": 1740,
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-repair1-registry/import-origin-audit.json",
+    "sha256": "23696f994008414b08258d8d11b1121a60caa23f7ddfaa95712495563aa4a1ef"
+  },
+  "interpreter": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+  "junit": {
+    "cases": [
+      {
+        "classname": "_build.e02-g-continuation-20261006.R.A-332-20261007.native-A.candidate.policy-engine.tests.integration.core_runtime.test_e02_voi_artifact_projection",
+        "detail": null,
+        "name": "test_informative_voi_candidate_core_readback_and_preview_refusal",
+        "outcome": "passed",
+        "time": "21.233"
+      }
+    ],
+    "errors": 0,
+    "failures": 0,
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-repair1-registry/junit.xml",
+    "present": true,
+    "sha256": "835944f0b3cde75c6c91ed385dccb50a04233aa21ec0dc0a0ff45e2a4ad6ad31",
+    "skipped": 0,
+    "tests": 1
+  },
+  "peak_sampled_rss_kib": 1112144,
+  "production_data_and_common_credentials_scrubbed": true,
+  "python_version": "Python 3.14.3",
+  "returncode": 0,
+  "selector": "tests/integration/core_runtime/test_e02_voi_artifact_projection.py::test_informative_voi_candidate_core_readback_and_preview_refusal",
+  "source_integrity_after": {
+    "candidate_sha": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+    "candidate_tree": "4e21c90467913c6dae1c85b84b8c7a42a1dc9124",
+    "entry_count": 3485,
+    "errors": [],
+    "extra_details": [
+      {
+        "bytes": 0,
+        "kind": "file",
+        "mode": 420,
+        "path": "policy-engine/.polisyos/runtime/grounding_risk/1679aa38cffc54e8eab273b306a42d0945aa735d3de417d6204bacb5fcc5ae3b/cas/artifacts/ownership/transactions/root.lock",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 0,
+        "kind": "file",
+        "mode": 420,
+        "path": "policy-engine/.polisyos/runtime/grounding_risk/c8bbbb21d19d32b2c1aa14509f1bd9cf5cd500b97ffd6a6f1191331eabeff95c/cas/artifacts/ownership/transactions/root.lock",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 1825,
+        "kind": "file",
+        "mode": 420,
+        "path": "policy-engine/architecture/policy_design_case/layer3_gy_claim_dependency_field_registry.json",
+        "sha256": "1bdc2e1005b5ee2fc78cda31353b78dfe5447704445bb3238eb072cca1300deb"
+      }
+    ],
+    "extra_paths": [
+      "policy-engine/.polisyos/runtime/grounding_risk/1679aa38cffc54e8eab273b306a42d0945aa735d3de417d6204bacb5fcc5ae3b/cas/artifacts/ownership/transactions/root.lock",
+      "policy-engine/.polisyos/runtime/grounding_risk/c8bbbb21d19d32b2c1aa14509f1bd9cf5cd500b97ffd6a6f1191331eabeff95c/cas/artifacts/ownership/transactions/root.lock",
+      "policy-engine/architecture/policy_design_case/layer3_gy_claim_dependency_field_registry.json"
+    ],
+    "manifest_sha256": "768ca5ca1f9a31211a7501b539caf09be09d08d817b2875e07cea3e56b149136",
+    "missing_paths": [],
+    "ok": true
+  },
+  "source_integrity_before": {
+    "candidate_sha": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+    "candidate_tree": "4e21c90467913c6dae1c85b84b8c7a42a1dc9124",
+    "entry_count": 3485,
+    "errors": [],
+    "extra_details": [
+      {
+        "bytes": 0,
+        "kind": "file",
+        "mode": 420,
+        "path": "policy-engine/.polisyos/runtime/grounding_risk/1679aa38cffc54e8eab273b306a42d0945aa735d3de417d6204bacb5fcc5ae3b/cas/artifacts/ownership/transactions/root.lock",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 1825,
+        "kind": "file",
+        "mode": 420,
+        "path": "policy-engine/architecture/policy_design_case/layer3_gy_claim_dependency_field_registry.json",
+        "sha256": "1bdc2e1005b5ee2fc78cda31353b78dfe5447704445bb3238eb072cca1300deb"
+      }
+    ],
+    "extra_paths": [
+      "policy-engine/.polisyos/runtime/grounding_risk/1679aa38cffc54e8eab273b306a42d0945aa735d3de417d6204bacb5fcc5ae3b/cas/artifacts/ownership/transactions/root.lock",
+      "policy-engine/architecture/policy_design_case/layer3_gy_claim_dependency_field_registry.json"
+    ],
+    "manifest_sha256": "768ca5ca1f9a31211a7501b539caf09be09d08d817b2875e07cea3e56b149136",
+    "missing_paths": [],
+    "ok": true
+  },
+  "source_manifest": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/source-manifest.json",
+  "source_manifest_sha256": "768ca5ca1f9a31211a7501b539caf09be09d08d817b2875e07cea3e56b149136",
+  "started_utc": "2026-10-07T20:09:25Z",
+  "status": "PASS",
+  "stderr": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-repair1-registry/stderr.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stdout": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-repair1-registry/stdout.txt",
+    "sha256": "5844b9a47a4a2b963c82bd7df9c79624ae25ae25d9851a761082ff687437b96a"
+  },
+  "thread_limits": {
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "timed_out": false,
+  "timeout_seconds": 180,
+  "wall_seconds": 25.718
+}

@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python",
+    "-I",
+    "/tmp/e02-F-continuation-20261007/api/run_installed_graph_reconciliation.py",
+    "/tmp/e02-F-continuation-20261007/cau/api-review/final-wheel-config.json",
+    "positive"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261007/api/wheel-consumer",
+  "exit": 0,
+  "wall_s": 65.39024405900273,
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "test_carrier": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
+  "distribution_source": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/api-review/final-positive.stdout",
+    "bytes": 291819,
+    "sha256": "f44b046630496ab6c4eaaf41687e1657dde6e8ca4fbd4be0c06df7851d102989"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/api-review/final-positive.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

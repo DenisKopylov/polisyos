@@ -1,0 +1,126 @@
+Measured: generated OpenAPI byte drift, declared OpenAPI hardening invariants, and generated runtime client byte drift when requested.
+Not measured: endpoint execution, authorization behavior, client behavior, production deployment, or hosted CI.
+Generated runtime client freshness explicitly omitted (--skip-client-drift).
+--- /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/candidate/policy-engine/schemas/runtime_api_v1.openapi.json (committed)
++++ /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/candidate/policy-engine/schemas/runtime_api_v1.openapi.json (generated)
+@@ -30045,6 +30045,94 @@
+         "title": "ReasonAlgebraRow",
+         "type": "object"
+       },
++      "RecursiveCycleCheckpoint": {
++        "additionalProperties": false,
++        "description": "Persisted, non-publishing checkpoint for an incomplete recursive cycle.",
++        "properties": {
++          "authority_scope": {
++            "enum": [
++              "production",
++              "contract_testing"
++            ],
++            "title": "Authority Scope",
++            "type": "string"
++          },
++          "compiled_artifact_ref": {
++            "$ref": "#/components/schemas/ArtifactRef-Output"
++          },
++          "completed_design_refs": {
++            "items": {
++              "type": "string"
++            },
++            "title": "Completed Design Refs",
++            "type": "array"
++          },
++          "leaf_promotion_statuses": {
++            "additionalProperties": {
++              "type": "string"
++            },
++            "title": "Leaf Promotion Statuses",
++            "type": "object"
++          },
++          "pending_frontier": {
++            "items": {
++              "type": "string"
++            },
++            "title": "Pending Frontier",
++            "type": "array"
++          },
++          "publication_authority": {
++            "const": false,
++            "default": false,
++            "title": "Publication Authority",
++            "type": "boolean"
++          },
++          "root_design_problem_ref": {
++            "pattern": "^sha256:[0-9a-f]{64}$",
++            "title": "Root Design Problem Ref",
++            "type": "string"
++          },
++          "root_n9_status": {
++            "const": "not_run",
++            "default": "not_run",
++            "title": "Root N9 Status",
++            "type": "string"
++          },
++          "schema_version": {
++            "const": "policyos.runtime.recursive_cycle_checkpoint.v1",
++            "title": "Schema Version",
++            "type": "string"
++          },
++          "status": {
++            "const": "partial",
++            "title": "Status",
++            "type": "string"
++          },
++          "stop_node_ref": {
++            "title": "Stop Node Ref",
++            "type": "string"
++          },
++          "verification_basis": {
++            "const": "resolved_core_cas_intrinsic",
++            "title": "Verification Basis",
++            "type": "string"
++          }
++        },
++        "required": [
++          "schema_version",
++          "status",
++          "compiled_artifact_ref",
++          "root_design_problem_ref",
++          "pending_frontier",
++          "completed_design_refs",
++          "stop_node_ref",
++          "authority_scope",
++          "verification_basis",
++          "leaf_promotion_statuses"
++        ],
++        "title": "RecursiveCycleCheckpoint",
++        "type": "object"
++      },
+       "RefusedAuthorityValue": {
+         "additionalProperties": false,
+         "description": "A served, first-class refusal. The absence itself is the supplied value.",
+@@ -30827,6 +30915,16 @@
+             "anyOf": [
+               {
+                 "$ref": "#/components/schemas/PolicyDesignCaseProjection"
++              },
++              {
++                "type": "null"
++              }
++            ]
++          },
++          "recursive_cycle_checkpoint": {
++            "anyOf": [
++              {
++                "$ref": "#/components/schemas/RecursiveCycleCheckpoint"
+               },
+               {
+                 "type": "null"
+@@ -58391,18 +58489,18 @@
+                           "semantic_role": "scope_total_spend"
+                         }
+                       },
+-                      "projection_hash": "sha256:1cd0fc0386d57c4438b0d6c8d48c96420de5a8a0abba7f35cedbe415de663633",
++                      "projection_hash": "sha256:9e5cb658a7481955c67754b24448b42f064b93c7752dccd1085b717f6459ad5a",
+... truncated 49 additional diff lines ...
+Runtime API contract check FAILED:
+- OpenAPI drift detected for /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/candidate/policy-engine/schemas/runtime_api_v1.openapi.json. Regenerate with tools/ops_runners/runtime/export_runtime_openapi.py.

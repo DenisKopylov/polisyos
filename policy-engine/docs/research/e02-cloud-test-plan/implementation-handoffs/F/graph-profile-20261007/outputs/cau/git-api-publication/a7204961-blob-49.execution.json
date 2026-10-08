@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "gh",
+    "api",
+    "--method",
+    "POST",
+    "repos/DenisKopylov/polisyos/git/blobs",
+    "--input",
+    "-"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006",
+  "stdin": {
+    "bytes": 12345,
+    "sha256": "f2d4197cfc7cdcd7f8b9935d34bac89e9a8e705dbae359ad96b2562b824f477d"
+  },
+  "request_reconstruction": "exact local immutable Git objects plus this tracked replayer",
+  "exit_code": 0,
+  "wall_seconds": 1.0693197910150047,
+  "stdout": {
+    "bytes": 160,
+    "sha256": "53e665492ba936be04c0b8d24e47d224d2818320fa24fbb2dcb57a7bdd3d0cbd"
+  },
+  "stderr": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

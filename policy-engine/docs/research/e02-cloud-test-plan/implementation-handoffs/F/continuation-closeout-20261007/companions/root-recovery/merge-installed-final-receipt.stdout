@@ -1,0 +1,202 @@
+Merge made by the 'ort' strategy.
+ .../installed-default-resource-final-20261007.json |  379 +++++
+ .../actual-sdist-decoded-payloads.json.gz          |  Bin 0 -> 723054 bytes
+ .../app-python-version.stdout.txt.gz               |  Bin 0 -> 90 bytes
+ .../archive-installed-source-bindings.json.gz      |  Bin 0 -> 297531 bytes
+ .../assemble_receipt.py                            |   61 +
+ .../bind.py                                        |   49 +
+ .../binder.stdout.json.gz                          |  Bin 0 -> 152 bytes
+ .../build-rebuilt-sdist-wheel.stderr.txt.gz        |  Bin 0 -> 152 bytes
+ .../build-source.stderr.txt.gz                     |  Bin 0 -> 177 bytes
+ .../capture_controls.py                            |   30 +
+ .../capture_environment.py                         |   15 +
+ .../capture_native.py                              |   35 +
+ .../carrier-manifest.json                          |  304 ++++
+ .../carriers.stdout.json.gz                        |  Bin 0 -> 164 bytes
+ .../catalog-expected.json                          |   34 +
+ .../census.py                                      |   20 +
+ .../census.stdout.json.gz                          |  Bin 0 -> 332 bytes
+ .../controls.stdout.json.gz                        |  Bin 0 -> 348 bytes
+ .../environment-checks.json                        |   68 +
+ .../environment.py                                 |   11 +
+ .../environment.stdout.json.gz                     |  Bin 0 -> 137 bytes
+ .../external-source-footprint.json.gz              |  Bin 0 -> 33833 bytes
+ .../independent-api-transfer-selection.json        |  191 +++
+ .../independent/capture_one_consumers.py           |    9 +
+ .../independent/compare_sources.py                 |   32 +
+ .../independent/custody-review.json                |  141 ++
+ .../independent/custody-review.stderr.txt.gz       |  Bin 0 -> 20 bytes
+ .../independent/finish_review.py                   |   20 +
+ ...ull-runtime-tool-worker-blob-comparison.json.gz |  Bin 0 -> 136568 bytes
+ .../independent/launch_one_consumer.py             |   10 +
+ .../independent/native-output-review.json          |  475 +++++++
+ .../independent/native-output-review.stdout.txt.gz |  Bin 0 -> 479 bytes
+ .../independent/one-consumer-commands.json         |   58 +
+ .../independent/post-own-probe-guard.json          |    9 +
+ .../independent/post-own-probe-guard.stdout.txt.gz |  Bin 0 -> 288 bytes
+ .../independent/post_own_probe_guard.py            |   10 +
+ .../independent/review.json                        |  379 +++++
+ .../independent/review_custody.py                  |   64 +
+ .../independent/review_native_outputs.py           |   28 +
+ .../independent/reviewer-runtime.json              |    5 +
+ .../independent/sdist-consumer-proof.json.gz       |  Bin 0 -> 5163 bytes
+ .../independent/sdist-consumer.stdout.txt.gz       |  Bin 0 -> 109 bytes
+ .../independent/source-bindings.json               |  223 +++
+ .../independent/source-bindings.stdout.txt.gz      |  Bin 0 -> 1072 bytes
+ .../independent/wheel-consumer-proof.json.gz       |  Bin 0 -> 5164 bytes
+ .../independent/wheel-consumer.stdout.txt.gz       |  Bin 0 -> 110 bytes
+ .../initial-capture-before-binder.json             |   15 +
+ .../initial-capture-before-binder.stderr.txt.gz    |  Bin 0 -> 416 bytes
+ .../input-config.json                              |   22 +
+ .../installed-config.json                          |   41 +
+ .../launch.py                                      |   24 +
+ .../materialize-actual-sdist.stdout.txt.gz         |  Bin 0 -> 502 bytes
+ .../materialize_actual_sdist.py                    |   34 +
+ .../native-census.json                             | 1054 ++++++++++++++
+ .../native-wave-v2.json                            |  119 ++
+ .../native-wave.stdout.json.gz                     |  Bin 0 -> 127 bytes
+ .../negative-controls.json                         |  246 ++++
+ .../old-custody.json                               |   10 +
+ .../outputs.json                                   | 1494 ++++++++++++++++++++
+ .../post-native-custody.json                       |   34 +
+ .../postguard.py                                   |   46 +
+ .../postguard.stdout.json.gz                       |  Bin 0 -> 600 bytes
+ .../prepare.stdout.json.gz                         |  Bin 0 -> 596 bytes
+ .../prepare_carriers.py                            |   37 +
+ .../prepare_forward.py                             |   61 +
+ .../prepared-config.json                           |   27 +
+ .../profile-expected.json                          |   31 +
+ .../recovery-admission.stdout.json.gz              |  Bin 0 -> 11976 bytes
+ .../recovery-publication-state.json                |   52 +
+ .../removal_replay.py                              |   22 +
+ .../sdist-create-env.stderr.txt.gz                 |  Bin 0 -> 165 bytes
+ .../sdist-environment.stdout.json.gz               |  Bin 0 -> 2852 bytes
+ .../sdist-install.stderr.txt.gz                    |  Bin 0 -> 224 bytes
+ .../sdist-installed-proof.json.gz                  |  Bin 0 -> 14623 bytes
+ .../sdist-junit.xml.gz                             |  Bin 0 -> 2133 bytes
+ .../sdist-law-removal.stdout.txt.gz                |  Bin 0 -> 861 bytes
+ .../sdist-native-v2.json                           |   56 +
+ .../sdist-native-v2.stdout.txt.gz                  |  Bin 0 -> 950 bytes
+ .../sdist-projection-changed.stdout.txt.gz         |  Bin 0 -> 778 bytes
+ .../sdist-projection-missing.stdout.txt.gz         |  Bin 0 -> 946 bytes
+ .../sdist-resources-v2.json                        |   10 +
+ .../setup-command-records.json                     |  340 +++++
+ .../setup.stdout.json.gz                           |  Bin 0 -> 355 bytes
+ .../setup_optimized.py                             |  127 ++
+ .../source-snapshot-proof.json                     |   16 +
+ .../test_installed_catalog_defaults.py             |  127 ++
+ .../uv-version.stdout.txt.gz                       |  Bin 0 -> 58 bytes
+ .../wheel-create-env.stderr.txt.gz                 |  Bin 0 -> 166 bytes
+ .../wheel-environment.stdout.json.gz               |  Bin 0 -> 2850 bytes
+ .../wheel-install.stderr.txt.gz                    |  Bin 0 -> 221 bytes
+ .../wheel-installed-proof.json.gz                  |  Bin 0 -> 14625 bytes
+ .../wheel-junit.xml.gz                             |  Bin 0 -> 2131 bytes
+ .../wheel-law-removal.stdout.txt.gz                |  Bin 0 -> 861 bytes
+ .../wheel-native-v2.json                           |   56 +
+ .../wheel-native-v2.stdout.txt.gz                  |  Bin 0 -> 951 bytes
+ .../wheel-projection-changed.stdout.txt.gz         |  Bin 0 -> 778 bytes
+ .../wheel-projection-missing.stdout.txt.gz         |  Bin 0 -> 946 bytes
+ .../wheel-resources-v2.json                        |   10 +
+ .../worker-metadata.stdout.txt.gz                  |  Bin 0 -> 100 bytes
+ .../worker-python-version.stdout.txt.gz            |  Bin 0 -> 97 bytes
+ 100 files changed, 6771 insertions(+)
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/actual-sdist-decoded-payloads.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/app-python-version.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/archive-installed-source-bindings.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/assemble_receipt.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/bind.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/binder.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/build-rebuilt-sdist-wheel.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/build-source.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/capture_controls.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/capture_environment.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/capture_native.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/carrier-manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/carriers.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/catalog-expected.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/census.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/census.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/controls.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/environment-checks.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/environment.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/environment.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/external-source-footprint.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent-api-transfer-selection.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/capture_one_consumers.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/compare_sources.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/custody-review.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/custody-review.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/finish_review.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/full-runtime-tool-worker-blob-comparison.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/launch_one_consumer.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/native-output-review.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/native-output-review.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/one-consumer-commands.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/post-own-probe-guard.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/post-own-probe-guard.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/post_own_probe_guard.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/review.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/review_custody.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/review_native_outputs.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/reviewer-runtime.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/sdist-consumer-proof.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/sdist-consumer.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/source-bindings.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/source-bindings.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/wheel-consumer-proof.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/independent/wheel-consumer.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/initial-capture-before-binder.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/initial-capture-before-binder.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/input-config.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/installed-config.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/launch.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/materialize-actual-sdist.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/materialize_actual_sdist.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/native-census.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/native-wave-v2.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/native-wave.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/negative-controls.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/old-custody.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/outputs.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/post-native-custody.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/postguard.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/postguard.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/prepare.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/prepare_carriers.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/prepare_forward.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/prepared-config.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/profile-expected.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/recovery-admission.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/recovery-publication-state.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/removal_replay.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-create-env.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-environment.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-install.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-installed-proof.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-junit.xml.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-law-removal.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-native-v2.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-native-v2.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-projection-changed.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-projection-missing.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/sdist-resources-v2.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/setup-command-records.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/setup.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/setup_optimized.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/source-snapshot-proof.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/test_installed_catalog_defaults.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/uv-version.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-create-env.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-environment.stdout.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-install.stderr.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-installed-proof.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-junit.xml.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-law-removal.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-native-v2.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-native-v2.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-projection-changed.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-projection-missing.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/wheel-resources-v2.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/worker-metadata.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/worker-python-version.stdout.txt.gz

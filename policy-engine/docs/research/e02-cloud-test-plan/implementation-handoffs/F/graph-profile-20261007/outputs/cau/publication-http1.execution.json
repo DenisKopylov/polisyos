@@ -1,0 +1,49 @@
+{
+  "command": [
+    "git",
+    "-c",
+    "http.version=HTTP/1.1",
+    "push",
+    "origin",
+    "HEAD:refs/heads/codex/e02-F-cau-20261006"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006",
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "command_executable": "git",
+    "capture_python": "3.12.14",
+    "capture_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+  },
+  "source_begin": {
+    "head": "a7204961ac1028965c58224fe40e6bb3a397d8a8",
+    "tree": "936d0e79ae4fea92dfb082a98296037bdc965452",
+    "branch": "codex/e02-F-cau-20261006",
+    "status": ""
+  },
+  "source_end": {
+    "head": "a7204961ac1028965c58224fe40e6bb3a397d8a8",
+    "tree": "936d0e79ae4fea92dfb082a98296037bdc965452",
+    "branch": "codex/e02-F-cau-20261006",
+    "status": ""
+  },
+  "exit": 1,
+  "elapsed_s": 2.7292957500030752,
+  "peak_rss_platform_units": 11264,
+  "source_identity_unchanged": true,
+  "stdout": {
+    "path": "/tmp/e02-F-graph-profile-20261007/cau/publication-http1.stdout",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-graph-profile-20261007/cau/publication-http1.stderr",
+    "bytes": 348,
+    "sha256": "be0eccb5506f40af483a3c984c38841e64f4f64cbffd9da4530eb7b4cd31b135"
+  },
+  "replayer": {
+    "path": "/tmp/e02-F-graph-profile-20261007/cau/capture.py",
+    "bytes": 2519,
+    "sha256": "b5b0029131ec016cf570d015f34d5c29eec85b1560e6c993d7283532d5b37b7b"
+  }
+}

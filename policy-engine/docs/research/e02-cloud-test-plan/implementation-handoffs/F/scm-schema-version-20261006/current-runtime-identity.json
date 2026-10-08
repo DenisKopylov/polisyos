@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/graph/probe-readonly-runtime.py"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+  "source_tree_sha": "1481e08664a271f12e77807f2468906efd7e40c5",
+  "exit_code": 0,
+  "wall_s": 2.714462308998918,
+  "rss_kib": 256748,
+  "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+  "outputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/current-runtime-identity.stdout.txt",
+      "bytes": 1480,
+      "sha256": "57b00ed382d1f3277d64ccd6da4b1cc074932acb02cafd086b35054b76bd0b94"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/current-runtime-identity.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "check": "PASS"
+}

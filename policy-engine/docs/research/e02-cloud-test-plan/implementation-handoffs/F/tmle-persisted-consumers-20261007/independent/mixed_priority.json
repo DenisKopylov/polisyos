@@ -1,0 +1,52 @@
+{
+  "mode": "mixed_priority",
+  "source_guard": {
+    "sha": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+    "tree": "00dcef92dcf711833750e842dec19188df69b74b",
+    "status": "clean"
+  },
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/check_mixed_native_consumer.py",
+    "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/producer-packet.json",
+    "mixed_priority"
+  ],
+  "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+  "environment": {
+    "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+    "new_quota": false,
+    "worker_required": false,
+    "backend": "actual native NumPy/scikit-learn TMLE persisted producer and actual Confidence/value consumers"
+  },
+  "packet": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/producer-packet.json",
+    "bytes": 2488,
+    "sha256": "17c25ebb61d81592d7d60f90fa0095afaca21aef11922f9eed740c031792d5cd"
+  },
+  "replayer": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/check_mixed_native_consumer.py",
+    "bytes": 4898,
+    "sha256": "4cb29ba8caff118c77a4c951d3c62d4757fd96460698788656168b96f4a9d941"
+  },
+  "exit_code": 0,
+  "expected_exit_code": 0,
+  "wall_until_wait_seconds": 8.143038397975033,
+  "outcome": "PASS",
+  "observed_runtime_result": "actual_consumer_pass",
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/mixed_priority.stdout.txt",
+    "bytes": 2314,
+    "sha256": "c42e74a155fda84df4e75d8bc20877c424943fc3210da0acd49973b86ecc2efb"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/mixed_priority.stderr.txt",
+    "bytes": 716,
+    "sha256": "0469400ed660ce7320d9d7c4f6be6e53689b9f00ce5eef5bd57d338b9d9a8b86"
+  },
+  "source_guard_after": {
+    "sha": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+    "tree": "00dcef92dcf711833750e842dec19188df69b74b",
+    "status": "clean"
+  }
+}

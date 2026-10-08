@@ -1,0 +1,16 @@
+# C4 / a795 publication readback — 2026-10-07
+
+**Result: GO.** Read-only link/binding review at expected G `6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79` / tree `f79fc5304324b92aeed741d7abdd6fc6f54a130a`. No tests, environments, source, refs, or tracked files changed; no raw output archive payload was opened.
+
+## Links and prompt status
+
+The first focused local-link sweep found one missing target: `integration/reviews/2026-10-07-CD-C4-a795/C54-remaining.md` linked to absent `C54-remaining.json`. Root changed the sentence to link `C54-decisions.json` and describes it as reviewed per-ID bindings/actions, while retaining the pinned original C4 wording. I re-read that line and confirmed the target exists. The previous sweep found 49 local Markdown links and no other missing/ignored targets. All 12 JSON files in the new pack parsed. The continuation README’s C/D rows link to the new prompts and independent review; the four older C/D prompt files direct the reader to their current prompt while preserving their prior input cut. The corrected CAN short tree token is `2d27c9c1`, consistent with the pinned full tree.
+
+## Original binding and source identity
+
+- C54 decision table joins to the immutable `C54-current-root-20261007-c4-v4.json@847929e3e0cac30fb49ff61a47ecaf46d41ac94d`: 54 IDs, 33 bundles, 59 criterion occurrences. I joined all rows to that source table and verified all 59 original source spans against the exact CD01/CD02 files pinned from main `198076863e143dea9f89f02734b13d50dae3eed5`; full file SHA/bytes/blob/tree and every raw line-span digest matched. No row, bundle, or criterion mismatch.
+- D45 records 46 occurrence rows, 45 distinct findings, 17 bundles. All 46 `original_criterion_ref` JSON pointers resolve in the Git-pinned ledger at `617988f7cfb8e5cb74b6beba41704eb117b0e033`; the ledger’s bytes, SHA-256 and blob match. Each row’s finding/bundle/role and acceptance-binding pointer agrees with the original ledger. All original-fragment and acceptance byte ranges rehash against the source files pinned in Git. In particular, LA-015 keeps the supplier-companion occurrence separate from the canonical-owner occurrence.
+- Current D identity separates implementation `3b31e136…` / tree `d5c3a5a…` from candidate `a795967a…` / tree `2cd7e705…`, whose receipt head is `cbc46a0…` / tree `3e05fcf…`. Trees match Git; `3b31 → a795 → cbc` ancestry holds, and the only `3b31 → a795` changed path is the service-persistence test fixture. The corrected identity note and JSON bind the 102-member archive to candidate a795 and the final `new31` / `affected22` outputs to a795 (31 PASS, 22 PASS, plus the separate expected removal failure). The earlier 3b31 scopes remain historical.
+- The C NET decoder report’s B fixture blob `7ddc6b5…` matches the fixture at exact B candidate `0bf788ac…` used in B53. The C continuation keeps the decoder correction in B’s test fixture owner lane and does not ask C to change production serialization. The G/C/D head and tree pins in the report match the current checkout; the docs do not imply C-root or a795 source was integrated.
+
+No other concrete broken reference or source-role contradiction was found in the scoped pack. This is a documentation/link/input-binding GO; it does not admit C or D source, change finding status, or establish unavailable wider execution.

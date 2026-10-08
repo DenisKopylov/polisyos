@@ -1,0 +1,28 @@
+{
+  "source_root": "/workspace/e02-F-economics-20261006",
+  "target_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "JAX_ENABLE_X64": "1"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/prototype_loader.py",
+    "candidate",
+    "pytest",
+    "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/test_fiscal_precision.py",
+    "tests/unit/foundry/mechanisms/test_fiscal.py",
+    "tests/unit/foundry/mechanisms/test_gradients.py",
+    "tests/unit/foundry/runtime/test_jit_stability.py",
+    "-q",
+    "-ra",
+    "--tb=short",
+    "--junitxml=/tmp/e02-F-continuation-20261006/economics/fiscal-precision/prototype-candidate.xml"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/prototype-candidate",
+  "artifact_paths": [
+    "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/prototype-candidate.xml"
+  ]
+}

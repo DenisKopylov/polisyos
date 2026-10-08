@@ -1,0 +1,1556 @@
+{
+  "bounded_scope": "Public API diagnostics on synthetic fixture bytes only; not a full E suite, backend validation, source acceptance, or closure of B findings.",
+  "candidate_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "candidate_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "fixture_git_blob": "91c64a39aade054c5dcdfbed9600db3554d7fdc8",
+  "fixture_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/candidate/policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+  "profile2_join_observation": {
+    "fixture_git_blob": "91c64a39aade054c5dcdfbed9600db3554d7fdc8",
+    "fresh_generic_reader": {
+      "state": "returned",
+      "value": {
+        "carrier": {
+          "samples": [
+            2.0,
+            10.0,
+            14.0
+          ],
+          "type": "PosteriorSamplesCarrier",
+          "weights": [
+            0.5,
+            0.5,
+            0.5
+          ]
+        },
+        "confidence_interval": [
+          2.0,
+          14.0
+        ],
+        "confidence_level": 0.9,
+        "distribution_family": "DistributionFamily.BAYESIAN",
+        "gate_eligible": false,
+        "metadata": {
+          "join_representation": "best_available_outer_hull",
+          "joined_from": 2
+        },
+        "point_estimate": 6.0,
+        "profile": {
+          "state": "returned",
+          "value": null
+        },
+        "sample_size": 3
+      }
+    },
+    "fresh_strict_profile_reader": {
+      "state": "returned",
+      "value": {
+        "carrier": {
+          "samples": [
+            2.0,
+            10.0,
+            14.0
+          ],
+          "type": "PosteriorSamplesCarrier",
+          "weights": [
+            0.5,
+            0.5,
+            0.5
+          ]
+        },
+        "confidence_interval": [
+          2.0,
+          14.0
+        ],
+        "confidence_level": 0.9,
+        "distribution_family": "DistributionFamily.BAYESIAN",
+        "gate_eligible": false,
+        "metadata": {
+          "join_representation": "best_available_outer_hull",
+          "joined_from": 2
+        },
+        "point_estimate": 6.0,
+        "profile": {
+          "state": "returned",
+          "value": null
+        },
+        "sample_size": 3
+      }
+    },
+    "inputs": [
+      {
+        "artifact_id": "sha256:de1a33488a250f03098bef9cf3becd61eb1570faae5869501203b1629f327bd4",
+        "context": {
+          "lineage_refs": {},
+          "parameters": {},
+          "purpose": null,
+          "time_roles": {}
+        },
+        "literal_exact_mean": {
+          "float": 2.0,
+          "fraction": "2",
+          "normalized_fraction_weights": [
+            "1"
+          ],
+          "weights_as_binary64": [
+            0.5
+          ]
+        },
+        "profile": {
+          "state": "returned",
+          "value": {
+            "binding": null,
+            "carrier_content_hash": "sha256:488ad8dbdb6c7f273304aa76db9444ce5ae4607bf1a4e32c2ace7b29f731958d",
+            "compression": "none",
+            "context": {
+              "lineage_refs": {},
+              "parameters": {},
+              "purpose": null,
+              "time_roles": {}
+            },
+            "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+            "credible_mass": 0.9,
+            "draw_ids": [
+              "source-row:0"
+            ],
+            "gate_eligible": false,
+            "interval_functional": "equal_tail_inverse_cdf",
+            "joint_law_sha256": "e1e0cc4030d6ee737f17d06c426f1daeb8010cdeb430bf519cb8f9a5649c1612",
+            "mean_functional": "weighted_arithmetic_mean",
+            "numeric_representation": "finite_float64",
+            "parameter_name": "x",
+            "parameter_order": [
+              "x"
+            ],
+            "point_functional": "median",
+            "posterior_mean": 2.0,
+            "probabilities": [
+              0.5
+            ],
+            "probability_convention": "exact_binary_weight_ratios",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+            "profile_version": "2.0",
+            "row_identity_basis": "producer_supplied_ids",
+            "sample_axis": "actual-chain-draw",
+            "sampling_approximation": "finite_uniform_mesh_discretization",
+            "thinning": "none"
+          }
+        },
+        "ratio_weight_sum": 0.5,
+        "raw_ratio_weights": [
+          0.5
+        ]
+      },
+      {
+        "artifact_id": "sha256:375634d5a920b5eb774639dcd43c6acdb1ac99f9f402e9da5131175bc9d5a774",
+        "context": {
+          "lineage_refs": {},
+          "parameters": {},
+          "purpose": null,
+          "time_roles": {}
+        },
+        "literal_exact_mean": {
+          "float": 12.0,
+          "fraction": "12",
+          "normalized_fraction_weights": [
+            "1/2",
+            "1/2"
+          ],
+          "weights_as_binary64": [
+            0.5,
+            0.5
+          ]
+        },
+        "profile": {
+          "state": "returned",
+          "value": {
+            "binding": null,
+            "carrier_content_hash": "sha256:5519a68a65b87fe91e8c7beac10feacf051dc60490ae02b23ff6c8b94b55d627",
+            "compression": "none",
+            "context": {
+              "lineage_refs": {},
+              "parameters": {},
+              "purpose": null,
+              "time_roles": {}
+            },
+            "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+            "credible_mass": 0.9,
+            "draw_ids": [
+              "source-row:0",
+              "source-row:1"
+            ],
+            "gate_eligible": false,
+            "interval_functional": "equal_tail_inverse_cdf",
+            "joint_law_sha256": "86a3bd4e9be8b3bcc3d7a3da6fca22e7c36464e7438d4ffca79a10327e88be36",
+            "mean_functional": "weighted_arithmetic_mean",
+            "numeric_representation": "finite_float64",
+            "parameter_name": "x",
+            "parameter_order": [
+              "x"
+            ],
+            "point_functional": "median",
+            "posterior_mean": 12.0,
+            "probabilities": [
+              0.5,
+              0.5
+            ],
+            "probability_convention": "exact_binary_weight_ratios",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+            "profile_version": "2.0",
+            "row_identity_basis": "producer_supplied_ids",
+            "sample_axis": "actual-chain-draw",
+            "sampling_approximation": "finite_uniform_mesh_discretization",
+            "thinning": "none"
+          }
+        },
+        "ratio_weight_sum": 1.0,
+        "raw_ratio_weights": [
+          0.5,
+          0.5
+        ]
+      }
+    ],
+    "interpretation_limit": "Only input ratio weights and literal input means are independently computed. No mixture semantics or expected joined mean is asserted.",
+    "joined_in_memory": {
+      "carrier": {
+        "samples": [
+          2.0,
+          10.0,
+          14.0
+        ],
+        "type": "PosteriorSamplesCarrier",
+        "weights": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "confidence_interval": [
+        2.0,
+        14.0
+      ],
+      "confidence_level": 0.9,
+      "distribution_family": "DistributionFamily.BAYESIAN",
+      "gate_eligible": false,
+      "metadata": {
+        "join_representation": "best_available_outer_hull",
+        "joined_from": 2
+      },
+      "point_estimate": 6.0,
+      "profile": {
+        "state": "returned",
+        "value": null
+      },
+      "sample_size": 3
+    },
+    "joined_ref": "sha256:1b9c22f50736a70641097050558bd9472b4d1d558e7d85dde53ce9a927544179",
+    "source_fixture_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/candidate/policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py"
+  },
+  "raw_profile_admission_controls": [
+    {
+      "callback_count_after_strict_loader": 0,
+      "cas_artifact_id": "sha256:cf279b7ca4f3d2160fe9a3b4774853e63772a9074b528d7dcc49bf4a777a4444",
+      "cas_bytes_sha256": "cf279b7ca4f3d2160fe9a3b4774853e63772a9074b528d7dcc49bf4a777a4444",
+      "cas_kind": "ir.uncertainty_envelope",
+      "cas_media_type": "application/json",
+      "cas_verify_ok": true,
+      "fixture_git_blob": "91c64a39aade054c5dcdfbed9600db3554d7fdc8",
+      "fixture_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/candidate/policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "legacy_loader": {
+        "decoded": {
+          "carrier": {
+            "samples": [
+              0.0,
+              1.0
+            ],
+            "type": "PosteriorSamplesCarrier",
+            "weights": [
+              0.5,
+              0.5
+            ]
+          },
+          "confidence_interval": [
+            0.0,
+            1.0
+          ],
+          "confidence_level": 0.9,
+          "distribution_family": "DistributionFamily.BAYESIAN",
+          "gate_eligible": false,
+          "metadata": {
+            "emulator_diagnostics": {},
+            "interval_functional": "equal_tail_inverse_cdf",
+            "joint_draw_ids": [
+              "source-row:0",
+              "source-row:1"
+            ],
+            "joint_law_sha256": "570d215fbc70549472766fb5af5b2971c687db29c9ec531a3dbd39e911486bbd",
+            "joint_parameter_order": [
+              "x"
+            ],
+            "joint_sample_id": "570d215fbc70549472766fb5af5b2971c687db29c9ec531a3dbd39e911486bbd",
+            "param_name": "x",
+            "point_functional": "median",
+            "posterior_basis": "posterior_draws",
+            "posterior_diagnostics": {
+              "calibration_mode": "bayesian_direct",
+              "credible_mass": 0.9,
+              "num_parameters": 1.0
+            },
+            "posterior_summary_profile": {
+              "binding": null,
+              "carrier_content_hash": "sha256:2a6baeb73cd995acd7dc2dd1cdf831ddb65d8a0abde48749837c49476aac59ae",
+              "compression": "none",
+              "context": {
+                "lineage_refs": {},
+                "parameters": {},
+                "purpose": null,
+                "time_roles": {}
+              },
+              "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+              "credible_mass": 0.9,
+              "draw_ids": [
+                "source-row:0",
+                "source-row:1"
+              ],
+              "gate_eligible": false,
+              "interval_functional": "equal_tail_inverse_cdf",
+              "joint_law_sha256": "570d215fbc70549472766fb5af5b2971c687db29c9ec531a3dbd39e911486bbd",
+              "mean_functional": "weighted_arithmetic_mean",
+              "numeric_representation": "finite_float64",
+              "parameter_name": "x",
+              "parameter_order": [
+                "x"
+              ],
+              "point_functional": "median",
+              "posterior_mean": 0.5,
+              "probabilities": [
+                0.5,
+                0.5
+              ],
+              "probability_convention": "exact_binary_weight_ratios",
+              "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+              "profile_version": "2.0",
+              "row_identity_basis": "producer_supplied_ids",
+              "sample_axis": "actual-chain-draw",
+              "sampling_approximation": "finite_uniform_mesh_discretization",
+              "thinning": "none"
+            },
+            "posterior_summary_profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+            "posterior_summary_profile_required": true,
+            "posterior_summary_profile_version": "2.0"
+          },
+          "point_estimate": 0.0,
+          "profile": {
+            "state": "returned",
+            "value": {
+              "binding": null,
+              "carrier_content_hash": "sha256:2a6baeb73cd995acd7dc2dd1cdf831ddb65d8a0abde48749837c49476aac59ae",
+              "compression": "none",
+              "context": {
+                "lineage_refs": {},
+                "parameters": {},
+                "purpose": null,
+                "time_roles": {}
+              },
+              "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+              "credible_mass": 0.9,
+              "draw_ids": [
+                "source-row:0",
+                "source-row:1"
+              ],
+              "gate_eligible": false,
+              "interval_functional": "equal_tail_inverse_cdf",
+              "joint_law_sha256": "570d215fbc70549472766fb5af5b2971c687db29c9ec531a3dbd39e911486bbd",
+              "mean_functional": "weighted_arithmetic_mean",
+              "numeric_representation": "finite_float64",
+              "parameter_name": "x",
+              "parameter_order": [
+                "x"
+              ],
+              "point_functional": "median",
+              "posterior_mean": 0.5,
+              "probabilities": [
+                0.5,
+                0.5
+              ],
+              "probability_convention": "exact_binary_weight_ratios",
+              "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+              "profile_version": "2.0",
+              "row_identity_basis": "producer_supplied_ids",
+              "sample_axis": "actual-chain-draw",
+              "sampling_approximation": "finite_uniform_mesh_discretization",
+              "thinning": "none"
+            }
+          },
+          "sample_size": 2
+        },
+        "exception_type": null,
+        "message": null,
+        "state": "returned"
+      },
+      "legacy_push_then_strict_fresh_read": {
+        "callback_arguments": [
+          0.0,
+          1.0
+        ],
+        "callback_count": 2,
+        "persisted_ref": "sha256:4e5c8a0f49794dc7c6a85a1c36d4675b122bebb4e8e6c7e9c6a5bbb3e13ef5d4",
+        "push_or_persist_error": null,
+        "pushed_envelope": {
+          "carrier": {
+            "samples": [
+              1.0,
+              2.0
+            ],
+            "type": "PosteriorSamplesCarrier",
+            "weights": [
+              0.5,
+              0.5
+            ]
+          },
+          "confidence_interval": [
+            1.0,
+            2.0
+          ],
+          "confidence_level": 0.9,
+          "distribution_family": "DistributionFamily.BAYESIAN",
+          "gate_eligible": false,
+          "metadata": {
+            "derived_parameter_binding": "not_established",
+            "inherited_parent_lineage": {
+              "lineage_refs": {},
+              "purpose": null,
+              "time_roles": {}
+            },
+            "inherited_parent_lineage_authoritative": false,
+            "interval_functional": "equal_tail_inverse_cdf",
+            "joint_draw_ids": [
+              "source-row:0",
+              "source-row:1"
+            ],
+            "joint_law_sha256": "a6b3c58c418a61ea43721a535dc363ec688ee750051619873a09ec3e38fc46ce",
+            "joint_parameter_order": [
+              "x"
+            ],
+            "joint_sample_id": "a6b3c58c418a61ea43721a535dc363ec688ee750051619873a09ec3e38fc46ce",
+            "param_name": "x",
+            "parent_posterior_profile_hash": "sha256:9b8efe45ff6d3016c1ad52658f19e6e0fd306e12587c150e5c3a88e7c54bad70",
+            "point_functional": "median",
+            "posterior_composition": "push_forward",
+            "posterior_composition_limitation": "map unit/estimand and fit authority are not established",
+            "posterior_summary_profile": {
+              "binding": null,
+              "carrier_content_hash": "sha256:70381d12c0fb869b3209c13f5e06c480c419610374564f318df788d22eac765a",
+              "compression": "none",
+              "context": {
+                "lineage_refs": {},
+                "parameters": {},
+                "purpose": null,
+                "time_roles": {}
+              },
+              "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+              "credible_mass": 0.9,
+              "draw_ids": [
+                "source-row:0",
+                "source-row:1"
+              ],
+              "gate_eligible": false,
+              "interval_functional": "equal_tail_inverse_cdf",
+              "joint_law_sha256": "a6b3c58c418a61ea43721a535dc363ec688ee750051619873a09ec3e38fc46ce",
+              "mean_functional": "weighted_arithmetic_mean",
+              "numeric_representation": "finite_float64",
+              "parameter_name": "x",
+              "parameter_order": [
+                "x"
+              ],
+              "point_functional": "median",
+              "posterior_mean": 1.5,
+              "probabilities": [
+                0.5,
+                0.5
+              ],
+              "probability_convention": "exact_binary_weight_ratios",
+              "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+              "profile_version": "2.0",
+              "row_identity_basis": "producer_supplied_ids",
+              "sample_axis": "actual-chain-draw",
+              "sampling_approximation": "finite_uniform_mesh_discretization",
+              "thinning": "none"
+            },
+            "posterior_summary_profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+            "posterior_summary_profile_required": true,
+            "posterior_summary_profile_version": "2.0",
+            "push_forward_cert_policy": "auto",
+            "push_forward_map": "<lambda>"
+          },
+          "point_estimate": 1.0,
+          "profile": {
+            "state": "returned",
+            "value": {
+              "binding": null,
+              "carrier_content_hash": "sha256:70381d12c0fb869b3209c13f5e06c480c419610374564f318df788d22eac765a",
+              "compression": "none",
+              "context": {
+                "lineage_refs": {},
+                "parameters": {},
+                "purpose": null,
+                "time_roles": {}
+              },
+              "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+              "credible_mass": 0.9,
+              "draw_ids": [
+                "source-row:0",
+                "source-row:1"
+              ],
+              "gate_eligible": false,
+              "interval_functional": "equal_tail_inverse_cdf",
+              "joint_law_sha256": "a6b3c58c418a61ea43721a535dc363ec688ee750051619873a09ec3e38fc46ce",
+              "mean_functional": "weighted_arithmetic_mean",
+              "numeric_representation": "finite_float64",
+              "parameter_name": "x",
+              "parameter_order": [
+                "x"
+              ],
+              "point_functional": "median",
+              "posterior_mean": 1.5,
+              "probabilities": [
+                0.5,
+                0.5
+              ],
+              "probability_convention": "exact_binary_weight_ratios",
+              "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+              "profile_version": "2.0",
+              "row_identity_basis": "producer_supplied_ids",
+              "sample_axis": "actual-chain-draw",
+              "sampling_approximation": "finite_uniform_mesh_discretization",
+              "thinning": "none"
+            }
+          },
+          "sample_size": 2
+        },
+        "strict_fresh": {
+          "state": "returned",
+          "value": {
+            "carrier": {
+              "samples": [
+                1.0,
+                2.0
+              ],
+              "type": "PosteriorSamplesCarrier",
+              "weights": [
+                0.5,
+                0.5
+              ]
+            },
+            "confidence_interval": [
+              1.0,
+              2.0
+            ],
+            "confidence_level": 0.9,
+            "distribution_family": "DistributionFamily.BAYESIAN",
+            "gate_eligible": false,
+            "metadata": {
+              "derived_parameter_binding": "not_established",
+              "inherited_parent_lineage": {
+                "lineage_refs": {},
+                "purpose": null,
+                "time_roles": {}
+              },
+              "inherited_parent_lineage_authoritative": false,
+              "interval_functional": "equal_tail_inverse_cdf",
+              "joint_draw_ids": [
+                "source-row:0",
+                "source-row:1"
+              ],
+              "joint_law_sha256": "a6b3c58c418a61ea43721a535dc363ec688ee750051619873a09ec3e38fc46ce",
+              "joint_parameter_order": [
+                "x"
+              ],
+              "joint_sample_id": "a6b3c58c418a61ea43721a535dc363ec688ee750051619873a09ec3e38fc46ce",
+              "param_name": "x",
+              "parent_posterior_profile_hash": "sha256:9b8efe45ff6d3016c1ad52658f19e6e0fd306e12587c150e5c3a88e7c54bad70",
+              "point_functional": "median",
+              "posterior_composition": "push_forward",
+              "posterior_composition_limitation": "map unit/estimand and fit authority are not established",
+              "posterior_summary_profile": {
+                "binding": null,
+                "carrier_content_hash": "sha256:70381d12c0fb869b3209c13f5e06c480c419610374564f318df788d22eac765a",
+                "compression": "none",
+                "context": {
+                  "lineage_refs": {},
+                  "parameters": {},
+                  "purpose": null,
+                  "time_roles": {}
+                },
+                "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+                "credible_mass": 0.9,
+                "draw_ids": [
+                  "source-row:0",
+                  "source-row:1"
+                ],
+                "gate_eligible": false,
+                "interval_functional": "equal_tail_inverse_cdf",
+                "joint_law_sha256": "a6b3c58c418a61ea43721a535dc363ec688ee750051619873a09ec3e38fc46ce",
+                "mean_functional": "weighted_arithmetic_mean",
+                "numeric_representation": "finite_float64",
+                "parameter_name": "x",
+                "parameter_order": [
+                  "x"
+                ],
+                "point_functional": "median",
+                "posterior_mean": 1.5,
+                "probabilities": [
+                  0.5,
+                  0.5
+                ],
+                "probability_convention": "exact_binary_weight_ratios",
+                "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+                "profile_version": "2.0",
+                "row_identity_basis": "producer_supplied_ids",
+                "sample_axis": "actual-chain-draw",
+                "sampling_approximation": "finite_uniform_mesh_discretization",
+                "thinning": "none"
+              },
+              "posterior_summary_profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+              "posterior_summary_profile_required": true,
+              "posterior_summary_profile_version": "2.0",
+              "push_forward_cert_policy": "auto",
+              "push_forward_map": "<lambda>"
+            },
+            "point_estimate": 1.0,
+            "profile": {
+              "state": "returned",
+              "value": {
+                "binding": null,
+                "carrier_content_hash": "sha256:70381d12c0fb869b3209c13f5e06c480c419610374564f318df788d22eac765a",
+                "compression": "none",
+                "context": {
+                  "lineage_refs": {},
+                  "parameters": {},
+                  "purpose": null,
+                  "time_roles": {}
+                },
+                "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+                "credible_mass": 0.9,
+                "draw_ids": [
+                  "source-row:0",
+                  "source-row:1"
+                ],
+                "gate_eligible": false,
+                "interval_functional": "equal_tail_inverse_cdf",
+                "joint_law_sha256": "a6b3c58c418a61ea43721a535dc363ec688ee750051619873a09ec3e38fc46ce",
+                "mean_functional": "weighted_arithmetic_mean",
+                "numeric_representation": "finite_float64",
+                "parameter_name": "x",
+                "parameter_order": [
+                  "x"
+                ],
+                "point_functional": "median",
+                "posterior_mean": 1.5,
+                "probabilities": [
+                  0.5,
+                  0.5
+                ],
+                "probability_convention": "exact_binary_weight_ratios",
+                "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+                "profile_version": "2.0",
+                "row_identity_basis": "producer_supplied_ids",
+                "sample_axis": "actual-chain-draw",
+                "sampling_approximation": "finite_uniform_mesh_discretization",
+                "thinning": "none"
+              }
+            },
+            "sample_size": 2
+          }
+        }
+      },
+      "raw_input_json": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/closure-repair2/inputs/raw-bool-raw-cas.json",
+      "raw_input_sha256": "6095acd7082985b0699fc917178cbfebf0d4dc716257f9859911aaaca1eadad5",
+      "raw_mutation": {
+        "python_type": "bool",
+        "sample_index": 1,
+        "value": true
+      },
+      "raw_type_case": "raw-bool",
+      "strict_loader": {
+        "exception_type": "ValueError",
+        "message": "posterior summary raw carrier requires finite real non-bool values",
+        "state": "raised"
+      }
+    },
+    {
+      "callback_count_after_strict_loader": 0,
+      "cas_artifact_id": "sha256:de09260c5d1cb8b6bb8a64525d2f103f44c44d2ebf4334fa8e584159e675e2b1",
+      "cas_bytes_sha256": "de09260c5d1cb8b6bb8a64525d2f103f44c44d2ebf4334fa8e584159e675e2b1",
+      "cas_kind": "ir.uncertainty_envelope",
+      "cas_media_type": "application/json",
+      "cas_verify_ok": true,
+      "fixture_git_blob": "91c64a39aade054c5dcdfbed9600db3554d7fdc8",
+      "fixture_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/candidate/policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "legacy_loader": {
+        "decoded": {
+          "carrier": {
+            "samples": [
+              0.0,
+              1.0
+            ],
+            "type": "PosteriorSamplesCarrier",
+            "weights": [
+              0.5,
+              0.5
+            ]
+          },
+          "confidence_interval": [
+            0.0,
+            1.0
+          ],
+          "confidence_level": 0.9,
+          "distribution_family": "DistributionFamily.BAYESIAN",
+          "gate_eligible": false,
+          "metadata": {
+            "emulator_diagnostics": {},
+            "interval_functional": "equal_tail_inverse_cdf",
+            "joint_draw_ids": [
+              "source-row:0",
+              "source-row:1"
+            ],
+            "joint_law_sha256": "570d215fbc70549472766fb5af5b2971c687db29c9ec531a3dbd39e911486bbd",
+            "joint_parameter_order": [
+              "x"
+            ],
+            "joint_sample_id": "570d215fbc70549472766fb5af5b2971c687db29c9ec531a3dbd39e911486bbd",
+            "param_name": "x",
+            "point_functional": "median",
+            "posterior_basis": "posterior_draws",
+            "posterior_diagnostics": {
+              "calibration_mode": "bayesian_direct",
+              "credible_mass": 0.9,
+              "num_parameters": 1.0
+            },
+            "posterior_summary_profile": {
+              "binding": null,
+              "carrier_content_hash": "sha256:2a6baeb73cd995acd7dc2dd1cdf831ddb65d8a0abde48749837c49476aac59ae",
+              "compression": "none",
+              "context": {
+                "lineage_refs": {},
+                "parameters": {},
+                "purpose": null,
+                "time_roles": {}
+              },
+              "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+              "credible_mass": 0.9,
+              "draw_ids": [
+                "source-row:0",
+                "source-row:1"
+              ],
+              "gate_eligible": false,
+              "interval_functional": "equal_tail_inverse_cdf",
+              "joint_law_sha256": "570d215fbc70549472766fb5af5b2971c687db29c9ec531a3dbd39e911486bbd",
+              "mean_functional": "weighted_arithmetic_mean",
+              "numeric_representation": "finite_float64",
+              "parameter_name": "x",
+              "parameter_order": [
+                "x"
+              ],
+              "point_functional": "median",
+              "posterior_mean": 0.5,
+              "probabilities": [
+                0.5,
+                0.5
+              ],
+              "probability_convention": "exact_binary_weight_ratios",
+              "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+              "profile_version": "2.0",
+              "row_identity_basis": "producer_supplied_ids",
+              "sample_axis": "actual-chain-draw",
+              "sampling_approximation": "finite_uniform_mesh_discretization",
+              "thinning": "none"
+            },
+            "posterior_summary_profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+            "posterior_summary_profile_required": true,
+            "posterior_summary_profile_version": "2.0"
+          },
+          "point_estimate": 0.0,
+          "profile": {
+            "state": "returned",
+            "value": {
+              "binding": null,
+              "carrier_content_hash": "sha256:2a6baeb73cd995acd7dc2dd1cdf831ddb65d8a0abde48749837c49476aac59ae",
+              "compression": "none",
+              "context": {
+                "lineage_refs": {},
+                "parameters": {},
+                "purpose": null,
+                "time_roles": {}
+              },
+              "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+              "credible_mass": 0.9,
+              "draw_ids": [
+                "source-row:0",
+                "source-row:1"
+              ],
+              "gate_eligible": false,
+              "interval_functional": "equal_tail_inverse_cdf",
+              "joint_law_sha256": "570d215fbc70549472766fb5af5b2971c687db29c9ec531a3dbd39e911486bbd",
+              "mean_functional": "weighted_arithmetic_mean",
+              "numeric_representation": "finite_float64",
+              "parameter_name": "x",
+              "parameter_order": [
+                "x"
+              ],
+              "point_functional": "median",
+              "posterior_mean": 0.5,
+              "probabilities": [
+                0.5,
+                0.5
+              ],
+              "probability_convention": "exact_binary_weight_ratios",
+              "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+              "profile_version": "2.0",
+              "row_identity_basis": "producer_supplied_ids",
+              "sample_axis": "actual-chain-draw",
+              "sampling_approximation": "finite_uniform_mesh_discretization",
+              "thinning": "none"
+            }
+          },
+          "sample_size": 2
+        },
+        "exception_type": null,
+        "message": null,
+        "state": "returned"
+      },
+      "legacy_push_then_strict_fresh_read": {
+        "callback_arguments": [
+          0.0,
+          1.0
+        ],
+        "callback_count": 2,
+        "persisted_ref": "sha256:4e5c8a0f49794dc7c6a85a1c36d4675b122bebb4e8e6c7e9c6a5bbb3e13ef5d4",
+        "push_or_persist_error": null,
+        "pushed_envelope": {
+          "carrier": {
+            "samples": [
+              1.0,
+              2.0
+            ],
+            "type": "PosteriorSamplesCarrier",
+            "weights": [
+              0.5,
+              0.5
+            ]
+          },
+          "confidence_interval": [
+            1.0,
+            2.0
+          ],
+          "confidence_level": 0.9,
+          "distribution_family": "DistributionFamily.BAYESIAN",
+          "gate_eligible": false,
+          "metadata": {
+            "derived_parameter_binding": "not_established",
+            "inherited_parent_lineage": {
+              "lineage_refs": {},
+              "purpose": null,
+              "time_roles": {}
+            },
+            "inherited_parent_lineage_authoritative": false,
+            "interval_functional": "equal_tail_inverse_cdf",
+            "joint_draw_ids": [
+              "source-row:0",
+              "source-row:1"
+            ],
+            "joint_law_sha256": "a6b3c58c418a61ea43721a535dc363ec688ee750051619873a09ec3e38fc46ce",
+            "joint_parameter_order": [
+              "x"
+            ],
+            "joint_sample_id": "a6b3c58c418a61ea43721a535dc363ec688ee750051619873a09ec3e38fc46ce",
+            "param_name": "x",
+            "parent_posterior_profile_hash": "sha256:9b8efe45ff6d3016c1ad52658f19e6e0fd306e12587c150e5c3a88e7c54bad70",
+            "point_functional": "median",
+            "posterior_composition": "push_forward",
+            "posterior_composition_limitation": "map unit/estimand and fit authority are not established",
+            "posterior_summary_profile": {
+              "binding": null,
+              "carrier_content_hash": "sha256:70381d12c0fb869b3209c13f5e06c480c419610374564f318df788d22eac765a",
+              "compression": "none",
+              "context": {
+                "lineage_refs": {},
+                "parameters": {},
+                "purpose": null,
+                "time_roles": {}
+              },
+              "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+              "credible_mass": 0.9,
+              "draw_ids": [
+                "source-row:0",
+                "source-row:1"
+              ],
+              "gate_eligible": false,
+              "interval_functional": "equal_tail_inverse_cdf",
+              "joint_law_sha256": "a6b3c58c418a61ea43721a535dc363ec688ee750051619873a09ec3e38fc46ce",
+              "mean_functional": "weighted_arithmetic_mean",
+              "numeric_representation": "finite_float64",
+              "parameter_name": "x",
+              "parameter_order": [
+                "x"
+              ],
+              "point_functional": "median",
+              "posterior_mean": 1.5,
+              "probabilities": [
+                0.5,
+                0.5
+              ],
+              "probability_convention": "exact_binary_weight_ratios",
+              "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+              "profile_version": "2.0",
+              "row_identity_basis": "producer_supplied_ids",
+              "sample_axis": "actual-chain-draw",
+              "sampling_approximation": "finite_uniform_mesh_discretization",
+              "thinning": "none"
+            },
+            "posterior_summary_profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+            "posterior_summary_profile_required": true,
+            "posterior_summary_profile_version": "2.0",
+            "push_forward_cert_policy": "auto",
+            "push_forward_map": "<lambda>"
+          },
+          "point_estimate": 1.0,
+          "profile": {
+            "state": "returned",
+            "value": {
+              "binding": null,
+              "carrier_content_hash": "sha256:70381d12c0fb869b3209c13f5e06c480c419610374564f318df788d22eac765a",
+              "compression": "none",
+              "context": {
+                "lineage_refs": {},
+                "parameters": {},
+                "purpose": null,
+                "time_roles": {}
+              },
+              "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+              "credible_mass": 0.9,
+              "draw_ids": [
+                "source-row:0",
+                "source-row:1"
+              ],
+              "gate_eligible": false,
+              "interval_functional": "equal_tail_inverse_cdf",
+              "joint_law_sha256": "a6b3c58c418a61ea43721a535dc363ec688ee750051619873a09ec3e38fc46ce",
+              "mean_functional": "weighted_arithmetic_mean",
+              "numeric_representation": "finite_float64",
+              "parameter_name": "x",
+              "parameter_order": [
+                "x"
+              ],
+              "point_functional": "median",
+              "posterior_mean": 1.5,
+              "probabilities": [
+                0.5,
+                0.5
+              ],
+              "probability_convention": "exact_binary_weight_ratios",
+              "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+              "profile_version": "2.0",
+              "row_identity_basis": "producer_supplied_ids",
+              "sample_axis": "actual-chain-draw",
+              "sampling_approximation": "finite_uniform_mesh_discretization",
+              "thinning": "none"
+            }
+          },
+          "sample_size": 2
+        },
+        "strict_fresh": {
+          "state": "returned",
+          "value": {
+            "carrier": {
+              "samples": [
+                1.0,
+                2.0
+              ],
+              "type": "PosteriorSamplesCarrier",
+              "weights": [
+                0.5,
+                0.5
+              ]
+            },
+            "confidence_interval": [
+              1.0,
+              2.0
+            ],
+            "confidence_level": 0.9,
+            "distribution_family": "DistributionFamily.BAYESIAN",
+            "gate_eligible": false,
+            "metadata": {
+              "derived_parameter_binding": "not_established",
+              "inherited_parent_lineage": {
+                "lineage_refs": {},
+                "purpose": null,
+                "time_roles": {}
+              },
+              "inherited_parent_lineage_authoritative": false,
+              "interval_functional": "equal_tail_inverse_cdf",
+              "joint_draw_ids": [
+                "source-row:0",
+                "source-row:1"
+              ],
+              "joint_law_sha256": "a6b3c58c418a61ea43721a535dc363ec688ee750051619873a09ec3e38fc46ce",
+              "joint_parameter_order": [
+                "x"
+              ],
+              "joint_sample_id": "a6b3c58c418a61ea43721a535dc363ec688ee750051619873a09ec3e38fc46ce",
+              "param_name": "x",
+              "parent_posterior_profile_hash": "sha256:9b8efe45ff6d3016c1ad52658f19e6e0fd306e12587c150e5c3a88e7c54bad70",
+              "point_functional": "median",
+              "posterior_composition": "push_forward",
+              "posterior_composition_limitation": "map unit/estimand and fit authority are not established",
+              "posterior_summary_profile": {
+                "binding": null,
+                "carrier_content_hash": "sha256:70381d12c0fb869b3209c13f5e06c480c419610374564f318df788d22eac765a",
+                "compression": "none",
+                "context": {
+                  "lineage_refs": {},
+                  "parameters": {},
+                  "purpose": null,
+                  "time_roles": {}
+                },
+                "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+                "credible_mass": 0.9,
+                "draw_ids": [
+                  "source-row:0",
+                  "source-row:1"
+                ],
+                "gate_eligible": false,
+                "interval_functional": "equal_tail_inverse_cdf",
+                "joint_law_sha256": "a6b3c58c418a61ea43721a535dc363ec688ee750051619873a09ec3e38fc46ce",
+                "mean_functional": "weighted_arithmetic_mean",
+                "numeric_representation": "finite_float64",
+                "parameter_name": "x",
+                "parameter_order": [
+                  "x"
+                ],
+                "point_functional": "median",
+                "posterior_mean": 1.5,
+                "probabilities": [
+                  0.5,
+                  0.5
+                ],
+                "probability_convention": "exact_binary_weight_ratios",
+                "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+                "profile_version": "2.0",
+                "row_identity_basis": "producer_supplied_ids",
+                "sample_axis": "actual-chain-draw",
+                "sampling_approximation": "finite_uniform_mesh_discretization",
+                "thinning": "none"
+              },
+              "posterior_summary_profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+              "posterior_summary_profile_required": true,
+              "posterior_summary_profile_version": "2.0",
+              "push_forward_cert_policy": "auto",
+              "push_forward_map": "<lambda>"
+            },
+            "point_estimate": 1.0,
+            "profile": {
+              "state": "returned",
+              "value": {
+                "binding": null,
+                "carrier_content_hash": "sha256:70381d12c0fb869b3209c13f5e06c480c419610374564f318df788d22eac765a",
+                "compression": "none",
+                "context": {
+                  "lineage_refs": {},
+                  "parameters": {},
+                  "purpose": null,
+                  "time_roles": {}
+                },
+                "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+                "credible_mass": 0.9,
+                "draw_ids": [
+                  "source-row:0",
+                  "source-row:1"
+                ],
+                "gate_eligible": false,
+                "interval_functional": "equal_tail_inverse_cdf",
+                "joint_law_sha256": "a6b3c58c418a61ea43721a535dc363ec688ee750051619873a09ec3e38fc46ce",
+                "mean_functional": "weighted_arithmetic_mean",
+                "numeric_representation": "finite_float64",
+                "parameter_name": "x",
+                "parameter_order": [
+                  "x"
+                ],
+                "point_functional": "median",
+                "posterior_mean": 1.5,
+                "probabilities": [
+                  0.5,
+                  0.5
+                ],
+                "probability_convention": "exact_binary_weight_ratios",
+                "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+                "profile_version": "2.0",
+                "row_identity_basis": "producer_supplied_ids",
+                "sample_axis": "actual-chain-draw",
+                "sampling_approximation": "finite_uniform_mesh_discretization",
+                "thinning": "none"
+              }
+            },
+            "sample_size": 2
+          }
+        }
+      },
+      "raw_input_json": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/closure-repair2/inputs/raw-numeric-string-raw-cas.json",
+      "raw_input_sha256": "a93b199f51275b2ef8a327ebc3c7d1c3ca9b8bb4f5931179de05f78c789b7c15",
+      "raw_mutation": {
+        "python_type": "str",
+        "sample_index": 1,
+        "value": "1.0"
+      },
+      "raw_type_case": "raw-numeric-string",
+      "strict_loader": {
+        "exception_type": "ValueError",
+        "message": "posterior summary raw carrier requires finite real non-bool values",
+        "state": "raised"
+      }
+    }
+  ],
+  "source_manifest": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/source-manifest-repair1.json",
+  "strict_profile2_push_forward_positive_control": {
+    "callback_arguments": [
+      1.0,
+      3.0
+    ],
+    "callback_count": 2,
+    "independent_literal_transformed_mean": {
+      "float": 4.0,
+      "fraction": "4",
+      "normalized_fraction_weights": [
+        "1/2",
+        "1/2"
+      ],
+      "weights_as_binary64": [
+        0.5,
+        0.5
+      ]
+    },
+    "persisted_ref": "sha256:07d87dea69074d9703dd116b5bad141970753172be88140ae3474facd5faace6",
+    "push_or_persist_error": null,
+    "pushed_envelope": {
+      "carrier": {
+        "samples": [
+          2.0,
+          6.0
+        ],
+        "type": "PosteriorSamplesCarrier",
+        "weights": [
+          0.5,
+          0.5
+        ]
+      },
+      "confidence_interval": [
+        2.0,
+        6.0
+      ],
+      "confidence_level": 0.9,
+      "distribution_family": "DistributionFamily.BAYESIAN",
+      "gate_eligible": false,
+      "metadata": {
+        "derived_parameter_binding": "not_established",
+        "inherited_parent_lineage": {
+          "lineage_refs": {},
+          "purpose": null,
+          "time_roles": {}
+        },
+        "inherited_parent_lineage_authoritative": false,
+        "interval_functional": "equal_tail_inverse_cdf",
+        "joint_draw_ids": [
+          "source-row:0",
+          "source-row:1"
+        ],
+        "joint_law_sha256": "93c783d8b036ac996fe829aed01d8ce41b4b08e4b3980d2613034d2cf80fecb5",
+        "joint_parameter_order": [
+          "x"
+        ],
+        "joint_sample_id": "93c783d8b036ac996fe829aed01d8ce41b4b08e4b3980d2613034d2cf80fecb5",
+        "param_name": "x",
+        "parent_posterior_profile_hash": "sha256:2dcbc29cf8243760e9cdf9631fe08cb6a7c47be044f21a2c2861b3ddba2d5ebd",
+        "point_functional": "median",
+        "posterior_composition": "push_forward",
+        "posterior_composition_limitation": "map unit/estimand and fit authority are not established",
+        "posterior_summary_profile": {
+          "binding": null,
+          "carrier_content_hash": "sha256:bac33f7221aee427b33ae79204eca53b05c38309c25d91d719cd642ec06b3f9c",
+          "compression": "none",
+          "context": {
+            "lineage_refs": {},
+            "parameters": {},
+            "purpose": null,
+            "time_roles": {}
+          },
+          "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+          "credible_mass": 0.9,
+          "draw_ids": [
+            "source-row:0",
+            "source-row:1"
+          ],
+          "gate_eligible": false,
+          "interval_functional": "equal_tail_inverse_cdf",
+          "joint_law_sha256": "93c783d8b036ac996fe829aed01d8ce41b4b08e4b3980d2613034d2cf80fecb5",
+          "mean_functional": "weighted_arithmetic_mean",
+          "numeric_representation": "finite_float64",
+          "parameter_name": "x",
+          "parameter_order": [
+            "x"
+          ],
+          "point_functional": "median",
+          "posterior_mean": 4.0,
+          "probabilities": [
+            0.5,
+            0.5
+          ],
+          "probability_convention": "exact_binary_weight_ratios",
+          "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+          "profile_version": "2.0",
+          "row_identity_basis": "producer_supplied_ids",
+          "sample_axis": "actual-chain-draw",
+          "sampling_approximation": "finite_uniform_mesh_discretization",
+          "thinning": "none"
+        },
+        "posterior_summary_profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+        "posterior_summary_profile_required": true,
+        "posterior_summary_profile_version": "2.0",
+        "push_forward_cert_policy": "auto",
+        "push_forward_map": "<lambda>"
+      },
+      "point_estimate": 2.0,
+      "profile": {
+        "state": "returned",
+        "value": {
+          "binding": null,
+          "carrier_content_hash": "sha256:bac33f7221aee427b33ae79204eca53b05c38309c25d91d719cd642ec06b3f9c",
+          "compression": "none",
+          "context": {
+            "lineage_refs": {},
+            "parameters": {},
+            "purpose": null,
+            "time_roles": {}
+          },
+          "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+          "credible_mass": 0.9,
+          "draw_ids": [
+            "source-row:0",
+            "source-row:1"
+          ],
+          "gate_eligible": false,
+          "interval_functional": "equal_tail_inverse_cdf",
+          "joint_law_sha256": "93c783d8b036ac996fe829aed01d8ce41b4b08e4b3980d2613034d2cf80fecb5",
+          "mean_functional": "weighted_arithmetic_mean",
+          "numeric_representation": "finite_float64",
+          "parameter_name": "x",
+          "parameter_order": [
+            "x"
+          ],
+          "point_functional": "median",
+          "posterior_mean": 4.0,
+          "probabilities": [
+            0.5,
+            0.5
+          ],
+          "probability_convention": "exact_binary_weight_ratios",
+          "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+          "profile_version": "2.0",
+          "row_identity_basis": "producer_supplied_ids",
+          "sample_axis": "actual-chain-draw",
+          "sampling_approximation": "finite_uniform_mesh_discretization",
+          "thinning": "none"
+        }
+      },
+      "sample_size": 2
+    },
+    "source_artifact_id": "sha256:39a61bcf4f630bdcd0fc8d539a6bcd33d1fba3e933324b946ef421a0eeaba758",
+    "source_fixture": {
+      "literal_exact_mean": {
+        "float": 2.0,
+        "fraction": "2",
+        "normalized_fraction_weights": [
+          "1/2",
+          "1/2"
+        ],
+        "weights_as_binary64": [
+          0.5,
+          0.5
+        ]
+      },
+      "samples": [
+        1.0,
+        3.0
+      ],
+      "weights": [
+        0.5,
+        0.5
+      ]
+    },
+    "strict_fresh_readback": {
+      "state": "returned",
+      "value": {
+        "carrier": {
+          "samples": [
+            2.0,
+            6.0
+          ],
+          "type": "PosteriorSamplesCarrier",
+          "weights": [
+            0.5,
+            0.5
+          ]
+        },
+        "confidence_interval": [
+          2.0,
+          6.0
+        ],
+        "confidence_level": 0.9,
+        "distribution_family": "DistributionFamily.BAYESIAN",
+        "gate_eligible": false,
+        "metadata": {
+          "derived_parameter_binding": "not_established",
+          "inherited_parent_lineage": {
+            "lineage_refs": {},
+            "purpose": null,
+            "time_roles": {}
+          },
+          "inherited_parent_lineage_authoritative": false,
+          "interval_functional": "equal_tail_inverse_cdf",
+          "joint_draw_ids": [
+            "source-row:0",
+            "source-row:1"
+          ],
+          "joint_law_sha256": "93c783d8b036ac996fe829aed01d8ce41b4b08e4b3980d2613034d2cf80fecb5",
+          "joint_parameter_order": [
+            "x"
+          ],
+          "joint_sample_id": "93c783d8b036ac996fe829aed01d8ce41b4b08e4b3980d2613034d2cf80fecb5",
+          "param_name": "x",
+          "parent_posterior_profile_hash": "sha256:2dcbc29cf8243760e9cdf9631fe08cb6a7c47be044f21a2c2861b3ddba2d5ebd",
+          "point_functional": "median",
+          "posterior_composition": "push_forward",
+          "posterior_composition_limitation": "map unit/estimand and fit authority are not established",
+          "posterior_summary_profile": {
+            "binding": null,
+            "carrier_content_hash": "sha256:bac33f7221aee427b33ae79204eca53b05c38309c25d91d719cd642ec06b3f9c",
+            "compression": "none",
+            "context": {
+              "lineage_refs": {},
+              "parameters": {},
+              "purpose": null,
+              "time_roles": {}
+            },
+            "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+            "credible_mass": 0.9,
+            "draw_ids": [
+              "source-row:0",
+              "source-row:1"
+            ],
+            "gate_eligible": false,
+            "interval_functional": "equal_tail_inverse_cdf",
+            "joint_law_sha256": "93c783d8b036ac996fe829aed01d8ce41b4b08e4b3980d2613034d2cf80fecb5",
+            "mean_functional": "weighted_arithmetic_mean",
+            "numeric_representation": "finite_float64",
+            "parameter_name": "x",
+            "parameter_order": [
+              "x"
+            ],
+            "point_functional": "median",
+            "posterior_mean": 4.0,
+            "probabilities": [
+              0.5,
+              0.5
+            ],
+            "probability_convention": "exact_binary_weight_ratios",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+            "profile_version": "2.0",
+            "row_identity_basis": "producer_supplied_ids",
+            "sample_axis": "actual-chain-draw",
+            "sampling_approximation": "finite_uniform_mesh_discretization",
+            "thinning": "none"
+          },
+          "posterior_summary_profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+          "posterior_summary_profile_required": true,
+          "posterior_summary_profile_version": "2.0",
+          "push_forward_cert_policy": "auto",
+          "push_forward_map": "<lambda>"
+        },
+        "point_estimate": 2.0,
+        "profile": {
+          "state": "returned",
+          "value": {
+            "binding": null,
+            "carrier_content_hash": "sha256:bac33f7221aee427b33ae79204eca53b05c38309c25d91d719cd642ec06b3f9c",
+            "compression": "none",
+            "context": {
+              "lineage_refs": {},
+              "parameters": {},
+              "purpose": null,
+              "time_roles": {}
+            },
+            "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+            "credible_mass": 0.9,
+            "draw_ids": [
+              "source-row:0",
+              "source-row:1"
+            ],
+            "gate_eligible": false,
+            "interval_functional": "equal_tail_inverse_cdf",
+            "joint_law_sha256": "93c783d8b036ac996fe829aed01d8ce41b4b08e4b3980d2613034d2cf80fecb5",
+            "mean_functional": "weighted_arithmetic_mean",
+            "numeric_representation": "finite_float64",
+            "parameter_name": "x",
+            "parameter_order": [
+              "x"
+            ],
+            "point_functional": "median",
+            "posterior_mean": 4.0,
+            "probabilities": [
+              0.5,
+              0.5
+            ],
+            "probability_convention": "exact_binary_weight_ratios",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+            "profile_version": "2.0",
+            "row_identity_basis": "producer_supplied_ids",
+            "sample_axis": "actual-chain-draw",
+            "sampling_approximation": "finite_uniform_mesh_discretization",
+            "thinning": "none"
+          }
+        },
+        "sample_size": 2
+      }
+    },
+    "strict_input": {
+      "exception_type": null,
+      "message": null,
+      "state": "returned",
+      "value": {
+        "carrier": {
+          "samples": [
+            1.0,
+            3.0
+          ],
+          "type": "PosteriorSamplesCarrier",
+          "weights": [
+            0.5,
+            0.5
+          ]
+        },
+        "confidence_interval": [
+          1.0,
+          3.0
+        ],
+        "confidence_level": 0.9,
+        "distribution_family": "DistributionFamily.BAYESIAN",
+        "gate_eligible": false,
+        "metadata": {
+          "emulator_diagnostics": {},
+          "interval_functional": "equal_tail_inverse_cdf",
+          "joint_draw_ids": [
+            "source-row:0",
+            "source-row:1"
+          ],
+          "joint_law_sha256": "888630f5d77cd8c9e7e3d77cb0bf49426f1511068e8074a7abf2ed3f4d575d53",
+          "joint_parameter_order": [
+            "x"
+          ],
+          "joint_sample_id": "888630f5d77cd8c9e7e3d77cb0bf49426f1511068e8074a7abf2ed3f4d575d53",
+          "param_name": "x",
+          "point_functional": "median",
+          "posterior_basis": "posterior_draws",
+          "posterior_diagnostics": {
+            "calibration_mode": "bayesian_direct",
+            "credible_mass": 0.9,
+            "num_parameters": 1.0
+          },
+          "posterior_summary_profile": {
+            "binding": null,
+            "carrier_content_hash": "sha256:508bc0631a1df45d58c49330f12a4b07eee72bbad695ea6bfdc6eebfba7f8c97",
+            "compression": "none",
+            "context": {
+              "lineage_refs": {},
+              "parameters": {},
+              "purpose": null,
+              "time_roles": {}
+            },
+            "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+            "credible_mass": 0.9,
+            "draw_ids": [
+              "source-row:0",
+              "source-row:1"
+            ],
+            "gate_eligible": false,
+            "interval_functional": "equal_tail_inverse_cdf",
+            "joint_law_sha256": "888630f5d77cd8c9e7e3d77cb0bf49426f1511068e8074a7abf2ed3f4d575d53",
+            "mean_functional": "weighted_arithmetic_mean",
+            "numeric_representation": "finite_float64",
+            "parameter_name": "x",
+            "parameter_order": [
+              "x"
+            ],
+            "point_functional": "median",
+            "posterior_mean": 2.0,
+            "probabilities": [
+              0.5,
+              0.5
+            ],
+            "probability_convention": "exact_binary_weight_ratios",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+            "profile_version": "2.0",
+            "row_identity_basis": "producer_supplied_ids",
+            "sample_axis": "actual-chain-draw",
+            "sampling_approximation": "finite_uniform_mesh_discretization",
+            "thinning": "none"
+          },
+          "posterior_summary_profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+          "posterior_summary_profile_required": true,
+          "posterior_summary_profile_version": "2.0"
+        },
+        "point_estimate": 1.0,
+        "profile": {
+          "state": "returned",
+          "value": {
+            "binding": null,
+            "carrier_content_hash": "sha256:508bc0631a1df45d58c49330f12a4b07eee72bbad695ea6bfdc6eebfba7f8c97",
+            "compression": "none",
+            "context": {
+              "lineage_refs": {},
+              "parameters": {},
+              "purpose": null,
+              "time_roles": {}
+            },
+            "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+            "credible_mass": 0.9,
+            "draw_ids": [
+              "source-row:0",
+              "source-row:1"
+            ],
+            "gate_eligible": false,
+            "interval_functional": "equal_tail_inverse_cdf",
+            "joint_law_sha256": "888630f5d77cd8c9e7e3d77cb0bf49426f1511068e8074a7abf2ed3f4d575d53",
+            "mean_functional": "weighted_arithmetic_mean",
+            "numeric_representation": "finite_float64",
+            "parameter_name": "x",
+            "parameter_order": [
+              "x"
+            ],
+            "point_functional": "median",
+            "posterior_mean": 2.0,
+            "probabilities": [
+              0.5,
+              0.5
+            ],
+            "probability_convention": "exact_binary_weight_ratios",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+            "profile_version": "2.0",
+            "row_identity_basis": "producer_supplied_ids",
+            "sample_axis": "actual-chain-draw",
+            "sampling_approximation": "finite_uniform_mesh_discretization",
+            "thinning": "none"
+          }
+        },
+        "sample_size": 2
+      }
+    }
+  }
+}

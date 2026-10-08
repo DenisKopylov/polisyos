@@ -1,0 +1,146 @@
+{
+  "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "candidate_tree_sha": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "exit_code": 0,
+  "outcome": "PASS",
+  "wall_seconds": 24.552772213006392,
+  "junit_counts": {
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "passes": 3
+  },
+  "spec": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/frozen-4ee-native/wait4-replay/frozen-native.spec.json",
+    "bytes": 8518,
+    "sha256": "910b21473844555823a3d5a19b9c48005c4c31aae94d5add49dbc20bdd57abee"
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/frozen-4ee-native/wait4-replay/frozen-native.stdout.txt",
+    "bytes": 2785,
+    "sha256": "eda90696b626729e363634126edfc2c07e213257da75b9ede42174693b21eca9"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/frozen-4ee-native/wait4-replay/frozen-native.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "time_full_output": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/frozen-4ee-native/wait4-replay/frozen-native.time.txt",
+    "bytes": 379,
+    "sha256": "c8203f4a8c3585215024552d62d6be1cae4139adc85b469353350cfcf8d113f7"
+  },
+  "junit": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/frozen-4ee-native/wait4-replay/frozen-native.junit.xml",
+    "bytes": 739,
+    "sha256": "421e4ad58658a7604392a2f57c550ed29e99bec7c014da61a0f25c3dcd310de5"
+  },
+  "end_guard": {
+    "head": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+    "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+    "branch": "refs/heads/codex/e02-F-closeout-20261006",
+    "actual_status": "?? policy-engine/workers/dowhy-014/.venv\n",
+    "tracked_clean": true,
+    "complete_guard_path_set": [
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+        "git_ref": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "git_blob": "153226bceb53e7e290be03bc9dd068140edbe667",
+        "bytes": 16846,
+        "sha256": "5a479bc577181020b229be26415ece9453d5b54c5b83188ae39b5dbe21fc17ac",
+        "working_bytes_equal_Git": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+        "git_ref": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "git_blob": "749154a57340793c223da2b40d02bd5bcd8e7fea",
+        "bytes": 23546,
+        "sha256": "50e0b78c639b52444cc97abe35f8b71a5ce66c8c33cb2c920c34cbe42633c04e",
+        "working_bytes_equal_Git": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+        "git_ref": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "git_blob": "0473a4280ff55fb23e73cf7c561ae3d7e2149519",
+        "bytes": 16599,
+        "sha256": "582ad243fec5406d577154b7bc1f97e03664cf01843e1fa6f23c3ea28746db56",
+        "working_bytes_equal_Git": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "git_ref": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "git_blob": "874a75fd95bbd920db2b6fd56457d25a23b22589",
+        "bytes": 76407,
+        "sha256": "0c94715bbf1e0b04a6076a770acce717d55ee60dee53a561a99a8e63448398b8",
+        "working_bytes_equal_Git": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "git_ref": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+        "bytes": 84428,
+        "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7",
+        "working_bytes_equal_Git": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+        "git_ref": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "git_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+        "bytes": 29575,
+        "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd",
+        "working_bytes_equal_Git": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/components/io.py",
+        "git_ref": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "git_blob": "ef58fdce69de184765575024b25934daf317c927",
+        "bytes": 7890,
+        "sha256": "11fd5a3c49d0beb745d3007cb123671c9a53981f1856c1c1591ad909fcb6a621",
+        "working_bytes_equal_Git": true
+      },
+      {
+        "path": "policy-engine/workers/dowhy-014/worker.py",
+        "git_ref": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "git_blob": "8e4ea39ce6b4f03626b30fb674b0d3f881557aef",
+        "bytes": 10652,
+        "sha256": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253",
+        "working_bytes_equal_Git": true
+      },
+      {
+        "path": "policy-engine/workers/dowhy-014/protocol.py",
+        "git_ref": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "git_blob": "ca392779e3351e4cf13b23db0a27077487a29368",
+        "bytes": 4704,
+        "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239",
+        "working_bytes_equal_Git": true
+      },
+      {
+        "path": "policy-engine/workers/dowhy-014/uv.lock",
+        "git_ref": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "git_blob": "77ce3b5392703b452d70da87c0f57372b88e9117",
+        "bytes": 98340,
+        "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a",
+        "working_bytes_equal_Git": true
+      },
+      {
+        "path": "policy-engine/workers/dowhy-014/pyproject.toml",
+        "git_ref": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "git_blob": "770a46160a0b13614507d345f729910c9e81acde",
+        "bytes": 379,
+        "sha256": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447",
+        "working_bytes_equal_Git": true
+      },
+      {
+        "path": "policy-engine/workers/dowhy-014/.python-version",
+        "git_ref": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "git_blob": "e4fba2183587225f216eeada4c78dfab6b2e65f5",
+        "bytes": 5,
+        "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+        "working_bytes_equal_Git": true
+      }
+    ],
+    "scope": "Current exact selected test + enumerated direct producer/report/runner/io/profile inputs and actual whole tracked-diff guard. Not a full dynamic callgraph or production input census."
+  },
+  "scope": "Actual3-case scientific/backend/consumer witness only; no formal finding closure, production assumptions, causal authority or B56 admission claim."
+}

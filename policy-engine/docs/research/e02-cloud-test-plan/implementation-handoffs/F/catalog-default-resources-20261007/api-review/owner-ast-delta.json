@@ -1,0 +1,64 @@
+{
+  "source_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+  "G_sha": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+  "scope": "Full function AST census in actual six default owners and nested facade, excluding source-position/formatting; class/property and assignments separately inspected full diff. Curated YAML bytes unchanged. This is narrow behavioral-scope proof, not global P41 disjointness.",
+  "rows": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "function_denominator": 31,
+      "changed_function_ASTs": [
+        "DatasetBatchConfig.default_metrics_map_path"
+      ],
+      "equal_remaining_function_ASTs": 30
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "function_denominator": 68,
+      "changed_function_ASTs": [
+        "_seed_alignments_path",
+        "_wvs_registry_path"
+      ],
+      "equal_remaining_function_ASTs": 66
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "function_denominator": 54,
+      "changed_function_ASTs": [
+        "_wvs_registry_path"
+      ],
+      "equal_remaining_function_ASTs": 53
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "function_denominator": 5,
+      "changed_function_ASTs": [
+        "default_proxy_metric_alignments_path"
+      ],
+      "equal_remaining_function_ASTs": 4
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+      "function_denominator": 20,
+      "changed_function_ASTs": [
+        "default_seed_alignments_path"
+      ],
+      "equal_remaining_function_ASTs": 19
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+      "function_denominator": 15,
+      "changed_function_ASTs": [
+        "_load_wvs_registry_indicators"
+      ],
+      "equal_remaining_function_ASTs": 14
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "function_denominator": 14,
+      "changed_function_ASTs": [],
+      "equal_remaining_function_ASTs": 14
+    }
+  ],
+  "changed_function_count": 7,
+  "function_denominator": 207
+}

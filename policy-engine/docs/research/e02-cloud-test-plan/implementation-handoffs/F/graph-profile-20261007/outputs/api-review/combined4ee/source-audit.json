@@ -1,0 +1,756 @@
+{
+  "schema": "e02.F.api.combined.source_audit.v1",
+  "outcome": "PASS",
+  "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+  "full_changed_path_denominator": 10,
+  "component_path_counts": {
+    "graph": 6,
+    "benchmark": 1,
+    "docs": 3
+  },
+  "all_changed_paths": [
+    "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+    "policy-engine/docs/reference/foundry/state.md",
+    "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+    "policy-engine/src/polisyos/foundry/methods/README.md",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "policy-engine/src/polisyos/foundry/methods/compiler/README.md",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+    "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+  ],
+  "full_changed_path_bindings": [
+    {
+      "group": "graph",
+      "component": {
+        "source_sha": "36b18cc142aff77a5825126b4f07bafec09a5180",
+        "path": "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+        "git_blob": "c466cd06a14c37736924709bc8ebae99f6174f37",
+        "bytes": 3865,
+        "sha256": "a9989b4216f1428923558add2cb56ce99e3a65b5687d2d70546311ada79c92fc"
+      },
+      "candidate": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+        "git_blob": "c466cd06a14c37736924709bc8ebae99f6174f37",
+        "bytes": 3865,
+        "sha256": "a9989b4216f1428923558add2cb56ce99e3a65b5687d2d70546311ada79c92fc"
+      },
+      "working_bytes_equal_candidate": true,
+      "candidate_equals_component": true
+    },
+    {
+      "group": "graph",
+      "component": {
+        "source_sha": "36b18cc142aff77a5825126b4f07bafec09a5180",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+        "git_blob": "0d506b76554a16ff2c605a812d176ebe7d5560b7",
+        "bytes": 2432,
+        "sha256": "aa5ce09f178044a7a3ef5519613f6d159abdbc19f9fda59850f74ffd46e44903"
+      },
+      "candidate": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+        "git_blob": "0d506b76554a16ff2c605a812d176ebe7d5560b7",
+        "bytes": 2432,
+        "sha256": "aa5ce09f178044a7a3ef5519613f6d159abdbc19f9fda59850f74ffd46e44903"
+      },
+      "working_bytes_equal_candidate": true,
+      "candidate_equals_component": true
+    },
+    {
+      "group": "graph",
+      "component": {
+        "source_sha": "36b18cc142aff77a5825126b4f07bafec09a5180",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+        "git_blob": "3af0355c3f7e0dc4872f20c3b1d0223423785f55",
+        "bytes": 62982,
+        "sha256": "087608c68bda58d1ae026006085665d04dce6d8f63c65849f200027fe4340855"
+      },
+      "candidate": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+        "git_blob": "3af0355c3f7e0dc4872f20c3b1d0223423785f55",
+        "bytes": 62982,
+        "sha256": "087608c68bda58d1ae026006085665d04dce6d8f63c65849f200027fe4340855"
+      },
+      "working_bytes_equal_candidate": true,
+      "candidate_equals_component": true
+    },
+    {
+      "group": "graph",
+      "component": {
+        "source_sha": "36b18cc142aff77a5825126b4f07bafec09a5180",
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+        "git_blob": "411d98f8bc3d355a997a83653d2b551011ba35d9",
+        "bytes": 48337,
+        "sha256": "1491b91aaeb57b30d32e34c8fa1b5ab3be5ed20b0907dc9765eb3d916597bcdc"
+      },
+      "candidate": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+        "git_blob": "411d98f8bc3d355a997a83653d2b551011ba35d9",
+        "bytes": 48337,
+        "sha256": "1491b91aaeb57b30d32e34c8fa1b5ab3be5ed20b0907dc9765eb3d916597bcdc"
+      },
+      "working_bytes_equal_candidate": true,
+      "candidate_equals_component": true
+    },
+    {
+      "group": "graph",
+      "component": {
+        "source_sha": "36b18cc142aff77a5825126b4f07bafec09a5180",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+        "git_blob": "072c10f4a75f32f2443e78cc6a8a55015a545bdc",
+        "bytes": 45219,
+        "sha256": "37f7fc1dc7a3d4d840ba1c42472854dcf00a895a3dfae8213c6f2ef562e42712"
+      },
+      "candidate": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+        "git_blob": "072c10f4a75f32f2443e78cc6a8a55015a545bdc",
+        "bytes": 45219,
+        "sha256": "37f7fc1dc7a3d4d840ba1c42472854dcf00a895a3dfae8213c6f2ef562e42712"
+      },
+      "working_bytes_equal_candidate": true,
+      "candidate_equals_component": true
+    },
+    {
+      "group": "graph",
+      "component": {
+        "source_sha": "36b18cc142aff77a5825126b4f07bafec09a5180",
+        "path": "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+        "git_blob": "5bfcc1b7fc4241422cd1eb4b69cc6a36693fd13c",
+        "bytes": 26534,
+        "sha256": "d1c11a3161cca0d7720e9d3c4a7ba46649a2e672f2202688c8f03206bbb99465"
+      },
+      "candidate": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+        "git_blob": "5bfcc1b7fc4241422cd1eb4b69cc6a36693fd13c",
+        "bytes": 26534,
+        "sha256": "d1c11a3161cca0d7720e9d3c4a7ba46649a2e672f2202688c8f03206bbb99465"
+      },
+      "working_bytes_equal_candidate": true,
+      "candidate_equals_component": true
+    },
+    {
+      "group": "benchmark",
+      "component": {
+        "source_sha": "e1c4bb28c9d5ff936ae1c047619c56cf12ba5347",
+        "path": "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+        "git_blob": "148595971cf96a656de47c390e6496ce8fa4acbf",
+        "bytes": 13981,
+        "sha256": "127abcfd0b2d39a115e5e93ccb537f58fdb018fc6813a935f13fec37a145dc4a"
+      },
+      "candidate": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+        "git_blob": "148595971cf96a656de47c390e6496ce8fa4acbf",
+        "bytes": 13981,
+        "sha256": "127abcfd0b2d39a115e5e93ccb537f58fdb018fc6813a935f13fec37a145dc4a"
+      },
+      "working_bytes_equal_candidate": true,
+      "candidate_equals_component": true
+    },
+    {
+      "group": "docs",
+      "component": {
+        "source_sha": "6beacc8b42dacabff214901919203323f07d1fef",
+        "path": "policy-engine/docs/reference/foundry/state.md",
+        "git_blob": "a32d9c14381d33bf62a1bb2ff193f7b5bf1c5471",
+        "bytes": 5289,
+        "sha256": "82e6ff5fa530806371e4e1f67b3120bff1fd229e4855a715be4f20d9c79027c8"
+      },
+      "candidate": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/docs/reference/foundry/state.md",
+        "git_blob": "a32d9c14381d33bf62a1bb2ff193f7b5bf1c5471",
+        "bytes": 5289,
+        "sha256": "82e6ff5fa530806371e4e1f67b3120bff1fd229e4855a715be4f20d9c79027c8"
+      },
+      "working_bytes_equal_candidate": true,
+      "candidate_equals_component": true
+    },
+    {
+      "group": "docs",
+      "component": {
+        "source_sha": "6beacc8b42dacabff214901919203323f07d1fef",
+        "path": "policy-engine/src/polisyos/foundry/methods/README.md",
+        "git_blob": "c9dd7993483ae703c8c5ca037fabd2f2cd20c57e",
+        "bytes": 10519,
+        "sha256": "b3f7cc5ad1317a969b8b9215544566036defc6db64d72973d81a4f1842772edc"
+      },
+      "candidate": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/src/polisyos/foundry/methods/README.md",
+        "git_blob": "c9dd7993483ae703c8c5ca037fabd2f2cd20c57e",
+        "bytes": 10519,
+        "sha256": "b3f7cc5ad1317a969b8b9215544566036defc6db64d72973d81a4f1842772edc"
+      },
+      "working_bytes_equal_candidate": true,
+      "candidate_equals_component": true
+    },
+    {
+      "group": "docs",
+      "component": {
+        "source_sha": "6beacc8b42dacabff214901919203323f07d1fef",
+        "path": "policy-engine/src/polisyos/foundry/methods/compiler/README.md",
+        "git_blob": "59cc0948a8b25b93e35455b99ba17079f0adfd4a",
+        "bytes": 1865,
+        "sha256": "0d8f02ab3ddc41a4d507e6b7ebe374209d5b6217bd3cb1688da88c6b279263b0"
+      },
+      "candidate": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/src/polisyos/foundry/methods/compiler/README.md",
+        "git_blob": "59cc0948a8b25b93e35455b99ba17079f0adfd4a",
+        "bytes": 1865,
+        "sha256": "0d8f02ab3ddc41a4d507e6b7ebe374209d5b6217bd3cb1688da88c6b279263b0"
+      },
+      "working_bytes_equal_candidate": true,
+      "candidate_equals_component": true
+    }
+  ],
+  "full_patch": {
+    "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/combined.full.patch",
+    "bytes": 28829,
+    "sha256": "e2ce21030ebcd3c4664a9d78133d6f3df7054d3dee5f664bdd681e999a166c79"
+  },
+  "docs_author_inputs_reverified_at_current_candidate": [
+    {
+      "author_file": {
+        "path": "/workspace/e02-F-fry-20261006/policy-engine/mkdocs.yml",
+        "bytes": 221,
+        "sha256": "6c0f5281f0d25246dde5a3963dfcbfa1c6f7d6e6ae9df36fd457973bb6d4e567"
+      },
+      "current": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/mkdocs.yml",
+        "git_blob": "096a0b56f4fffe10cda0fc96f2b69503ba156d64",
+        "bytes": 221,
+        "sha256": "6c0f5281f0d25246dde5a3963dfcbfa1c6f7d6e6ae9df36fd457973bb6d4e567"
+      },
+      "candidate_equals_author_inputs": true
+    },
+    {
+      "author_file": {
+        "path": "/workspace/e02-F-fry-20261006/policy-engine/architecture/tooling/mkdocs/generated.yml",
+        "bytes": 29832,
+        "sha256": "c121a8014d24456bc9158b63af0d69fc14401b329d4806021ba6606b638c1851"
+      },
+      "current": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/architecture/tooling/mkdocs/generated.yml",
+        "git_blob": "d614c9d8d5681316bda683128b02c16c012003df",
+        "bytes": 29832,
+        "sha256": "c121a8014d24456bc9158b63af0d69fc14401b329d4806021ba6606b638c1851"
+      },
+      "candidate_equals_author_inputs": true
+    },
+    {
+      "author_file": {
+        "path": "/workspace/e02-F-fry-20261006/policy-engine/docs/reference/foundry/state.md",
+        "bytes": 5289,
+        "sha256": "82e6ff5fa530806371e4e1f67b3120bff1fd229e4855a715be4f20d9c79027c8"
+      },
+      "current": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/docs/reference/foundry/state.md",
+        "git_blob": "a32d9c14381d33bf62a1bb2ff193f7b5bf1c5471",
+        "bytes": 5289,
+        "sha256": "82e6ff5fa530806371e4e1f67b3120bff1fd229e4855a715be4f20d9c79027c8"
+      },
+      "candidate_equals_author_inputs": true
+    },
+    {
+      "author_file": {
+        "path": "/workspace/e02-F-fry-20261006/policy-engine/src/polisyos/foundry/methods/README.md",
+        "bytes": 10519,
+        "sha256": "b3f7cc5ad1317a969b8b9215544566036defc6db64d72973d81a4f1842772edc"
+      },
+      "current": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/src/polisyos/foundry/methods/README.md",
+        "git_blob": "c9dd7993483ae703c8c5ca037fabd2f2cd20c57e",
+        "bytes": 10519,
+        "sha256": "b3f7cc5ad1317a969b8b9215544566036defc6db64d72973d81a4f1842772edc"
+      },
+      "candidate_equals_author_inputs": true
+    },
+    {
+      "author_file": {
+        "path": "/workspace/e02-F-fry-20261006/policy-engine/src/polisyos/foundry/methods/compiler/README.md",
+        "bytes": 1865,
+        "sha256": "0d8f02ab3ddc41a4d507e6b7ebe374209d5b6217bd3cb1688da88c6b279263b0"
+      },
+      "current": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/src/polisyos/foundry/methods/compiler/README.md",
+        "git_blob": "59cc0948a8b25b93e35455b99ba17079f0adfd4a",
+        "bytes": 1865,
+        "sha256": "0d8f02ab3ddc41a4d507e6b7ebe374209d5b6217bd3cb1688da88c6b279263b0"
+      },
+      "candidate_equals_author_inputs": true
+    },
+    {
+      "author_file": {
+        "path": "/workspace/e02-F-fry-20261006/policy-engine/src/polisyos/ir/kernel/slots.py",
+        "bytes": 18445,
+        "sha256": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81"
+      },
+      "current": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/src/polisyos/ir/kernel/slots.py",
+        "git_blob": "1d656cc5b6643f6378f8dc54f4cc4272895cb6b8",
+        "bytes": 18445,
+        "sha256": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81"
+      },
+      "candidate_equals_author_inputs": true
+    },
+    {
+      "author_file": {
+        "path": "/workspace/e02-F-fry-20261006/policy-engine/src/polisyos/foundry/methods/layout.py",
+        "bytes": 350,
+        "sha256": "fb528428135bf40ddf36336bbdac7043b049d4ef9bf7e954ada1c9727100a69b"
+      },
+      "current": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/src/polisyos/foundry/methods/layout.py",
+        "git_blob": "a48ecff22baec80ddaf8d2939417f48086a00555",
+        "bytes": 350,
+        "sha256": "fb528428135bf40ddf36336bbdac7043b049d4ef9bf7e954ada1c9727100a69b"
+      },
+      "candidate_equals_author_inputs": true
+    },
+    {
+      "author_file": {
+        "path": "/workspace/e02-F-fry-20261006/policy-engine/src/polisyos/foundry/methods/compiler/layout.py",
+        "bytes": 220,
+        "sha256": "d0f981b9d24ed767107a9238f5bc9a16c6f5b45ed533a01adf0c35e52cd6f1b7"
+      },
+      "current": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/src/polisyos/foundry/methods/compiler/layout.py",
+        "git_blob": "a732c7945a25c09de05ee0a7be8f1a8ec8c90fe3",
+        "bytes": 220,
+        "sha256": "d0f981b9d24ed767107a9238f5bc9a16c6f5b45ed533a01adf0c35e52cd6f1b7"
+      },
+      "candidate_equals_author_inputs": true
+    },
+    {
+      "author_file": {
+        "path": "/workspace/e02-F-fry-20261006/policy-engine/architecture/public_surface/contract.toml",
+        "bytes": 19715,
+        "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+      },
+      "current": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/architecture/public_surface/contract.toml",
+        "git_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+        "bytes": 19715,
+        "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+      },
+      "candidate_equals_author_inputs": true
+    }
+  ],
+  "docs_actual_html_anchors": [
+    "polisyos.ir.kernel.slots.SlotLayout",
+    "polisyos.ir.kernel.slots.SlotFamily",
+    "polisyos.ir.kernel.slots.SlotFamilyManifest",
+    "polisyos.ir.kernel.slots.build_slot_layout",
+    "polisyos.ir.kernel.slots.build_slot_family_manifest"
+  ],
+  "docs_author_native_suite": {
+    "tests": 6,
+    "PASS": 6,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "execution": {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-native.execution.json",
+      "bytes": 1151,
+      "sha256": "652137e9f1afab10e28cbc355fe9816260aaafad4dc301daaffdc63f41cd67d7"
+    },
+    "origin_role": "author-native evidence independently inspected; no reviewer reexecution claimed"
+  },
+  "docs_author_scoped_build": {
+    "outcome": "PASS",
+    "receipt": {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs.json",
+      "bytes": 4716,
+      "sha256": "15c688101fe56732005594318ccad7a38563245fff64145d42bd300326547d32"
+    },
+    "scope": "actual inherited MkDocs/plugins; state page only, not full strict docs",
+    "full_stream_refs": {
+      "stdout": {
+        "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs.stderr.txt",
+        "bytes": 1579,
+        "sha256": "949582608c8f1462589b237eb9c6a93d8e0e84dab9c02078b9bc8e57ea713caa"
+      }
+    },
+    "html": {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs-site/reference/foundry/state/index.html",
+      "bytes": 423355,
+      "sha256": "33286ff53aa7888e2f7ba21a679ecb1087e3b9945e70f3c78ee3b7ff7f899396"
+    },
+    "original_notice_and_excluded_nav_INFO_preserved": true
+  },
+  "docs_owner_contract": {
+    "internal_rule": "Any polisyos module path not listed in this manifest is internal by default.",
+    "not_manifest_supported_entrypoints": [
+      "polisyos.foundry.methods.layout",
+      "polisyos.foundry.methods.compiler.layout"
+    ],
+    "canonical_imports": [
+      {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/src/polisyos/foundry/methods/layout.py",
+        "git_blob": "a48ecff22baec80ddaf8d2939417f48086a00555",
+        "bytes": 350,
+        "sha256": "fb528428135bf40ddf36336bbdac7043b049d4ef9bf7e954ada1c9727100a69b"
+      },
+      {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/src/polisyos/foundry/methods/compiler/layout.py",
+        "git_blob": "a732c7945a25c09de05ee0a7be8f1a8ec8c90fe3",
+        "bytes": 220,
+        "sha256": "d0f981b9d24ed767107a9238f5bc9a16c6f5b45ed533a01adf0c35e52cd6f1b7"
+      }
+    ],
+    "native_owner": "polisyos.ir.kernel.slots",
+    "native_objects": [
+      "SlotFamily",
+      "SlotFamilyManifest",
+      "SlotLayout",
+      "build_slot_family_manifest",
+      "build_slot_layout"
+    ],
+    "compiler_direct_IR_import": {
+      "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "path": "policy-engine/src/polisyos/foundry/compile/trinity_compiler.py",
+      "git_blob": "d80a17cd92b0127b85abd4e48bb4ed271283efae",
+      "bytes": 17693,
+      "sha256": "7608e9476321519fe9f8a024dc483caf909d97cefb185a7ec491fc21651bbe07"
+    },
+    "no_facade_runtime_export_identity_lifecycle_change": true
+  },
+  "graph_property_measurements": [
+    {
+      "mode": "untouched",
+      "execution": {
+        "argv": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph_guard_probe.py",
+          "untouched"
+        ],
+        "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+        "env_overrides": {
+          "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools:/workspace/e02-F-closeout-20261006/policy-engine",
+          "PYTHONDONTWRITEBYTECODE": "1"
+        },
+        "source_before": {
+          "head": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+          "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+          "source_bindings": [
+            {
+              "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+              "bytes": 62982,
+              "sha256": "087608c68bda58d1ae026006085665d04dce6d8f63c65849f200027fe4340855",
+              "git_blob": "3af0355c3f7e0dc4872f20c3b1d0223423785f55"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+              "bytes": 48337,
+              "sha256": "1491b91aaeb57b30d32e34c8fa1b5ab3be5ed20b0907dc9765eb3d916597bcdc",
+              "git_blob": "411d98f8bc3d355a997a83653d2b551011ba35d9"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+              "bytes": 26534,
+              "sha256": "d1c11a3161cca0d7720e9d3c4a7ba46649a2e672f2202688c8f03206bbb99465",
+              "git_blob": "5bfcc1b7fc4241422cd1eb4b69cc6a36693fd13c"
+            }
+          ]
+        },
+        "source_after": {
+          "head": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+          "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+          "source_bindings": [
+            {
+              "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+              "bytes": 62982,
+              "sha256": "087608c68bda58d1ae026006085665d04dce6d8f63c65849f200027fe4340855",
+              "git_blob": "3af0355c3f7e0dc4872f20c3b1d0223423785f55"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+              "bytes": 48337,
+              "sha256": "1491b91aaeb57b30d32e34c8fa1b5ab3be5ed20b0907dc9765eb3d916597bcdc",
+              "git_blob": "411d98f8bc3d355a997a83653d2b551011ba35d9"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+              "bytes": 26534,
+              "sha256": "d1c11a3161cca0d7720e9d3c4a7ba46649a2e672f2202688c8f03206bbb99465",
+              "git_blob": "5bfcc1b7fc4241422cd1eb4b69cc6a36693fd13c"
+            }
+          ]
+        },
+        "exit_code": 0,
+        "wall_seconds": 12.213250066008186,
+        "stdout": {
+          "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph-untouched.stdout.txt",
+          "bytes": 165369,
+          "sha256": "f15f9822d5a16885bdd15219d99575147c1cc61c409ac43191e0805fa4a257c8"
+        },
+        "stderr": {
+          "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph-untouched.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "junit": {
+          "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph-untouched.xml",
+          "bytes": 1606,
+          "sha256": "923173592ededfddda892880dc22f1afec34219a2aa3bbecd403ba7243ff6a0f"
+        },
+        "replayer": {
+          "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph_guard_probe.py",
+          "bytes": 3883,
+          "sha256": "d8da5d47a2a4010be57956cdcb9512a0205990136111c63b8c4bce02ad78e562"
+        },
+        "scope": "selected 7 cases; retained-marker graph-family admission control, no numerical worker/backend/authority claim"
+      },
+      "actual_counts": {
+        "tests": 7,
+        "PASS": 7,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "testcases": [
+        {
+          "name": "test_mgraph_producer_and_node_refuse_without_retyping_or_publishing",
+          "outcome": "PASS",
+          "message": null,
+          "complete_failure_body": null
+        },
+        {
+          "name": "test_supplied_mgraph_result_and_selected_cache_apply_same_profile_boundary",
+          "outcome": "PASS",
+          "message": null,
+          "complete_failure_body": null
+        },
+        {
+          "name": "test_same_admg_shape_has_real_producer_node_and_fresh_reader",
+          "outcome": "PASS",
+          "message": null,
+          "complete_failure_body": null
+        },
+        {
+          "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph0-expected0]",
+          "outcome": "PASS",
+          "message": null,
+          "complete_failure_body": null
+        },
+        {
+          "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph1-expected1]",
+          "outcome": "PASS",
+          "message": null,
+          "complete_failure_body": null
+        },
+        {
+          "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph2-expected2]",
+          "outcome": "PASS",
+          "message": null,
+          "complete_failure_body": null
+        },
+        {
+          "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph3-expected3]",
+          "outcome": "PASS",
+          "message": null,
+          "complete_failure_body": null
+        }
+      ],
+      "warning_lines": [
+        "  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping",
+        "  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir"
+      ],
+      "observed_origin_count": 970,
+      "source_origins_all_actual_candidate": true,
+      "fresh_reader_scope": "same-process reopened FileSystemCAS; no fresh child or admitted real-world Runtime authority claim"
+    },
+    {
+      "mode": "removed",
+      "execution": {
+        "argv": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph_guard_probe.py",
+          "removed"
+        ],
+        "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+        "env_overrides": {
+          "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools:/workspace/e02-F-closeout-20261006/policy-engine",
+          "PYTHONDONTWRITEBYTECODE": "1"
+        },
+        "source_before": {
+          "head": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+          "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+          "source_bindings": [
+            {
+              "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+              "bytes": 62982,
+              "sha256": "087608c68bda58d1ae026006085665d04dce6d8f63c65849f200027fe4340855",
+              "git_blob": "3af0355c3f7e0dc4872f20c3b1d0223423785f55"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+              "bytes": 48337,
+              "sha256": "1491b91aaeb57b30d32e34c8fa1b5ab3be5ed20b0907dc9765eb3d916597bcdc",
+              "git_blob": "411d98f8bc3d355a997a83653d2b551011ba35d9"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+              "bytes": 26534,
+              "sha256": "d1c11a3161cca0d7720e9d3c4a7ba46649a2e672f2202688c8f03206bbb99465",
+              "git_blob": "5bfcc1b7fc4241422cd1eb4b69cc6a36693fd13c"
+            }
+          ]
+        },
+        "source_after": {
+          "head": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+          "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+          "source_bindings": [
+            {
+              "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+              "bytes": 62982,
+              "sha256": "087608c68bda58d1ae026006085665d04dce6d8f63c65849f200027fe4340855",
+              "git_blob": "3af0355c3f7e0dc4872f20c3b1d0223423785f55"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+              "bytes": 48337,
+              "sha256": "1491b91aaeb57b30d32e34c8fa1b5ab3be5ed20b0907dc9765eb3d916597bcdc",
+              "git_blob": "411d98f8bc3d355a997a83653d2b551011ba35d9"
+            },
+            {
+              "path": "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+              "bytes": 26534,
+              "sha256": "d1c11a3161cca0d7720e9d3c4a7ba46649a2e672f2202688c8f03206bbb99465",
+              "git_blob": "5bfcc1b7fc4241422cd1eb4b69cc6a36693fd13c"
+            }
+          ]
+        },
+        "exit_code": 1,
+        "wall_seconds": 12.124280780000845,
+        "stdout": {
+          "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph-removed.stdout.txt",
+          "bytes": 170354,
+          "sha256": "bbfda65ba199504f971a80d8f53067ad5b70e6be4d9c04a7d239a954e7a720b9"
+        },
+        "stderr": {
+          "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph-removed.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "junit": {
+          "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph-removed.xml",
+          "bytes": 5423,
+          "sha256": "dacf47a7c7347efa08a7466dc3b612e30dc284fe49985b05ef10e076301e15cd"
+        },
+        "replayer": {
+          "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph_guard_probe.py",
+          "bytes": 3883,
+          "sha256": "d8da5d47a2a4010be57956cdcb9512a0205990136111c63b8c4bce02ad78e562"
+        },
+        "scope": "selected 7 cases; retained-marker graph-family admission control, no numerical worker/backend/authority claim"
+      },
+      "actual_counts": {
+        "tests": 7,
+        "PASS": 5,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "testcases": [
+        {
+          "name": "test_mgraph_producer_and_node_refuse_without_retyping_or_publishing",
+          "outcome": "FAIL",
+          "message": "AssertionError: JobResult(job_key=JobKey(value='job:3c5f3f351dbedf27d6c104081941cf3fd38256d1e0d5a6bdd0bf4656e7ce34ab'), state_delta_re...ues=[], warnings=['legacy_method_adapter_ref:sha256:c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771'])\nassert ([])\n +  where [] = JobResult(job_key=JobKey(value='job:3c5f3f351dbedf27d6c104081941cf3fd38256d1e0d5a6bdd0bf4656e7ce34ab'), state_delta_re...ues=[], warnings=['legacy_method_adapter_ref:sha256:c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771']).issues",
+          "complete_failure_body": "context = ExecutionContext(store=<polisyos.core.artifacts.store.FileSystemCAS object at 0x7fd539310ec0>, run=RunContext(store=<p...one, memory=None, eval_safety_execution_context=None, eval_safety_verifier=None, epoch_certificate_issuance_owner=None)\n\n    def test_mgraph_producer_and_node_refuse_without_retyping_or_publishing(context):\n        \"\"\"The actual missingness reader survives refusal of static reconciliation.\"\"\"\n        source_graph = scored_mgraph()\n        original = persist_causal_graph_model(context.store, source_graph)\n        job, _ = produce(context, source_graph)\n        direct = ReconcileCausalGraphNode().execute(\n            context,\n            ExperimentState(\n                run_id=\"graph-content\",\n                params={\"data_causal_graph\": source_graph.model_dump(mode=\"json\")},\n            ),\n        )\n>       assert job.issues and job.method_result_ref is None, job\nE       AssertionError: JobResult(job_key=JobKey(value='job:3c5f3f351dbedf27d6c104081941cf3fd38256d1e0d5a6bdd0bf4656e7ce34ab'), state_delta_re...ues=[], warnings=['legacy_method_adapter_ref:sha256:c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771'])\nE       assert ([])\nE        +  where [] = JobResult(job_key=JobKey(value='job:3c5f3f351dbedf27d6c104081941cf3fd38256d1e0d5a6bdd0bf4656e7ce34ab'), state_delta_re...ues=[], warnings=['legacy_method_adapter_ref:sha256:c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771']).issues\n\ntests/unit/scientist/methods/causal/test_graph_intake_current_content.py:134: AssertionError"
+        },
+        {
+          "name": "test_supplied_mgraph_result_and_selected_cache_apply_same_profile_boundary",
+          "outcome": "FAIL",
+          "message": "AssertionError: assert ('ok' == 'fail'\n  \n  - fail\n  + ok)",
+          "complete_failure_body": "context = ExecutionContext(store=<polisyos.core.artifacts.store.FileSystemCAS object at 0x7fd3c0b22fd0>, run=RunContext(store=<p...one, memory=None, eval_safety_execution_context=None, eval_safety_verifier=None, epoch_certificate_issuance_owner=None)\n\n    def test_supplied_mgraph_result_and_selected_cache_apply_same_profile_boundary(context):\n        \"\"\"The scored builder graph cannot enter through either selected CAS surface.\"\"\"\n        source_graph = scored_mgraph()\n        supplied = context.store.put_json(\n            {\"graph\": source_graph.model_dump(mode=\"json\")},\n            PutOptions(\n                kind=\"scientist.method_result.causal.discovery\",\n                media_type=\"application/json\",\n                schema=SchemaInfo(name=\"polisyos.scientist.MethodResult\", version=\"0.1.0\"),\n            ),\n            canon_spec=CanonSpec(forbid_floats=False),\n        )\n        original = persist_causal_graph_model(context.store, source_graph)\n        for key, ref in (\n            (ARTIFACT_CAUSAL_METHOD_RESULT_REF, supplied),\n            (ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF, original),\n        ):\n            outcome = ReconcileCausalGraphNode().execute(\n                context, ExperimentState(run_id=\"graph-content\", artifacts_index={key: ref})\n            )\n>           assert outcome.status == \"fail\" and not outcome.artifacts\nE           AssertionError: assert ('ok' == 'fail'\nE             \nE             - fail\nE             + ok)\n\ntests/unit/scientist/methods/causal/test_graph_intake_current_content.py:222: AssertionError"
+        },
+        {
+          "name": "test_same_admg_shape_has_real_producer_node_and_fresh_reader",
+          "outcome": "PASS",
+          "message": null,
+          "complete_failure_body": null
+        },
+        {
+          "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph0-expected0]",
+          "outcome": "PASS",
+          "message": null,
+          "complete_failure_body": null
+        },
+        {
+          "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph1-expected1]",
+          "outcome": "PASS",
+          "message": null,
+          "complete_failure_body": null
+        },
+        {
+          "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph2-expected2]",
+          "outcome": "PASS",
+          "message": null,
+          "complete_failure_body": null
+        },
+        {
+          "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph3-expected3]",
+          "outcome": "PASS",
+          "message": null,
+          "complete_failure_body": null
+        }
+      ],
+      "warning_lines": [
+        "  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping",
+        "  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir"
+      ],
+      "observed_origin_count": 970,
+      "source_origins_all_actual_candidate": true,
+      "fresh_reader_scope": "same-process reopened FileSystemCAS; no fresh child or admitted real-world Runtime authority claim"
+    }
+  ],
+  "b204_independent_review": {
+    "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/b204-independent-review.json",
+    "bytes": 9229,
+    "sha256": "7f330f3653414cacf04aa14547fe824dc3915380404b2a2db7edfc30aa8103e8"
+  },
+  "review_scope": [
+    "Canonical private family guard before filtering/reconciliation; unchanged static endpoint/lag guard.",
+    "Direct/supplied MethodResult, selected graph/cache/fragments/query reconstruction/prepersist call paths inspected.",
+    "ComposeSCMFragments covers typed-model-copy bypass; DTO already refuses unsupported families.",
+    "Known reverse/bidirected ADMG normalization retained; PAG projection and other partial/missingness consumer contracts unchanged.",
+    "Benchmark only checker changes; full native DID math and all other benchmark AST/fixture/runner remain unchanged.",
+    "LA037 docs establish IR ownership and direct compatibility bindings with tracked lifecycle prerequisites."
+  ],
+  "limitations": [
+    "No formal finding closure or G authority adjudication.",
+    "B214 remains broadly limited; only reconciliation/Compose/Node admission is DAG/ADMG.",
+    "Same-process reopenedCAS in these7tests; no new fresh-child claim.",
+    "No DoWhy/EconML optional backend/profile run, admitted real data or actual Runtime authority-positive from these probes.",
+    "Two original scanner ERROR/-9,103 RuffFAIL and38 static incomplete exports retain original-input scope; no third scanner or P41 exclusion.",
+    "No broad docs/native package/installed-suite PASS inferred."
+  ]
+}

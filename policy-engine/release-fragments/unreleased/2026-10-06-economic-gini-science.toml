@@ -1,0 +1,29 @@
+id = "2026-10-06-economic-gini-science"
+title = "Preserve exact Gini under changes in resource units"
+type = "fixed"
+component = "foundry"
+owner = "team-policyos-runtime"
+summary = "Remove the dimensionful epsilon from exact active-agent Gini and normalize finite resource values before the sorted pairwise-equivalent calculation. Route native aggregate/executor Gini to the same owner, excluding inactive padding. Tiny positive distributions now produce the same coefficient as ordinary and large units. Document bounded native fiscal/labor and economics-plugin equation profiles."
+compatibility = "Public names and result dtype promotion remain unchanged. Empty and all-zero nonnegative populations return typed zero; nonconstant signed zero-total populations return NaN. The named historical normalized income/budget score is unchanged."
+surface_classification = "internal: canonical agent_sim numerical owners; public_stable: existing Foundry execute outputs"
+change_class = "python-public-api"
+migration = "Consumers must treat signed zero-total relative Gini as undefined. No economic model or normative welfare objective is replaced."
+limitations = "Synthetic pairwise and finite accounting profiles do not establish real-data calibration, full economic-model equivalence, production optimizer callers or authority-grade economic admission. Approximate statistics retain their existing contracts."
+evidence = ["tests/unit/foundry/agent_sim/test_gini_science.py", "tests/unit/foundry/plugins/test_economic_profiles.py"]
+
+public_surface_inventory_reviewed = true
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "exact-active-economic-gini"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: existing Foundry execution outputs; internal: agent_sim exact Gini owners"
+owner = "team-policyos-runtime"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable: numerical bug fix retains existing names, signatures and dtype promotion"
+release_note = "Exact active-agent Gini now agrees with the pairwise definition for tiny, ordinary and large finite nonnegative resource units, including native aggregate execution outputs. Empty and all-zero populations return typed zero; signed zero-total relative Gini remains undefined as NaN."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []

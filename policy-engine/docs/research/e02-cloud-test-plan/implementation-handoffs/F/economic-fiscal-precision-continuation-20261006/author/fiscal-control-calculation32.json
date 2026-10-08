@@ -1,0 +1,46 @@
+{
+  "source_root": "/workspace/e02-F-economics-20261006",
+  "target_sha": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa",
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "JAX_ENABLE_X64": "1"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/frozen_fiscal_control.py",
+    "calculation32",
+    "tests/unit/foundry/execute/mechanisms/test_fiscal_precision.py::test_rate_is_materialized_at_income_dtype_before_native_calculation",
+    "-vv",
+    "--tb=short",
+    "-rA",
+    "--junitxml=/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-control-calculation32.xml"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-control-calculation32",
+  "artifact_paths": [
+    "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-control-calculation32.xml"
+  ],
+  "tree_sha": "dc4b6a932a11cba4470b9bbcf299d2d2f51b2301",
+  "source_status_before": "",
+  "elapsed_seconds": 15.28667426109314,
+  "exit_code": 1,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-control-calculation32.stdout",
+    "bytes": 220381,
+    "sha256": "df7e468ebb88960a8d29664bef65cb0c881e1afb3994b2429e66ff51524d0256"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-control-calculation32.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_status_after": "",
+  "artifacts": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-control-calculation32.xml",
+      "bytes": 5532,
+      "sha256": "70e7d81e9220b68b525e1acfcff5b519454b2e51bd0aea33bbbc9812b28f6fbd"
+    }
+  ]
+}

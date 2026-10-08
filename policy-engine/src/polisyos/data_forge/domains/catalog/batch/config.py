@@ -6,6 +6,7 @@ import platform
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from polisyos.data_forge.domains.catalog._resources import catalog_default_resource_path
 from polisyos.data_forge.domains.catalog.batch.checkpoints import hash_payload
 from polisyos.data_forge.domains.catalog.batch.source_registry import (
     SourceRegistry,
@@ -166,7 +167,7 @@ class DatasetBatchConfig:
 
     @property
     def default_metrics_map_path(self) -> Path:
-        return self.repo_root / "data" / "dataset_catalog" / "metrics_map.yaml"
+        return catalog_default_resource_path("metrics_map.yaml")
 
     @property
     def resolved_metrics_map_path(self) -> Path:

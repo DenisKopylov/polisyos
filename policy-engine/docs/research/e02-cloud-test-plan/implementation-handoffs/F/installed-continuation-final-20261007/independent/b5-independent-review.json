@@ -1,0 +1,780 @@
+{
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+  "outcome": "FAIL",
+  "consumer_verdict": "NO-GO: default composition seed resource absent in both genuinely installed profiles",
+  "custody_verdict": "PASS bounded complete declared source/archive/site/carrier byte contract; excludes complete runtime resource dependency closure",
+  "archives": {
+    "wheel": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-source/policy_engine-0.1.0-py3-none-any.whl",
+      "bytes": 15118848,
+      "sha256": "9e9935e7f27fc0abeed5153b1791f3f34cafa4f77555a85bfae8f49d3bc8e6b4"
+    },
+    "sdist": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-source/policy_engine-0.1.0.tar.gz",
+      "bytes": 119168300,
+      "sha256": "b76e7b2dd704f55c83268bae2c889a2bc8b4e821f236db3d3f7109fd07c756e4"
+    },
+    "rebuilt_wheel": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-rebuilt/policy_engine-0.1.0-py3-none-any.whl",
+      "bytes": 15118848,
+      "sha256": "9e9935e7f27fc0abeed5153b1791f3f34cafa4f77555a85bfae8f49d3bc8e6b4"
+    }
+  },
+  "source_export": {
+    "files": 17843,
+    "bytes": 550021601,
+    "aggregate": "e41e977c3416854676bf70423effdb2d6e4f4f307e586fd006a25ab493b82182",
+    "archive": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/source-git.tar.gz",
+      "bytes": 153663487,
+      "sha256": "8e07a0f8a7b511941d9b903ea8008189429cd4e84d85f447ff0095fc406e3a81"
+    }
+  },
+  "declared_resources": {
+    "architecture/production_quality/method_catalog_dependency_digest_domains.toml": "polisyos/foundry/methods/catalog/_resources/method_catalog_dependency_digest_domains.toml",
+    "workers/dowhy-014/worker.py": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/worker.py",
+    "workers/dowhy-014/protocol.py": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/protocol.py",
+    "workers/dowhy-014/pyproject.toml": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/pyproject.toml",
+    "workers/dowhy-014/uv.lock": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/uv.lock",
+    "workers/dowhy-014/.python-version": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/.python-version",
+    "workers/dowhy-014/README.md": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/README.md"
+  },
+  "complete_product_resource_files": 3459,
+  "complete_actual_python_files": 3146,
+  "carrier_files_each_profile": 41,
+  "profiles": {
+    "wheel": {
+      "outcomes": {
+        "PASS": 130,
+        "FAIL": 32
+      },
+      "by_module": {
+        "test_graph_intake_current_content": {
+          "PASS": 28,
+          "FAIL": 10
+        },
+        "test_reconcile_causal_graph_node": {
+          "PASS": 2,
+          "FAIL": 7
+        },
+        "test_reconcile_causal_graph": {
+          "PASS": 8
+        },
+        "test_graph_reconciliation": {
+          "PASS": 9,
+          "FAIL": 15
+        },
+        "test_installed_graph_contract_reconciliation": {
+          "PASS": 2
+        },
+        "test_tmle_persisted_evidence_consumers": {
+          "PASS": 53
+        },
+        "test_historical_income_baseline": {
+          "PASS": 21
+        },
+        "test_signed_gini_producer_route": {
+          "PASS": 7
+        }
+      },
+      "failure_ids": [
+        "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_allows_asymmetric_output_input_stitch",
+        "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_allows_chain_topology",
+        "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_allows_human_verified_latent_bridge",
+        "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_allows_proxy_but_marks_deferred",
+        "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_allows_supported_internal_cyclic_scc",
+        "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_blocks_cross_fragment_cyclic_scc",
+        "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_blocks_explicit_incompatible_pair_labels",
+        "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_blocks_research_only_cycle_contracts",
+        "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_defers_pending_latent_bridge_and_rejects_cycles",
+        "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_defers_when_cycle_contract_requires_review",
+        "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_preserves_exact_observed_interface",
+        "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_promotes_human_verified_proxy_to_preserved",
+        "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_promotes_output_to_admg_when_any_fragment_is_admg",
+        "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_rejects_disconnected_fragment_topology",
+        "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_rejects_unobserved_or_latent_pending_interfaces",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_recomputes_operational_cache",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update0]",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update1]",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update2]",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update3]",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update4]",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update5]",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_current_alignment_result",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_persisted_failure_card_body",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_resolves_selected_source_view",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_composes_fragments_and_persists_artifacts",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_composition",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_persists_latent_projection_certificate_artifacts",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_persists_negative_certificate_for_latent_hedge",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_recomputes_content_mismatched_precomputed_alignment",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_rejects_disconnected_fragment_topology",
+        "wheel-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_updates_query_preservation_cache_without_recomposing"
+      ],
+      "failure_diagnostics": [
+        {
+          "id": "wheel-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_recomputes_operational_cache",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_current_alignment_result",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update0]",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update1]",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update2]",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update3]",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update4]",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update5]",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_resolves_selected_source_view",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_persisted_failure_card_body",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_composes_fragments_and_persists_artifacts",
+          "direct_seed_diagnostic": false,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_recomputes_content_mismatched_precomputed_alignment",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_updates_query_preservation_cache_without_recomposing",
+          "direct_seed_diagnostic": false,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_persists_latent_projection_certificate_artifacts",
+          "direct_seed_diagnostic": false,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_persists_negative_certificate_for_latent_hedge",
+          "direct_seed_diagnostic": false,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_composition",
+          "direct_seed_diagnostic": false,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_rejects_disconnected_fragment_topology",
+          "direct_seed_diagnostic": false,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_preserves_exact_observed_interface",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_defers_when_cycle_contract_requires_review",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_blocks_research_only_cycle_contracts",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_allows_supported_internal_cyclic_scc",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_blocks_cross_fragment_cyclic_scc",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_promotes_output_to_admg_when_any_fragment_is_admg",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_allows_asymmetric_output_input_stitch",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_allows_chain_topology",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_rejects_disconnected_fragment_topology",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_rejects_unobserved_or_latent_pending_interfaces",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_allows_proxy_but_marks_deferred",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_promotes_human_verified_proxy_to_preserved",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_blocks_explicit_incompatible_pair_labels",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_defers_pending_latent_bridge_and_rejects_cycles",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "wheel-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_allows_human_verified_latent_bridge",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        }
+      ],
+      "direct_seed_diagnostic_count": 26,
+      "failure_common_basis": "Missing existing default seed_variable_alignments.yaml directly printed in a subset; remaining status-only assertions classified by same canonical alignment source path (source inference, not direct body proof)",
+      "product_origins": 1122,
+      "fresh_TMLe_I_reader_invocations": 53,
+      "unique_reader_proofs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-reader-origin-proofs/64588efabcfd934273cc931ebe7c3651d3de4d8bc80653c351829217d02df631.json",
+          "bytes": 163061,
+          "sha256": "64588efabcfd934273cc931ebe7c3651d3de4d8bc80653c351829217d02df631"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-reader-origin-proofs/8d14f6ae749038bc141ffe1188a7e57f1a4f665db4369e4abc15d6951a9df40b.json",
+          "bytes": 163458,
+          "sha256": "8d14f6ae749038bc141ffe1188a7e57f1a4f665db4369e4abc15d6951a9df40b"
+        }
+      ],
+      "actual_python_files": 3146,
+      "declared_product_resource_bytes": 3459,
+      "pth": [
+        {
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/site-packages/_virtualenv.pth",
+          "bytes": 18,
+          "sha256": "69ac3d8f27e679c81b94ab30b3b56e9cd138219b1ba94a1fa3606d5a76a1433d",
+          "content": "import _virtualenv"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/site-packages/e02_readonly_dependencies.pth",
+          "bytes": 84,
+          "sha256": "1d5408e0780e51f5ef971a8d6efa8093b4e709710a2dcfd3a0bc243e9f0725a3",
+          "content": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages\n"
+        }
+      ],
+      "native_command": {
+        "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+        "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+        "kind": "wheel",
+        "argv": [
+          "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/bin/python",
+          "-I",
+          "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/launch.py",
+          "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/installed-config.json",
+          "wheel"
+        ],
+        "measured_argv": [
+          "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/bin/python",
+          "-I",
+          "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/launch.py",
+          "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/installed-config.json",
+          "wheel"
+        ],
+        "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-consumer",
+        "environment": {
+          "PYTHONPATH": "absent",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "OMP_NUM_THREADS": "absent",
+          "OPENBLAS_NUM_THREADS": "absent",
+          "MKL_NUM_THREADS": "absent",
+          "NUMEXPR_NUM_THREADS": "absent",
+          "XLA_FLAGS": "absent",
+          "XLA_PYTHON_CLIENT_PREALLOCATE": "absent",
+          "JAX_PLATFORM_NAME": "absent",
+          "JAX_PLATFORMS": "absent",
+          "POLISYOS_DOWHY_WORKER_PYTHON": "absent"
+        },
+        "new_quota": false,
+        "parallel_profiles": 2,
+        "status": "FAIL",
+        "pid": 942497,
+        "exit_code": 1,
+        "wall_seconds": 555.1368211999943,
+        "stdout": {
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-native-v2.stdout.txt",
+          "bytes": 734080,
+          "sha256": "e2c083f56aa3508fbff2e0130f207bc166cdd590c9cc5da05dcaf03cf25f0a11"
+        },
+        "stderr": {
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-native-v2.stderr.txt",
+          "bytes": 2688,
+          "sha256": "f27034d236d7fc1d45460de79c8a8189d7c94241d52a8b2160eb9431f4ca274f"
+        },
+        "resources": {
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-resources-v2.json",
+          "bytes": 240,
+          "sha256": "b296b80dc503070ac96b5dfa4c2b4949b8d4fecf9724359401d3b052aa2bd8f3"
+        }
+      },
+      "full_stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-native-v2.stdout.txt",
+        "bytes": 734080,
+        "sha256": "e2c083f56aa3508fbff2e0130f207bc166cdd590c9cc5da05dcaf03cf25f0a11"
+      },
+      "full_stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-native-v2.stderr.txt",
+        "bytes": 2688,
+        "sha256": "f27034d236d7fc1d45460de79c8a8189d7c94241d52a8b2160eb9431f4ca274f"
+      },
+      "full_junit": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-junit.xml",
+        "bytes": 136647,
+        "sha256": "5e7dae86805252726870c05387d075f36e384a743fcd1a040f912b8024613050"
+      },
+      "current_warnings_from_full_author_census": {
+        "expected_bad_SimulationResult_loads": 36,
+        "Prometheus_fixed9464_bootstrap_failures_child": 36,
+        "Prometheus_bootstrap_mentions_complete_stdout": 36,
+        "PytestUnknownMarkWarning_unit": 1,
+        "Equinox_LayerNorm_deprecations": 15,
+        "actual_AnomalyFlag_warning_pattern": 0,
+        "LightGBM_literal": 0
+      },
+      "negative_gini_stderr_tracebacks": 2
+    },
+    "sdist": {
+      "outcomes": {
+        "PASS": 130,
+        "FAIL": 32
+      },
+      "by_module": {
+        "test_graph_intake_current_content": {
+          "PASS": 28,
+          "FAIL": 10
+        },
+        "test_reconcile_causal_graph_node": {
+          "PASS": 2,
+          "FAIL": 7
+        },
+        "test_reconcile_causal_graph": {
+          "PASS": 8
+        },
+        "test_graph_reconciliation": {
+          "PASS": 9,
+          "FAIL": 15
+        },
+        "test_installed_graph_contract_reconciliation": {
+          "PASS": 2
+        },
+        "test_tmle_persisted_evidence_consumers": {
+          "PASS": 53
+        },
+        "test_historical_income_baseline": {
+          "PASS": 21
+        },
+        "test_signed_gini_producer_route": {
+          "PASS": 7
+        }
+      },
+      "failure_ids": [
+        "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_allows_asymmetric_output_input_stitch",
+        "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_allows_chain_topology",
+        "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_allows_human_verified_latent_bridge",
+        "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_allows_proxy_but_marks_deferred",
+        "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_allows_supported_internal_cyclic_scc",
+        "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_blocks_cross_fragment_cyclic_scc",
+        "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_blocks_explicit_incompatible_pair_labels",
+        "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_blocks_research_only_cycle_contracts",
+        "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_defers_pending_latent_bridge_and_rejects_cycles",
+        "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_defers_when_cycle_contract_requires_review",
+        "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_preserves_exact_observed_interface",
+        "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_promotes_human_verified_proxy_to_preserved",
+        "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_promotes_output_to_admg_when_any_fragment_is_admg",
+        "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_rejects_disconnected_fragment_topology",
+        "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_rejects_unobserved_or_latent_pending_interfaces",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_recomputes_operational_cache",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update0]",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update1]",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update2]",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update3]",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update4]",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update5]",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_current_alignment_result",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_persisted_failure_card_body",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_resolves_selected_source_view",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_composes_fragments_and_persists_artifacts",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_composition",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_persists_latent_projection_certificate_artifacts",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_persists_negative_certificate_for_latent_hedge",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_recomputes_content_mismatched_precomputed_alignment",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_rejects_disconnected_fragment_topology",
+        "sdist-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_updates_query_preservation_cache_without_recomposing"
+      ],
+      "failure_diagnostics": [
+        {
+          "id": "sdist-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_recomputes_operational_cache",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_current_alignment_result",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update0]",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update1]",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update2]",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update3]",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update4]",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_complete_certificate_projection[update5]",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_resolves_selected_source_view",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.scientist.methods.causal.test_graph_intake_current_content::test_query_only_replay_reconciles_persisted_failure_card_body",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_composes_fragments_and_persists_artifacts",
+          "direct_seed_diagnostic": false,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_recomputes_content_mismatched_precomputed_alignment",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_updates_query_preservation_cache_without_recomposing",
+          "direct_seed_diagnostic": false,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_persists_latent_projection_certificate_artifacts",
+          "direct_seed_diagnostic": false,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_persists_negative_certificate_for_latent_hedge",
+          "direct_seed_diagnostic": false,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_composition",
+          "direct_seed_diagnostic": false,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node::test_reconcile_causal_graph_node_rejects_disconnected_fragment_topology",
+          "direct_seed_diagnostic": false,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_preserves_exact_observed_interface",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_defers_when_cycle_contract_requires_review",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_blocks_research_only_cycle_contracts",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_allows_supported_internal_cyclic_scc",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_blocks_cross_fragment_cyclic_scc",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_promotes_output_to_admg_when_any_fragment_is_admg",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_allows_asymmetric_output_input_stitch",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_allows_chain_topology",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_rejects_disconnected_fragment_topology",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_rejects_unobserved_or_latent_pending_interfaces",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_allows_proxy_but_marks_deferred",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_promotes_human_verified_proxy_to_preserved",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_blocks_explicit_incompatible_pair_labels",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_defers_pending_latent_bridge_and_rejects_cycles",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        },
+        {
+          "id": "sdist-consumer.tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation::test_compose_scm_fragments_allows_human_verified_latent_bridge",
+          "direct_seed_diagnostic": true,
+          "source_inference_if_not_direct": "Same default alignment/composition path; assertion omits NodeError body, no additional native replay"
+        }
+      ],
+      "direct_seed_diagnostic_count": 26,
+      "failure_common_basis": "Missing existing default seed_variable_alignments.yaml directly printed in a subset; remaining status-only assertions classified by same canonical alignment source path (source inference, not direct body proof)",
+      "product_origins": 1122,
+      "fresh_TMLe_I_reader_invocations": 53,
+      "unique_reader_proofs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-reader-origin-proofs/15d86a133f366be7dfb6084e2c6072d563a748b2d020c8711ae5b3fd2dc40df1.json",
+          "bytes": 163458,
+          "sha256": "15d86a133f366be7dfb6084e2c6072d563a748b2d020c8711ae5b3fd2dc40df1"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-reader-origin-proofs/9e68a8d0bb691d360c0fcb3d5ab6a8273caa7ad0f36d0d2352a5899f4e8435ac.json",
+          "bytes": 163061,
+          "sha256": "9e68a8d0bb691d360c0fcb3d5ab6a8273caa7ad0f36d0d2352a5899f4e8435ac"
+        }
+      ],
+      "actual_python_files": 3146,
+      "declared_product_resource_bytes": 3459,
+      "pth": [
+        {
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/lib/python3.14/site-packages/_virtualenv.pth",
+          "bytes": 18,
+          "sha256": "69ac3d8f27e679c81b94ab30b3b56e9cd138219b1ba94a1fa3606d5a76a1433d",
+          "content": "import _virtualenv"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/lib/python3.14/site-packages/e02_readonly_dependencies.pth",
+          "bytes": 84,
+          "sha256": "1d5408e0780e51f5ef971a8d6efa8093b4e709710a2dcfd3a0bc243e9f0725a3",
+          "content": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages\n"
+        }
+      ],
+      "native_command": {
+        "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+        "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+        "kind": "sdist",
+        "argv": [
+          "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/bin/python",
+          "-I",
+          "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/launch.py",
+          "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/installed-config.json",
+          "sdist"
+        ],
+        "measured_argv": [
+          "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/bin/python",
+          "-I",
+          "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/launch.py",
+          "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/installed-config.json",
+          "sdist"
+        ],
+        "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-consumer",
+        "environment": {
+          "PYTHONPATH": "absent",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "OMP_NUM_THREADS": "absent",
+          "OPENBLAS_NUM_THREADS": "absent",
+          "MKL_NUM_THREADS": "absent",
+          "NUMEXPR_NUM_THREADS": "absent",
+          "XLA_FLAGS": "absent",
+          "XLA_PYTHON_CLIENT_PREALLOCATE": "absent",
+          "JAX_PLATFORM_NAME": "absent",
+          "JAX_PLATFORMS": "absent",
+          "POLISYOS_DOWHY_WORKER_PYTHON": "absent"
+        },
+        "new_quota": false,
+        "parallel_profiles": 2,
+        "status": "FAIL",
+        "pid": 942498,
+        "exit_code": 1,
+        "wall_seconds": 554.751582382014,
+        "stdout": {
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-native-v2.stdout.txt",
+          "bytes": 734078,
+          "sha256": "1a3679d85a59c963018a4c2298ad49fd1ea855ddc07054c3cb0c4144f6b43ff3"
+        },
+        "stderr": {
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-native-v2.stderr.txt",
+          "bytes": 2688,
+          "sha256": "d11abf395b590f8a66ef903c5b321bf5acca4d41ba6975dbca7b503fd6563880"
+        },
+        "resources": {
+          "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-resources-v2.json",
+          "bytes": 241,
+          "sha256": "58f27b7ff031b126fceed306ffdec4623c366692cbdc66437bd3be8babebc855"
+        }
+      },
+      "full_stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-native-v2.stdout.txt",
+        "bytes": 734078,
+        "sha256": "1a3679d85a59c963018a4c2298ad49fd1ea855ddc07054c3cb0c4144f6b43ff3"
+      },
+      "full_stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-native-v2.stderr.txt",
+        "bytes": 2688,
+        "sha256": "d11abf395b590f8a66ef903c5b321bf5acca4d41ba6975dbca7b503fd6563880"
+      },
+      "full_junit": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-junit.xml",
+        "bytes": 136647,
+        "sha256": "d332e9248ad4e0743408a37d92adc2aa8a2f45b942db09e3ff39ecc077187e91"
+      },
+      "current_warnings_from_full_author_census": {
+        "expected_bad_SimulationResult_loads": 36,
+        "Prometheus_fixed9464_bootstrap_failures_child": 36,
+        "Prometheus_bootstrap_mentions_complete_stdout": 36,
+        "PytestUnknownMarkWarning_unit": 1,
+        "Equinox_LayerNorm_deprecations": 15,
+        "actual_AnomalyFlag_warning_pattern": 0,
+        "LightGBM_literal": 0
+      },
+      "negative_gini_stderr_tracebacks": 2
+    }
+  },
+  "resource_class": {
+    "maintained_facade": "polisyos.data_forge.read_api.catalog.default_seed_alignments_path",
+    "canonical_owner": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+    "owner_sha256": "6dbfbb04cddff8d1af11ed226e68092a2763a8d007b73f911f4ed9eaa5e54cd9",
+    "source_seed": {
+      "source": "policy-engine/data/dataset_catalog/seed_variable_alignments.yaml",
+      "git_blob": "49d63f6e693ab9488fad50b25d75b042f3dff9dd",
+      "bytes": 1309,
+      "sha256": "cb1daa3237ff58d8c875571ff2459a55c5182c3a4f13a076497a517f9a8740d8"
+    },
+    "existing_default": "Path(__file__).resolve().parents[6]/data/dataset_catalog/seed_variable_alignments.yaml",
+    "canonical_yaml_present_git_export": true,
+    "yaml_absent_source_sdist_wheel_and_both_installs": true,
+    "required_owner_direction": "Canonical source/package durable Path resolver plus finite original-resource HATCH/sdist mapping; no CWD/neighbor data fallback, source injection or version-specific upward wheel data placement"
+  },
+  "scientific_authority_limit": "Known synthetic candidates only; all real admitted/Runtime operational/statistical/value-positive authority and B56 study budget remain unestablished",
+  "historical_proof_limits": "Historical8236 installed199 and competing3dde receipts remain source-specific; no current whole-head PASS",
+  "native_reexecuted": false,
+  "new_authority_or_resource_injected": false,
+  "source_sites_archives_unchanged": true,
+  "observer_history": {
+    "outcome": "ERROR",
+    "scope": "Reviewer metadata assumed every failure XML repeats NodeError; six status-only assertions omit underlying message. Corrected direct-vs-source-inference attribution; native not rerun",
+    "full_stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/b5-first-observer-error.stderr.txt",
+      "bytes": 3636,
+      "sha256": "3a494198a518a2d0f660f0f51299403cc5a9bf888343a3d1566dbc2a0e34c80c"
+    },
+    "original_script": {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/review_b5_packet_first_observer_error.py",
+      "bytes": 12182,
+      "sha256": "45c85e3d9b4bdf1e604f0b3d11b4b33d104651195f126991d69481c3be884b0e"
+    },
+    "second_observer_error": {
+      "scope": "Reader observer is nested in outer source diagnostic child_stdout, not top-level; normalize only pytest dot prefix and parse canonical JSON child lines, no native rerun",
+      "full_stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/b5-second-observer-error.stderr.txt",
+        "bytes": 227,
+        "sha256": "7685c77d5033823748482dd485b085cacf916f21b81a93632808ae8ec2e13715"
+      },
+      "script": {
+        "path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/review_b5_packet_second_observer_error.py",
+        "bytes": 13485,
+        "sha256": "09773930239a5198c78502820225a815c45a27c56afc8a651ebbc1601c21001d"
+      }
+    }
+  },
+  "seconds": 123.26134806999471
+}

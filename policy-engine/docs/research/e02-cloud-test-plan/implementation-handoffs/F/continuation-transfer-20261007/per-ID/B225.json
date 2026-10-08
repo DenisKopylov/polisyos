@@ -1,0 +1,210 @@
+{
+  "finding_id": "B225",
+  "primary_owner_from_full_TSV": {
+    "finding_id": "B225",
+    "unit": "F",
+    "docx_analytical_package": "P35",
+    "source_closure_owner": "SCM-03",
+    "source_bundle_ids": "SCM-03",
+    "source_status": "partial"
+  },
+  "bundle_owner_from_full_TSV": {
+    "bundle_id": "SCM-03",
+    "unit": "F",
+    "initial_writer_family": "F-W06",
+    "title": "Активный query-plan и сохранённый stochastic law"
+  },
+  "original_card_refs": [
+    {
+      "criterion_id": "B225",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        5459,
+        5472
+      ],
+      "bytes": 3659,
+      "sha256": "9fc38772c0cd77e8bb8da7abd1d8423345cf151f598107387b177b4900860879",
+      "title": "## B225. Ошибка стохастической политики меняет вмешательство; хвостовой truncnorm превращается в атом",
+      "byte_binding_check": "PASS"
+    }
+  ],
+  "original_text": "## B225. Ошибка стохастической политики меняет вмешательство; хвостовой truncnorm превращается в атом\n\n**Происхождение и приоритет:** C21-10. Высокий для заданного стохастического закона; небольшой первый ремонт sampler. Основание: `_sample_stochastic_distribution` и `_apply_intervention`. [C21.R05]\n\n**Проблема.** Ошибка разбора стохастического распределения при наличии fallback_treatment_value приводит к atomic do, хотя исходный InterventionSpec остаётся STOCHASTIC. Записывается warning, но исполняется другая политика. Отдельно truncnorm делает не более 200 rejection-попыток, затем берёт ещё один обычный normal и обрезает его до границ. Ограничение времени разумно; замена условного распределения обрезанным значением — нет.\n\n**LAW01–LAW04.** `typo(0,1)` с fallback7 выдаёт десять семёрок и одно предупреждение. Без fallback существующая ветвь правильно отказывает. Для `truncnorm(0,1,8,9)` сто samples потребовали 20 100 normal-draws; все результаты равны нижней границе8. Настоящий SciPy truncnorm на том же диапазоне дал сто внутренних значений, среднее8,116469, ни одного граничного атома. Uniform(2,3) в положительном контроле сохранил поддержку.\n\n**Исправление.** Разрешать и проверять intervention-law один раз до sampling. Для поддержанного truncnorm применять устойчивый алгоритм условной хвостовой выборки, например существующий SciPy с корректным переводом границ в стандартизованные a,b; не умножать rejection-лимит вслепую. [C21.E06]\n\nНеподдержанный закон даёт адресный capability-result либо отдельный явно выбранный альтернативный запрос. Atomic-альтернатива может быть полезной, но не считается завершением исходной стохастической задачи. Warning сохраняется и не заменяет эту привязку. Операция TRUNCATED как clipping естественного значения может быть самостоятельной правильной политикой; она не тождественна conditional truncnorm.\n\n**Приёмка.** Проверять положительную масштабную величину, поддержку, вырожденные и хвостовые случаи, фиксацию random-stream, отсутствие неразрешённой смены политики. Для дорогой модели парсинг и подготовка закона переиспользуются; каждая новая научная реплика остаётся отдельной реализацией. Настоящий policy-authority/registry/публикация здесь не запускались.\n\n",
+  "primary_acceptance_scope": "Supported stochastic Normal/Uniform/TruncNormal/atomic laws with stable tails/scales/support/degenerate cases and independent math.erfc oracle; unknown law refuses.",
+  "source_chain": {
+    "producer": "GCMQuery intervention planner/sampler",
+    "artifact": "typed stochastic outcome/query result",
+    "bridge": "method output/CAS/ref reconciliation",
+    "consumer": "fresh reader and declared static-law consumers"
+  },
+  "actual_recorded_consumer": "GCMQuery stochastic intervention sampler → outcome DTO/CAS",
+  "surface": "Declared SCM model/query/result DTOs, GCM/Twin method outputs and generated canonical CAS/fresh-reader consumer seam",
+  "deciding_receipt_refs": [
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+      "bytes": 150139,
+      "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+      "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B225"
+      ]
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+      "bytes": 150139,
+      "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+      "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B225"
+      ],
+      "json_pointer": "/per_id/10"
+    },
+    {
+      "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "head": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json",
+      "bytes": 131648,
+      "sha256": "0aef8daff10c6a047fd5104910bdf79bfc06f58a2cd0c7ef3ba80c2406292570",
+      "git_blob": "0b1ef4b091d7898a7b37c52cb6c38b6aa7d66861",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B225"
+      ],
+      "json_pointer": "/per_id/B225"
+    }
+  ],
+  "deciding_per_ID_carrier_ref": {
+    "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B225.json",
+    "bytes": 31669,
+    "sha256": "25ca5c9a52189aed937c923c7f6c883ce4b918c2c10d223b0d51b44b0dd505ed",
+    "git_blob": "d7c3ab947c38a27ff395bd882c3843be939e48fa"
+  },
+  "scientific_implementation": {
+    "sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+    "tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+    "not_receipt_carrier": true
+  },
+  "recorded_independent_oracle_and_negative": "Independent math.erfc Normal CDF; positive-tail survival-function differences; original test_scm_result_semantics.py@6dcb lines222–250. No same-SciPy-CDF independence claim.",
+  "complete_raw_receipt_checks_refs": [
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/0",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/1",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/2",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/3",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/4",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/5",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/6",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/7",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/8",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/9",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/10",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/11",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/12",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/13",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/14",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/15",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/16",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/17",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/18",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/19",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/20",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/21",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/22",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/23",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/24",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/25",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/26",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/27",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/28",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/29",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/30",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/31",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/32",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/33",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/34",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/35",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/36",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/0",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/1",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/2",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/3",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/4",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/5",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/6",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/7",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/8",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/9",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/10",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/11",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/12",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/13",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/14",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/15",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/16",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/17",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/18",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/19",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/20",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/21",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/22",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/23"
+  ],
+  "historical_ROOT072": {
+    "check": "PASS",
+    "outcome": "closed",
+    "technical_original_criterion_recommendation": "closed",
+    "current_continuation_outcome_recommendation": "closed",
+    "original_criterion_remainder": "Supported Normal/Uniform/TruncNormal/explicit atomic laws.",
+    "actual_consumer": "GCMQuery stochastic intervention sampler → outcome DTO/CAS",
+    "oracle_and_negative": "Independent math.erfc Normal CDF; positive-tail survival-function differences; original test_scm_result_semantics.py@6dcb lines222–250. No same-SciPy-CDF independence claim.",
+    "separate_unavailable_inputs_or_authority": "No unknown policy law admission or policy authority."
+  },
+  "independent_original_criterion_recommendation": {
+    "check": "PASS",
+    "outcome": "closed",
+    "basis": "Independent math.erfc/CDF oracle and actual extreme-tail sampler controls apply; product self-comparison is not the numerical oracle.",
+    "scientific_rerun": false,
+    "review_scope": "independent criterion/evidence reconciliation; not an independently rerun estimator measurement",
+    "missing_actual_original_criterion": null,
+    "new_owner_review_pending": false,
+    "not_formal_G_closure": true
+  },
+  "separate_unavailable_inputs_or_authority": "No unknown policy law admission or policy authority.",
+  "existing_author_or_reviewer_conflict": null,
+  "schema": "e02.F.original-finding.v3",
+  "primary_bundle": "SCM-03",
+  "criterion_short": "Supported stochastic Normal/Uniform/TruncNormal/atomic laws with stable tails/scales/support/degenerate cases and independent math.erfc oracle; unknown law refuses.",
+  "check_result": "PASS",
+  "F_finding_outcome": "closed",
+  "F_technical_recommendation": "closed",
+  "F_rationale": "Independent math.erfc/CDF oracle and actual extreme-tail sampler controls apply; product self-comparison is not the numerical oracle.",
+  "code_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+  "code_tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+  "consumer": "GCMQuery stochastic intervention sampler → outcome DTO/CAS",
+  "oracle_and_negative": "Independent math.erfc Normal CDF; positive-tail survival-function differences; original test_scm_result_semantics.py@6dcb lines222–250. No same-SciPy-CDF independence claim.",
+  "G_finding_acceptance": {
+    "status": "not_issued",
+    "formal_G_closed": false
+  },
+  "G_code_acceptance": {
+    "status": "not_inferred",
+    "source_sha": null,
+    "basis": "Independent F GO/code-ready is not G code acceptance"
+  },
+  "original_missing_input": null,
+  "original_next_owner": null,
+  "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+  "root_assembled_source": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "not_new_numerical_proof": true
+  },
+  "new_property_followups_not_automatically_original_reopen": []
+}

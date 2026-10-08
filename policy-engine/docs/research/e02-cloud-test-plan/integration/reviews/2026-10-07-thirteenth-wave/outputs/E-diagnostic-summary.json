@@ -1,0 +1,263 @@
+{
+  "artifacts": {
+    "execution_receipt": {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/closure-repair2/execution-receipt.json",
+      "sha256": "3c65178ecff8e4611dd064b85e4aae7052a28231decdab82d10d06168c4e0282"
+    },
+    "final_harness": {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/closure-repair2/e_profile_diagnostics.py",
+      "sha256": "1e857214c4c132953ef539943e648c21711c655e1e8e9e1d8c78e6ebeba6800f"
+    },
+    "origin_audit": {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/closure-repair2/origin-audit.json",
+      "sha256": "8553cbfb93699c88d0c99e8be52fecce91f4b0b49349d1a23940d20d8b8895d2"
+    },
+    "result": {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/closure-repair2/diagnostic-result.json",
+      "sha256": "3bd22b3b7cc1b4d3d27f40f5c8aa0c3899251f0f5f8f090a31fdf6104fae6058"
+    },
+    "source_export_repair_receipt": {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/export-repair1.json",
+      "sha256": "168be5d83d6a41f75e9f6928fb5680e745f91f3b4eb63fd5209773db28bee0af"
+    },
+    "stderr": {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/closure-repair2/e-profile-diagnostics.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout": {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/closure-repair2/e-profile-diagnostics.stdout.txt",
+      "sha256": "3bd22b3b7cc1b4d3d27f40f5c8aa0c3899251f0f5f8f090a31fdf6104fae6058"
+    }
+  },
+  "candidate": {
+    "commit": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "origin_errors": [],
+    "origin_module_count": 763,
+    "source_manifest": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/source-manifest-repair1.json",
+    "source_manifest_sha256": "e4da9946d717433f05eaba222ea5c782d2a7a721bcb870b7b4db1170c97ed550",
+    "source_unchanged_before_after": true,
+    "src_paths": 2917,
+    "tracked_export_paths_verified": 2926,
+    "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7"
+  },
+  "harness_history": [
+    {
+      "attempt": "initial",
+      "cause": "three exact architecture/production_quality registry TOMLs were omitted from initial export",
+      "status": "ERROR before diagnostic operations",
+      "stderr": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/e-profile-diagnostics.stderr.txt",
+      "stderr_sha256": "f9a24959f6e4178565ca0d0b8b6498acbd42e52a6628fa89ee51a2f39981adf5"
+    },
+    {
+      "attempt": "closure-repair1",
+      "cause": "new output subdirectory lacked inputs/ directory",
+      "status": "ERROR before diagnostic operations",
+      "stderr": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/closure-repair1/e-profile-diagnostics.stderr.txt",
+      "stderr_sha256": "71d1c40b033ea5ee440bbbf8b8a5541cedd4c551c6458954032d89ea60a6b3e7"
+    },
+    {
+      "attempt": "closure-repair2",
+      "execution_receipt": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/closure-repair2/execution-receipt.json",
+      "status": "PASS_HARNESS"
+    }
+  ],
+  "join": {
+    "generic_fresh_reader_state": "returned",
+    "inputs": [
+      {
+        "artifact_id": "sha256:de1a33488a250f03098bef9cf3becd61eb1570faae5869501203b1629f327bd4",
+        "literal_exact_mean": {
+          "float": 2.0,
+          "fraction": "2",
+          "normalized_fraction_weights": [
+            "1"
+          ],
+          "weights_as_binary64": [
+            0.5
+          ]
+        },
+        "ratio_weight_sum": 0.5,
+        "raw_ratio_weights": [
+          0.5
+        ]
+      },
+      {
+        "artifact_id": "sha256:375634d5a920b5eb774639dcd43c6acdb1ac99f9f402e9da5131175bc9d5a774",
+        "literal_exact_mean": {
+          "float": 12.0,
+          "fraction": "12",
+          "normalized_fraction_weights": [
+            "1/2",
+            "1/2"
+          ],
+          "weights_as_binary64": [
+            0.5,
+            0.5
+          ]
+        },
+        "ratio_weight_sum": 1.0,
+        "raw_ratio_weights": [
+          0.5,
+          0.5
+        ]
+      }
+    ],
+    "interpretation_limit": "Only input ratio weights and literal input means are independently computed. No mixture semantics or expected joined mean is asserted.",
+    "joined_artifact_id": "sha256:1b9c22f50736a70641097050558bd9472b4d1d558e7d85dde53ce9a927544179",
+    "joined_carrier": {
+      "samples": [
+        2.0,
+        10.0,
+        14.0
+      ],
+      "type": "PosteriorSamplesCarrier",
+      "weights": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "joined_interval": [
+      2.0,
+      14.0
+    ],
+    "joined_point_estimate": 6.0,
+    "joined_profile": {
+      "state": "returned",
+      "value": null
+    },
+    "strict_fresh_profile": {
+      "state": "returned",
+      "value": null
+    },
+    "strict_fresh_reader_state": "returned"
+  },
+  "positive_control": {
+    "callback_arguments": [
+      1.0,
+      3.0
+    ],
+    "independent_literal_mean": {
+      "float": 4.0,
+      "fraction": "4",
+      "normalized_fraction_weights": [
+        "1/2",
+        "1/2"
+      ],
+      "weights_as_binary64": [
+        0.5,
+        0.5
+      ]
+    },
+    "input_samples": [
+      1.0,
+      3.0
+    ],
+    "mapped_samples": [
+      2.0,
+      6.0
+    ],
+    "persisted_ref": "sha256:07d87dea69074d9703dd116b5bad141970753172be88140ae3474facd5faace6",
+    "source_artifact_id": "sha256:39a61bcf4f630bdcd0fc8d539a6bcd33d1fba3e933324b946ef421a0eeaba758",
+    "stored_profile_mean": 4.0,
+    "strict_fresh_state": "returned"
+  },
+  "raw_profile_admission_controls": [
+    {
+      "cas_bytes_sha256": "cf279b7ca4f3d2160fe9a3b4774853e63772a9074b528d7dcc49bf4a777a4444",
+      "input_cas_artifact_id": "sha256:cf279b7ca4f3d2160fe9a3b4774853e63772a9074b528d7dcc49bf4a777a4444",
+      "input_json": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/closure-repair2/inputs/raw-bool-raw-cas.json",
+      "input_sha256": "6095acd7082985b0699fc917178cbfebf0d4dc716257f9859911aaaca1eadad5",
+      "legacy_loader_state": "returned",
+      "legacy_push_callback_arguments": [
+        0.0,
+        1.0
+      ],
+      "persisted_ref": "sha256:4e5c8a0f49794dc7c6a85a1c36d4675b122bebb4e8e6c7e9c6a5bbb3e13ef5d4",
+      "raw_mutation": {
+        "python_type": "bool",
+        "sample_index": 1,
+        "value": true
+      },
+      "raw_type_case": "raw-bool",
+      "strict_fresh_profile_mean": 1.5,
+      "strict_fresh_samples": [
+        1.0,
+        2.0
+      ],
+      "strict_fresh_state": "returned",
+      "strict_loader": {
+        "exception_type": "ValueError",
+        "message": "posterior summary raw carrier requires finite real non-bool values",
+        "state": "raised"
+      }
+    },
+    {
+      "cas_bytes_sha256": "de09260c5d1cb8b6bb8a64525d2f103f44c44d2ebf4334fa8e584159e675e2b1",
+      "input_cas_artifact_id": "sha256:de09260c5d1cb8b6bb8a64525d2f103f44c44d2ebf4334fa8e584159e675e2b1",
+      "input_json": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/closure-repair2/inputs/raw-numeric-string-raw-cas.json",
+      "input_sha256": "a93b199f51275b2ef8a327ebc3c7d1c3ca9b8bb4f5931179de05f78c789b7c15",
+      "legacy_loader_state": "returned",
+      "legacy_push_callback_arguments": [
+        0.0,
+        1.0
+      ],
+      "persisted_ref": "sha256:4e5c8a0f49794dc7c6a85a1c36d4675b122bebb4e8e6c7e9c6a5bbb3e13ef5d4",
+      "raw_mutation": {
+        "python_type": "str",
+        "sample_index": 1,
+        "value": "1.0"
+      },
+      "raw_type_case": "raw-numeric-string",
+      "strict_fresh_profile_mean": 1.5,
+      "strict_fresh_samples": [
+        1.0,
+        2.0
+      ],
+      "strict_fresh_state": "returned",
+      "strict_loader": {
+        "exception_type": "ValueError",
+        "message": "posterior summary raw carrier requires finite real non-bool values",
+        "state": "raised"
+      }
+    }
+  ],
+  "runtime": {
+    "child_ru_maxrss_platform_bytes": 548438016,
+    "command": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/closure-repair2/e_profile_diagnostics.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/candidate/policy-engine",
+    "environment_readback": {
+      "E02_CANDIDATE_ROOT": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/candidate/policy-engine",
+      "E02_CANDIDATE_SHA": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "E02_CANDIDATE_TREE": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+      "E02_GROOT": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+      "E02_ORIGIN_AUDIT_PATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/closure-repair2/origin-audit.json",
+      "E02_SOURCE_MANIFEST": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/source-manifest-repair1.json",
+      "E_PROFILE_FIXTURE_BLOB": "91c64a39aade054c5dcdfbed9600db3554d7fdc8",
+      "E_PROFILE_OUTPUT": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/closure-repair2",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/harness:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/candidate/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/candidate/policy-engine"
+    },
+    "interpreter": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "junit": "not_applicable_direct_api_script",
+    "numpy": "2.3.5",
+    "pydantic": "2.12.5",
+    "python": "Python 3.14.3",
+    "returncode": 0,
+    "status": "PASS_HARNESS",
+    "timed_out": false,
+    "timeout_seconds": 90,
+    "wall_seconds": 6.469033083005343
+  },
+  "schema": "policyos.e02.g_local_profile2_public_diagnostic.v1",
+  "scope_limit": "Synthetic public API diagnostics only; no full suite, backend parity, production data, source acceptance, or finding closure."
+}

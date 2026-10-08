@@ -1,0 +1,71 @@
+{
+  "structured": [
+    {
+      "id": "causal-graph-detached-export-rows",
+      "change_class": "internal",
+      "impact": "compatible",
+      "surface": "internal: polisyos.ir.analytics.causal_graph.CausalGraphModel cached export row preparation",
+      "owner": "team-ir",
+      "version_owner": "team-ir",
+      "deprecation_window": "not_applicable",
+      "release_note": "Causal graph export readers retain tuple/plain-dict values and isolate caller mutations from cached row preparations.",
+      "generated_client_compatibility": "declared_compatible",
+      "migration_docs": [
+        "docs/reference/ir/causal-graph-cache-rows.md"
+      ],
+      "runbook_docs": [
+        "docs/reference/ir/causal-graph-cache-rows.md"
+      ],
+      "fragment": "/workspace/e02-F-graph-20261006/policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-cache-rows.toml"
+    },
+    {
+      "id": "static-admg-original-profile-admission",
+      "change_class": "internal",
+      "impact": "breaking",
+      "surface": "internal: polisyos.foundry.methods.catalog.causal static graph inference providers",
+      "owner": "team-foundry",
+      "version_owner": "team-foundry",
+      "deprecation_window": "not_applicable: correction of unsupported causal inference",
+      "release_note": "Static inference refuses unresolved endpoints and compact lagged edges on the original graph, including empty/no-op requests; known reverse arrows retain directed semantics.",
+      "generated_client_compatibility": "not_applicable",
+      "migration_docs": [
+        "docs/reference/foundry/static-admg-profile.md"
+      ],
+      "runbook_docs": [
+        "docs/reference/foundry/static-admg-profile.md"
+      ],
+      "fragment": "/workspace/e02-F-graph-20261006/policy-engine/release-fragments/unreleased/2026-10-06-static-admg-profile.toml"
+    }
+  ],
+  "errors": [],
+  "findings": []
+}
+## [unreleased-f-static-profile] - 2026-10-06
+
+### Fixed
+- `ir`: Isolate causal graph export rows from caller mutations: Cache immutable row preparations and return detached ordinary node and edge dictionaries so caller mutation cannot corrupt later graph exports.
+- `foundry`: Refuse unsupported original graph profiles before static inference: Share original-graph admission across static ADMG separation, surgery, rewriting and inference builders, and normalize known reverse-stored arrows.
+
+## Compatibility Notes
+- Existing tuple-of-dictionaries consumer values and graph schema 1.0 are unchanged. Row mutations affect only the caller's detached values; this fragment does not promote the provider to a public facade.
+- Resolved contemporaneous directed and bidirected relations remain supported; unresolved endpoints and compact lagged relations now raise ValueError before transformations or no-op returns. No IR schema or graph row value ABI changes.
+
+## Change Classes
+- internal
+- internal
+
+## Supported Surface Classification
+- internal: causal graph row preparation and cache provider
+- internal: causal graph inference providers
+
+## Migration Notes
+- Keep mutations in the returned row values; use model_copy(update=...) to create a new published graph version.
+- Handle the unsupported-profile refusal and supply a supported graph; do not delete uncertain or temporal relations to bypass admission.
+
+## Known Limitations
+- Finite graph and consumer properties do not establish general ID/PAG/transport completeness or real-data causal authority.
+
+## Structured Compatibility Changes
+- `internal` / `compatible` / internal: polisyos.ir.analytics.causal_graph.CausalGraphModel cached export row preparation: Causal graph export readers retain tuple/plain-dict values and isolate caller mutations from cached row preparations. (owner: team-ir; version owner: team-ir; deprecation: not_applicable)
+- `internal` / `breaking` / internal: polisyos.foundry.methods.catalog.causal static graph inference providers: Static inference refuses unresolved endpoints and compact lagged edges on the original graph, including empty/no-op requests; known reverse arrows retain directed semantics. (owner: team-foundry; version owner: team-foundry; deprecation: not_applicable: correction of unsupported causal inference)
+

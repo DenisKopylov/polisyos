@@ -1,0 +1,75 @@
+..FFF                                                                    [100%]
+=================================== FAILURES ===================================
+______ test_compose_scm_fragments_refuses_other_semantic_profiles[cpdag] _______
+
+graph_type = <GraphType.CPDAG: 'cpdag'>
+
+    @pytest.mark.parametrize("graph_type", [GraphType.CPDAG, GraphType.PAG, GraphType.MGRAPH])
+    def test_compose_scm_fragments_refuses_other_semantic_profiles(graph_type) -> None:
+        """Resolved arrows do not authorize a different fragment graph family."""
+        fragments = [_fragment(name, interface_variables=["X"]) for name in ("a", "b")]
+        report, mapping = verify_fragment_bundle_alignment(fragments)
+>       payload = FragmentCompositionData(
+            fragments=fragments,
+            fragment_graphs={
+                "a": _graph(["X", "Y"], [_data_edge("X", "Y", confidence=0.9)], graph_type=graph_type),
+                "b": _graph(["X", "Z"], [_data_edge("X", "Z", confidence=0.9)]),
+            },
+            alignment_report=report,
+            interface_mapping=mapping,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for FragmentCompositionData
+E         Value error, fragment_graphs only support DAG and ADMG inputs [type=value_error, input_value={'fragments': [SCMFragmen...ntries=[], metadata={})}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py:364: ValidationError
+_______ test_compose_scm_fragments_refuses_other_semantic_profiles[pag] ________
+
+graph_type = <GraphType.PAG: 'pag'>
+
+    @pytest.mark.parametrize("graph_type", [GraphType.CPDAG, GraphType.PAG, GraphType.MGRAPH])
+    def test_compose_scm_fragments_refuses_other_semantic_profiles(graph_type) -> None:
+        """Resolved arrows do not authorize a different fragment graph family."""
+        fragments = [_fragment(name, interface_variables=["X"]) for name in ("a", "b")]
+        report, mapping = verify_fragment_bundle_alignment(fragments)
+>       payload = FragmentCompositionData(
+            fragments=fragments,
+            fragment_graphs={
+                "a": _graph(["X", "Y"], [_data_edge("X", "Y", confidence=0.9)], graph_type=graph_type),
+                "b": _graph(["X", "Z"], [_data_edge("X", "Z", confidence=0.9)]),
+            },
+            alignment_report=report,
+            interface_mapping=mapping,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for FragmentCompositionData
+E         Value error, fragment_graphs only support DAG and ADMG inputs [type=value_error, input_value={'fragments': [SCMFragmen...ntries=[], metadata={})}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py:364: ValidationError
+______ test_compose_scm_fragments_refuses_other_semantic_profiles[mgraph] ______
+
+graph_type = <GraphType.MGRAPH: 'mgraph'>
+
+    @pytest.mark.parametrize("graph_type", [GraphType.CPDAG, GraphType.PAG, GraphType.MGRAPH])
+    def test_compose_scm_fragments_refuses_other_semantic_profiles(graph_type) -> None:
+        """Resolved arrows do not authorize a different fragment graph family."""
+        fragments = [_fragment(name, interface_variables=["X"]) for name in ("a", "b")]
+        report, mapping = verify_fragment_bundle_alignment(fragments)
+>       payload = FragmentCompositionData(
+            fragments=fragments,
+            fragment_graphs={
+                "a": _graph(["X", "Y"], [_data_edge("X", "Y", confidence=0.9)], graph_type=graph_type),
+                "b": _graph(["X", "Z"], [_data_edge("X", "Z", confidence=0.9)]),
+            },
+            alignment_report=report,
+            interface_mapping=mapping,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for FragmentCompositionData
+E         Value error, fragment_graphs only support DAG and ADMG inputs [type=value_error, input_value={'fragments': [SCMFragmen...ntries=[], metadata={})}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py:364: ValidationError
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_refuses_other_semantic_profiles[cpdag]
+FAILED policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_refuses_other_semantic_profiles[pag]
+FAILED policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_refuses_other_semantic_profiles[mgraph]

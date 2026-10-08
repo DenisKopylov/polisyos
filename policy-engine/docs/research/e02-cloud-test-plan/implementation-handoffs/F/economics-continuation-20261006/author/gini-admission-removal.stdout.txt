@@ -1,0 +1,160 @@
+{"mode": "admission-removal", "marker_preserved": true, "function_name": "_admit_gini_population", "hard_owner": "compute_gini_hard"}
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF                                           [100%]
+=================================== FAILURES ===================================
+_ test_classical_gini_refuses_invalid_active_population[values0-eager-compute_gini_hard] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values0-eager-compute_gini_soft] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values0-eager-compute_gini_proxy] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values0-jit-compute_gini_hard] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values0-jit-compute_gini_soft] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values0-jit-compute_gini_proxy] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values1-eager-compute_gini_hard] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values1-eager-compute_gini_soft] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values1-eager-compute_gini_proxy] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values1-jit-compute_gini_hard] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values1-jit-compute_gini_soft] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values1-jit-compute_gini_proxy] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values2-eager-compute_gini_hard] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values2-eager-compute_gini_soft] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values2-eager-compute_gini_proxy] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values2-jit-compute_gini_hard] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values2-jit-compute_gini_soft] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values2-jit-compute_gini_proxy] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values3-eager-compute_gini_hard] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values3-eager-compute_gini_soft] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values3-eager-compute_gini_proxy] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values3-jit-compute_gini_hard] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values3-jit-compute_gini_soft] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values3-jit-compute_gini_proxy] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values4-eager-compute_gini_hard] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values4-eager-compute_gini_soft] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values4-eager-compute_gini_proxy] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values4-jit-compute_gini_hard] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values4-jit-compute_gini_soft] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values4-jit-compute_gini_proxy] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values0-eager-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values0-eager-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values0-eager-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values0-jit-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values0-jit-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values0-jit-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values1-eager-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values1-eager-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values1-eager-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values1-jit-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values1-jit-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values1-jit-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values2-eager-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values2-eager-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values2-eager-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values2-jit-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values2-jit-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values2-jit-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values3-eager-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values3-eager-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values3-eager-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values3-jit-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values3-jit-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values3-jit-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values4-eager-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values4-eager-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values4-eager-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values4-jit-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values4-jit-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values4-jit-compute_gini_proxy]

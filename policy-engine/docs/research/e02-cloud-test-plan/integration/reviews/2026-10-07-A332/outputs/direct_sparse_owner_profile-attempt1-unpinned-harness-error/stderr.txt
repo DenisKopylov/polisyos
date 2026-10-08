@@ -1,0 +1,2 @@
+Error in sitecustomize; set PYTHONVERBOSE for traceback:
+RuntimeError: candidate source root missing: /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/candidate/src

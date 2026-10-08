@@ -1,0 +1,15 @@
+{
+  "exit_status": 0,
+  "elapsed_seconds": 0.685,
+  "footprint_before": {
+    "unique_files": 0,
+    "logical_bytes": 0,
+    "allocated_bytes": 0
+  },
+  "footprint_after": {
+    "unique_files": 353,
+    "logical_bytes": 6571792,
+    "allocated_bytes": 7462912
+  },
+  "within_30_MiB": true
+}

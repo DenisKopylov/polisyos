@@ -1,0 +1,72 @@
+{
+  "check": "PASS",
+  "source_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+  "source_tree": "81c2e3e636bec4c5d81b8f918bb61cca6a49309b",
+  "full_static_source_config_inputs": 9007,
+  "all_file_bytes_hashes_blobs_independently_verified": true,
+  "matching_literal_files": [
+    "policy-engine/architecture/baselines/structure_remediation/import_graph_pre_decomp.json",
+    "policy-engine/architecture/baselines/structure_remediation/public_surface_pre_decomp.json",
+    "policy-engine/src/polisyos/foundry/methods/_internal/loss.py",
+    "policy-engine/src/polisyos/foundry/methods/loss.py",
+    "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+    "policy-engine/tests/unit/foundry/analysis/test_loss_numeric.py",
+    "policy-engine/tests/unit/foundry/plugins/test_economic_profile_consumers.py",
+    "policy-engine/tests/unit/foundry/plugins/test_economic_profiles.py",
+    "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+    "policy-engine/tests/unit/remediation/test_eco_01.py"
+  ],
+  "patterns": [
+    "\\bpolicy_loss_fn\\b",
+    "\\bnormalized_income_budget_loss\\b",
+    "polisyos\\.foundry\\.methods\\.(?:loss|_internal\\.loss)",
+    "polisyos\\.foundry\\.plugins\\.economics\\.baselines"
+  ],
+  "scope": {
+    "suffixes": [
+      ".cfg",
+      ".cjs",
+      ".ini",
+      ".js",
+      ".json",
+      ".mjs",
+      ".py",
+      ".sh",
+      ".toml",
+      ".ts",
+      ".tsx",
+      ".yaml",
+      ".yml"
+    ],
+    "excluded_roots": [
+      "policy-engine/docs/",
+      "policy-engine/release-fragments/"
+    ],
+    "boundary": "Current tracked literal source/config/FQN census only; constructed strings, external and untracked configurations unknown. Document/release evidence is a separate nonexecuting locator census. No supported optimizer absence prerequisite."
+  },
+  "complete_Git_reconstruction_denominator_sha256": "34615c828ed3b0333830a9d5570c29db761cae84cc92056fb66324026dc87581",
+  "author_full_manifest_ref": {
+    "path": "/tmp/e02-F-continuation-20261007/economics/baseline-consumer-census.json",
+    "bytes": 2426625,
+    "sha256": "e2031e62e2b978c72a2093f2907a430d2ddc5e41b152560caf9ad61bb29b2f1c"
+  },
+  "actual_C_G9a_producer_paths": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+      "G9a_and_F193_git_blob": "5e5b6de213899c164e639eb5b67a76ca0af9e248",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/plugins/composite.py",
+      "G9a_and_F193_git_blob": "d5a43a7aa78834baff0540c1d18cd8c44fd9c91a",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+      "G9a_and_F193_git_blob": "253c8dedf326c54fd3f0ba602836e73327edb5ce",
+      "byte_equal": true
+    }
+  ],
+  "F_Gini_consumer_is_distinct_F_profile": "Do not equate unmerged G9a distributions bytes with F193 metric law. Actor/labor/tax producer paths alone are exactly G9a-byte-equal.",
+  "wall_s": 5.670332798996242
+}

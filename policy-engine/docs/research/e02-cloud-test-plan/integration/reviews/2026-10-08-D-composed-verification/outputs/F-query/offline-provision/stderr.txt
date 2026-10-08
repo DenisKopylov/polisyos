@@ -1,0 +1,9 @@
+Using CPython 3.12.12
+Creating virtual environment at: workers/dowhy-014/.venv
+  × Failed to download `llvmlite==0.50.0`
+  ╰─▶ Network connectivity is disabled, but the
+      requested data wasn't found in the cache for:
+      `https://files.pythonhosted.org/packages/d9/1f/2576416b3e9b73f77b8331b7f2e41ce5ae7bbff0489eb16d98099a71693c/llvmlite-0.50.0-cp312-cp312-macosx_12_0_arm64.whl`
+  help: `llvmlite` (v0.50.0) was included because `polisyos-dowhy-worker`
+        (v1.0.0) depends on `dowhy` (v0.14) which depends on `numba` (v0.68.0)
+        which depends on `llvmlite`

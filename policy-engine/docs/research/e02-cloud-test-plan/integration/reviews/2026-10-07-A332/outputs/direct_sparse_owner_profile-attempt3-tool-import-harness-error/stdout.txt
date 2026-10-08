@@ -1,0 +1,206 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+________ test_direct_foundry_value_port_refuses_sparse_owner_profile[1] ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x130a7a520>
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-677/test_direct_foundry_value_port0')
+row_count = 1
+
+    @pytest.mark.parametrize("row_count", [1, 2, 3])
+    def test_direct_foundry_value_port_refuses_sparse_owner_profile(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+        row_count: int,
+    ) -> None:
+        """A direct simulate-only FoundryValuePort call preserves the real owner refusal."""
+    
+        from polisyos.core.security.tenant_context import tenant_scope
+>       from tests.unit.runtime.quality.test_generation_cycle import (
+            _owner_program_graph_n5_witness,
+            _problem,
+        )
+
+tests/unit/remediation/test_emp_01.py:733: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../../../../.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+tests/unit/runtime/quality/test_generation_cycle.py:130: in <module>
+    from tools.quality.validation import (
+tools/quality/validation/check_layer3_gy_generation_cycle_contract.py:102: in <module>
+    from tools.lib.fs import (
+tools/lib/__init__.py:13: in <module>
+    from .imports import ensure_repo_import_roots, is_type_checking_test, repo_root_from
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <sitecustomize._CandidateOnlyFinder object at 0x1046b30e0>
+fullname = 'tools.lib.imports'
+path = ['/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/candidate/policy-engine/tools/lib']
+
+    def find_spec(self, fullname, path=None, target=None):
+        del target
+        if fullname == "polisyos" or fullname.startswith("polisyos."):
+            root = SOURCE_ROOT
+        elif fullname == "benchmarks" or fullname.startswith("benchmarks."):
+            root = CANDIDATE
+        elif fullname == "tests" or fullname.startswith("tests."):
+            root = TESTS_ROOT
+        elif fullname == "_helpers" or fullname.startswith("_helpers."):
+            root = TEST_HELPERS_ROOT
+        elif fullname == "tools" or fullname.startswith("tools."):
+            root = PRODUCT_ROOT
+        else:
+            return None
+        if path is None:
+            search = [str(root)]
+        else:
+            search = [str(Path(item).resolve()) for item in path if _inside(Path(item), root)]
+            if not search:
+                raise ModuleNotFoundError(f"candidate-only import blocked {fullname}: {path}")
+        spec = importlib.machinery.PathFinder.find_spec(fullname, search)
+        if spec is None:
+>           raise ModuleNotFoundError(
+                f"module {fullname!r} absent from exact candidate export", name=fullname
+            )
+E           ModuleNotFoundError: module 'tools.lib.imports' absent from exact candidate export
+
+../../harness/sitecustomize.py:84: ModuleNotFoundError
+________ test_direct_foundry_value_port_refuses_sparse_owner_profile[2] ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13398e780>
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-677/test_direct_foundry_value_port1')
+row_count = 2
+
+    @pytest.mark.parametrize("row_count", [1, 2, 3])
+    def test_direct_foundry_value_port_refuses_sparse_owner_profile(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+        row_count: int,
+    ) -> None:
+        """A direct simulate-only FoundryValuePort call preserves the real owner refusal."""
+    
+        from polisyos.core.security.tenant_context import tenant_scope
+>       from tests.unit.runtime.quality.test_generation_cycle import (
+            _owner_program_graph_n5_witness,
+            _problem,
+        )
+
+tests/unit/remediation/test_emp_01.py:733: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../../../../.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+tests/unit/runtime/quality/test_generation_cycle.py:130: in <module>
+    from tools.quality.validation import (
+tools/quality/validation/check_layer3_gy_generation_cycle_contract.py:108: in <module>
+    from tools.lib.timing import run_timed_entrypoint
+tools/lib/__init__.py:13: in <module>
+    from .imports import ensure_repo_import_roots, is_type_checking_test, repo_root_from
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <sitecustomize._CandidateOnlyFinder object at 0x1046b30e0>
+fullname = 'tools.lib.imports'
+path = ['/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/candidate/policy-engine/tools/lib']
+
+    def find_spec(self, fullname, path=None, target=None):
+        del target
+        if fullname == "polisyos" or fullname.startswith("polisyos."):
+            root = SOURCE_ROOT
+        elif fullname == "benchmarks" or fullname.startswith("benchmarks."):
+            root = CANDIDATE
+        elif fullname == "tests" or fullname.startswith("tests."):
+            root = TESTS_ROOT
+        elif fullname == "_helpers" or fullname.startswith("_helpers."):
+            root = TEST_HELPERS_ROOT
+        elif fullname == "tools" or fullname.startswith("tools."):
+            root = PRODUCT_ROOT
+        else:
+            return None
+        if path is None:
+            search = [str(root)]
+        else:
+            search = [str(Path(item).resolve()) for item in path if _inside(Path(item), root)]
+            if not search:
+                raise ModuleNotFoundError(f"candidate-only import blocked {fullname}: {path}")
+        spec = importlib.machinery.PathFinder.find_spec(fullname, search)
+        if spec is None:
+>           raise ModuleNotFoundError(
+                f"module {fullname!r} absent from exact candidate export", name=fullname
+            )
+E           ModuleNotFoundError: module 'tools.lib.imports' absent from exact candidate export
+
+../../harness/sitecustomize.py:84: ModuleNotFoundError
+________ test_direct_foundry_value_port_refuses_sparse_owner_profile[3] ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1311327b0>
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-677/test_direct_foundry_value_port2')
+row_count = 3
+
+    @pytest.mark.parametrize("row_count", [1, 2, 3])
+    def test_direct_foundry_value_port_refuses_sparse_owner_profile(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+        row_count: int,
+    ) -> None:
+        """A direct simulate-only FoundryValuePort call preserves the real owner refusal."""
+    
+        from polisyos.core.security.tenant_context import tenant_scope
+>       from tests.unit.runtime.quality.test_generation_cycle import (
+            _owner_program_graph_n5_witness,
+            _problem,
+        )
+
+tests/unit/remediation/test_emp_01.py:733: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../../../../.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+tests/unit/runtime/quality/test_generation_cycle.py:130: in <module>
+    from tools.quality.validation import (
+tools/quality/validation/check_layer3_gy_generation_cycle_contract.py:108: in <module>
+    from tools.lib.timing import run_timed_entrypoint
+tools/lib/__init__.py:13: in <module>
+    from .imports import ensure_repo_import_roots, is_type_checking_test, repo_root_from
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <sitecustomize._CandidateOnlyFinder object at 0x1046b30e0>
+fullname = 'tools.lib.imports'
+path = ['/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/candidate/policy-engine/tools/lib']
+
+    def find_spec(self, fullname, path=None, target=None):
+        del target
+        if fullname == "polisyos" or fullname.startswith("polisyos."):
+            root = SOURCE_ROOT
+        elif fullname == "benchmarks" or fullname.startswith("benchmarks."):
+            root = CANDIDATE
+        elif fullname == "tests" or fullname.startswith("tests."):
+            root = TESTS_ROOT
+        elif fullname == "_helpers" or fullname.startswith("_helpers."):
+            root = TEST_HELPERS_ROOT
+        elif fullname == "tools" or fullname.startswith("tools."):
+            root = PRODUCT_ROOT
+        else:
+            return None
+        if path is None:
+            search = [str(root)]
+        else:
+            search = [str(Path(item).resolve()) for item in path if _inside(Path(item), root)]
+            if not search:
+                raise ModuleNotFoundError(f"candidate-only import blocked {fullname}: {path}")
+        spec = importlib.machinery.PathFinder.find_spec(fullname, search)
+        if spec is None:
+>           raise ModuleNotFoundError(
+                f"module {fullname!r} absent from exact candidate export", name=fullname
+            )
+E           ModuleNotFoundError: module 'tools.lib.imports' absent from exact candidate export
+
+../../harness/sitecustomize.py:84: ModuleNotFoundError
+=============================== warnings summary ===============================
+../../../../../../../.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile[1]
+FAILED tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile[2]
+FAILED tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile[3]
+3 failed, 1 warning in 21.97s

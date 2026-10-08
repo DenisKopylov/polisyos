@@ -1,0 +1,28 @@
+{
+  "id": "removal-composition-result",
+  "repo": "/workspace/e02-F-graph-20261006",
+  "prefix": "/tmp/e02-F-continuation-20261007/graph/removal-composition-result",
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "target_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+  "env": {
+    "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine"
+  },
+  "source_paths": [
+    "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+    "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+    "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+    "policy-engine/src/polisyos/scientist/compute/runner.py"
+  ],
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261007/graph/remove_composition_basis.py"
+  ],
+  "input_closure": "Real persisted synthetic composition, source manifests, producer and query consumer retained; only complete producer certificate comparison removed in memory",
+  "nonzero_outcome": "FAIL"
+}

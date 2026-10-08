@@ -1,0 +1,26 @@
+{
+  "schema": "policyos.e02.explicit_transport_selection.v1",
+  "files": [
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/focused-real-worker-transfer-selection.json",
+      "bytes": 13849,
+      "sha256": "95735572e0a47e65555c9b2395665b347cbd8e6d697576b029baed71451e6b6e"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/assembly.stdout.json",
+      "bytes": 610,
+      "sha256": "8fa18163e6a62c56bafcc68e8116a23832fd2068884c0ef20d2a2ea582f161d8"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/assembly.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/assembly-execution.json",
+      "bytes": 1185,
+      "sha256": "f289c45429eec31b545e1f89d7d92d40e41cc7ef595d05de994b0af86f32391e"
+    }
+  ],
+  "scope": "Additive complete final assembly captures plus main selection recipe; main48-file selection remains immutable. No recursive/self/future Git binding."
+}

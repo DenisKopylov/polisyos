@@ -1,0 +1,25 @@
+{
+  "repo": "/workspace/e02-F-economics-20261006",
+  "source_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+  "source_paths": [
+    "policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-economic-baseline-consumer-proof.toml",
+    "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+    "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+    "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+    "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+    "policy-engine/src/polisyos/foundry/plugins/composite.py",
+    "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+    "policy-engine/src/polisyos/foundry/agent_sim/distributions.py"
+  ],
+  "prefix": "/tmp/e02-F-continuation-20261007/cau/economics-review/gini-removal",
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261007/cau/economics-review/remove_gini_admission.py"
+  ],
+  "env": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}

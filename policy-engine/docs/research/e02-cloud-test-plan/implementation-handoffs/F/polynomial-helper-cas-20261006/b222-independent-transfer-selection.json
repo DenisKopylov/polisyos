@@ -1,0 +1,109 @@
+{
+  "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+  "source_tree": "1481e08664a271f12e77807f2468906efd7e40c5",
+  "review_ref": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-review.json",
+    "bytes": 12706,
+    "sha256": "17e2e37c91949668678ebedab5a1da44227374099b9d891e2a0720d2c7db41e0"
+  },
+  "items": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-native6f.stdout",
+      "bytes": 6245,
+      "sha256": "3e2c043571160c0e04b2c588032ece3bcd0389472fd130ea3fe329ca31924a92"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-native6f.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-native6f.execution.json",
+      "bytes": 1193,
+      "sha256": "6692d12563c60dca735885797f5e65328b9f8bd0f1dc90894955b1968dd911a4"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-removal6f.stdout",
+      "bytes": 8601,
+      "sha256": "c21fa12fe9e9bd1e4bbe4416d61ef0a66c6ed9b65a1cd2ff4b1520bf91cb1e89"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-removal6f.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-removal6f.execution.json",
+      "bytes": 1016,
+      "sha256": "cbb80a9c148aeb4fc739b989c062bcbc2752ecf2e5465cef19e48c7baa10cf46"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f.stderr",
+      "bytes": 1199,
+      "sha256": "1038a7935dbdf34c3d35e90b5de59eb492520fadfcc3f453d9faab79f6913ff0"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f.execution.json",
+      "bytes": 1008,
+      "sha256": "8dcdf561222908d148f8e381e61c044699365425c31629ac811b757ea9db6f29"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f-corrected.stdout",
+      "bytes": 3535,
+      "sha256": "a519a7532af4c709ada65022924c56763ffdafd61cc6b448da32707389994f35"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f-corrected.stderr",
+      "bytes": 1077,
+      "sha256": "2eec546a935f1e7da14874a7d43290b52bff56652d352640747c4699a85a9e8e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f-corrected.execution.json",
+      "bytes": 1034,
+      "sha256": "cf4e5cf709646fa90c7206d203f96673cbc8b1f11ce678748af61a5a9e2eca6d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle.py",
+      "bytes": 5782,
+      "sha256": "2b0d4e90da03901c4bcaa0b6da1d9f0c54bf9e2020abe13a817c4192772d7131"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle-v2.py",
+      "bytes": 5884,
+      "sha256": "494e1ae8f4a547ff61696eb12cc98411c84ae66ac36361f49fc9e450a49de7f5"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-removal-probe.py",
+      "bytes": 1637,
+      "sha256": "340da05443b94697cac1192517ca92353d71db98c872f0b242bf75f732d03f70"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/capture.py",
+      "bytes": 1108,
+      "sha256": "faba4e389019eea9fd1a67ad657a5563376c5c1f3c9107b99ef05bd3c2ec7c81"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-source-begin.json",
+      "bytes": 2903,
+      "sha256": "577800dcc01736d8ad7947d604db45f6a24eb8a0149e4b0b4ed4590d9d715773"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-source-end.json",
+      "bytes": 2824,
+      "sha256": "5894ad66152ac86abb02ed6a2d1ad6b174029fbd78beb27b9181e350729e3f71"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-review.json",
+      "bytes": 12706,
+      "sha256": "17e2e37c91949668678ebedab5a1da44227374099b9d891e2a0720d2c7db41e0"
+    }
+  ],
+  "count": 19,
+  "total_bytes": 57752,
+  "excluded": "CAS fixture directories/bytecode and reconstructable tracked-source copies excluded; all complete deciding/failed/removal stdout/stderr/execution and unique replayers retained."
+}

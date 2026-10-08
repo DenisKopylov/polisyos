@@ -1,0 +1,92 @@
+{
+  "schema": "policyos.e02.g.final-semantics-review.v1",
+  "verdict": "GO",
+  "reviewed_g_head": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+  "scope": [
+    "integration/reviews/2026-10-07-CD-C4-a795",
+    "execution-prompts/continuation-2026-10-07/C-resume-after-C4-all54.md",
+    "execution-prompts/continuation-2026-10-07/D-resume-after-a795-all45.md",
+    "execution-prompts/continuation-2026-10-07/B-resume-after-53b-all60.md"
+  ],
+  "checks": {
+    "C": {
+      "bundles": 33,
+      "finding_ids": 54,
+      "criterion_occurrences": 59,
+      "recommendations": {
+        "closed": 31,
+        "limited": 9,
+        "held": 14
+      },
+      "formal_status": "all 54 not_adjudicated",
+      "action_rows_match_machine_bindings": true
+    },
+    "D": {
+      "bundles": 17,
+      "finding_ids": 45,
+      "criterion_occurrences": 46,
+      "proposals": {
+        "closed": 39,
+        "limited": 1,
+        "held": 5,
+        "open": 0
+      },
+      "source_qualified_occurrences": 3,
+      "source_qualified_ids": [
+        "B124",
+        "LA-015"
+      ],
+      "held_findings": [
+        "B131",
+        "B137",
+        "B157",
+        "B161",
+        "B164"
+      ],
+      "reported_missing_whole_property_occurrences": 38,
+      "formal_closures": 0,
+      "g_accepted": 0,
+      "action_rows_match_machine_bindings": true
+    },
+    "D_runtime_receipts": {
+      "a795_new_pass": 31,
+      "a795_affected_pass": 22,
+      "a795_expected_removal_failure": 1,
+      "historical_3b31_scopes_kept_separate": true,
+      "service_archive_members_verified": 102
+    },
+    "C_source_identity": {
+      "root_c566_has_src_tests_release_changes_vs_G": 31,
+      "net_stream_blob": "80af60d90e2eb6aeed0d335c4dbe5d80c8c24c7c",
+      "G_stream_blob": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6"
+    },
+    "constraints": {
+      "Hatchling_unavailability_limited_to_checked_G314_and_bundled312_environments": true,
+      "LA040_existing_read_authorization_preserved": true,
+      "no_payload_export_or_census_requirement": true,
+      "no_new_closure_or_source_acceptance_claim": true,
+      "cleanup_report_makes_no_physical_space_recovery_claim": true,
+      "storage_scope_bounded": true,
+      "all_reviewed_local_links_resolve": true
+    }
+  },
+  "blockers": [],
+  "reviewer_actions": {
+    "tests_run": false,
+    "installs_or_builds": false,
+    "source_or_ref_changes": false,
+    "tracked_changes": false
+  },
+  "final_delta_readback": {
+    "previous_link_sweep_scope_gap": "The first link sweep omitted C54-remaining.md.",
+    "corrected_target": "C54-remaining.md now links to C54-decisions.json for reviewed per-ID bindings and corrected actions; original criterion wording remains in the pinned C4 table.",
+    "complete_link_recheck": {
+      "review_directory_markdown_files": 15,
+      "continuation_prompts": 3,
+      "broken_local_links": 0
+    },
+    "README_CAN_tree_prefix": "2d27c9c1",
+    "verified_CAN_tree": "2d27c9c182cf550088c5a8c072dc2f36df84e20d",
+    "verdict": "GO; no further blockers"
+  }
+}

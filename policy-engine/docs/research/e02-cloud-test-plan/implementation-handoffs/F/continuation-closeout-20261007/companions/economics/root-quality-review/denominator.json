@@ -1,0 +1,311 @@
+{
+  "schema": "policyos.e02.full_scanner_denominator_review.v1",
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "base_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+  "canonical_scanner_source": "policy-engine/src/polisyos/runtime/quality/production_invocation.py",
+  "exact_hash_serialization": "sha256(json.dumps({relative product Python path:git blob decodedutf-8-sig},sort_keys=True).encode())",
+  "current": {
+    "files": 5954,
+    "by_prefix": {
+      "src": 2699,
+      "tests": 2810,
+      "tools": 445
+    },
+    "sha256": "ef9cda6f22497302438676dee5f4350234fa9fec245f72ccdd5400683722be21"
+  },
+  "base": {
+    "files": 5949,
+    "by_prefix": {
+      "src": 2699,
+      "tests": 2805,
+      "tools": 445
+    },
+    "sha256": "d718a7f90238551d9b767b45ae2050b4906aa1e263d68c5a3bb0c3d99a18deb2"
+  },
+  "overlap": {
+    "shared_paths": 5949,
+    "identical_bytes": 5945,
+    "modified_existing": 4,
+    "added": 5,
+    "deleted": 0,
+    "modified_paths": [
+      "src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+      "tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py"
+    ],
+    "added_paths": [
+      "tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+      "tests/unit/foundry/methods/catalog/causal/test_installed_graph_contract_reconciliation.py",
+      "tests/unit/foundry/plugins/test_historical_income_baseline.py",
+      "tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py",
+      "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+    ],
+    "full_common_path_denominator": "complete base5949 current5954 overlap5949; not disjoint"
+  },
+  "filetype_scope": {
+    "all_tracked_paths": 17843,
+    "all_scoped_src_tools_tests_paths": 6778,
+    "python_included": 5954,
+    "nonpython_excluded": 824,
+    "nonpython_suffix_counts": {
+      ".md": 307,
+      ".schema.json": 9,
+      ".yaml": 22,
+      ".csv": 15,
+      ".typed": 2,
+      ".json": 367,
+      ".sql": 1,
+      ".cypher": 2,
+      ".pyi": 5,
+      ".py.retired": 1,
+      ".pkl": 2,
+      ".duckdb": 4,
+      ".catalog.generic.replay.json": 1,
+      ".resource.generic.replay.json": 1,
+      ".data.generic.replay.json": 3,
+      ".tabular.generic.replay.json": 1,
+      ".features.generic.replay.json": 1,
+      ".api.generic.replay.json": 1,
+      ".blob.generic.replay.json": 1,
+      ".ods.generic.replay.json": 1,
+      ".json.generic.replay.json": 1,
+      ".generic.replay.json": 1,
+      ".soda.generic.replay.json": 1,
+      ".endpoint.generic.replay.json": 1,
+      ".query.generic.replay.json": 1,
+      ".jsonl.generic.replay.json": 1,
+      ".datasets.generic.replay.json": 1,
+      ".indicators.generic.replay.json": 1,
+      ".wdi.generic.replay.json": 1,
+      ".wave7.generic.replay.json": 1,
+      "<none>": 1,
+      ".producer_stubs.json": 13,
+      ".toml": 3,
+      ".json.fixture": 2,
+      ".sh": 27,
+      ".ts": 12,
+      ".md.tmpl": 3,
+      ".py.tmpl": 4,
+      ".mjs": 1,
+      ".txt": 1
+    }
+  },
+  "full_actual_delta": {
+    "paths": 488,
+    "filetype_counts": {
+      ".md": 6,
+      ".json": 142,
+      ".stderr": 85,
+      ".stdout.gz": 22,
+      ".py": 51,
+      ".patch.gz": 2,
+      ".stdout": 16,
+      ".json.gz": 26,
+      ".execution.json": 9,
+      ".stderr.gz": 3,
+      "<none>": 1,
+      ".stderr.txt.xz": 16,
+      ".json.xz": 5,
+      ".stdout.txt.xz": 13,
+      ".xml.xz": 6,
+      ".diff.xz": 5,
+      ".receipt.json": 7,
+      ".stderr.xz": 7,
+      ".stdout.xz": 7,
+      ".stderr.txt": 26,
+      ".stdout.txt": 22,
+      ".tar.gz": 2,
+      ".stdout.txt.gz": 3,
+      ".xml": 2,
+      ".toml": 4
+    },
+    "scanner_included_changed_paths": [
+      [
+        "M",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py"
+      ],
+      [
+        "M",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+      ],
+      [
+        "A",
+        "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py"
+      ],
+      [
+        "M",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py"
+      ],
+      [
+        "A",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_graph_contract_reconciliation.py"
+      ],
+      [
+        "A",
+        "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py"
+      ],
+      [
+        "A",
+        "policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py"
+      ],
+      [
+        "A",
+        "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+      ],
+      [
+        "M",
+        "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py"
+      ]
+    ]
+  },
+  "entry_manifest": {
+    "current_scripts": {
+      "polisy": "polisyos.foundry.plugins.cli:main",
+      "polisyos": "tools.ops_runners.runtime_cli:main",
+      "polisyos-causal-capabilities": "polisyos.foundry.methods.catalog.causal.capabilities:main",
+      "polisyos-foundry": "tools.ops_runners.runtime_cli:foundry_main",
+      "polisyos-tools": "tools.cli:main",
+      "ukraine-data": "polisyos.data_forge.domains.ukraine.cli:main"
+    },
+    "base_scripts": {
+      "polisy": "polisyos.foundry.plugins.cli:main",
+      "polisyos": "tools.ops_runners.runtime_cli:main",
+      "polisyos-causal-capabilities": "polisyos.foundry.methods.catalog.causal.capabilities:main",
+      "polisyos-foundry": "tools.ops_runners.runtime_cli:foundry_main",
+      "polisyos-tools": "tools.cli:main",
+      "ukraine-data": "polisyos.data_forge.domains.ukraine.cli:main"
+    },
+    "scripts_equal": true,
+    "manifest_hash_excluded_from_sources_dictionary_but_read_for_entry_roots": true
+  },
+  "global_result": {
+    "exit_code": 3,
+    "status": "UNRESOLVED",
+    "coverage": "partial",
+    "mechanisms": 13110,
+    "status_counts": {
+      "unresolved_by_construction": 9213,
+      "uninvoked": 2166,
+      "static_path": 1731
+    },
+    "regressions": [],
+    "new_unresolved": [
+      "polisyos.foundry.methods.catalog.causal.graph_reconciliation.ReconcileCausalGraph.pure_step",
+      "polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph.ReconcileCausalGraphNode.execute"
+    ],
+    "new_function_records": {
+      "polisyos.foundry.methods.catalog.causal.graph_reconciliation.ReconcileCausalGraph.pure_step": {
+        "status": "unresolved_by_construction",
+        "path": "src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+        "terminus": null,
+        "changed": true,
+        "lost_path": false,
+        "source_callers": [
+          "polisyos.foundry.methods.catalog.causal.discovery_pipeline._maybe_reconcile",
+          "polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph.ReconcileCausalGraphNode.execute"
+        ],
+        "test_callers": [
+          "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation.test_cycle_edge_with_lag_depth_limit_is_removed",
+          "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation.test_data_wins_when_direction_conflicts_with_literature",
+          "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation.test_diagnostics_truncated_when_hard_limits_exceeded",
+          "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation.test_irreducible_conflict_triggers_expert_review_flag",
+          "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation.test_literature_and_data_agreement_increases_combined_confidence",
+          "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation.test_llm_only_hint_is_marked_unsupported_and_capped",
+          "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation.test_more_than_eight_cycles_triggers_fallback_removal_warning",
+          "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation.test_simple_cycle_converts_min_confidence_edge_to_lagged_edge",
+          "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation.test_triangle_conflict_produces_positive_cyclic_inconsistency_norm"
+        ],
+        "deferral": null,
+        "indirect_boundary_origin": "polisyos.foundry.methods.catalog.causal.graph_reconciliation.ReconcileCausalGraph.pure_step",
+        "indirect_boundary_evidence": [
+          {
+            "path": "src/polisyos/foundry/methods/catalog/causal/_registry_boot.py",
+            "line": 267,
+            "column": 8,
+            "scope": "polisyos.foundry.methods.catalog.causal._registry_boot.register_causal_methods",
+            "reason": "callable_value_escape",
+            "expression": "ReconcileCausalGraph"
+          },
+          {
+            "path": "src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+            "line": 923,
+            "column": 1,
+            "scope": "polisyos.foundry.methods.catalog.causal.graph_reconciliation",
+            "reason": "decorated_definition",
+            "expression": "foundry_method(namespace='causal.prior', version='1.0.0', tags={'causal', 'prior', 'reconciliation'})"
+          },
+          {
+            "path": "src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+            "line": 985,
+            "column": 5,
+            "scope": "polisyos.foundry.methods.catalog.causal.graph_reconciliation.ReconcileCausalGraph",
+            "reason": "decorated_definition",
+            "expression": "staticmethod"
+          },
+          {
+            "path": "src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+            "line": 991,
+            "column": 12,
+            "scope": "polisyos.foundry.methods.catalog.causal.graph_reconciliation.ReconcileCausalGraph.pure_step",
+            "reason": "callable_value_escape",
+            "expression": "state"
+          },
+          {
+            "path": "src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+            "line": 992,
+            "column": 26,
+            "scope": "polisyos.foundry.methods.catalog.causal.graph_reconciliation.ReconcileCausalGraph.pure_step",
+            "reason": "callable_value_escape",
+            "expression": "state"
+          },
+          {
+            "path": "src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+            "line": 993,
+            "column": 56,
+            "scope": "polisyos.foundry.methods.catalog.causal.graph_reconciliation.ReconcileCausalGraph.pure_step",
+            "reason": "callable_value_escape",
+            "expression": "state"
+          }
+        ]
+      },
+      "polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph.ReconcileCausalGraphNode.execute": {
+        "status": "unresolved_by_construction",
+        "path": "src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+        "terminus": null,
+        "changed": true,
+        "lost_path": false,
+        "source_callers": [],
+        "test_callers": [
+          "tests.unit.scientist.methods.backtesting.test_composition_bridge.test_replay_core_refs_read_back_from_reopened_filesystem_store._capture_native_outcome",
+          "tests.unit.scientist.methods.backtesting.test_composition_bridge.test_replay_rejects_mismatched_native_ref_contract._mutate_native_outcome"
+        ],
+        "deferral": null,
+        "indirect_boundary_origin": "polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph.ReconcileCausalGraphNode.execute",
+        "indirect_boundary_evidence": [
+          {
+            "path": "src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+            "line": 660,
+            "column": 1,
+            "scope": "polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph",
+            "reason": "decorated_definition",
+            "expression": "dataclass(frozen=True)"
+          }
+        ]
+      }
+    },
+    "unresolved_receivers": 140018,
+    "root_count": 401,
+    "runtime_invocation_established": false,
+    "unmeasured": [
+      "HTTP router dispatch",
+      "dependency injection/container dispatch",
+      "event-bus dispatch",
+      "registered callback invocation",
+      "deferred lambda/coroutine execution and generator resumption",
+      "reflection and dynamic receiver/factory resolution",
+      "runtime execution, persisted business receipts, and gate substance"
+    ]
+  },
+  "P41": "not_established; exact new scanner result has changed source overlap and is partial; historical8236 red cannot be relabeled inherited/discharged by selective9pathformat/native proof."
+}

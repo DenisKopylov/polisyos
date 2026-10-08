@@ -1,0 +1,136 @@
+..FFFF...F..                                                             [100%]
+=================================== FAILURES ===================================
+_ test_each_supported_patch_executes_native_algorithm_and_restores[mz_id_algorithm] _
+
+binding = 'mz_id_algorithm'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f52682596e0>
+
+    @pytest.mark.parametrize(
+        "binding", ["mz_id_algorithm", "id_with_oracle_fallback", "id_star_algorithm", "idc_star_algorithm"]
+    )
+    def test_each_supported_patch_executes_native_algorithm_and_restores(binding, monkeypatch) -> None:
+        """Observe real algorithms through all four historical patch addresses."""
+        original = getattr(causal_engine, binding)
+        baseline = _identify(binding)
+        calls = []
+    
+        def observed(*args, **kwargs):
+            calls.append((args, kwargs))
+            return original(*args, **kwargs)
+    
+        with monkeypatch.context() as patch:
+            patch.setattr(causal_engine, binding, observed)
+            actual = _identify(binding)
+            assert len(calls) == 1
+>           assert actual.model_dump(mode="json") == baseline.model_dump(mode="json")
+                   ^^^^^^^^^^^^^^^^^
+E           AttributeError: 'IdentificationResult' object has no attribute 'model_dump'
+
+tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py:105: AttributeError
+_ test_each_supported_patch_executes_native_algorithm_and_restores[id_with_oracle_fallback] _
+
+binding = 'id_with_oracle_fallback'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f52683b79b0>
+
+    @pytest.mark.parametrize(
+        "binding", ["mz_id_algorithm", "id_with_oracle_fallback", "id_star_algorithm", "idc_star_algorithm"]
+    )
+    def test_each_supported_patch_executes_native_algorithm_and_restores(binding, monkeypatch) -> None:
+        """Observe real algorithms through all four historical patch addresses."""
+        original = getattr(causal_engine, binding)
+        baseline = _identify(binding)
+        calls = []
+    
+        def observed(*args, **kwargs):
+            calls.append((args, kwargs))
+            return original(*args, **kwargs)
+    
+        with monkeypatch.context() as patch:
+            patch.setattr(causal_engine, binding, observed)
+            actual = _identify(binding)
+            assert len(calls) == 1
+>           assert actual.model_dump(mode="json") == baseline.model_dump(mode="json")
+                   ^^^^^^^^^^^^^^^^^
+E           AttributeError: 'IdentificationResult' object has no attribute 'model_dump'
+
+tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py:105: AttributeError
+_ test_each_supported_patch_executes_native_algorithm_and_restores[id_star_algorithm] _
+
+binding = 'id_star_algorithm'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f5268116be0>
+
+    @pytest.mark.parametrize(
+        "binding", ["mz_id_algorithm", "id_with_oracle_fallback", "id_star_algorithm", "idc_star_algorithm"]
+    )
+    def test_each_supported_patch_executes_native_algorithm_and_restores(binding, monkeypatch) -> None:
+        """Observe real algorithms through all four historical patch addresses."""
+        original = getattr(causal_engine, binding)
+        baseline = _identify(binding)
+        calls = []
+    
+        def observed(*args, **kwargs):
+            calls.append((args, kwargs))
+            return original(*args, **kwargs)
+    
+        with monkeypatch.context() as patch:
+            patch.setattr(causal_engine, binding, observed)
+            actual = _identify(binding)
+            assert len(calls) == 1
+>           assert actual.model_dump(mode="json") == baseline.model_dump(mode="json")
+                   ^^^^^^^^^^^^^^^^^
+E           AttributeError: 'IdentificationResult' object has no attribute 'model_dump'
+
+tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py:105: AttributeError
+_ test_each_supported_patch_executes_native_algorithm_and_restores[idc_star_algorithm] _
+
+binding = 'idc_star_algorithm'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f5268179c50>
+
+    @pytest.mark.parametrize(
+        "binding", ["mz_id_algorithm", "id_with_oracle_fallback", "id_star_algorithm", "idc_star_algorithm"]
+    )
+    def test_each_supported_patch_executes_native_algorithm_and_restores(binding, monkeypatch) -> None:
+        """Observe real algorithms through all four historical patch addresses."""
+        original = getattr(causal_engine, binding)
+        baseline = _identify(binding)
+        calls = []
+    
+        def observed(*args, **kwargs):
+            calls.append((args, kwargs))
+            return original(*args, **kwargs)
+    
+        with monkeypatch.context() as patch:
+            patch.setattr(causal_engine, binding, observed)
+            actual = _identify(binding)
+            assert len(calls) == 1
+>           assert actual.model_dump(mode="json") == baseline.model_dump(mode="json")
+                   ^^^^^^^^^^^^^^^^^
+E           AttributeError: 'IdentificationResult' object has no attribute 'model_dump'
+
+tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py:105: AttributeError
+_ test_installed_id_package_executes_identification_and_reopens_persisted_result _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-85/test_installed_id_package_exec0')
+
+    def test_installed_id_package_executes_identification_and_reopens_persisted_result(tmp_path: Path) -> None:
+        """An actual nonempty package supplies algorithms after empty-shim retirement."""
+        package = importlib.import_module(PREFIX + ".id_engine")
+        assert Path(package.__file__).name == "__init__.py"
+        assert package.__path__
+        result = causal_engine.CausalEngine().identify("X", "Y", _graph())
+        assert result.status is package.IdentificationStatus.IDENTIFIED
+        store = FileSystemCAS(tmp_path / "cas")
+        reference = store.put_json(
+>           result.model_dump(mode="json"), PutOptions(kind="research.api.identification", media_type="application/json")
+            ^^^^^^^^^^^^^^^^^
+        )
+E       AttributeError: 'IdentificationResult' object has no attribute 'model_dump'
+
+tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py:166: AttributeError
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py::test_each_supported_patch_executes_native_algorithm_and_restores[mz_id_algorithm]
+FAILED tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py::test_each_supported_patch_executes_native_algorithm_and_restores[id_with_oracle_fallback]
+FAILED tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py::test_each_supported_patch_executes_native_algorithm_and_restores[id_star_algorithm]
+FAILED tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py::test_each_supported_patch_executes_native_algorithm_and_restores[idc_star_algorithm]
+FAILED tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py::test_installed_id_package_executes_identification_and_reopens_persisted_result
+5 failed, 7 passed in 7.34s

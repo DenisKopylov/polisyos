@@ -1,0 +1,27 @@
+{
+  "candidate_sha": "556329c9cdd183197e644299381550f81f061620",
+  "candidate_tree": "a7a581044ee5c9e91b8c514c9aad4ff3051ce6a5",
+  "detail": "Wrapper preflight refused to start because its own runner.stdout.txt and runner.stderr.txt had been created by shell redirection before the script checked for pre-existing output files. No source verification or pytest ran; this is not a product failure.",
+  "junit_created": false,
+  "next_action": "A clean separate runtime-attempt-2 will remove only this harness self-collision and launch the F selector once.",
+  "pytest_launched": false,
+  "schema": "policyos.e02.g-local-consumer-harness-attempt.v1",
+  "script": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-1/run_f_query_cas_verify.py",
+    "sha256": "e6446eec76b0ddb5e75686dff4c55ff39683181d8fa2c938409bd4feb7f980eb"
+  },
+  "selector": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_query_consumer_binds_complete_cas_projection_and_original_request",
+  "status": "HARNESS_ERROR_PRETEST",
+  "stderr": {
+    "bytes": 238,
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-1/runner.stderr.txt",
+    "sha256": "1e53a35ac673a353fa34295eefd2b44bde2b497f533858e8b5870d57a193cd69",
+    "text": "refusing to overwrite /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-1/runner.stdout.txt\n"
+  },
+  "stdout": {
+    "bytes": 0,
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-1/runner.stdout.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "timestamp_utc": "2026-10-07T22:18:10.994537+00:00"
+}

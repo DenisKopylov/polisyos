@@ -1,0 +1,9 @@
+{
+  "source_root": "/workspace/e02-F-api-20261006",
+  "cwd": "/tmp/e02-F-continuation-20261007/api/sdist-consumer",
+  "bindings_manifest": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/archive-installed-source-bindings.json",
+  "test_carrier": "/tmp/e02-F-continuation-20261007/api/sdist-consumer/test_installed_graph_contract_reconciliation.py",
+  "test_carrier_sha": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
+  "test_sha256": "65625b4786535bd2864b0a7726bed69cde7b0b0975efd364c8aa7ec292d0c27b",
+  "proof_prefix": "/tmp/e02-F-continuation-20261007/api/sdist-installed-proof"
+}

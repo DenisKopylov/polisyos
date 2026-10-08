@@ -1,0 +1,15 @@
+{
+  "G_head": "2abc17f46a033a7879663486ff9946a95786601f",
+  "base": "2605d13916f4dd38f216419562c04718ba4c2028",
+  "head": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+  "tree": "4e21c90467913c6dae1c85b84b8c7a42a1dc9124",
+  "full_diff_paths": 180,
+  "product_paths": [
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_nonhandoff_context_revision.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py",
+    "policy-engine/tests/integration/runtime_quality/test_e02_candidate_model_revision.py",
+    "policy-engine/tests/unit/remediation/test_emp_01.py",
+    "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py"
+  ]
+}

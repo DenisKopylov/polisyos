@@ -12,15 +12,15 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1594`.
-- Public/root-or-package facade types: `448`.
+- Total IR types: `1598`.
+- Public/root-or-package facade types: `452`.
 - ABI snapshot-backed types: `95`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
-| `polisyos.ir` | 287 |
-| `polisyos.ir.analytics` | 278 |
+| `polisyos.ir` | 291 |
+| `polisyos.ir.analytics` | 280 |
 | `polisyos.ir.kernel` | 52 |
 | `polisyos.ir.world` | 54 |
 
@@ -28,7 +28,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 983 | 254 | 37 |
+| `analytics` | 987 | 258 | 37 |
 | `artifacts` | 25 | 0 | 0 |
 | `governance` | 99 | 21 | 8 |
 | `kernel` | 47 | 38 | 0 |
@@ -2101,6 +2101,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `forest_dr` |
 | `causal_bcf` |
 | `double_ml` |
+| `tmle` |
 | `s_learner` |
 | `t_learner` |
 | `x_learner` |
@@ -3327,6 +3328,42 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `comparator` | `polisyos.ir.analytics.causal_queries.CausalRegime` | `yes` | `—` | `polisyos.ir.analytics.causal_queries.CausalRegime` |
 | `target` | `polisyos.ir.analytics.causal_queries.InterventionSpec` | `yes` | `—` | `polisyos.ir.analytics.causal_queries.InterventionSpec` |
 
+### `polisyos.ir.analytics.causal_queries.CausalEstimatorInterval` { #polisyos-ir-analytics-causal-queries-causalestimatorinterval }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:CausalEstimatorInterval`, `polisyos.ir:CausalEstimatorInterval`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: An iid-unit bootstrap interval from refitted replicate estimators.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `confidence_level` | `float` | `no` | `0.95` | — |
+| `coverage_profile` | `Literal[approximate_iid_percentile_fixed_identified_graph]` | `no` | `'approximate_iid_percentile_fixed_identified_graph'` | — |
+| `data_sha256` | `str` | `yes` | `—` | — |
+| `fit_profile` | `str` | `yes` | `—` | — |
+| `fit_request_sha256` | `str` | `yes` | `—` | — |
+| `graph_sha256` | `str` | `yes` | `—` | — |
+| `interval` | `tuple[float, float]` | `yes` | `—` | — |
+| `method` | `Literal[iid_unit_refit_bootstrap]` | `no` | `'iid_unit_refit_bootstrap'` | — |
+| `n_units` | `int` | `yes` | `—` | — |
+| `point_estimate` | `float` | `yes` | `—` | — |
+| `refit_scope` | `tuple[str]` | `yes` | `—` | — |
+| `refit_worker_response` | `dict[str, Any]` | `yes` | `—` | — |
+| `replicate_count` | `int` | `yes` | `—` | — |
+| `replicate_estimates` | `tuple[float]` | `yes` | `—` | — |
+| `resample_indices_sha256` | `str` | `yes` | `—` | — |
+| `resampling_unit` | `Literal[iid_observation_row]` | `no` | `'iid_observation_row'` | — |
+| `result_kind` | `Literal[estimator_confidence_interval]` | `no` | `'estimator_confidence_interval'` | — |
+| `row_sha256` | `str` | `yes` | `—` | — |
+| `seed` | `int` | `yes` | `—` | — |
+| `source_artifact_id` | `str` | `yes` | `—` | — |
+| `source_sha256` | `str` | `yes` | `—` | — |
+| `target_sha256` | `str` | `yes` | `—` | — |
+
 ### `polisyos.ir.analytics.causal_queries.CausalInterventionSpec` { #polisyos-ir-analytics-causal-queries-causalinterventionspec }
 
 - Kind: `pydantic_model`
@@ -3373,23 +3410,26 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 - Kind: `pydantic_model`
 - Public status: `root_facade`
-- Current version: `1.1`
+- Current version: `1.2`
 - Exported from: `polisyos.ir.analytics:CausalQueryResult`, `polisyos.ir:CausalQueryResult`
 - ABI snapshot: `causal_query_result` / `schemas/snapshots/ir/causal_query_result.schema.json`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.causal_queries.CausalQuery`
+- References: `polisyos.ir.analytics.causal_queries.CausalEstimatorInterval`, `polisyos.ir.analytics.causal_queries.CausalQuery`, `polisyos.ir.analytics.causal_queries.CausalResultKind`
 - Summary: Result payload returned for a persisted or in-memory causal query.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
 | `computation_time_seconds` | `float` | `no` | `0.0` | — |
+| `estimator_interval` | `polisyos.ir.analytics.causal_queries.CausalEstimatorInterval \| NoneType` | `no` | `—` | `polisyos.ir.analytics.causal_queries.CausalEstimatorInterval` |
+| `interval_level` | `float` | `no` | `0.95` | — |
 | `metadata` | `dict[str, Any]` | `no` | `—` | — |
 | `query` | `polisyos.ir.analytics.causal_queries.CausalQuery` | `yes` | `—` | `polisyos.ir.analytics.causal_queries.CausalQuery` |
 | `result_ci` | `tuple[float, float]` | `yes` | `—` | — |
 | `result_distribution` | `list[float] \| NoneType` | `no` | `—` | — |
+| `result_kind` | `polisyos.ir.analytics.causal_queries.CausalResultKind` | `no` | `<CausalResultKind.OUTCOME_DISTRIBUTION: 'outcome_distribution'>` | `polisyos.ir.analytics.causal_queries.CausalResultKind` |
 | `result_mean` | `float` | `yes` | `—` | — |
 | `result_std` | `float` | `yes` | `—` | — |
-| `schema_version` | `str` | `no` | `'1.1'` | — |
+| `schema_version` | `str` | `no` | `'1.2'` | — |
 
 ### `polisyos.ir.analytics.causal_queries.CausalRegime` { #polisyos-ir-analytics-causal-queries-causalregime }
 
@@ -3406,6 +3446,23 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `intervention` | `polisyos.ir.analytics.causal_queries.InterventionSpec \| NoneType` | `no` | `—` | `polisyos.ir.analytics.causal_queries.InterventionSpec` |
 | `kind` | `Literal[observational, interventional]` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.causal_queries.CausalResultKind` { #polisyos-ir-analytics-causal-queries-causalresultkind }
+
+- Kind: `enum`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:CausalResultKind`, `polisyos.ir:CausalResultKind`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Meaning of draws from a fixed SCM, distinct from estimator sampling.
+
+| Enum values |
+| ----------- |
+| `outcome_distribution` |
+| `ite_distribution` |
+| `posterior_credible_interval` |
 
 ### `polisyos.ir.analytics.causal_queries.InterventionSpec` { #polisyos-ir-analytics-causal-queries-interventionspec }
 
@@ -19281,27 +19338,79 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `source` | `polisyos.ir.analytics.structural_causal_model.MechanismSource` | `no` | `<MechanismSource.DATA_FITTED: 'data_fitted'>` | `polisyos.ir.analytics.structural_causal_model.MechanismSource` |
 | `variable` | `str` | `yes` | `—` | — |
 
+### `polisyos.ir.analytics.structural_causal_model.SCMFitProvenance` { #polisyos-ir-analytics-structural-causal-model-scmfitprovenance }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir:SCMFitProvenance`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Observed selected-worker identities for an actual GCM mechanism fit.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `fit_function` | `Literal[dowhy.gcm.fit]` | `no` | `'dowhy.gcm.fit'` | — |
+| `profile` | `Literal[dowhy-014]` | `no` | `'dowhy-014'` | — |
+| `python` | `str` | `yes` | `—` | — |
+| `request_id` | `str` | `yes` | `—` | — |
+| `request_sha256` | `str` | `yes` | `—` | — |
+| `resample_indices` | `list[int] \| NoneType` | `no` | `—` | — |
+| `seed` | `int` | `yes` | `—` | — |
+| `versions` | `dict[str, str]` | `yes` | `—` | — |
+| `worker_code_sha256` | `str` | `yes` | `—` | — |
+| `worker_lock_sha256` | `str` | `yes` | `—` | — |
+| `worker_response` | `dict[str, Any]` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.structural_causal_model.SCMTrainingRows` { #polisyos-ir-analytics-structural-causal-model-scmtrainingrows }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir:SCMTrainingRows`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.registry.refs.ArtifactRefModel`
+- Summary: Content-bound aligned observational rows retained for complete refits.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `columns` | `list[str]` | `yes` | `—` | — |
+| `data_sha256` | `str` | `yes` | `—` | — |
+| `fit_input` | `dict[str, Any]` | `yes` | `—` | — |
+| `graph_payload` | `dict[str, Any]` | `yes` | `—` | — |
+| `graph_sha256` | `str` | `yes` | `—` | — |
+| `row_ids` | `list[str]` | `yes` | `—` | — |
+| `row_sha256` | `str` | `yes` | `—` | — |
+| `rows` | `list[list[float]]` | `yes` | `—` | — |
+| `source_ref` | `polisyos.ir.registry.refs.ArtifactRefModel` | `yes` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
+| `source_sha256` | `str` | `yes` | `—` | — |
+
 ### `polisyos.ir.analytics.structural_causal_model.StructuralCausalModelSpec` { #polisyos-ir-analytics-structural-causal-model-structuralcausalmodelspec }
 
 - Kind: `pydantic_model`
 - Public status: `root_facade`
-- Current version: `1.0`
+- Current version: `1.1`
 - Exported from: `polisyos.ir.analytics:StructuralCausalModelSpec`, `polisyos.ir:StructuralCausalModelSpec`
 - ABI snapshot: `structural_causal_model_spec` / `schemas/snapshots/ir/structural_causal_model_spec.schema.json`
-- Compatibility mode: `—`
-- References: `polisyos.ir.analytics.causal_graph.CausalGraphModel`, `polisyos.ir.analytics.structural_causal_model.NodeMechanism`
+- Compatibility mode: `backward`
+- References: `polisyos.ir.analytics.causal_graph.CausalGraphModel`, `polisyos.ir.analytics.structural_causal_model.NodeMechanism`, `polisyos.ir.analytics.structural_causal_model.SCMFitProvenance`, `polisyos.ir.analytics.structural_causal_model.SCMTrainingRows`
 - Summary: Serializable structural causal model with graph and node mechanisms.
+- Declared readable versions: `1.0`
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
-| `fit_method` | `Literal[auto, manual, gcm, hybrid] \| NoneType` | `no` | `—` | — |
+| `fit_method` | `Literal[auto, manual, gcm, hybrid, native_hybrid] \| NoneType` | `no` | `—` | — |
 | `fit_metrics` | `dict[str, float]` | `no` | `—` | — |
+| `fit_provenance` | `polisyos.ir.analytics.structural_causal_model.SCMFitProvenance \| NoneType` | `no` | `—` | `polisyos.ir.analytics.structural_causal_model.SCMFitProvenance` |
 | `fitted` | `bool` | `no` | `False` | — |
 | `graph` | `polisyos.ir.analytics.causal_graph.CausalGraphModel` | `yes` | `—` | `polisyos.ir.analytics.causal_graph.CausalGraphModel` |
 | `mechanism_source_summary` | `dict[str, int]` | `no` | `—` | — |
 | `mechanisms` | `list[polisyos.ir.analytics.structural_causal_model.NodeMechanism]` | `no` | `—` | `polisyos.ir.analytics.structural_causal_model.NodeMechanism` |
-| `schema_version` | `str` | `no` | `'1.0'` | — |
+| `schema_version` | `str` | `no` | `'1.1'` | — |
 | `skg_snapshot_ref` | `str \| NoneType` | `no` | `—` | — |
+| `training_rows` | `polisyos.ir.analytics.structural_causal_model.SCMTrainingRows \| NoneType` | `no` | `—` | `polisyos.ir.analytics.structural_causal_model.SCMTrainingRows` |
 
 ### `polisyos.ir.analytics.survey_quality.SurveyAssumptionComponent` { #polisyos-ir-analytics-survey-quality-surveyassumptioncomponent }
 
@@ -20042,11 +20151,11 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 - Kind: `pydantic_model`
 - Public status: `internal`
-- Current version: `1.0`
+- Current version: `1.1`
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.causal_queries.InterventionSpec`
+- References: `polisyos.ir.analytics.causal_queries.CausalEstimatorInterval`, `polisyos.ir.analytics.causal_queries.CausalResultKind`, `polisyos.ir.analytics.causal_queries.InterventionSpec`
 - Summary: Output of a twin-network joint counterfactual query.
 
 | Field | Type | Required | Default | IR refs |
@@ -20054,7 +20163,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `abduction_warnings` | `list[str]` | `no` | `—` | — |
 | `computation_time_seconds` | `float` | `no` | `0.0` | — |
 | `counterfactual_intervention` | `polisyos.ir.analytics.causal_queries.InterventionSpec` | `yes` | `—` | `polisyos.ir.analytics.causal_queries.InterventionSpec` |
+| `estimator_interval` | `polisyos.ir.analytics.causal_queries.CausalEstimatorInterval \| NoneType` | `no` | `—` | `polisyos.ir.analytics.causal_queries.CausalEstimatorInterval` |
 | `factual_intervention` | `polisyos.ir.analytics.causal_queries.InterventionSpec` | `yes` | `—` | `polisyos.ir.analytics.causal_queries.InterventionSpec` |
+| `interval_level` | `float` | `no` | `0.95` | — |
 | `ite_ci` | `tuple[float, float]` | `yes` | `—` | — |
 | `ite_distribution` | `list[float] \| NoneType` | `no` | `—` | — |
 | `ite_mean` | `float` | `yes` | `—` | — |
@@ -20068,7 +20179,8 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `po_factual_distribution` | `list[float] \| NoneType` | `no` | `—` | — |
 | `po_factual_mean` | `float` | `yes` | `—` | — |
 | `po_factual_std` | `float` | `yes` | `—` | — |
-| `schema_version` | `str` | `no` | `'1.0'` | — |
+| `result_kind` | `polisyos.ir.analytics.causal_queries.CausalResultKind` | `no` | `<CausalResultKind.ITE_DISTRIBUTION: 'ite_distribution'>` | `polisyos.ir.analytics.causal_queries.CausalResultKind` |
+| `schema_version` | `str` | `no` | `'1.1'` | — |
 
 ### `polisyos.ir.analytics.twin_network.TwinWorldSample` { #polisyos-ir-analytics-twin-network-twinworldsample }
 

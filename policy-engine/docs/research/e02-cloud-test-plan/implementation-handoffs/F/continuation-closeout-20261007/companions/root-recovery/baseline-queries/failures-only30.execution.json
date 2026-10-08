@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python3",
+    "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+    "--unit",
+    "F",
+    "--failures-only",
+    "--limit",
+    "30"
+  ],
+  "returncode": 0,
+  "full_stdout_bytes": 19253
+}

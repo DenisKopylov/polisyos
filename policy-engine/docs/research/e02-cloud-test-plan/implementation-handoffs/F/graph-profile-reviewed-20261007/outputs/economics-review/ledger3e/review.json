@@ -1,0 +1,208 @@
+{
+  "schema": "e02.F.independent_frozen_ledger_review.v1",
+  "source": "3e5985076cee7e5dfa5627addc59d4aac6532a8a",
+  "source_tree": "7303ea6f8a452745b6b081ac87fd768dcd2326e2",
+  "base": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+  "product_source": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "receipt": {
+    "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+    "bytes": 38873,
+    "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+    "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e"
+  },
+  "verdict": "GO_BOUNDED_LEDGER_SCIENTIFIC_SCOPE; BLOCK_CANONICAL_PROTOCOL",
+  "counts_and_unchanged_bindings": "PASS35IDs/36bindings/35unique/17bundles/6appended29wholebytecarry",
+  "statuses": "33closed2limited/34PASS1UNRUN;0NEW_Gruntime_source/0formal;priorLex00a6accepted preserved",
+  "global_quality": "Old519 scannerERROR-9twice, RuffFAIL103/surfaceFAIL38/P41not_established retained; new fullscannerUNRUN, benchmarkRuff2T201FAIL; old51991+91 not new4ee qualification",
+  "transport": "PASS513complete actual Git stored and decoded bytes; all deciding outputs present",
+  "B218": "PASS explicit3historical supersession refs, actual limited values preserved; temporalUNRUN separate",
+  "B212": "Actual controlled post-fit missingCI/SE negative correctly qualified; not naturalpoint-only witness",
+  "LA035": "Entire perID unchanged and original equivalent relocation closed; no optimizer prerequisite",
+  "no_independent_product_source_review_claim": true,
+  "no_numerical_runs": true,
+  "protocol_blocker": {
+    "required_by": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md:38",
+    "schema": "e02.F.property_slice_handoff.v1",
+    "canonical_schema_match": false,
+    "missing_minimum_fields": [
+      "slice",
+      "closure_ids",
+      "bundle_ids",
+      "slice_base_sha",
+      "candidate_tree_sha",
+      "pull_request",
+      "changed_paths",
+      "baseline_cells",
+      "predicate_basis",
+      "capability_state_or_finding_state",
+      "limitations_and_next_owner"
+    ],
+    "checks": [
+      {
+        "index": 0,
+        "missing": [
+          "command",
+          "target_sha",
+          "environment",
+          "input_closure",
+          "outcome"
+        ],
+        "output_is_string": false
+      },
+      {
+        "index": 1,
+        "missing": [
+          "command",
+          "target_sha",
+          "environment",
+          "input_closure",
+          "outcome"
+        ],
+        "output_is_string": false
+      },
+      {
+        "index": 2,
+        "missing": [
+          "command",
+          "target_sha",
+          "environment",
+          "input_closure",
+          "outcome"
+        ],
+        "output_is_string": false
+      },
+      {
+        "index": 3,
+        "missing": [
+          "command",
+          "target_sha",
+          "environment",
+          "input_closure",
+          "outcome"
+        ],
+        "output_is_string": false
+      },
+      {
+        "index": 4,
+        "missing": [
+          "command",
+          "target_sha",
+          "environment",
+          "input_closure",
+          "outcome"
+        ],
+        "output_is_string": false
+      },
+      {
+        "index": 5,
+        "missing": [
+          "command",
+          "target_sha",
+          "environment",
+          "input_closure",
+          "outcome"
+        ],
+        "output_is_string": false
+      },
+      {
+        "index": 6,
+        "missing": [
+          "command",
+          "target_sha",
+          "environment",
+          "input_closure",
+          "outcome"
+        ],
+        "output_is_string": false
+      },
+      {
+        "index": 7,
+        "missing": [
+          "command",
+          "target_sha",
+          "environment",
+          "input_closure",
+          "outcome"
+        ],
+        "output_is_string": false
+      },
+      {
+        "index": 8,
+        "missing": [
+          "command",
+          "target_sha",
+          "environment",
+          "input_closure",
+          "outcome",
+          "output"
+        ],
+        "output_is_string": false
+      },
+      {
+        "index": 9,
+        "missing": [
+          "command",
+          "target_sha",
+          "environment",
+          "input_closure",
+          "outcome",
+          "output"
+        ],
+        "output_is_string": false
+      }
+    ],
+    "property_missing": [
+      "statement",
+      "runtime_path",
+      "proxy_divergence",
+      "negative_controls"
+    ],
+    "verdict": "BLOCK_CANONICAL_PROTOCOL_ONLY"
+  },
+  "metadata_corruption_controls": [
+    {
+      "name": "wrong stored SHA with actual untouched Git bytes",
+      "result": "REJECTED",
+      "kind": "finite metadata corruption; no estimator run"
+    },
+    {
+      "name": "wrong decoded SHA with valid stored gzip",
+      "result": "REJECTED",
+      "kind": "finite metadata corruption; no estimator run"
+    },
+    {
+      "name": "drop duplicate LA016 coverage binding without dropping ID",
+      "result": "REJECTED",
+      "kind": "finite metadata corruption; no estimator run"
+    },
+    {
+      "name": "promote broad B214 from narrow property",
+      "result": "REJECTED",
+      "kind": "finite metadata corruption; no estimator run"
+    },
+    {
+      "name": "promote deferred shared-admission B56",
+      "result": "REJECTED",
+      "kind": "finite metadata corruption; no estimator run"
+    },
+    {
+      "name": "erase historical Lex accepted source while declaring0new",
+      "result": "REJECTED",
+      "kind": "finite metadata corruption; no estimator run"
+    },
+    {
+      "name": "promote F B218 supersession to G formal closure",
+      "result": "REJECTED",
+      "kind": "finite metadata corruption; no estimator run"
+    }
+  ],
+  "outputs": [
+    "current35-actual-binding-audit.json",
+    "complete-transport-audit.json",
+    "canonical-protocol-audit.json",
+    "quality-actual-classification.json",
+    "full14-ledger.patch"
+  ],
+  "historical_requirement_review": "../review.json"
+}

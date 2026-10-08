@@ -1,0 +1,137 @@
+{
+  "finding_id": "LA-001",
+  "primary_owner_from_full_TSV": {
+    "finding_id": "LA-001",
+    "unit": "F",
+    "docx_analytical_package": "P24",
+    "source_closure_owner": "FRY-01",
+    "source_bundle_ids": "FRY-01",
+    "source_status": "partial"
+  },
+  "bundle_owner_from_full_TSV": {
+    "bundle_id": "FRY-01",
+    "unit": "F",
+    "initial_writer_family": "F-W05",
+    "title": "Foundry compile/catalog: randomization, families и прямой IR layout"
+  },
+  "original_card_refs": [
+    {
+      "criterion_id": "LA-001",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+      "lines": [
+        82,
+        108
+      ],
+      "bytes": 3007,
+      "sha256": "35f63e8bacf3c27cd4148db8119837ff30df91a5de9f73d52ead6e4fc73d9dd0",
+      "title": "## LA-001. Treasury: инфраструктура случайности под предметным названием",
+      "byte_binding_check": "PASS"
+    }
+  ],
+  "original_text": "## LA-001. Treasury: инфраструктура случайности под предметным названием\n\n**Перемещение по смысловой роли**\n\n**Статус.** Семантическое несоответствие подтверждено; удалять функцию нельзя.\n\n**Точная область:**\n\n`src/polisyos/foundry/mechanisms/treasury.py`\n\n**Что установлено и почему это legacy-кандидат.** Файл строит root_seed, node_salts и stream_salts; казначейских потоков и государственных балансов здесь нет. Это не устаревшая вычислительная формула, а живой план воспроизводимости в неподходящей предметной папке. Trinity compiler импортирует build_treasury_plan и сохраняет результат.\n\n**Что сохранить.** Весь алгоритм, включая историческую семантику root_seed=0, стабильные node IDs, формат сериализации и содержимое сохранённых планов.\n\n**Куда перенести / с чем объединить.** Предлагаемый новый файл src/polisyos/foundry/compile/randomization.py в существующей compile/. Не переносить в экономический plugin. Отдельный DTO в contracts/ нужен лишь при действительно нескольких независимых потребителях; пока допустимо оставить модель рядом с builder.\n\n**Порядок миграции.** Сначала перенести без изменения формулы, переключить compiler и tests; временный alias старого import-path — только при подтверждённой необходимости. Python-имя можно менять отдельно от schema/kind: переименование файла не требует переписывать исторические CAS-артефакты.\n\n**Приёмочная проверка.** Сравнить результаты для seed=0 и ненулевого seed, перестановки program nodes, повторной компиляции и чтения старого плана. Проверить код, конфигурации и сохранённые symbol paths; не менять digest ради косметики.\n\n**Приоритет.** Высокая ясность назначения; низкая/средняя цена переноса.\n\n**Граница вывода.** Перенос сам по себе не ускоряет численные вычисления. Полная карта downstream-readers не построена.\n\n**Основания:** E02, E39, E36.\n\n<!-- PAGEBREAK -->\n",
+  "primary_acceptance_scope": "Equivalent randomization-plan relocation: seed0/nonzero, node permutation/repeat compilation and historical reader; compiler/executor inputs retain schema/content/digest.",
+  "source_chain": {
+    "producer": "compile randomization/IR slot builders/catalog family owner",
+    "artifact": "TreasuryPlan/SlotLayout/IR certificate refs",
+    "bridge": "compile.api.compile → compile_trinity / ICVerificationRequest → CAS",
+    "consumer": "execute.api.execute → execute_program_graph → adaptive_agent / fresh IR reader"
+  },
+  "actual_recorded_consumer": "compile.api.compile → compile_trinity → TreasuryPlan → execute.api.execute → execute_program_graph → adaptive_agent",
+  "surface": "Compiler randomization-plan builder/TreasuryPlan historical schema and actual execution RNG consumers",
+  "deciding_receipt_refs": [
+    {
+      "git_ref": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json",
+      "bytes": 77903,
+      "sha256": "ff8a8f2b2689fb9793c5ab03f29fde1412eb5fe03dae961656fad722a108176e",
+      "git_blob": "12937d746fc2a65adfb6022e24ec00f61083f492",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/LA-001"
+      ]
+    }
+  ],
+  "deciding_per_ID_carrier_ref": {
+    "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/LA-001.json",
+    "bytes": 16571,
+    "sha256": "7ad79c0b058df4d81f9918a36bf70bd728c47dcd54f4df71ad9a7d4053ccf32f",
+    "git_blob": "f0165b7cd27e32c47cca86efe7aa618e0e974ba3"
+  },
+  "scientific_implementation": {
+    "sha": "63425f734946979cfc990e9cb91b00163f051898",
+    "tree": "dab61c3e7a161e00837f5a128fc2768a36e9b19a",
+    "not_receipt_carrier": true
+  },
+  "recorded_independent_oracle_and_negative": "Seed0/nonzero, recompilation/permutation, unmarked historical plans, realnativekey/dispatcher; salt removal retainsmarkers and FAIL",
+  "complete_raw_receipt_checks_refs": [
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/0",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/1",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/2",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/3",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/4",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/5",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/6",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/7",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/8",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/9",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/10",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/11",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/12",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/13"
+  ],
+  "historical_ROOT072": {
+    "check": "PASS",
+    "outcome": "closed",
+    "technical_original_criterion_recommendation": "closed",
+    "current_continuation_outcome_recommendation": "closed",
+    "original_criterion_remainder": "Versioned v1 intentionally has same node draw at steps0/1; unchanged temporal law.",
+    "actual_consumer": "compile.api.compile → compile_trinity → TreasuryPlan → execute.api.execute → execute_program_graph → adaptive_agent",
+    "oracle_and_negative": "Seed0/nonzero, recompilation/permutation, unmarked historical plans, realnativekey/dispatcher; salt removal retainsmarkers and FAIL",
+    "separate_unavailable_inputs_or_authority": "No newly commissioned fresh innovation law or real economic validity."
+  },
+  "independent_original_criterion_recommendation": {
+    "check": "PASS",
+    "outcome": "closed",
+    "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+    "scientific_rerun": false,
+    "review_scope": "independent criterion/evidence reconciliation; not an independently rerun estimator measurement",
+    "missing_actual_original_criterion": null,
+    "new_owner_review_pending": false,
+    "not_formal_G_closure": true
+  },
+  "separate_unavailable_inputs_or_authority": "No newly commissioned fresh innovation law or real economic validity.",
+  "existing_author_or_reviewer_conflict": null,
+  "schema": "e02.F.original-finding.v3",
+  "primary_bundle": "FRY-01",
+  "criterion_short": "Equivalent randomization-plan relocation: seed0/nonzero, node permutation/repeat compilation and historical reader; compiler/executor inputs retain schema/content/digest.",
+  "check_result": "PASS",
+  "F_finding_outcome": "closed",
+  "F_technical_recommendation": "closed",
+  "F_rationale": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+  "code_sha": "63425f734946979cfc990e9cb91b00163f051898",
+  "code_tree": "dab61c3e7a161e00837f5a128fc2768a36e9b19a",
+  "consumer": "compile.api.compile → compile_trinity → TreasuryPlan → execute.api.execute → execute_program_graph → adaptive_agent",
+  "oracle_and_negative": "Seed0/nonzero, recompilation/permutation, unmarked historical plans, realnativekey/dispatcher; salt removal retainsmarkers and FAIL",
+  "G_finding_acceptance": {
+    "status": "not_issued",
+    "formal_G_closed": false
+  },
+  "G_code_acceptance": {
+    "status": "not_inferred",
+    "source_sha": null,
+    "basis": "Independent F GO/code-ready is not G code acceptance"
+  },
+  "original_missing_input": null,
+  "original_next_owner": null,
+  "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+  "root_assembled_source": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "not_new_numerical_proof": true
+  },
+  "new_property_followups_not_automatically_original_reopen": []
+}

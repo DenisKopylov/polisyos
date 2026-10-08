@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/e02-F-20261006-receipts/economics/intake-review/probe_reverse_boundary.py", line 16, in <module>
+    assert rows[0]['default_method_edges']==[('Y','X','tail','arrow')]
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'default_method_edges'

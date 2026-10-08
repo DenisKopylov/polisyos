@@ -1,0 +1,363 @@
+"""Read one native TMLE MethodJob through actual persisted evidence consumers.
+
+The numerical fixture establishes a supported candidate, not identification.
+Confidence and value projection consume the same report lineage in a fresh
+process. No report is constructed by the test or granted an authority seal.
+"""
+
+from __future__ import annotations
+
+import json
+import subprocess
+import sys
+from dataclasses import replace
+from pathlib import Path
+from time import perf_counter
+
+import numpy as np
+import pytest
+
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.contracts.foundry import ExecPlanRef, MetricsRef, SimulationResult
+from polisyos.core.governance.passes.base import IssueSeverity, PassContext
+from polisyos.core.governance.profiles import ValidationProfile
+from polisyos.foundry.methods.backends.protocol import (
+    MethodResult,
+    MethodTiming,
+    ReproducibilityInfo,
+)
+from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
+from polisyos.foundry.methods.catalog.causal.treatment_effects import TMLEEstimator
+from polisyos.foundry.methods.components.consensus import EstimandSpec
+from polisyos.foundry.methods.components.value_evidence import (
+    MethodValueRefusal,
+    project_method_value_evidence,
+)
+from polisyos.ir.analytics.causal import (
+    CausalMethod,
+    EstimationStatus,
+    load_causal_effect_report,
+    persist_causal_effect_report,
+)
+from polisyos.ir.analytics.uncertainty import (
+    UncertaintyEnvelope,
+    UncertaintySource,
+    load_uncertainty_envelope,
+    persist_uncertainty_envelope,
+)
+from polisyos.ir.registry.refs import CausalEffectReportRef
+from polisyos.scientist.compute.job_spec import JobSpec
+from polisyos.scientist.compute.runner import run_job
+from polisyos.scientist.governance.passes.confidence_pass import ConfidencePass
+
+
+@pytest.fixture(scope="module")
+def persisted_tmle(tmp_path_factory: pytest.TempPathFactory) -> dict:
+    """Execute the registered producer once; retain its exact CAS lineage."""
+    root = tmp_path_factory.mktemp("tmle-consumers")
+    store = FileSystemCAS(root / "cas")
+    rng = np.random.default_rng(73)
+    x = rng.normal(size=600)
+    treatment = rng.binomial(1, 0.5, size=600).astype(float)
+    outcome = rng.binomial(1, 0.25 + 0.1 * np.sign(x) + 0.3 * treatment).astype(float)
+    observations = HTEObservationalData(
+        outcome=outcome,
+        treatment=treatment,
+        covariates=x[:, None],
+        feature_names=["x"],
+        sample_ids=np.arange(600),
+    )
+    source = store.put_json(
+        observations.model_dump(mode="json"),
+        PutOptions(kind="ir.observational_data", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    params = {
+        "propensity_backend": "logistic",
+        "outcome_backend": "linear",
+        "calibration_mode": "none",
+        "outcome_scaling": "raw",
+        "crossfit_folds": 2,
+        "n_repeats": 1,
+        "random_seed": 18,
+        "ci_mode": "wald",
+        "inference_profile": "regular_iid",
+        "coverage_guard": "off",
+    }
+    started = perf_counter()
+    job = run_job(
+        JobSpec(
+            job_kind="method",
+            method_fqn=TMLEEstimator.signature.fqn,
+            method_params=params,
+            seed=18,
+            input_refs={"causal_observational_data": source},
+        ),
+        cas_root=store.root,
+        method_state=observations,
+    )
+    wall_ms = 1000 * (perf_counter() - started)
+    assert not job.issues, job.issues
+    assert job.method_result_ref is not None
+    assert job.method_evidence_ref is not None
+    native_report = job.final_state["report"]
+    assert native_report.method is CausalMethod.TMLE
+    assert native_report.status is EstimationStatus.SUCCESS
+    assert native_report.confidence_interval is not None
+    assert native_report.identified_estimand is None
+    assert native_report.to_uncertainty_envelope() == job.final_state["envelope"]
+    bundle_ref = job.method_result_ref
+    assert store.get_manifest(bundle_ref).inputs[0].artifact_id == source.artifact_id
+    report_ref = persist_causal_effect_report(
+        store,
+        native_report,
+        inputs=[InputRef(artifact_id=bundle_ref.artifact_id, role="native_method_result")],
+    )
+    envelope_ref = persist_uncertainty_envelope(
+        store,
+        job.final_state["envelope"],
+        inputs=[InputRef(artifact_id=report_ref.artifact_id, role="causal_report")],
+    )
+    # Adversarial relabeling preserves the actual producer's point/CI and status.
+    forged = job.final_state["envelope"].model_copy(
+        update={"source": UncertaintySource.ENSEMBLE, "gate_eligible": True}
+    )
+    forged_ref = persist_uncertainty_envelope(
+        store,
+        forged,
+        inputs=[InputRef(artifact_id=report_ref.artifact_id, role="adversarial_relabel")],
+    )
+    plan = store.put_json(
+        {"order": []}, PutOptions(kind="foundry.exec_plan", media_type="application/json")
+    )
+    metrics = store.put_json(
+        {"values": {}}, PutOptions(kind="foundry.metrics", media_type="application/json")
+    )
+    healthy = store.put_json(
+        SimulationResult(
+            exec_plan_ref=ExecPlanRef(artifact_id=plan.artifact_id),
+            metrics_ref=MetricsRef(artifact_id=metrics.artifact_id),
+        ),
+        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+    )
+    corrupt = store.put_bytes(
+        b"{", PutOptions(kind="foundry.simulation_result", media_type="application/json")
+    )
+    wrong_model = store.put_json(
+        {"not_a_simulation": True},
+        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+    )
+    packet = {
+        "cas_root": str(store.root),
+        "source_ref": source.model_dump(mode="json"),
+        "bundle_ref": bundle_ref.model_dump(mode="json"),
+        "evidence_ref": job.method_evidence_ref.model_dump(mode="json"),
+        "report_ref": report_ref.model_dump(mode="json"),
+        "envelope_ref": envelope_ref.model_dump(mode="json"),
+        "forged_ref": forged_ref.model_dump(mode="json"),
+        "simulation_refs": {
+            "healthy": healthy.model_dump(mode="json"),
+            "corrupt": corrupt.model_dump(mode="json"),
+            "wrong_model": wrong_model.model_dump(mode="json"),
+            "missing": {**healthy.model_dump(mode="json"), "artifact_id": "sha256:" + "9" * 64},
+        },
+        "method_wall_ms": wall_ms,
+        "params": params,
+    }
+    (root / "producer-packet.json").write_text(json.dumps(packet, indent=2) + "\n")
+    return packet
+
+
+def _read(spec: dict) -> dict:
+    """Challenge both real consumers against the same persisted native report."""
+    store = FileSystemCAS(Path(spec["cas_root"]))
+    bundle_ref = ArtifactRef.model_validate(spec["bundle_ref"])
+    bundle = from_canonical_bytes(store.get_bytes(bundle_ref))
+    report_ref = CausalEffectReportRef.model_validate(spec["report_ref"])
+    report = load_causal_effect_report(store, report_ref)
+    assert report.model_dump(mode="json") == bundle["report"]
+    assert report.method is CausalMethod.TMLE and report.status is EstimationStatus.SUCCESS
+    assert report.confidence_interval is not None
+    report_lineage = store.get_manifest(report_ref.artifact_id).inputs
+    assert report_lineage[0].artifact_id == bundle_ref.artifact_id
+    assert (
+        store.get_manifest(bundle_ref).inputs[0].artifact_id
+        == ArtifactRef.model_validate(spec["source_ref"]).artifact_id
+    )
+    native_envelope = UncertaintyEnvelope.model_validate(bundle["envelope"])
+    assert native_envelope == report.to_uncertainty_envelope()
+    assert native_envelope.gate_eligible is False
+    env_ref = ArtifactRef.model_validate(
+        spec["forged_ref"] if spec["relabelled"] else spec["envelope_ref"]
+    )
+    offered_envelope = load_uncertainty_envelope(store, env_ref)
+    stored_native_envelope = load_uncertainty_envelope(
+        store, ArtifactRef.model_validate(spec["envelope_ref"])
+    )
+    # The native IR artifact writer's canonical profile normalizes floats;
+    # compare offered values to that actual persisted profile, not raw doubles.
+    assert offered_envelope.point_estimate == stored_native_envelope.point_estimate
+    assert offered_envelope.confidence_interval == stored_native_envelope.confidence_interval
+    assert offered_envelope.metadata["status"] == EstimationStatus.SUCCESS.value
+    assert offered_envelope.gate_eligible is spec["relabelled"]
+    evidence = from_canonical_bytes(
+        store.get_bytes(ArtifactRef.model_validate(spec["evidence_ref"]))
+    )
+    assert evidence["authority_purpose"] == "method_execution"
+    assert "method_validity" in evidence["may_not_use_for"]
+    state = {"_store": store, "artifacts_index": {}}
+    causal_target = state["artifacts_index"] if spec["causal_location"] == "index" else state
+    causal_target["causal_envelope_ref"] = env_ref
+    sim_kind = spec["simulation_kind"]
+    if sim_kind != "none":
+        sim_ref = ArtifactRef.model_validate(spec["simulation_refs"][sim_kind])
+        sim_target = state["artifacts_index"] if spec["simulation_location"] == "index" else state
+        sim_target["simulation_result_ref"] = (
+            str(sim_ref.artifact_id) if spec["simulation_location"] == "top_string" else sim_ref
+        )
+    profile = ValidationProfile.strict()
+    profile = replace(
+        profile,
+        thresholds={
+            **profile.thresholds,
+            "uncertainty_min_gate_eligible_ratio": spec["min_ratio"],
+            "uncertainty_max_ci_width_ratio": 1e12,
+            "uncertainty_max_ci_width_abs": 1e12,
+        },
+    )
+    issues = ConfidencePass().validate(
+        PassContext(
+            ir=None,
+            state=state,
+            registry_bundle=None,
+            profile=profile,
+            run_id="persisted-tmle-consumer",
+        )
+    )
+    issue_payload = [issue.model_dump(mode="json") for issue in issues]
+    causal_blockers = [
+        issue
+        for issue in issues
+        if issue.severity is IssueSeverity.BLOCKER
+        and issue.code == "CONFIDENCE_GATE_ELIGIBILITY_LOW"
+        and issue.path == ["artifacts_index", "causal_envelope_ref"]
+    ]
+    assert len(causal_blockers) == 1, issue_payload
+    warning = any(issue.code == "CONFIDENCE_SIM_RESULT_LOAD_FAILED" for issue in issues)
+    assert warning is (sim_kind in {"missing", "corrupt", "wrong_model"}), issue_payload
+    # This wrapper is a fresh view of persisted output, not a new report/fit/seal.
+    result_view = MethodResult(
+        output={"report": report},
+        slot_outputs={"report": report},
+        timing=MethodTiming(wall_time_ms=spec["method_wall_ms"]),
+        reproducibility=ReproducibilityInfo(
+            backend=TMLEEstimator.signature.backend,
+            determinism_tier=TMLEEstimator.determinism_tier,
+            seed=18,
+            note="Fresh CAS reader; authority derives from no wrapper field.",
+        ),
+    )
+    value = project_method_value_evidence(
+        method_signature=TMLEEstimator.signature,
+        method_result=result_view,
+        selected_output_slot="report",
+        estimand=EstimandSpec(
+            query_id=str(report_ref.artifact_id),
+            estimand_id=report.estimand,
+            outcome="Y",
+            treatment_or_exposure="A",
+            population="synthetic_fixture",
+            target_role="causal",
+        ),
+    )
+    assert isinstance(value, MethodValueRefusal)
+    assert value.reason_code == "method_output_contract_unresolved"
+    assert value.selected_output_slot == "report"
+    assert value.resolved_contract_id is None
+    # Refusal occurs at contract resolution, before the downstream gate predicate.
+    assert report.status is EstimationStatus.SUCCESS and report.confidence_interval is not None
+    return {
+        "bundle_id": str(bundle_ref.artifact_id),
+        "report_id": str(report_ref.artifact_id),
+        "source_id": spec["source_ref"]["artifact_id"],
+        "report_method": report.method.value,
+        "report_status": report.status.value,
+        "point": report.point_estimate,
+        "ci": report.confidence_interval,
+        "persisted_envelope_point": stored_native_envelope.point_estimate,
+        "persisted_envelope_ci": stored_native_envelope.confidence_interval,
+        "native_gate_eligible": native_envelope.gate_eligible,
+        "offered_gate_eligible": offered_envelope.gate_eligible,
+        "offered_source": offered_envelope.source.value,
+        "value_refusal": value.model_dump(mode="json"),
+        "confidence_issues": issue_payload,
+    }
+
+
+_SIMULATION_CASES = [("none", "index")] + [
+    (kind, location)
+    for kind in ("healthy", "missing", "corrupt", "wrong_model")
+    for location in ("index", "top", "top_string")
+]
+
+
+def _challenge(packet: dict, tmp_path: Path, **changes) -> None:
+    spec = {
+        **packet,
+        "relabelled": True,
+        "causal_location": "index",
+        "simulation_kind": "healthy",
+        "simulation_location": "index",
+        "min_ratio": 1.0,
+        **changes,
+    }
+    spec_path = tmp_path / "consumer-spec.json"
+    spec_path.write_text(json.dumps(spec, indent=2) + "\n")
+    child = subprocess.run(
+        [sys.executable, str(Path(__file__).resolve()), "--reader", str(spec_path)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert child.returncode == 0, child.stdout + child.stderr
+    measured = json.loads(child.stdout.splitlines()[-1])
+    assert measured["report_id"] == packet["report_ref"]["artifact_id"]
+    print(  # noqa: T201 - complete source-bound consumer observations retained in receipt.
+        json.dumps(
+            {
+                "consumer_spec": str(spec_path),
+                "case": {key: spec[key] for key in changes},
+                "child_exit": child.returncode,
+                "child_stdout": child.stdout,
+                "child_stderr": child.stderr,
+            },
+            sort_keys=True,
+        )
+    )
+
+
+@pytest.mark.parametrize("min_ratio", [0.0, 1.0])
+@pytest.mark.parametrize("causal_location", ["index", "top"])
+@pytest.mark.parametrize(("simulation_kind", "simulation_location"), _SIMULATION_CASES)
+def test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges(
+    persisted_tmle, tmp_path, min_ratio, causal_location, simulation_kind, simulation_location
+) -> None:
+    _challenge(
+        persisted_tmle,
+        tmp_path,
+        min_ratio=min_ratio,
+        causal_location=causal_location,
+        simulation_kind=simulation_kind,
+        simulation_location=simulation_location,
+    )
+
+
+def test_unmodified_native_report_reaches_both_fresh_consumers(persisted_tmle, tmp_path) -> None:
+    _challenge(persisted_tmle, tmp_path, relabelled=False)
+
+
+if __name__ == "__main__":
+    assert len(sys.argv) == 3 and sys.argv[1] == "--reader"
+    print(json.dumps(_read(json.loads(Path(sys.argv[2]).read_text())), sort_keys=True))  # noqa: T201

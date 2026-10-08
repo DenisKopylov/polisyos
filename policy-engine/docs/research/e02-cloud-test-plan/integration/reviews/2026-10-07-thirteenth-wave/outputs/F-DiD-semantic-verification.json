@@ -1,0 +1,41 @@
+{
+  "all_three_cases_status_pass": true,
+  "benchmark_result_sha256": "63514d5c02e88e9ebab75228f00fae314956f080abef168355ea518256ff2088",
+  "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "case_ids": [
+    "policy_natural::did::clean_rollout",
+    "policy_natural::did::placebo_null",
+    "policy_natural::did::staggered_adoption"
+  ],
+  "clean_rollout": {
+    "case_status": "passed",
+    "estimand": "ATT",
+    "expected_semantic_fields_pass": true,
+    "point_estimate": 1.9972170388636796,
+    "pre_periods": 2,
+    "pretrend_diagnostic": {
+      "details": {
+        "identification_authority": false,
+        "limitation": "Non-rejection cannot establish untreated potential-outcome parallel trends.",
+        "reason": "insufficient_pre_periods",
+        "status": "not_testable"
+      },
+      "p_value": null,
+      "passed": false,
+      "statistic": null,
+      "test_name": "pre_trend_parallelism"
+    },
+    "verdict": "PASS"
+  },
+  "counts": {
+    "n_errors": 0,
+    "n_failed": 0,
+    "n_passed": 3,
+    "n_skipped": 0,
+    "n_total": 3
+  },
+  "mode": "smoke",
+  "overall_status": "passed",
+  "pass": true
+}

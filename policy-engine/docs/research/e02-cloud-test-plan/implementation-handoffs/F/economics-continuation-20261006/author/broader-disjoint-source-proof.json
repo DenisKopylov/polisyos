@@ -1,0 +1,61 @@
+{
+  "scope": "All seven failing producer/caller/test source blobs, exactfull97 base replay bound separately. Changedreader paths may intersect overall broaderinput; source disjointness applies to these three exacttrace endpoints only.",
+  "rows": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py",
+      "base_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "candidate_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "bytes": 4831,
+      "sha256": "bc52074e63f5aa72c977b1fa3b1cdba98683a31294fc8209eaba546b4b190425",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/temporal_mechanisms.py",
+      "base_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "candidate_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "bytes": 3559,
+      "sha256": "f0aaaff60c0282f67de37368f0ada515dc84842fb11c7cf7032ec2ae8bc31004",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/actor_critic.py",
+      "base_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "candidate_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "bytes": 9960,
+      "sha256": "09163b55ebfcd24cbf3c42062e192c82b3e3a02fc94dc99f0b9618b7c7b2d40f",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/jit_training.py",
+      "base_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "candidate_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "bytes": 21102,
+      "sha256": "c56a598107cc83be54f892fef3f7daae1c380bd63146948cf184a9ceeed03186",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/evolution.py",
+      "base_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "candidate_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "bytes": 6943,
+      "sha256": "627a79195130ef2df421082c4789740f6df92828b3802e5b0086e3ddac46732c",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/mechanisms/test_fiscal.py",
+      "base_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "candidate_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "bytes": 4814,
+      "sha256": "59a54f8c242c819e782ec6395e7c026cd5c6cc98d8467af3414e7edf0ea9bff5",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/agent_sim/test_agent_simulation_step6.py",
+      "base_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "candidate_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+      "bytes": 6227,
+      "sha256": "a6f53efab2bc951f230a784847d0dc61c72ecd4ef8be908637f6f66408f2dcea",
+      "identical": true
+    }
+  ]
+}

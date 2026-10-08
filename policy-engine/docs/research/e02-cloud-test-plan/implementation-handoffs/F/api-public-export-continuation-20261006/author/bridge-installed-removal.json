@@ -1,0 +1,33 @@
+{
+  "source_root": "/workspace/e02-F-api-20261006",
+  "target_sha": "5484db7a25014953bdab7cb2418df735f972ff93",
+  "cwd": "/tmp/e02-F-continuation-20261006/api/wheel-consumer-5484",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/tmp/e02-F-continuation-20261006/api/wheel-env-retry-5484/bin/python",
+    "-I",
+    "/tmp/e02-F-continuation-20261006/api/installed_removal_current.py",
+    "bridge"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/bridge-installed-removal",
+  "artifact_paths": [],
+  "expected_exit_code": 1,
+  "tree_sha": "0406094722182749d3f7b9a64fa00c5337a9b391",
+  "source_status_before": "",
+  "elapsed_seconds": 9.853987693786621,
+  "exit_code": 1,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/api/bridge-installed-removal.stdout",
+    "bytes": 5637,
+    "sha256": "575cd8601e43cea3704403a164f8f6f6f9941e892f463c1d177880489a9d466d"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/api/bridge-installed-removal.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_status_after": "",
+  "artifacts": []
+}

@@ -1,0 +1,34 @@
+{
+  "output": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-recovered-519-v3.json",
+    "bytes": 381441,
+    "sha256": "30bd6f4cbd52ee55e1a25e8f3b94977785b1e4c5548a7a1c069ceaf131b5e0db"
+  },
+  "counts": {
+    "logical_files": 546,
+    "unique_transport_files": 281,
+    "aliases": 241,
+    "existing_git_files": 24,
+    "changed_prior_inputs": 3,
+    "unique_raw_transport_bytes": 200157604
+  },
+  "pending_extensions": [
+    {
+      "id": "new-final-root-quality",
+      "status": "UNRUN",
+      "git_ref": null,
+      "path": null,
+      "reason": "New source/resource fix has not frozen with exact final quality receipt; append only after publication and byte readback."
+    },
+    {
+      "id": "new-final-installed-composition",
+      "status": "UNRUN",
+      "git_ref": null,
+      "path": null,
+      "reason": "Repaired actual wheel/sdist final composition receipt not available yet; no future SHA or pass carry."
+    }
+  ],
+  "root_source_writes": false,
+  "Git_writes": false,
+  "tests_run": false
+}

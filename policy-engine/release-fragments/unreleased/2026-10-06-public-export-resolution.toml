@@ -1,0 +1,28 @@
+id = "2026-10-06-public-export-resolution"
+title = "Resolve declared public export maps without module execution"
+type = "fixed"
+component = "architecture-tooling"
+owner = "team-architecture"
+summary = "Resolve declared __all__ through maintained local/imported literal name maps and sequences. Generated entrypoint inventory records actual dependency reads; missing or unreadable sources and unexpected errors refuse measurement. Unsupported, cyclic, rebound, shadowed or escaped declarations record typed unknown totals rather than empty namespaces. A direct literal prefix followed only by unresolved extensions records a null total and fails the completeness guardrail."
+compatibility = "Supported causal library facades retain their canonical classes and functions. Retired shadow filenames were already absent before this slice; filename loaders have no implicit alias. Generated inventory gains export_resolution and known_export_count metadata with a bounded static selector; all parser-unresolved totals are null and remain gate failures. Known zero means no names proven, not an empty runtime namespace. Incomplete export_resolution retains separately labelled declared_export_candidates from finite source expressions; candidates do not count as proved exports or a complete verdict."
+change_class = "tooling"
+surface_classification = "internal: public-surface generator and caller census; public_stable: existing causal library facade addresses unchanged"
+migration = "Use supported package imports for causal_engine, id_engine and interference; private helpers use their canonical leaf owners. Dynamic-import AST candidates are classified by source/configuration and are not established runtime clients."
+limitations = "The static grammar does not execute modules or prove external plugin/configuration caller coverage. Finite passive alias/container consumers and the complete import-time statement/expression profile are audited. Local imports recursively bind/read/audit actual sources and parent initializers. Imported modules require a passive data-binding profile without callable definitions or dunder bindings other than declarative __all__, and named imports require explicit owner bindings rather than ambient builtin fallback; all external imports remain unknown. Typed refusal locators are repo-relative and source queues deterministic across worktree relocation/hash seeds. Function headers/defaults/annotations/type parameters are audited separately from excluded bodies. Decorated functions, all classes, control/context statements and foreign attribute/subscript/operator/callback protocols refuse completeness. Imported canonical sources with those effects remain unknown even when a separate native profile observes their names. Runtime function bodies are outside the static selector. Unsupported runtime-dependent declarations are unresolved. Generation on the current composed producer namespace is required separately; source fixture checks do not establish scientific causal validity, admitted data or Runtime authority."
+evidence = ["tests/repo_quality/architecture/test_public_surface_export_resolution.py", "tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py"]
+public_surface_inventory_reviewed = false
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "named-public-export-resolution"
+change_class = "tooling"
+impact = "compatible"
+surface = "internal: generated public-surface entrypoint inventory"
+owner = "team-architecture"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable: no public facade retirement or address change"
+release_note = "Entrypoint exports are resolved through declared literal maps, with source-read identities, typed parser-only unknown totals, and labelled literal prefixes whose unknown totals fail the completeness predicate. Source/read/syntax and unexpected errors remain errors. Existing causal library facade ABI and the dated v26 benchmark scope remain separate."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md", "docs/reference/foundry/causal-engine-architecture.md"]
+runbook_docs = []

@@ -1,0 +1,58 @@
+{
+  "utc": "2026-10-07T15:35:48.220393+00:00",
+  "protected": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/receipt.json",
+      "bytes": 26957,
+      "sha256": "97cbc9aba2cd526966b12de34be1494a0477b01f1063fdc11c301d9fc2476bbc"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/raw/attempt2-confidence-annotated.stdout.txt",
+      "bytes": 3050,
+      "sha256": "8160fecd4d7fa174c7a328b2970295a27d44c5e17ba830af72596c0417dd3197"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/source-manifest.json",
+      "bytes": 577540,
+      "sha256": "e5215abd128c90d7d531a0903b3982585b0623a66bf80ecc5660125101fc4067"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/working-assets-manifest.json",
+      "bytes": 1257,
+      "sha256": "3c01a519765345b5b943b0f35618480686349f4ea2339748620ba443a4277811"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/preserved-generated/selection-history.executions.jsonl",
+      "bytes": 3571,
+      "sha256": "cd08d7690bd4dcbe1d46a66f5cb961e2ec702b94f6e58159bef194fa5abc19f7"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/B-stop-53b-20261007/native/receipt.json",
+      "bytes": 14078,
+      "sha256": "bab445d0dbce64db64524d6aa3d7ccdf1078c36a86e79ec0043c6c61e6e7042d"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/B-stop-53b-20261007/native/results/pytest-native.stdout",
+      "bytes": 137076,
+      "sha256": "8a73d5cd018e6af68baa1d20f10a941f9183b7c7092435bca0d90921433d1ec6"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/B-stop-53b-20261007/native/results/pytest-native.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/B-stop-53b-20261007/native/results/selected-tests-pytest-native.junit.xml",
+      "bytes": 110218,
+      "sha256": "ecb8201fc2850ce60565e35305f6c89af3d5562d3274f44cbad8d3e5f12d4f22"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/B-stop-53b-20261007/native/source-manifest-final.json",
+      "bytes": 839483,
+      "sha256": "7fb71fed403a5fc5f9e4f2882420bb239a1529a38cfb6b4e058ee8e1ea08c433"
+    }
+  ],
+  "F_tracked_source_assets_verified": 2919,
+  "extra_preserved": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/preserved-generated/selection-history.executions.jsonl",
+  "nominal_allocated_bytes": 182996992
+}

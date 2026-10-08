@@ -1,0 +1,9 @@
+{
+  "source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+  "paths": [
+    "policy-engine/architecture"
+  ],
+  "bytes": 60835840,
+  "sha256": "6e8335d13e8475ddd81d2b3c4dbd5a232919b298af6dfcb4bae25c6494012e77",
+  "reason": "actual import-time method-catalog dependency digest required architecture domains manifest; initial missing-profile collection ERROR retained, then exact Gitinputadded"
+}

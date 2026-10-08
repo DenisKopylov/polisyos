@@ -1,0 +1,22 @@
+{
+  "check": "ERROR",
+  "scope": "Observer metadata caption only; raw final81 execution/spec preserved unchanged.",
+  "original_caption": "Actual immutable6ba9 metadata successor",
+  "authoritative_target_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+  "authoritative_target_tree_sha": "120103b1a375b5d405632936b2934f2b36a320f7",
+  "corrected_input_closure": "Actual immutable81 reviewed=true companion successor; canonical single owned public_experimental Path fragment validator/renderer. Runtime/tests/Hatch/fouroriginalYAML byte-identical089. No whole repository gate verdict.",
+  "sourceguard": "Original execution target/sourcebefore/sourceafter are81; only copied free-text input_closure caption stale. Prior6ba9 FAIL remains exactoriginaltarget, not retargeted.",
+  "retained_refs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-final-fragment-spec.json",
+      "bytes": 2674,
+      "sha256": "8651db5511ca219f36a381996165fd7d7d44ab42fb0b2632e6cdffd6b04cf2ed"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-final-fragment.json",
+      "bytes": 7526,
+      "sha256": "bf4416b0df9b8c94387ab4c529baaa6ece579d3b7bf199e5408b1f754c307222"
+    }
+  ],
+  "repetition": "No native runtime repeats. Independent API cheap final81 fragment check is separate evidence."
+}

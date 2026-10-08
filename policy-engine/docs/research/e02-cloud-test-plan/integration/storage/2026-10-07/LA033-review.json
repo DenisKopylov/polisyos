@@ -1,0 +1,97 @@
+{
+  "schema": "policyos.e02.source_review.v1",
+  "review_kind": "independent_source_review",
+  "unit": "A",
+  "finding_ids": [
+    "LA-033"
+  ],
+  "bundle_ids": [
+    "REP-01"
+  ],
+  "candidate": {
+    "repository": "polisyos",
+    "branch": "codex/e02-A-replay-full",
+    "commit": "be8d9cefba439e21a02fd98a7c129309c8a9989d",
+    "tree": "5a13082419762f312aa7ed010cfb518fe866b1b7",
+    "parent": "162231e8baf0ff3e840cf7ff9ef99a9acfb02878",
+    "working_tree": "clean at reviewed commit",
+    "commit_delta": [
+      {
+        "status": "A",
+        "path": "policy-engine/tests/unit/remediation/test_rep_01_partial_resume.py",
+        "git_blob": "272505dfdde7889c1b50f9615632a3d4500a5ead"
+      }
+    ],
+    "production_source_changed": false
+  },
+  "source_criterion": {
+    "status_before": "partial",
+    "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/REP-01.md@git-blob:c920525adefa6db4777d6da82632b0021513426e#LA-033",
+    "acceptance_summary": [
+      "Move supported internal source/string/benchmark consumers to Scientist-owned replay; update the dynamic-import inventory while preserving lazy Runtime root bindings and identity.",
+      "Exercise real import/signature/enum behavior, bundle check/import/export, replay and resume CLI, root import budget, supported-artifact bytes/roles, and FQN consumers.",
+      "Retain runtime/replay.py through the supported compatibility window; ending the root public API is a separate decision.",
+      "Do not infer zero production traffic or permission to remove the stable compatibility surface."
+    ]
+  },
+  "review_method": {
+    "immutable_source_read": "Reviewed candidate and tracked evidence from Git blobs; candidate test was authored by replay_execution, not this reviewer.",
+    "execution_rerun": false,
+    "test_or_production_edits": false,
+    "focus": "Independent review of the new partial-checkpoint witness and its relation to LA-033 and the prior exact-head evidence."
+  },
+  "partial_resume_witness": {
+    "test": "tests/unit/remediation/test_rep_01_partial_resume.py::test_real_partial_checkpoint_resumes_only_the_remaining_tax_node",
+    "test_blob": "272505dfdde7889c1b50f9615632a3d4500a5ead",
+    "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/remediation/test_rep_01_partial_resume.py --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-partial-be8/raw/pytest.junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-partial-be8/raw/pytest-basetemp",
+    "execution_receipt": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-partial-be8/raw/execution.json@sha256:9df525631dde778fc546494e2f6a6cc1266d1adfe94708b19b9bd29087baed67",
+    "environment": {
+      "python": "Root policy-engine/.venv; CPython 3.14.0",
+      "source": "Candidate leaf policy-engine/src and policy-engine pinned in PYTHONPATH",
+      "runner": "pytest; local workflow backend; max parallelism 1",
+      "duration_seconds": 8.00069,
+      "harness_timeout_seconds": 300
+    },
+    "outcome": "PASS",
+    "exit_code": 0,
+    "raw_outputs": {
+      "directory": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/rep-partial-be8/raw/",
+      "stdout": "pytest.stdout.log@sha256:423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d",
+      "stderr": "pytest.stderr.log@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "junit": "pytest.junit.xml@sha256:c2b92b1f9d1ce5baedc650722a728f6d77b6d3bbbc45c91c34ca145fa53ea213",
+      "retained_cas": "pytest-basetemp/test_real_partial_checkpoint_r0/cas/"
+    },
+    "verified_properties": [
+      "Actual AsyncWorkflowExecutor and CASCheckpointHook persist income and rate as checkpoint sequences 0 and 1. The timeout at the third tax node yields a durable partial frontier with completed_nodes=[income, rate], no tax/net fields, and the original registry-bundle reference.",
+      "The timed-out async node is released after the executor stops waiting and returns deliberately poisoned state (tax_cents=999999, net_income_cents=-989999). The test re-reads checkpoint head/state/history and verifies no late mutation or third checkpoint was committed.",
+      "Actual resume_from_checkpoint consumes the persisted partial checkpoint; only tax appears in the resumed report, and the tax node executes a second time (timed-out attempt plus resumed attempt). Sequence 2 is persisted with income, rate, and tax complete.",
+      "A separate fresh run through AsyncWorkflowExecutor reaches the same persisted values. An arithmetic oracle computed from immutable initial cents and basis points independently gives tax=1000 cents and net=9000 cents; both fresh and resumed states match.",
+      "Raw CAS readback retains three entries for the resumed run: sequence 0 income, sequence 1 rate, sequence 2 tax; the sequence-2 head points to tax and sequence-1 remains its base."
+    ],
+    "material_limits": [
+      "The test runs in one pytest process and calls resume_from_checkpoint with an injected WorkflowSpec and NodeRegistry. It exercises the production checkpoint/residual-execution engine with real CAS persistence, but not cross-process restoration or reconstruction of the CLI default workflow and built-in registry.",
+      "The prior public CLI resume smoke returned status=ok on a 23/23-complete checkpoint and executed no residual node. In _cmd_resume (candidate source blob 075a1675fdd0cb6aec4125a73796acc807fbef97), the CLI calls resume_from_checkpoint without workflow or registry. Thus this test and the prior CLI smoke do not demonstrate a partial continuation through the public CLI/default-restoration path."
+    ]
+  },
+  "previous_exact_head_evidence": {
+    "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full.json@git-blob:2a9b40d15584e913c269222963cfa13daca8d47f",
+    "foundry": "PASS: schema-valid income-tax packet goes through real Foundry replay execution and typed output/state is read in a fresh process from CAS; [90,180,270] and government balance 60 match independent arithmetic. Missing/corrupt plan and removed-executor negatives pass.",
+    "installed_wheel": "PASS: package origin is fresh-venv purelib; exact 10 Runtime-root and 20 shim bindings have identity/signature parity with Scientist. Wheel used --no-deps and system_site_packages=True; dependencies were not isolated.",
+    "cli": "Export, --check-only, bundle import and Foundry replay ran. CLI resume was exercised, but only on a fully completed 23/23 checkpoint (no residual node ran).",
+    "supported_artifacts": "Three source-supported RunManifest v1 / quality ReplayManifest v1 fixture selectors passed byte/role round-trip. No separately supplied external historical artifact corpus was available.",
+    "consumers": "Canonical Scientist owner, lazy root, CLI string-import inventory, benchmark and tracked FQN behaviors were checked. No tracked direct source caller of the compatibility shim remained; external string/reflection/FQN callers are not established."
+  },
+  "assessment": {
+    "bounded_positive": "The new witness closes the concrete prior gap that no residual workflow node had been shown to execute from a real partial persisted checkpoint. It is behavioral evidence over the actual checkpoint engine/CAS boundary, not a status-only or marker test.",
+    "criterion_mapping": "Prior Foundry replay/wheel/consumer evidence plus this test demonstrate the canonical owner, retained compatibility ABI, real replay, and actual residual execution. The public CLI resume acceptance still lacks a partial checkpoint whose remaining node executes through the CLI/default restoration path.",
+    "external_callers": "not_established. This is not a claim of zero external use and should not be treated as a universal-zero prerequisite; retain the exact-identity 20-symbol shim while the supported window/caller scope remains unresolved, as the source directs.",
+    "external_historical_artifacts": "not_established beyond the repository's supported v1 fixtures. No arbitrary external corpus is asserted or inferred as a source prerequisite.",
+    "production_scope": "No production files changed in this candidate. This is test evidence and does not claim the compatibility module has been removed or the support window has elapsed."
+  },
+  "recommendation": {
+    "finding_outcome": "limited",
+    "root_adjudication": "pending",
+    "rationale": "The new test establishes genuine partial continuation at the checkpoint API and removes the previous no-residual-execution gap. I recommend bounded limited status only on the narrow source-acceptance boundary that a public CLI/default-restoration partial resume has not run; external-caller and separate external-history unknowns are not universal-absence prerequisites. If root accepts CLI dispatch plus behavioral testing of the exact canonical resume function compositionally, the concrete migration criterion may be adjudicated as met without claiming external zero or arbitrary historical-corpus coverage.",
+    "smallest_remaining_witness": "Exercise a real partial checkpoint through the public runtime resume CLI/default reconstruction path, with persisted workflow/registry inputs and one remaining node; preserve CLI output and CAS readback. This is a reviewer recommendation for closing the boundary, not a source change in this slice."
+  }
+}

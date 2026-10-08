@@ -1,0 +1,28 @@
+diff --git a/tmp/e02-F-graph-profile-20261007/worker/run_frozen_focused_native.py b/tmp/e02-F-graph-profile-20261007/worker/run_frozen_focused_native_wait4.py
+index 7d5a7eb..d10b349 100644
+--- a/tmp/e02-F-graph-profile-20261007/worker/run_frozen_focused_native.py
++++ b/tmp/e02-F-graph-profile-20261007/worker/run_frozen_focused_native_wait4.py
+@@ -41,14 +41,19 @@ def main():
+   return {'head':head,'tree':git('rev-parse',a.candidate+'^{tree}').decode().strip(),'branch':branch,'actual_status':status,'tracked_clean':True,'complete_guard_path_set':rows,'scope':'Current exact selected test + enumerated direct producer/report/runner/io/profile inputs and actual whole tracked-diff guard. Not a full dynamic callgraph or production input census.'}
+  begin=guard();assert a.parent_python.is_file() and a.worker_python.is_file()
+  tmp=D/'frozen-native-cas';assert not tmp.exists(),'Never delete/reuse an existing basetemp'
+- env=os.environ.copy();env.update(PYTHONPATH=str(cwd/'src')+':'+str(cwd/'tools'),E02_TEST_DOWHY_WORKER_PYTHON=str(a.worker_python),PYTHONDONTWRITEBYTECODE='1',MPLCONFIGDIR=str(D/'mpl-native'))
++ env=os.environ.copy();env.update(POLISYOS_METRICS_PORT='9468',PYTHONPATH=str(cwd/'src')+':'+str(cwd/'tools'),E02_TEST_DOWHY_WORKER_PYTHON=str(a.worker_python),PYTHONDONTWRITEBYTECODE='1',MPLCONFIGDIR=str(D/'mpl-native'))
+  junit=D/'frozen-native.junit.xml';out=D/'frozen-native.stdout.txt';err=D/'frozen-native.stderr.txt';rss=D/'frozen-native.time.txt'
+  pyargv=[str(a.parent_python),'-B','-m','pytest',*[TEST+'::'+n for n in NAMES],'-o','addopts=','--import-mode=importlib','-p','no:cacheprovider','-q','-s','--tb=short','--basetemp='+str(tmp),'--junitxml='+str(junit)]
+- assert Path('/usr/bin/time').is_file();argv=['/usr/bin/time','-v','-o',str(rss),'--',*pyargv]
+- spec={'candidate_sha':a.candidate,'candidate_tree_sha':begin['tree'],'argv':argv,'pytest_argv':pyargv,'cwd':str(cwd),'environment_overrides':{k:env[k] for k in ['PYTHONPATH','E02_TEST_DOWHY_WORKER_PYTHON','PYTHONDONTWRITEBYTECODE','MPLCONFIGDIR']},'inherited_environment':True,'CPU_thread_worker_process_quota_added':False,'native_backend_profile':'Actual configured standalone Python3.12 DoWhy0.14; application baseline remains3.14 with DoWhy/EconML exclusions. No mock estimator/skip/missing-backend substitution.','test_scope':'Three current exact-source actual MethodJob/producer/public factory/CAS/fresh3.14 interval non-gating and genuinely fitted point-only readers; known synthetic DGP only. No authority or admitted shared study budget positive.','start_guard':begin,'runner':{'path':str(Path(__file__).resolve()),**file_binding(Path(__file__))},'parent_interpreter':{'path':str(a.parent_python),'resolved':str(a.parent_python.resolve())},'worker_interpreter':{'path':str(a.worker_python),'resolved':str(a.worker_python.resolve())}}
++ assert hasattr(os,'wait4');argv=pyargv
++ spec={'candidate_sha':a.candidate,'candidate_tree_sha':begin['tree'],'argv':argv,'pytest_argv':pyargv,'cwd':str(cwd),'environment_overrides':{k:env[k] for k in ['POLISYOS_METRICS_PORT','PYTHONPATH','E02_TEST_DOWHY_WORKER_PYTHON','PYTHONDONTWRITEBYTECODE','MPLCONFIGDIR']},'inherited_environment':True,'CPU_thread_worker_process_quota_added':False,'native_backend_profile':'Actual configured standalone Python3.12 DoWhy0.14; application baseline remains3.14 with DoWhy/EconML exclusions. No mock estimator/skip/missing-backend substitution.','test_scope':'Three current exact-source actual MethodJob/producer/public factory/CAS/fresh3.14 interval non-gating and genuinely fitted point-only readers; known synthetic DGP only. No authority or admitted shared study budget positive.','start_guard':begin,'runner':{'path':str(Path(__file__).resolve()),**file_binding(Path(__file__))},'parent_interpreter':{'path':str(a.parent_python),'resolved':str(a.parent_python.resolve())},'worker_interpreter':{'path':str(a.worker_python),'resolved':str(a.worker_python.resolve())}}
+  save('frozen-native.spec.json',spec)
+  start=time.perf_counter()
+- with out.open('xb') as so,err.open('xb') as se:p=subprocess.run(argv,cwd=cwd,env=env,stdout=so,stderr=se)
++ with out.open('xb') as so,err.open('xb') as se:
++  p=subprocess.Popen(argv,cwd=cwd,env=env,stdout=so,stderr=se)
++  waited_pid,wait_status,usage=os.wait4(p.pid,0);assert waited_pid==p.pid
++  p.returncode=os.waitstatus_to_exitcode(wait_status)
++ with rss.open('xb') as f:
++  f.write((json.dumps({'measurement':'Linux os.wait4 actual native pytest process rusage','pid':p.pid,'ru_maxrss_KiB':usage.ru_maxrss,'user_cpu_seconds':usage.ru_utime,'system_cpu_seconds':usage.ru_stime,'scope':'Actual child/waited descendants high-water rusage, not simultaneous aggregate cgroup peak or global CPU budget proof. No optional external time executable, quota or timeout added.'},indent=2)+'\n').encode())
+  wall=time.perf_counter()-start;end=guard();assert begin['complete_guard_path_set']==end['complete_guard_path_set']
+  counts=None
+  if junit.exists():

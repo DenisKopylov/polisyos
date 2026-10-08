@@ -1,0 +1,13 @@
+{
+  "command": [
+    "git",
+    "ls-remote",
+    "--heads",
+    "origin",
+    "refs/heads/codex/e02-F-closeout-20261006"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006",
+  "exit_code": 0,
+  "started_epoch": 1791375198.8769126,
+  "finished_epoch": 1791375200.3710485
+}

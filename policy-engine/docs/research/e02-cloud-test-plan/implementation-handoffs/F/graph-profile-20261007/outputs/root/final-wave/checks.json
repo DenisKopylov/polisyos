@@ -1,0 +1,140 @@
+[
+  {
+    "name": "graph-consumers",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_simple_cycle_converts_min_confidence_edge_to_lagged_edge",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_more_than_eight_cycles_triggers_fallback_removal_warning",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_cycle_edge_with_lag_depth_limit_is_removed",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_diagnostics_truncated_when_hard_limits_exceeded",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_refuses_other_semantic_profiles",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_preserves_exact_observed_interface",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_allows_supported_internal_cyclic_scc",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_promotes_output_to_admg_when_any_fragment_is_admg",
+      "policy-engine/tests/unit/remediation/test_grf_03.py",
+      "--junitxml=/tmp/e02-F-graph-profile-20261007/root/final-wave/graph-consumers.junit.xml"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+    "target_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+    "environment": {
+      "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src",
+      "parent_python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python"
+    },
+    "returncode": 0,
+    "check_result": "PASS",
+    "wall_seconds": 26.987791260995436,
+    "stdout": "/tmp/e02-F-graph-profile-20261007/root/final-wave/graph-consumers.stdout",
+    "stderr": "/tmp/e02-F-graph-profile-20261007/root/final-wave/graph-consumers.stderr",
+    "stdout_sha256": "de0615cf37b5c81f3262e96c1af6d39e3e1ed022fb623f364a1d3c083a4e551f",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "format",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "format",
+      "--check",
+      "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+      "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+    "target_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+    "environment": {
+      "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src",
+      "parent_python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python"
+    },
+    "returncode": 0,
+    "check_result": "PASS",
+    "wall_seconds": 0.05074069197871722,
+    "stdout": "/tmp/e02-F-graph-profile-20261007/root/final-wave/format.stdout",
+    "stderr": "/tmp/e02-F-graph-profile-20261007/root/final-wave/format.stderr",
+    "stdout_sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "ruff-runtime-tests",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+      "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+    "target_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+    "environment": {
+      "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src",
+      "parent_python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python"
+    },
+    "returncode": 0,
+    "check_result": "PASS",
+    "wall_seconds": 0.05213608799385838,
+    "stdout": "/tmp/e02-F-graph-profile-20261007/root/final-wave/ruff-runtime-tests.stdout",
+    "stderr": "/tmp/e02-F-graph-profile-20261007/root/final-wave/ruff-runtime-tests.stderr",
+    "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "ruff-benchmark",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+    "target_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+    "environment": {
+      "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src",
+      "parent_python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python"
+    },
+    "returncode": 1,
+    "check_result": "FAIL",
+    "wall_seconds": 0.05206094900495373,
+    "stdout": "/tmp/e02-F-graph-profile-20261007/root/final-wave/ruff-benchmark.stdout",
+    "stderr": "/tmp/e02-F-graph-profile-20261007/root/final-wave/ruff-benchmark.stderr",
+    "stdout_sha256": "fde3f8f45967a54a841e6f237c105a54edbe28653826305b910341aa89b6d98f",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "source-diff-check",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+    "target_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+    "environment": {
+      "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src",
+      "parent_python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python"
+    },
+    "returncode": 0,
+    "check_result": "PASS",
+    "wall_seconds": 0.010065449023386464,
+    "stdout": "/tmp/e02-F-graph-profile-20261007/root/final-wave/source-diff-check.stdout",
+    "stderr": "/tmp/e02-F-graph-profile-20261007/root/final-wave/source-diff-check.stderr",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

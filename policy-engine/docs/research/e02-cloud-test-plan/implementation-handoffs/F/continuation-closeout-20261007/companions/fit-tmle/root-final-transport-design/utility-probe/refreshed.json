@@ -1,0 +1,114 @@
+{
+  "draft": false,
+  "source_window": {
+    "actual_final_source_sha": "d8334672f44d24dd32113264f96ca3f7954dace4",
+    "actual_final_source_tree": "a68dbc3ecf4ccf9a5a59fa4b830464e32d81dd8f",
+    "historical_seed_source_window": {
+      "scope": "Synthetic metadata alias/custody test; not domain or scientific evidence."
+    },
+    "meaning": "Actual explicit final source window; historical b5 quality and d833 original35 GO retain their old source scopes, not current final scientific PASS."
+  },
+  "logical_files": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/prior-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/alpha.txt.gz",
+      "bytes": 4,
+      "sha256": "01d09d19c2139a46aebfb577780d123d7396e97201bc7ead210a2ebff8239dee",
+      "role": "Historical immutable prior draft-input custody from /tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/inputs/alpha.txt; no current final GO/quality claim.",
+      "input_encoding": "gzip",
+      "input_binding": {
+        "bytes": 24,
+        "sha256": "000c5edfa113518abb57e1b0c120330b4458e7f2ebb3b7e136d4c4af981772b9"
+      },
+      "disposition": "transport",
+      "encoding": "gzip",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/prior-draft/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/alpha.txt.gz"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/inputs/alpha.txt",
+      "bytes": 4,
+      "sha256": "7aa7a5359173d05b63cfd682e3c38487f3cb4f7f1d60659fe59fab1505977d4c",
+      "role": "synthetic metadata",
+      "disposition": "transport",
+      "encoding": "identity",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/utility-probe/inputs/alpha.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/inputs/beta.txt",
+      "bytes": 4,
+      "sha256": "01d09d19c2139a46aebfb577780d123d7396e97201bc7ead210a2ebff8239dee",
+      "role": "synthetic metadata",
+      "disposition": "alias",
+      "canonical_original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/prior-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/alpha.txt.gz"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection.py",
+      "bytes": 13769,
+      "sha256": "6138ed98addff08997b823c2d5d5341d1e403cf6b7a6835b95fb8106cc4ec247",
+      "role": "Exact final selection refresher source",
+      "disposition": "transport",
+      "encoding": "identity",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection.py"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v2.py",
+      "bytes": 10833,
+      "sha256": "a02b2b74f47a3baa0d7a9b5ae867f679e7e890a4ede4e28d75c4efe8e06d86aa",
+      "role": "Exact final additive streaming publisher source",
+      "disposition": "transport",
+      "encoding": "identity",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v2.py"
+    }
+  ],
+  "selection_inputs": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/seed.json",
+      "bytes": 1120,
+      "sha256": "234938d778abca7e6cb6f6545667955ddeee6b7497a31c1b218ac8e4f2ba349d"
+    }
+  ],
+  "existing_declared_git_references": [],
+  "pending_extensions": [],
+  "policy": {
+    "scope": "Synthetic metadata control only"
+  },
+  "transport_input_selection": true,
+  "refresh": {
+    "changed_prior_inputs": [
+      {
+        "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/inputs/alpha.txt",
+        "prior": {
+          "bytes": 4,
+          "sha256": "01d09d19c2139a46aebfb577780d123d7396e97201bc7ead210a2ebff8239dee"
+        },
+        "current": {
+          "bytes": 4,
+          "sha256": "7aa7a5359173d05b63cfd682e3c38487f3cb4f7f1d60659fe59fab1505977d4c"
+        }
+      }
+    ],
+    "retained_prior_custody": [
+      {
+        "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/inputs/alpha.txt",
+        "retained_snapshot_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/utility-probe/prior-stage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/alpha.txt.gz",
+        "prior_bytes": 4,
+        "prior_sha256": "01d09d19c2139a46aebfb577780d123d7396e97201bc7ead210a2ebff8239dee",
+        "prior_encoding": "gzip",
+        "scope": "Historical only"
+      }
+    ],
+    "explicit_extension_inputs": {},
+    "new_published_git_files": [],
+    "old_aliases_recomputed_from_actual_complete_bytes": true,
+    "old_existing_refs_kept_only_exact_bytes": true,
+    "old_quality_raw_outputs_not_modified": true,
+    "ROOT_decides_final_semantic_adoption": true
+  },
+  "counts": {
+    "logical_files": 5,
+    "unique_transport_files": 4,
+    "aliases": 1,
+    "existing_git_files": 0,
+    "changed_prior_inputs": 1,
+    "unique_raw_transport_bytes": 24610
+  }
+}

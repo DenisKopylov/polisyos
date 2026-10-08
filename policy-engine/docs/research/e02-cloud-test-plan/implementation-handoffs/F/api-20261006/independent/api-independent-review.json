@@ -1,0 +1,193 @@
+{
+  "review": "API immutable independent consumer/source/complete-byte review",
+  "reviewer": "F economics direct leaf",
+  "created_utc": "2026-10-06T10:53:02.926325+00:00",
+  "source_sha": "729d137279b7d6334230045e420255762fe55f08",
+  "source_tree": "7ced77fdbd83e65efbd14d4bd518de2f786b1e9a",
+  "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "verdict": "GO",
+  "scope": "Verification-only slice; API-01/LA-020 remains limited. No product source or arbitrary external importer retirement.",
+  "source_paths_fully_read": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/README.md",
+      "bytes": 3220,
+      "sha256": "b053d4c1785be2db9990c2fd712bc44a1e2f71c4b407fb64eb6db9faf0c8b361"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",
+      "bytes": 15455,
+      "sha256": "b37d0f16ded8f7fe54690ab3d3bd0971a08765af99f6db7666a1ebc700655e88"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+      "bytes": 11559,
+      "sha256": "43ffef1dc0db7445a4eea648fb60c7523b38cf145d09412ef70855b83d11e73b"
+    }
+  ],
+  "findings": [],
+  "independent_checks": [
+    {
+      "command": "wheel-env/bin/python -I api-review/launch.py wheel",
+      "outcome": "PASS",
+      "passed": 13,
+      "skipped": 0,
+      "errors": 0,
+      "pytest_s": 6.31,
+      "product_origins_observed": 776,
+      "origin_violations": 0
+    },
+    {
+      "command": "sdist-env/bin/python -I api-review/launch.py sdist",
+      "outcome": "PASS",
+      "passed": 13,
+      "skipped": 0,
+      "errors": 0,
+      "pytest_s": 6.08,
+      "product_origins_observed": 776,
+      "origin_violations": 0
+    },
+    {
+      "command": "python3 api-review/byte_census_review.py",
+      "outcome": "PASS",
+      "result": {
+        "source_sha": "729d137279b7d6334230045e420255762fe55f08",
+        "tree": "7ced77fdbd83e65efbd14d4bd518de2f786b1e9a",
+        "full_git_entries": 13701,
+        "manifest_sha256": "88db3c37793f9a9a4ee280959e4c8e0ec97900ce03a92b1d03cab47c92630712",
+        "python_files_independently_ast_parsed": 6441,
+        "tracked_product_files_compared_in_both_archives": 2909,
+        "archive_unique_product_entries": 2910,
+        "installed_product_files_compared": {
+          "wheel": 2910,
+          "sdist": 2910
+        },
+        "literal_imports": 76,
+        "computed_unresolved": 182,
+        "parse_failures": 0,
+        "author_installed_origin_proofs": {
+          "wheel": {
+            "source": "729d137279b7d6334230045e420255762fe55f08",
+            "loaded_product_origins": 921,
+            "literal_imports_executed": 76,
+            "deselection": "Exactly one original repository-only Git census case; all complete census imports executed separately."
+          },
+          "sdist": {
+            "source": "729d137279b7d6334230045e420255762fe55f08",
+            "loaded_product_origins": 921,
+            "literal_imports_executed": 76,
+            "deselection": "Exactly one original repository-only Git census case; all complete census imports executed separately."
+          }
+        },
+        "archive_identities": [
+          {
+            "path": "/workspace/e02-F-20261006-receipts/api/candidate-dist/policy_engine-0.1.0-py3-none-any.whl",
+            "bytes": 15018575,
+            "sha256": "fcf6fdcba77630799a2dbdacab1ac9c2ce6286605675992f0c44da74635c2231"
+          },
+          {
+            "path": "/workspace/e02-F-20261006-receipts/api/candidate-dist/policy_engine-0.1.0.tar.gz",
+            "bytes": 65001824,
+            "sha256": "ead9321cb8e7521a5b472736d3d6826bf4633cb9fcde9d3828496059d177d9d4"
+          }
+        ],
+        "result": "PASS",
+        "limits": [
+          "Syntactic complete immutable tracked input scope only; computed alias/exec/plugin/external callers unresolved.",
+          "Third-party dependency path reused read-only; product bytes/origins independently verified, not independent dependency rebuild.",
+          "Known graph ABI/CAS witness does not admit empirical causal identification or FRY family-to-state activation."
+        ]
+      }
+    }
+  ],
+  "author_deciding_bytes_reviewed": {
+    "source_native": "49 PASS, no skip/error",
+    "wheel_sdist": "Each 48 PASS, one specifically named original Git-census case deselected, one warning. All 76 complete immutable census imports executed separately; no skipped case promoted to PASS.",
+    "negative_removals": "Full clone: 1 FAIL / 1 PASS / 11 deselected; full bridge: 4 FAIL / 9 deselected. Both exit1 expected, actual original identity/native patch execution oracles detect mutation while __all__ remains unchanged.",
+    "architecture": "Whole invocation UNRUN exit2; partial failure unattributed, no P41 inherited classification."
+  },
+  "limits": [
+    "13701 immutable tracked entries; 6441 AST-parsed Python files; zero parse failures; literal import census 76. 182 computed expressions and runtime alias/exec/plugin/external inputs explicitly unresolved.",
+    "Both build archives bind all2909 tracked product source blobs plus one forced resource. Both installed products bind all2910 bytes; owned product origins verified. Reused read-only third-party dependencies were not independently rebuilt.",
+    "API known native algorithm/layout/CAS consumer witness does not establish real data causal identification, arbitrary old-file-loader compatibility, or FRY family-to-state activation.",
+    "LA-020 limited, companion GRF LA-007/019 and FRY LA-037 limits preserved; DoWhy/EconML excluded markers UNRUN; current G acceptance pending."
+  ],
+  "evidence": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/api-review/byte_census_review.py",
+      "bytes": 5865,
+      "sha256": "4fbeddec63705625e8b40fb5bbbed40e955aa108af535153da102b2e002b69c0"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/api-review/census.py",
+      "bytes": 15455,
+      "sha256": "b37d0f16ded8f7fe54690ab3d3bd0971a08765af99f6db7666a1ebc700655e88"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/api-review/independent-byte-census.json",
+      "bytes": 2039,
+      "sha256": "b9f47262432fca2b7b98550a675b3003aa4218146455b70cfbb3757b10bb8214"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/api-review/independent-byte-census.txt",
+      "bytes": 2039,
+      "sha256": "b9f47262432fca2b7b98550a675b3003aa4218146455b70cfbb3757b10bb8214"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/api-review/launch.py",
+      "bytes": 1395,
+      "sha256": "723e940942e4be2d17fcc17404cf412ea905c5ead9b0efa48c93a9c004192d92"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/api-review/sdist-independent.txt",
+      "bytes": 3847,
+      "sha256": "f02a1685943b997b713a48ce7c3ba6c4e761e88c3edd1c0c4727a5b78d904555"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/api-review/sdist-proof.json",
+      "bytes": 1154,
+      "sha256": "c7d87d895d0f30535846fd83cc5c8ad6fcf3b12b36b7ae9c0f34ccad4481d873"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/api-review/test_installed_facade_contract.py",
+      "bytes": 11559,
+      "sha256": "43ffef1dc0db7445a4eea648fb60c7523b38cf145d09412ef70855b83d11e73b"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/api-review/wheel-independent.txt",
+      "bytes": 3847,
+      "sha256": "a1c57e78e83c34efaa679a5d44a5ae324a1acaf19a39c653201bbcd49c751017"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/economics/api-review/wheel-proof.json",
+      "bytes": 1154,
+      "sha256": "c2d1475400ac118265b890324adf08f9305cd14de34c0b31d69929293863afce"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/api/clone-removal.stdout.txt",
+      "bytes": 2538,
+      "sha256": "7e3a81bcb67fde56a248b0fa38bd3a0bb4aa650460b62ee31c0aa9a3c1b7f845"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/api/bridge-removal.stdout.txt",
+      "bytes": 5624,
+      "sha256": "df1174d7d1f5013959b5fe65d233fbb6332f57d22303235051e8a449b576837c"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/api/clone-removal.json",
+      "bytes": 487,
+      "sha256": "b500f3c2384ed6c62e5c66d7e026c2e2bcf5e39e984726bf1f867a45db816596"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/api/bridge-removal.json",
+      "bytes": 488,
+      "sha256": "b0ad2140618198c3368ee6142cfbfaf632c40dd92a19ccf4a91fe4d1778d4c14"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/api/removal_replayer.py",
+      "bytes": 909,
+      "sha256": "5bdeadec1fe25ad425859458358e6c1a5bcc490a926a7f6d00edd313347a0e5a"
+    }
+  ],
+  "no_worktree_edits": true,
+  "head_after": "729d137279b7d6334230045e420255762fe55f08"
+}

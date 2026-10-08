@@ -1,0 +1,50 @@
+{
+  "candidate_sha": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+  "candidate_tree": "4e21c90467913c6dae1c85b84b8c7a42a1dc9124",
+  "base_sha": "2605d13916f4dd38f216419562c04718ba4c2028",
+  "selector": "tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history",
+  "status": "FAIL",
+  "failure_code": "generation_cycle_historical_projection_mismatch",
+  "divergent_paths": [
+    "$.value_port.conditional_interaction_evidence",
+    "$.cycles[0].value_port.conditional_interaction_evidence"
+  ],
+  "producer": "GenerationCycleRun.model_dump(mode=json) preserves both fields in the v3 payload",
+  "reader": "_historical_generation_cycle_run_projection applies FROZEN_N6_HISTORY_SCHEMA[v3], whose ValuePortObservation declared_fields/wire_fields omit conditional_interaction_evidence",
+  "diagnostic": "read-only import of exact candidate checkout, parse preserved fixture and compare its canonical mapping to the candidate historical projection; no tests were rerun",
+  "p40": {
+    "bucket": "one instance of serializer/history-projection wire-width mismatch",
+    "repair_scope": "shared versioned projection mechanism; do not patch the two paths separately",
+    "second_instance_established": false
+  },
+  "p41": {
+    "failure_provenance": "not_established",
+    "reason": "exact selector was not replayed at slice base",
+    "structural_evidence": "conditional_interaction_evidence exists in base source; frozen history-schema blob is identical at base and candidate"
+  },
+  "recommendation": "keep strict mismatch check; preserve frozen v3 and align producer plus a new frozen history projection version with the new typed field, including source-limited schema composition; test positive round-trip and tamper/removal control",
+  "candidate_blobs": {
+    "generation_cycle.py": "e3c369a8a40db0849db4bb08ca732fd7c5761fa7",
+    "_generation_cycle_history_schema.py": "3e372e8da1bd74a5b95f976a092ecf47c3a48a06",
+    "test_emp_01.py": "284f373c87eb7212aaf8bc9d67a1a3fcbb34e203"
+  },
+  "test_receipt": {
+    "path": "native-A/results/default_cycle_simulation_history/receipt.json",
+    "sha256": "a1c0e764fe55b348dbc81b94525aa2cdf6f4eafd09416896c6f8796071c04cf5",
+    "stdout_sha256": "48eec8771177dabef626cbc1efcced2d77b9f8191c2da1d1abc34601b7e6fa3e",
+    "import_origin_audit_sha256": "12f6612d9957929220c1174a861d73dcf622d6360551affa0bdaea9edfaa8d29",
+    "source_manifest_entries": 3485,
+    "source_integrity_before_after": "PASS",
+    "returncode": 1,
+    "wall_seconds": 23.879,
+    "peak_sampled_rss_kib": 1086864,
+    "stderr_empty": true
+  },
+  "fixture": {
+    "preserved_path": "native-A/results/preserved-fixtures/generation-cycle-run.json",
+    "sha256": "31c6f8e428bd8dac118ca91627928de854f86bc1c7941dd92842a80473e42535",
+    "byte_identical_to_pytest_temp": true,
+    "test_data_only": true
+  },
+  "verification_scope": "No test rerun, production-data access, source/ref/tracked-file edit, or base replay."
+}

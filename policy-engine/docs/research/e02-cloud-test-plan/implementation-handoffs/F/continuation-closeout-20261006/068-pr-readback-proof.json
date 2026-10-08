@@ -1,0 +1,8 @@
+{
+  "check": "PASS",
+  "url": "https://github.com/DenisKopylov/polisyos/pull/65",
+  "head": "f17b9a52784d9484ef65563dc6695240629bdfc6",
+  "body_sha256": "d09cde34ef4e906ce5407b8af8de169e053d16d041a8faa19c1280723d3ce84f",
+  "scope": "Metadata only; draft/open/unmerged. Exact receipt publication follows, product source unchanged.",
+  "initial_gh_pr_edit": "ERROR: deprecated classic projectCards GraphQL read; preserved full stderr; REST correction no history or product mutation."
+}

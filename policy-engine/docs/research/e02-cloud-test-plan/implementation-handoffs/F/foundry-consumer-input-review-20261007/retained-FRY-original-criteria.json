@@ -1,0 +1,81 @@
+{
+  "source_evidence": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+  "primary_receipts": [
+    {
+      "git_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json",
+      "blob": "12937d746fc2a65adfb6022e24ec00f61083f492",
+      "bytes": 77903,
+      "sha256": "ff8a8f2b2689fb9793c5ab03f29fde1412eb5fe03dae961656fad722a108176e"
+    },
+    {
+      "git_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006.json",
+      "blob": "3ed200ad06100a772bd1911ff35f967792f4f5ec",
+      "bytes": 97248,
+      "sha256": "04fba06be549c934631ea496ae1cbf6b3698e2f235a94b61880ba540308f2cbf"
+    },
+    {
+      "git_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/output-anomaly-count-20261006.json",
+      "blob": "ac2515f5c5da61eeaee02fb53c71bec8b75eac85",
+      "bytes": 58209,
+      "sha256": "c0241aaf2b1795dbc9d3c49758f91e82db42887335fc39d0cbd6f7dffd506451"
+    },
+    {
+      "git_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+      "blob": "0ebf3b625085f6521f7430b3d919e8e11848fc21",
+      "bytes": 60843,
+      "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+    }
+  ],
+  "original_read_bindings": {
+    "cards": [
+      {
+        "git_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRY-01.md",
+        "blob": "a811402415f70da517c8e86e3f41a9653af906c7",
+        "bytes": 19821,
+        "sha256": "6831c42cb91615b080d160a16a77a8c2dda2d13fc174631631fbb559d56b7dc3"
+      },
+      {
+        "git_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FIT-01.md",
+        "blob": "9a7c550c56937430370253621bbd0a84c2fea3ec",
+        "bytes": 14761,
+        "sha256": "af58e73e27d8417f9744dbf93a8adb8bb3badaf979d70c16ab924d76a4358075"
+      }
+    ],
+    "residual": {
+      "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json",
+      "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+      "bytes": 2067905,
+      "sha256": "610255c2c8718b997b114357c93df7fd6001e83de209f079a481d16768b357f1",
+      "fully_read_focused_rows": [
+        "LA-001",
+        "LA-002",
+        "LA-037",
+        "B54",
+        "B56"
+      ],
+      "historical_partial_vs_appendix_closed_bounded": "Historical source statuses retained, not promoted; current per-ID scientific receipt and G acceptance separate"
+    },
+    "execution_rule": "Obsolete original-card I1 cloud quota overridden by current user/COMMON; no quota introduced."
+  },
+  "recommendations": {
+    "LA-001": "closed per retained original seed/compile/RNG receipt",
+    "LA-002": "closed per retained catalog/descriptor/IC-service/certificates/reexports loading migration",
+    "LA-037": "closed per retained native IR owner/direct callers/builders/docs/package compatibility"
+  },
+  "separate_limits": [
+    "Temporal identical v1 node draws intentionally retained; no unrequested new time law.",
+    "Four new family-to-state execution mappings optional, not original migration criterion.",
+    "Certificate finite-instance proof is not admitted-real-data IC or economic normative authority.",
+    "Both supported layout wrapper addresses remain direct IR bindings in compatibility window."
+  ],
+  "new_runtime_verification": "none; no unchanged wave repeated",
+  "new_product_changes": [],
+  "G_acceptance": "separate authoritative G decision, not inferred from fetched dependencies"
+}

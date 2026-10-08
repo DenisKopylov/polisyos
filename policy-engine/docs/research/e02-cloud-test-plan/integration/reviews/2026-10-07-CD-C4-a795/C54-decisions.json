@@ -1,0 +1,1196 @@
+{
+  "schema": "policyos.e02.G.C54_continuation_decisions.v1",
+  "source_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c4-v4.json@847929e3e0cac30fb49ff61a47ecaf46d41ac94d",
+  "denominator": {
+    "whole_plan_bundles": 127,
+    "whole_plan_findings": 282,
+    "whole_plan_criterion_occurrences": 291,
+    "C_bundles": 33,
+    "C_findings": 54,
+    "C_hash_bound_criterion_occurrences": 59,
+    "unique_IDs": 54,
+    "unique_bundles": 33,
+    "criterion_line_hash_mismatches": 0,
+    "bundle_crosswalk_missing_or_extra": 0,
+    "C_coverage_ID_missing_or_extra": 0
+  },
+  "recommendation_counts": {
+    "closed": 31,
+    "limited": 9,
+    "held": 14
+  },
+  "formal_status": "all54 not_adjudicated; recommendations are not code acceptance",
+  "input_integrity": "import_results.py --check PASS; verification.json read; no baseline outcome transferred to current candidate",
+  "whole_product_claim": false,
+  "rows": [
+    {
+      "id": "B17",
+      "bundles": [
+        "SCL-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "B17",
+          "document_ref": "CD01",
+          "line_span": "399-410",
+          "sha256": "1bf7c67194b569d0f2dd955a3f03856dd8117acf907dcef1b9385980f0321848"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "bridge_missing",
+      "next_owner": "G integration reviewer for B17's finite provider/deadline criterion",
+      "G_execution_action": "G integration reviewer: record only B17's finite provider/deadline criterion result and its cited evidence; do not add a license-policy prerequisite.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "B79",
+      "bundles": [
+        "ING-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "B79",
+          "document_ref": "CD01",
+          "line_span": "2153-2166",
+          "sha256": "27bcd616e4c3651c5234684c5f00bfc90929f35b417c71f57e4740fa2afb567d"
+        }
+      ],
+      "C_recommendation": "limited",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "bridge_missing",
+      "next_owner": "B connector/cursor evidence owner; G integration reviewer",
+      "G_execution_action": "B connector/cursor evidence owner: supply source-confirmed evidence binding the exact dataset, ingestion_run_id, cursor, and evidence content; then prove positive promotion, marker-kept refusal for absent/forged/mismatched binding, and restart against the same bound source. Do not require B83 source-owned event/version identity for this criterion; archives and broad G replay are not prerequisites.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "B80",
+      "bundles": [
+        "ING-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "B80",
+          "document_ref": "CD01",
+          "line_span": "2167-2180",
+          "sha256": "4c1a2181de7a1faab9b419139aacb69af646339f4920a172f21dbe2c4d0cbdad"
+        }
+      ],
+      "C_recommendation": "held",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "semantic_test_missing",
+      "next_owner": "B connector/cursor evidence owner; G integration reviewer",
+      "G_execution_action": "B connector/cursor evidence owner: supply verified evidence bound to the exact dataset, ingestion_run_id, cursor, and evidence content before promotion; then prove positive promotion, marker-kept refusal for absent/forged/mismatched binding, and restart. Do not import B83 source-owned event/version identity as a prerequisite; archives and broad G replay are not prerequisites.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "B81",
+      "bundles": [
+        "ING-02"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "B81",
+          "document_ref": "CD01",
+          "line_span": "2181-2194",
+          "sha256": "13dc074365e636ede836f221f8ecc0f831016f30f7b65349bcb6750d7d475292"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "fresh_criterion_evidence_reviewed",
+      "historical_capability_label": "semantic_test_missing",
+      "next_owner": "G integration reviewer for B81",
+      "G_execution_action": "G integration reviewer: record the finite at-least-once-with-dedupe result, retaining the failure/reopen/retry evidence and the composed cap-3/refusal/recovery sequence; preserve the checkpoint-metadata limitation.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "B82",
+      "bundles": [
+        "ING-02"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "B82",
+          "document_ref": "CD01",
+          "line_span": "2195-2208",
+          "sha256": "fd1257bfd3f64dd10ab0b37a3b10f70cc54ed6bfe66097e8bf9bd00682db2f6a"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "fresh_criterion_evidence_reviewed",
+      "historical_capability_label": "semantic_test_missing",
+      "next_owner": "G integration reviewer for B82",
+      "G_execution_action": "G integration reviewer: record both original COUNT/TUMBLING/SESSION/SLIDING restore profiles and the supplemental cap refusal/recovery sequence; preserve the fact that no-output replay changes checkpoint/cursor metadata.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "B83",
+      "bundles": [
+        "ING-03"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "B83",
+          "document_ref": "CD01",
+          "line_span": "2209-2222",
+          "sha256": "33f33619aeda80550a33302bfc571497c218ec5f0f6ea09fa22d447e74d58441"
+        }
+      ],
+      "C_recommendation": "held",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "semantic_test_missing",
+      "next_owner": "B source-contract owner; G integration reviewer",
+      "G_execution_action": "B source-contract owner: supply source-owned event/version identity bound to cursor/replay state. Exercise the a,b,c,a discriminator sequence at cap 2 before and after process restart; verify the persisted 86,400-second UTC expiry, source/partition isolation, independent-map oracle, and durable live-key bound with refusal before eviction. Include marker-kept refusal for missing or substituted identity; do not treat synthesized offset _message_id as authority or make archives/broad G replay a prerequisite.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "B84",
+      "bundles": [
+        "ING-03"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "B84",
+          "document_ref": "CD01",
+          "line_span": "2223-2236",
+          "sha256": "f78e004e412604e1799ede0a2d13ca16f060fd12cf16f161c7978b6c2b4cb2c1"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "fresh_criterion_evidence_reviewed",
+      "historical_capability_label": "bridge_missing",
+      "next_owner": "G integration reviewer for B84",
+      "G_execution_action": "G integration reviewer: record the bounded retained-state, input-row/serialized-byte, and output-reference controls together with the supplemental cap refusal/recovery; retain the explicit no-RSS, no pre-return-allocation, and no-spill claims.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "B85",
+      "bundles": [
+        "ING-02"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "B85",
+          "document_ref": "CD01",
+          "line_span": "2237-2248",
+          "sha256": "0775c04c77c9d3d0f9afce1d2a8dae5592bcbd20c7987cbea43fcc566bff66b8"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "fresh_criterion_evidence_reviewed",
+      "historical_capability_label": "semantic_test_missing",
+      "next_owner": "G integration reviewer for B85",
+      "G_execution_action": "G integration reviewer: record exact contributor lineage for the three recovered rows and fresh readback; do not infer byte-idempotent checkpoint replay.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "B86",
+      "bundles": [
+        "ING-03"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "B86",
+          "document_ref": "CD01",
+          "line_span": "2249-2262",
+          "sha256": "50407424aa74e40532e4906066703611868667233ed9017be4906dd8e6116890"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "bridge_missing",
+      "next_owner": "G integration reviewer for B86",
+      "G_execution_action": "G integration reviewer: record only the declared FieldSpec profiles; do not infer schema from batch DataFrame dtype.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "B88",
+      "bundles": [
+        "ING-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "B88",
+          "document_ref": "CD01",
+          "line_span": "2275-2288",
+          "sha256": "2359da55971bd34247c9729a769fdcdd07fbea6e1f3e9c11ac0f323215b6414a"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "",
+      "next_owner": "G integration reviewer for B88",
+      "G_execution_action": "G integration reviewer: record the retained source-card replay profile only; keep other replay protocols outside this criterion.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "B138",
+      "bundles": [
+        "FED-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "B138",
+          "document_ref": "CD01",
+          "line_span": "3666-3679",
+          "sha256": "49c4975a2baded3458be043b1ebd9f1cf32d24ed164d5f5399050948dcd2988a"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "bridge_missing",
+      "next_owner": "G integration reviewer for B138",
+      "G_execution_action": "G integration reviewer: record the bounded JOIN lineage and saved-result readback evidence; do not generalize to every production route.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "B139",
+      "bundles": [
+        "FED-02"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "B139",
+          "document_ref": "CD01",
+          "line_span": "3680-3693",
+          "sha256": "d1353bf48e6cdc812134fd89fd4f27ab51e6f91be1eb5970126835dad92f148b"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "semantic_test_missing",
+      "next_owner": "G integration reviewer for B139",
+      "G_execution_action": "G integration reviewer: record the actual JOIN/SUMMARY occurrence identity in the selected input order; keep source_a_value as an occurrence witness, not a permutation-invariant event identity.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "B140",
+      "bundles": [
+        "FED-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "B140",
+          "document_ref": "CD01",
+          "line_span": "3694-3707",
+          "sha256": "6e0cf734d51f26b1fe39d6d4fb1b36468e76f02aa1bdbb1eab06e2b1e9b577e6"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "semantic_test_missing",
+      "next_owner": "G integration reviewer for B140",
+      "G_execution_action": "G integration reviewer: record the fixture-bound request-contract result; leave caller-wide domain identity policy outside this criterion.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "B141",
+      "bundles": [
+        "FED-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "B141",
+          "document_ref": "CD01",
+          "line_span": "3708-3721",
+          "sha256": "a7db3efa3ae885c9376ce8a64cc9becfddca245127cb488ad4be966c5f03227a"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "semantic_test_missing",
+      "next_owner": "G integration reviewer for B141",
+      "G_execution_action": "G integration reviewer: record the fixture schema and local SQL readback; do not create a global column-naming rule.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "B142",
+      "bundles": [
+        "FED-02"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "B142",
+          "document_ref": "CD01",
+          "line_span": "3722-3735",
+          "sha256": "ea79349098bc8829ed81cf3b2c0a0aaf6e4aca7d8848dddb842b418023de41f3"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "consumer_missing",
+      "next_owner": "G integration reviewer for B142",
+      "G_execution_action": "G integration reviewer: record the isolated DuckDB fixture readback; do not claim behavior for a deployed database service.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "B143",
+      "bundles": [
+        "FED-02"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "B143",
+          "document_ref": "CD01",
+          "line_span": "3736-3749",
+          "sha256": "67533d3fcc342efea26ac675a680171e5d423c11009a79517e574e0c77a222f7"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "verification_missing",
+      "next_owner": "G integration reviewer for B143",
+      "G_execution_action": "G integration reviewer: record the live MergeLogEntry-reference peak measured inside _union; do not describe it as process RSS or a global O(1) memory bound.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "B144",
+      "bundles": [
+        "FED-02"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "B144",
+          "document_ref": "CD01",
+          "line_span": "3750-3763",
+          "sha256": "e3729b6792cc0671e52a2bb13980fcf28818d00a019c61cc48594c6fa5eb79f0"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "verification_missing",
+      "next_owner": "G integration reviewer for B144",
+      "G_execution_action": "G integration reviewer: record the tested operation-count preparation bound; do not claim wall-time or production-memory speedup.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "B145",
+      "bundles": [
+        "FED-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "B145",
+          "document_ref": "CD01",
+          "line_span": "3764-3777",
+          "sha256": "f11de96fd0b85b71279516181152c16e1c0a8bc7bd3c3c12b9453a9485bd33ab"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "semantic_test_missing",
+      "next_owner": "G integration reviewer for B145",
+      "G_execution_action": "G integration reviewer: record the consensus result only for the declared inputs; preserve the exclusions for global source independence, measurement validity, unit comparability, and all possible consensus inputs.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "B146",
+      "bundles": [
+        "OBS-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "B146",
+          "document_ref": "CD01",
+          "line_span": "3778-3791",
+          "sha256": "1182ff6022552b7af6105a79c657dca1e1c624dc1a43ba46b75136884c51ff05"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "semantic_test_missing",
+      "next_owner": "G integration reviewer for B146",
+      "G_execution_action": "G integration reviewer: record the B146-specific behavior of common._period_to_dates, sources._period_series_to_iso_bounds, and the observation builder: supported calendar formats and leap-year, quarter, and year boundaries; missing/invalid/bad-month quarantine; and inclusive period_end in the versioned projection. Do not invent period rules or infer population-wide prevalence.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "B147",
+      "bundles": [
+        "OBS-02"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "B147",
+          "document_ref": "CD01",
+          "line_span": "3792-3805",
+          "sha256": "be76605fbb2c48c12197f204002b332ab1e89de4f2b0c3361ed02d4a685cfc9b"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "verification_missing",
+      "next_owner": "G integration reviewer for B147",
+      "G_execution_action": "G integration reviewer: record _iter_observation_metric_frames using a private immutable per-source snapshot before first yield; confirm row_offset plus confirmed metric-frame ordinal resume before/after yield and between metrics; check D2 downstream shards, counters, and no duplicate observation IDs. Ensure admission, schema, and semantic errors do not become format-fallback events.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-005",
+      "bundles": [
+        "DFK-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-005",
+          "document_ref": "CD02",
+          "line_span": "198-224",
+          "sha256": "ec6ce93b380334ba9e5d13e13ce8ecf637afd057b99008b3aa1b462d29194266"
+        }
+      ],
+      "C_recommendation": "held",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "verification_missing",
+      "next_owner": "Public-surface owner; G integration reviewer",
+      "G_execution_action": "Public-surface owner: decide whether the exact polisyos.foundry.domain.schema FQN is supported or may be retired, and bind the decision to shipped-version evidence. Ordinary bounded API lifecycle: C ведёт техническое support/alias/retirement решение и companions вместе с названным canonical schema/public-surface writer; отдельное институциональное approval не требуется. Не изобретать permission bar, не удалять полезный canonical schema owner.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-006",
+      "bundles": [
+        "DFK-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-006",
+          "document_ref": "CD02",
+          "line_span": "225-253",
+          "sha256": "4bc6fa503bce03a1516620c492168088242d61e0ba90697a9377480c13d189fe"
+        }
+      ],
+      "C_recommendation": "limited",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "criterion_binding_corrected",
+      "historical_capability_label": "semantic_test_missing",
+      "next_owner": "C package/public-surface and integration owners; G integration reviewer",
+      "G_execution_action": "C package/public-surface owner принимает bounded absence либо выбирает support/retirement exact polisyos.foundry.domain.mechanisms FQN и согласует direct import test + negative-reexport + packaging companions. Не требовать разрешения 317 unrelated dynamic loader destinations/unknown external callers без прямой зависимости от exact FQN; внешний остаток записать ограничением.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-008",
+      "bundles": [
+        "HYG-02"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-008",
+          "document_ref": "CD02",
+          "line_span": "281-307",
+          "sha256": "e7780bb070e76c47270d653720b0f71cede3c1e801828130600199e95897e169"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "surface_missing",
+      "next_owner": "G integration reviewer for LA-008",
+      "G_execution_action": "G integration reviewer: record the selected bounded import/package result; leave unpublished external dynamic-import and configuration consumers unclaimed.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-009",
+      "bundles": [
+        "HYG-02"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-009",
+          "document_ref": "CD02",
+          "line_span": "308-338",
+          "sha256": "b220c209a0b5cae46995a618d971c06ad3193f2943eb0880ea1373f52da29d09"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "surface_missing",
+      "next_owner": "G integration reviewer for LA-009",
+      "G_execution_action": "G integration reviewer: record the bounded plugin/configuration consumer result; leave unpublished external consumers unclaimed.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-010",
+      "bundles": [
+        "MIG-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-010",
+          "document_ref": "CD02",
+          "line_span": "339-367",
+          "sha256": "1e021463372ce48ea305b26c921c164d10d48cbf08aa08b2bda550964596817b"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "criterion_binding_corrected",
+      "historical_capability_label": "",
+      "next_owner": "G integration reviewer for LA-010",
+      "G_execution_action": "G integration reviewer: preserve the source migrate.py delegation result separately from installed CLI/strict-DTO behavior; do not treat one as proof of the other.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-011",
+      "bundles": [
+        "HYG-04"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-011",
+          "document_ref": "CD02",
+          "line_span": "368-396",
+          "sha256": "d7234745291e8e2306c2496505f7123214aa6b9cdb9bc4d7dbb7ad5190dd2de2"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "surface_missing",
+      "next_owner": "G integration reviewer for LA-011",
+      "G_execution_action": "G integration reviewer: record the selected workspace-map and package result; do not claim out-of-checkout bootstrap or dependency-sync behavior.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-012",
+      "bundles": [
+        "HYG-04"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-012",
+          "document_ref": "CD02",
+          "line_span": "397-427",
+          "sha256": "02813c8895cfae05a30d3702cf9a7f45c4ddfff867ae16694af853ec0f51b94d"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "surface_missing",
+      "next_owner": "G integration reviewer for LA-012",
+      "G_execution_action": "G integration reviewer: record the bounded wrapper result and leave unpublished external users and the unrun benchmarks/JAX surface outside this disposition.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-013",
+      "bundles": [
+        "HYG-04"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-013",
+          "document_ref": "CD02",
+          "line_span": "428-454",
+          "sha256": "0c3e505a88abc7cc6883ee7fe2e4056e8bd5aa2ddaeae38ce8cfde9ea710ad8f"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "surface_missing",
+      "next_owner": "G integration reviewer for LA-013",
+      "G_execution_action": "G integration reviewer: record the exact wheel/sdist member-byte and five-root workspace-map result; keep host dependency setup and external source history outside scope.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-018",
+      "bundles": [
+        "HYG-02"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-018",
+          "document_ref": "CD02",
+          "line_span": "571-597",
+          "sha256": "b28c10a9c4c31b5fad21560ddaf3888df77a534d2cb9fdb992853637ccd91421"
+        }
+      ],
+      "C_recommendation": "held",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "bridge_missing",
+      "next_owner": "Unallocated source-rights/trusted-source authority; HYG/C-W08 and canonical Lex/F-W07 producer/consumer owners; G integration reviewer",
+      "G_execution_action": "A source-rights/trusted-source authority must supply source-bound identity, permitted purpose, and a verifiable trust input. HYG/C-W08 and canonical Lex/F-W07 owners then gate selection on that artifact and re-evaluate the existing marker-kept source_auth:null witness, which currently demonstrates unauthorized selection.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-021",
+      "bundles": [
+        "CAN-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-021",
+          "document_ref": "CD02",
+          "line_span": "990-1021",
+          "sha256": "6bf9986ec241a8980ff624f30d08973fba07f5c8e1402652a276da1bce22aa7b"
+        }
+      ],
+      "C_recommendation": "held",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "fresh_criterion_evidence_reviewed",
+      "historical_capability_label": "",
+      "next_owner": "B Core byte-emission/admission owner; CAN-01 package owner for exact e3 wheel; G integration reviewer",
+      "G_execution_action": "B Core owner: supply/admit the raw byte-emission contract or bound the bypass. CAN-01: when offline Hatchling >=1.27 is available, build the exact e3 non-editable wheel and run installed Mapping readback plus pre-byte refusal controls. G records the held boundary until both supplier and installed layers are resolved.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-022",
+      "bundles": [
+        "PLG-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-022",
+          "document_ref": "CD02",
+          "line_span": "1022-1051",
+          "sha256": "d275403acf06aa00eb9b575ea25e779eadd4bca77d5b35c3595f8cf34d0e22cf"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "verification_missing",
+      "next_owner": "G integration reviewer for the finite DomainPlugin discovery/ABI criterion",
+      "G_execution_action": "G integration reviewer: record the finite DomainPlugin discovery/ABI migration result; keep future owner-issued admission and verification as a separate capability.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-023",
+      "bundles": [
+        "PLG-03",
+        "PLG-02"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-023",
+          "document_ref": "CD02",
+          "line_span": "1052-1083",
+          "sha256": "b06af2883398bbe4c039459613c259f92c15a4722d59b57dd28b6397f3e72ac3"
+        },
+        {
+          "criterion_id": "LA-023",
+          "document_ref": "CD02",
+          "line_span": "1052-1083",
+          "sha256": "b06af2883398bbe4c039459613c259f92c15a4722d59b57dd28b6397f3e72ac3"
+        }
+      ],
+      "C_recommendation": "held",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "semantic_test_missing",
+      "next_owner": "Product owner (.train/public compatibility); C-W15 checkpoint-continuation owner; G integration reviewer",
+      "G_execution_action": "Product owner: decide the public .train promise and historical TrainingResult compatibility. C-W15 owner: decide whether cross-call checkpoint/RNG continuation is unsupported or requires a typed profile; do not rerun the completed one-call suite.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-024",
+      "bundles": [
+        "SCL-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-024",
+          "document_ref": "CD02",
+          "line_span": "1084-1113",
+          "sha256": "ac5148dc11d7ccb7f825d8d672b2be62db9fee78d7c8a0f15150889bd154ef67"
+        }
+      ],
+      "C_recommendation": "limited",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "bridge_missing",
+      "next_owner": "License-policy authority; G integration reviewer",
+      "G_execution_action": "License-policy owner: supply an authoritative source-specific reuse rule for fetch/storage/normalization/inference and downstream use; until then preserve the technical result as limited, not authorized.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-025",
+      "bundles": [
+        "SCL-03"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-025",
+          "document_ref": "CD02",
+          "line_span": "1114-1149",
+          "sha256": "2bc4e727677c0b073b03c2cd763b0dc65c25b0917ab5e423ee9f7d4442c05da4"
+        }
+      ],
+      "C_recommendation": "held",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "bridge_missing",
+      "next_owner": "License-policy authority; G integration reviewer",
+      "G_execution_action": "License-policy owner: provide permission bound to the exact source bytes and intended Scholar reuse operations; the nonempty license string remains provenance, not permission.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-026",
+      "bundles": [
+        "DFK-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-026",
+          "document_ref": "CD02",
+          "line_span": "1372-1417",
+          "sha256": "48da21eccebfe89cf7cc0ed9dba75b26752d06f78625f92088e3cb9ebc88fa1a"
+        }
+      ],
+      "C_recommendation": "held",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "verification_missing",
+      "next_owner": "Data Forge schema owner; G integration reviewer",
+      "G_execution_action": "Data Forge schema owner: decide whether GeneratedSchemaModule has an intended producer/consumer and supported FQN; if not, authorize retiring only the placeholder while preserving kernel.schemas APIs. Ordinary bounded API lifecycle: C ведёт техническое support/alias/retirement решение и companions вместе с названным canonical schema/public-surface writer; отдельное институциональное approval не требуется. Не изобретать permission bar, не удалять полезный canonical schema owner.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-027",
+      "bundles": [
+        "DFK-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-027",
+          "document_ref": "CD02",
+          "line_span": "1418-1465",
+          "sha256": "a78cbc850be0ec8fdbec3076613780d16dfc169517f5f1568f42a6a80cd3e8ce"
+        }
+      ],
+      "C_recommendation": "held",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "verification_missing",
+      "next_owner": "Data Forge schema and active-plan owners; G integration reviewer",
+      "G_execution_action": "Data Forge schema and active-plan owners: decide the canonical import path, alias support window, and migration timing before changing the compatibility export. Ordinary bounded API lifecycle: C ведёт техническое support/alias/retirement решение и companions вместе с названным canonical schema/public-surface writer; отдельное институциональное approval не требуется. Не изобретать permission bar, не удалять полезный canonical schema owner.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-028",
+      "bundles": [
+        "DFK-02"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-028",
+          "document_ref": "CD02",
+          "line_span": "1466-1517",
+          "sha256": "ca582afd9387c0ba6c4c4bbc9278a6da82d00d06d347269c089531d12355b2f6"
+        }
+      ],
+      "C_recommendation": "held",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "bridge_missing",
+      "next_owner": "A runtime/lifecycle profile owner; C consumer owner; G integration reviewer",
+      "G_execution_action": "A runtime/lifecycle owner: provide the typed run_profile/context carrier; C consumer owner: wire it through the same-profile producer-to-HTTP path and verify missing-profile refusal without inventing a default.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-029",
+      "bundles": [
+        "UDF-04"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-029",
+          "document_ref": "CD02",
+          "line_span": "1518-1567",
+          "sha256": "2ed87700859cf94e802cf950219101451f75ce6294af0cf71bd0fc4f9aa78441"
+        }
+      ],
+      "C_recommendation": "held",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "bridge_missing",
+      "next_owner": "G local resource coordinator and UDF process owner",
+      "G_execution_action": "G local resource coordinator/UDF process owner: provision one eligible Linux/C7 candidate and run create/start/stop/restart/cleanup with a removal control, binding the exact command and result. The observed SSH timeout is bounded availability evidence, not product failure or global provider absence.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-030",
+      "bundles": [
+        "UDF-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-030",
+          "document_ref": "CD02",
+          "line_span": "1568-1615",
+          "sha256": "20aca203408094648cf644128413d8c369c5906d9fbf6c015cabca27714b641e"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "semantic_test_missing",
+      "next_owner": "G integration reviewer for LA-030",
+      "G_execution_action": "G integration reviewer: record the bounded D4 producer-to-artifact-to-public-read_api path; do not generalize to all pipeline governance or production data.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-031",
+      "bundles": [
+        "UDF-02",
+        "OBS-01",
+        "UDF-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-031",
+          "document_ref": "CD02",
+          "line_span": "1616-1667",
+          "sha256": "aa39395987e7dc84917cc0256cbb835dc9d8d8248eff24583209aeac3e6cb82d"
+        },
+        {
+          "criterion_id": "LA-031",
+          "document_ref": "CD02",
+          "line_span": "1616-1667",
+          "sha256": "aa39395987e7dc84917cc0256cbb835dc9d8d8248eff24583209aeac3e6cb82d"
+        },
+        {
+          "criterion_id": "LA-031",
+          "document_ref": "CD02",
+          "line_span": "1616-1667",
+          "sha256": "aa39395987e7dc84917cc0256cbb835dc9d8d8248eff24583209aeac3e6cb82d"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "verification_missing",
+      "next_owner": "G integration reviewer for LA-031",
+      "G_execution_action": "G integration reviewer: record all six registered-stage parity/readback routes and five direct importers; retain the D5 clock projection and D3 optional-input limits.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-032",
+      "bundles": [
+        "UDF-05"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-032",
+          "document_ref": "CD02",
+          "line_span": "1668-1715",
+          "sha256": "5f5c7a56a652a0328e25fd8b6091a2f780750d9eaee8f10c0129b2f9f0609cf2"
+        }
+      ],
+      "C_recommendation": "held",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "bridge_missing",
+      "next_owner": "C-W19 inventory owner; G local consumer verifier",
+      "G_execution_action": "C-W19 inventory owner: provide an admitted, versioned source-to-ID inventory producer/artifact/bridge for all four readers, then demonstrate correct selection and refusal for missing, forged, and swapped inventories.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-034",
+      "bundles": [
+        "BER-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-034",
+          "document_ref": "CD02",
+          "line_span": "2029-2065",
+          "sha256": "f89910e92997d24b57181b5b45a407fe0d86c1bb2b4814fd73e9d60040d43348"
+        }
+      ],
+      "C_recommendation": "limited",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "verification_missing",
+      "next_owner": "G resource/integration owner; external source owner only if that boundary is added",
+      "G_execution_action": "G resource/integration owner: record the bounded tracked-consumer disposition; if external-resource behavior is added to scope, name its exact producer and consumer before requesting a test.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-036",
+      "bundles": [
+        "BER-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-036",
+          "document_ref": "CD02",
+          "line_span": "2103-2145",
+          "sha256": "ebc61d92552c6dfbf538aed17c8a7ed476ee4322fc9df09f7ed3b89e8c530a2a"
+        }
+      ],
+      "C_recommendation": "held",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "producer_missing",
+      "next_owner": "E/F law/model/bound suppliers; C BER consumer; G integration reviewer",
+      "G_execution_action": "E/F law/model owners: supply a content-bound conditional feature law with exact population, schema, epoch, support, and verifier provenance. C BER owner then verifies the admitted artifact at both Runtime explanation_reliability and Scientist phase5_preflight consumers.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-038",
+      "bundles": [
+        "DFI-02",
+        "DFI-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-038",
+          "document_ref": "CD02",
+          "line_span": "2482-2514",
+          "sha256": "461280b039d63fccfc0f8d8ea59afe77a45c24f3137e4872e0f4a3fc9d18fd47"
+        },
+        {
+          "criterion_id": "LA-038",
+          "document_ref": "CD02",
+          "line_span": "2482-2514",
+          "sha256": "461280b039d63fccfc0f8d8ea59afe77a45c24f3137e4872e0f4a3fc9d18fd47"
+        }
+      ],
+      "C_recommendation": "limited",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "bridge_missing",
+      "next_owner": "G downstream-stage owner; source/model owners if production scope expands",
+      "G_execution_action": "G downstream-stage owner: record the bounded writer/readback handoff. Source/model owners must provide immutable production-corpus and asset provenance before any production-authority claim.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-039",
+      "bundles": [
+        "EMB-02",
+        "EMB-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-039",
+          "document_ref": "CD02",
+          "line_span": "2515-2555",
+          "sha256": "d4a3493dd5ebe389a5d7afc403d188aa1114ef79556ac0bba4a89b2e7d37d858"
+        },
+        {
+          "criterion_id": "LA-039",
+          "document_ref": "CD02",
+          "line_span": "2515-2555",
+          "sha256": "d4a3493dd5ebe389a5d7afc403d188aa1114ef79556ac0bba4a89b2e7d37d858"
+        }
+      ],
+      "C_recommendation": "limited",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "verification_missing",
+      "next_owner": "G downstream-stage owner; source/model owner if production scope expands",
+      "G_execution_action": "G downstream-stage owner: retain the fresh fixture producer/reader and source-removal result as bounded evidence; request immutable model and corpus provenance only if production scope is claimed.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-040",
+      "bundles": [
+        "EMB-03"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-040",
+          "document_ref": "CD02",
+          "line_span": "2556-2594",
+          "sha256": "04d9279a2c0e0e0f10649e69a1a06e4e8a4128b384d5b44f2c9cd45fff8ba67a"
+        }
+      ],
+      "C_recommendation": "held",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "producer_missing",
+      "next_owner": "C-W04/DFI + served model/query profile owner; G local exact-candidate verifier",
+      "G_execution_action": "C-W04/DFI + served model/query owner сначала поставляют парную persisted generation, immutable model/tokenizer/normalization assets и actual served query profile. Затем G выполняет criterion-specific local read-only проверку нужных ordered membership/projection fields: current membership/withdrawal, same-profile persisted consumer readback. Существующая авторизация пользователя достаточна; отдельное разрешение читать эти поля не требуется. Без экспорта/copy payload/full DB hash/corpus census. Историческое отсутствие чтения сохраняется как факт, missing paired assets/profile остаются настоящим blocker.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-041",
+      "bundles": [
+        "DFI-03"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-041",
+          "document_ref": "CD02",
+          "line_span": "2595-2631",
+          "sha256": "11fa4aba4b13edd0ea0537a3cfcc7b725568c06f116f599d5bee39f479b09f88"
+        }
+      ],
+      "C_recommendation": "limited",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "verification_missing",
+      "next_owner": "G downstream-stage owner; profile owner only if external consumer scope expands",
+      "G_execution_action": "G downstream-stage owner: record the bounded cache invalidation/checkpoint/retry behavior; require a named same-profile caller only before extending the claim to external consumers.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-042",
+      "bundles": [
+        "EMB-03"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-042",
+          "document_ref": "CD02",
+          "line_span": "2632-2660",
+          "sha256": "7e63e0b9e9c68ba15ec62b843a0ba22bd8294466741f4a23521983be635b5724"
+        }
+      ],
+      "C_recommendation": "limited",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "bridge_missing",
+      "next_owner": "G downstream-stage owner; model-release owner only if external history is claimed",
+      "G_execution_action": "G downstream-stage owner: record the retained legacy-entrypoint result within its tested profile; keep external caller history and model-release policy unclaimed until their owner supplies them.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-043",
+      "bundles": [
+        "CLI-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-043",
+          "document_ref": "CD02",
+          "line_span": "2933-2967",
+          "sha256": "f13d739e3f0345f9c5130d175def7afc61eea825bcb7b4f6e65bfd68934f8d34"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "surface_missing",
+      "next_owner": "G integration reviewer for LA-043",
+      "G_execution_action": "G primary-scope reviewer: record all three generator corruption/missing/extra cases and the independent consumer result; do not demand unbounded external operations.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-044",
+      "bundles": [
+        "CLI-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-044",
+          "document_ref": "CD02",
+          "line_span": "2968-2998",
+          "sha256": "c682108a422e6fbfba931556b2c06179dca3857c702aa73e37f282ea2576c20b"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "surface_missing",
+      "next_owner": "G integration reviewer for LA-044",
+      "G_execution_action": "G primary-scope reviewer: record the package-generation and actual installed consumer result for the declared scope.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-047",
+      "bundles": [
+        "MIG-05"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-047",
+          "document_ref": "CD02",
+          "line_span": "3275-3316",
+          "sha256": "80ae143c42bc317d48b3b97ec3b6840a1631092735390df3d4bed23558ec0c39"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "criterion_binding_corrected",
+      "historical_capability_label": "semantic_test_missing",
+      "next_owner": "G integration reviewer for LA-047",
+      "G_execution_action": "G integration reviewer: record the focused Common/IR source-suite result; do not imply an installed root-layout result.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-048",
+      "bundles": [
+        "MIG-02"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-048",
+          "document_ref": "CD02",
+          "line_span": "3317-3357",
+          "sha256": "df3ea440d4a56a870987b2936eea872276f8d0cd55ab97f633ce7f9de61bd516"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "criterion_binding_corrected",
+      "historical_capability_label": "bridge_missing",
+      "next_owner": "G integration reviewer for LA-048",
+      "G_execution_action": "G integration reviewer: record the RunManifest nested-path persistence/readback and Runtime resolution result; do not substitute database dry-run evidence.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-049",
+      "bundles": [
+        "MIG-01"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-049",
+          "document_ref": "CD02",
+          "line_span": "3358-3396",
+          "sha256": "780688078cc7226834fc2078543fa14814ddbf1a14ffb53085804276df3c0d58"
+        }
+      ],
+      "C_recommendation": "closed",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "criterion_binding_corrected",
+      "historical_capability_label": "",
+      "next_owner": "G integration reviewer for LA-049",
+      "G_execution_action": "G integration reviewer: record the source-suite Trinity current-version result; do not claim installed Trinity migration behavior.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    },
+    {
+      "id": "LA-050",
+      "bundles": [
+        "MIG-04"
+      ],
+      "original_criteria": [
+        {
+          "criterion_id": "LA-050",
+          "document_ref": "CD02",
+          "line_span": "3397-3431",
+          "sha256": "929111170bede523485d77e9bd1ae74702f9a8dfbbc4422d8c6cdc85252bac05"
+        }
+      ],
+      "C_recommendation": "limited",
+      "G_formal_status": "not_adjudicated",
+      "evidence_state": "c2_frozen_evidence_carried_forward",
+      "historical_capability_label": "bridge_missing",
+      "next_owner": "MIG owner; G integration reviewer",
+      "G_execution_action": "MIG owner: provide a real historical 0.9 manifest from an authorized source or keep the result limited to the four tested current 1.0 manifests; do not infer absence from the 19 documented paths or metadata-only census.",
+      "basis": "C4 criterion-scoped action independently reviewed; corrections for LA-006/LA-040 and ordinary lifecycle noted"
+    }
+  ]
+}

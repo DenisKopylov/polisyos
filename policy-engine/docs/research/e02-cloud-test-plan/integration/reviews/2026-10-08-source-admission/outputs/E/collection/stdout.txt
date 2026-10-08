@@ -1,0 +1,190 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/candidate/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/candidate/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 165 items
+
+<Dir policy-engine>
+  <Dir tests>
+    <Dir unit>
+      <Dir ir>
+        <Module test_uncertainty_profile_ingress.py>
+          Public raw Profile2 admission and non-mixture join boundaries on real CAS.
+          <Function test_raw_profile2_type_refuses_before_public_callback_or_publication[push-legacy_cas-True]>
+          <Function test_raw_profile2_type_refuses_before_public_callback_or_publication[push-legacy_cas-1.0]>
+          <Function test_raw_profile2_type_refuses_before_public_callback_or_publication[push-model-True]>
+          <Function test_raw_profile2_type_refuses_before_public_callback_or_publication[push-model-1.0]>
+          <Function test_raw_profile2_type_refuses_before_public_callback_or_publication[compress-legacy_cas-True]>
+          <Function test_raw_profile2_type_refuses_before_public_callback_or_publication[compress-legacy_cas-1.0]>
+          <Function test_raw_profile2_type_refuses_before_public_callback_or_publication[compress-model-True]>
+          <Function test_raw_profile2_type_refuses_before_public_callback_or_publication[compress-model-1.0]>
+          <Function test_raw_profile2_type_refuses_before_public_callback_or_publication[pull-legacy_cas-True]>
+          <Function test_raw_profile2_type_refuses_before_public_callback_or_publication[pull-legacy_cas-1.0]>
+          <Function test_raw_profile2_type_refuses_before_public_callback_or_publication[pull-model-True]>
+          <Function test_raw_profile2_type_refuses_before_public_callback_or_publication[pull-model-1.0]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-missing-legacy_cas]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-missing-model]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-non_mapping-legacy_cas]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-non_mapping-model]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-unsupported-legacy_cas]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-unsupported-model]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-bad_version-legacy_cas]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-bad_version-model]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-context-legacy_cas]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-context-model]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-carrier-legacy_cas]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-carrier-model]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-joint-legacy_cas]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-joint-model]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-missing-legacy_cas]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-missing-model]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-non_mapping-legacy_cas]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-non_mapping-model]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-unsupported-legacy_cas]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-unsupported-model]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-bad_version-legacy_cas]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-bad_version-model]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-context-legacy_cas]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-context-model]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-carrier-legacy_cas]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-carrier-model]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-joint-legacy_cas]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-joint-model]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-missing-legacy_cas]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-missing-model]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-non_mapping-legacy_cas]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-non_mapping-model]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-unsupported-legacy_cas]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-unsupported-model]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-bad_version-legacy_cas]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-bad_version-model]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-context-legacy_cas]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-context-model]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-carrier-legacy_cas]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-carrier-model]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-joint-legacy_cas]>
+          <Function test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-joint-model]>
+          <Function test_partial_profile_declaration_refuses_at_raw_inlet[legacy_cas-posterior_summary_profile_required]>
+          <Function test_partial_profile_declaration_refuses_at_raw_inlet[legacy_cas-posterior_summary_profile_id]>
+          <Function test_partial_profile_declaration_refuses_at_raw_inlet[legacy_cas-posterior_summary_profile_version]>
+          <Function test_partial_profile_declaration_refuses_at_raw_inlet[model-posterior_summary_profile_required]>
+          <Function test_partial_profile_declaration_refuses_at_raw_inlet[model-posterior_summary_profile_id]>
+          <Function test_partial_profile_declaration_refuses_at_raw_inlet[model-posterior_summary_profile_version]>
+          <Function test_strict_profile2_to_push_to_fresh_cas_preserves_actual_law>
+          <Function test_profile1_literal_cas_replay_keeps_original_bytes>
+          <Function test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[legacy_cas-profile1-True]>
+          <Function test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[legacy_cas-profile1-1.0]>
+          <Function test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[legacy_cas-generic-True]>
+          <Function test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[legacy_cas-generic-1.0]>
+          <Function test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[model-profile1-True]>
+          <Function test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[model-profile1-1.0]>
+          <Function test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[model-generic-True]>
+          <Function test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[model-generic-1.0]>
+          <Function test_profile2_multi_join_refuses_before_generic_lowering[profile2-profile_first]>
+          <Function test_profile2_multi_join_refuses_before_generic_lowering[profile2-profile_last]>
+          <Function test_profile2_multi_join_refuses_before_generic_lowering[generic-profile_first]>
+          <Function test_profile2_multi_join_refuses_before_generic_lowering[generic-profile_last]>
+          <Function test_profile2_single_join_preserves_identity_and_content>
+          <Function test_non_profile2_joins_keep_generic_concatenation[generic]>
+          <Function test_non_profile2_joins_keep_generic_concatenation[profile1]>
+          <Function test_combine_profile2_remains_non_gating_lossy_summary_on_fresh_read>
+        <Module test_posterior_summary.py>
+          Native profile and CAS controls for the original B201/B202 properties.
+          <Function test_asymmetric_native_adapter_fresh_read_keeps_independent_functionals>
+          <Function test_weighted_atoms_inverse_cdf_and_zero_mass_are_explicit>
+          <Function test_invalid_corpus_is_refused_by_real_producer[draws0-kwargs0]>
+          <Function test_invalid_corpus_is_refused_by_real_producer[draws1-kwargs1]>
+          <Function test_invalid_corpus_is_refused_by_real_producer[draws2-kwargs2]>
+          <Function test_invalid_corpus_is_refused_by_real_producer[draws3-kwargs3]>
+          <Function test_invalid_corpus_is_refused_by_real_producer[draws4-kwargs4]>
+          <Function test_invalid_corpus_is_refused_by_real_producer[draws5-kwargs5]>
+          <Function test_invalid_corpus_is_refused_by_real_producer[draws6-kwargs6]>
+          <Function test_invalid_corpus_is_refused_by_real_producer[draws7-kwargs7]>
+          <Function test_invalid_corpus_is_refused_by_real_producer[draws8-kwargs8]>
+          <Function test_invalid_corpus_is_refused_by_real_producer[draws9-kwargs9]>
+          <Function test_invalid_corpus_is_refused_by_real_producer[draws10-kwargs10]>
+          <Function test_invalid_corpus_is_refused_by_real_producer[draws11-kwargs11]>
+          <Function test_invalid_corpus_is_refused_by_real_producer[draws12-kwargs12]>
+          <Function test_invalid_corpus_is_refused_by_real_producer[draws13-kwargs13]>
+          <Function test_integrity_valid_forged_profile_refuses_fresh_named_computation[mean]>
+          <Function test_integrity_valid_forged_profile_refuses_fresh_named_computation[profile]>
+          <Function test_integrity_valid_forged_profile_refuses_fresh_named_computation[carrier]>
+          <Function test_integrity_valid_forged_profile_refuses_fresh_named_computation[rows]>
+          <Function test_integrity_valid_forged_profile_refuses_fresh_named_computation[required]>
+          <Function test_integrity_valid_forged_profile_refuses_fresh_named_computation[context]>
+          <Function test_v11_unprofiled_inline_carrier_replay_is_unchanged>
+          <Function test_named_functional_markers_cannot_fall_back_when_profile_removed[False]>
+          <Function test_named_functional_markers_cannot_fall_back_when_profile_removed[true]>
+          <Function test_named_functional_markers_cannot_fall_back_when_profile_removed[None]>
+          <Function test_v11_generic_functional_labels_are_legacy_without_new_profile_discriminator>
+          <Function test_new_profile_signed_zero_uses_existing_canonical_cas_representation[None]>
+          <Function test_new_profile_signed_zero_uses_existing_canonical_cas_representation[weights1]>
+          <Function test_scoped_facade_resolves_actual_profile_and_reader>
+          <Function test_identical_summaries_do_not_merge_different_persisted_atom_laws>
+          <Function test_whole_row_reordering_preserves_functionals_changes_exact_identity>
+          <Function test_tiny_sorted_atom_is_kept_when_finite_uniform_boundary_exists>
+          <Function test_public_functionals_refuse_non_real_or_bool_axes[samples-True]>
+          <Function test_public_functionals_refuse_non_real_or_bool_axes[samples-bad1]>
+          <Function test_public_functionals_refuse_non_real_or_bool_axes[samples-1.0]>
+          <Function test_public_functionals_refuse_non_real_or_bool_axes[probabilities-True]>
+          <Function test_public_functionals_refuse_non_real_or_bool_axes[probabilities-bad1]>
+          <Function test_public_functionals_refuse_non_real_or_bool_axes[probabilities-1.0]>
+          <Function test_single_profile_consistently_forged_joint_digest_is_recomputed>
+          <Function test_large_finite_corpus_preserves_law_without_intermediate_spread_overflow>
+          <Function test_profile_raw_cas_types_refuse_before_legacy_coercion[True]>
+          <Function test_profile_raw_cas_types_refuse_before_legacy_coercion[1.0]>
+        <Module test_uncertainty_posterior_composition.py>
+          Actual Profile2 composition and configured fresh-CAS law admission controls.
+          <Function test_identity_push_uses_finite_ratio_mean_and_inverse_cdf_atom[samples0]>
+          <Function test_identity_push_uses_finite_ratio_mean_and_inverse_cdf_atom[samples1]>
+          <Function test_push_reissues_content_and_clears_arbitrary_map_binding>
+          <Function test_asymmetric_push_keeps_mean_outside_equal_tail_interval>
+          <Function test_scalar_joint_source_refuses_before_any_map_callback>
+          <Function test_corrupt_declared_carrier_refuses_before_any_map_callback>
+          <Function test_incomplete_profile_declaration_refuses_at_shared_inlet[push-missing]>
+          <Function test_incomplete_profile_declaration_refuses_at_shared_inlet[push-unknown]>
+          <Function test_incomplete_profile_declaration_refuses_at_shared_inlet[push-required_only]>
+          <Function test_incomplete_profile_declaration_refuses_at_shared_inlet[push-id_only]>
+          <Function test_incomplete_profile_declaration_refuses_at_shared_inlet[push-version_only]>
+          <Function test_incomplete_profile_declaration_refuses_at_shared_inlet[compress-missing]>
+          <Function test_incomplete_profile_declaration_refuses_at_shared_inlet[compress-unknown]>
+          <Function test_incomplete_profile_declaration_refuses_at_shared_inlet[compress-required_only]>
+          <Function test_incomplete_profile_declaration_refuses_at_shared_inlet[compress-id_only]>
+          <Function test_incomplete_profile_declaration_refuses_at_shared_inlet[compress-version_only]>
+          <Function test_incomplete_profile_declaration_refuses_at_shared_inlet[pull-missing]>
+          <Function test_incomplete_profile_declaration_refuses_at_shared_inlet[pull-unknown]>
+          <Function test_incomplete_profile_declaration_refuses_at_shared_inlet[pull-required_only]>
+          <Function test_incomplete_profile_declaration_refuses_at_shared_inlet[pull-id_only]>
+          <Function test_incomplete_profile_declaration_refuses_at_shared_inlet[pull-version_only]>
+          <Function test_unprofiled_invalid_map_keeps_legacy_callback_coercion_order>
+          <Function test_unprofiled_v10_input_retains_legacy_v11_output_and_fresh_codec[push]>
+          <Function test_unprofiled_v10_input_retains_legacy_v11_output_and_fresh_codec[pull]>
+          <Function test_invalid_transformed_draw_refuses_whole_profile_publication[True]>
+          <Function test_invalid_transformed_draw_refuses_whole_profile_publication[invalid1]>
+          <Function test_invalid_transformed_draw_refuses_whole_profile_publication[1]>
+          <Function test_invalid_transformed_draw_refuses_whole_profile_publication[1j]>
+          <Function test_invalid_transformed_draw_refuses_whole_profile_publication[nan]>
+          <Function test_invalid_transformed_draw_refuses_whole_profile_publication[inf]>
+          <Function test_invalid_transformed_draw_refuses_whole_profile_publication[-inf]>
+          <Function test_law_losing_compression_clears_complete_profile_declaration[interval]>
+          <Function test_law_losing_compression_clears_complete_profile_declaration[moments]>
+          <Function test_particles_compression_preserves_exact_axis_and_profile>
+          <Function test_complete_joint_particles_compression_preserves_fresh_group>
+          <Function test_zero_spread_moment_projection_is_finite_non_gating>
+          <Function test_pullback_retained_ratio_mean_is_finite_constraint_only>
+          <Function test_pullback_selected_zero_mass_refuses_instead_of_inventing_uniform_law>
+          <Function test_joint_digest_admits_real_carrier_before_payload_access[None]>
+          <Function test_joint_digest_admits_real_carrier_before_payload_access[payload1]>
+          <Function test_joint_digest_missing_coordinate_is_typed_refusal>
+          <Function test_profile1_composition_keeps_legacy_functionals_and_metadata>
+          <Function test_nonfinite_moment_projection_refuses_without_clipping>
+          <Function test_unprofiled_particle_push_retains_legacy_mean_and_interpolation>
+
+- generated xml file: /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/collection/junit.xml -
+========================= 165 tests collected in 6.12s =========================

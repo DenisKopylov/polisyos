@@ -1,0 +1,346 @@
+{
+  "slice_base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+  "slice_base_tree": "ed4a4fd6864e8b60cb45124fb8e6fa9b7c503b66",
+  "fresh_G_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+  "fresh_G_tree": "f79fc5304324b92aeed741d7abdd6fc6f54a130a",
+  "source_test_blobs": [
+    {
+      "git_ref": "423165322e508a293ffd23918c039c99fb37e7a7",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "git_blob": "5f41c64d6f2df411a0cf49f2d4d19f9dd672ab39",
+      "bytes": 16553,
+      "sha256": "3ab405d256bd4ff53b2d4e04afadc7f1ae3ebe50d5d029f290862f1bb259c095"
+    },
+    {
+      "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "git_blob": "153226bceb53e7e290be03bc9dd068140edbe667",
+      "bytes": 16846,
+      "sha256": "5a479bc577181020b229be26415ece9453d5b54c5b83188ae39b5dbe21fc17ac"
+    },
+    {
+      "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "git_blob": "153226bceb53e7e290be03bc9dd068140edbe667",
+      "bytes": 16846,
+      "sha256": "5a479bc577181020b229be26415ece9453d5b54c5b83188ae39b5dbe21fc17ac"
+    }
+  ],
+  "complete_test_function_denominator": [
+    {
+      "git_ref": "423165322e508a293ffd23918c039c99fb37e7a7",
+      "top_level_functions": [
+        "dgp",
+        "admit",
+        "selected_worker",
+        "test_missing_installed_profile_assets_are_a_typed_unavailability",
+        "test_public_complete_report_builder_abi_and_real_producer_invocation",
+        "test_real_worker_job_cas_fresh_python314_reader",
+        "test_source_row_permutation_refused_before_worker",
+        "test_real_persisted_binding_missing_and_malformed_fields_are_typed_refusals",
+        "test_selected_profile_does_not_relabel_unsupported_requests",
+        "test_default_without_actual_source_context_has_no_backend_witness",
+        "instrument_actual_worker",
+        "test_real_estimate_point_only_survives_parent_cas_and_reader",
+        "test_actual_estimator_malformed_ci_refused_in_parent"
+      ]
+    },
+    {
+      "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "top_level_functions": [
+        "dgp",
+        "admit",
+        "selected_worker",
+        "test_missing_installed_profile_assets_are_a_typed_unavailability",
+        "test_public_complete_report_builder_abi_and_real_producer_invocation",
+        "test_real_worker_job_cas_fresh_python314_reader",
+        "test_source_row_permutation_refused_before_worker",
+        "test_real_persisted_binding_missing_and_malformed_fields_are_typed_refusals",
+        "test_selected_profile_does_not_relabel_unsupported_requests",
+        "test_default_without_actual_source_context_has_no_backend_witness",
+        "instrument_actual_worker",
+        "test_real_estimate_point_only_survives_parent_cas_and_reader",
+        "test_actual_estimator_malformed_ci_refused_in_parent"
+      ]
+    },
+    {
+      "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "top_level_functions": [
+        "dgp",
+        "admit",
+        "selected_worker",
+        "test_missing_installed_profile_assets_are_a_typed_unavailability",
+        "test_public_complete_report_builder_abi_and_real_producer_invocation",
+        "test_real_worker_job_cas_fresh_python314_reader",
+        "test_source_row_permutation_refused_before_worker",
+        "test_real_persisted_binding_missing_and_malformed_fields_are_typed_refusals",
+        "test_selected_profile_does_not_relabel_unsupported_requests",
+        "test_default_without_actual_source_context_has_no_backend_witness",
+        "instrument_actual_worker",
+        "test_real_estimate_point_only_survives_parent_cas_and_reader",
+        "test_actual_estimator_malformed_ci_refused_in_parent"
+      ]
+    }
+  ],
+  "provider_blobs": [
+    {
+      "old": {
+        "git_ref": "423165322e508a293ffd23918c039c99fb37e7a7",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+        "git_blob": "749154a57340793c223da2b40d02bd5bcd8e7fea",
+        "bytes": 23546,
+        "sha256": "50e0b78c639b52444cc97abe35f8b71a5ce66c8c33cb2c920c34cbe42633c04e"
+      },
+      "current": {
+        "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+        "git_blob": "749154a57340793c223da2b40d02bd5bcd8e7fea",
+        "bytes": 23546,
+        "sha256": "50e0b78c639b52444cc97abe35f8b71a5ce66c8c33cb2c920c34cbe42633c04e"
+      },
+      "byte_equal": true,
+      "scope": "Only exact runtime/source identity; no new native PASS carry."
+    },
+    {
+      "old": {
+        "git_ref": "423165322e508a293ffd23918c039c99fb37e7a7",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+        "git_blob": "0473a4280ff55fb23e73cf7c561ae3d7e2149519",
+        "bytes": 16599,
+        "sha256": "582ad243fec5406d577154b7bc1f97e03664cf01843e1fa6f23c3ea28746db56"
+      },
+      "current": {
+        "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+        "git_blob": "0473a4280ff55fb23e73cf7c561ae3d7e2149519",
+        "bytes": 16599,
+        "sha256": "582ad243fec5406d577154b7bc1f97e03664cf01843e1fa6f23c3ea28746db56"
+      },
+      "byte_equal": true,
+      "scope": "Only exact runtime/source identity; no new native PASS carry."
+    },
+    {
+      "old": {
+        "git_ref": "423165322e508a293ffd23918c039c99fb37e7a7",
+        "path": "policy-engine/workers/dowhy-014/worker.py",
+        "git_blob": "8e4ea39ce6b4f03626b30fb674b0d3f881557aef",
+        "bytes": 10652,
+        "sha256": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253"
+      },
+      "current": {
+        "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+        "path": "policy-engine/workers/dowhy-014/worker.py",
+        "git_blob": "8e4ea39ce6b4f03626b30fb674b0d3f881557aef",
+        "bytes": 10652,
+        "sha256": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253"
+      },
+      "byte_equal": true,
+      "scope": "Only exact runtime/source identity; no new native PASS carry."
+    },
+    {
+      "old": {
+        "git_ref": "423165322e508a293ffd23918c039c99fb37e7a7",
+        "path": "policy-engine/workers/dowhy-014/protocol.py",
+        "git_blob": "ca392779e3351e4cf13b23db0a27077487a29368",
+        "bytes": 4704,
+        "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239"
+      },
+      "current": {
+        "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+        "path": "policy-engine/workers/dowhy-014/protocol.py",
+        "git_blob": "ca392779e3351e4cf13b23db0a27077487a29368",
+        "bytes": 4704,
+        "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239"
+      },
+      "byte_equal": true,
+      "scope": "Only exact runtime/source identity; no new native PASS carry."
+    },
+    {
+      "old": {
+        "git_ref": "423165322e508a293ffd23918c039c99fb37e7a7",
+        "path": "policy-engine/workers/dowhy-014/pyproject.toml",
+        "git_blob": "770a46160a0b13614507d345f729910c9e81acde",
+        "bytes": 379,
+        "sha256": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447"
+      },
+      "current": {
+        "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+        "path": "policy-engine/workers/dowhy-014/pyproject.toml",
+        "git_blob": "770a46160a0b13614507d345f729910c9e81acde",
+        "bytes": 379,
+        "sha256": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447"
+      },
+      "byte_equal": true,
+      "scope": "Only exact runtime/source identity; no new native PASS carry."
+    },
+    {
+      "old": {
+        "git_ref": "423165322e508a293ffd23918c039c99fb37e7a7",
+        "path": "policy-engine/workers/dowhy-014/uv.lock",
+        "git_blob": "77ce3b5392703b452d70da87c0f57372b88e9117",
+        "bytes": 98340,
+        "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a"
+      },
+      "current": {
+        "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+        "path": "policy-engine/workers/dowhy-014/uv.lock",
+        "git_blob": "77ce3b5392703b452d70da87c0f57372b88e9117",
+        "bytes": 98340,
+        "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a"
+      },
+      "byte_equal": true,
+      "scope": "Only exact runtime/source identity; no new native PASS carry."
+    },
+    {
+      "old": {
+        "git_ref": "423165322e508a293ffd23918c039c99fb37e7a7",
+        "path": "policy-engine/workers/dowhy-014/.python-version",
+        "git_blob": "e4fba2183587225f216eeada4c78dfab6b2e65f5",
+        "bytes": 5,
+        "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d"
+      },
+      "current": {
+        "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+        "path": "policy-engine/workers/dowhy-014/.python-version",
+        "git_blob": "e4fba2183587225f216eeada4c78dfab6b2e65f5",
+        "bytes": 5,
+        "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d"
+      },
+      "byte_equal": true,
+      "scope": "Only exact runtime/source identity; no new native PASS carry."
+    }
+  ],
+  "original_card_and_receipt_bindings": [
+    {
+      "finding_id": "B212",
+      "per_ID_receipt": {
+        "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B212.json",
+        "git_blob": "9b23091836bcc62354dbb5fdb49f643ee4cd7205",
+        "bytes": 25002,
+        "sha256": "b9ef3166c5c5b94bf59103c728e34f121cf11da27abf1cdc26daed7f8bfc7208"
+      },
+      "original_source": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      },
+      "lines_inclusive": [
+        5194,
+        5205
+      ],
+      "original_card_binding": {
+        "bytes": 2849,
+        "sha256": "dd369570f1235d66729b8c5526f88a5968905343594089f5a4c00da90631238f"
+      },
+      "byte_equality": "PASS",
+      "criterion_scope": "Actual backend point without interval remains point-only/partial; real backend interval retained; unavailable optional backend is typed unrun, not manufactured CI."
+    },
+    {
+      "finding_id": "B213",
+      "per_ID_receipt": {
+        "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B213.json",
+        "git_blob": "5363d0edeb8c9694a5f41b8131e9bdcca2806b47",
+        "bytes": 24849,
+        "sha256": "e5f654ce950fd867b84573038c47e5b1a66e0e3f9acc5f2e2213d68e403a7703"
+      },
+      "original_source": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "bytes": 1336380,
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      },
+      "lines_inclusive": [
+        5206,
+        5217
+      ],
+      "original_card_binding": {
+        "bytes": 2615,
+        "sha256": "6684013f61227644563e3dd6ac181b2546b5797168cd0b93fef3ef1bf75fe243"
+      },
+      "byte_equality": "PASS",
+      "criterion_scope": "Bind requested estimand_type/contrast/target to actual identify_effect/estimate_effect; supported default ATE unchanged, unsupported capability typed, no forced identification."
+    }
+  ],
+  "preflight_executions": [
+    {
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+        "-B",
+        "-I",
+        "-c",
+        "import importlib.metadata as m,inspect,json,platform,sys\nimport dowhy,numpy,scipy,statsmodels\nfrom dowhy import CausalModel\nprint(json.dumps({'python':sys.version,'executable':sys.executable,'platform':platform.platform(),'modules':{n:{'version':m.version(n),'origin':str(__import__(n).__file__)} for n in ('dowhy','numpy','scipy','statsmodels')},'CausalModel_constructor_signature':str(inspect.signature(CausalModel)), 'identify_effect_signature':str(inspect.signature(CausalModel.identify_effect)),'estimate_effect_signature':str(inspect.signature(CausalModel.estimate_effect))},sort_keys=True,indent=2))\n"
+      ],
+      "cwd": "/tmp/e02-F-graph-profile-20261007/worker",
+      "wall_seconds": 4.865752554003848,
+      "environment_overrides": {
+        "MPLCONFIGDIR": "/tmp/e02-F-graph-profile-20261007/worker/mpl-readonly-preflight",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "inherited_environment": true,
+      "no_CPU_thread_process_quota_added": true,
+      "interpreter_declared_path": "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+      "interpreter_resolved_path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+      "interpreter_exists": true,
+      "stdout": {
+        "path": "/tmp/e02-F-graph-profile-20261007/worker/worker-backend.stdout.json",
+        "bytes": 1709,
+        "sha256": "8f66774310d667eddbe6befcda8e4fe0a34d4c623126d359ca53e23098e50ac5"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-graph-profile-20261007/worker/worker-backend.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "exit_code": 0,
+      "outcome": "PASS",
+      "scope": "Genuine installed backend import/API and baseline identity only; no estimator tests/authority claim."
+    },
+    {
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-B",
+        "-I",
+        "-c",
+        "import importlib.metadata as m,json,sys\nversions={}\nfor n in ('pytest','dowhy','econml','numpy','pydantic'):\n try:versions[n]=m.version(n)\n except m.PackageNotFoundError:versions[n]=None\nprint(json.dumps({'python':sys.version,'executable':sys.executable,'versions':versions,'scope':'Baseline absence is not a positive DoWhy/EconML witness.'},sort_keys=True,indent=2))\n"
+      ],
+      "cwd": "/tmp/e02-F-graph-profile-20261007/worker",
+      "wall_seconds": 0.063655481004389,
+      "environment_overrides": {
+        "MPLCONFIGDIR": "/tmp/e02-F-graph-profile-20261007/worker/mpl-readonly-preflight",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "inherited_environment": true,
+      "no_CPU_thread_process_quota_added": true,
+      "interpreter_declared_path": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "interpreter_resolved_path": "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/bin/python3.14",
+      "interpreter_exists": true,
+      "stdout": {
+        "path": "/tmp/e02-F-graph-profile-20261007/worker/parent-baseline.stdout.json",
+        "bytes": 357,
+        "sha256": "e05cb47246a00eabb6fca8ae7d9936f2a33cad526acd661216b0a4e70086cd33"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-graph-profile-20261007/worker/parent-baseline.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "exit_code": 0,
+      "outcome": "PASS",
+      "scope": "Genuine installed backend import/API and baseline identity only; no estimator tests/authority claim."
+    }
+  ],
+  "proposed_focused_native_selectors": [
+    "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_public_complete_report_builder_abi_and_real_producer_invocation",
+    "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader",
+    "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_estimate_point_only_survives_parent_cas_and_reader"
+  ],
+  "native_run_status": "UNRUN; awaits ROOT frozen candidate + existing-lane/read-only snapshot commissioning",
+  "candidate_science_or_authority_PASS_carried": false,
+  "source_Git_or_environment_mutations": false,
+  "minimal_missing_backend_packet_if_any": "Existing absolute server-owned Python3.12 interpreter with frozen DoWhy0.14 worker dependencies + six source profile assets and current resolved CAS context. Do not sync parent3.14 dependencies or shim."
+}

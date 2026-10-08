@@ -1,0 +1,179 @@
+{
+  "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+  "outcome": "PASS",
+  "frozen_original_selection": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/transfer-selection.json",
+    "bytes": 8108,
+    "sha256": "aaf0e955e75ec0a7c83c8cfc2a6cfd0cdc9d5a2afb8990dbb1ded154f020ebb7"
+  },
+  "verified_files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/capture_one_consumers.py",
+      "bytes": 1306,
+      "sha256": "ce193eaa81348b64475b16bac409d479260387e80fc92c3ee448b027fe04f6b0"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/compare_sources.py",
+      "bytes": 5211,
+      "sha256": "15b1dd5954f07fb75b22ed8ee526a9f95a114deb1793b3cb030d3a404c17b61a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/custody-review.json",
+      "bytes": 7155,
+      "sha256": "001a1052b69035ee59190dee71337c92503a86ada88745f8c8a4158c297c2a64"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/custody-review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/custody-review.stdout.txt",
+      "bytes": 7155,
+      "sha256": "001a1052b69035ee59190dee71337c92503a86ada88745f8c8a4158c297c2a64"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/finish_review.py",
+      "bytes": 11423,
+      "sha256": "348e4643cae81c37fe2ae1e61d1faee518ae140f3fbab2b0d42df1198ef20d98"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/full-runtime-tool-worker-blob-comparison.json.gz",
+      "bytes": 136568,
+      "sha256": "2a611cc0bb0c232592e595bbd9062c048582e623e9f8f50737ffc6a036ae3ef7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/launch_one_consumer.py",
+      "bytes": 2599,
+      "sha256": "bd7a75752df5c2e2f17106dbdbd95dd9246711ae7554ff758bb827c706d9219c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/native-output-review.json",
+      "bytes": 21686,
+      "sha256": "d591489ba2e06efb26c6425f69f6aae518e38d08116a82ee131f31886bfa506c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/native-output-review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/native-output-review.stdout.txt",
+      "bytes": 1721,
+      "sha256": "93115e4e5f600f03b087a0f9f2eac998574d7e3bd58d76410ccf25e01bc2db72"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/one-consumer-commands.json",
+      "bytes": 2247,
+      "sha256": "92cea8341e06df178a25d52f0623f473515f456fd153914c07d0861ba9574ff2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/post-own-probe-guard.json",
+      "bytes": 405,
+      "sha256": "ea7eead4ca66360dea955be15700cd43ce7720115908ad20bd7c26dfdd092fba"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/post-own-probe-guard.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/post-own-probe-guard.stdout.txt",
+      "bytes": 389,
+      "sha256": "153ba6f8c96359aec3ee0437bd014651228fd0650f1f9278527684cbf0115382"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/post_own_probe_guard.py",
+      "bytes": 1452,
+      "sha256": "132435bb1cae47d06454d8ebc7e3e8490a60c88aa1f2a83647e1310d7b66f775"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/review.json",
+      "bytes": 20652,
+      "sha256": "e315caff26b9efbf86bb1122b8e789f2eb8344521c3c1790c37b7ea149010937"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/review_custody.py",
+      "bytes": 8174,
+      "sha256": "5ac9b42b498c129543c11d41772f6f4e29dc629d2e8b2de71db4b64e96eebd7d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/review_native_outputs.py",
+      "bytes": 7623,
+      "sha256": "7a6284bfdfa52f0ccd397c317b092c4084af504b671d1d0d7873fe71a984f52d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/reviewer-runtime.json",
+      "bytes": 279,
+      "sha256": "8c02abcd5061942af7411ffad4c63fe4af9b359dc326ee7b8c4e3b6e6f891c94"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/sdist-consumer-proof.json",
+      "bytes": 77586,
+      "sha256": "80a616127f58fa2b750994bec4589919d24d548276a6fbedcf97106a686f20a0"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/sdist-consumer.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/sdist-consumer.stdout.txt",
+      "bytes": 105,
+      "sha256": "deb8f49c8e18d22848e6f1564bbe3a49a91bf381096dac5f770814450f860137"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/source-bindings.json",
+      "bytes": 10978,
+      "sha256": "0565cec4541bddd813db85d0ef3475eaa7a8fd8c7c3b1fb3c2423c94eff1a974"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/source-bindings.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/source-bindings.stdout.txt",
+      "bytes": 2513,
+      "sha256": "3a4b566b1997050c8d70540e99a97304b7fb04656b0eef1e57942c511af305a2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/wheel-consumer-proof.json",
+      "bytes": 77586,
+      "sha256": "51441f23187026d51270ff62b0297d3df40407d9e0aaa9a1d656caadd9962269"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/wheel-consumer.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/wheel-consumer.stdout.txt",
+      "bytes": 105,
+      "sha256": "116b204ff1e1676fd7502f7e86faab3c4c4151b6e3db8bc8ec45b612b9456909"
+    }
+  ],
+  "replayer_provenance": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/review_custody.py",
+      "original_bytes": 8174,
+      "original_sha256": "5ac9b42b498c129543c11d41772f6f4e29dc629d2e8b2de71db4b64e96eebd7d",
+      "copy_path": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/review_custody.py",
+      "change": "Byte-identical replayer; __file__ directs outputs to unique recovery directory."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/review_native_outputs.py",
+      "original_bytes": 7623,
+      "original_sha256": "7a6284bfdfa52f0ccd397c317b092c4084af504b671d1d0d7873fe71a984f52d",
+      "copy_path": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/review_native_outputs.py",
+      "change": "Only original selected-consumer proof input points to frozen original directory; outputs to own recovery directory."
+    }
+  ],
+  "unknown_extra_attempt": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519-fresh-reader",
+    "currently_exists": false,
+    "completion": "not_established",
+    "meaning": "No saved result available on recovered filesystem; absence does not establish prior process execution outcome."
+  }
+}

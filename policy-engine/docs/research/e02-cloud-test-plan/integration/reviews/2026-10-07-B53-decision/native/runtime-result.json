@@ -1,0 +1,11 @@
+{
+  "origin_audit_errors": [],
+  "pytest_exit_code": 1,
+  "runtime": {
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/B-stop-53b-20261007/native/candidate/policy-engine",
+    "executable": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "maxrss_native_units": 757334016,
+    "platform": "darwin",
+    "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]"
+  }
+}

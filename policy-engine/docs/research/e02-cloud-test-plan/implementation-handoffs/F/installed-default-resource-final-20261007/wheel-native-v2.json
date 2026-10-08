@@ -1,0 +1,56 @@
+{
+  "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+  "kind": "wheel",
+  "argv": [
+    "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-env/bin/python",
+    "-I",
+    "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/launch.py",
+    "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/installed-config.json",
+    "wheel"
+  ],
+  "measured_argv": [
+    "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-env/bin/python",
+    "-I",
+    "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/launch.py",
+    "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/installed-config.json",
+    "wheel"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-consumer",
+  "environment": {
+    "PYTHONPATH": "absent",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "OMP_NUM_THREADS": "absent",
+    "OPENBLAS_NUM_THREADS": "absent",
+    "MKL_NUM_THREADS": "absent",
+    "NUMEXPR_NUM_THREADS": "absent",
+    "XLA_FLAGS": "absent",
+    "XLA_PYTHON_CLIENT_PREALLOCATE": "absent",
+    "JAX_PLATFORM_NAME": "absent",
+    "JAX_PLATFORMS": "absent",
+    "POLISYOS_DOWHY_WORKER_PYTHON": "absent",
+    "METRICS_PORT": "absent"
+  },
+  "new_quota": false,
+  "parallel_profiles": false,
+  "serialization_reason": "Existing actual Prometheus exporter fixed-port9464 process lifetime conflicts; profile windows serialized for that real shared resource. No CPU/process/thread quota.",
+  "status": "PASS",
+  "pid": 959543,
+  "exit_code": 0,
+  "wall_seconds": 34.95678822899936,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-native-v2.stdout.txt",
+    "bytes": 19044,
+    "sha256": "67e43e668dbceac9ed82032ed487032e7d931ab981ddfb0d54a22089cf738408"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-native-v2.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "resources": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-resources-v2.json",
+    "bytes": 237,
+    "sha256": "3f14730ce11a426fc6cbc431bb8c2673fdefc0feeb177ddef1d6058457f4ff22"
+  }
+}

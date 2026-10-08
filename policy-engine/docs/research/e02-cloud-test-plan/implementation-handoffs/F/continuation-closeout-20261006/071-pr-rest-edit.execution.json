@@ -1,0 +1,13 @@
+{
+  "command": [
+    "gh",
+    "api",
+    "--method",
+    "PATCH",
+    "repos/DenisKopylov/polisyos/pulls/65",
+    "--input",
+    "/tmp/e02-F-continuation-20261006/root-closeout-publication/pr65-update.json"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006",
+  "exit_code": 0
+}

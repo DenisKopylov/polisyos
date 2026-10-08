@@ -1,0 +1,1 @@
+{"adapter_version":"0.1.0","job_kind":"method","method_fqn":"causal.prior.reconcile_causal_graph@1.0.0","method_params":{},"method_version":null,"notes":["legacy_method_job_mapped_to_single_node_unified_dag"],"program_graph":{"edges":[],"nodes":[{"method_fqn":"causal.prior.reconcile_causal_graph@1.0.0","node_id":"method_node_1","node_kind":"method"}]}}

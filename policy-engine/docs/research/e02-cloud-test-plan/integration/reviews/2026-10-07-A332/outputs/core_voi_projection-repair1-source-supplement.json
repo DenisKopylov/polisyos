@@ -1,0 +1,40 @@
+{
+  "asset": {
+    "bytes": 1825,
+    "content_matches_candidate_commit": true,
+    "export_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/candidate/policy-engine/architecture/policy_design_case/layer3_gy_claim_dependency_field_registry.json",
+    "git_blob_sha1": "a055f369d8cc40cc47ed4e85ab796a3acb2cba00",
+    "git_mode": "100644",
+    "git_path": "policy-engine/architecture/policy_design_case/layer3_gy_claim_dependency_field_registry.json",
+    "sha256": "1bdc2e1005b5ee2fc78cda31353b78dfe5447704445bb3238eb072cca1300deb"
+  },
+  "candidate_sha": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+  "candidate_tree": "4e21c90467913c6dae1c85b84b8c7a42a1dc9124",
+  "purpose": "Bind the one omitted tracked non-code input required by the Core consumer selector; do not alter candidate source or the tracked-source manifest.",
+  "read_dependencies": {
+    "additional_sibling_registry_files": [],
+    "basis": "The pinned lifecycle bridge resolves only this fixed registry path. ClaimDependencyFieldRegistry validates its inline field rows and derives the comparison set from ClaimRecord source code; the registry rows are field-path descriptors, not references to sibling files.",
+    "direct_file_inputs": [
+      "policy-engine/architecture/policy_design_case/layer3_gy_claim_dependency_field_registry.json"
+    ],
+    "source_blobs": {
+      "core_test": {
+        "git_blob": "4527f53ad773104bf79e5f52d0e50023e8edda69",
+        "path": "policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py"
+      },
+      "registry_loader": {
+        "git_blob": "83ca528cde4ed2df6ae967a3dc2b95a434c7569d",
+        "path": "policy-engine/src/polisyos/scientist/governance/continuous/lifecycle_bridge.py"
+      },
+      "registry_model_and_resolver": {
+        "git_blob": "2639c34c229c501636e966f75b07ef0caf0975d1",
+        "path": "policy-engine/src/polisyos/scientist/evidence/claims/head_index.py"
+      },
+      "unit_test": {
+        "git_blob": "284f373c87eb7212aaf8bc9d67a1a3fcbb34e203",
+        "path": "policy-engine/tests/unit/remediation/test_emp_01.py"
+      }
+    }
+  },
+  "schema": "policyos.e02.g.a332.native-source-supplement.v1"
+}

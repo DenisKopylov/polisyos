@@ -1,0 +1,6 @@
+{
+  "path": "test_tmle_generated_consumer.py",
+  "bytes": 11241,
+  "sha256": "b923a51d56aecf0d71f0d4ed71aaef9fce985b3d6c0467f633733d1e4d1eb272",
+  "correction": "Log ArtifactID using existing string representation; no behavioral assertion changes."
+}

@@ -1,0 +1,105 @@
+{
+  "utc": "2026-10-07T20:22:31.351829+00:00",
+  "note": "Ref names are navigation, not owner proof. Declared slice bases and candidates are in source-bound reviewer receipts; main was only the initial comparator for new topic names.",
+  "intakes": [
+    {
+      "ref": "origin/codex/e02-C-c54-bindings-20261007",
+      "head": "980d91b36452307d683283ddcf1e89a653af3ce2",
+      "tree": "a8394f6cfb7196ee0a37d610b26cb4b402d32495",
+      "private_ref": "refs/e02-g/intake-2018-980d91b36452",
+      "previous_observed_head": "847929e3e0cac30fb49ff61a47ecaf46d41ac94d",
+      "initial_comparator": "847929e3e0cac30fb49ff61a47ecaf46d41ac94d",
+      "full_diff_file_count": 19
+    },
+    {
+      "ref": "origin/codex/e02-C-c54-review-20261007",
+      "head": "04eb30817d16f270feae316650994f2e2f273a44",
+      "tree": "09400c3315b450a47994ed94784301ae7e4789c5",
+      "private_ref": "refs/e02-g/intake-2018-04eb30817d16",
+      "previous_observed_head": null,
+      "initial_comparator": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "full_diff_file_count": 264
+    },
+    {
+      "ref": "origin/codex/e02-C-continuation-20261006",
+      "head": "6dcca1d49484459d9b5d0c4bf4eba17aa2e29bb4",
+      "tree": "b9322e7bec970952dc2548e59194507a5a060e94",
+      "private_ref": "refs/e02-g/intake-2018-6dcca1d49484",
+      "previous_observed_head": "c5668bcb9ac76a55984fce0d196197dbfded1151",
+      "initial_comparator": "c5668bcb9ac76a55984fce0d196197dbfded1151",
+      "full_diff_file_count": 113
+    },
+    {
+      "ref": "origin/codex/e02-C-dfk-lifecycle-20261007",
+      "head": "4576f67b1ff1f8d09b6a4223779b53fff9b369ae",
+      "tree": "e541dbed27ed1f64e0a096cc632f720b78ba0745",
+      "private_ref": "refs/e02-g/intake-2018-4576f67b1ff1",
+      "previous_observed_head": null,
+      "initial_comparator": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "full_diff_file_count": 98
+    },
+    {
+      "ref": "origin/codex/e02-C-dfk-review-20261007",
+      "head": "341f92fb2b18e163778ab28db13b6b67a90e7d44",
+      "tree": "7d3bcc2e63209645b89913e51d7f8e180c84468b",
+      "private_ref": "refs/e02-g/intake-2018-341f92fb2b18",
+      "previous_observed_head": null,
+      "initial_comparator": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "full_diff_file_count": 109
+    },
+    {
+      "ref": "origin/codex/e02-C-legal-query-20261007",
+      "head": "51609922447716115c22287ac79c218d13cd9067",
+      "tree": "bc8b7ac5989b71aba55d1b4cc646589e85daf0a2",
+      "private_ref": "refs/e02-g/intake-2018-516099224477",
+      "previous_observed_head": null,
+      "initial_comparator": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "full_diff_file_count": 176
+    },
+    {
+      "ref": "origin/codex/e02-C-legal-review-20261007",
+      "head": "77c5cd319c92e52932b1bf15c342b24a41e7b051",
+      "tree": "751a1a854e2c4332ae68c545c739b4d8046c7149",
+      "private_ref": "refs/e02-g/intake-2018-77c5cd319c92",
+      "previous_observed_head": null,
+      "initial_comparator": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "full_diff_file_count": 165
+    },
+    {
+      "ref": "origin/codex/e02-D-oct07-continuation",
+      "head": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+      "tree": "10efc41e7a2d792f42bce59af5b87816843df07e",
+      "private_ref": "refs/e02-g/intake-2018-64355beb636c",
+      "previous_observed_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "initial_comparator": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "full_diff_file_count": 771
+    },
+    {
+      "ref": "origin/codex/e02-E-continuation-20261006",
+      "head": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+      "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+      "private_ref": "refs/e02-g/intake-2018-8d8e7b319e7e",
+      "previous_observed_head": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "initial_comparator": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "full_diff_file_count": 7
+    },
+    {
+      "ref": "origin/codex/e02-F-closeout-20261006",
+      "head": "3a9e374a7d23a67e31fff073bebf164d61c0ab41",
+      "tree": "682b043138464c912dd728c12e80049dd44b47f1",
+      "private_ref": "refs/e02-g/intake-2018-3a9e374a7d23",
+      "previous_observed_head": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+      "initial_comparator": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+      "full_diff_file_count": 347
+    },
+    {
+      "ref": "origin/codex/e02-F-fry-20261006",
+      "head": "5bce2ea7066d5dc57c0a454de1580d71c79104af",
+      "tree": "caf0958c2fe69033fbc4c79d97925b78d0a8d757",
+      "private_ref": "refs/e02-g/intake-2018-5bce2ea7066d",
+      "previous_observed_head": "defa506dfbe226fbbdbdf7722ae84c03828e181b",
+      "initial_comparator": "defa506dfbe226fbbdbdf7722ae84c03828e181b",
+      "full_diff_file_count": 258
+    }
+  ]
+}

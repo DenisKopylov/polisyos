@@ -1,0 +1,125 @@
+{
+  "schema": "policyos.e02.F.independent_narrow_criterion_quality_review.v1",
+  "reviewer": "F/economics direct leaf",
+  "read_only": true,
+  "verdict": "GO_BOUNDED_SOURCE_AND_PROPOSED_LEDGER_REQUIREMENTS",
+  "final_ledger_delta_verdict": "PENDING_EXACT_FROZEN_CANDIDATE",
+  "source_refs": {
+    "baselineF": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+    "baseline_tree": "ed4a4fd6864e8b60cb45124fb8e6fa9b7c503b66",
+    "G_decision": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+    "G_tree": "f79fc5304324b92aeed741d7abdd6fc6f54a130a",
+    "graph": "36b18cc142aff77a5825126b4f07bafec09a5180",
+    "graph_tree": "28a104214fe96f1ccf572aeb64a7866c41776344",
+    "own_lane_unchanged": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+    "measured_product519": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82"
+  },
+  "all35_exact_input_review": {
+    "IDs": 35,
+    "bundles": 17,
+    "card_bindings": 36,
+    "distinct_card_blocks": 35,
+    "card_original_source": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "LA016": "two identical coverage bindings to one source block, one finding",
+    "all35_primary_owner_TSV_equal": true,
+    "all35_G_card_refs_equal_root_perID_and_index": true,
+    "all35_scientific_source_tree_actual_Git_verified": true,
+    "all35_index_field_values_equal_perID": true,
+    "all35_index_and_audit_perID_byte_bindings": true
+  },
+  "carry_requirements": {
+    "affected6": [
+      "B204",
+      "B212",
+      "B213",
+      "B214",
+      "B218",
+      "LA-037"
+    ],
+    "unchanged_perID_files_29": "byte identical complete objects, not status-only comparison",
+    "optional_B56_trigger_update": "then affected7 and whole-file carry28",
+    "all36_original_card_bindings": "exact unchanged SHA/bytes/blob/lines; no original criterion rewrite",
+    "global_new_assembled_source": "top-level only; do not retarget carried unchanged measured source/checks"
+  },
+  "status_separation": {
+    "F_closed_original": 33,
+    "F_limited_original": 2,
+    "limited_IDs": [
+      "B214",
+      "B56"
+    ],
+    "F_check_PASS": 34,
+    "F_check_UNRUN": 1,
+    "G_new_runtime_source_accepted": 0,
+    "G_formal_closed": 0,
+    "historical_Lex_G_source_accepted": "00a6eda114b903bc5abe86902cd8372426f739a1",
+    "code_ready": "per actual frozen source/backend/consumer checks, separate from original outcome, global quality and G/institutional adoption"
+  },
+  "required_specific_forward_updates": {
+    "B204": "maintained benchmark only; not_testable with2pre, not fabricated PASS; method unchanged",
+    "B212_B213": "focused changed worker test on actual genuine3.12 DoWhy profile; actual source/command/marker/backend witness; no3.14 exclusion PASS",
+    "B214": "new static graph-family admission property only; broader partial/conditional capability remains limited with canonical C/A decision+discriminator trigger",
+    "B218": "explicit supersedes old primary SCM /per_id/4 and632 intake /per_finding/1 limited scopes, exact old literals preserved; original bounded lag/export/static refusal closed",
+    "LA037": "finite owner/facade/compatibility docs alignment; IR owner and same-object compiler alias, no2algorithm2hop claim",
+    "B56": "actual shared Runtime/Scientist admission input/measurement trigger, not manual test pool budget or monetary USD budget; remains UNRUN/limited",
+    "LA035": "unchanged equivalent-relocation original criterion closed, old optimizer/norm hold obsolete; new objective/version decision remains future separate"
+  },
+  "graph_source_review": {
+    "full_diff_paths": 6,
+    "canonical_guard_call_sites": 5,
+    "schema_and_original_projection_sources_unchanged": true,
+    "actual_method_CAS_consumers_traced": true,
+    "independent_native_execution": "not run by this reviewer; author/other independent native receipts separate",
+    "scope_boundary": "reconciliation/fragment/selectedCAS admission, not every static graph consumer or global PAG ban; GCM non-DAG branch not reopened or qualified"
+  },
+  "quality": {
+    "complete_scanner519": "ERROR -9 twice, no complete output; no rerun",
+    "Ruff": "FAIL103",
+    "public_surface": "FAIL38",
+    "P41": "not_established",
+    "old_b5_full_scanner": "FAIL UNRESOLVED partial, notPASS",
+    "native_format19_and_fragments5": "exact519 measured prior scopedPASS, not requalified newsource globally",
+    "source_wide_PASS": "not established",
+    "assembled_installed_readiness": "51991+91 measured historical finite profile, not inferred for36b new candidate or Gcomposedfreeze"
+  },
+  "byte_bound_companion_outputs": [
+    {
+      "path": "original35-binding-audit.json",
+      "bytes": 185184,
+      "sha256": "3018609b8f2292120a8136c1c749dc00e0b773871faf32e0720c2dcc9cd010c2"
+    },
+    {
+      "path": "dependent-binding-locators.json",
+      "bytes": 7312,
+      "sha256": "4883ac7aa3d20b386d3fe18eaf0840c293228d8f14aeaa7e5b2aeb0a44387bc7"
+    },
+    {
+      "path": "full-dependent-footprint.json",
+      "bytes": 265151,
+      "sha256": "3cb583ac5625c0e65b97ba19807a9242d8ef6139f29608d304cb7d7b10c2b6ce"
+    },
+    {
+      "path": "B218-supersession-requirement.json",
+      "bytes": 7590,
+      "sha256": "dfc4e1b661808b2fbba6e72a4ef28e68f5242ea0f6aefc893ede1b3614dd45bb"
+    },
+    {
+      "path": "source-and-quality-requirements.json",
+      "bytes": 9109,
+      "sha256": "5ae77e5e66d2e5d669538a0da173ae7d640157dba3d3b54fa72785d60b37c9ae"
+    },
+    {
+      "path": "graph-source-census.json",
+      "bytes": 3303,
+      "sha256": "b88cd9a60b96529b459dced6198b1ebb35ea537d2e1a3525f9c84c29135ed4db"
+    }
+  ],
+  "reviewer_harness_history": [
+    {
+      "artifact": "inventory-attempt1.stderr",
+      "classification": "ERROR in reviewer overly strict assumption all G_code statuses not_inferred; historical LA017 accepted_source corrected, no product defect"
+    }
+  ],
+  "numerical_or_gate_repeats": false,
+  "mutations_performed": false
+}

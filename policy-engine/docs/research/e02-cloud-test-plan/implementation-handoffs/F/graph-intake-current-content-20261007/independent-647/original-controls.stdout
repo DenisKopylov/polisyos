@@ -1,0 +1,4 @@
+.{"actual_node_status": "fail", "canonical_current_certificate_status": "broken", "actual_reused_certificate_status": null}
+.{"actual_kind": "tests.wrong_fragment_kind", "node_status": "fail", "artifacts": 0}
+.
+3 passed in 7.92s

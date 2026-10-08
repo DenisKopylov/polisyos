@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261007/tmle/fragment_check.py", line 16, in <module>
+    print(render_release_notes("e02-consumer-fixture", fragments, "2026-10-07"))
+          ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-F-closeout-20261006/policy-engine/tools/ops_runners/release/build_release_notes.py", line 100, in render_release_notes
+    raise ValueError(f"{fragment['__path__']}: unsupported fragment type `{category}`")
+ValueError: /workspace/e02-F-tmle-20261006/policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml: unsupported fragment type `other`

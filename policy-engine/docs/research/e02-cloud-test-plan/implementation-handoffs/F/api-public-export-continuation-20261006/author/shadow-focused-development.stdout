@@ -1,0 +1,110 @@
+....................F..............                                      [100%]
+=================================== FAILURES ===================================
+_ test_shadowed_builtin_keeps_all_marker_but_is_unresolved[from external_plugin import *] _
+
+binding = 'from external_plugin import *'
+
+    @pytest.mark.parametrize(
+        "binding",
+        [
+            "sorted = lambda values: []",
+            "from external_plugin import choose as sorted",
+            "if backend_ready():\n    from external_plugin import choose as sorted",
+            "if backend_ready():\n    def sorted(values):\n        return []",
+            "for sorted in [choose]:\n    pass",
+            "import external_plugin as sorted",
+            "from external_plugin import *",
+            "(sorted := choose)",
+            "type sorted = tuple[str, ...]",
+            "del sorted",
+            "with owner() as sorted:\n    pass",
+            "try:\n    run()\nexcept RuntimeError as sorted:\n    pass",
+            "match configured:\n    case {'handler': sorted}:\n        pass",
+        ],
+    )
+    def test_shadowed_builtin_keeps_all_marker_but_is_unresolved(binding: str) -> None:
+        source = binding + '\nMAP = {"Actual": None}\n__all__ = sorted(MAP)\n'
+        tree = ast.parse(source)
+        assert any(isinstance(node, ast.Assign) for node in tree.body)
+        with pytest.raises(ValueError, match="shadowed export builtin"):
+>           guardrails._extract_exports(tree)
+
+tests/repo_quality/architecture/test_public_surface_export_resolution.py:198: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/devx/architecture/guardrails.py:712: in _extract_exports
+    exports = _StaticExportResolver(source, tree).resolve(source, "__all__")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <tools.devx.architecture.guardrails._StaticExportResolver object at 0x7f39bc141a50>
+source = PosixPath('/workspace/e02-F-api-20261006/policy-engine/src/polisyos/__static_exports__.py')
+symbol = '__all__'
+
+    def resolve(self, source: Path, symbol: str) -> object:
+        key = (source, symbol)
+        if key in self._active:
+            raise ValueError(f"Unresolved export declaration cycle: {source}:{symbol}")
+        self._active.add(key)
+        try:
+            tree = self._tree(source)
+            direct_nodes = {id(node) for node in tree.body}
+            for node in _symbol_binding_nodes(tree, symbol):
+                supported_assignment = (
+                    isinstance(node, (ast.Assign, ast.AnnAssign))
+                    and any(
+                        isinstance(target, ast.Name) and target.id == symbol
+                        for target in (node.targets if isinstance(node, ast.Assign) else [node.target])
+                    )
+                )
+                supported_import = isinstance(node, ast.ImportFrom) and all(
+                    alias.name != "*" for alias in node.names
+                )
+                if id(node) not in direct_nodes or not (supported_assignment or supported_import):
+>                   raise ValueError(f"Unresolved conditional/mutated exports: {source}:{symbol}")
+E                   ValueError: Unresolved conditional/mutated exports: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/__static_exports__.py:__all__
+
+tools/devx/architecture/guardrails.py:613: ValueError
+
+During handling of the above exception, another exception occurred:
+
+binding = 'from external_plugin import *'
+
+    @pytest.mark.parametrize(
+        "binding",
+        [
+            "sorted = lambda values: []",
+            "from external_plugin import choose as sorted",
+            "if backend_ready():\n    from external_plugin import choose as sorted",
+            "if backend_ready():\n    def sorted(values):\n        return []",
+            "for sorted in [choose]:\n    pass",
+            "import external_plugin as sorted",
+            "from external_plugin import *",
+            "(sorted := choose)",
+            "type sorted = tuple[str, ...]",
+            "del sorted",
+            "with owner() as sorted:\n    pass",
+            "try:\n    run()\nexcept RuntimeError as sorted:\n    pass",
+            "match configured:\n    case {'handler': sorted}:\n        pass",
+        ],
+    )
+    def test_shadowed_builtin_keeps_all_marker_but_is_unresolved(binding: str) -> None:
+        source = binding + '\nMAP = {"Actual": None}\n__all__ = sorted(MAP)\n'
+        tree = ast.parse(source)
+        assert any(isinstance(node, ast.Assign) for node in tree.body)
+>       with pytest.raises(ValueError, match="shadowed export builtin"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'shadowed export builtin'
+E         Actual message: 'Unresolved conditional/mutated exports: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/__static_exports__.py:__all__'
+
+tests/repo_quality/architecture/test_public_surface_export_resolution.py:197: AssertionError
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/repo_quality/architecture/test_public_surface_export_resolution.py::test_shadowed_builtin_keeps_all_marker_but_is_unresolved[from external_plugin import *]
+1 failed, 34 passed, 1 warning in 5.19s

@@ -1,0 +1,17 @@
+{
+  "candidate_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+  "candidate_tree": "ff36af874a0a08d3571a1703ce1574b8273c9cbf",
+  "pytest_process_exit": 2,
+  "pytest_junit": "outputs/native.xml",
+  "pytest_junit_testcases": 0,
+  "pytest_junit_failures": 0,
+  "pytest_junit_errors": 1,
+  "pytest_collection": "2 selected items reported; one module collection error prevented execution",
+  "classification": "ERROR_SETUP_INPUT_CLOSURE",
+  "product_result": "UNRUN",
+  "cause": "The selected source archive omitted the exact tracked runtime input policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml, read during source import by polisyos.foundry.methods.catalog.dependency_authority.",
+  "source_hashes_unchanged": true,
+  "all_loaded_polisyos_origins_candidate_local": true,
+  "elapsed_seconds": 6.481521042005625,
+  "peak_rss_bytes_darwin": 548585472
+}

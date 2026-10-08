@@ -1,0 +1,6 @@
+{
+  "schema": "policyos.e02.lossless_utf8_text.v1",
+  "decoded_bytes": 982,
+  "decoded_sha256": "337afbfb1b87fda224b518f6770ea6f5f94d4e96f304f6b8bf6208619a0680ff",
+  "text": "{\"source_sha\": \"b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a\", \"profiles\": {\"wheel\": {\"actual_cases\": 162, \"outcomes\": {\"PASS\": 130, \"FAIL\": 32}, \"fresh_isolated_readers\": 53, \"zero_origin_escapes\": true, \"literal_warning_counts\": {\"expected_bad_SimulationResult_loads\": 36, \"Prometheus_fixed9464_bootstrap_failures_child\": 36, \"Prometheus_bootstrap_mentions_complete_stdout\": 36, \"PytestUnknownMarkWarning_unit\": 1, \"Equinox_LayerNorm_deprecations\": 15, \"actual_AnomalyFlag_warning_pattern\": 0, \"LightGBM_literal\": 0}}, \"sdist\": {\"actual_cases\": 162, \"outcomes\": {\"PASS\": 130, \"FAIL\": 32}, \"fresh_isolated_readers\": 53, \"zero_origin_escapes\": true, \"literal_warning_counts\": {\"expected_bad_SimulationResult_loads\": 36, \"Prometheus_fixed9464_bootstrap_failures_child\": 36, \"Prometheus_bootstrap_mentions_complete_stdout\": 36, \"PytestUnknownMarkWarning_unit\": 1, \"Equinox_LayerNorm_deprecations\": 15, \"actual_AnomalyFlag_warning_pattern\": 0, \"LightGBM_literal\": 0}}}, \"outcome\": \"FAIL\"}\n"
+}

@@ -1,0 +1,2122 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "scm-schema-version-20261006",
+  "role": "compatibility_companion",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "B221",
+    "B222",
+    "B223",
+    "B224",
+    "B225"
+  ],
+  "bundle_ids": [
+    "SCM-01",
+    "SCM-02",
+    "SCM-03"
+  ],
+  "slice_base_sha": "5b748047b4d5dfbee1e31721a8cec3a4ead2ace1",
+  "implementation_commits": [
+    "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+    "e94a40e78416b7392edf96f1f24c7846a808c8d0"
+  ],
+  "candidate_tree_sha": "8fcab970c187cb6f15f4b3a7cb368b9f929db2fd",
+  "scientific_runtime_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+  "branch": "codex/e02-F-graph-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/reference/ir/schema-catalog.md",
+    "policy-engine/docs/reference/schemas.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-scm-schema-catalog-version.toml",
+    "policy-engine/schemas/snapshots/ir/_manifest.json",
+    "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+    "policy-engine/src/polisyos/ir/analytics/README.md",
+    "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+    "policy-engine/src/polisyos/ir/migrations/schema_registry.py",
+    "policy-engine/tests/unit/ir/test_structural_causal_model_contract.py",
+    "policy-engine/tests/unit/ir/test_structural_causal_model_versions.py"
+  ],
+  "source_bindings": [
+    {
+      "source_path": "policy-engine/docs/reference/ir/schema-catalog.md",
+      "source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 1641843,
+      "sha256": "8cb5795e0a5c2228b83267b8231aafdd30124b409418e63edf3fa0ce21d572cb"
+    },
+    {
+      "source_path": "policy-engine/docs/reference/schemas.md",
+      "source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 29376,
+      "sha256": "914dc3f70a4044ac4a70b7859270ca9b4d6e5247cb0603320b3c957ef586bc22"
+    },
+    {
+      "source_path": "policy-engine/release-fragments/unreleased/2026-10-06-scm-schema-catalog-version.toml",
+      "source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 2011,
+      "sha256": "eefa64331fb42dcfde9727b3420b283777a79d7deb103d3a57b470d5c35cbb7e"
+    },
+    {
+      "source_path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+      "source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 52447,
+      "sha256": "0fa78f82d255b20801be81c7d739714e4e9f0f2b17bd2675be1448c3f6b44617"
+    },
+    {
+      "source_path": "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+      "source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 15243,
+      "sha256": "e0709ef298134086b4f57c279ac1cdd5cb173afaf1b8577a458bccca31387df4"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 9400,
+      "sha256": "a936c74eb1a43b632639468da0dfc7d9bca50b3bd63e97b9fb64960d24902725"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+      "source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 14857,
+      "sha256": "9ab530f92781aae2f00bb0151858ccca41a2c0bc93b94c0bc2da1dfaf503f6fa"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/ir/migrations/schema_registry.py",
+      "source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 4619,
+      "sha256": "4cb64745aa35507563c3b5fe18095f6d18eeea36ff4089295c3198a44798b1f2"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/ir/test_structural_causal_model_contract.py",
+      "source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 3517,
+      "sha256": "21410938f015718a1e655ba1db046552b41de2abf3ca8c6fb23549fd0f244b90"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/ir/test_structural_causal_model_versions.py",
+      "source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 6732,
+      "sha256": "3f7fa0a0b9e20935954ee7f368c8d4e89380ee192424828638370c4f4b82ad8a"
+    }
+  ],
+  "checks": [
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -o addopts= -p no:cacheprovider -q -s --tb=short tests/unit/ir/test_structural_causal_model_versions.py",
+      "target_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "environment": {
+        "application_interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "application_profile": "readonly Python3.14.7 current probe; author wrapper preserves executable but does not independently capture patch version for every earlier run",
+        "selected_worker_profile": "genuine locked Python3.12.14/DoWhy0.14 only when the native selected-fit case invokes it",
+        "selected_worker_environment_variable": "POLISYOS_DOWHY_WORKER_PYTHON=/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python for native version test command"
+      },
+      "input_closure": "complete argv selector and exact schema/model/generated owner sources;64iid knownsynthetic rows for actual selected fit; legacy/manual CAS profiles explicit; no admittedrealdata",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 13.979680257005384,
+      "rss_kib": 617980,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-original-red.stdout.txt",
+      "stderr_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-original-red.stderr.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-original-red.json",
+      "expected_negative": false,
+      "role": "historical_harness_development_not_deciding",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "tests/unit/ir/test_structural_causal_model_versions.py"
+      ],
+      "id": "scm-version-original-red"
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -o addopts= -p no:cacheprovider -q -s --tb=short tests/unit/ir/test_structural_causal_model_versions.py",
+      "target_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "environment": {
+        "application_interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "application_profile": "readonly Python3.14.7 current probe; author wrapper preserves executable but does not independently capture patch version for every earlier run",
+        "selected_worker_profile": "genuine locked Python3.12.14/DoWhy0.14 only when the native selected-fit case invokes it",
+        "selected_worker_environment_variable": "POLISYOS_DOWHY_WORKER_PYTHON=/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python for native version test command"
+      },
+      "input_closure": "complete argv selector and exact schema/model/generated owner sources;64iid knownsynthetic rows for actual selected fit; legacy/manual CAS profiles explicit; no admittedrealdata",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 12.786979572003474,
+      "rss_kib": 617692,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-original-corrected-red.stdout.txt",
+      "stderr_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-original-corrected-red.stderr.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-original-corrected-red.json",
+      "expected_negative": false,
+      "role": "historical_harness_development_not_deciding",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "tests/unit/ir/test_structural_causal_model_versions.py"
+      ],
+      "id": "scm-version-original-corrected-red"
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -o addopts= -p no:cacheprovider -q -s --tb=short tests/unit/ir/test_structural_causal_model_versions.py",
+      "target_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "environment": {
+        "application_interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "application_profile": "readonly Python3.14.7 current probe; author wrapper preserves executable but does not independently capture patch version for every earlier run",
+        "selected_worker_profile": "genuine locked Python3.12.14/DoWhy0.14 only when the native selected-fit case invokes it",
+        "selected_worker_environment_variable": "POLISYOS_DOWHY_WORKER_PYTHON=/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python for native version test command"
+      },
+      "input_closure": "complete argv selector and exact schema/model/generated owner sources;64iid knownsynthetic rows for actual selected fit; legacy/manual CAS profiles explicit; no admittedrealdata",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 12.329395324995858,
+      "rss_kib": 617396,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-original-bound-red.stdout.txt",
+      "stderr_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-original-bound-red.stderr.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-original-bound-red.json",
+      "expected_negative": false,
+      "role": "original_semantic_failure",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "tests/unit/ir/test_structural_causal_model_versions.py"
+      ],
+      "id": "scm-version-original-bound-red"
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -o addopts= -p no:cacheprovider -q -s --tb=short tests/unit/ir/test_structural_causal_model_versions.py tests/unit/ir/test_structural_causal_model_contract.py tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py",
+      "target_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "environment": {
+        "application_interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "application_profile": "readonly Python3.14.7 current probe; author wrapper preserves executable but does not independently capture patch version for every earlier run",
+        "selected_worker_profile": "genuine locked Python3.12.14/DoWhy0.14 only when the native selected-fit case invokes it",
+        "selected_worker_environment_variable": "POLISYOS_DOWHY_WORKER_PYTHON=/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python for native version test command"
+      },
+      "input_closure": "complete argv selector and exact schema/model/generated owner sources;64iid knownsynthetic rows for actual selected fit; legacy/manual CAS profiles explicit; no admittedrealdata",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 32.467797975987196,
+      "rss_kib": 620696,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-development.stdout.txt",
+      "stderr_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-development.stderr.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-development.json",
+      "expected_negative": false,
+      "role": "development_not_frozen_source_proof",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "tests/unit/ir/test_structural_causal_model_versions.py",
+        "tests/unit/ir/test_structural_causal_model_contract.py",
+        "tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py"
+      ],
+      "id": "scm-version-development"
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -o addopts= -p no:cacheprovider -q -s --tb=short tests/unit/ir/test_structural_causal_model_versions.py tests/unit/ir/test_structural_causal_model_contract.py tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py",
+      "target_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "environment": {
+        "application_interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "application_profile": "readonly Python3.14.7 current probe; author wrapper preserves executable but does not independently capture patch version for every earlier run",
+        "selected_worker_profile": "genuine locked Python3.12.14/DoWhy0.14 only when the native selected-fit case invokes it",
+        "selected_worker_environment_variable": "POLISYOS_DOWHY_WORKER_PYTHON=/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python for native version test command"
+      },
+      "input_closure": "complete argv selector and exact schema/model/generated owner sources;64iid knownsynthetic rows for actual selected fit; legacy/manual CAS profiles explicit; no admittedrealdata",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 32.449199923008564,
+      "rss_kib": 620988,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-development-2.stdout.txt",
+      "stderr_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-development-2.stderr.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-development-2.json",
+      "expected_negative": false,
+      "role": "development_not_frozen_source_proof",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "tests/unit/ir/test_structural_causal_model_versions.py",
+        "tests/unit/ir/test_structural_causal_model_contract.py",
+        "tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py"
+      ],
+      "id": "scm-version-development-2"
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/graph/generate-scm-owner-packet.py --apply",
+      "target_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "environment": {
+        "application_interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "application_profile": "readonly Python3.14.7 current probe; author wrapper preserves executable but does not independently capture patch version for every earlier run",
+        "selected_worker_profile": "genuine locked Python3.12.14/DoWhy0.14 only when the native selected-fit case invokes it",
+        "selected_worker_environment_variable": "POLISYOS_DOWHY_WORKER_PYTHON=/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python for native version test command"
+      },
+      "input_closure": "complete argv selector and exact schema/model/generated owner sources;64iid knownsynthetic rows for actual selected fit; legacy/manual CAS profiles explicit; no admittedrealdata",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 3.7180329590046313,
+      "rss_kib": 319968,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-owner-generation.stdout.txt",
+      "stderr_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-owner-generation.stderr.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-owner-generation.json",
+      "expected_negative": false,
+      "role": "development_not_frozen_source_proof",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/graph/generate-scm-owner-packet.py",
+        "--apply"
+      ],
+      "id": "scm-version-owner-generation"
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -o addopts= -p no:cacheprovider -q -s --tb=short tests/unit/ir/test_structural_causal_model_versions.py tests/unit/ir/test_structural_causal_model_contract.py tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py",
+      "target_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "environment": {
+        "application_interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "application_profile": "readonly Python3.14.7 current probe; author wrapper preserves executable but does not independently capture patch version for every earlier run",
+        "selected_worker_profile": "genuine locked Python3.12.14/DoWhy0.14 only when the native selected-fit case invokes it",
+        "selected_worker_environment_variable": "POLISYOS_DOWHY_WORKER_PYTHON=/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python for native version test command"
+      },
+      "input_closure": "complete argv selector and exact schema/model/generated owner sources;64iid knownsynthetic rows for actual selected fit; legacy/manual CAS profiles explicit; no admittedrealdata",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 35.099252296000486,
+      "rss_kib": 620916,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-frozen-native.stdout.txt",
+      "stderr_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-frozen-native.stderr.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-frozen-native.json",
+      "expected_negative": false,
+      "role": "current_deciding_check",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "tests/unit/ir/test_structural_causal_model_versions.py",
+        "tests/unit/ir/test_structural_causal_model_contract.py",
+        "tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py"
+      ],
+      "id": "scm-version-frozen-native"
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/graph/generate-scm-owner-packet.py",
+      "target_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "environment": {
+        "application_interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "application_profile": "readonly Python3.14.7 current probe; author wrapper preserves executable but does not independently capture patch version for every earlier run",
+        "selected_worker_profile": "genuine locked Python3.12.14/DoWhy0.14 only when the native selected-fit case invokes it",
+        "selected_worker_environment_variable": "POLISYOS_DOWHY_WORKER_PYTHON=/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python for native version test command"
+      },
+      "input_closure": "complete argv selector and exact schema/model/generated owner sources;64iid knownsynthetic rows for actual selected fit; legacy/manual CAS profiles explicit; no admittedrealdata",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 5.164803605992347,
+      "rss_kib": 319996,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-frozen-owner-check.stdout.txt",
+      "stderr_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-frozen-owner-check.stderr.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-frozen-owner-check.json",
+      "expected_negative": false,
+      "role": "current_deciding_check",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/graph/generate-scm-owner-packet.py"
+      ],
+      "id": "scm-version-frozen-owner-check"
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python tools/quality/diagnostics/gen_schema.py --check",
+      "target_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "environment": {
+        "application_interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "application_profile": "readonly Python3.14.7 current probe; author wrapper preserves executable but does not independently capture patch version for every earlier run",
+        "selected_worker_profile": "genuine locked Python3.12.14/DoWhy0.14 only when the native selected-fit case invokes it",
+        "selected_worker_environment_variable": "POLISYOS_DOWHY_WORKER_PYTHON=/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python for native version test command"
+      },
+      "input_closure": "complete argv selector and exact schema/model/generated owner sources;64iid knownsynthetic rows for actual selected fit; legacy/manual CAS profiles explicit; no admittedrealdata",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 9.851898143999279,
+      "rss_kib": 601196,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-full-generator-check.stdout.txt",
+      "stderr_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-full-generator-check.stderr.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-full-generator-check.json",
+      "expected_negative": false,
+      "role": "complete_required_generator_gate_FAIL_noP41",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "tools/quality/diagnostics/gen_schema.py",
+        "--check"
+      ],
+      "id": "scm-version-full-generator-check"
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/graph/remove-scm-version-property.py current_default",
+      "target_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "environment": {
+        "application_interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "application_profile": "readonly Python3.14.7 current probe; author wrapper preserves executable but does not independently capture patch version for every earlier run",
+        "selected_worker_profile": "genuine locked Python3.12.14/DoWhy0.14 only when the native selected-fit case invokes it",
+        "selected_worker_environment_variable": "POLISYOS_DOWHY_WORKER_PYTHON=/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python for native version test command"
+      },
+      "input_closure": "complete argv selector and exact schema/model/generated owner sources;64iid knownsynthetic rows for actual selected fit; legacy/manual CAS profiles explicit; no admittedrealdata",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 11.999421776010422,
+      "rss_kib": 617216,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-remove-default.stdout.txt",
+      "stderr_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-remove-default.stderr.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-remove-default.json",
+      "expected_negative": true,
+      "role": "current_property_removal",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/graph/remove-scm-version-property.py",
+        "current_default"
+      ],
+      "id": "scm-version-remove-default"
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/graph/remove-scm-version-property.py legacy_read",
+      "target_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "environment": {
+        "application_interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "application_profile": "readonly Python3.14.7 current probe; author wrapper preserves executable but does not independently capture patch version for every earlier run",
+        "selected_worker_profile": "genuine locked Python3.12.14/DoWhy0.14 only when the native selected-fit case invokes it",
+        "selected_worker_environment_variable": "POLISYOS_DOWHY_WORKER_PYTHON=/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python for native version test command"
+      },
+      "input_closure": "complete argv selector and exact schema/model/generated owner sources;64iid knownsynthetic rows for actual selected fit; legacy/manual CAS profiles explicit; no admittedrealdata",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 11.221581573001458,
+      "rss_kib": 595032,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-remove-legacy-read.stdout.txt",
+      "stderr_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-remove-legacy-read.stderr.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-remove-legacy-read.json",
+      "expected_negative": true,
+      "role": "current_property_removal",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/graph/remove-scm-version-property.py",
+        "legacy_read"
+      ],
+      "id": "scm-version-remove-legacy-read"
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/graph/check-scm-public-and-fragment.py",
+      "target_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "environment": {
+        "application_interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "application_profile": "readonly Python3.14.7 current probe; author wrapper preserves executable but does not independently capture patch version for every earlier run",
+        "selected_worker_profile": "genuine locked Python3.12.14/DoWhy0.14 only when the native selected-fit case invokes it",
+        "selected_worker_environment_variable": "POLISYOS_DOWHY_WORKER_PYTHON=/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python for native version test command"
+      },
+      "input_closure": "complete argv selector and exact schema/model/generated owner sources;64iid knownsynthetic rows for actual selected fit; legacy/manual CAS profiles explicit; no admittedrealdata",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 0.6019856380007695,
+      "rss_kib": 73828,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-public-fragment.stdout.txt",
+      "stderr_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-public-fragment.stderr.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-public-fragment.json",
+      "expected_negative": false,
+      "role": "current_deciding_check",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/graph/check-scm-public-and-fragment.py"
+      ],
+      "id": "scm-version-public-fragment"
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/ruff check src/polisyos/ir/analytics/structural_causal_model.py src/polisyos/ir/migrations/schema_registry.py tests/unit/ir/test_structural_causal_model_versions.py tests/unit/ir/test_structural_causal_model_contract.py",
+      "target_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "environment": {
+        "application_interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/ruff",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "application_profile": "readonly Python3.14.7 current probe; author wrapper preserves executable but does not independently capture patch version for every earlier run",
+        "selected_worker_profile": "genuine locked Python3.12.14/DoWhy0.14 only when the native selected-fit case invokes it",
+        "selected_worker_environment_variable": "POLISYOS_DOWHY_WORKER_PYTHON=/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python for native version test command"
+      },
+      "input_closure": "complete argv selector and exact schema/model/generated owner sources;64iid knownsynthetic rows for actual selected fit; legacy/manual CAS profiles explicit; no admittedrealdata",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.02396221699018497,
+      "rss_kib": 73828,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-frozen-ruff.stdout.txt",
+      "stderr_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-frozen-ruff.stderr.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-frozen-ruff.json",
+      "expected_negative": false,
+      "role": "current_deciding_check",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/ruff",
+        "check",
+        "src/polisyos/ir/analytics/structural_causal_model.py",
+        "src/polisyos/ir/migrations/schema_registry.py",
+        "tests/unit/ir/test_structural_causal_model_versions.py",
+        "tests/unit/ir/test_structural_causal_model_contract.py"
+      ],
+      "id": "scm-version-frozen-ruff"
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/graph/check-scm-public-and-fragment.py",
+      "target_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "environment": {
+        "application_interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "application_profile": "readonly Python3.14.7 current probe; author wrapper preserves executable but does not independently capture patch version for every earlier run",
+        "selected_worker_profile": "genuine locked Python3.12.14/DoWhy0.14 only when the native selected-fit case invokes it",
+        "selected_worker_environment_variable": "POLISYOS_DOWHY_WORKER_PYTHON=/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python for native version test command"
+      },
+      "input_closure": "complete argv selector and exact schema/model/generated owner sources;64iid knownsynthetic rows for actual selected fit; legacy/manual CAS profiles explicit; no admittedrealdata",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.6839359199948376,
+      "rss_kib": 73888,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-public-fragment-corrected.stdout.txt",
+      "stderr_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-public-fragment-corrected.stderr.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-public-fragment-corrected.json",
+      "expected_negative": false,
+      "role": "current_deciding_check",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/graph/check-scm-public-and-fragment.py"
+      ],
+      "id": "scm-version-public-fragment-corrected"
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/graph/generate-scm-owner-packet.py",
+      "target_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "environment": {
+        "application_interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "application_profile": "readonly Python3.14.7 current probe; author wrapper preserves executable but does not independently capture patch version for every earlier run",
+        "selected_worker_profile": "genuine locked Python3.12.14/DoWhy0.14 only when the native selected-fit case invokes it",
+        "selected_worker_environment_variable": "POLISYOS_DOWHY_WORKER_PYTHON=/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python for native version test command"
+      },
+      "input_closure": "complete argv selector and exact schema/model/generated owner sources;64iid knownsynthetic rows for actual selected fit; legacy/manual CAS profiles explicit; no admittedrealdata",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 3.7658592509978916,
+      "rss_kib": 319956,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-final-owner-check.stdout.txt",
+      "stderr_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-final-owner-check.stderr.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-final-owner-check.json",
+      "expected_negative": false,
+      "role": "current_deciding_check",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/graph/generate-scm-owner-packet.py"
+      ],
+      "id": "scm-version-final-owner-check"
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/graph/check-scm-fragment-body-equivalence.py",
+      "target_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "environment": {
+        "application_interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "application_profile": "readonly Python3.14.7 current probe; author wrapper preserves executable but does not independently capture patch version for every earlier run",
+        "selected_worker_profile": "genuine locked Python3.12.14/DoWhy0.14 only when the native selected-fit case invokes it",
+        "selected_worker_environment_variable": "POLISYOS_DOWHY_WORKER_PYTHON=/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python for native version test command"
+      },
+      "input_closure": "complete argv selector and exact schema/model/generated owner sources;64iid knownsynthetic rows for actual selected fit; legacy/manual CAS profiles explicit; no admittedrealdata",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.197164335011621,
+      "rss_kib": 19856,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-fragment-body-equivalence.stdout.txt",
+      "stderr_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-fragment-body-equivalence.stderr.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-fragment-body-equivalence.json",
+      "expected_negative": false,
+      "role": "current_deciding_check",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/graph/check-scm-fragment-body-equivalence.py"
+      ],
+      "id": "scm-version-fragment-body-equivalence"
+    },
+    {
+      "name": "independent_actual_native15",
+      "target_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -o addopts= -p no:cacheprovider -q -s --tb=short tests/unit/ir/test_structural_causal_model_versions.py tests/unit/ir/test_structural_causal_model_contract.py tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py --basetemp /tmp/e02-F-continuation-20261006/foundry/schema-review/native15-tmp",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "worker_interpreter": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+        "PYTHONPATH": "src:tools",
+        "cloud_quota_introduced": false
+      },
+      "input_closure": "Exact frozen SCM default/catalog/realCAS/native64-rowGCM production-source witness and polynomial legacy consumers; no real production dataset/authority",
+      "exit_code": 0,
+      "outcome": "PASS",
+      "wall_seconds": 36.28636698999617,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/native15.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/native15.stdout.txt",
+          "bytes": 6253,
+          "sha256": "3bd00aa75a9a3b77d280a9d141a8f1d092bd90580ddb440985fdc5c2e38cfb33"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/native15.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "counts": {
+        "passed": 15,
+        "failed": 0,
+        "skipped": 0,
+        "errors": 0,
+        "warnings": 14
+      },
+      "id": "independent/independent_actual_native15",
+      "role": "independent_current_deciding_check",
+      "expected_negative": false,
+      "original_output_refs": {
+        "role": "original_scratch_metadata_not_current_git_locator",
+        "refs": [
+          {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/native15.stdout.txt",
+            "sha256": "3bd00aa75a9a3b77d280a9d141a8f1d092bd90580ddb440985fdc5c2e38cfb33",
+            "bytes": 6253
+          },
+          {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/native15.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "independent_actual_public_cas_reader_adversaries",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest /tmp/e02-F-continuation-20261006/foundry/schema-review/test_scm_schema_reader_adversarial.py -o addopts= -p no:cacheprovider -q -ra --basetemp /tmp/e02-F-continuation-20261006/foundry/schema-review/public-reader9-tmp",
+      "target_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "cloud_quota_introduced": false
+      },
+      "input_closure": "Actual CAS legacyGCM missing/explicit1.0, repeatedreader/persiststablewire, versionmismatch/future1.2/2.0/currentGCM-marker missingworker records; no claimedbackendexecution from historicalmarker",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 1.4538824680057587,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/public-reader9.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/public-reader9.stdout.txt",
+          "bytes": 98,
+          "sha256": "74d7a209fd8baf93be2e5e9d8e56a1f9328017a131c3c2fe1c4d3f1f40c452d7"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/public-reader9.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "counts": {
+        "passed": 9,
+        "failed": 0,
+        "skipped": 0,
+        "errors": 0,
+        "warnings": 0
+      },
+      "id": "independent/independent_actual_public_cas_reader_adversaries",
+      "role": "independent_current_deciding_check",
+      "expected_negative": false,
+      "original_output_refs": {
+        "role": "original_scratch_metadata_not_current_git_locator",
+        "refs": [
+          {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/public-reader9.stdout.txt",
+            "bytes": 98,
+            "sha256": "74d7a209fd8baf93be2e5e9d8e56a1f9328017a131c3c2fe1c4d3f1f40c452d7"
+          },
+          {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/public-reader9.stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        ]
+      }
+    },
+    {
+      "name": "audit",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/schema-review/replay_schema_review.py audit",
+      "target_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "cloud_quota_introduced": false
+      },
+      "input_closure": "Exact frozen source/runtime-derived SCM snapshot and selected99-entry owner packet; memory-only corruption of actual canonical read; no source/shared generator writes",
+      "exit_code": 0,
+      "outcome": "PASS",
+      "expected_exit": 0,
+      "expected_rejection_met": true,
+      "wall_seconds": 3.920951549996971,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/audit.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/audit.stdout.txt",
+          "bytes": 2297,
+          "sha256": "d60cbaa346a5ff0f0772086e42cbaa417b4b452d355d1e5e3c2850433f380a99"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/audit.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "id": "independent/audit",
+      "role": "independent_current_deciding_check",
+      "expected_negative": false,
+      "original_output_refs": {
+        "role": "original_scratch_metadata_not_current_git_locator",
+        "refs": [
+          {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/audit.stdout.txt",
+            "bytes": 2297,
+            "sha256": "d60cbaa346a5ff0f0772086e42cbaa417b4b452d355d1e5e3c2850433f380a99"
+          },
+          {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/audit.stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        ]
+      }
+    },
+    {
+      "name": "snapshot_old_default",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/schema-review/replay_schema_review.py snapshot_old_default",
+      "target_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "cloud_quota_introduced": false
+      },
+      "input_closure": "Exact frozen source/runtime-derived SCM snapshot and selected99-entry owner packet; memory-only corruption of actual canonical read; no source/shared generator writes",
+      "exit_code": 1,
+      "outcome": "FAIL",
+      "expected_exit": 1,
+      "expected_rejection_met": true,
+      "wall_seconds": 0.8155664910009364,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/snapshot_old_default.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/snapshot_old_default.stdout.txt",
+          "bytes": 724,
+          "sha256": "97c410f2a1563ed75713daa1eb0799d9ab80b137c5d29f2d7b0919ed1ab128cf"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/snapshot_old_default.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "id": "independent/snapshot_old_default",
+      "role": "independent_property_removal",
+      "expected_negative": true,
+      "original_output_refs": {
+        "role": "original_scratch_metadata_not_current_git_locator",
+        "refs": [
+          {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/snapshot_old_default.stdout.txt",
+            "bytes": 724,
+            "sha256": "97c410f2a1563ed75713daa1eb0799d9ab80b137c5d29f2d7b0919ed1ab128cf"
+          },
+          {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/snapshot_old_default.stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        ]
+      }
+    },
+    {
+      "name": "manifest_old_version",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/schema-review/replay_schema_review.py manifest_old_version",
+      "target_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "cloud_quota_introduced": false
+      },
+      "input_closure": "Exact frozen source/runtime-derived SCM snapshot and selected99-entry owner packet; memory-only corruption of actual canonical read; no source/shared generator writes",
+      "exit_code": 1,
+      "outcome": "FAIL",
+      "expected_exit": 1,
+      "expected_rejection_met": true,
+      "wall_seconds": 0.8172514359903289,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/manifest_old_version.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/manifest_old_version.stdout.txt",
+          "bytes": 672,
+          "sha256": "bcbda8180beef01a314cdf1f354545d25d1f582f48b1428f78dfb818ea975c6b"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/manifest_old_version.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "id": "independent/manifest_old_version",
+      "role": "independent_property_removal",
+      "expected_negative": true,
+      "original_output_refs": {
+        "role": "original_scratch_metadata_not_current_git_locator",
+        "refs": [
+          {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_old_version.stdout.txt",
+            "bytes": 672,
+            "sha256": "bcbda8180beef01a314cdf1f354545d25d1f582f48b1428f78dfb818ea975c6b"
+          },
+          {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_old_version.stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        ]
+      }
+    },
+    {
+      "name": "manifest_stale_hash",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/schema-review/replay_schema_review.py manifest_stale_hash",
+      "target_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "cloud_quota_introduced": false
+      },
+      "input_closure": "Exact frozen source/runtime-derived SCM snapshot and selected99-entry owner packet; memory-only corruption of actual canonical read; no source/shared generator writes",
+      "exit_code": 1,
+      "outcome": "FAIL",
+      "expected_exit": 1,
+      "expected_rejection_met": true,
+      "wall_seconds": 0.793886414001463,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/manifest_stale_hash.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/manifest_stale_hash.stdout.txt",
+          "bytes": 671,
+          "sha256": "63761872df4a7a0888d2575b761e555b3d7c58398b50d9756ab3087c288f0fad"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/manifest_stale_hash.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "id": "independent/manifest_stale_hash",
+      "role": "independent_property_removal",
+      "expected_negative": true,
+      "original_output_refs": {
+        "role": "original_scratch_metadata_not_current_git_locator",
+        "refs": [
+          {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_stale_hash.stdout.txt",
+            "bytes": 671,
+            "sha256": "63761872df4a7a0888d2575b761e555b3d7c58398b50d9756ab3087c288f0fad"
+          },
+          {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_stale_hash.stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        ]
+      }
+    },
+    {
+      "name": "independent_final_fragment_and_source_identity",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/graph/check-scm-public-and-fragment.py",
+      "target_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "target_tree": "8fcab970c187cb6f15f4b3a7cb368b9f929db2fd",
+      "science_source_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "cloud_quota_introduced": false
+      },
+      "input_closure": "Exact source-bound ten approved paths; nine bytes unchanged from eaf; sole parsed TOML impact migration→breaking and one-line delta. Actual public class identity/pickle/manual current1.1 CAS consumer and actual structured persisted-artifact-format compatibility rule.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.6361654220090713,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/fragment-final.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/fragment-final.stdout.txt",
+          "bytes": 3489,
+          "sha256": "dcf1471686a2893f5c5392d12b61833dcf3d9afa98860eff41d9bae4d7028f56"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/fragment-final.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "source_refs": [
+        {
+          "path": "policy-engine/docs/reference/ir/schema-catalog.md",
+          "git_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+          "bytes": 1641843,
+          "sha256": "8cb5795e0a5c2228b83267b8231aafdd30124b409418e63edf3fa0ce21d572cb"
+        },
+        {
+          "path": "policy-engine/docs/reference/schemas.md",
+          "git_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+          "bytes": 29376,
+          "sha256": "914dc3f70a4044ac4a70b7859270ca9b4d6e5247cb0603320b3c957ef586bc22"
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-06-scm-schema-catalog-version.toml",
+          "git_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+          "bytes": 2011,
+          "sha256": "eefa64331fb42dcfde9727b3420b283777a79d7deb103d3a57b470d5c35cbb7e"
+        },
+        {
+          "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+          "git_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+          "bytes": 52447,
+          "sha256": "0fa78f82d255b20801be81c7d739714e4e9f0f2b17bd2675be1448c3f6b44617"
+        },
+        {
+          "path": "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+          "git_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+          "bytes": 15243,
+          "sha256": "e0709ef298134086b4f57c279ac1cdd5cb173afaf1b8577a458bccca31387df4"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+          "git_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+          "bytes": 9400,
+          "sha256": "a936c74eb1a43b632639468da0dfc7d9bca50b3bd63e97b9fb64960d24902725"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+          "git_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+          "bytes": 14857,
+          "sha256": "9ab530f92781aae2f00bb0151858ccca41a2c0bc93b94c0bc2da1dfaf503f6fa"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/migrations/schema_registry.py",
+          "git_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+          "bytes": 4619,
+          "sha256": "4cb64745aa35507563c3b5fe18095f6d18eeea36ff4089295c3198a44798b1f2"
+        },
+        {
+          "path": "policy-engine/tests/unit/ir/test_structural_causal_model_contract.py",
+          "git_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+          "bytes": 3517,
+          "sha256": "21410938f015718a1e655ba1db046552b41de2abf3ca8c6fb23549fd0f244b90"
+        },
+        {
+          "path": "policy-engine/tests/unit/ir/test_structural_causal_model_versions.py",
+          "git_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+          "bytes": 6732,
+          "sha256": "3f7fa0a0b9e20935954ee7f368c8d4e89380ee192424828638370c4f4b82ad8a"
+        }
+      ],
+      "science_source_refs": [
+        {
+          "path": "policy-engine/docs/reference/ir/schema-catalog.md",
+          "git_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+          "bytes": 1641843,
+          "sha256": "8cb5795e0a5c2228b83267b8231aafdd30124b409418e63edf3fa0ce21d572cb"
+        },
+        {
+          "path": "policy-engine/docs/reference/schemas.md",
+          "git_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+          "bytes": 29376,
+          "sha256": "914dc3f70a4044ac4a70b7859270ca9b4d6e5247cb0603320b3c957ef586bc22"
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-06-scm-schema-catalog-version.toml",
+          "git_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+          "bytes": 2012,
+          "sha256": "2b1d40301679fd72433d8dd63333f0c9502b9fb5c39ddf1653e0b2d87c6a9d00"
+        },
+        {
+          "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+          "git_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+          "bytes": 52447,
+          "sha256": "0fa78f82d255b20801be81c7d739714e4e9f0f2b17bd2675be1448c3f6b44617"
+        },
+        {
+          "path": "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+          "git_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+          "bytes": 15243,
+          "sha256": "e0709ef298134086b4f57c279ac1cdd5cb173afaf1b8577a458bccca31387df4"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+          "git_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+          "bytes": 9400,
+          "sha256": "a936c74eb1a43b632639468da0dfc7d9bca50b3bd63e97b9fb64960d24902725"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+          "git_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+          "bytes": 14857,
+          "sha256": "9ab530f92781aae2f00bb0151858ccca41a2c0bc93b94c0bc2da1dfaf503f6fa"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/migrations/schema_registry.py",
+          "git_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+          "bytes": 4619,
+          "sha256": "4cb64745aa35507563c3b5fe18095f6d18eeea36ff4089295c3198a44798b1f2"
+        },
+        {
+          "path": "policy-engine/tests/unit/ir/test_structural_causal_model_contract.py",
+          "git_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+          "bytes": 3517,
+          "sha256": "21410938f015718a1e655ba1db046552b41de2abf3ca8c6fb23549fd0f244b90"
+        },
+        {
+          "path": "policy-engine/tests/unit/ir/test_structural_causal_model_versions.py",
+          "git_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+          "bytes": 6732,
+          "sha256": "3f7fa0a0b9e20935954ee7f368c8d4e89380ee192424828638370c4f4b82ad8a"
+        }
+      ],
+      "metadata_delta": {
+        "changed_paths": [
+          "policy-engine/release-fragments/unreleased/2026-10-06-scm-schema-catalog-version.toml"
+        ],
+        "line_counts": [
+          "1\t1\tpolicy-engine/release-fragments/unreleased/2026-10-06-scm-schema-catalog-version.toml"
+        ],
+        "other_nine_source_paths_byte_identical": true,
+        "parsed_toml_only_impact_changed": true
+      },
+      "scientific_reexecution": false,
+      "limits": "Original eaf fragment FAIL remains historical; no numerical repeat or full generator/production/G acceptance claim.",
+      "id": "independent/independent_final_fragment_and_source_identity",
+      "role": "independent_current_deciding_check",
+      "expected_negative": false,
+      "original_output_refs": {
+        "role": "original_scratch_metadata_not_current_git_locator",
+        "refs": [
+          {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/fragment-final.stdout.txt",
+            "bytes": 3489,
+            "sha256": "dcf1471686a2893f5c5392d12b61833dcf3d9afa98860eff41d9bae4d7028f56"
+          },
+          {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/fragment-final.stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        ]
+      }
+    },
+    {
+      "name": "initial_final_metadata_audit_harness_error",
+      "command": "python3 /tmp/e02-F-continuation-20261006/foundry/schema-review/replay_final_fragment.py",
+      "target_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "outcome": "ERROR",
+      "exit_code": 1,
+      "wall_seconds": 0.15595164999831468,
+      "environment": {
+        "interpreter": "python3",
+        "role": "scratch metadata audit only"
+      },
+      "input_closure": "Read-only parsed TOML audit failed before the actual product/public gate because compatibility_change is a list, not a mapping",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/initial-fragment-harness.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/initial-fragment-harness.stdout.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/initial-fragment-harness.stderr.txt",
+          "bytes": 455,
+          "sha256": "8a9d0e7032914ad682e35349144a90f4c7e5f6c98549d2e1bc29f4217a4756ce"
+        }
+      ],
+      "interpretation": "Reviewer harness error; not product failure or PASS. Correct indexed structured record before final actual gate.",
+      "id": "independent/initial_final_metadata_audit_harness_error",
+      "role": "historical_independent_harness_ERROR_not_deciding",
+      "expected_negative": false,
+      "original_output_refs": {
+        "role": "original_scratch_metadata_not_current_git_locator",
+        "refs": [
+          {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/initial-fragment-harness.stdout.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/initial-fragment-harness.stderr.txt",
+            "bytes": 455,
+            "sha256": "8a9d0e7032914ad682e35349144a90f4c7e5f6c98549d2e1bc29f4217a4756ce"
+          }
+        ]
+      }
+    }
+  ],
+  "property": {
+    "statement": "Current SCM producer/default/catalog/snapshot/CAS manifest agree on1.1; historical1.0 missing/explicit payloadversions remain1.0 and cannot inherit selectedworker authority.",
+    "original_divergence": "At literal6f source actualsource-bound DoWhyGCM producer returns1.1 whilecatalog/snapshot/default claim1.0; unversionedgcm constructor can bypass currentprovenance validation. Five semanticFAIL plus2legacyPASS before source repair.",
+    "mechanism": [
+      "default StructuralCausalModelSpec.schema_version1.1",
+      "existinggcm1.1 trainingrows/provenance validator now applies to defaultconstructor",
+      "actualCAS manifest validation + explicitlegacy1.0 injection before typedmodel construction",
+      "SCM1.1declaredBACKWARD/read1.0;1.0ruleNONE withcanonical same-version handling, noforwardclaim",
+      "canonicalgenerator singleSCMsnapshot/entry merge;98otherIRentries andmanifestheader preserved;complete2generatedreference documents equalcommittedsources"
+    ],
+    "native_counts": {
+      "PASS": 15,
+      "FAIL": 0,
+      "SKIP": 0,
+      "ERROR": 0,
+      "warnings": 14
+    },
+    "removal_counts": {
+      "default_removed_FAIL_expected": 2,
+      "legacy_injection_removed_FAIL_expected": 1,
+      "legacy_explicit_version_control_PASS": 1
+    },
+    "genuine_fit": "Actual configured3.12/DoWhy0.14 run_worker gcm_fit on64rows, fittedcoefficient agreesindependent leastsquares;new1.1model CASfreshreader validatesoriginalactualsource andworkerresponse. No NumPyfallback/import-only witness.",
+    "public_abi": "Existing rootIR/analytics canonicalclass identity+classpickle+publicconstructor→actualCAS roundtrip measured; no newexport or wholeinventory/regeneration claim.",
+    "authority_purpose": "schema/custody compatibility and knownsyntheticfit only; no global uncertainty ratification or realdata causal authority",
+    "runtime_path": [
+      "actual typed SCMFitData source CAS",
+      "configured genuine DoWhy0.14 gcm_fit subprocess",
+      "source-bound StructuralCausalModelSpec producer1.1",
+      "canonical default/catalog/snapshot and schema negotiation",
+      "CAS envelope with matching wire version",
+      "fresh load_structural_causal_model_spec reader",
+      "existing rootIR/analytics canonical class facade and polynomial/twin legacy consumers"
+    ],
+    "proxy_divergence": "Before repair, the selected worker really produced1.1 while reflection catalog/default/snapshot said1.0; a matching fit_method=gcm marker on an unversioned constructor escaped current provenance validation. After repair that marker alone refuses, and removing the current default or legacy reader injection fails even while names and validators remain.",
+    "negative_controls": [
+      "remove current default while retaining current registry/validators:2FAIL",
+      "remove legacy missing-version injection while retaining full prior loader body:1FAIL and explicit1.0control1PASS",
+      "independent actual canonical snapshot default, manifest version and digest corruption:3expectedFAIL",
+      "independent actual public CAS reader wrong/future wire versions and currentgcm marker without provenance:typed refusal"
+    ]
+  },
+  "per_id": {
+    "B221": {
+      "check": "PASS",
+      "outcome": "limited",
+      "criterion": "SCMschema/custody compatibility layer only; corresponding original scientific criterion is decided in its primary property receipt",
+      "checks": [
+        "scm-version-frozen-native",
+        "scm-version-frozen-owner-check"
+      ],
+      "limits": [
+        "No originalfinding closure override by this companion; no admittedrealdata or protectedproductionreadiness witness"
+      ]
+    },
+    "B222": {
+      "check": "PASS",
+      "outcome": "limited",
+      "criterion": "SCMschema/custody compatibility layer only; corresponding original scientific criterion is decided in its primary property receipt",
+      "checks": [
+        "scm-version-frozen-native",
+        "scm-version-frozen-owner-check"
+      ],
+      "limits": [
+        "No originalfinding closure override by this companion; no admittedrealdata or protectedproductionreadiness witness"
+      ]
+    },
+    "B223": {
+      "check": "PASS",
+      "outcome": "limited",
+      "criterion": "SCMschema/custody compatibility layer only; corresponding original scientific criterion is decided in its primary property receipt",
+      "checks": [
+        "scm-version-frozen-native",
+        "scm-version-frozen-owner-check"
+      ],
+      "limits": [
+        "No originalfinding closure override by this companion; no admittedrealdata or protectedproductionreadiness witness"
+      ]
+    },
+    "B224": {
+      "check": "PASS",
+      "outcome": "limited",
+      "criterion": "SCMschema/custody compatibility layer only; corresponding original scientific criterion is decided in its primary property receipt",
+      "checks": [
+        "scm-version-frozen-native",
+        "scm-version-frozen-owner-check"
+      ],
+      "limits": [
+        "No originalfinding closure override by this companion; no admittedrealdata or protectedproductionreadiness witness"
+      ]
+    },
+    "B225": {
+      "check": "PASS",
+      "outcome": "limited",
+      "criterion": "SCMschema/custody compatibility layer only; corresponding original scientific criterion is decided in its primary property receipt",
+      "checks": [
+        "scm-version-frozen-native",
+        "scm-version-frozen-owner-check"
+      ],
+      "limits": [
+        "No originalfinding closure override by this companion; no admittedrealdata or protectedproductionreadiness witness"
+      ]
+    }
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "limited_companion_schema_property_PASS",
+  "compatibility": {
+    "schema_version_default": "1.1",
+    "readable_legacy_versions": [
+      "1.0"
+    ],
+    "historical_missing_version_manifest": "retained1.0",
+    "current_selected_gcm_requires_actual_rows_and_provenance": true,
+    "legacy_manual_new_backend_claim": false,
+    "public_export_names_changed": false,
+    "global_uncertainty_schema_changed": false,
+    "constructor_migration_impact": "breaking",
+    "scientific_source_and_metadata_append_distinct": {
+      "scientific_source_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "metadata_source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "nine_other_paths_byte_and_python_ast_equal": true
+    }
+  },
+  "evidence_transfer": {
+    "complete_companions": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-original-red.json",
+        "bytes": 1101,
+        "sha256": "01c0ac4bcd952b7f020b79bd910fd90b1baa6df6850c17a2cdf80aa9227d146f",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-original-red.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-original-red.stdout.txt",
+        "bytes": 4663,
+        "sha256": "11c5b380ddccc58dce7d34ecba361e1bd53fbc8c1b34ebcc919d7dc1f7f1e287",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-original-red.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-original-red.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-original-red.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-original-corrected-red.json",
+        "bytes": 1121,
+        "sha256": "ece3a027474cb5dd5cf1f976c0c0ce37fe94d794db21e2b9adb713c8a4b5cb91",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-original-corrected-red.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-original-corrected-red.stdout.txt",
+        "bytes": 2968,
+        "sha256": "cc591f17972e382b10f7ce3cf6900c00a82ef4550a881aa6e03074e9526895c5",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-original-corrected-red.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-original-corrected-red.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-original-corrected-red.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-original-bound-red.json",
+        "bytes": 1113,
+        "sha256": "1ab2a7775f9909ea94f36a49a716f16f40a45b96b70be94ed1f4f14b3e5bc129",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-original-bound-red.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-original-bound-red.stdout.txt",
+        "bytes": 2968,
+        "sha256": "0c2950a1826df126de0e9e2933fd106ccef7fe527f34a20e66f61e8639c291cd",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-original-bound-red.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-original-bound-red.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-original-bound-red.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-development.json",
+        "bytes": 1250,
+        "sha256": "8a1cce18f264e3aefd3c14934556d303ab4ba50683a93de06656fff924085ff8",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-development.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-development.stdout.txt",
+        "bytes": 7457,
+        "sha256": "6313cbd4b46b15cce1c0c2d8074cb8275cf19040c9957fe7d448759475f3b2ba",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-development.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-development.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-development.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-development-2.json",
+        "bytes": 1254,
+        "sha256": "e6fe2fe28af251ae2d5db3b9b42975c6c25521b0803b579461c62ecbbf6f704f",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-development-2.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-development-2.stdout.txt",
+        "bytes": 6253,
+        "sha256": "0a90bb06f28df07d14674c5d25684ce425c01fe128bab28df612a6a6275d0bb1",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-development-2.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-development-2.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-development-2.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-owner-generation.json",
+        "bytes": 1015,
+        "sha256": "b6fcd019c5d943f19efbe792c663844fa85d862218cc825239686a1b35638150",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-owner-generation.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-owner-generation.stdout.txt",
+        "bytes": 2691,
+        "sha256": "b6b5dbbf126ba06a078f3a0513ebbe4dd41cd02fc6479d21fbc290978da5d1d6",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-owner-generation.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-owner-generation.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-owner-generation.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-frozen-native.json",
+        "bytes": 1254,
+        "sha256": "6a079c230ce835da9b2c3fe0aa2bc4f21661894214e35a5305677106865b0320",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-frozen-native.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-frozen-native.stdout.txt",
+        "bytes": 6253,
+        "sha256": "b5be75f8a15bed58e2de193a397d7e90a6a51daa7ee386af0a5c4ca37d42df6b",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-frozen-native.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-frozen-native.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-frozen-native.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-frozen-owner-check.json",
+        "bytes": 1003,
+        "sha256": "080d7197fd1e3d0ce6f8f86d9f58db34549304b2a7da948ea921bfe435d1c523",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-frozen-owner-check.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-frozen-owner-check.stdout.txt",
+        "bytes": 2688,
+        "sha256": "9ae9268779b9ba76aca2e81c81544a492198fd4530432111181e57d58ea130f5",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-frozen-owner-check.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-frozen-owner-check.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-frozen-owner-check.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-full-generator-check.json",
+        "bytes": 993,
+        "sha256": "a130e95797d23679d9a538933be0b3ba17aa8f731ba1f4ddb79d6044d4afc28c",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-full-generator-check.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-full-generator-check.stdout.txt",
+        "bytes": 265,
+        "sha256": "66c4356a4fb36b8cd6dea0fb5dd6783ec02ec2af22cf62a51b75dd85f0a5b2ed",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-full-generator-check.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-full-generator-check.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-full-generator-check.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-remove-default.json",
+        "bytes": 1021,
+        "sha256": "28ff418b3fd84830cdd0b4b0cde7d00f058bee079f8a211bb02c16534b2493cf",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-remove-default.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-remove-default.stdout.txt",
+        "bytes": 1987,
+        "sha256": "f384dbe97936549aeb474ff1ff335c54a6e215682b6a37a73fe8ef9718e86714",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-remove-default.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-remove-default.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-remove-default.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-remove-legacy-read.json",
+        "bytes": 1025,
+        "sha256": "ffecf6653f0807a0cc8080d6a095621b13e1afd6888ffa049905d41dcaf10dac",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-remove-legacy-read.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-remove-legacy-read.stdout.txt",
+        "bytes": 1575,
+        "sha256": "994f0a414bbef3c0c961b43f8200965a057892d466c8db46bc47765b8c4d3e1c",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-remove-legacy-read.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-remove-legacy-read.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-remove-legacy-read.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-public-fragment.json",
+        "bytes": 1003,
+        "sha256": "1c8b564541ebd5c8da058facff5a28dd9f4c2cfdf995f67c789ea5e85a68151a",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-public-fragment.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-public-fragment.stdout.txt",
+        "bytes": 3718,
+        "sha256": "5a5a73445f9d119e626752efc1d1f45d59386107ba27f1002f20bd487640f24e",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-public-fragment.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-public-fragment.stderr.txt",
+        "bytes": 271,
+        "sha256": "b7990afd7f8b960593e20d3c0252c09e466f4512e570a8c8d882255466a5a0e6",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-public-fragment.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-frozen-ruff.json",
+        "bytes": 1161,
+        "sha256": "df3811a9985a4194dbc40afcf1e58fa30a3a9e348e223f17f88517cc79909237",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-frozen-ruff.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-frozen-ruff.stdout.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-frozen-ruff.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-frozen-ruff.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-frozen-ruff.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-public-fragment-corrected.json",
+        "bytes": 1021,
+        "sha256": "482c7a8c53d6987ecc528d3e7f01cfa6f144b37a7f05b47375c089d84516cbcf",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-public-fragment-corrected.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-public-fragment-corrected.stdout.txt",
+        "bytes": 3489,
+        "sha256": "dcf1471686a2893f5c5392d12b61833dcf3d9afa98860eff41d9bae4d7028f56",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-public-fragment-corrected.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-public-fragment-corrected.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-public-fragment-corrected.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-final-owner-check.json",
+        "bytes": 1002,
+        "sha256": "dcccd71903463067a989d29b33a951e80f8e5bb63d0912f022cef0d8c60b1759",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-final-owner-check.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-final-owner-check.stdout.txt",
+        "bytes": 2688,
+        "sha256": "9ae9268779b9ba76aca2e81c81544a492198fd4530432111181e57d58ea130f5",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-final-owner-check.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-final-owner-check.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-final-owner-check.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-fragment-body-equivalence.json",
+        "bytes": 1026,
+        "sha256": "e97a5bb56327a467880abee29595912b16a20252376fa2964f4018afff4c26eb",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-fragment-body-equivalence.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-fragment-body-equivalence.stdout.txt",
+        "bytes": 4201,
+        "sha256": "76628c03e6f20b58371f9050e4bc2e016073d34a95091acdcee93ccf0ba928d9",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-fragment-body-equivalence.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-fragment-body-equivalence.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-fragment-body-equivalence.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/execute_check.py",
+        "bytes": 1296,
+        "sha256": "4fee1b8fc0957b2571b21b9ac4e275a73526e3d0096d9218c7fb64cfd90597d3",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/execute_check.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/generate-scm-owner-packet.py",
+        "bytes": 4881,
+        "sha256": "4d5a6d3af4cab60174d24809d3f1c398d451c252b703ec998885dc67951cca4d",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/generate-scm-owner-packet.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/remove-scm-version-property.py",
+        "bytes": 2091,
+        "sha256": "c2846939e6ae755aae1491e63df54af21203551bde6c794caac2bac9c4bb6998",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/remove-scm-version-property.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/check-scm-public-and-fragment.py",
+        "bytes": 2686,
+        "sha256": "8b21dd0cadd198f67744abd47df64e797f80505239ee71b4d0b0432bc2989418",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/check-scm-public-and-fragment.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/check-scm-fragment-body-equivalence.py",
+        "bytes": 2169,
+        "sha256": "9ff83f0e28d267b34167cbde8e204cce533c20a09ecfefbe6b1d3fc48b55defb",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/check-scm-fragment-body-equivalence.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-original-test.py",
+        "bytes": 6732,
+        "sha256": "3f7fa0a0b9e20935954ee7f368c8d4e89380ee192424828638370c4f4b82ad8a",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-original-test.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/feedback-scm-schema-delta.json",
+        "bytes": 2585,
+        "sha256": "42646d8cbdb53ce6b1e687cc0d3fa504130da6d154ab2f07071cf1cb96ddbc38",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/feedback-scm-schema-delta.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/probe-readonly-runtime.py",
+        "bytes": 1119,
+        "sha256": "0b60f2dc17a3f8d0e648f43cff6ca6608141000be10862a9ade11c233add8a29",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/probe-readonly-runtime.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/current-runtime-identity.json",
+        "bytes": 988,
+        "sha256": "1a2c5b5855f0ac6e06a2cfae2c0d427c0fe5fdc7a79d5b86bce3a0475f2cd746",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/current-runtime-identity.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/current-runtime-identity.stdout.txt",
+        "bytes": 1480,
+        "sha256": "57b00ed382d1f3277d64ccd6da4b1cc074932acb02cafd086b35054b76bd0b94",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/current-runtime-identity.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/current-runtime-identity.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/current-runtime-identity.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/build-scm-version-handoff.py",
+        "bytes": 15606,
+        "sha256": "abb06779837bb675ba6baff0eac5f5f5ae2973ac4f03fcea7617d9d70d348e70",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/build-scm-version-handoff.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/verify-scm-version-transfer.py",
+        "bytes": 4197,
+        "sha256": "0ad40efca7aa10287e1eb5473b1803a376afdbc074f69850c4abdea19d80c165",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/verify-scm-version-transfer.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/generated-owner-packet.json",
+        "bytes": 2611,
+        "sha256": "98151ab485a4c0339567ebaefe2c480bb2658964883cdd71ce19cf5cfffcf0c8",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-generated/owner-packet.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/generated-selected-_manifest.json",
+        "bytes": 1096,
+        "sha256": "27a520ccbfb4140277c3d7cac39c3d207b111edb20ac2fca44c3b68bd84ecf4a",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-generated/snapshots/ir/_manifest.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/generated-selected-structural_causal_model_spec.schema.json",
+        "bytes": 15243,
+        "sha256": "e0709ef298134086b4f57c279ac1cdd5cb173afaf1b8577a458bccca31387df4",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/scm-version-generated/snapshots/ir/structural_causal_model_spec.schema.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/review.json",
+        "bytes": 40910,
+        "sha256": "7c298dc807e0ac28400307eefe16b473c3a47a61c8913963680dce13924c71f2",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/review.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/audit.json",
+        "bytes": 1354,
+        "sha256": "8dde9ed114b316e09d49aab8c30ea0f5f26d8c758a72f07956558f186b28a6a2",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/audit.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/audit.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/audit.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/audit.stdout.txt",
+        "bytes": 2297,
+        "sha256": "d60cbaa346a5ff0f0772086e42cbaa417b4b452d355d1e5e3c2850433f380a99",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/audit.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/canonical-controls.json",
+        "bytes": 5874,
+        "sha256": "8d32e16c15463c267b8ab463a60d9a1d78b43d0e07872ee7bcdec9c4d93910e5",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/canonical-controls.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/environment-application.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/environment-application.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/environment-application.stdout.txt",
+        "bytes": 307,
+        "sha256": "b62fac634dbcaa34b989cb66d0d33723e0223a98aaac4e727a28f8c2adf7fbfa",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/environment-application.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/environment-selected_worker.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/environment-selected_worker.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/environment-selected_worker.stdout.txt",
+        "bytes": 306,
+        "sha256": "92db3c90e3553f5301bfd2264b2c34408485348d14ff02b06aabca73e7d35c5a",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/environment-selected_worker.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/environment.json",
+        "bytes": 987,
+        "sha256": "51b4e2b8f2b43adda6779981886b105d9fff2478038cc4cd30e55cb1522991b6",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/environment.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/fragment-final.json",
+        "bytes": 7368,
+        "sha256": "f1c00241c80c93262f93aa6afb90c7a7ec220e7b2841272db591fd589ba0e25d",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/fragment-final.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/fragment-final.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/fragment-final.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/fragment-final.stdout.txt",
+        "bytes": 3489,
+        "sha256": "dcf1471686a2893f5c5392d12b61833dcf3d9afa98860eff41d9bae4d7028f56",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/fragment-final.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/initial-fragment-harness.json",
+        "bytes": 1258,
+        "sha256": "2164b81d51695fba5356ac69d0e7606ccd4ff2fd0aea2b5e0809e002dc9930d3",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/initial-fragment-harness.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/initial-fragment-harness.stderr.txt",
+        "bytes": 455,
+        "sha256": "8a9d0e7032914ad682e35349144a90f4c7e5f6c98549d2e1bc29f4217a4756ce",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/initial-fragment-harness.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/initial-fragment-harness.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/initial-fragment-harness.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/manifest_old_version.json",
+        "bytes": 1429,
+        "sha256": "c2c2a4e9d03922fdbfae3f416d184d452cc8decc88553c55ed46e7b9f845669a",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_old_version.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/manifest_old_version.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_old_version.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/manifest_old_version.stdout.txt",
+        "bytes": 672,
+        "sha256": "bcbda8180beef01a314cdf1f354545d25d1f582f48b1428f78dfb818ea975c6b",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_old_version.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/manifest_stale_hash.json",
+        "bytes": 1423,
+        "sha256": "04877438d63ce0e2c028367ca721a361b4d3a5e4d2cdf20df013ddd98bd96d5c",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_stale_hash.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/manifest_stale_hash.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_stale_hash.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/manifest_stale_hash.stdout.txt",
+        "bytes": 671,
+        "sha256": "63761872df4a7a0888d2575b761e555b3d7c58398b50d9756ab3087c288f0fad",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_stale_hash.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/native15.json",
+        "bytes": 1692,
+        "sha256": "ec7b5c94190c71c1e9f8587db37624ad64a5cd05952e6c5f9091117fd2213e09",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/native15.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/native15.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/native15.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/native15.stdout.txt",
+        "bytes": 6253,
+        "sha256": "3bd00aa75a9a3b77d280a9d141a8f1d092bd90580ddb440985fdc5c2e38cfb33",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/native15.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/public-reader9.json",
+        "bytes": 1538,
+        "sha256": "bc7fd4ba604e215767723083637c62678c3fead4694bb26e6ef5ee48afe11770",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/public-reader9.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/public-reader9.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/public-reader9.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/public-reader9.stdout.txt",
+        "bytes": 98,
+        "sha256": "74d7a209fd8baf93be2e5e9d8e56a1f9328017a131c3c2fe1c4d3f1f40c452d7",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/public-reader9.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/replay_final_fragment.py",
+        "bytes": 4484,
+        "sha256": "3c297380c5239f2eb2e9a569a39751eace7f7924101a1d655484639de2bffa2c",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/replay_final_fragment.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/replay_schema_review.py",
+        "bytes": 7238,
+        "sha256": "3b60976f9324abab71cf526392f06167e37f94e410b326710132a1a7a54bc192",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/replay_schema_review.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/snapshot_old_default.json",
+        "bytes": 1429,
+        "sha256": "177bb7b808a7a67a0b9861ac72542a2fb84f3bbb522206494f8ae86de0cae5d6",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/snapshot_old_default.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/snapshot_old_default.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/snapshot_old_default.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/snapshot_old_default.stdout.txt",
+        "bytes": 724,
+        "sha256": "97c410f2a1563ed75713daa1eb0799d9ab80b137c5d29f2d7b0919ed1ab128cf",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/snapshot_old_default.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/test_scm_schema_reader_adversarial.py",
+        "bytes": 4340,
+        "sha256": "5e6220a6c85d0f43972003694406f8bbf7aa362bf1f5299992fc71347e0f5a73",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/test_scm_schema_reader_adversarial.py",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/transfer-selection.json",
+        "bytes": 11502,
+        "sha256": "920083e77ccad75984aea027c7f5e8ad12f0ab465d44dd723557da87cd942849",
+        "original_path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/transfer-selection.json",
+        "encoding": "raw"
+      }
+    ],
+    "companion_count": 99,
+    "all_moderate_deciding_bytes_committed": true,
+    "canonical_fullreference_outputs": "Complete generatedreference bytes equal the alreadycommitted source_bindings docs/reference/ir/schema-catalog.md and docs/reference/schemas.md; no duplicate fullreference body needed."
+  },
+  "limitations_and_next_owner": [
+    {
+      "owner": "G/generatedartifact owner",
+      "check": "FAIL",
+      "state": "limited",
+      "detail": "Fullcanonical gen_schema--check completesFAIL forfeedback_solve_result snapshot andIRmanifest. Exactcanonical comparison identifies5nested artifactref manifest_profile_sha256 additions, noSCMdefault dependency. Noothergeneratedwrite;P41not_established."
+    },
+    {
+      "owner": "G/localdata owner",
+      "check": "UNRUN",
+      "state": "limited",
+      "detail": "Productioninputs/evaluationauthority arelocal and outside this finiteknownDGP schema packet."
+    }
+  ],
+  "baseline_cells": [],
+  "baseline_relation": "A new producer/catalog/default compatibility residual identified at literal6f95f55; older SCM baseline cells remain explicitly bounded in the source-bound primary receipt, not promoted to proof of this schema packet.",
+  "runtime_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/current-runtime-identity.stdout.txt",
+  "original_failure_harness_binding": {
+    "runtime_source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+    "new_test_not_in_that_git_tree": true,
+    "copied_exact_harness": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/scm-version-original-test.py",
+    "target_test_path": "policy-engine/tests/unit/ir/test_structural_causal_model_versions.py",
+    "harness_sha256": "3f7fa0a0b9e20935954ee7f368c8d4e89380ee192424828638370c4f4b82ad8a",
+    "harness_equal_current_frozen_source": true,
+    "P41_inherited": "not_established",
+    "scope": "Concrete pre-repair runtime discriminator with a new fully transferred test input, not an inherited-red attribution."
+  },
+  "dependency_bindings": [
+    {
+      "source_path": "policy-engine/workers/dowhy-014/worker.py",
+      "source_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 10652,
+      "sha256": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253",
+      "unchanged_through_metadata_append": true
+    },
+    {
+      "source_path": "policy-engine/workers/dowhy-014/protocol.py",
+      "source_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 4704,
+      "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239",
+      "unchanged_through_metadata_append": true
+    },
+    {
+      "source_path": "policy-engine/workers/dowhy-014/pyproject.toml",
+      "source_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 379,
+      "sha256": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447",
+      "unchanged_through_metadata_append": true
+    },
+    {
+      "source_path": "policy-engine/workers/dowhy-014/uv.lock",
+      "source_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 98340,
+      "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a",
+      "unchanged_through_metadata_append": true
+    },
+    {
+      "source_path": "policy-engine/workers/dowhy-014/.python-version",
+      "source_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 5,
+      "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+      "unchanged_through_metadata_append": true
+    },
+    {
+      "source_path": "policy-engine/workers/dowhy-014/README.md",
+      "source_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 4934,
+      "sha256": "fc4b60aecff0f52a19866c17da419ac4583de6fe09d74b424f8f9908f795f198",
+      "unchanged_through_metadata_append": true
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+      "source_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 16599,
+      "sha256": "582ad243fec5406d577154b7bc1f97e03664cf01843e1fa6f23c3ea28746db56",
+      "unchanged_through_metadata_append": true
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "source_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 32094,
+      "sha256": "cb6dfd9197b0f93fde517e96b6dcaf6eda1a2bcba82b83c3be7f43a6d3773568",
+      "unchanged_through_metadata_append": true
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "source_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 74551,
+      "sha256": "f9a826aa9659d261153aaa577b417041cb14748afd888d500935d0d39bc87a87",
+      "unchanged_through_metadata_append": true
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+      "source_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 26474,
+      "sha256": "1fc139c4f81799f801e53e1abaf6db9cbd7a7d0f2e290f42694d5bb4f9367aeb",
+      "unchanged_through_metadata_append": true
+    },
+    {
+      "source_path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+      "source_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 23635,
+      "sha256": "6d1b8f48e20853415dbd9109d0b0662f3d9ca199e2d15c36292823b2e7c1d72e",
+      "unchanged_through_metadata_append": true
+    },
+    {
+      "source_path": "policy-engine/tools/quality/diagnostics/generate_ir_reference_catalog.py",
+      "source_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 10707,
+      "sha256": "f4b8184a1052a76f7d54a6e729757478eced3c8213b88326ca652f604a213c27",
+      "unchanged_through_metadata_append": true
+    }
+  ],
+  "independent_review": {
+    "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/review.json",
+    "selection": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/transfer-selection.json",
+    "source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+    "scientific_source_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+    "metadata_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+    "specification_verdict": "GO bounded selected current1.1/legacy1.0 owner property",
+    "engineering_quality_verdict": "GO bounded source/runtime and final release metadata. Original eaf fragment gate FAIL is preserved; final e94 actual public/CAS/structured fragment gate PASS.",
+    "full_original_bytes_copied": true,
+    "transport_mapping": {
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/review.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/review.json",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/audit.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/audit.json",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/audit.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/audit.stderr.txt",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/audit.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/audit.stdout.txt",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/canonical-controls.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/canonical-controls.json",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/environment-application.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/environment-application.stderr.txt",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/environment-application.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/environment-application.stdout.txt",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/environment-selected_worker.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/environment-selected_worker.stderr.txt",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/environment-selected_worker.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/environment-selected_worker.stdout.txt",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/environment.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/environment.json",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/fragment-final.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/fragment-final.json",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/fragment-final.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/fragment-final.stderr.txt",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/fragment-final.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/fragment-final.stdout.txt",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/initial-fragment-harness.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/initial-fragment-harness.json",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/initial-fragment-harness.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/initial-fragment-harness.stderr.txt",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/initial-fragment-harness.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/initial-fragment-harness.stdout.txt",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_old_version.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/manifest_old_version.json",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_old_version.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/manifest_old_version.stderr.txt",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_old_version.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/manifest_old_version.stdout.txt",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_stale_hash.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/manifest_stale_hash.json",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_stale_hash.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/manifest_stale_hash.stderr.txt",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_stale_hash.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/manifest_stale_hash.stdout.txt",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/native15.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/native15.json",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/native15.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/native15.stderr.txt",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/native15.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/native15.stdout.txt",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/public-reader9.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/public-reader9.json",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/public-reader9.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/public-reader9.stderr.txt",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/public-reader9.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/public-reader9.stdout.txt",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/replay_final_fragment.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/replay_final_fragment.py",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/replay_schema_review.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/replay_schema_review.py",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/snapshot_old_default.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/snapshot_old_default.json",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/snapshot_old_default.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/snapshot_old_default.stderr.txt",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/snapshot_old_default.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/snapshot_old_default.stdout.txt",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/test_scm_schema_reader_adversarial.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/test_scm_schema_reader_adversarial.py",
+      "/tmp/e02-F-continuation-20261006/foundry/schema-review/transfer-selection.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006/independent/transfer-selection.json"
+    }
+  },
+  "independent_check_scope": "24 native PASS (15author selectors repeated +9 independent reader cases),3canonical corruptionFAIL as expected; scoped source/version metadata acceptance, no global gate or originalfinding closure override."
+}

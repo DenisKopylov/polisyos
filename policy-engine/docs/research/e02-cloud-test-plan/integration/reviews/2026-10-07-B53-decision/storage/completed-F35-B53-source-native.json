@@ -1,0 +1,66 @@
+{
+  "utc": "2026-10-07T15:35:58.234840+00:00",
+  "policy": "Native Trash only; never empty; preserve Git and deciding receipts.",
+  "actions": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/exact-source.tar",
+      "inode": 174074096,
+      "device": 16777231,
+      "mtime_ns": 1791383522293098262,
+      "allocated_bytes": 57344000,
+      "retained_commit": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "retained_tree": "ed4a4fd6864e8b60cb45124fb8e6fa9b7c503b66",
+      "reason": "Completed reproducible Git source/assets; native deciding outputs, manifests and benchmark extra copied and hash-verified outside leaf.",
+      "state": "verified_in_native_Trash",
+      "native_exit": 0,
+      "native_stdout": "{\"native_success\":true,\"source_exists\":false,\"matches\":[{\"path\":\"/Users/deniskopylov/.Trash/exact-source.tar\",\"inode\":174074096,\"device\":16777231}]}\n",
+      "native_stderr": "",
+      "destination": "/Users/deniskopylov/.Trash/exact-source.tar"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/tracked-working-assets.tar",
+      "inode": 174078191,
+      "device": 16777231,
+      "mtime_ns": 1791383940335092904,
+      "allocated_bytes": 839680,
+      "retained_commit": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "retained_tree": "ed4a4fd6864e8b60cb45124fb8e6fa9b7c503b66",
+      "reason": "Completed reproducible Git source/assets; native deciding outputs, manifests and benchmark extra copied and hash-verified outside leaf.",
+      "state": "verified_in_native_Trash",
+      "native_exit": 0,
+      "native_stdout": "{\"native_success\":true,\"source_exists\":false,\"matches\":[{\"path\":\"/Users/deniskopylov/.Trash/tracked-working-assets.tar\",\"inode\":174078191,\"device\":16777231}]}\n",
+      "native_stderr": "",
+      "destination": "/Users/deniskopylov/.Trash/tracked-working-assets.tar"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/B-stop-53b-20261007/native/candidate",
+      "inode": 174084895,
+      "device": 16777231,
+      "mtime_ns": 1791385890699904138,
+      "allocated_bytes": 62578688,
+      "retained_commit": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+      "retained_tree": "2e069f18e02175dd0d6f7acd6573a4c0b071c766",
+      "reason": "Completed reproducible Git source/assets; native deciding outputs, manifests and benchmark extra copied and hash-verified outside leaf.",
+      "state": "verified_in_native_Trash",
+      "native_exit": 0,
+      "native_stdout": "{\"native_success\":true,\"source_exists\":false,\"matches\":[{\"path\":\"/Users/deniskopylov/.Trash/candidate 18-35-58-760\",\"inode\":174084895,\"device\":16777231}]}\n",
+      "native_stderr": "",
+      "destination": "/Users/deniskopylov/.Trash/candidate 18-35-58-760"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/candidate",
+      "inode": 174074098,
+      "device": 16777231,
+      "mtime_ns": 1791383522328539203,
+      "allocated_bytes": 62234624,
+      "retained_commit": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "retained_tree": "ed4a4fd6864e8b60cb45124fb8e6fa9b7c503b66",
+      "reason": "Completed reproducible Git source/assets; native deciding outputs, manifests and benchmark extra copied and hash-verified outside leaf.",
+      "state": "verified_in_native_Trash",
+      "native_exit": 0,
+      "native_stdout": "{\"native_success\":true,\"source_exists\":false,\"matches\":[{\"path\":\"/Users/deniskopylov/.Trash/candidate 18-35-58-971\",\"inode\":174074098,\"device\":16777231}]}\n",
+      "native_stderr": "",
+      "destination": "/Users/deniskopylov/.Trash/candidate 18-35-58-971"
+    }
+  ]
+}

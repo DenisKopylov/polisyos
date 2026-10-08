@@ -1,0 +1,14 @@
+_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/candidate/policy-engine/tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile[1]
+_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/candidate/policy-engine/tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile[2]
+_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/candidate/policy-engine/tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile[3]
+_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/candidate/policy-engine/tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history
+_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/candidate/policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py::test_informative_voi_candidate_core_readback_and_preview_refusal
+
+=============================== warnings summary ===============================
+../../../../../../../.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+5 tests collected in 14.72s

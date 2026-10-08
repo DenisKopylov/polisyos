@@ -1,0 +1,18 @@
+{
+  "check": "PASS",
+  "control": null,
+  "negative_harness_outcome": null,
+  "target": {
+    "sha": "46cc03546f2572986962555ddf04d858163c1cf6",
+    "tree": "bb2ceacff846b68466a03fce767f7d300b18240e"
+  },
+  "denominator": {
+    "IDs": 35,
+    "bundles": 17,
+    "original_bindings": 36
+  },
+  "issues": [],
+  "complete_deciding_check_pointer_count": 446,
+  "elapsed_s": 2.633950941992225
+}
+{"metadata_artifacts": 143, "primary_manifest_metadata": 5, "source_order_topics": 6, "output": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/final-ledger-positive.json"}

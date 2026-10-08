@@ -1,0 +1,1377 @@
+{
+  "G_branch_after": "codex/e02-integration",
+  "G_branch_at_start": "codex/e02-integration",
+  "G_head_after": "83a1d894bfffab4127eb921625602ceaf72c69b6",
+  "G_head_at_start": "83a1d894bfffab4127eb921625602ceaf72c69b6",
+  "G_status_after": [
+    "?? policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-D-composed-verification/"
+  ],
+  "G_status_at_start": [
+    "?? policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-D-composed-verification/"
+  ],
+  "app_interpreter": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+  "app_python_version": "Python 3.14.3",
+  "candidate_export": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate",
+  "candidate_parents": [
+    "83a1d894bfffab4127eb921625602ceaf72c69b6",
+    "64355beb636c20c2eb8b586af18a51b503fe40f8"
+  ],
+  "candidate_sha": "556329c9cdd183197e644299381550f81f061620",
+  "candidate_tree": "a7a581044ee5c9e91b8c514c9aad4ff3051ce6a5",
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/trace_test.py",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/exception-events.json",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "--tb=short",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/pytest-basetemp",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/junit.xml",
+    "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_query_consumer_binds_complete_cas_projection_and_original_request"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate/policy-engine",
+  "junit": {
+    "cases": [],
+    "errors": 0,
+    "failures": 0,
+    "present": true,
+    "skipped": 0,
+    "tests": 0
+  },
+  "memory_pressure_before": {
+    "free_percentage": "System-wide memory free percentage: 62%",
+    "returncode": 0
+  },
+  "observer_script_sha256": {
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/launch_trace.py": "ff18d17c669840e3b28f35fd79e6b5d44f62df85226a2ebde240a1166c95e384",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/trace_test.py": "608f80fd5d94fdb24df2ff4a5a624f34c3c042d9f5c12389d8cc4c2c3b545050"
+  },
+  "origin_audit": {
+    "errors": [],
+    "module_count": 124,
+    "present": true,
+    "removed_live_paths": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/src"
+    ]
+  },
+  "outputs": {
+    "after": {
+      "bytes": 24576,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/candidate-integrity-after.json",
+      "sha256": "88faa710e719149f0a24c0e632a5b695223288cd1c46b409dc56d2edaffa0226"
+    },
+    "audit": {
+      "bytes": 24656,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/origin-audit.json",
+      "sha256": "f8ed533e2b35c732348a419f5148ca684b150e9dc980fe40532cfbc09d012f28"
+    },
+    "before": {
+      "bytes": 24576,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/candidate-integrity-before.json",
+      "sha256": "88faa710e719149f0a24c0e632a5b695223288cd1c46b409dc56d2edaffa0226"
+    },
+    "events": {
+      "bytes": 1166,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/exception-events.json",
+      "sha256": "7b9512fef320ac64955ccf25567c71d82a0308c6dc65a7b8ebd96128b2d26a28"
+    },
+    "junit": {
+      "bytes": 249,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/junit.xml",
+      "sha256": "02ec3202b2eb61050fef9e5e428d3b9cb94c541046bec7259c2275436d10de59"
+    },
+    "stderr": {
+      "bytes": 44,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/pytest.stderr.txt",
+      "sha256": "613c52d93f4e98adc041b564cfd13fb8db809582a383a00925411599c9a4e94e"
+    },
+    "stdout": {
+      "bytes": 538,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/pytest.stdout.txt",
+      "sha256": "fa5a65d698223a5e481a4ba15053845f5323123431b413ddf41efe36e1ded793"
+    },
+    "worker_readback": {
+      "bytes": 891,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/worker-runtime-readback.json",
+      "sha256": "330f02300be3cda6f2bcda0f92a3caa4ef87b5672da4198ab9851e36f3bf5680"
+    }
+  },
+  "peak_sampled_test_rss_kib": 219584,
+  "processes_matching_test_before": [],
+  "protected_receipts_after": {
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/frozen-network-attempt/attempt.json": "21b6461486a8169c242bbe8fd7e06a6d2b1331e765ed260cda4b36dce580e008",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/offline-provision-attempt-1/attempt.json": "e5489edbe363d3640a73239169918d2c0192b9d55dddc9e19a3582ca5bbcdfa9",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/preflight-receipt.json": "928b61f109fc57219266baf41c8e60696954d5eace616ca2ebd9138542620157",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-2/final-assessment.json": "2bf67091b336d7a1838e660ed3a39b721a33c98c6e2caa1f4ce084161d2b8acf",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-2/receipt.json": "812af76856bc192e40aed86e5b86e1f244e0bf2504a5f81b495f10e89b7bfbc1",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-final-receipt.json": "09fd530e8d123a86329c6b3f12d64a69ce88b492de4bc211912d1ffad4e2e155"
+  },
+  "protected_receipts_before": {
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/frozen-network-attempt/attempt.json": "21b6461486a8169c242bbe8fd7e06a6d2b1331e765ed260cda4b36dce580e008",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/offline-provision-attempt-1/attempt.json": "e5489edbe363d3640a73239169918d2c0192b9d55dddc9e19a3582ca5bbcdfa9",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/preflight-receipt.json": "928b61f109fc57219266baf41c8e60696954d5eace616ca2ebd9138542620157",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-2/final-assessment.json": "2bf67091b336d7a1838e660ed3a39b721a33c98c6e2caa1f4ce084161d2b8acf",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-2/receipt.json": "812af76856bc192e40aed86e5b86e1f244e0bf2504a5f81b495f10e89b7bfbc1",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-final-receipt.json": "09fd530e8d123a86329c6b3f12d64a69ce88b492de4bc211912d1ffad4e2e155"
+  },
+  "protected_receipts_unchanged": true,
+  "pytest_args": [
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "--tb=short",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/pytest-basetemp",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/junit.xml",
+    "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_query_consumer_binds_complete_cas_projection_and_original_request"
+  ],
+  "returncode": 4,
+  "runner_status": "ERROR",
+  "schema": "policyos.e02.g-local-worker-exception-diagnostic.v1",
+  "selector": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_query_consumer_binds_complete_cas_projection_and_original_request",
+  "semantic_property_verdict": "UNRUN",
+  "source_identity": {
+    "compute_run_job_bridge": {
+      "export_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+      "git_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+      "matches": true,
+      "path": "policy-engine/src/polisyos/scientist/compute/runner.py"
+    },
+    "gcm_fit_consumer": {
+      "export_blob": "7536aba1de5b2019424afa52bdf0814a9bc85cfa",
+      "git_blob": "7536aba1de5b2019424afa52bdf0814a9bc85cfa",
+      "matches": true,
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py"
+    },
+    "test": {
+      "export_blob": "1ba29602702927e3aa80b6d85f017ea71d4afd89",
+      "git_blob": "1ba29602702927e3aa80b6d85f017ea71d4afd89",
+      "matches": true,
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py"
+    },
+    "worker_bridge": {
+      "export_blob": "0473a4280ff55fb23e73cf7c561ae3d7e2149519",
+      "git_blob": "0473a4280ff55fb23e73cf7c561ae3d7e2149519",
+      "matches": true,
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py"
+    },
+    "worker_lock": {
+      "export_blob": "77ce3b5392703b452d70da87c0f57372b88e9117",
+      "git_blob": "77ce3b5392703b452d70da87c0f57372b88e9117",
+      "matches": true,
+      "path": "policy-engine/workers/dowhy-014/uv.lock"
+    },
+    "worker_protocol": {
+      "export_blob": "ca392779e3351e4cf13b23db0a27077487a29368",
+      "git_blob": "ca392779e3351e4cf13b23db0a27077487a29368",
+      "matches": true,
+      "path": "policy-engine/workers/dowhy-014/protocol.py"
+    },
+    "worker_script": {
+      "export_blob": "8e4ea39ce6b4f03626b30fb674b0d3f881557aef",
+      "git_blob": "8e4ea39ce6b4f03626b30fb674b0d3f881557aef",
+      "matches": true,
+      "path": "policy-engine/workers/dowhy-014/worker.py"
+    }
+  },
+  "source_integrity_after": {
+    "candidate_sha": "556329c9cdd183197e644299381550f81f061620",
+    "candidate_tree": "a7a581044ee5c9e91b8c514c9aad4ff3051ce6a5",
+    "error_count": 0,
+    "errors": [],
+    "expected_tree_verified": true,
+    "extra_count": 15165,
+    "extra_details": [
+      {
+        "bytes": 191,
+        "mode": 420,
+        "path": "policy-engine/_cache/pytest/CACHEDIR.TAG",
+        "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4"
+      },
+      {
+        "bytes": 302,
+        "mode": 420,
+        "path": "policy-engine/_cache/pytest/README.md",
+        "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad"
+      },
+      {
+        "bytes": 37,
+        "mode": 420,
+        "path": "policy-engine/_cache/pytest/.gitignore",
+        "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd"
+      },
+      {
+        "bytes": 1578,
+        "mode": 420,
+        "path": "policy-engine/_cache/pytest/v/cache/nodeids",
+        "sha256": "4148e844fe1a782187cb0b7be79ecf8c3725b95ea43955bd9ea768bddfbc4cbd"
+      },
+      {
+        "bytes": 267092,
+        "mode": 420,
+        "path": "policy-engine/_build/e02-D-composition/generated-artifacts.md",
+        "sha256": "6f9afe13f3b7f06df95df8ab4f07b23443838f177b5ab4873603231d3ecf304f"
+      },
+      {
+        "bytes": 305408,
+        "mode": 420,
+        "path": "policy-engine/_build/e02-D-composition/inventory-drift.json",
+        "sha256": "e4ca65cfc4248efc3a696857f9558ff30c2ac4853454023053c051cb9fb8c755"
+      },
+      {
+        "bytes": 7696,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/__pycache__/protocol.cpython-312.pyc",
+        "sha256": "63fd33e3d62f5613a92dc2a49535105dd2091fe43c9e6f2082f579c1d44ba83e"
+      },
+      {
+        "bytes": 0,
+        "mode": 438,
+        "path": "policy-engine/workers/dowhy-014/.venv/.lock",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 214,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/pyvenv.cfg",
+        "sha256": "715b4f4d83dd9bc98bca4ec337af4c3797225be479b3f782b7a974fc1520dd8a"
+      },
+      {
+        "bytes": 43,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/CACHEDIR.TAG",
+        "sha256": "5953156d7e0c564a427251316eaf26f8870e6483ae2197f916b630e4f93e31ae"
+      },
+      {
+        "bytes": 1,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/.gitignore",
+        "sha256": "684888c0ebb17f374298b65ee2807526c066094c701bcc7ebbe1c1095f494fc1"
+      },
+      {
+        "bytes": 2854,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/activate.bat",
+        "sha256": "ace8a38f1fcc75354c2e520cf15580ff3baf05da45450ec07de5228325c2ad7b"
+      },
+      {
+        "bytes": 529,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/pyftsubset",
+        "sha256": "bce20e89100bf62495aef74d2a1e748286495ae92bdc8446cf73c95a6416d319"
+      },
+      {
+        "bytes": 2804,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/activate.ps1",
+        "sha256": "871a063c0e3d032b01bd0502efcd71800bc3f55aac0336578b768fc42cbc05fd"
+      },
+      {
+        "bytes": 6,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/python3",
+        "sha256": "11a4a60b518bf24989d481468076e5d5982884626aed9faeb35b8576fcd223e1"
+      },
+      {
+        "bytes": 526,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/ttx",
+        "sha256": "57ffec2e1d76526395d7e465452ea1eb9f7bc96403b8d48a1676f0624cf7e64b"
+      },
+      {
+        "bytes": 535,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/pytest",
+        "sha256": "0df643035e5261e236ee2dce4ab649651bfdfd59770a338f6c1456aa97060556"
+      },
+      {
+        "bytes": 89,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/python",
+        "sha256": "1cb6250f57b16ec63e295507bc5f260c8c0f5ca7217106063df3e44a35b826cf"
+      },
+      {
+        "bytes": 4397,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/activate.fish",
+        "sha256": "02ec46bb68ed9035a5dae1148a51475d95a72920745d00bb82a155ce7d87a2f1"
+      },
+      {
+        "bytes": 519,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/isympy",
+        "sha256": "fa9435595a8f197ca013d2f1a3eeea591ad2ce844d61e4981a77fccf92a6c048"
+      },
+      {
+        "bytes": 531,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/fonttools",
+        "sha256": "c2ee89236313c4b3c45e3856104e497f7f33e2327a5d4401ad1bdf6f543ae7d2"
+      },
+      {
+        "bytes": 555,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/cython",
+        "sha256": "a00c87f73ddd7668bc6afc5b9bc5db90eb89c9a665ec98983681e269f1c62b65"
+      },
+      {
+        "bytes": 1217,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/pydoc.bat",
+        "sha256": "2a8eb66d1bc7b73adcd3c6f59e2383e0a7fe9412609c1f9d1870e35035ee6fee"
+      },
+      {
+        "bytes": 2404,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/activate_this.py",
+        "sha256": "f47f5addc032c85f1716682f339390e95c39b5069af72f9a74d6519d30da38c8"
+      },
+      {
+        "bytes": 530,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/f2py",
+        "sha256": "b8e4c9e3b61f6264c5c7615f7facb5e873c6a7e90dcc0d37cd764597e846a0d3"
+      },
+      {
+        "bytes": 521,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/tqdm",
+        "sha256": "d63496ce0813438ea5fdde2d6cfe34bcea2fed2b5c96619c9b1d069c805accad"
+      },
+      {
+        "bytes": 534,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/cygdb",
+        "sha256": "3174ca584505ea4b182df2682d37838c661357b0b5277ca1270de4578bd38914"
+      },
+      {
+        "bytes": 529,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/pygmentize",
+        "sha256": "deef591e219966334946db105363f0b252f7a2affaadf399cbb85169510091e5"
+      },
+      {
+        "bytes": 529,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/cffi-gen-src",
+        "sha256": "778206af8a94ca1a1c948b199e38a36764f186098490ab616866a4dc167c82da"
+      },
+      {
+        "bytes": 419,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/numba",
+        "sha256": "f74074411934fa91120eb8fda7cb949552535ad11ccd8a72e60b10585bdccf97"
+      },
+      {
+        "bytes": 4295,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/activate",
+        "sha256": "3ff52fb76b357e0db1ca2515cb3005f113548a4c1f93e3bd8d5ab7f3fba25df3"
+      },
+      {
+        "bytes": 3967,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/activate.nu",
+        "sha256": "36b80aa519da8466c462ba848f03acd5ef8ead912e616e06e266a0f50bb8c9c9"
+      },
+      {
+        "bytes": 530,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/numpy-config",
+        "sha256": "78e8beafd06fe29525edadf0e85a7d1d3d420ec52f00a51962a5500630fa58cb"
+      },
+      {
+        "bytes": 535,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/cythonize",
+        "sha256": "4323f200f7d52d0dba9cc3bfffe16c071af53b4c1f88a4cbc5c0fe84fbfb24f6"
+      },
+      {
+        "bytes": 1730,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/deactivate.bat",
+        "sha256": "13ea86073a9ee43a66e3549312599dd47ff315758b4ca5a0406faf041fb82300"
+      },
+      {
+        "bytes": 6,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/python3.12",
+        "sha256": "11a4a60b518bf24989d481468076e5d5982884626aed9faeb35b8576fcd223e1"
+      },
+      {
+        "bytes": 535,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/py.test",
+        "sha256": "0df643035e5261e236ee2dce4ab649651bfdfd59770a338f6c1456aa97060556"
+      },
+      {
+        "bytes": 528,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/pyftmerge",
+        "sha256": "7f696ac5d9ba2c60dfe2f9c9cd41ac1ebd0d140d4a011aa72bfee1d437f0c1a8"
+      },
+      {
+        "bytes": 2825,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/activate.csh",
+        "sha256": "37702557fc63b1cae9a62a40cfbb6b3dc2cb43e754a7a8a95f9ca67f0aafa0a9"
+      },
+      {
+        "bytes": 632,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/cython.py",
+        "sha256": "3932423f417f7de71058cb0638f243b8553b6eb33549c2400131fa7a4f7c868e"
+      },
+      {
+        "bytes": 1618184,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/_cvxcore.cpython-312-darwin.so",
+        "sha256": "ceee81524486fa3679f78a9a80abc96c120bded183fab998b5e76e0281abc08c"
+      },
+      {
+        "bytes": 67710,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/threadpoolctl.py",
+        "sha256": "e5f119e394193e206655bec4b993ef0bb40b0fbb2f22c92bd5b2d70a622bb518"
+      },
+      {
+        "bytes": 110,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/pylab.py",
+        "sha256": "cd45d4d25edeec2e639834896ccd062d0c41ba7df1cee5cd7f5b6ea19600e979"
+      },
+      {
+        "bytes": 346152,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/qdldl.cpython-312-darwin.so",
+        "sha256": "2629bd816a8aacfde8d1dafc33bb006e4044190adccd41392c77b7b2dae5f98a"
+      },
+      {
+        "bytes": 4342,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/_virtualenv.py",
+        "sha256": "6cf30c56faf2a55228914dbbd17f8088ed371ebb08f5e7fa6fd931f913fcaf1d"
+      },
+      {
+        "bytes": 151,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/distutils-precedence.pth",
+        "sha256": "2638ce9e2500e572a5e0de7faed6661eb569d1b696fcba07b0dd223da5f5d224"
+      },
+      {
+        "bytes": 18,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/_virtualenv.pth",
+        "sha256": "69ac3d8f27e679c81b94ab30b3b56e9cd138219b1ba94a1fa3606d5a76a1433d"
+      },
+      {
+        "bytes": 11220,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/isympy.py",
+        "sha256": "85a100adccdbfcdcbe2f28ce0b0c7614d19a97f4b4328e1dd1d7a258bda0fc67"
+      },
+      {
+        "bytes": 34703,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/six.py",
+        "sha256": "c51c91f703d3d4b3696c923cb5fec213e05e75d9215393befac7f2fa6a3904df"
+      },
+      {
+        "bytes": 229552,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/_cffi_backend.cpython-312-darwin.so",
+        "sha256": "90177c34e639a067ee1f5a2028320b3af2940d47dfaf9583727b59abf0b3263f"
+      },
+      {
+        "bytes": 329,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/py.py",
+        "sha256": "b71675b5d9845ba0814e9e88767f88dac3b3cc0d3128da028bd45edbb523e871"
+      },
+      {
+        "bytes": 165012,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/typing_extensions.py",
+        "sha256": "4040ca1a1ecbee00d1385c12a93084d1c5bd46f0b774f07e5ae7e91c4f55e696"
+      },
+      {
+        "bytes": 18448,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/momentchi2/methods.py",
+        "sha256": "3ec5c834a3f870d04eb3ee1f772e3033c57f8a3507f44fce478b37ccc8f393e2"
+      },
+      {
+        "bytes": 100,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/momentchi2/__init__.py",
+        "sha256": "b02a1fffd001d1c3b3071878c6f9d90b0c57b8f19b5d428a4d00beefe14ed819"
+      },
+      {
+        "bytes": 7439,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/momentchi2/utilities.py",
+        "sha256": "f121d5a6f4d752901b7455f8e1e2b50427db65966d6c667913675613b1b972f4"
+      },
+      {
+        "bytes": 38302,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/tags.py",
+        "sha256": "0e717a082a79620d79cf0321b420df15593c4916fcda03c27cb9d82e07ef5d6e"
+      },
+      {
+        "bytes": 2774,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_musllinux.py",
+        "sha256": "0328fb827b1170c77df4c107d49be8df8d37262103490a61e8acad8a2f9cadff"
+      },
+      {
+        "bytes": 11224,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/dependency_groups.py",
+        "sha256": "5309cc564ca3022dfb594816e9d593bb09cdf34208c1fb8c5ec9afb6c670278c"
+      },
+      {
+        "bytes": 42059,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/metadata.py",
+        "sha256": "934149f420a5449e6f376aa61d6f26a0823eb82cc7c6a1c8cde5aa7be43d0f63"
+      },
+      {
+        "bytes": 39040,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/version.py",
+        "sha256": "558b2fb50fd198c660a4c082f96b8919c565911b6b4b6e07f34b6b60c074be97"
+      },
+      {
+        "bytes": 11645,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/direct_url.py",
+        "sha256": "843baa95d04cbb49288de9d9fd77ee946e862cb603123e7e46a69e171fa7d06b"
+      },
+      {
+        "bytes": 35232,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/pylock.py",
+        "sha256": "1bce0a9fe63e42b87e8ced05da272baf16a68aa704b3718405e2735a6112467c"
+      },
+      {
+        "bytes": 494,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/__init__.py",
+        "sha256": "6e758cdd0028b2cad74c739b9adc9c9f06f054932306280b878bfe59d39219b5"
+      },
+      {
+        "bytes": 30850,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_ranges.py",
+        "sha256": "b7b595f2e692aeb3697c545b85c24cbbcb4552f2adc6d9059aa82d0877e816b7"
+      },
+      {
+        "bytes": 12639,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_parser.py",
+        "sha256": "88a348115209327497e453b635e5db099fd592f9335d710c7313b29cdb30c50c"
+      },
+      {
+        "bytes": 83054,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/ranges.py",
+        "sha256": "b4781ce913e5dff9e07906f20585c54c3028e1f7ff56341828e79d522ddbfab6"
+      },
+      {
+        "bytes": 12215,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/utils.py",
+        "sha256": "a13742cd9994eeca5adfb0249d126408c478026eb1f48cb97afbf2fe9f28ecc6"
+      },
+      {
+        "bytes": 7040,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/requirements.py",
+        "sha256": "459476eb2107fe30e6b1310051a5bdb44c7d3b7f78e0e87bada268282cba62f5"
+      },
+      {
+        "bytes": 1109,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_structures.py",
+        "sha256": "eb48d16c5efca7ccf930a9cd77a700a6b80e69d0891d5d03966526441a8565cb"
+      },
+      {
+        "bytes": 20554,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/markers.py",
+        "sha256": "6cbe860d35d98d2b599e7f0ec73feab124e015711b30be9045e678c92940d9cc"
+      },
+      {
+        "bytes": 0,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/py.typed",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 2680,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/errors.py",
+        "sha256": "ea17c461701ff2ffc817ae7e94569d24e30889e04fdb120ab721178c6d67188b"
+      },
+      {
+        "bytes": 10000,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_manylinux.py",
+        "sha256": "5b6e84324c42538ab4cdb148e2430fdba36f04427b0efda55bea083a35fa6136"
+      },
+      {
+        "bytes": 5573,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_tokenizer.py",
+        "sha256": "cc25e57c0d564c89e15073471d6e1c264299ca946fb17c0e1e4af54ef7713ee6"
+      },
+      {
+        "bytes": 52798,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/specifiers.py",
+        "sha256": "661ad31ddf45ffb861d2626734f4e3d66966029b8fdb79586bb105825d8d9d59"
+      },
+      {
+        "bytes": 3236,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_elffile.py",
+        "sha256": "1f025f54c573f1a85740c4fbd908cc1d1fb0c177c14377ebf5f09d6cd5368780"
+      },
+      {
+        "bytes": 7859,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/licenses/__init__.py",
+        "sha256": "590d12eee73ddbec53b4e9ee5bfc64d9cb3aacb4940e8ebcba260757ce56740b"
+      },
+      {
+        "bytes": 51122,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/licenses/_spdx.py",
+        "sha256": "596ec35e2ca0ebcba9fd8343ff0a51625af548786257815f24b41f7e08613314"
+      },
+      {
+        "bytes": 4784,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/__pycache__/_musllinux.cpython-312.pyc",
+        "sha256": "f0b044223a1ea798d3fd4a684f99f5bfb398e15b94f8251bf57135a58d5818f2"
+      },
+      {
+        "bytes": 13275,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/__pycache__/utils.cpython-312.pyc",
+        "sha256": "e6112d5c79c4a7e2748690e6f456bfe12015c5d65bbe8aa44016e3622040f2d7"
+      }
+    ],
+    "extra_paths": [
+      "policy-engine/_cache/pytest/CACHEDIR.TAG",
+      "policy-engine/_cache/pytest/README.md",
+      "policy-engine/_cache/pytest/.gitignore",
+      "policy-engine/_cache/pytest/v/cache/nodeids",
+      "policy-engine/_build/e02-D-composition/generated-artifacts.md",
+      "policy-engine/_build/e02-D-composition/inventory-drift.json",
+      "policy-engine/workers/dowhy-014/__pycache__/protocol.cpython-312.pyc",
+      "policy-engine/workers/dowhy-014/.venv/.lock",
+      "policy-engine/workers/dowhy-014/.venv/pyvenv.cfg",
+      "policy-engine/workers/dowhy-014/.venv/CACHEDIR.TAG",
+      "policy-engine/workers/dowhy-014/.venv/.gitignore",
+      "policy-engine/workers/dowhy-014/.venv/bin/activate.bat",
+      "policy-engine/workers/dowhy-014/.venv/bin/pyftsubset",
+      "policy-engine/workers/dowhy-014/.venv/bin/activate.ps1",
+      "policy-engine/workers/dowhy-014/.venv/bin/python3",
+      "policy-engine/workers/dowhy-014/.venv/bin/ttx",
+      "policy-engine/workers/dowhy-014/.venv/bin/pytest",
+      "policy-engine/workers/dowhy-014/.venv/bin/python",
+      "policy-engine/workers/dowhy-014/.venv/bin/activate.fish",
+      "policy-engine/workers/dowhy-014/.venv/bin/isympy",
+      "policy-engine/workers/dowhy-014/.venv/bin/fonttools",
+      "policy-engine/workers/dowhy-014/.venv/bin/cython",
+      "policy-engine/workers/dowhy-014/.venv/bin/pydoc.bat",
+      "policy-engine/workers/dowhy-014/.venv/bin/activate_this.py",
+      "policy-engine/workers/dowhy-014/.venv/bin/f2py",
+      "policy-engine/workers/dowhy-014/.venv/bin/tqdm",
+      "policy-engine/workers/dowhy-014/.venv/bin/cygdb",
+      "policy-engine/workers/dowhy-014/.venv/bin/pygmentize",
+      "policy-engine/workers/dowhy-014/.venv/bin/cffi-gen-src",
+      "policy-engine/workers/dowhy-014/.venv/bin/numba",
+      "policy-engine/workers/dowhy-014/.venv/bin/activate",
+      "policy-engine/workers/dowhy-014/.venv/bin/activate.nu",
+      "policy-engine/workers/dowhy-014/.venv/bin/numpy-config",
+      "policy-engine/workers/dowhy-014/.venv/bin/cythonize",
+      "policy-engine/workers/dowhy-014/.venv/bin/deactivate.bat",
+      "policy-engine/workers/dowhy-014/.venv/bin/python3.12",
+      "policy-engine/workers/dowhy-014/.venv/bin/py.test",
+      "policy-engine/workers/dowhy-014/.venv/bin/pyftmerge",
+      "policy-engine/workers/dowhy-014/.venv/bin/activate.csh",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/cython.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/_cvxcore.cpython-312-darwin.so",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/threadpoolctl.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/pylab.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/qdldl.cpython-312-darwin.so",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/_virtualenv.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/distutils-precedence.pth",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/_virtualenv.pth",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/isympy.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/six.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/_cffi_backend.cpython-312-darwin.so",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/py.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/typing_extensions.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/momentchi2/methods.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/momentchi2/__init__.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/momentchi2/utilities.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/tags.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_musllinux.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/dependency_groups.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/metadata.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/version.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/direct_url.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/pylock.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/__init__.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_ranges.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_parser.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/ranges.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/utils.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/requirements.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_structures.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/markers.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/py.typed",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/errors.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_manylinux.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_tokenizer.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/specifiers.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_elffile.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/licenses/__init__.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/licenses/_spdx.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/__pycache__/_musllinux.cpython-312.pyc",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/__pycache__/utils.cpython-312.pyc"
+    ],
+    "missing_count": 0,
+    "ok": true,
+    "tracked_bytes_read": 717190096,
+    "tracked_entries": 25237,
+    "tree_listing_sha256": "50f9b790182aa67568bfdfb3779ac83986f2f2ad0ada400a9a8e14ba28f20595"
+  },
+  "source_integrity_before": {
+    "candidate_sha": "556329c9cdd183197e644299381550f81f061620",
+    "candidate_tree": "a7a581044ee5c9e91b8c514c9aad4ff3051ce6a5",
+    "error_count": 0,
+    "errors": [],
+    "expected_tree_verified": true,
+    "extra_count": 15165,
+    "extra_details": [
+      {
+        "bytes": 191,
+        "mode": 420,
+        "path": "policy-engine/_cache/pytest/CACHEDIR.TAG",
+        "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4"
+      },
+      {
+        "bytes": 302,
+        "mode": 420,
+        "path": "policy-engine/_cache/pytest/README.md",
+        "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad"
+      },
+      {
+        "bytes": 37,
+        "mode": 420,
+        "path": "policy-engine/_cache/pytest/.gitignore",
+        "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd"
+      },
+      {
+        "bytes": 1578,
+        "mode": 420,
+        "path": "policy-engine/_cache/pytest/v/cache/nodeids",
+        "sha256": "4148e844fe1a782187cb0b7be79ecf8c3725b95ea43955bd9ea768bddfbc4cbd"
+      },
+      {
+        "bytes": 267092,
+        "mode": 420,
+        "path": "policy-engine/_build/e02-D-composition/generated-artifacts.md",
+        "sha256": "6f9afe13f3b7f06df95df8ab4f07b23443838f177b5ab4873603231d3ecf304f"
+      },
+      {
+        "bytes": 305408,
+        "mode": 420,
+        "path": "policy-engine/_build/e02-D-composition/inventory-drift.json",
+        "sha256": "e4ca65cfc4248efc3a696857f9558ff30c2ac4853454023053c051cb9fb8c755"
+      },
+      {
+        "bytes": 7696,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/__pycache__/protocol.cpython-312.pyc",
+        "sha256": "63fd33e3d62f5613a92dc2a49535105dd2091fe43c9e6f2082f579c1d44ba83e"
+      },
+      {
+        "bytes": 0,
+        "mode": 438,
+        "path": "policy-engine/workers/dowhy-014/.venv/.lock",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 214,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/pyvenv.cfg",
+        "sha256": "715b4f4d83dd9bc98bca4ec337af4c3797225be479b3f782b7a974fc1520dd8a"
+      },
+      {
+        "bytes": 43,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/CACHEDIR.TAG",
+        "sha256": "5953156d7e0c564a427251316eaf26f8870e6483ae2197f916b630e4f93e31ae"
+      },
+      {
+        "bytes": 1,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/.gitignore",
+        "sha256": "684888c0ebb17f374298b65ee2807526c066094c701bcc7ebbe1c1095f494fc1"
+      },
+      {
+        "bytes": 2854,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/activate.bat",
+        "sha256": "ace8a38f1fcc75354c2e520cf15580ff3baf05da45450ec07de5228325c2ad7b"
+      },
+      {
+        "bytes": 529,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/pyftsubset",
+        "sha256": "bce20e89100bf62495aef74d2a1e748286495ae92bdc8446cf73c95a6416d319"
+      },
+      {
+        "bytes": 2804,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/activate.ps1",
+        "sha256": "871a063c0e3d032b01bd0502efcd71800bc3f55aac0336578b768fc42cbc05fd"
+      },
+      {
+        "bytes": 6,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/python3",
+        "sha256": "11a4a60b518bf24989d481468076e5d5982884626aed9faeb35b8576fcd223e1"
+      },
+      {
+        "bytes": 526,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/ttx",
+        "sha256": "57ffec2e1d76526395d7e465452ea1eb9f7bc96403b8d48a1676f0624cf7e64b"
+      },
+      {
+        "bytes": 535,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/pytest",
+        "sha256": "0df643035e5261e236ee2dce4ab649651bfdfd59770a338f6c1456aa97060556"
+      },
+      {
+        "bytes": 89,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/python",
+        "sha256": "1cb6250f57b16ec63e295507bc5f260c8c0f5ca7217106063df3e44a35b826cf"
+      },
+      {
+        "bytes": 4397,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/activate.fish",
+        "sha256": "02ec46bb68ed9035a5dae1148a51475d95a72920745d00bb82a155ce7d87a2f1"
+      },
+      {
+        "bytes": 519,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/isympy",
+        "sha256": "fa9435595a8f197ca013d2f1a3eeea591ad2ce844d61e4981a77fccf92a6c048"
+      },
+      {
+        "bytes": 531,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/fonttools",
+        "sha256": "c2ee89236313c4b3c45e3856104e497f7f33e2327a5d4401ad1bdf6f543ae7d2"
+      },
+      {
+        "bytes": 555,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/cython",
+        "sha256": "a00c87f73ddd7668bc6afc5b9bc5db90eb89c9a665ec98983681e269f1c62b65"
+      },
+      {
+        "bytes": 1217,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/pydoc.bat",
+        "sha256": "2a8eb66d1bc7b73adcd3c6f59e2383e0a7fe9412609c1f9d1870e35035ee6fee"
+      },
+      {
+        "bytes": 2404,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/activate_this.py",
+        "sha256": "f47f5addc032c85f1716682f339390e95c39b5069af72f9a74d6519d30da38c8"
+      },
+      {
+        "bytes": 530,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/f2py",
+        "sha256": "b8e4c9e3b61f6264c5c7615f7facb5e873c6a7e90dcc0d37cd764597e846a0d3"
+      },
+      {
+        "bytes": 521,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/tqdm",
+        "sha256": "d63496ce0813438ea5fdde2d6cfe34bcea2fed2b5c96619c9b1d069c805accad"
+      },
+      {
+        "bytes": 534,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/cygdb",
+        "sha256": "3174ca584505ea4b182df2682d37838c661357b0b5277ca1270de4578bd38914"
+      },
+      {
+        "bytes": 529,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/pygmentize",
+        "sha256": "deef591e219966334946db105363f0b252f7a2affaadf399cbb85169510091e5"
+      },
+      {
+        "bytes": 529,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/cffi-gen-src",
+        "sha256": "778206af8a94ca1a1c948b199e38a36764f186098490ab616866a4dc167c82da"
+      },
+      {
+        "bytes": 419,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/numba",
+        "sha256": "f74074411934fa91120eb8fda7cb949552535ad11ccd8a72e60b10585bdccf97"
+      },
+      {
+        "bytes": 4295,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/activate",
+        "sha256": "3ff52fb76b357e0db1ca2515cb3005f113548a4c1f93e3bd8d5ab7f3fba25df3"
+      },
+      {
+        "bytes": 3967,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/activate.nu",
+        "sha256": "36b80aa519da8466c462ba848f03acd5ef8ead912e616e06e266a0f50bb8c9c9"
+      },
+      {
+        "bytes": 530,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/numpy-config",
+        "sha256": "78e8beafd06fe29525edadf0e85a7d1d3d420ec52f00a51962a5500630fa58cb"
+      },
+      {
+        "bytes": 535,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/cythonize",
+        "sha256": "4323f200f7d52d0dba9cc3bfffe16c071af53b4c1f88a4cbc5c0fe84fbfb24f6"
+      },
+      {
+        "bytes": 1730,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/deactivate.bat",
+        "sha256": "13ea86073a9ee43a66e3549312599dd47ff315758b4ca5a0406faf041fb82300"
+      },
+      {
+        "bytes": 6,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/python3.12",
+        "sha256": "11a4a60b518bf24989d481468076e5d5982884626aed9faeb35b8576fcd223e1"
+      },
+      {
+        "bytes": 535,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/py.test",
+        "sha256": "0df643035e5261e236ee2dce4ab649651bfdfd59770a338f6c1456aa97060556"
+      },
+      {
+        "bytes": 528,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/pyftmerge",
+        "sha256": "7f696ac5d9ba2c60dfe2f9c9cd41ac1ebd0d140d4a011aa72bfee1d437f0c1a8"
+      },
+      {
+        "bytes": 2825,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/bin/activate.csh",
+        "sha256": "37702557fc63b1cae9a62a40cfbb6b3dc2cb43e754a7a8a95f9ca67f0aafa0a9"
+      },
+      {
+        "bytes": 632,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/cython.py",
+        "sha256": "3932423f417f7de71058cb0638f243b8553b6eb33549c2400131fa7a4f7c868e"
+      },
+      {
+        "bytes": 1618184,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/_cvxcore.cpython-312-darwin.so",
+        "sha256": "ceee81524486fa3679f78a9a80abc96c120bded183fab998b5e76e0281abc08c"
+      },
+      {
+        "bytes": 67710,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/threadpoolctl.py",
+        "sha256": "e5f119e394193e206655bec4b993ef0bb40b0fbb2f22c92bd5b2d70a622bb518"
+      },
+      {
+        "bytes": 110,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/pylab.py",
+        "sha256": "cd45d4d25edeec2e639834896ccd062d0c41ba7df1cee5cd7f5b6ea19600e979"
+      },
+      {
+        "bytes": 346152,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/qdldl.cpython-312-darwin.so",
+        "sha256": "2629bd816a8aacfde8d1dafc33bb006e4044190adccd41392c77b7b2dae5f98a"
+      },
+      {
+        "bytes": 4342,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/_virtualenv.py",
+        "sha256": "6cf30c56faf2a55228914dbbd17f8088ed371ebb08f5e7fa6fd931f913fcaf1d"
+      },
+      {
+        "bytes": 151,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/distutils-precedence.pth",
+        "sha256": "2638ce9e2500e572a5e0de7faed6661eb569d1b696fcba07b0dd223da5f5d224"
+      },
+      {
+        "bytes": 18,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/_virtualenv.pth",
+        "sha256": "69ac3d8f27e679c81b94ab30b3b56e9cd138219b1ba94a1fa3606d5a76a1433d"
+      },
+      {
+        "bytes": 11220,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/isympy.py",
+        "sha256": "85a100adccdbfcdcbe2f28ce0b0c7614d19a97f4b4328e1dd1d7a258bda0fc67"
+      },
+      {
+        "bytes": 34703,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/six.py",
+        "sha256": "c51c91f703d3d4b3696c923cb5fec213e05e75d9215393befac7f2fa6a3904df"
+      },
+      {
+        "bytes": 229552,
+        "mode": 493,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/_cffi_backend.cpython-312-darwin.so",
+        "sha256": "90177c34e639a067ee1f5a2028320b3af2940d47dfaf9583727b59abf0b3263f"
+      },
+      {
+        "bytes": 329,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/py.py",
+        "sha256": "b71675b5d9845ba0814e9e88767f88dac3b3cc0d3128da028bd45edbb523e871"
+      },
+      {
+        "bytes": 165012,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/typing_extensions.py",
+        "sha256": "4040ca1a1ecbee00d1385c12a93084d1c5bd46f0b774f07e5ae7e91c4f55e696"
+      },
+      {
+        "bytes": 18448,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/momentchi2/methods.py",
+        "sha256": "3ec5c834a3f870d04eb3ee1f772e3033c57f8a3507f44fce478b37ccc8f393e2"
+      },
+      {
+        "bytes": 100,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/momentchi2/__init__.py",
+        "sha256": "b02a1fffd001d1c3b3071878c6f9d90b0c57b8f19b5d428a4d00beefe14ed819"
+      },
+      {
+        "bytes": 7439,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/momentchi2/utilities.py",
+        "sha256": "f121d5a6f4d752901b7455f8e1e2b50427db65966d6c667913675613b1b972f4"
+      },
+      {
+        "bytes": 38302,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/tags.py",
+        "sha256": "0e717a082a79620d79cf0321b420df15593c4916fcda03c27cb9d82e07ef5d6e"
+      },
+      {
+        "bytes": 2774,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_musllinux.py",
+        "sha256": "0328fb827b1170c77df4c107d49be8df8d37262103490a61e8acad8a2f9cadff"
+      },
+      {
+        "bytes": 11224,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/dependency_groups.py",
+        "sha256": "5309cc564ca3022dfb594816e9d593bb09cdf34208c1fb8c5ec9afb6c670278c"
+      },
+      {
+        "bytes": 42059,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/metadata.py",
+        "sha256": "934149f420a5449e6f376aa61d6f26a0823eb82cc7c6a1c8cde5aa7be43d0f63"
+      },
+      {
+        "bytes": 39040,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/version.py",
+        "sha256": "558b2fb50fd198c660a4c082f96b8919c565911b6b4b6e07f34b6b60c074be97"
+      },
+      {
+        "bytes": 11645,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/direct_url.py",
+        "sha256": "843baa95d04cbb49288de9d9fd77ee946e862cb603123e7e46a69e171fa7d06b"
+      },
+      {
+        "bytes": 35232,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/pylock.py",
+        "sha256": "1bce0a9fe63e42b87e8ced05da272baf16a68aa704b3718405e2735a6112467c"
+      },
+      {
+        "bytes": 494,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/__init__.py",
+        "sha256": "6e758cdd0028b2cad74c739b9adc9c9f06f054932306280b878bfe59d39219b5"
+      },
+      {
+        "bytes": 30850,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_ranges.py",
+        "sha256": "b7b595f2e692aeb3697c545b85c24cbbcb4552f2adc6d9059aa82d0877e816b7"
+      },
+      {
+        "bytes": 12639,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_parser.py",
+        "sha256": "88a348115209327497e453b635e5db099fd592f9335d710c7313b29cdb30c50c"
+      },
+      {
+        "bytes": 83054,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/ranges.py",
+        "sha256": "b4781ce913e5dff9e07906f20585c54c3028e1f7ff56341828e79d522ddbfab6"
+      },
+      {
+        "bytes": 12215,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/utils.py",
+        "sha256": "a13742cd9994eeca5adfb0249d126408c478026eb1f48cb97afbf2fe9f28ecc6"
+      },
+      {
+        "bytes": 7040,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/requirements.py",
+        "sha256": "459476eb2107fe30e6b1310051a5bdb44c7d3b7f78e0e87bada268282cba62f5"
+      },
+      {
+        "bytes": 1109,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_structures.py",
+        "sha256": "eb48d16c5efca7ccf930a9cd77a700a6b80e69d0891d5d03966526441a8565cb"
+      },
+      {
+        "bytes": 20554,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/markers.py",
+        "sha256": "6cbe860d35d98d2b599e7f0ec73feab124e015711b30be9045e678c92940d9cc"
+      },
+      {
+        "bytes": 0,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/py.typed",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 2680,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/errors.py",
+        "sha256": "ea17c461701ff2ffc817ae7e94569d24e30889e04fdb120ab721178c6d67188b"
+      },
+      {
+        "bytes": 10000,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_manylinux.py",
+        "sha256": "5b6e84324c42538ab4cdb148e2430fdba36f04427b0efda55bea083a35fa6136"
+      },
+      {
+        "bytes": 5573,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_tokenizer.py",
+        "sha256": "cc25e57c0d564c89e15073471d6e1c264299ca946fb17c0e1e4af54ef7713ee6"
+      },
+      {
+        "bytes": 52798,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/specifiers.py",
+        "sha256": "661ad31ddf45ffb861d2626734f4e3d66966029b8fdb79586bb105825d8d9d59"
+      },
+      {
+        "bytes": 3236,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_elffile.py",
+        "sha256": "1f025f54c573f1a85740c4fbd908cc1d1fb0c177c14377ebf5f09d6cd5368780"
+      },
+      {
+        "bytes": 7859,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/licenses/__init__.py",
+        "sha256": "590d12eee73ddbec53b4e9ee5bfc64d9cb3aacb4940e8ebcba260757ce56740b"
+      },
+      {
+        "bytes": 51122,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/licenses/_spdx.py",
+        "sha256": "596ec35e2ca0ebcba9fd8343ff0a51625af548786257815f24b41f7e08613314"
+      },
+      {
+        "bytes": 4784,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/__pycache__/_musllinux.cpython-312.pyc",
+        "sha256": "f0b044223a1ea798d3fd4a684f99f5bfb398e15b94f8251bf57135a58d5818f2"
+      },
+      {
+        "bytes": 13275,
+        "mode": 420,
+        "path": "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/__pycache__/utils.cpython-312.pyc",
+        "sha256": "e6112d5c79c4a7e2748690e6f456bfe12015c5d65bbe8aa44016e3622040f2d7"
+      }
+    ],
+    "extra_paths": [
+      "policy-engine/_cache/pytest/CACHEDIR.TAG",
+      "policy-engine/_cache/pytest/README.md",
+      "policy-engine/_cache/pytest/.gitignore",
+      "policy-engine/_cache/pytest/v/cache/nodeids",
+      "policy-engine/_build/e02-D-composition/generated-artifacts.md",
+      "policy-engine/_build/e02-D-composition/inventory-drift.json",
+      "policy-engine/workers/dowhy-014/__pycache__/protocol.cpython-312.pyc",
+      "policy-engine/workers/dowhy-014/.venv/.lock",
+      "policy-engine/workers/dowhy-014/.venv/pyvenv.cfg",
+      "policy-engine/workers/dowhy-014/.venv/CACHEDIR.TAG",
+      "policy-engine/workers/dowhy-014/.venv/.gitignore",
+      "policy-engine/workers/dowhy-014/.venv/bin/activate.bat",
+      "policy-engine/workers/dowhy-014/.venv/bin/pyftsubset",
+      "policy-engine/workers/dowhy-014/.venv/bin/activate.ps1",
+      "policy-engine/workers/dowhy-014/.venv/bin/python3",
+      "policy-engine/workers/dowhy-014/.venv/bin/ttx",
+      "policy-engine/workers/dowhy-014/.venv/bin/pytest",
+      "policy-engine/workers/dowhy-014/.venv/bin/python",
+      "policy-engine/workers/dowhy-014/.venv/bin/activate.fish",
+      "policy-engine/workers/dowhy-014/.venv/bin/isympy",
+      "policy-engine/workers/dowhy-014/.venv/bin/fonttools",
+      "policy-engine/workers/dowhy-014/.venv/bin/cython",
+      "policy-engine/workers/dowhy-014/.venv/bin/pydoc.bat",
+      "policy-engine/workers/dowhy-014/.venv/bin/activate_this.py",
+      "policy-engine/workers/dowhy-014/.venv/bin/f2py",
+      "policy-engine/workers/dowhy-014/.venv/bin/tqdm",
+      "policy-engine/workers/dowhy-014/.venv/bin/cygdb",
+      "policy-engine/workers/dowhy-014/.venv/bin/pygmentize",
+      "policy-engine/workers/dowhy-014/.venv/bin/cffi-gen-src",
+      "policy-engine/workers/dowhy-014/.venv/bin/numba",
+      "policy-engine/workers/dowhy-014/.venv/bin/activate",
+      "policy-engine/workers/dowhy-014/.venv/bin/activate.nu",
+      "policy-engine/workers/dowhy-014/.venv/bin/numpy-config",
+      "policy-engine/workers/dowhy-014/.venv/bin/cythonize",
+      "policy-engine/workers/dowhy-014/.venv/bin/deactivate.bat",
+      "policy-engine/workers/dowhy-014/.venv/bin/python3.12",
+      "policy-engine/workers/dowhy-014/.venv/bin/py.test",
+      "policy-engine/workers/dowhy-014/.venv/bin/pyftmerge",
+      "policy-engine/workers/dowhy-014/.venv/bin/activate.csh",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/cython.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/_cvxcore.cpython-312-darwin.so",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/threadpoolctl.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/pylab.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/qdldl.cpython-312-darwin.so",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/_virtualenv.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/distutils-precedence.pth",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/_virtualenv.pth",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/isympy.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/six.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/_cffi_backend.cpython-312-darwin.so",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/py.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/typing_extensions.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/momentchi2/methods.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/momentchi2/__init__.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/momentchi2/utilities.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/tags.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_musllinux.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/dependency_groups.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/metadata.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/version.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/direct_url.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/pylock.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/__init__.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_ranges.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_parser.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/ranges.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/utils.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/requirements.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_structures.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/markers.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/py.typed",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/errors.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_manylinux.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_tokenizer.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/specifiers.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/_elffile.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/licenses/__init__.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/licenses/_spdx.py",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/__pycache__/_musllinux.cpython-312.pyc",
+      "policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging/__pycache__/utils.cpython-312.pyc"
+    ],
+    "missing_count": 0,
+    "ok": true,
+    "tracked_bytes_read": 717190096,
+    "tracked_entries": 25237,
+    "tree_listing_sha256": "50f9b790182aa67568bfdfb3779ac83986f2f2ad0ada400a9a8e14ba28f20595"
+  },
+  "started_utc": "2026-10-07T22:36:34.938812+00:00",
+  "timed_out": false,
+  "timeout_seconds": 180,
+  "wall_seconds": 25.616,
+  "worker_inventory": {
+    "worker_interpreter_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate/policy-engine/workers/dowhy-014/.venv/bin/python",
+    "worker_inventory_installed_distribution_count": 52,
+    "worker_inventory_sha256": "181775331ff273a7dcca6f917664fc2540fd0f621501d4f8185218ea3d3efd4b",
+    "worker_inventory_version_consistency_ok": true,
+    "worker_lock_sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a",
+    "worker_project_sha256": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447",
+    "worker_python_version_file_sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+    "worker_script_export_blob": "8e4ea39ce6b4f03626b30fb674b0d3f881557aef",
+    "worker_script_git_blob": "8e4ea39ce6b4f03626b30fb674b0d3f881557aef"
+  },
+  "worker_process_observations": [],
+  "worker_unavailable_events": {
+    "app_interpreter": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "app_python": "3.14.3",
+    "candidate_sha": "556329c9cdd183197e644299381550f81f061620",
+    "candidate_tree": "a7a581044ee5c9e91b8c514c9aad4ff3051ce6a5",
+    "event_count": 0,
+    "events": [],
+    "observer": "sys.settrace exception-only; WorkerUnavailableError only",
+    "pytest_args": [
+      "-o",
+      "addopts=",
+      "--import-mode=importlib",
+      "-p",
+      "no:cacheprovider",
+      "-q",
+      "--tb=short",
+      "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/pytest-basetemp",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/junit.xml",
+      "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_query_consumer_binds_complete_cas_projection_and_original_request"
+    ],
+    "pytest_exit_code": 4
+  }
+}

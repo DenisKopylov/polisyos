@@ -29,6 +29,7 @@ import pandas as pd
 
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
+from polisyos.data_forge.domains.catalog._resources import catalog_default_resource_path
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
     CatalogTransportDataset,
     CoreSourcesIngestStats,
@@ -258,15 +259,8 @@ _ILO_INFERRED_DIMENSION_TOKENS: frozenset[str] = frozenset(
 )
 
 
-
-
 def _seed_alignments_path() -> Path:
-    return (
-        Path(__file__).resolve().parents[7]
-        / "data"
-        / "dataset_catalog"
-        / "seed_variable_alignments.yaml"
-    )
+    return catalog_default_resource_path("seed_variable_alignments.yaml")
 
 
 def _wvs_raw_dir() -> Path:
@@ -278,12 +272,7 @@ def _wvs_bulk_csv_path() -> Path:
 
 
 def _wvs_registry_path() -> Path:
-    return (
-        Path(__file__).resolve().parents[7]
-        / "data"
-        / "dataset_catalog"
-        / "wvs_indicator_registry.yaml"
-    )
+    return catalog_default_resource_path("wvs_indicator_registry.yaml")
 
 
 _wvs_registry_cache: dict[str, dict] | None = None
@@ -549,6 +538,8 @@ def _normalize_wvs_response_value_typed(indicator: str, raw_value: Any) -> float
     if value == 0:
         return None
     return value
+
+
 def _merge_observation_stats(
     stats: CoreSourcesIngestStats,
     inserted: ObservationInsertStats,
@@ -1810,6 +1801,8 @@ def _wvs_weight(row: dict[str, Any]) -> tuple[float | None, str]:
             continue
         return value, field
     return 1.0, ""
+
+
 async def _fetch_who_observations(
     *,
     indicator_id: str,
@@ -1855,9 +1848,7 @@ async def _fetch_uis_observations(
     url = "https://api.uis.unesco.org/api/public/data/indicators"
     params = {
         "indicator": indicator_id,
-        "geoUnit": __resolve_implementation_dependency("_to_iso3", "transformers")(
-            country_code
-        ),
+        "geoUnit": __resolve_implementation_dependency("_to_iso3", "transformers")(country_code),
         "start": int(start_year),
         "end": int(end_year),
     }

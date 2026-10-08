@@ -1,0 +1,19 @@
+{
+  "output": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-final-cdf-v5-completed.json",
+    "bytes": 1572145,
+    "sha256": "860c3784156b773e8e1a8f9ae47cc0c5d434d66a3e6f52c05009effb548a303d"
+  },
+  "counts": {
+    "logical_files": 1774,
+    "unique_transport_files": 1057,
+    "aliases": 675,
+    "existing_git_files": 42,
+    "changed_prior_inputs": 7,
+    "unique_raw_transport_bytes": 231574331
+  },
+  "pending_extensions": [],
+  "root_source_writes": false,
+  "Git_writes": false,
+  "tests_run": false
+}

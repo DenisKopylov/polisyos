@@ -1,0 +1,169 @@
+--- tracked candidate schemas/runtime_api_v1.openapi.json
++++ generated results/api-python-render/schemas/runtime_api_v1.openapi.json
+@@ -30045,6 +30045,94 @@
+         "title": "ReasonAlgebraRow",
+         "type": "object"
+       },
++      "RecursiveCycleCheckpoint": {
++        "additionalProperties": false,
++        "description": "Persisted, non-publishing checkpoint for an incomplete recursive cycle.",
++        "properties": {
++          "authority_scope": {
++            "enum": [
++              "production",
++              "contract_testing"
++            ],
++            "title": "Authority Scope",
++            "type": "string"
++          },
++          "compiled_artifact_ref": {
++            "$ref": "#/components/schemas/ArtifactRef-Output"
++          },
++          "completed_design_refs": {
++            "items": {
++              "type": "string"
++            },
++            "title": "Completed Design Refs",
++            "type": "array"
++          },
++          "leaf_promotion_statuses": {
++            "additionalProperties": {
++              "type": "string"
++            },
++            "title": "Leaf Promotion Statuses",
++            "type": "object"
++          },
++          "pending_frontier": {
++            "items": {
++              "type": "string"
++            },
++            "title": "Pending Frontier",
++            "type": "array"
++          },
++          "publication_authority": {
++            "const": false,
++            "default": false,
++            "title": "Publication Authority",
++            "type": "boolean"
++          },
++          "root_design_problem_ref": {
++            "pattern": "^sha256:[0-9a-f]{64}$",
++            "title": "Root Design Problem Ref",
++            "type": "string"
++          },
++          "root_n9_status": {
++            "const": "not_run",
++            "default": "not_run",
++            "title": "Root N9 Status",
++            "type": "string"
++          },
++          "schema_version": {
++            "const": "policyos.runtime.recursive_cycle_checkpoint.v1",
++            "title": "Schema Version",
++            "type": "string"
++          },
++          "status": {
++            "const": "partial",
++            "title": "Status",
++            "type": "string"
++          },
++          "stop_node_ref": {
++            "title": "Stop Node Ref",
++            "type": "string"
++          },
++          "verification_basis": {
++            "const": "resolved_core_cas_intrinsic",
++            "title": "Verification Basis",
++            "type": "string"
++          }
++        },
++        "required": [
++          "schema_version",
++          "status",
++          "compiled_artifact_ref",
++          "root_design_problem_ref",
++          "pending_frontier",
++          "completed_design_refs",
++          "stop_node_ref",
++          "authority_scope",
++          "verification_basis",
++          "leaf_promotion_statuses"
++        ],
++        "title": "RecursiveCycleCheckpoint",
++        "type": "object"
++      },
+       "RefusedAuthorityValue": {
+         "additionalProperties": false,
+         "description": "A served, first-class refusal. The absence itself is the supplied value.",
+@@ -30827,6 +30915,16 @@
+             "anyOf": [
+               {
+                 "$ref": "#/components/schemas/PolicyDesignCaseProjection"
++              },
++              {
++                "type": "null"
++              }
++            ]
++          },
++          "recursive_cycle_checkpoint": {
++            "anyOf": [
++              {
++                "$ref": "#/components/schemas/RecursiveCycleCheckpoint"
+               },
+               {
+                 "type": "null"
+@@ -58391,18 +58489,18 @@
+                           "semantic_role": "scope_total_spend"
+                         }
+                       },
+-                      "projection_hash": "sha256:1cd0fc0386d57c4438b0d6c8d48c96420de5a8a0abba7f35cedbe415de663633",
++                      "projection_hash": "sha256:9e5cb658a7481955c67754b24448b42f064b93c7752dccd1085b717f6459ad5a",
+                       "projection_id": "confidence-ledger-risk-spend",
+                       "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
+                       "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+                       "registry_projection_hash": "sha256:000302a7a97aac6747cffca5ebb0536309505f3e45c0011cc7536ec80861eacc",
+-                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A1cd0fc0386d57c4438b0d6c8d48c96420de5a8a0abba7f35cedbe415de663633&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Ade7b140e1ab2480075cf3272799c8504f5296758b0d88bb41b59ed3e4b3bbaf4",
++                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A9e5cb658a7481955c67754b24448b42f064b93c7752dccd1085b717f6459ad5a&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A1fcbb0fb63f71a8d8aeaf34fcce7c75c58a699d8cbd03f9ab47322fa4479d827",
+                       "replay_pins": {
+                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
+-                        "projection_hash": "sha256:1cd0fc0386d57c4438b0d6c8d48c96420de5a8a0abba7f35cedbe415de663633",
++                        "projection_hash": "sha256:9e5cb658a7481955c67754b24448b42f064b93c7752dccd1085b717f6459ad5a",
+                         "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
+                         "source_as_of": "2026-02-11T12:00:00Z",
+-                        "source_dependency_hash": "sha256:de7b140e1ab2480075cf3272799c8504f5296758b0d88bb41b59ed3e4b3bbaf4"
++                        "source_dependency_hash": "sha256:1fcbb0fb63f71a8d8aeaf34fcce7c75c58a699d8cbd03f9ab47322fa4479d827"
+                       },
+                       "source": {
+                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
+@@ -58411,8 +58509,8 @@
+                         "relative_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
+                         "validation": {
+                           "bound_artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
+-                          "bound_dependency_aggregate_identity": "sha256:de7b140e1ab2480075cf3272799c8504f5296758b0d88bb41b59ed3e4b3bbaf4",
+-                          "bound_dependency_count": 1492,
++                          "bound_dependency_aggregate_identity": "sha256:1fcbb0fb63f71a8d8aeaf34fcce7c75c58a699d8cbd03f9ab47322fa4479d827",
++                          "bound_dependency_count": 1654,
+                           "frozen_semantic_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
+                           "issue_codes": [],
+                           "recomputed_total_spend_denominator": 1,
+@@ -58427,16 +58525,16 @@
+                           "status": "passed",
+                           "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
+                           "validator_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
+-                          "worker_validation_receipt_hash": "sha256:da5e0a60d85aabd62ee910b5642ed46fc5dd18ca7e19b7b8b3ed14429c7a2b55"
++                          "worker_validation_receipt_hash": "sha256:60c8c5fc6390ee81f4d00e88417d23fd66e830e6720ed7f4c345ccef13c9bf9c"
+                         }
+                       },
+                       "source_blocked_reason": null,
+-                      "source_dependency_hash": "sha256:de7b140e1ab2480075cf3272799c8504f5296758b0d88bb41b59ed3e4b3bbaf4",
++                      "source_dependency_hash": "sha256:1fcbb0fb63f71a8d8aeaf34fcce7c75c58a699d8cbd03f9ab47322fa4479d827",
+                       "source_rule_version": null,
+                       "source_schema_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
+                       "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
+-                      "worker_validation_receipt_hash": "sha256:da5e0a60d85aabd62ee910b5642ed46fc5dd18ca7e19b7b8b3ed14429c7a2b55",
+-                      "worker_validation_receipt_ref": "owner-validation:sha256:da5e0a60d85aabd62ee910b5642ed46fc5dd18ca7e19b7b8b3ed14429c7a2b55"
++                      "worker_validation_receipt_hash": "sha256:60c8c5fc6390ee81f4d00e88417d23fd66e830e6720ed7f4c345ccef13c9bf9c",
++                      "worker_validation_receipt_ref": "owner-validation:sha256:60c8c5fc6390ee81f4d00e88417d23fd66e830e6720ed7f4c345ccef13c9bf9c"
+                     }
+                   }
+                 },

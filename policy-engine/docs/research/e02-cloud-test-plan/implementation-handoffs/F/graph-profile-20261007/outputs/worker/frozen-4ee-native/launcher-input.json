@@ -1,0 +1,27 @@
+{
+  "actual_argv": [
+    "/tmp/e02-F-graph-profile-20261007/worker/run_frozen_focused_native.py",
+    "--candidate",
+    "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+    "--checkout",
+    "/workspace/e02-F-closeout-20261006",
+    "--parent-python",
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "--worker-python",
+    "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/bin/python"
+  ],
+  "launcher": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/frozen-4ee-native/launch_frozen_native.py",
+    "bytes": 2833,
+    "sha256": "d7371399b8ff976c2734d49561ff5ff42dcb088b1a4aca233e2f705ad4bebe6b"
+  },
+  "runner": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/run_frozen_focused_native.py",
+    "bytes": 6445,
+    "sha256": "45eb8bb69d3ac32c5aeeed72396bf72220a7b48c09fae71a71836fe39a645f65"
+  },
+  "output_directory": "/tmp/e02-F-graph-profile-20261007/worker/frozen-4ee-native",
+  "output_directory_only_override": true,
+  "no_source_or_Git_writes": true,
+  "source_freeze": "ROOT commissioned exact candidate and attached existing checkout."
+}

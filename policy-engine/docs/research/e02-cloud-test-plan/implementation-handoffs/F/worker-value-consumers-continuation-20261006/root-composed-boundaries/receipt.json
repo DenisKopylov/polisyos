@@ -1,0 +1,43 @@
+{
+  "source_sha": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+  "source_tree": "63cdae9393a55b3acda824ab955fd89e3ca1c8b9",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-o",
+    "cache_dir=/tmp/e02-F-continuation-20261006/root-composed-boundaries/cache",
+    "--basetemp",
+    "/tmp/e02-F-continuation-20261006/root-composed-boundaries/tmp",
+    "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_gcm_job_persisted_fresh_reader_and_scientist_consumer",
+    "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader",
+    "tests/unit/foundry/methods/backends/test_dispatch_output_contract.py",
+    "tests/unit/ir/analytics/test_causal_identification_candidate.py",
+    "tests/unit/scientist/governance/test_causal_confidence_candidate.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "environment_overrides": {
+    "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+    "TMPDIR": "/tmp"
+  },
+  "exit_code": 1,
+  "wall_seconds": 70.58392945899686,
+  "ending_head": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+  "outputs": {
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-boundaries/stdout",
+      "bytes": 5879,
+      "sha256": "127a2f5ded1db5fdc8db0228ffa16eb1d301ca996c4e4c9ca9ef1715e43a7ddd"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-boundaries/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

@@ -1,0 +1,216 @@
+{
+  "schema": "e02.D.cost_ast_consumer_surface_review.v1",
+  "review": "read_only_independent_source_and_receipt_review",
+  "reviewer_actions": {
+    "tests_run": false,
+    "source_writes": false,
+    "git_ref_changes": false,
+    "checkout_changes": false
+  },
+  "audit_checkout": {
+    "branch": "codex/e02-integration",
+    "head": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+    "candidate_implementation_is_ancestor": false
+  },
+  "D_pins": {
+    "receipt_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "implementation": {
+      "sha": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4"
+    },
+    "candidate": {
+      "sha": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668"
+    },
+    "candidate_delta_from_implementation": {
+      "paths": 1,
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py",
+      "change": "+28/-1",
+      "production_changes": false
+    }
+  },
+  "complete_footprint": {
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/full-source-footprints.json.gz@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "sha256": "dd59bae55468fc0b7eeb301e33ae73480bf81d8d39d6012938b26b533eab0030",
+    "bytes": 242813,
+    "paths_from_original_base": 3796,
+    "paths_from_continuation_base": 554,
+    "paths_from_merged_G_context": 28,
+    "mechanism_test_doc_release_paths": 22,
+    "complete_import_closure_established": false,
+    "tracked_source_copies": false
+  },
+  "recommendation": {
+    "bounded_mechanism_source_review": "GO",
+    "formal_finding_closure": "not_established",
+    "G_acceptance": false
+  },
+  "cost_origin": {
+    "implementation_commit": "4645738aee05809552e95aecb14d365793fc6bb2",
+    "changed_mechanism": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+    "consumer_chain": [
+      "native response bytes",
+      "canonical decoder/enforcer/settlement",
+      "FunnelOrchestrator",
+      "Node outcome serializer",
+      "ExperimentState JSON",
+      "qualified CAS",
+      "fresh reader"
+    ],
+    "property": "estimated input cost is projected separately from provider-reported spend; absent reported evidence stays null/not_reported; reported zero stays zero/reported",
+    "evidence": {
+      "execution_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/funnel-estimated-input-origin-final3b/output-manifest.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/FUN-origin17-removal11-final3b31-independent-runtime-review.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "pass": 17,
+      "removal_expected_assertion_fail": 3,
+      "removal_unaffected_pass": 8,
+      "error": 0,
+      "skip": 0,
+      "independent_decimal_oracle": "50000 * 0.00001 = 0.5",
+      "candidate_carry": "qualified scoped carry to a795; no new 17-case run there",
+      "P37": "consumer_asserted",
+      "P38": "estimated input does not prove reported debit; absent reported amount is null",
+      "limits": [
+        "not all Node.execute",
+        "not natural failed-L3-to-L4 scheduling",
+        "not provider invoice truth"
+      ]
+    },
+    "public_surface_review_metadata_at_candidate": false,
+    "metadata_action": "The candidate facade and inventory reconcile at 42 names. Compared with G980 and main198 (39 each), candidate a795 adds NativeSearchService, SearchServiceCheckpoint, and SearchLoopRunner, introduced by 5bd73d8… and inventoried by 5eca5d0…. Those commits are candidate ancestors but absent from G/main. The final D product delta leaves the five audited paths unchanged. This is a static five-path inventory comparison, not a whole-repository or generated-surface gate. The canonical owner may update the funnel-cost metadata only after accepting this exact scope; that would mean “reviewed,” not “no public Python API delta.”",
+    "generated_client_or_public_schema_regeneration_required": false
+  },
+  "ast_spec": {
+    "implementation_commit": "6c1729a7bc86cf90d443d73515d98dd4ebfa2894",
+    "mechanism": "static repository diagnostic only",
+    "behavior": "one direct module-level supported _SPEC declaration is admitted; multiple or unsupported syntactic bindings refuse as ambiguous/UNRUN rather than unioning paths",
+    "evidence": {
+      "execution_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/gp-ast-final3b/output-manifest.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/GP-AST-final3b-actual-and-a795-carry-independent-review.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "diagnostic_cases_pass": 44,
+      "canonical_tracked_input_reads_pass": 63,
+      "legacy_union_removal_expected_assertion_fail": 25,
+      "P37": "recomputed",
+      "P38": "static syntax check does not establish runtime declared-read semantics",
+      "limits": [
+        "not runtime gate",
+        "not B04 closure",
+        "dynamic writes/aliases/runtime dispatch remain unresolved"
+      ]
+    }
+  },
+  "consumer_and_compatibility": {
+    "surface_contract": "policy-engine/architecture/public_surface/contract.toml@a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "inventory": "policy-engine/architecture/public_surface/inventory.json@a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "stable_facade": "policy-engine/src/polisyos/scientist/__init__.py@a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "stable_facade_export_count": 42,
+    "facade_inventory_contract_changed_in_D_product_commits": false,
+  "facade_inventory_contract_change_scope": "exact final D product commits 6c1729a, 4645738, 9def216, 3b31 to a795; not a full candidate-to-G/main comparison",
+    "candidate_vs_current_G_and_main": {
+      "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "candidate_exports": 42,
+      "G": "9806442ddb47d624a2940bac75d9d6248e934c48",
+      "G_exports": 39,
+      "main": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "main_exports": 39,
+      "additive_exports": [
+        "polisyos.scientist.NativeSearchService",
+        "polisyos.scientist.SearchServiceCheckpoint",
+        "polisyos.scientist.SearchLoopRunner"
+      ],
+      "implementation_commit": "5bd73d8d61f652e8628528bb9b49ef49c8e03a2a",
+      "inventory_docs_commit": "5eca5d0df09f3296aefe20a0797aa14837da01ff",
+      "changed_paths_within_five_path_scope": [
+        "policy-engine/src/polisyos/scientist/__init__.py",
+        "policy-engine/architecture/public_surface/inventory.json",
+        "policy-engine/docs/reference/public-surface.md"
+      ],
+      "unchanged_paths_within_five_path_scope": [
+        "policy-engine/architecture/public_surface/contract.toml",
+        "policy-engine/docs/reference/generated-artifacts.md"
+      ]
+    },
+    "public_dto_signature_changed": false,
+    "http_openapi_or_generated_client_changed": false,
+    "client_or_schema_regeneration_required": false,
+    "python_root_exports_added_vs_G_or_main": true,
+    "persisted_checkpoint_profile_compatibility": "breaking persisted-restore behavior exposed through the stable public NativeSearchService alias; checkpoint profiles are internal; old/unsupported profiles refuse without automatic migration; continue with the original compatible reader/backend or start an explicitly new run; no HTTP/DTO/generated-client signature change",
+    "release_companion": "policy-engine/release-fragments/unreleased/2026-10-07-search-complete-history-resume.toml@a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "documented_compatibility_guide": "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md@a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "service_evidence": {
+      "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "pass": 31,
+      "affected_pass": 22,
+      "removal_expected_assertion_fail": 1,
+      "error": 0,
+      "skip": 0,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/service-history-final-a795/receipt.json@cbc46a0bc87761bc2267a0daa84da489d6702e89"
+    },
+    "other_exact_scopes": {
+      "GP_pass": 12,
+      "dedup_contract_pass": 50,
+      "adopted_G_CAS_async_pass": 7,
+      "all_are_bounded": true
+    }
+  },
+  "budget_factory": {
+    "exact_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+    "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+    "selector": "tests/unit/scientist/methods/search/test_service_owner_budget_factory.py",
+    "pass": 10,
+    "fail": 0,
+    "error": 0,
+    "skip": 0,
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/final-receipt.json@3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+    "current_carry": "not established at a795 due changed service/import dependency closure",
+    "next_action": "if B120 closure is still required, run only this selector against frozen G integration SHA",
+    "attempt_1": "six FileNotFoundErrors; isolated TOML was supplied exactly for attempt 2; both attempts retained"
+  },
+  "global_limits": {
+    "production_invocation": "UNRUN",
+    "wrapper_returncode": -9,
+    "elapsed_seconds": 180.03,
+    "cases": 0,
+    "phases": 0,
+    "stdout_bytes": 0,
+    "stderr_bytes": 0,
+    "cause": "unknown",
+    "product_failure": false,
+    "OOM_attribution": false,
+    "tracked_inputs": 17350,
+    "available_inputs": 8456,
+    "sparse_unread_boundaries": 8894,
+    "global_companion_generators": "UNRUN",
+    "optional_backends": "SKIP/UNRUN"
+  },
+  "finding_accounting": {
+    "bundles": 17,
+    "unique_findings": 45,
+    "criterion_occurrences": 46,
+    "draft_disposition_proposals": 39,
+    "held_findings": [
+      "B131",
+      "B137",
+      "B157",
+      "B161",
+      "B164"
+    ],
+    "limited_findings": [
+      "B108"
+    ],
+    "whole_property_verification_missing_occurrences": 38,
+    "formal_closed": 0,
+    "G_accepted": 0,
+    "P41_not_established_occurrences": 46,
+    "interpretation": "proposal dispositions and bounded code evidence are not formal finding closure; 38 is not a count of unimplemented source mechanisms"
+  },
+  "exact_source_receipts": {
+    "final_closeout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-closeout.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "final_source_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-source-review.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "ledger": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/ledger-overlay.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "source_bindings": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/source-bindings.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "production_unrun": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/production-invocation-UNRUN/receipt.json@cbc46a0bc87761bc2267a0daa84da489d6702e89"
+  }
+}

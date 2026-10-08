@@ -1,0 +1,7 @@
+# Storage: two completed exact source exports
+
+Native NSFileManager Trash moved only the completed `native-F/candidate` and `native-E/candidate` exports. [Full native receipt](storage-native-receipt.json) records each source/destination/device/inode and checks source absence plus the same directory identity at the native Trash destination. Both fresh `lsof +D` checks reported no handles. Total allocated-file estimate before move: 124,940,288 bytes (119.2 MiB); physical free-space recovery is not asserted. Trash was not emptied.
+
+All 2,942 F tracked blobs/modes and 2,926 E blobs/modes matched exact source manifests. F's only generated extra `executions.jsonl` was copied unchanged outside the moved export, hash079fd0be22abd668fbe297dc98b29c5b9a289d785d67ec0e9b0e4a3c71a3b533. E had no extra. Full deciding results, CAS fixtures, all harness attempts/scripts, source manifests and origin inventories remain in ignored G scratch; moderate deciding stdout/stderr/JUnit/results are committed once in outputs/. No production or active worktree payload was scanned/moved.
+
+The previous bounded old-worktree/cache audits found no additional inactive registered checkout or safe retired-cache candidate. Valuable old A/C code/docs differences remain in preserved Git refs; those checkout copies are already gone. Do not repeat earlier Trash intents. Available space remains around19–20GiB, below25GiB softfloor; no heavy installation or broad wave started. Further physical-space accounting must use a fresh filesystem measurement, not nominal Trash transfer bytes.

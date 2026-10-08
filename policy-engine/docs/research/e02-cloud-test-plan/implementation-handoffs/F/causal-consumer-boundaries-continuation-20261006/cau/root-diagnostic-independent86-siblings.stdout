@@ -1,0 +1,90 @@
+{"independent_frozen_owner": "86e7f9afe25e5f171a0fb03669ce0d9cb5269624", "source_sha256": "164d0c6d960a9ec12b9afb18cb5dcc2d1a1dbc2479d40f847b7fc7335c2ca656", "pid": 665674, "origin": "86e7f9afe25e5f171a0fb03669ce0d9cb5269624:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py"}
+{
+  "source_sha": "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+  "source_sha256": "164d0c6d960a9ec12b9afb18cb5dcc2d1a1dbc2479d40f847b7fc7335c2ca656",
+  "cases": [
+    {
+      "method": "causal.inference.did.standard@1.0.0",
+      "time_treatment": 0,
+      "status": "input_invalid",
+      "diagnostics": [],
+      "consumer": "PASS",
+      "identification_authority": "not established"
+    },
+    {
+      "method": "causal.inference.did.standard@1.0.0",
+      "time_treatment": 2,
+      "status": "success",
+      "diagnostics": [
+        {
+          "test_name": "pre_trend_parallelism",
+          "statistic": null,
+          "p_value": null,
+          "passed": false,
+          "details": {
+            "identification_authority": false,
+            "limitation": "Non-rejection cannot establish untreated potential-outcome parallel trends.",
+            "status": "not_testable",
+            "reason": "insufficient_pre_periods"
+          }
+        },
+        {
+          "test_name": "parallel_trends_warning",
+          "statistic": null,
+          "p_value": null,
+          "passed": false,
+          "details": {
+            "message": "Pretrend evidence is limited; it does not establish identification.",
+            "status": "not_testable",
+            "identification_authority": false
+          }
+        }
+      ],
+      "consumer": "PASS",
+      "identification_authority": "not established"
+    },
+    {
+      "method": "causal.inference.did.staggered@1.0.0",
+      "time_treatment": 2,
+      "status": "success",
+      "diagnostics": [
+        {
+          "test_name": "pre_trend_parallelism",
+          "statistic": null,
+          "p_value": null,
+          "passed": false,
+          "details": {
+            "identification_authority": false,
+            "limitation": "Non-rejection cannot establish untreated potential-outcome parallel trends.",
+            "status": "not_testable",
+            "reason": "insufficient_pre_periods"
+          }
+        }
+      ],
+      "consumer": "PASS",
+      "identification_authority": "not established"
+    },
+    {
+      "method": "causal.inference.did.staggered@1.0.0",
+      "time_treatment": 3,
+      "status": "success",
+      "diagnostics": [
+        {
+          "test_name": "pre_trend_parallelism",
+          "statistic": -0.15000000000000005,
+          "p_value": 0.5718922635979181,
+          "passed": true,
+          "details": {
+            "identification_authority": false,
+            "limitation": "Non-rejection cannot establish untreated potential-outcome parallel trends.",
+            "status": "no_detected_pretrend",
+            "slope_se": 0.265361388801511,
+            "z_score": -0.5652668637191951
+          }
+        }
+      ],
+      "consumer": "PASS",
+      "identification_authority": "not established"
+    }
+  ]
+}

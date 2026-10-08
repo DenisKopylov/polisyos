@@ -1,0 +1,37 @@
+[
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+    "current_caption_matches": [
+      {
+        "line": 95,
+        "text": "- **Graph647**: implementation `647f5d35362c2a5d7ad32283b804a5b03ea56e83`, tree `6b699cac11fb1fe5b317ed0ccfc76940e5958906`; current ref is resolved/recomputed against actual producer content before reuse, reverse marks normalized, uncertain/static-temporal profile refused. Full composition source/certificate semantics and fresh query caches cover the second same-class escape; initial3e independent BLOCK preserved. Source-bound receipt and final installed output are indexed in the current35 pack."
+      },
+      {
+        "line": 101,
+        "text": "- **installeda2d**: `F/installed-final-consumer-20261006.json@a2d55a1942e1f56f35cf2b9772ae56b0b46de95d`; 60843 bytes, SHA-256 `4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8`. Same tested source/tree, zero own product delta. Wheel and rebuilt-sdist each 199 PASS/0SKIP/0ERROR; five source-census selectors deselected, never PASS. Eight installed retained-marker removals FAIL. Historical14 runtime warning memberships become0; 90 unsuppressed LGBM feature-name warnings each preserved. Full3459files/site and seven resources unchanged."
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+    "current_caption_matches": [
+      {
+        "line": 622,
+        "text": "**Current measured.** API90c/source8236 actual wheel and rebuilt-sdist consumers each199PASS, full3459files/site and seven resources bound, no missing/extra sources. API605 reconciliation of3dde vs8236 selects identical producer/reader AST with two formatting-only hunks, test-only property2PASS and2removalFAIL per retained installed profile. New assembled source has its own affected installed wave. 225dynamic candidates/38UNKNOWN static exports remain classification limits, not actual client counts or universal external zero."
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+    "current_caption_matches": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/REPORT.md",
+    "current_caption_matches": [
+      {
+        "line": 5,
+        "text": "Exact new product source: `b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a` / tree `055871c409ce72e6a29619b235698aa45a6844d4`; source8236→new has only two graph owner source paths. Scientific components retain their own exact source/tree and complete raw-output receipt pointers; no160-panel/4000-RDD repeated wave."
+      }
+    ]
+  }
+]

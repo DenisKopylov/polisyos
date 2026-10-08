@@ -1,0 +1,19 @@
+{
+  "breaking_classes_checked": [],
+  "contract_error_count": 0,
+  "contract_errors": [],
+  "finding_count": 0,
+  "findings": [],
+  "fragment_count": 4,
+  "fragments_dir": "/tmp/e02-F-continuation-20261007/root-quality/fragments",
+  "mode": "report_only",
+  "phase": "repository-best-in-class-phase-5.10",
+  "policy": "architecture/gates/compatibility_release.toml",
+  "status": "reported",
+  "structured_compatibility_change_count": 3,
+  "summary": {
+    "compatibility_surfaces": 5,
+    "generated_families": 6,
+    "promotion_checks": 4
+  }
+}

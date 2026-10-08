@@ -1,0 +1,60 @@
+{
+  "utc": "2026-10-07T14:40:01.922458+00:00",
+  "files": [
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/receipt.json",
+      "sha256": "13d8a962463665e5dece4822ca2260788ad68a723435b098ea0e999c00e2725a",
+      "bytes": 22673
+    },
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/source-manifest.json",
+      "sha256": "524317483bd3f9575af0b8e8cc6c0e3a025beb2715dca6387a61f1329c6964ff",
+      "bytes": 899010
+    },
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/source-manifest-final.json",
+      "sha256": "7acd947c73c92b40dd30114ae7d252354ca199050b83696cc465f2d03ee46e92",
+      "bytes": 901655
+    },
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate_runtime.py",
+      "sha256": "a320bfc0cf7b9fbf5b82ee6e004772a4888a774cfef1c491a6e2622eebe4d022",
+      "bytes": 17493
+    },
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/run_checks.py",
+      "sha256": "765c73023c85e8156320911462c59ad1ac455645da60e85185e26a6004d69057",
+      "bytes": 5995
+    },
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/run_repair.py",
+      "sha256": "034eda561c074d6aa948ba3c53996eb9a66ae5f3ce9c654e648eef2c5a49e430",
+      "bytes": 5459
+    },
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/report.md",
+      "sha256": "44e85dd06802091c408a3081c02fbc04241fab31d03a8e2c63e9c87b167a7feb",
+      "bytes": 4355
+    },
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/receipt.json",
+      "sha256": "8767aa0e6e9a38c7962de9d3d0b390105b0087ca2f84335c395674cb4687f381",
+      "bytes": 10557
+    },
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/report.md",
+      "sha256": "69e7a29ca683d0505b478b96ad4d843165ff4870c27ff91cfc541e44a48306ba",
+      "bytes": 3396
+    },
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/probe_runner.py",
+      "sha256": "a8782f96386cf9502de662dea4116df66f61c24537bcf8d22f5c0da2ff940bbb",
+      "bytes": 8256
+    },
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/supervise_attempt2.py",
+      "sha256": "66b6af1abfea1b715c4b0e7fa23ee77c84de3f0dc7fa4c94c04fd846bdae1234",
+      "bytes": 3049
+    }
+  ]
+}

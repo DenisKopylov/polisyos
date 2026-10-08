@@ -1,0 +1,180 @@
+{
+  "schema": "policyos.e02.complete_late_transport_selection.v1",
+  "files": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/fix-completed-cli.stdout.json",
+      "bytes": 989,
+      "sha256": "b2499eef9ff8b3345b4d10d06e6d5345df47e5d27604a9109bcf409d6dd60563",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/fix-completed-cli.stdout.json",
+      "encoding": "identity",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/fix-completed-cli.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/fix-completed-cli.stderr.txt",
+      "encoding": "identity",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/execute_completed_cli.py",
+      "bytes": 1721,
+      "sha256": "d00c6975ad39fa02e331b25eaba45ace97be23b6e2b752111447f0da1025bc9f",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/execute_completed_cli.py",
+      "encoding": "identity",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/execute-completed-cli.stdout.json",
+      "bytes": 899,
+      "sha256": "e0d30d797b89ab98c7cf521696a6f115992eff8e65932195eff6c826c394ac4f",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/execute-completed-cli.stdout.json",
+      "encoding": "identity",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/execute-completed-cli.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/execute-completed-cli.stderr.txt",
+      "encoding": "identity",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-completed-refresh.execution.json",
+      "bytes": 5065,
+      "sha256": "10357de074bb03465d83e61c73ea53fabc18cf17f64634714ad1eef40e22d45b",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/final-cdf-v5-completed-refresh.execution.json",
+      "encoding": "identity",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-completed-refresh.stdout.json",
+      "bytes": 559,
+      "sha256": "0fc4b5102771622a24909432cc508c437c6e6c6257c5571ea1ee49f4eadc027c",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/final-cdf-v5-completed-refresh.stdout.json",
+      "encoding": "identity",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-completed-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/final-cdf-v5-completed-refresh.stderr.txt",
+      "encoding": "identity",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-completed-validate.execution.json",
+      "bytes": 1606,
+      "sha256": "fc6d8f4a273f562c396c7d4253ef8278f9039957d023012e4de601b5dd78592c",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/final-cdf-v5-completed-validate.execution.json",
+      "encoding": "identity",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-completed-validate.stdout.json",
+      "bytes": 168,
+      "sha256": "afd0acd4cbb27b55c671af7de2dc4a96b9566ee4edaef3f7cfbe25d5a6259590",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/final-cdf-v5-completed-validate.stdout.json",
+      "encoding": "identity",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-completed-validate.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/final-cdf-v5-completed-validate.stderr.txt",
+      "encoding": "identity",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/materialize_late_transport_capture.py",
+      "bytes": 3843,
+      "sha256": "d18b24500950d0d75e546d4767386c4af94697ef7d295a7ed832f177a201745c",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/materialize_late_transport_capture.py",
+      "encoding": "identity",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/prepare_late_capture_selection.py",
+      "bytes": 4227,
+      "sha256": "b3fcd1fdc280bf674f0a4d979c7da54722f435c90da086b464b619cd32c0b607",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/prepare_late_capture_selection.py",
+      "encoding": "identity",
+      "role": "Complete actual completed helper byte-custody output/context/replayer; original outcomes and environmental/source scopes unchanged."
+    }
+  ],
+  "frozen_main_selection": {
+    "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-final-cdf-v5-completed.json",
+    "bytes": 1572145,
+    "sha256": "860c3784156b773e8e1a8f9ae47cc0c5d434d66a3e6f52c05009effb548a303d"
+  },
+  "already_main_transported_context": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-refresh.execution.json",
+      "bytes": 4914,
+      "sha256": "d04ba9b05a10ffbbd9abeb84b5bff9292555145065a11ce1a91e2099ebb7240b",
+      "scope": "Original completed ERROR/trace/input, completed CLI or ROOT ready template already preserved in frozen main input. No copied context bodies."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-refresh.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Original completed ERROR/trace/input, completed CLI or ROOT ready template already preserved in frozen main input. No copied context bodies."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-refresh.stderr.txt",
+      "bytes": 623,
+      "sha256": "687f898a1dcfbfb6779dbed5d210215fe84d0615b96bb733ba7c0b3a095ab4e6",
+      "scope": "Original completed ERROR/trace/input, completed CLI or ROOT ready template already preserved in frozen main input. No copied context bodies."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-execution-cli.json",
+      "bytes": 8900,
+      "sha256": "c2e32472d4f9c0789d5a069ab2248b74448d2f34e8ae7855b205f438e7b020f7",
+      "scope": "Original completed ERROR/trace/input, completed CLI or ROOT ready template already preserved in frozen main input. No copied context bodies."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-completed-execution-cli.json",
+      "bytes": 9534,
+      "sha256": "43f1beddd98a83180531f44022b92f7e5e7d721971c6f71507e891a76394e181",
+      "scope": "Original completed ERROR/trace/input, completed CLI or ROOT ready template already preserved in frozen main input. No copied context bodies."
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/root-recovery/final-primary-template-ready.json",
+      "bytes": 114462,
+      "sha256": "107f9b5b1d59556b062f0e2ff417d8fb7d78cbdf2f653bd77d4d56908d2a657d",
+      "scope": "Original completed ERROR/trace/input, completed CLI or ROOT ready template already preserved in frozen main input. No copied context bodies."
+    }
+  ],
+  "actual_document_source": "cdf61b4500e355a27db14260e80ce673ddf8869e",
+  "numerical_installed_source": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "exact_ROOT_main_publisher_argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+    "--selection",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-final-cdf-v5-completed.json",
+    "--repository",
+    "/workspace/e02-F-closeout-20261006",
+    "--materialize",
+    "--destination",
+    "/workspace/e02-F-closeout-20261006",
+    "--primary-template",
+    "/tmp/e02-F-continuation-20261007/root-recovery/final-primary-template-ready.json"
+  ],
+  "exact_ROOT_late_materialize_argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/materialize_late_transport_capture.py",
+    "--selection",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/late-refresh-validation-selection.json",
+    "--materialize",
+    "--destination",
+    "/workspace/e02-F-closeout-20261006"
+  ],
+  "ordering": "ROOT main publisher materializes first, then ROOT late materializer verifies the ACTUAL materialized manifest and frozen selection hash, writes independent complete sidecar. ROOT adds returned actual outputs.json path/hash to its generated primary only; frozen template/selection/main manifest remain unchanged. No future commit SHA is declared.",
+  "no_new_scientific_verdict": true,
+  "original_first_refresh": "ERROR; author captured still-open builder stdout as0B, actual completed stdout570B. Original input/argv/trace retained in main; completed binding used in final.",
+  "ROOT_primary_source_window": "cdf document carrier only;519 numerical installed candidate remains separate; old d833/old scanner scopes not promoted."
+}

@@ -264,6 +264,13 @@ team that receives it. A closure record is exactly where this lands, because a c
 that nothing is outstanding; attributing your own red to someone else converts that claim into a
 false one while every individual receipt in it stays true.
 
+- P40 cached-producer discriminator: does a reused graph/report still return the old
+  admission result when current alignment/source semantics change but graph bytes stay
+  equal? Compare the complete producer basis and persisted result bodies, and recompute
+  operational query caches from current sources. Graph equality or a cached certificate
+  status alone is a proxy; retain unsupported-profile refusal and run the same-graph,
+  changed-basis negative through the actual fresh consumer.
+
 ## Grounding Anchors
 
 These are navigation hints, not complete examples. Keep long analysis in ADRs,
@@ -402,3 +409,7 @@ report includes debt points, purpose multipliers, readiness bands, and
 burn-down templates; a red readiness band is acceptable when the report is
 honest and owned, but the affected capability still cannot be called
 implemented.
+
+### P02 installed default consumer discriminator (E02 F)
+
+- P02 installed-default discriminator: does an actual neutral installed consumer read the curated default metadata, or only import its module/use an explicit custom path? Bind all finite catalog resources from original tracked bytes through sdist and wheel, route every default owner through one resolver, and reject CWD or neighboring-checkout substitutions. Retain declared absence/parse fallback semantics separately: an empty fallback is not evidence that the supported installed default was supplied. Packaging file counts without these consumer calls miss this class.

@@ -1,0 +1,153 @@
+{
+  "schema": "policyos.e02.G.delta_admission.v1",
+  "review_base_sha": "9806442ddb47d624a2940bac75d9d6248e934c48",
+  "review_base_tree": "4a1caafc331990e0ebf0130a9051c08ae1ffcbd4",
+  "publication_scope": "documentation, independent reviews and complete bounded outputs only",
+  "accepted_runtime_commits": [],
+  "new_formal_closure_ids": [],
+  "main_publication_authorized": false,
+  "input_integrity": {
+    "actual_import_check": "PASS",
+    "verification_sha256": "26fcc44ff5094586402edf421cb04faf944578be3f628edd2577f5ed589d2c17",
+    "raw_archives_received": 0,
+    "baseline_role": "transfer_and_navigation_only",
+    "query_limit_ownership": false
+  },
+  "source_decisions": [
+    {
+      "unit": "A",
+      "candidate": "2605d13916f4dd38f216419562c04718ba4c2028",
+      "source_review": "bounded_GO",
+      "whole_head_acceptance": "HOLD",
+      "reasons": [
+        "exact new VOI/sparse outputs absent",
+        "handoff mapping gap at1590 snapshot; reconcile full current carrier after2605 delta",
+        "required RecursiveCycleCheckpoint OpenAPI companion at G freeze"
+      ],
+      "next_owner": [
+        "A source/test/handoff",
+        "G canonical generated companion"
+      ],
+      "prior_numeric_carry": "unchanged functions only",
+      "handoff_coverage_snapshot": "1590f35b6817c46af484de818ba227517c5a8d1b"
+    },
+    {
+      "unit": "E",
+      "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "source_review": "bounded_GO for ratio law and admitted-profile composition/configured synthetic inlet",
+      "whole_head_acceptance": "HOLD",
+      "reasons": [
+        "actual legacy raw-coercion/public push/strict fresh read bypass",
+        "multi-envelope join drops Profile2; explicit unsupported/lossy contract needed",
+        "canonical ABI/profile snapshots and4exports inventory missing",
+        "current typecheck UNRUN; older3932 optional diagnostic superseded"
+      ],
+      "next_owner": [
+        "E generic raw ingress/composition",
+        "Scientist compute/input-materializer canonical writer via G",
+        "G canonical schema/inventory generators at source freeze"
+      ],
+      "E_proposals": {
+        "closed": 43,
+        "limited": 9,
+        "held": 2
+      },
+      "historical_ledger": {
+        "partial": 49,
+        "held": 4,
+        "closed": 1
+      },
+      "held_current_E": [
+        "B194",
+        "B197"
+      ],
+      "B201_B202": "E appointed; technical decisions present; bounded author closed proposals, G decision pending; no second appointment"
+    },
+    {
+      "unit": "F",
+      "candidate": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "source_review": "bounded_GO for declared unsupported-type refusal and separate DiD checker",
+      "whole_head_acceptance": "HOLD",
+      "reasons": [
+        "known valid MGraph metadata accepted under ADMG retag",
+        "requested PAG reconciliation silent-skip lacks visible limitation"
+      ],
+      "next_owner": [
+        "F reconciliation/profile/report boundary"
+      ],
+      "cross_owner_deferred": [
+        "B214 broad identification/authority A/C/F",
+        "B56 shared Runtime/Scientist admission plus G actual workload measurement"
+      ],
+      "old_whole35_rerun_required": false
+    }
+  ],
+  "fresh_G_checks": [
+    {
+      "candidate": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "scope": "9 selected real graph producer/node/CAS cases",
+      "outcome": "PASS",
+      "passed": 9,
+      "failed": 0,
+      "error": 0,
+      "skip": 0,
+      "wall_seconds": 13.105,
+      "origin_modules": 970,
+      "source_entries": 2942
+    },
+    {
+      "candidate": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "scope": "synthetic three-case DiD smoke",
+      "outcome": "PASS",
+      "passed": 3,
+      "wall_seconds": 7.097,
+      "origin_modules": 773,
+      "identification_authority": false
+    },
+    {
+      "candidate": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "scope": "retagged MGraph real producer/Node/CAS/fresh reader diagnostic",
+      "observation": "accepted ADMG retains valid MGraph metadata; canonical MGraph extractor refuses type",
+      "clean_ADMG_extractor_refusal": "expected control, not separate defect",
+      "existing_selected_positive": 1,
+      "harness_attempts_preserved": true
+    },
+    {
+      "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "scope": "synthetic public Profile2 boundary diagnostics",
+      "observation": [
+        "raw bool strict refusal; legacy callback2 and strict fresh read accept",
+        "raw numeric-string strict refusal; legacy callback2 and strict fresh read accept",
+        "multi-envelope join generic carrier without Profile2, no mixture semantics inferred",
+        "strict push positive exact mean4"
+      ],
+      "returncode": 0,
+      "wall_seconds": 6.469033083005343,
+      "origin_modules": 763,
+      "source_entries": 2926,
+      "harness_only_attempt_errors": 2
+    }
+  ],
+  "D_comparator_erratum": {
+    "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "candidate_exports": 42,
+    "G_and_main_exports": 39,
+    "whole_candidate_additive_python_exports": 3,
+    "latest_D_delta_five_surface_paths_unchanged": true,
+    "http_client_dto_signature_delta": false,
+    "persisted_restore_public_behavior": "breaking NativeSearchService restore; checkpoint serialization internal"
+  },
+  "remaining_verification": {
+    "broad_replay": "UNRUN until accepted source freeze and reviews",
+    "production_dependent": "local read-only criterion-specific exact candidate only",
+    "optional_backends": "not covered by fresh native lightweight fixtures",
+    "P41": "not_established without exact slice-base replay and full input denominator"
+  },
+  "cleanup": {
+    "native_Trash_objects": 2,
+    "estimated_allocated_bytes": 124940288,
+    "unique_generated_extra_preserved": true,
+    "Trash_emptied": false,
+    "physical_reclamation_claim": false
+  }
+}

@@ -1,0 +1,573 @@
+{
+  "schema": "F-original-finding-continuation-receipt/1",
+  "unit": "F",
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "formal_G_acceptance": "not_issued",
+  "check_scope": "Actual bounded measurement is separate from unresolved original/current authority inputs.",
+  "complete_original_bound_row": {
+    "finding_id": "B222",
+    "primary_bundle": "SCM-01",
+    "primary_tsv_owner": {
+      "finding_id": "B222",
+      "unit": "F",
+      "docx_analytical_package": "P35",
+      "source_closure_owner": "SCM-01",
+      "source_bundle_ids": "SCM-01",
+      "source_status": "partial"
+    },
+    "original_source_criterion_refs": [
+      {
+        "criterion_id": "B222",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines": [
+          5417,
+          5430
+        ],
+        "bytes": 3359,
+        "sha256": "b13339d3c9e2d80995027a0f1acbaf09ccad855a643deb0b283c065bc4232aa5",
+        "title": "## B222. Сохранённый полином исполняется как линейная аппроксимация с шумом от более точной модели",
+        "byte_binding_check": "PASS",
+        "complete_original_block": "## B222. Сохранённый полином исполняется как линейная аппроксимация с шумом от более точной модели\n\n**Происхождение и приоритет:** C21-07. Высокий при использовании ADDITIVE_NOISE/poly-пакета; условная достижимость. Основания: `_fit_additive_noise_poly`, `_sample_node_value`, аналогичный twin-helper. [C21.R04–R05, C21.R07]\n\n**Проблема.** Fitter сохраняет и линейные коэффициенты, и полиномиальную модель. `noise_std` берётся из остатков полиномиального fit. Query для ADDITIVE_NOISE меняет family на LINEAR и использует линейные коэффициенты вместе с этой новой, потенциально очень малой дисперсией. Warning о fallback присутствует, но численный закон уже другой.\n\n**POLY01–POLY02.** На 101 точке x∈[−2,2], y=x² сохранённый полином даёт при x=2 значение 4 с точностью floating-point. Query выдаёт 1,36 со стандартным шумом около 4,9×10⁻¹⁶. Иными словами, аппроксимация с большим смещением исполняется почти детерминированно. Положительный LINEAR-контроль y=1+3x даёт 7 при x=2.\n\n**Исправление.** Один выполняемый контракт family для fit, sampling, abduction и twin-world. Первое недорогое расширение — корректный evaluator уже сохраняемого полиномиального формата без cross-terms; сложные семейства можно оставить с явной недоступностью или обозначенной аппроксимацией. Если используется линейный surrogate, его расхождение и шум оцениваются для surrogate, а не заимствуются из другой модели.\n\nНе следует добавлять произвольный большой шум, считать warning коррекцией значения или запрещать все nonlinear-модели. Поддерживаемый ограниченный полином уже содержит достаточно информации для точного исполнения своего заявленного семейства.\n\n**Область.** В прочитанной стандартной observed-data ветви HybridSCMFit выбирает LINEAR, а автоматический вызов polynomial-helper оттуда не установлен. Поэтому это дефект совместимости подготовленного payload/helper с публичным query, не утверждение, что каждый обычный GCM-fit автоматически обучает и теряет полином. Полный native pipeline и контрфактическая инверсия нелинейного шума не выполнялись.\n\n"
+      }
+    ],
+    "criterion_short_ru": "Existing additive-polynomial helper payload in typed manual SCM1.0; not a new nonlinear default fitter",
+    "actual_consumer": "Existing _fit_additive_noise_poly → typed manual SCM1.0 → actual MethodJob/CAS → fresh GCMQuery/TwinNetworkQuery process",
+    "source_scope": "Conditional fitted additive polynomial payload executes its declared law throughout query/twin",
+    "oracle_and_negative": "Exact6f helper101x² produces do2=4; LINEAR samefields7; factual1/1.25 counter4.25 ITE3; independent cubic8/8.25/3.25; evaluator removal2FAIL1LINEARPASS",
+    "predicate_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Conditional fitted additive polynomial payload executes its declared law throughout query/twin. Independent oracle/retained-marker negative: Exact6f helper101x² produces do2=4; LINEAR samefields7; factual1/1.25 counter4.25 ITE3; independent cubic8/8.25/3.25; evaluator removal2FAIL1LINEARPASS. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check": "PASS",
+    "outcome": "closed",
+    "state_role": "Explicit F ROOT recommendation on original byte-bound criterion; separate technical profile and current continuation. G formal acceptance not issued.",
+    "technical_original_criterion_recommendation": "closed",
+    "technical_historical_baseline_profile_outcome": null,
+    "technical_check": "PASS",
+    "current_continuation_outcome_recommendation": "closed",
+    "check_interpretation": "Proposed original/current criterion measurement disposition. Component-native PASSs remain on their exact source; pending owner/authority measurements are not PASS.",
+    "original_criterion_remainder": "Finite no-cross-term additive payload; partial nonlinear posterior remains typed limited.",
+    "separate_unavailable_inputs_or_authority": "No new default nonlinear Hybrid/DoWhy fitter, general posterior or real authority.",
+    "limit_next_owner_short_ru": "Finite no-cross-term additive payload; partial nonlinear posterior remains typed limited.",
+    "authority_check": "UNRUN",
+    "formal_G_accepted": false,
+    "formal_ledger_acceptance": "not_issued",
+    "receipt_ref": {
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "branch": "refs/heads/codex/e02-F-graph-20261006",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+      "bytes": 150139,
+      "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+      "table": "per_id",
+      "per_id": "B222"
+    },
+    "implementation_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+    "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+    "historical_421_per_id_deciding_refs": [
+      {
+        "index": 0,
+        "check_id": "scm-frozen/docs-gate",
+        "outcome": "FAIL",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/docs-gate.stdout.txt"
+      },
+      {
+        "index": 1,
+        "check_id": "scm-frozen/emp01",
+        "outcome": "FAIL",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/emp01.stdout.txt"
+      },
+      {
+        "index": 2,
+        "check_id": "scm-frozen/gcm-parent",
+        "outcome": "PASS",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/gcm-parent.stdout.txt"
+      },
+      {
+        "index": 3,
+        "check_id": "scm-frozen/public-abi",
+        "outcome": "PASS",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/public-abi.stdout.txt"
+      },
+      {
+        "index": 4,
+        "check_id": "scm-frozen/schema-full",
+        "outcome": "FAIL",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/schema-full.stdout.txt"
+      },
+      {
+        "index": 5,
+        "check_id": "scm-frozen/semantics",
+        "outcome": "PASS",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/semantics.stdout.txt"
+      },
+      {
+        "index": 6,
+        "check_id": "scm-frozen/worker-gcm",
+        "outcome": "PASS",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/worker-gcm.stdout.txt"
+      },
+      {
+        "index": 7,
+        "check_id": "scm-frozen/worker-removal",
+        "outcome": "FAIL",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/worker-removal.stdout.txt"
+      },
+      {
+        "index": 8,
+        "check_id": "scm-final1e/docs-gate",
+        "outcome": "FAIL",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/docs-gate.stdout.txt"
+      },
+      {
+        "index": 9,
+        "check_id": "scm-final1e/gcm-parent-and-custody",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/gcm-parent-and-custody.stdout.txt"
+      },
+      {
+        "index": 10,
+        "check_id": "scm-final1e/original-scm-cards",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/original-scm-cards.stdout.txt"
+      },
+      {
+        "index": 11,
+        "check_id": "scm-final1e/public-abi",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/public-abi.stdout.txt"
+      },
+      {
+        "index": 12,
+        "check_id": "scm-final1e/schema-full",
+        "outcome": "FAIL",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/schema-full.stdout.txt"
+      },
+      {
+        "index": 13,
+        "check_id": "scm-final1e/semantics",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/semantics.stdout.txt"
+      },
+      {
+        "index": 14,
+        "check_id": "scm-final1e/worker-gcm",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/worker-gcm.stdout.txt"
+      },
+      {
+        "index": 15,
+        "check_id": "scm-final1e/worker-removal",
+        "outcome": "FAIL",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/worker-removal.stdout.txt"
+      },
+      {
+        "index": 16,
+        "check_id": "scm-final0b/docs-gate",
+        "outcome": "FAIL",
+        "target_sha": "0b6d2f779dbf8b0c2abe53448906f32d719696b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/docs-gate.stdout.txt"
+      },
+      {
+        "index": 17,
+        "check_id": "scm-final0b/gcm-root-public-custody",
+        "outcome": "PASS",
+        "target_sha": "0b6d2f779dbf8b0c2abe53448906f32d719696b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/gcm-root-public-custody.stdout.txt"
+      },
+      {
+        "index": 18,
+        "check_id": "scm-final0b/public-abi",
+        "outcome": "PASS",
+        "target_sha": "0b6d2f779dbf8b0c2abe53448906f32d719696b1",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/public-abi.stdout.txt"
+      },
+      {
+        "index": 19,
+        "check_id": "scm-final6d/docs-gate",
+        "outcome": "FAIL",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/docs-gate.stdout.txt"
+      },
+      {
+        "index": 20,
+        "check_id": "scm-final6d/gcm-root-public-custody",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/gcm-root-public-custody.stdout.txt"
+      },
+      {
+        "index": 21,
+        "check_id": "scm-final6d/public-abi",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/public-abi.stdout.txt"
+      },
+      {
+        "index": 22,
+        "check_id": "scm-final6d/worker-helper-projection",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/worker-helper-projection.stdout.txt"
+      },
+      {
+        "index": 23,
+        "check_id": "owned-import-denominator",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/owned-import-denominator.json"
+      },
+      {
+        "index": 24,
+        "check_id": "docs-plan",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/docs-plan.json"
+      },
+      {
+        "index": 25,
+        "check_id": "own-generated-schemas",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/own-generated-schemas.json"
+      },
+      {
+        "index": 26,
+        "check_id": "public-generated-companions",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/public-generated-companions.json"
+      },
+      {
+        "index": 27,
+        "check_id": "public-consumer-census",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/public-consumer-census.json"
+      },
+      {
+        "index": 28,
+        "check_id": "worker-math-profile-equivalence",
+        "outcome": "PASS",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/worker-math-profile-equivalence.json"
+      },
+      {
+        "index": 29,
+        "check_id": "independent-d88-native",
+        "outcome": "PASS",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-native.stdout.txt"
+      },
+      {
+        "index": 30,
+        "check_id": "independent-d88-peer-custody",
+        "outcome": "FAIL",
+        "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding.stdout.txt"
+      },
+      {
+        "index": 31,
+        "check_id": "independent-1e-native",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-corrected-native.stdout.txt"
+      },
+      {
+        "index": 32,
+        "check_id": "independent-1e-custody-correction",
+        "outcome": "PASS",
+        "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding-corrected.stdout.txt"
+      },
+      {
+        "index": 33,
+        "check_id": "independent-facade-import-delta",
+        "outcome": "PASS",
+        "target_sha": "b69208e65b9dcfa4c7de690ace071abdc9c1fed6",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-final-facade-import-delta-review.json"
+      },
+      {
+        "index": 34,
+        "check_id": "baseline-production-invocation",
+        "outcome": "ERROR",
+        "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "output": "prior graph handoff records empty stdout and absent requested receipt; completed diagnostic UNRUN"
+      },
+      {
+        "index": 35,
+        "check_id": "inprocess-optional-backends",
+        "outcome": "UNRUN",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "Marker omissions are not a positive backend witness; actual supported subprocess profile has separate defining receipt"
+      },
+      {
+        "index": 36,
+        "check_id": "schema_docs-docs_accuracy-strict_docs_build",
+        "outcome": "UNRUN",
+        "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/docs-gate.stdout.txt"
+      }
+    ],
+    "historical_421_owner_decision": {
+      "finding_id": "B222",
+      "bundle_id": "SCM-01",
+      "criterion": "Execute complete declared polynomial family in query/twin without mixing surrogate coefficients and polynomial residual noise",
+      "check": "PASS",
+      "outcome": "closed",
+      "oracle_and_deciding_checks": "originalSCM01/03 13PASS + native persisted query/twin readers",
+      "negative_or_removal": "x² atx2=4 vs forbiddenlinear1.36; positiveLINEAR1+3x at2=7; malformed polynomial refuses rather thanborrow noise.",
+      "limit_and_next_owner": "Already-declared polynomial payload/no cross terms; generic nonlinear abduction/autoassignment is unsupported. Genuine default worker deliberately linear additive-noise only.",
+      "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+      "recorded_ledger_state": "partial",
+      "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-01.md",
+      "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B222.json"
+    },
+    "owner_proposals_complete": [
+      {
+        "registry_index": 7,
+        "receipt_ref": {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17"
+        },
+        "json_pointer": "/per_id/7",
+        "complete_owner_entry": {
+          "finding_id": "B222",
+          "bundle_id": "SCM-01",
+          "criterion": "Execute complete declared polynomial family in query/twin without mixing surrogate coefficients and polynomial residual noise",
+          "check": "PASS",
+          "outcome": "closed",
+          "oracle_and_deciding_checks": "originalSCM01/03 13PASS + native persisted query/twin readers",
+          "negative_or_removal": "x² atx2=4 vs forbiddenlinear1.36; positiveLINEAR1+3x at2=7; malformed polynomial refuses rather thanborrow noise.",
+          "limit_and_next_owner": "Already-declared polynomial payload/no cross terms; generic nonlinear abduction/autoassignment is unsupported. Genuine default worker deliberately linear additive-noise only.",
+          "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+          "recorded_ledger_state": "partial",
+          "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-01.md",
+          "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B222.json"
+        }
+      },
+      {
+        "registry_index": 18,
+        "receipt_ref": {
+          "head": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json",
+          "bytes": 131648,
+          "sha256": "0aef8daff10c6a047fd5104910bdf79bfc06f58a2cd0c7ef3ba80c2406292570"
+        },
+        "json_pointer": "/per_id/B222",
+        "complete_owner_entry": {
+          "check": "PASS",
+          "outcome": "limited",
+          "criterion": "SCMschema/custody compatibility layer only; corresponding original scientific criterion is decided in its primary property receipt",
+          "checks": [
+            "scm-version-frozen-native",
+            "scm-version-frozen-owner-check"
+          ],
+          "limits": [
+            "No originalfinding closure override by this companion; no admittedrealdata or protectedproductionreadiness witness"
+          ]
+        }
+      },
+      {
+        "registry_index": 20,
+        "receipt_ref": {
+          "head": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006.json",
+          "bytes": 44860,
+          "sha256": "2aa65d305f67d094489b849ee64cff927db717bd866acb51484e99ed051f91f4"
+        },
+        "json_pointer": "/per_id/B222",
+        "complete_owner_entry": {
+          "check": "PASS",
+          "outcome": "closed",
+          "criterion": "OriginalSCM01 executable fitted nonlinear payload4 not1.36 and LINEAR7; full helper→persist→query/twin producer-chain residual",
+          "checks": [
+            "b222-frozen-native",
+            "b222-frozen-removal"
+          ],
+          "limits": [
+            "Finite additive univariate degree2 author and degree3 independent profiles; arbitrary polynomial interactions not claimed.",
+            "complete factual residual inputs only; partial nonlinear posterior not claimed",
+            "explicit manual legacySCM1.0/non-gating distribution; no backend or realdata causal authority"
+          ]
+        }
+      }
+    ],
+    "supplemental_receipt_registry_indices": [
+      2,
+      6,
+      7,
+      18,
+      20,
+      26
+    ],
+    "current_exact_consumer_receipts": [
+      {
+        "key": "scm_poly",
+        "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006.json",
+        "bytes": 44860,
+        "sha256": "2aa65d305f67d094489b849ee64cff927db717bd866acb51484e99ed051f91f4",
+        "implementation_commits": [
+          "6f95f55ca7d9c5cd9489256a354a27da058b46b9"
+        ],
+        "candidate_tree_sha": "1481e08664a271f12e77807f2468906efd7e40c5"
+      },
+      {
+        "key": "scm_version",
+        "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json",
+        "bytes": 131648,
+        "sha256": "0aef8daff10c6a047fd5104910bdf79bfc06f58a2cd0c7ef3ba80c2406292570",
+        "implementation_commits": [
+          "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+          "e94a40e78416b7392edf96f1f24c7846a808c8d0"
+        ],
+        "candidate_tree_sha": "8fcab970c187cb6f15f4b3a7cb368b9f929db2fd"
+      }
+    ],
+    "canonical_owner_re_adjudication_required": "For unavailable semantic/institutional inputs only; source-bound ROOT decisions and independent reviews are carried separately.",
+    "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+    "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+    "historical_proposal_before_ROOT_adjudication": {
+      "original_criterion_remainder": "Finite no-cross-term additive payload; partial nonlinear posterior remains typed limited.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+      "outcome": "closed",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "oracle_and_negative": "Exact6f helper101x² produces do2=4; LINEAR samefields7; factual1/1.25 counter4.25 ITE3; independent cubic8/8.25/3.25; evaluator removal2FAIL1LINEARPASS",
+      "source_scope": "Conditional fitted additive polynomial payload executes its declared law throughout query/twin",
+      "actual_consumer": "Existing _fit_additive_noise_poly → typed manual SCM1.0 → actual MethodJob/CAS → fresh GCMQuery/TwinNetworkQuery process",
+      "check": "PASS",
+      "decision_basis": null,
+      "separate_unavailable_inputs_or_authority": "No new default nonlinear Hybrid/DoWhy fitter, general posterior or real authority.",
+      "criterion_short_ru": "Existing additive-polynomial helper payload in typed manual SCM1.0; not a new nonlinear default fitter",
+      "technical_original_criterion_recommendation": "closed",
+      "deciding_receipt_refs": null
+    },
+    "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Conditional fitted additive polynomial payload executes its declared law throughout query/twin. Independent oracle/retained-marker negative: Exact6f helper101x² produces do2=4; LINEAR samefields7; factual1/1.25 counter4.25 ITE3; independent cubic8/8.25/3.25; evaluator removal2FAIL1LINEARPASS. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check_scope": "Explicit source-bound ROOT original/current criterion adjudication; exact component outcomes remain separately preserved",
+    "ROOT_deciding_refs": [
+      {
+        "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B222"
+        ]
+      },
+      {
+        "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B222"
+        ],
+        "json_pointer": "/per_id/7",
+        "complete_deciding_entry": {
+          "finding_id": "B222",
+          "bundle_id": "SCM-01",
+          "criterion": "Execute complete declared polynomial family in query/twin without mixing surrogate coefficients and polynomial residual noise",
+          "check": "PASS",
+          "outcome": "closed",
+          "oracle_and_deciding_checks": "originalSCM01/03 13PASS + native persisted query/twin readers",
+          "negative_or_removal": "x² atx2=4 vs forbiddenlinear1.36; positiveLINEAR1+3x at2=7; malformed polynomial refuses rather thanborrow noise.",
+          "limit_and_next_owner": "Already-declared polynomial payload/no cross terms; generic nonlinear abduction/autoassignment is unsupported. Genuine default worker deliberately linear additive-noise only.",
+          "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+          "recorded_ledger_state": "partial",
+          "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-01.md",
+          "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B222.json"
+        }
+      },
+      {
+        "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+        "head": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json",
+        "bytes": 131648,
+        "sha256": "0aef8daff10c6a047fd5104910bdf79bfc06f58a2cd0c7ef3ba80c2406292570",
+        "git_blob": "0b1ef4b091d7898a7b37c52cb6c38b6aa7d66861",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B222"
+        ],
+        "json_pointer": "/per_id/B222",
+        "complete_deciding_entry": {
+          "check": "PASS",
+          "outcome": "limited",
+          "criterion": "SCMschema/custody compatibility layer only; corresponding original scientific criterion is decided in its primary property receipt",
+          "checks": [
+            "scm-version-frozen-native",
+            "scm-version-frozen-owner-check"
+          ],
+          "limits": [
+            "No originalfinding closure override by this companion; no admittedrealdata or protectedproductionreadiness witness"
+          ]
+        }
+      },
+      {
+        "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+        "head": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006.json",
+        "bytes": 44860,
+        "sha256": "2aa65d305f67d094489b849ee64cff927db717bd866acb51484e99ed051f91f4",
+        "git_blob": "ad5db87046100eca42acebfc318a5dd3739705c4",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B222"
+        ],
+        "json_pointer": "/per_id/B222",
+        "complete_deciding_entry": {
+          "check": "PASS",
+          "outcome": "closed",
+          "criterion": "OriginalSCM01 executable fitted nonlinear payload4 not1.36 and LINEAR7; full helper→persist→query/twin producer-chain residual",
+          "checks": [
+            "b222-frozen-native",
+            "b222-frozen-removal"
+          ],
+          "limits": [
+            "Finite additive univariate degree2 author and degree3 independent profiles; arbitrary polynomial interactions not claimed.",
+            "complete factual residual inputs only; partial nonlinear posterior not claimed",
+            "explicit manual legacySCM1.0/non-gating distribution; no backend or realdata causal authority"
+          ]
+        }
+      }
+    ],
+    "ROOT_adjudication_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
+      "bytes": 130025,
+      "sha256": "0fc3e6440719fc3094bb13d82a809586cf05776bcf6a4dc3807e9cbfde44126f",
+      "head": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+      "git_ref": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+      "json_pointer": "/rows/18"
+    }
+  },
+  "independent_packet_review_resolution": {
+    "check": "UNRUN at this immutable packet seal",
+    "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+    "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+  }
+}

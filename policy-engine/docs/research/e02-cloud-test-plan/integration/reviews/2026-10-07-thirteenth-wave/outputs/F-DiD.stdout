@@ -1,0 +1,65 @@
+--- preflight ---
+{
+  "run_id": null,
+  "mode": "smoke",
+  "benchmark_tier": "local_evidence",
+  "validation_contour": "legacy",
+  "visibility": "public",
+  "data_source": "synthetic_policy_natural_experiments",
+  "dataset_family": null,
+  "batch_id": null,
+  "estimator_profile": "default",
+  "comparator_profile": null,
+  "required_comparators": [],
+  "dependency_status": {},
+  "comparator_status": {},
+  "degraded_reasons": [],
+  "environment": {
+    "python_version": "3.14.3",
+    "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "processor": "arm"
+  },
+  "benchmark_env_spec": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/candidate/policy-engine/benchmarks/comparators/research_acceptance_environment.yml",
+  "installed_comparator_versions": {
+    "econml": null,
+    "zepid": null,
+    "stochtree": null,
+    "dowhy": null,
+    "y0": null,
+    "lightgbm": null,
+    "causallib": null,
+    "causalml": null,
+    "pgmpy": null,
+    "ananke": null,
+    "causal-learn": null,
+    "tigramite": null,
+    "pygformula": null,
+    "pot": null,
+    "openspiel": null,
+    "nashpy": null,
+    "pywhy-graphs": null,
+    "bartpy": null,
+    "pymc_bart": null
+  },
+  "data_manifest_path": null,
+  "data_manifest_hash": null,
+  "run_config_hash": "0575cec9d3bbfa25933daa2117d598a7a75d4bf6d959c7b2f6a2f9de7565ac3a"
+}
+========================================================================
+  PolicyOS Benchmark Report
+========================================================================
+
+Circuit: estimation
+  Pass rate : 3/3 (100.0%)
+  Timing    : n=3  mean=2.34ms  p50=1.98ms  p95=4.42ms  min=0.34ms  max=4.69ms
+  Memory    : n=3  mean=0.06MB  peak=0.12MB  std=0.06MB
+
+
+  TOTAL: 3/3 passed (100.0%)
+
+  Breakdown: fail=0 error=0 skip=0 over_budget=0
+========================================================================
+
+JSON report written to: /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/did-pretrend-smoke.json

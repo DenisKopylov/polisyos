@@ -1,0 +1,1560 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "original35-independent-criterion-review-20261007",
+  "role": "Independent noncanonical original-criterion/evidence review; ROOT sole shared ledger writer and G sole formal closure authority",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "B204",
+    "B205",
+    "B206",
+    "B207",
+    "B208",
+    "B209",
+    "B210",
+    "B211",
+    "B212",
+    "B213",
+    "B214",
+    "B215",
+    "B216",
+    "B217",
+    "B218",
+    "B219",
+    "B220",
+    "B221",
+    "B222",
+    "B223",
+    "B224",
+    "B225",
+    "B54",
+    "B56",
+    "LA-001",
+    "LA-002",
+    "LA-003",
+    "LA-004",
+    "LA-007",
+    "LA-016",
+    "LA-017",
+    "LA-019",
+    "LA-020",
+    "LA-035",
+    "LA-037"
+  ],
+  "bundle_ids": [
+    "API-01",
+    "CAU-01",
+    "CAU-02",
+    "CAU-03",
+    "CAU-04",
+    "CAU-05",
+    "ECO-01",
+    "FIT-01",
+    "FRY-01",
+    "FRY-03",
+    "GRF-01",
+    "GRF-02",
+    "GRF-03",
+    "LEX-01",
+    "SCM-01",
+    "SCM-02",
+    "SCM-03"
+  ],
+  "slice_base_sha": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+  "implementation_commits": [
+    "f3d4dad8dfa0980763d87050418c902908af25d2"
+  ],
+  "candidate_sha": "f3d4dad8dfa0980763d87050418c902908af25d2",
+  "candidate_tree_sha": "e27319ced3d236253e835fad174be283a2701361",
+  "branch": "codex/e02-F-cau-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/57",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/api-published-material-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F-failures30.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F-failures30.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F01-P025-fullcontext.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F01-P025-fullcontext.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F08-P048-fullcontext.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F08-P048-fullcontext.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F13-P030-fullcontext.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F13-P030-fullcontext.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-current-context.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-import-check.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-import-check.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-import-check.stdout.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-query-execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/bind_published_reviews.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/frozen-candidate-verifier.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/frozen-candidate-verifier.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/frozen-candidate-verifier.stdout.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/full-implementation-diff.patch.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/full-output-manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-compact.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-compact.stdout.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-final-v2.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-final-v2.stdout.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-final-v3.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-final-v3.stdout.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-final.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-final.stdout.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review.stdout.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/publication-binding.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/publication-binding.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/publication-binding.stdout.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/publication-verifier.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/publication-verifier.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/publication-verifier.stdout.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-B214.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-B214.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-B215.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-B215.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F-full.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F-full.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F01-P025.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F01-P025.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F08-P048.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F08-P048.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F13-P030.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F13-P030.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-LA035.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-LA035.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/reconcile_original35.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/verify_original35_packet.py"
+  ],
+  "source_bindings": {
+    "common": {
+      "git_ref": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/COMMON.md",
+      "bytes": 8565,
+      "sha256": "f408d34394bab5f708df7afb6f59195588b5fc394b8304434c9e2fbe2238be79",
+      "git_blob": "d549b92b6a33efc32ffcb7c27261538f06a8e26e"
+    },
+    "ROOT072_audit": {
+      "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/full-audit.json",
+      "bytes": 3473039,
+      "sha256": "7a0c7881e26f9b9275fd8dc7d602098ddebe13a6cc9a33947463516d8a9b5af1",
+      "git_blob": "df2819e42877fd1177e6d10128ef7c951a7fae6c"
+    },
+    "ROOT072_index": {
+      "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/index.json",
+      "bytes": 692685,
+      "sha256": "11149eb72865a357b379b988f9986fc9349af6ed6fcaa33619a87f9a5d733773",
+      "git_blob": "be1e6f5532198a0d4d48e2e569d5a90a3490f693"
+    },
+    "ROOT072_report": {
+      "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/REPORT.md",
+      "bytes": 21419,
+      "sha256": "042f0b14d68c3a2119a5b33506b2c5307474e54898d282d713e007a3e82b283f",
+      "git_blob": "d67a1606097ce1e0962b526d660761c8cc33d602"
+    },
+    "product_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+    "product_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+    "owner_TSV": {
+      "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "bytes": 9504,
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+      "git_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7"
+    },
+    "bundle_TSV": {
+      "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "bytes": 12413,
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75",
+      "git_blob": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b"
+    },
+    "own_admitted_head": "f88c98a190c336ef414361a236276ed7ea6d3d62"
+  },
+  "runtime_source_unchanged_from_slice_base": true,
+  "reviewed_external_product_source": {
+    "sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+    "tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+    "own_topic_is_not_new_combined_runtime": true
+  },
+  "baseline_cells": [
+    {
+      "cell": "F01-P025",
+      "recorded_state": "FAILED",
+      "full_metadata_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F01-P025-fullcontext.stdout.json"
+    },
+    {
+      "cell": "F08-P048",
+      "recorded_state": "FAILED",
+      "full_metadata_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F08-P048-fullcontext.stdout.json"
+    },
+    {
+      "cell": "F13-P030",
+      "recorded_state": "FAILED",
+      "full_metadata_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F13-P030-fullcontext.stdout.json"
+    }
+  ],
+  "checks": [
+    {
+      "name": "complete-original35-byte-owner-source-and-published-material-verification",
+      "command": "python3 verify_original35_packet.py --repo FETCHED_REPOSITORY --packet original35-review.json.gz --negative-controls",
+      "target_sha": "f3d4dad8dfa0980763d87050418c902908af25d2",
+      "reviewed_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "purpose": "stdlib Git-material verifier; no product backend"
+      },
+      "input_closure": {
+        "cards": 35,
+        "bindings": 36,
+        "F_bundles": 17,
+        "complete_finding_TSV_rows": 282,
+        "complete_bundle_TSV_rows": 127,
+        "ROOT_deciding_receipts": 26,
+        "raw_check_pointers": 446,
+        "fresh_full_API_ECO_transport_records": 228,
+        "ROOT_audit_index_common": {
+          "common": {
+            "git_ref": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/COMMON.md",
+            "bytes": 8565,
+            "sha256": "f408d34394bab5f708df7afb6f59195588b5fc394b8304434c9e2fbe2238be79",
+            "git_blob": "d549b92b6a33efc32ffcb7c27261538f06a8e26e"
+          },
+          "ROOT072_audit": {
+            "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/full-audit.json",
+            "bytes": 3473039,
+            "sha256": "7a0c7881e26f9b9275fd8dc7d602098ddebe13a6cc9a33947463516d8a9b5af1",
+            "git_blob": "df2819e42877fd1177e6d10128ef7c951a7fae6c"
+          },
+          "ROOT072_index": {
+            "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/index.json",
+            "bytes": 692685,
+            "sha256": "11149eb72865a357b379b988f9986fc9349af6ed6fcaa33619a87f9a5d733773",
+            "git_blob": "be1e6f5532198a0d4d48e2e569d5a90a3490f693"
+          },
+          "ROOT072_report": {
+            "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/REPORT.md",
+            "bytes": 21419,
+            "sha256": "042f0b14d68c3a2119a5b33506b2c5307474e54898d282d713e007a3e82b283f",
+            "git_blob": "d67a1606097ce1e0962b526d660761c8cc33d602"
+          },
+          "product_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+          "product_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+          "owner_TSV": {
+            "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+            "bytes": 9504,
+            "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+            "git_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7"
+          },
+          "bundle_TSV": {
+            "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+            "bytes": 12413,
+            "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75",
+            "git_blob": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b"
+          },
+          "own_admitted_head": "f88c98a190c336ef414361a236276ed7ea6d3d62"
+        }
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/frozen-candidate-verifier.stdout.gz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/frozen-candidate-verifier.stdout.gz",
+        "bytes": 708,
+        "sha256": "e506a532677587aa425b7b3b0df575d7909c3fc5849fa892a22be53828e1154e"
+      },
+      "execution_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/frozen-candidate-verifier.execution.json",
+        "bytes": 1460,
+        "sha256": "5ec1e1c5ee19f521688b4df6d5ca3d2255472937ace5eece03a850d1d425100a"
+      },
+      "check_scope": "actual metadata/card/material self-verification; not a second independent scientific oracle",
+      "counts": {
+        "rows": 35,
+        "bindings": 36,
+        "bundles": 17,
+        "published_full_materials": 228,
+        "issues": 0
+      }
+    },
+    {
+      "name": "six-meaningful-metadata-negative-controls",
+      "command": "Same actual verifier invocation; mutate exactly ID/owner/title/receipt hash/source tree/duplicate LA016 while keeping other packet fields",
+      "target_sha": "f3d4dad8dfa0980763d87050418c902908af25d2",
+      "environment": {
+        "python": "3.12.14",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "purpose": "stdlib Git-material verifier; no product backend"
+      },
+      "input_closure": "Complete positive packet, six separately copied single-defect variants",
+      "outcome": "FAIL",
+      "expected_negative": true,
+      "harness_check": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/frozen-candidate-verifier.stdout.gz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/frozen-candidate-verifier.stdout.gz",
+        "bytes": 708,
+        "sha256": "e506a532677587aa425b7b3b0df575d7909c3fc5849fa892a22be53828e1154e"
+      },
+      "actual_controls": [
+        {
+          "control": "missing-ID",
+          "validator_check": "FAIL",
+          "harness_check": "PASS",
+          "reason": ""
+        },
+        {
+          "control": "wrong-owner",
+          "validator_check": "FAIL",
+          "harness_check": "PASS",
+          "reason": "owner B204"
+        },
+        {
+          "control": "wrong-title",
+          "validator_check": "FAIL",
+          "harness_check": "PASS",
+          "reason": ""
+        },
+        {
+          "control": "stale-receipt-hash",
+          "validator_check": "FAIL",
+          "harness_check": "PASS",
+          "reason": "stored hash: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json"
+        },
+        {
+          "control": "wrong-code-tree",
+          "validator_check": "FAIL",
+          "harness_check": "PASS",
+          "reason": "code tree B204"
+        },
+        {
+          "control": "duplicate-LA016",
+          "validator_check": "FAIL",
+          "harness_check": "PASS",
+          "reason": ""
+        }
+      ],
+      "execution_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/frozen-candidate-verifier.execution.json",
+        "bytes": 1460,
+        "sha256": "5ec1e1c5ee19f521688b4df6d5ca3d2255472937ace5eece03a850d1d425100a"
+      }
+    },
+    {
+      "name": "independent-installed-wheel-API-graph-consumer",
+      "target_sha": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
+      "actual_installed_runtime_source": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "command": "Actual isolated wheel launcher positive; full exact argv/environment/streams in published independent review",
+      "environment": "Installed wheel Python3.14.7, -I parent and fresh subprocess; actual3459 site-file pre/post hash guard",
+      "input_closure": "Two genuine parameter/CSV→graph→CAS/fresh consumer cases; mixed temporal static refusal and warmed static-DAG row-copy consumer",
+      "outcome": "PASS",
+      "output": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/independent-review.json",
+      "output_ref": {
+        "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/independent-review.json",
+        "bytes": 9464,
+        "sha256": "2aed54bf598618110f073923d27fb2560301299db963bb2ba8460003d8b7b93b",
+        "git_blob": "9db18c93289f9f8fb0b8ca5a5b2137051cb490a1",
+        "material_role": "Complete independent final6f test-carrier review of installed8236 runtime; initial7f observer failure retained"
+      },
+      "counts": {
+        "PASS": 2,
+        "FAIL": 0,
+        "SKIP": 0,
+        "ERROR": 0,
+        "warnings": 0
+      }
+    },
+    {
+      "name": "independent-installed-wheel-row-isolation-removal",
+      "target_sha": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
+      "command": "Same real installed consumer launcher remove_row_isolation; canonical defining body only; same markers/identities/install bytes",
+      "environment": "Same actual installed wheel profile; actual3459 file pre/post hash unchanged",
+      "input_closure": "Both current corrected cases; malformed detached-row property reaches consumer assertions",
+      "outcome": "FAIL",
+      "expected_negative": true,
+      "harness_check": "PASS",
+      "output": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/independent-review.json",
+      "output_ref": {
+        "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/independent-review.json",
+        "bytes": 9464,
+        "sha256": "2aed54bf598618110f073923d27fb2560301299db963bb2ba8460003d8b7b93b",
+        "git_blob": "9db18c93289f9f8fb0b8ca5a5b2137051cb490a1",
+        "material_role": "Complete independent final6f test-carrier review of installed8236 runtime; initial7f observer failure retained"
+      },
+      "counts": {
+        "FAIL": 2,
+        "SKIP": 0,
+        "ERROR": 0
+      }
+    },
+    {
+      "name": "historical-API7f-observer-harness-failure",
+      "target_sha": "7f0161c6d8c197e548327df90ff33c2ecc8bde31",
+      "command": "Initial independent installed-wheel positive before one-line ArtifactID observer JSON projection correction",
+      "environment": "Actual isolated wheel profile",
+      "input_closure": "Both semantic tests reach fresh-reader values; observer then attempts to JSON encode typed ArtifactID",
+      "outcome": "FAIL",
+      "failure_class": "test observer serialization; does not measure a runtime row-isolation defect",
+      "output": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/independent-review.json",
+      "output_ref": {
+        "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/independent-review.json",
+        "bytes": 9464,
+        "sha256": "2aed54bf598618110f073923d27fb2560301299db963bb2ba8460003d8b7b93b",
+        "git_blob": "9db18c93289f9f8fb0b8ca5a5b2137051cb490a1",
+        "material_role": "Complete independent final6f test-carrier review of installed8236 runtime; initial7f observer failure retained"
+      },
+      "counts": {
+        "FAIL": 2,
+        "SKIP": 0,
+        "ERROR": 0
+      }
+    },
+    {
+      "name": "independent-economic-original-profile-and-real-PPO-readers",
+      "target_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+      "command": "Actual two new native files and four nearest siblings in separate processes; exact full argv/environment/streams in published review",
+      "environment": "Readonly app Python3.14.7/JAX actual selected package; no mutated env/quotas",
+      "input_closure": "Existing named baseline formula/native state/guard/aliases/JIT-grad; real actor→labor/tax→eager bridge and metric-enabled PPO signed-Gini refusal; distinct native/plugin model neighbors",
+      "outcome": "PASS",
+      "output": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/independent-review.json",
+      "output_ref": {
+        "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/independent-review.json",
+        "bytes": 40561,
+        "sha256": "4369e1936d4a6cd83b0394f15eb667ff3c9fb061eea7186cff2b78d7b1bd50bf",
+        "git_blob": "be7bd955f215482854b2b847397eaa5ac82e2028",
+        "material_role": "Complete independent frozen193 scientific/native consumer review"
+      },
+      "counts": {
+        "new_PASS": 28,
+        "new_warnings": 16,
+        "sibling_PASS": 55,
+        "sibling_warnings": 1,
+        "SKIP": 0,
+        "ERROR": 0
+      }
+    },
+    {
+      "name": "independent-Fraction-JIT-gradient-oracle-and-source-census",
+      "target_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+      "command": "Independent Fraction dyadic panels and analytic gradients; Git-batch full9007 selected tracked source/config byte census",
+      "environment": "Native readonly app Python3.14.7 for eager/JIT/grad; stdlib Git-byte verifier separately identified",
+      "input_closure": "32 mixed-sign panels1/3/7/31 units,64eager/JIT numeric comparisons,2analytic gradients;9007source/config inputs and10literal matches. Constructed/external/untracked callers not covered. Three upstream C/G producer files exactequal; distributions.py intentionally differs G/F consumer profile.",
+      "outcome": "PASS",
+      "output": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/independent-review.json",
+      "output_ref": {
+        "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/independent-review.json",
+        "bytes": 40561,
+        "sha256": "4369e1936d4a6cd83b0394f15eb667ff3c9fb061eea7186cff2b78d7b1bd50bf",
+        "git_blob": "be7bd955f215482854b2b847397eaa5ac82e2028",
+        "material_role": "Complete independent frozen193 scientific/native consumer review"
+      },
+      "counts": {
+        "Fraction_panels": 32,
+        "eager_JIT_comparisons": 64,
+        "analytic_gradients": 2,
+        "census_files": 9007,
+        "literal_matches": 10
+      }
+    },
+    {
+      "name": "economic-canonical-body-removal-properties",
+      "target_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+      "command": "Remove normalization in the same canonical callable; separately remove only canonical Gini admission body while real actor/labor/tax/PPO paths remain",
+      "environment": "Actual native readonly app profiles; aliases/FQNs/classes and native sources kept",
+      "input_closure": "Independent baseline numerical oracle plus two actual requested-Gini reader controls",
+      "outcome": "FAIL",
+      "expected_negative": true,
+      "harness_check": "PASS",
+      "output": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/independent-review.json",
+      "output_ref": {
+        "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/independent-review.json",
+        "bytes": 40561,
+        "sha256": "4369e1936d4a6cd83b0394f15eb667ff3c9fb061eea7186cff2b78d7b1bd50bf",
+        "git_blob": "be7bd955f215482854b2b847397eaa5ac82e2028",
+        "material_role": "Complete independent frozen193 scientific/native consumer review"
+      },
+      "counts": {
+        "numeric_assertion_FAIL": 1,
+        "actual_bridge_PPO_ASSERTION_FAIL": 2
+      }
+    },
+    {
+      "name": "economic-nine-line-doc-only-append",
+      "target_sha": "c0084cd530c1dbe01eedfb9b5c24f055954a97be",
+      "command": "Read complete193..c008 one-doc diff and verify runtime/test/fragment bytes unchanged",
+      "environment": "Stdlib Git immutable byte/source review",
+      "input_closure": "One unique profile doc,9lines; original equivalent relocation recommendation current, prior added hold explicitly historical",
+      "outcome": "PASS",
+      "output": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/doc-delta-review.json",
+      "output_ref": {
+        "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/doc-delta-review.json",
+        "bytes": 688,
+        "sha256": "3ee314c49175fa3f9afcc21acc9cc3d5765b5c2606a5c3633a57c47b1e95ab0c",
+        "git_blob": "717a372eb3d5ed962bfcde9dc106ae27cc0eff6c",
+        "material_role": "Independent nine-line doc-only append review; runtime/test bytes193 unchanged"
+      }
+    },
+    {
+      "name": "baseline-metadata-query-not-estimator-pass",
+      "target_sha": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+      "command": "python3 results/query.py --unit F --failures-only --limit30; full F plus exact findings/cells --job-context",
+      "environment": "Readonly results metadata importer/query; original VM source/backend/markers/inputs separately recorded in complete outputs",
+      "input_closure": "118matching metadata cells,3FAILED; no historical raw archive exists in admitted inputs",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-query-execution.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-query-execution.json",
+        "bytes": 47789,
+        "sha256": "dc22c54421e4ff37d2af04dac35832f08db4da2a6738da8b4d3bcc0a2024fac8"
+      },
+      "check_scope": "query/metadata command only; all3FAILED estimator observations remain FAILED, missing raw archive UNRUN",
+      "baseline_actual_counts": {
+        "matching": 118,
+        "recorded_FAILED": 3,
+        "recorded_PASS": 115
+      },
+      "actual_metadata_source": "f88c98a190c336ef414361a236276ed7ea6d3d62"
+    },
+    {
+      "name": "full-production-and-common-workload-authority",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "command": null,
+      "environment": "No admitted production/authority packet",
+      "input_closure": "Whole Runtime/semantic PDC/common-study budget/current law input packet unavailable; technical generic method proofs separate",
+      "outcome": "UNRUN",
+      "output": "Not run: missing exact institutionally supplied production/authority/workload inputs. No scientific proof or authority is manufactured."
+    }
+  ],
+  "property": {
+    "statement": "Original full-card acceptance, exact TSV ownership and named actual producer/artifact/bridge/consumer/surface determine the recommendation; finite technical proof, production admission and G closure remain separate. No criterion is replaced by a generic authority prerequisite.",
+    "runtime_path": [
+      "Original cards/TSV and actual published method/consumer providers",
+      "Source-bound owner receipts/full raw outputs",
+      "Immutable Git/source-tree/JSON-pointer reconciliation",
+      "ROOT reviewer can adopt individual original rows; G formally adjudicates closure"
+    ],
+    "proxy_divergence": "A marker, class name, successful metadata query or absent optional backend does not prove the consumer property. Wrong owner/card/hash/tree/duplicate identity are rejected by actual metadata controls; native API row-isolation and baseline/Gini properties reject body removals.",
+    "negative_controls": [
+      {
+        "control": "missing-ID",
+        "validator_check": "FAIL",
+        "harness_check": "PASS",
+        "reason": ""
+      },
+      {
+        "control": "wrong-owner",
+        "validator_check": "FAIL",
+        "harness_check": "PASS",
+        "reason": "owner B204"
+      },
+      {
+        "control": "wrong-title",
+        "validator_check": "FAIL",
+        "harness_check": "PASS",
+        "reason": ""
+      },
+      {
+        "control": "stale-receipt-hash",
+        "validator_check": "FAIL",
+        "harness_check": "PASS",
+        "reason": "stored hash: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json"
+      },
+      {
+        "control": "wrong-code-tree",
+        "validator_check": "FAIL",
+        "harness_check": "PASS",
+        "reason": "code tree B204"
+      },
+      {
+        "control": "duplicate-LA016",
+        "validator_check": "FAIL",
+        "harness_check": "PASS",
+        "reason": ""
+      }
+    ],
+    "no_DiD160_or_RDD4000_repeat": true
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "independent_review_complete_noncanonical",
+  "original_recommendation_counts": {
+    "closed": 33,
+    "limited": 2
+  },
+  "original_check_counts": {
+    "PASS": 34,
+    "UNRUN": 1
+  },
+  "per_id_recommendations": [
+    {
+      "finding_id": "B204",
+      "criterion_title": "## B204. Стандартный DiD принимает отсутствие предшествующего периода за пригодный дизайн",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B204",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5094,
+            5105
+          ],
+          "bytes": 3579,
+          "sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a",
+          "title": "## B204. Стандартный DiD принимает отсутствие предшествующего периода за пригодный дизайн",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B205",
+      "criterion_title": "## B205. Запрошенная covariance не исполняется: HC1 считает повторные периоды новой информацией",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B205",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5106,
+            5119
+          ],
+          "bytes": 4088,
+          "sha256": "ac0680b5d70af76383c9aac15ab1c58437abd9118b0c7dba427dfe837ba3d5dc",
+          "title": "## B205. Запрошенная covariance не исполняется: HC1 считает повторные периоды новой информацией",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B206",
+      "criterion_title": "## B206. В DiD и RDD уровень интервала меняет подпись, но не границы",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B206",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5120,
+            5131
+          ],
+          "bytes": 2372,
+          "sha256": "f405d3e2327c1cc0d64e6de308412c81eebe210af6ae5968af830b7e032fa0a1",
+          "title": "## B206. В DiD и RDD уровень интервала меняет подпись, но не границы",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B207",
+      "criterion_title": "## B207. Bootstrap готовых ATT(g,t) не восстанавливает неопределённость панельных наблюдений",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B207",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5132,
+            5145
+          ],
+          "bytes": 3913,
+          "sha256": "5b23dffbebbbaafe40934fedd710b77b0143fffb0073bbf58d1c5ca57d6ad6ca",
+          "title": "## B207. Bootstrap готовых ATT(g,t) не восстанавливает неопределённость панельных наблюдений",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Published selected iid-unit ratio-IF/Mammen/native/MC and actual CAS reader meet original finite property. Missing whole Runtime institutional admission is a separate residual, not a condition of this original criterion.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B208",
+      "criterion_title": "## B208. Staggered p-value сравнивает bootstrap с самой оценкой, а не с нулевой гипотезой",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B208",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5146,
+            5157
+          ],
+          "bytes": 2624,
+          "sha256": "2df281351c22b1e79c6b0400c5ca6ccb312fc43666fd3ebc9e4e66031381d78d",
+          "title": "## B208. Staggered p-value сравнивает bootstrap с самой оценкой, а не с нулевой гипотезой",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Published centered studentized H0 and exact finite-B inversion/endpoint consumer controls meet original criterion; small-G/simultaneous/real-world coverage remains unclaimed.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B209",
+      "criterion_title": "## B209. Anticipation учитывается в baseline treated-группы, но не при выборе not-yet-treated controls",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B209",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5158,
+            5169
+          ],
+          "bytes": 2656,
+          "sha256": "b774fd7cd4f1653c0771ee5e20e7d3ee990c14bb47cc698b284e581ac75cc44f",
+          "title": "## B209. Anticipation учитывается в baseline treated-группы, но не при выборе not-yet-treated controls",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Published g>t+a and baseline eligibility, never-treated/a0 and whole requested set refusal controls meet original criterion. Empirical length of anticipation is not established or required by the synthetic property.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B210",
+      "criterion_title": "## B210. RDD сообщает включённую bias correction без её вычисления",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B210",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5170,
+            5181
+          ],
+          "bytes": 3218,
+          "sha256": "3b72bb59c40ef347388195b3309dd81f188e96d3bb205b3e3be72c77b76ac010",
+          "title": "## B210. RDD сообщает включённую bias correction без её вычисления",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B211",
+      "criterion_title": "## B211. Локальная RDD-подгонка материализует квадратичную диагональную матрицу весов",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B211",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5182,
+            5193
+          ],
+          "bytes": 2695,
+          "sha256": "cf651667294eca28d2feef026f185292e15f443e1d3f4e8d515b40b67835b674",
+          "title": "## B211. Локальная RDD-подгонка материализует квадратичную диагональную матрицу весов",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B212",
+      "criterion_title": "## B212. Point-only ответ DoWhy превращается в почти точный доверительный интервал",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B212",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5194,
+            5205
+          ],
+          "bytes": 2849,
+          "sha256": "dd369570f1235d66729b8c5526f88a5968905343594089f5a4c00da90631238f",
+          "title": "## B212. Point-only ответ DoWhy превращается в почти точный доверительный интервал",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Actual selected3.12 DoWhy0.14 worker preserves point-only versus genuine interval and persisted reader. Excluded3.14 optional backend is UNRUN and does not negate or stand in for that selected witness.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B213",
+      "criterion_title": "## B213. Запрошенный estimand_type остаётся только подписью отчёта DoWhy",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B213",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5206,
+            5217
+          ],
+          "bytes": 2615,
+          "sha256": "6684013f61227644563e3dd6ac181b2546b5797168cd0b93fef3ef1bf75fe243",
+          "title": "## B213. Запрошенный estimand_type остаётся только подписью отчёта DoWhy",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Actual estimand_type/contrast/target binding and typed unsupported routes are the original mechanism. Real observational validity/authority remains separate.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B214",
+      "criterion_title": "## B214. Проекция PAG/CPDAG разворачивает известное направление и может создать цикл",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B214",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5218,
+            5229
+          ],
+          "bytes": 3537,
+          "sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+          "title": "## B214. Проекция PAG/CPDAG разворачивает известное направление и может создать цикл",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "limited",
+      "basis": "Reverse normalization and typed preserved/refused unresolved marks are measured. Original also discusses sound extension/declared conditional partial model, not blanket complete identification. Keep limited until the original owner supplies the precise supported partial/conditional route or explicit finite refusal capability criterion; protected authority is not the reason.",
+      "missing_actual_original_criterion": "Supported sound extension/declared conditional partial-model route and exact finite capability discrimination need owner clarification; no protected-authority prerequisite.",
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B215",
+      "criterion_title": "## B215. Абдукция принимает подставленное среднее скрытого родителя за наблюдённый факт",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B215",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5230,
+            5243
+          ],
+          "bytes": 3763,
+          "sha256": "285a9f3f9267aaf97e7844c252fffd271febbc5cfb5212bcbbdefd7252f119a9",
+          "title": "## B215. Абдукция принимает подставленное среднее скрытого родителя за наблюдённый факт",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B216",
+      "criterion_title": "## B216. Общий m-separation неверно обрабатывает вилку и collider; двусторонняя проверка не устраняет ошибку",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B216",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5333,
+            5346
+          ],
+          "bytes": 5017,
+          "sha256": "5da65926eb9350c67aa4c305de165e0919a8ab5eff319562d1fa3d3b499bdcd2",
+          "title": "## B216. Общий m-separation неверно обрабатывает вилку и collider; двусторонняя проверка не устраняет ошибку",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B217",
+      "criterion_title": "## B217. Perfect do оставляет связь скрытого родителя с вмешиваемой переменной",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B217",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5347,
+            5360
+          ],
+          "bytes": 3662,
+          "sha256": "347b041bb8cdd642f730dda6caa9fb11367ebb047cfe11abf095166f8730c443",
+          "title": "## B217. Perfect do оставляет связь скрытого родителя с вмешиваемой переменной",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B218",
+      "criterion_title": "## B218. Временной граф теряет лаги при экспорте, а лаговая самозависимость отвергается как обычный self-loop",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B218",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5361,
+            5374
+          ],
+          "bytes": 3861,
+          "sha256": "8ce1868ddb2663580547f475288d03502e03ae6a4bc38923313bc069efb0a40a",
+          "title": "## B218. Временной граф теряет лаги при экспорте, а лаговая самозависимость отвергается как обычный self-loop",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Published actual lag1/lag2/self-lag export/CAS/NX roundtrip and exact static refusal meet the original temporal consumer-boundary property. Universal temporal estimator/protected readiness is not original acceptance.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B219",
+      "criterion_title": "## B219. Простое DiGraph-представление перезаписывает параллельные причинные отношения",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B219",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5375,
+            5388
+          ],
+          "bytes": 3117,
+          "sha256": "c3c2613bd397c8dd5d252ccb15562a6aa2f4bee46e36fa86eff1b12bf7c30009",
+          "title": "## B219. Простое DiGraph-представление перезаписывает параллельные причинные отношения",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B220",
+      "criterion_title": "## B220. Frozen-модель не обеспечивает неизменность topology; кэш и копия расходятся с текущим графом",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B220",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5389,
+            5402
+          ],
+          "bytes": 3831,
+          "sha256": "d0c39288b089bc7e1a85c4eec40ffd1c4fa3273293734b758729b4bb7dc54b71",
+          "title": "## B220. Frozen-модель не обеспечивает неизменность topology; кэш и копия расходятся с текущим графом",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Canonical cache provider fragment is internal stable; an older public-surface label must not recategorize this internal contract.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B221",
+      "criterion_title": "## B221. Fitting игнорирует наблюдаемые корни, а query придумывает для них стандартный Normal",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B221",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5403,
+            5416
+          ],
+          "bytes": 3594,
+          "sha256": "e22ca23d5d49e736162b73f80d43ae77719ada061f0898f1ba083a31e54943e4",
+          "title": "## B221. Fitting игнорирует наблюдаемые корни, а query придумывает для них стандартный Normal",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B222",
+      "criterion_title": "## B222. Сохранённый полином исполняется как линейная аппроксимация с шумом от более точной модели",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B222",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5417,
+            5430
+          ],
+          "bytes": 3359,
+          "sha256": "b13339d3c9e2d80995027a0f1acbaf09ccad855a643deb0b283c065bc4232aa5",
+          "title": "## B222. Сохранённый полином исполняется как линейная аппроксимация с шумом от более точной модели",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Actual helper payload→typed manualSCM→MethodJob/CAS→fresh query/twin polynomial witnesses satisfy the conditional original helper path, not a new default Hybrid/DoWhy nonlinear fitter.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B223",
+      "criterion_title": "## B223. Attribution вычитает одно и то же вмешательство из самого себя",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B223",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5431,
+            5444
+          ],
+          "bytes": 3092,
+          "sha256": "2f7406d0704ebafed25947c6ebdc6e7e910da062e19fc8b62aed081343ffefcf",
+          "title": "## B223. Attribution вычитает одно и то же вмешательство из самого себя",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Original attribution contrast is primary: explicit target/baseline/query refs, same arm0 and do2−do0=6 plus observational/stochastic comparators. Interval/refit type semantics are an additional boundary, not the replacement criterion.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B224",
+      "criterion_title": "## B224. Идеальное do сначала выполняет заменяемый механизм; нерелевантные узлы расходуют работу и память",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B224",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5445,
+            5458
+          ],
+          "bytes": 3959,
+          "sha256": "854f9eab140c71438e188c91ef3d9792895b0402ab22c5866de3584683596ca1",
+          "title": "## B224. Идеальное do сначала выполняет заменяемый механизм; нерелевантные узлы расходуют работу и память",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B225",
+      "criterion_title": "## B225. Ошибка стохастической политики меняет вмешательство; хвостовой truncnorm превращается в атом",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B225",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5459,
+            5472
+          ],
+          "bytes": 3659,
+          "sha256": "9fc38772c0cd77e8bb8da7abd1d8423345cf151f598107387b177b4900860879",
+          "title": "## B225. Ошибка стохастической политики меняет вмешательство; хвостовой truncnorm превращается в атом",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Independent math.erfc/CDF oracle and actual extreme-tail sampler controls apply; product self-comparison is not the numerical oracle.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B54",
+      "criterion_title": "## B54. Кэш вспомогательной оценки сохраняет старую политику диагностики и возвращает общий изменяемый объект",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B54",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            1379,
+            1394
+          ],
+          "bytes": 5315,
+          "sha256": "ea5c3023d7b4bec4ee7a1a32b5a258dcceb5c67e3e4f47d28dac84b84f149c9d",
+          "title": "## B54. Кэш вспомогательной оценки сохраняет старую политику диагностики и возвращает общий изменяемый объект",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "B56",
+      "criterion_title": "## B56. Внутренняя параллельность folds не связана с общим ресурсом исследования",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "B56",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            1409,
+            1424
+          ],
+          "bytes": 4524,
+          "sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b",
+          "title": "## B56. Внутренняя параллельность folds не связана с общим ресурсом исследования",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "UNRUN",
+      "outcome": "limited",
+      "basis": "The original actual common-budget property has no admitted workload measurement. Four-study custom fixture and single configured MethodJob are bounded siblings; attempted LocalWorkerPool failed before0fits. Keep original limited/UNRUN, no fake admission.",
+      "missing_actual_original_criterion": "Actual admitted common-budget study/fold measurement remains UNRUN.",
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "LA-001",
+      "criterion_title": "## LA-001. Treasury: инфраструктура случайности под предметным названием",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "LA-001",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            82,
+            108
+          ],
+          "bytes": 3007,
+          "sha256": "35f63e8bacf3c27cd4148db8119837ff30df91a5de9f73d52ead6e4fc73d9dd0",
+          "title": "## LA-001. Treasury: инфраструктура случайности под предметным названием",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "LA-002",
+      "criterion_title": "## LA-002. Design: каталог семейств рядом с исполняемыми механизмами",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "LA-002",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            109,
+            135
+          ],
+          "bytes": 2982,
+          "sha256": "3acebb36bff2fda1f1ec71e0afc3f42f8aa1b2c160bc41ab564f03004893a336",
+          "title": "## LA-002. Design: каталог семейств рядом с исполняемыми механизмами",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Actual catalog lookup/registered runtime loading/certificate calls are required; implementing all optional family kernels or real-world IC is not.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "LA-003",
+      "criterion_title": "## LA-003. Fiscal/labor: живые kernels ранних базовых моделей",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "LA-003",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            136,
+            166
+          ],
+          "bytes": 3450,
+          "sha256": "8e52a4ec93513e106070221058490c2c1c1d337ff27ddd7c453bb655e44710d5",
+          "title": "## LA-003. Fiscal/labor: живые kernels ранних базовых моделей",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "LA-004",
+      "criterion_title": "## LA-004. Две экономические реализации: согласовать, но не подменять",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "LA-004",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            167,
+            197
+          ],
+          "bytes": 3498,
+          "sha256": "6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a",
+          "title": "## LA-004. Две экономические реализации: согласовать, но не подменять",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Original compares TWO distinct economic models/ABIs and forbids silently substituting richer plugin. Gini scalar correctness and C/PPO signed-population consumer are separate properties, not this original criterion.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "LA-007",
+      "criterion_title": "## LA-007. id_engine.py рядом с id_engine/: пустая тень, не адаптер",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "LA-007",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            254,
+            280
+          ],
+          "bytes": 2383,
+          "sha256": "f0b3ae2a0552d0b28a06b02d50dad0aaefb418a5cf7bcd52d6a1664edd9c90e0",
+          "title": "## LA-007. id_engine.py рядом с id_engine/: пустая тень, не адаптер",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Sibling was already absent at198; retained packaging/API tests prove current maintained property, not a new deletion in this slice.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "LA-016",
+      "criterion_title": "## LA-016. DiD umbrella-wrapper удерживает метаданные новых методов",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "LA-016",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            513,
+            539
+          ],
+          "bytes": 3048,
+          "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+          "title": "## LA-016. DiD umbrella-wrapper удерживает метаданные новых методов",
+          "byte_binding_check": "PASS"
+        },
+        {
+          "criterion_id": "LA-016",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            513,
+            539
+          ],
+          "bytes": 3048,
+          "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+          "title": "## LA-016. DiD umbrella-wrapper удерживает метаданные новых методов",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "LA-017",
+      "criterion_title": "## LA-017. Lex simulator: норм-различия, проверки и эвристика воздействия смешаны",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "LA-017",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            540,
+            570
+          ],
+          "bytes": 3335,
+          "sha256": "6d9ba04eca544917e9fce398fa9fce7a17ef81b1ae7f44216d74892c35ed072c",
+          "title": "## LA-017. Lex simulator: норм-различия, проверки и эвристика воздействия смешаны",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Exact supported native norm-diff/issue/pass/report/topic downstream properties are measured by original+canonical relocation tests and24native/fresh-reader receipts. Neither arbitrary corpus/global retirement nor current-law authority is in original acceptance; if an actually supported caller is missing it must be named rather than replacing the criterion.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "LA-019",
+      "criterion_title": "## LA-019. Ещё два пустых файла после выделения причинных пакетов",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "LA-019",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            930,
+            959
+          ],
+          "bytes": 3647,
+          "sha256": "cbc1ce3fc94f7590d343300b41db34e53ac4b87e2a9c242ff20859423665c3aa",
+          "title": "## LA-019. Ещё два пустых файла после выделения причинных пакетов",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Two empty siblings were already absent at198; no new deletion or universal dynamic client absence is claimed.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "LA-020",
+      "criterion_title": "## LA-020. Фасады причинных пакетов сохраняют устройство старого монолита",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "LA-020",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            960,
+            989
+          ],
+          "bytes": 4138,
+          "sha256": "f87876bc9a834d23256c57f6aee11b5a6483cd8d159d816081db9404110ef3d5",
+          "title": "## LA-020. Фасады причинных пакетов сохраняют устройство старого монолита",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "LA-035",
+      "criterion_title": "## LA-035. policy_loss_fn: ранний экономический baseline у общего method-владельца",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "LA-035",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            2066,
+            2102
+          ],
+          "bytes": 7176,
+          "sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69",
+          "title": "## LA-035. policy_loss_fn: ранний экономический baseline у общего method-владельца",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "COMMON supersedes the added optimizer/intent hold. Existing published original formula/aliases/native/JIT-grad/guards/import/caller measurements support equivalent relocation. Fresh independent ECO193 review28+55native,32Fraction panels/64eagerJIT/2analyticgrad and preserved-identity normalization/PPO refusal removals plus9007-input source/config census PASS support original closed; no new welfare choice.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    },
+    {
+      "finding_id": "LA-037",
+      "criterion_title": "## LA-037. Slot layout: две последовательные compatibility-обёртки после переноса в IR",
+      "original_criterion_refs": [
+        {
+          "criterion_id": "LA-037",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            2146,
+            2178
+          ],
+          "bytes": 5602,
+          "sha256": "79dc9efe37fc67c6b481db97f51d50a38d4aea4cff051ce0ffcf864ce049589c",
+          "title": "## LA-037. Slot layout: две последовательные compatibility-обёртки после переноса в IR",
+          "byte_binding_check": "PASS"
+        }
+      ],
+      "check": "PASS",
+      "outcome": "closed",
+      "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+      "missing_actual_original_criterion": null,
+      "not_formal_G_closure": true
+    }
+  ],
+  "evidence_transfer": {
+    "manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/full-output-manifest.json",
+      "bytes": 35038,
+      "sha256": "e67f60c627a836d745083865c0feb13d9a1278e5985781ae845761430cb4e9c2"
+    },
+    "record_count": 52,
+    "stored_bytes": 784027,
+    "decoded_bytes": 2207090,
+    "packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review.json.gz",
+      "bytes": 119985,
+      "sha256": "9bdbbf870a823b798e5bdc278099dd825b4341793c63e3b4de9ab16b67c13626"
+    },
+    "packet_decoded_bytes": 998227,
+    "packet_decoded_sha256": "67607c87d420030944247874fdc6ac6962f6201fc982f534257529b89fa820b6",
+    "external_full_materials": [
+      {
+        "receipt": {
+          "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007.json",
+          "bytes": 53396,
+          "sha256": "67d54b44a65b303621ccbaed4b56d34bb43a1e210556292e21614967864b89e2",
+          "git_blob": "41eb49e017d64686c2e70cfe932d66720c7d5f44"
+        },
+        "manifest_ref": {
+          "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/full-output-manifest.json",
+          "bytes": 65255,
+          "sha256": "c0a77d5de2d7674d2328192b863ba663733ff40c5e8c7fbf73e0f466877ecce1",
+          "git_blob": "f7fc742780cde4725ec8633c17ee9e7cffbc5482"
+        },
+        "record_count": 120,
+        "reviewed_product_source": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "test_carrier": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
+        "role": "Full author and independent native/removal/history bytes; test-only carrier is not a new installed runtime source"
+      },
+      {
+        "receipt": {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007.json",
+          "bytes": 106928,
+          "sha256": "24a72061e9e4379753f349f56c110b516cef300457b94e2d6a5e066b702f760e",
+          "git_blob": "a9bee7918f8bab3a12e9b1bc8d9ddcbfb9b58e50"
+        },
+        "manifest_pointer": "/evidence_transfer/manifest",
+        "record_count": 108,
+        "science_source": "193b3582a72c640c1d06a131f93502654a77a36a",
+        "doc_candidate": "c0084cd530c1dbe01eedfb9b5c24f055954a97be",
+        "role": "Full source/native/oracle/census/removal/history bytes; unchanged baseline runtime equals reviewed8236 provider"
+      }
+    ],
+    "README": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/README.md",
+      "bytes": 2590,
+      "sha256": "daf602d8c5936f00d3552b722981f7c2aa357c9fb484aed41787a16e13b4ae73"
+    }
+  },
+  "limitations_and_next_owner": [
+    "ROOT/G review these noncanonical recommendations individually; closure_ids remains empty. Original finite property closure is not product approval or G accepted closure.",
+    "B214 remains limited for exact sound/conditional partial-model capability; protected authority is not the reason. B56 actual admitted commonstudy/fold budget remains limited/UNRUN, actual route DurableControlWorker→RunLifecycle→run_experiment→sync_run_causal_full.",
+    "LA035 original equivalent normalized-income/budget baseline relocation does not require a new optimizer/welfare ratification; any new objective/law is a separate commissioned change.",
+    "Known synthetic DGP numerical properties are distinct from admitted real-data identification and whole Node institutional authority; no fake issuer or production inputs created.",
+    "Baseline3.14 DoWhy/EconML excluded markers are UNRUN; real selected3.12 DoWhy0.14 evidence is bound separately, not replaced by absence or shim.",
+    "Historical175c4 provenance and historical textual RDD lint without raw remain nondeciding UNRUN; recorded ROOT all-custody UNRUN retained. New228 stored/decoded output material and current card/ref/tree bindings separately verified.",
+    "P41 not_established: no whole gate disjoint denominator/inherited red claim. Global architecture/docs/import/schema red retained; no acceptance inferred from these metadata checks.",
+    "Reviewer previously authored CAU/graph-intake; current independent role is ROOT criterion reconciliation. Earlier mathematical proofs remain credited to actual independent authors, not self-reclassified as fresh independent estimator science."
+  ]
+}

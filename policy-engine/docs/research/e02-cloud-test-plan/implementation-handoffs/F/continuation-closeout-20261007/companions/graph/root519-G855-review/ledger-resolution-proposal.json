@@ -1,0 +1,85 @@
+{
+  "schema": "policyos.e02.readonly.ledger_resolution_proposal.v1",
+  "role": "scratch proposal only; publisher must ordinary merge, then verify actual frozen bytes",
+  "root": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "G": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+  "virtual_tree": "9ac56f67695e9244a55c2c8a63c77263808a0588",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+      "root": {
+        "bytes": 26857,
+        "sha256": "724f37608e3f3cbd3ff3445f7bcbd26f90c916c51bb50016ce7389a0c1fd77f4"
+      },
+      "G": {
+        "bytes": 37207,
+        "sha256": "0ce262811ae316de4d493477f7894a76066c0b906baa266dd969a25aee58c454"
+      },
+      "virtual": {
+        "bytes": 46455,
+        "sha256": "7834f90a9d27b5ffdf87090aab8cef0663e286a5bf2ab2ffd3f226c37879e57e"
+      },
+      "proposed": {
+        "bytes": 26857,
+        "sha256": "724f37608e3f3cbd3ff3445f7bcbd26f90c916c51bb50016ce7389a0c1fd77f4"
+      },
+      "conflict_hunks": 2,
+      "markers_remaining": false,
+      "root_identical": true,
+      "root_to_proposal_patch": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/F.md.root-to-proposal.patch"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+      "root": {
+        "bytes": 106381,
+        "sha256": "1dce4ad02656b5c9d873c2ed6066264a7b3ec3f02766001f437920a789e3f3ca"
+      },
+      "G": {
+        "bytes": 146346,
+        "sha256": "490dd9f23d5b82b9ae5f3243fb3e66886217f29eae19c0b1365cdc8c0d2aa612"
+      },
+      "virtual": {
+        "bytes": 111195,
+        "sha256": "037c63e4d8001d8743f9d4e71c1f4cc94acd2a5f20729f47a454dfbc16788d7d"
+      },
+      "proposed": {
+        "bytes": 106804,
+        "sha256": "634a938933b2589dbc130622dff5d24d3be44f85410b79eafa2d85f1d91c1ccf"
+      },
+      "conflict_hunks": 1,
+      "markers_remaining": false,
+      "root_identical": false,
+      "root_to_proposal_patch": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/method-decisions.md.root-to-proposal.patch",
+      "F_block_identical_root": true,
+      "F_block": {
+        "bytes": 26782,
+        "sha256": "69a68c9759e6a1893db779429356a79580861241f01a7221e5a2223f6365b47a"
+      },
+      "current_G_C_D_E_bytes_preserved": true,
+      "C_D_E_bytes": {
+        "bytes": 73820,
+        "sha256": "d0c393f5d15d9b65deb9fcc306cf5bc1e6b655a43b37060dd6f58bd7e88a7235"
+      },
+      "G_original_criterion_notice_preserved": true,
+      "F_M_anchors": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16"
+      ]
+    }
+  ],
+  "check": "PASS"
+}

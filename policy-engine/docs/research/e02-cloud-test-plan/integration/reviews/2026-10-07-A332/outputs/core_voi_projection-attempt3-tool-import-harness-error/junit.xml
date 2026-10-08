@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="27.195" timestamp="2026-10-07T23:00:30.954585+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="_build.e02-g-continuation-20261006.R.A-332-20261007.native-A.candidate.policy-engine.tests.integration.core_runtime.test_e02_voi_artifact_projection" name="test_informative_voi_candidate_core_readback_and_preview_refusal" time="26.650"><failure message="ModuleNotFoundError: module 'tools.lib.imports' absent from exact candidate export">tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-679/test_informative_voi_candidate0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x10df590f0&gt;
+
+    @pytest.mark.asyncio
+    async def test_informative_voi_candidate_core_readback_and_preview_refusal(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """Read back actual B11 values, then assert the unowned preview is refused.
+    
+        The B11 N6 producer run is real. This fixture manually dispatches a Core
+        control-job lease callback to persist that run through the canonical
+        compiled-recursive artifact writer; it does not claim an ordinary NL
+        request invokes this B11 generator. The recursive wrapper is explicitly
+        contract-testing scoped, and the generic content route's refusal is the
+        expected boundary until an artifact owner supplies preview authority.
+        """
+    
+        pytest.importorskip("fastapi.testclient")
+        from fastapi.testclient import TestClient
+    
+        from polisyos.core import canon
+        from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+        from polisyos.core.security.tenant_context import tenant_scope
+        from polisyos.data_forge.read_api import catalog as catalog_api
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.http import dev_identity_middleware
+        from polisyos.runtime.http.app import create_runtime_api_app
+        from polisyos.runtime.http.container import RuntimeContainerOverrides
+        from polisyos.runtime.http.dependencies import build_runtime_api_context
+        from polisyos.runtime.http.security import build_fixture_identity_claims
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+            CompiledRecursiveGenerationCycleRun,
+        )
+        from polisyos.runtime.quality import substrate_registry
+        from polisyos.runtime.quality.design_axes.coupling_composition import (
+            derive_recursive_design_graph,
+        )
+        from polisyos.runtime.quality.generation_cycle import JointSimulationPort
+        from polisyos.runtime.quality.recursive_generation_cycle import (
+            RecursiveCycleBudget,
+            RecursiveGenerationCycleController,
+            RecursiveGenerationCycleRun,
+        )
+        from polisyos.scientist.methods.search.voi_scheduler import SimpleVOIScheduler
+        from tests._helpers.control_worker import dispatch_one_control_job
+&gt;       from tests.integration.core_runtime.test_e02_hard_feasibility_before_voi import (
+            _owner_fixture,
+        )
+
+tests/integration/core_runtime/test_e02_voi_artifact_projection.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../../../../.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py:52: in &lt;module&gt;
+    from tests.unit.runtime.quality.test_generation_cycle import (
+../../../../../../../.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+tests/unit/runtime/quality/test_generation_cycle.py:130: in &lt;module&gt;
+    from tools.quality.validation import (
+tools/quality/validation/check_layer3_gy_generation_cycle_contract.py:102: in &lt;module&gt;
+    from tools.lib.fs import (
+tools/lib/__init__.py:13: in &lt;module&gt;
+    from .imports import ensure_repo_import_roots, is_type_checking_test, repo_root_from
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;sitecustomize._CandidateOnlyFinder object at 0x104b870e0&gt;
+fullname = 'tools.lib.imports'
+path = ['/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/candidate/policy-engine/tools/lib']
+
+    def find_spec(self, fullname, path=None, target=None):
+        del target
+        if fullname == "polisyos" or fullname.startswith("polisyos."):
+            root = SOURCE_ROOT
+        elif fullname == "benchmarks" or fullname.startswith("benchmarks."):
+            root = CANDIDATE
+        elif fullname == "tests" or fullname.startswith("tests."):
+            root = TESTS_ROOT
+        elif fullname == "_helpers" or fullname.startswith("_helpers."):
+            root = TEST_HELPERS_ROOT
+        elif fullname == "tools" or fullname.startswith("tools."):
+            root = PRODUCT_ROOT
+        else:
+            return None
+        if path is None:
+            search = [str(root)]
+        else:
+            search = [str(Path(item).resolve()) for item in path if _inside(Path(item), root)]
+            if not search:
+                raise ModuleNotFoundError(f"candidate-only import blocked {fullname}: {path}")
+        spec = importlib.machinery.PathFinder.find_spec(fullname, search)
+        if spec is None:
+&gt;           raise ModuleNotFoundError(
+                f"module {fullname!r} absent from exact candidate export", name=fullname
+            )
+E           ModuleNotFoundError: module 'tools.lib.imports' absent from exact candidate export
+
+../../harness/sitecustomize.py:84: ModuleNotFoundError</failure></testcase></testsuite></testsuites>

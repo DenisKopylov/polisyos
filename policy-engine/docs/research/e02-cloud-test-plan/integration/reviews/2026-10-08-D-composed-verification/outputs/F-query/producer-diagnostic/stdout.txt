@@ -1,0 +1,29 @@
+2026-10-08 01:40:36 [info     ] method_registered              backend=numpy fqn=causal.structural.gcm_fit@1.0.0 lazy=False namespace=causal.structural override=True tags=['causal', 'estimation', 'gcm', 'hybrid', 'structural'] version=1.0.0
+2026-10-08 01:40:36 [debug    ] method_dispatch_start          backend=numpy fqn=causal.structural.gcm_fit@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-08 01:40:36 [error    ] method_dispatch_error          attempts=[('numpy', 'WorkerUnavailableError')] backend=numpy elapsed_ms=130.51 exc=WorkerUnavailableError fqn=causal.structural.gcm_fit@1.0.0 requested_backend=numpy
+{
+  "candidate_sha": "556329c9cdd183197e644299381550f81f061620",
+  "candidate_tree": "a7a581044ee5c9e91b8c514c9aad4ff3051ce6a5",
+  "operation": "existing _fit_real fixture only,100 rows; no query/consumer call",
+  "source_file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate/policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+  "worker": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate/policy-engine/workers/dowhy-014/.venv/bin/python",
+  "producer": "ERROR",
+  "exception_type": "AssertionError",
+  "exception": "[{'loc': ['method_runner'], 'message': 'DoWhy worker rejected/failed request: ValueError: locked Python3.12/DoWhy0.14 profile required\\n', 'error_type': 'runtime', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}]",
+  "traceback": "Traceback (most recent call last):\n  File \"/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/producer-diagnostic/diagnose.py\", line 8, in <module>\n    value=m._fit_real(out/\"cas\",100);record[\"producer\"]=\"PASS\"\n  File \"/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate/policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py\", line 106, in _fit_real\n    assert not result.issues, result.issues\n           ^^^^^^^^^^^^^^^^^\nAssertionError: [{'loc': ['method_runner'], 'message': 'DoWhy worker rejected/failed request: ValueError: locked Python3.12/DoWhy0.14 profile required\\n', 'error_type': 'runtime', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}]\n",
+  "actual_job_issues": [
+    {
+      "loc": [
+        "method_runner"
+      ],
+      "message": "DoWhy worker rejected/failed request: ValueError: locked Python3.12/DoWhy0.14 profile required\n",
+      "error_type": "runtime",
+      "input_value": null,
+      "path": null,
+      "code": null,
+      "expected": null,
+      "actual": null,
+      "severity": null
+    }
+  ]
+}

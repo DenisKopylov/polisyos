@@ -7,10 +7,13 @@ sets, and collections.deque for BFS / Kahn's algorithm.
 Edge-mark conventions (from causal_graph.py EdgeMark enum):
     Directed edge (src → dst):  mark_src=TAIL,   mark_dst=ARROW
     Bidirected edge (src ↔ dst): mark_src=ARROW,  mark_dst=ARROW
-    Undirected / PAG uncertain:  mark_src=CIRCLE, mark_dst=CIRCLE  (ignored by default)
+    Reverse directed storage:    mark_src=ARROW,  mark_dst=TAIL
 
-These functions accept any CausalGraphModel (DAG, CPDAG, PAG) and interpret the
-edge marks as above.  PAG-type graphs with ARROW/ARROW edges are treated as ADMGs.
+Static causal primitives require fully resolved, contemporaneous directed or
+bidirected edges. Unresolved endpoints and compact lagged relations are refused
+before separation or graph surgery. Raw endpoint-inspection and orientation
+utilities keep their separate structural purpose; they do not establish causal
+identification for a partially oriented or temporal graph.
 
 Functions
 ---------
@@ -42,7 +45,7 @@ if TYPE_CHECKING:
 
 
 class CachedAdjacency:
-    """One-pass adjacency pre-computation reused across graph primitives."""
+    """Admit the resolved static profile and prepare its adjacency once."""
 
     __slots__ = ("bi", "bidirected_edges", "circle_edges", "directed_edges", "fwd", "rev")
 
@@ -57,21 +60,31 @@ class CachedAdjacency:
         circle_edges: list[tuple[str, str]] = []
 
         for edge in graph.edges:
-            # ADMG primitives are static; compact temporal relations belong to
-            # a temporal consumer and must not become contemporaneous ancestry,
-            # district, or cycle edges by accident.
             if edge.lag not in (None, 0):
-                continue
+                raise ValueError(
+                    "Unsupported static ADMG profile: "
+                    f"edge {edge.src!r}–{edge.dst!r} has lag={edge.lag!r}; "
+                    "resolve the temporal graph before static causal inference."
+                )
             if edge.mark_src is EdgeMark.TAIL and edge.mark_dst is EdgeMark.ARROW:
                 fwd[edge.src].append(edge.dst)
                 rev[edge.dst].append(edge.src)
                 dir_set.add((edge.src, edge.dst))
+            elif edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.TAIL:
+                fwd[edge.dst].append(edge.src)
+                rev[edge.src].append(edge.dst)
+                dir_set.add((edge.dst, edge.src))
             elif edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.ARROW:
                 bi[edge.src].append(edge.dst)
                 bi[edge.dst].append(edge.src)
                 bi_set.add(frozenset({edge.src, edge.dst}))
-            elif edge.mark_src is EdgeMark.CIRCLE or edge.mark_dst is EdgeMark.CIRCLE:
-                circle_edges.append((edge.src, edge.dst))
+            else:
+                raise ValueError(
+                    "Unsupported static ADMG profile: "
+                    f"edge {edge.src!r}–{edge.dst!r} has unresolved endpoints "
+                    f"({edge.mark_src.value}, {edge.mark_dst.value}); "
+                    "no equivalence-class separation or completion is assumed."
+                )
 
         self.fwd = fwd
         self.rev = rev
@@ -114,6 +127,11 @@ def _get_cached_adjacency(graph: CausalGraphModel) -> CachedAdjacency:
     return adj
 
 
+def _validate_static_admg(graph: CausalGraphModel) -> None:
+    """Require the shared static profile before a consumer transforms the graph."""
+    _get_cached_adjacency(graph)
+
+
 def _derived_graph_model(
     *,
     graph: CausalGraphModel,
@@ -145,7 +163,7 @@ def extract_directed_edges(graph: CausalGraphModel) -> frozenset[tuple[str, str]
     """Return all directed edges as frozenset of (src, dst) pairs.
 
     A directed edge has mark_src=TAIL, mark_dst=ARROW.
-    Positive-lag edges are excluded because this helper is the static ADMG view.
+    Reverse storage is normalized. Compact lagged or unresolved edges refuse.
     """
     return _get_cached_adjacency(graph).directed_edges
 
@@ -246,12 +264,16 @@ def do_operator(
     """
     from polisyos.ir.analytics.causal_graph import EdgeMark
 
+    _validate_static_admg(graph)
     kept_edges = []
     for e in graph.edges:
         # Remove directed edges INTO intervention nodes
         if e.mark_src is EdgeMark.TAIL and e.mark_dst is EdgeMark.ARROW:
             if e.dst in intervention_set:
                 continue  # cut
+        elif e.mark_src is EdgeMark.ARROW and e.mark_dst is EdgeMark.TAIL:
+            if e.src in intervention_set:
+                continue  # cut reverse-stored incoming edge
         # Perfect intervention also cuts latent influence into action nodes.
         if e.mark_src is EdgeMark.ARROW and e.mark_dst is EdgeMark.ARROW:
             if e.src in intervention_set or e.dst in intervention_set:
@@ -303,12 +325,16 @@ def remove_outgoing_edges(
     """
     from polisyos.ir.analytics.causal_graph import EdgeMark
 
+    _validate_static_admg(graph)
     kept_edges = []
     for e in graph.edges:
         # Drop directed edges whose source is in the cut set
         if e.mark_src is EdgeMark.TAIL and e.mark_dst is EdgeMark.ARROW:
             if e.src in nodes:
                 continue  # cut outgoing directed edge
+        elif e.mark_src is EdgeMark.ARROW and e.mark_dst is EdgeMark.TAIL:
+            if e.dst in nodes:
+                continue  # cut reverse-stored outgoing edge
         kept_edges.append(e)
 
     return _derived_graph_model(
@@ -333,6 +359,7 @@ def c_components(graph: CausalGraphModel) -> list[frozenset[str]]:
 
     Returns list of frozensets (one per component), sorted largest-first.
     """
+    _validate_static_admg(graph)
     key = id(graph)
     cached_components = _CC_CACHE.get(key)
     if cached_components is not None:
@@ -419,6 +446,7 @@ def induced_subgraph(
     Only nodes in node_subset and edges with both endpoints in node_subset
     are retained.  graph_type is preserved.
     """
+    _validate_static_admg(graph)
     kept_nodes = [n for n in graph.nodes if n in node_subset]
     kept_edges = [e for e in graph.edges if e.src in node_subset and e.dst in node_subset]
     return _derived_graph_model(
@@ -451,14 +479,6 @@ def _m_separation_adjacency(
         adj[src].append((dst, EdgeMark.ARROW, EdgeMark.ARROW))
         adj[dst].append((src, EdgeMark.ARROW, EdgeMark.ARROW))
 
-    for src, dst in cached.circle_edges:
-        # A circle mark admits both a directed and a bidirected reading. Keep
-        # all conservative possibilities so PAG uncertainty cannot look safer.
-        adj[src].append((dst, EdgeMark.TAIL, EdgeMark.ARROW))
-        adj[dst].append((src, EdgeMark.ARROW, EdgeMark.TAIL))
-        adj[src].append((dst, EdgeMark.ARROW, EdgeMark.ARROW))
-        adj[dst].append((src, EdgeMark.ARROW, EdgeMark.ARROW))
-
     return adj
 
 
@@ -476,6 +496,7 @@ def m_separation(
     """
     from polisyos.ir.analytics.causal_graph import EdgeMark
 
+    _validate_static_admg(graph)
     if x_set & y_set:
         return False
     if not x_set or not y_set:
@@ -590,26 +611,18 @@ def reachable_closure(
     intervened: frozenset[str],
     conditioning: frozenset[str] | None = None,
 ) -> frozenset[str]:
-    """PAG-compatible Bayes Ball reachability closure.
+    """Bayes Ball reachability closure on a resolved static ADMG.
 
     Returns all nodes reachable from *query_vars* after do(*intervened*),
     optionally conditioning on *conditioning*.
 
-    CIRCLE marks are treated conservatively: each edge with a CIRCLE mark
-    contributes both a directed AND a bidirected path entry, so the returned
-    set is the union of reachable nodes across all DAGs in the PAG equivalence
-    class.  This makes the function safe to use for PAG-ID feasibility checks
-    (B3) where we must handle mark uncertainty.
-
     Parameters
     ----------
-    graph       : the causal graph (DAG / CPDAG / PAG)
+    graph       : causal graph with resolved contemporaneous ADMG endpoints
     query_vars  : seed variables to propagate from
     intervened  : variables in do(·); their incoming directed edges are removed
     conditioning: variables Z to condition on (affects collider activation)
     """
-    from polisyos.ir.analytics.causal_graph import EdgeMark
-
     z_set: frozenset[str] = conditioning if conditioning is not None else frozenset()
 
     # Mutilated graph: remove incoming directed edges to intervened nodes
@@ -618,19 +631,13 @@ def reachable_closure(
     # Build adjacency for the mutilated graph — same structure as m_separation:
     # (neighbor, is_parent_of_current, is_bidirected)
     adj: dict[str, list[tuple[str, bool, bool]]] = {n: [] for n in g_mut.nodes}
-    for e in g_mut.edges:
-        if e.mark_src is EdgeMark.TAIL and e.mark_dst is EdgeMark.ARROW:
-            adj[e.src].append((e.dst, False, False))
-            adj[e.dst].append((e.src, True, False))
-        elif e.mark_src is EdgeMark.ARROW and e.mark_dst is EdgeMark.ARROW:
-            adj[e.src].append((e.dst, False, True))
-            adj[e.dst].append((e.src, False, True))
-        elif e.mark_src is EdgeMark.CIRCLE or e.mark_dst is EdgeMark.CIRCLE:
-            # Conservative: CIRCLE could be TAIL or ARROW → add both orientations
-            adj[e.src].append((e.dst, False, False))
-            adj[e.dst].append((e.src, True, False))
-            adj[e.src].append((e.dst, False, True))
-            adj[e.dst].append((e.src, False, True))
+    for src, dst in extract_directed_edges(g_mut):
+        adj[src].append((dst, False, False))
+        adj[dst].append((src, True, False))
+    for pair in extract_bidirected_edges(g_mut):
+        src, dst = tuple(pair)
+        adj[src].append((dst, False, True))
+        adj[dst].append((src, False, True))
 
     an_z: frozenset[str] = ancestors(g_mut, z_set) if z_set else frozenset()
 
@@ -698,12 +705,16 @@ def topological_order(graph: CausalGraphModel) -> list[str]:
     fwd: dict[str, list[str]] = {n: [] for n in graph.nodes}
 
     for e in graph.edges:
-        if e.mark_src is not EdgeMark.TAIL or e.mark_dst is not EdgeMark.ARROW:
-            continue
         if e.lag is not None and e.lag > 0:
             continue
-        fwd[e.src].append(e.dst)
-        indegree[e.dst] += 1
+        if e.mark_src is EdgeMark.TAIL and e.mark_dst is EdgeMark.ARROW:
+            source, target = e.src, e.dst
+        elif e.mark_src is EdgeMark.ARROW and e.mark_dst is EdgeMark.TAIL:
+            source, target = e.dst, e.src
+        else:
+            continue
+        fwd[source].append(target)
+        indegree[target] += 1
 
     queue: deque[str] = deque(n for n, d in indegree.items() if d == 0)
     # Deterministic order: sort queue entries for stable output
@@ -795,6 +806,7 @@ def condense_graph(
     sccs: list[frozenset[str]],
 ) -> CausalGraphModel:
     """Collapse each SCC into a meta-node and preserve inter-component edges."""
+    _validate_static_admg(graph)
     from polisyos.ir.analytics.causal_graph import CausalGraphModel, EdgeMark, GraphType
 
     node_to_comp: dict[str, frozenset[str]] = {}
@@ -812,8 +824,6 @@ def condense_graph(
     condensed_edges: list[CausalEdge] = []
 
     for edge in graph.edges:
-        if edge.lag not in (None, 0):
-            continue
         src_comp = node_to_comp[edge.src]
         dst_comp = node_to_comp[edge.dst]
         src_label = comp_to_label[src_comp]
@@ -821,12 +831,26 @@ def condense_graph(
         if src_label == dst_label:
             continue
 
-        if edge.mark_src is EdgeMark.TAIL and edge.mark_dst is EdgeMark.ARROW:
+        if (edge.mark_src, edge.mark_dst) in (
+            (EdgeMark.TAIL, EdgeMark.ARROW),
+            (EdgeMark.ARROW, EdgeMark.TAIL),
+        ):
+            if edge.mark_src is EdgeMark.ARROW:
+                src_label, dst_label = dst_label, src_label
             key = (src_label, dst_label)
             if key in seen_directed:
                 continue
             seen_directed.add(key)
-            condensed_edges.append(edge.model_copy(update={"src": src_label, "dst": dst_label}))
+            condensed_edges.append(
+                edge.model_copy(
+                    update={
+                        "src": src_label,
+                        "dst": dst_label,
+                        "mark_src": EdgeMark.TAIL,
+                        "mark_dst": EdgeMark.ARROW,
+                    }
+                )
+            )
         elif edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.ARROW:
             key = frozenset({src_label, dst_label})
             if key in seen_bidirected:
@@ -897,7 +921,7 @@ def is_adjacent(graph: CausalGraphModel, a: str, b: str) -> bool:
 
 
 def has_directed_path(graph: CausalGraphModel, src: str, dst: str) -> bool:
-    """Return True if a directed path src →…→ dst exists using TAIL→ARROW edges.
+    """Inspect resolved contemporaneous arrows without completing unknown marks.
 
     BFS on directed edges (TAIL→ARROW), excluding lagged edges (lag > 0).
     A node is not considered reachable from itself (returns False for src == dst).
@@ -915,6 +939,12 @@ def has_directed_path(graph: CausalGraphModel, src: str, dst: str) -> bool:
             and (e.lag is None or e.lag == 0)
         ):
             fwd[e.src].append(e.dst)
+        elif (
+            e.mark_src is EdgeMark.ARROW
+            and e.mark_dst is EdgeMark.TAIL
+            and (e.lag is None or e.lag == 0)
+        ):
+            fwd[e.dst].append(e.src)
 
     visited: set[str] = {src}
     queue: deque[str] = deque([src])
@@ -965,6 +995,7 @@ def augment_with_s_nodes(
     """
     from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 
+    _validate_static_admg(graph)
     existing_nodes = set(graph.nodes)
     existing_edge_pairs = {(e.src, e.dst) for e in graph.edges}
 
@@ -1076,6 +1107,7 @@ def resolve_s_node_by_adjustment(
     CausalGraphModel
         New graph without the S-node and its edges (original is unchanged).
     """
+    _validate_static_admg(graph)
     s_name = f"S_{s_var_name}"
     if s_name not in graph.nodes:
         return graph  # no-op

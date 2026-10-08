@@ -1,0 +1,219 @@
+{
+  "review_kind": "Independent read-only packaging diagnosis and bounded design review; no implementation acceptance",
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+  "closure_ids": [],
+  "decision": "GO_BOUNDED for single canonical resource resolver + exact four original YAML projections; implementation and installed-default positive remain UNRUN until canonical writer freezes and tests them.",
+  "runtime_changes_by_reviewer": false,
+  "source_doc_git_writes_by_reviewer": false,
+  "new_quota": false,
+  "repeated_numerical_suites": false,
+  "basis": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/basis-audit.json",
+    "bytes": 33738,
+    "sha256": "be576d6a7487b61edda5e184a527a296fbb02da83dbbc5d8a2be639a71aff5d7"
+  },
+  "observations": [
+    {
+      "property": "Required curated defaults are absent in actual built artifacts",
+      "outcome": "FAIL",
+      "denominator": "complete members of wheel3464/sdist12521/rebuilt-wheel3464 plus four exact basenames in each installed site",
+      "proof": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/basis-audit.json",
+        "bytes": 33738,
+        "sha256": "be576d6a7487b61edda5e184a527a296fbb02da83dbbc5d8a2be639a71aff5d7"
+      }
+    },
+    {
+      "property": "Default seed scoring works in installed composition",
+      "outcome": "ERROR",
+      "reason": "Actual native score_variable_pair invokes missing default Path outside installed site; FileNotFoundError in both real environments.",
+      "existing_graph_outputs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/wheel-defaults.stdout.json",
+          "bytes": 78329,
+          "sha256": "7b8594ba5ae407652c7dbf9ea8238d3d8f00870aff87e73913fd1f085526039f"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/sdist-defaults.stdout.json",
+          "bytes": 78329,
+          "sha256": "3abc06eb3c34abd729b6adaed1c4180de5e222ee5824cbfd7c662763355c0fc1"
+        }
+      ]
+    },
+    {
+      "property": "Default metrics configuration works in installed composition",
+      "outcome": "ERROR",
+      "reason": "Actual native DatasetBatchConfig fails ValueError for missing metrics_map.yaml in both real environments.",
+      "checks": [
+        "wheel-additional-consumer-characterization",
+        "sdist-additional-consumer-characterization"
+      ]
+    },
+    {
+      "property": "Default proxy/WVS resources were positively witnessed",
+      "outcome": "UNRUN",
+      "reason": "Observed native {} / 15 static Fabric dataset IDs are degraded fallbacks. No resource positive established by successful call return."
+    },
+    {
+      "property": "Existing explicit caller Path and curated law remain usable",
+      "outcome": "PASS",
+      "reason": "Both genuine installed modules consume original tracked source YAML: public seed facade identity and RL/GE seed support1, proxy country/year0.12/0.18/0.15, actual custom metrics configuration35source entries. This is explicit-path compatibility, not default packaging positive.",
+      "checks": [
+        "wheel-additional-consumer-characterization",
+        "sdist-additional-consumer-characterization"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "wheel-additional-consumer-characterization",
+      "outcome": "PASS",
+      "meaning": "Characterization assertions passed; actual default DatasetBatchConfig ERROR and Fabric empty/static degradation remain negative measurements, not default resource acceptance.",
+      "execution": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/wheel-additional.execution.json",
+        "bytes": 1269,
+        "sha256": "a7b8504fb054c90384428f6c3255e3ce744795d41cbce32cac891d60382c0595"
+      },
+      "output": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/wheel-additional.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/wheel-additional.stdout.txt",
+        "bytes": 76612,
+        "sha256": "0f9f1eb4cc30bf8060bf3da7b53ff34e25f606fb83d85280c98daf65b0aa4f31"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/wheel-additional.stderr.txt",
+        "bytes": 1082,
+        "sha256": "bb1b5b79d46b458a84a7d1ffd69e5dd1d8f480655a72a15caf5eaab32ee23eff"
+      }
+    },
+    {
+      "id": "sdist-additional-consumer-characterization",
+      "outcome": "PASS",
+      "meaning": "Characterization assertions passed; actual default DatasetBatchConfig ERROR and Fabric empty/static degradation remain negative measurements, not default resource acceptance.",
+      "execution": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/sdist-additional.execution.json",
+        "bytes": 1271,
+        "sha256": "c2313fa7887f6db7d80c5224935ae81f5f35f0f642a1cb718c35bc6b84d3dd9a"
+      },
+      "output": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/sdist-additional.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/sdist-additional.stdout.txt",
+        "bytes": 76612,
+        "sha256": "eb4dc2c9b30193b3545460ddb30023b12fcaa0bb9188e4f96b21a8cf0d866d85"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/sdist-additional.stderr.txt",
+        "bytes": 1082,
+        "sha256": "00172152d573f5d957e550f367248a531c99175bff533343d72f48fe1ca0280f"
+      }
+    }
+  ],
+  "proposal": {
+    "canonical_owner": "team-data-forge catalog domain; parent root must choose one writer and coordinate C-owned sources.",
+    "shared_resolver": "One internal catalog-domain helper returning durable pathlib.Path for a finite four-name allowlist. Source anchor is exact developer src layout pointing at original data/dataset_catalog; unpacked installed layout selects package-private catalog/_resources assets. No second YAML catalog, CWD/neighbor repository fallback, raw data search or temporary as_file Path.",
+    "path_return_abi": "Existing public read_api.catalog.default_seed_alignments_path and load_seed_alignments identity/signatures remain stable. Existing explicit custom paths and seed_alignments iterable precedence remain stable; resource packaging does not rewrite curated laws.",
+    "default_owner_source_files": [
+      "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py"
+    ],
+    "runtime_boundary": "Fabric must invoke the canonical helper through existing polisyos.data_forge.read_api.catalog. One additive lazy export avoids a new deep private cross-package dependency. IR alignment_certification already consumes that existing facade and requires no new internal import.",
+    "packaging_owner_file": "policy-engine/hatch.toml",
+    "wheel_projection": [
+      {
+        "source": "policy-engine/data/dataset_catalog/seed_variable_alignments.yaml",
+        "target": "polisyos/data_forge/domains/catalog/_resources/seed_variable_alignments.yaml",
+        "bytes": 1309,
+        "sha256": "cb1daa3237ff58d8c875571ff2459a55c5182c3a4f13a076497a517f9a8740d8"
+      },
+      {
+        "source": "policy-engine/data/dataset_catalog/proxy_metric_alignments.yaml",
+        "target": "polisyos/data_forge/domains/catalog/_resources/proxy_metric_alignments.yaml",
+        "bytes": 293,
+        "sha256": "4c6c04bb99ea566b061c7b2d23540d22f8eb7c043067585a7e9b93ccaf87388b"
+      },
+      {
+        "source": "policy-engine/data/dataset_catalog/wvs_indicator_registry.yaml",
+        "target": "polisyos/data_forge/domains/catalog/_resources/wvs_indicator_registry.yaml",
+        "bytes": 160329,
+        "sha256": "dabbadf04fdbf6c4658a720a6af5b63a60c69727b2350c0424368691399e413d"
+      },
+      {
+        "source": "policy-engine/data/dataset_catalog/metrics_map.yaml",
+        "target": "polisyos/data_forge/domains/catalog/_resources/metrics_map.yaml",
+        "bytes": 2163,
+        "sha256": "0877e6521e4dd66dbc2c08010367c79f672c37a8b6b30e68f47b10135f680266"
+      }
+    ],
+    "sdist_contract": "Include the four original data/dataset_catalog/*.yaml paths; wheel rebuilt from genuine sdist projects those same bytes. Existing seven force-includes remain exact. No app dependencies, uv.lock, markers or production raw data additions.",
+    "compatibility_window": "Genuine source checkout and ordinary file-backed installed wheel/rebuilt sdist. Zip-import/non-filesystem resources cannot be claimed under current public Path contract without a separately specified reader lifetime/API.",
+    "missing_corrupt_boundary": "The existing seed/metrics errors and proxy/WVS degraded fallbacks are different current contracts. Packaging-only repair preserves parse policy; it cannot claim classwide typed refusal merely because all YAML files are shipped. If root explicitly admits required-default fail-closed behavior, reuse existing DataForgeValidationError for missing/unreadable/syntactically corrupt default resource and propagate it through default-only broad WVS catches. Do not impose new per-indicator scientific validation, normalization, confidence law, custom-path schema or new error/authority subsystem.",
+    "required_controls": [
+      "Exact four original Git bytes in wheel, source sdist, rebuilt wheel and genuine installed sites; removal of any projection must fail actual corresponding default reader.",
+      "All six default-owner files use canonical resolver; source layout returns original paths and installed layout returns paths under that installed package. Deliberate neighboring/CWD resources cannot rescue missing selected resource.",
+      "Actual installed default seed score/public facade, proxy overrides, DatasetBatchConfig metrics reader and both DataForge WVS loaders plus real Fabric list_datasets, with current consumer semantics separately classified.",
+      "Explicit original custom path override remains selected; prior default cache entries cannot replace a distinct explicit path; existing seed iterable precedence retained.",
+      "Default missing/syntax corrupt behavior is measured and labeled under explicitly adopted absence/parse policy, not inferred from Path reflection. No fake file injected into installed default location.",
+      "Public functions remain canonical same objects through read_api and preserve stable existing pickle/FQN behavior; unknown exports refuse.",
+      "Actual-current Hatch build resource oracle is separate from historical LEGACY migration equivalence and reconstructs current seven projection sources plus four proposed assets from exact source inputs."
+    ]
+  },
+  "downstream_companions": {
+    "public_surface": "policy-engine/architecture/public_surface/contract.toml declares only DataForge root and read_api supported entrypoints; nested catalog currently not inventoried. Adding catalog helper leaves literal root __all__ unchanged, but actual maintained generator review must establish generated inventory/reference deltas. If changed, canonical architecture/public_surface/inventory.json and docs/reference/public-surface.md belong existing architecture/API writer. No broad regeneration authority granted by this read-only review.",
+    "public_owner_document": "policy-engine/src/polisyos/data_forge/README.md and nearest existing catalog/batch README (no catalog/README exists). Declare file-backed default-path window, explicit custom override and selected missing/corrupt policy in structured release fragment.",
+    "packaging_tests": "Existing policy-engine/tests/repo_quality/tools/test_hatch_packaging.py uses original LEGACY includes and whole-archive equality; its context excludes all seven current force-include source paths. This static denominator limitation predates proposed assets. Add unique actual-current resource projection/build consumer test; do not indiscriminately weaken/replace historical LEGACY oracle assertions."
+  },
+  "limitations": [
+    "No proposed implementation exists or is reviewed by this packet.",
+    "No installed repaired-default positive, missing/corrupt repaired-policy or negative-removal control has executed.",
+    "No statistical identification/operational admission/native value authority or B56 admitted workload/budget positive claimed.",
+    "Raw WVS CSV/XLSX, remote provider availability and full production data remain outside four curated resource projection.",
+    "Literal domainlaw/hash inventory is not a general DataForge resource census; Graph owner separately captures full source denominator."
+  ],
+  "external_complete_evidence": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/probe_installed_defaults.py",
+      "bytes": 2762,
+      "sha256": "c26fae457023bfe36405e39d0e7607bfaf0c3c670ebcde27e7c2d6198579c485"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/wheel-defaults.json",
+      "bytes": 921,
+      "sha256": "cd42ae633c3396a8762055d5369e7c54e74d1fcf836d7f5120361bdc9a29505d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/wheel-defaults.stdout.json",
+      "bytes": 78329,
+      "sha256": "7b8594ba5ae407652c7dbf9ea8238d3d8f00870aff87e73913fd1f085526039f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/wheel-defaults.stderr.txt",
+      "bytes": 2148,
+      "sha256": "c16e26774c3edbde5bc943e79d497018bec1d477f7fb6b35eaf8e1511ce28ba7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/sdist-defaults.json",
+      "bytes": 921,
+      "sha256": "55511a8d3e6776d5d2ae4778f46e53fd4ba11833aac2920e533134d8fc9e87c9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/sdist-defaults.stdout.json",
+      "bytes": 78329,
+      "sha256": "3abc06eb3c34abd729b6adaed1c4180de5e222ee5824cbfd7c662763355c0fc1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/sdist-defaults.stderr.txt",
+      "bytes": 2148,
+      "sha256": "7c807acb6b6aed4aa3716547002d709f47f64089b83d2f88bdc422cb441957c9"
+    }
+  ],
+  "source_refs": "Exact resource/provider/reader/packaging source Git byte locators are in basis-audit.json; no copied tracked YAML/source or derived source views transported.",
+  "integrity": {
+    "body_sha256": "7ec53f44889390a19e0c5afe3e0bc684b889c052908dd1c1f11024dd426a2956",
+    "meaning": "Receipt byte integrity only; not an authority signature or admission seal."
+  }
+}

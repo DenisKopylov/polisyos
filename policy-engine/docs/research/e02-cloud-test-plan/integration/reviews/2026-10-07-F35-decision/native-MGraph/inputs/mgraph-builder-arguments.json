@@ -1,0 +1,32 @@
+{
+  "bidirected_edges": [
+    [
+      "X",
+      "Y"
+    ]
+  ],
+  "directed_edges": [
+    [
+      "X",
+      "Y"
+    ]
+  ],
+  "discovery_method": "native-probe-mgraph",
+  "missingness_map": {
+    "X": "mcar"
+  },
+  "note": "The graph structure and MGraphMetadata come from build_mgraph; the edge evidence annotation is revalidated so default reconciliation retains the structural discriminator.",
+  "post_build_edge_evidence": {
+    "combined_confidence": 0.9,
+    "data_confidence": 0.9,
+    "meaning": "synthetic fixture only; no empirical or authority claim",
+    "sources": [
+      "data"
+    ]
+  },
+  "reconciliation_min_edge_confidence": 0.1,
+  "substantive_vars": [
+    "X",
+    "Y"
+  ]
+}

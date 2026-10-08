@@ -1,0 +1,516 @@
+{
+  "schema": "e02.F.lossless_review_transport.v1",
+  "unit": "F",
+  "ledger_sha": "3d43eb459eec1f346571306647e5dbc68f32f076",
+  "product_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "files": [
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3d/allraw-ledger-diff-check.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3d/allraw-ledger-diff-check.stderr.txt.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3d/allraw-ledger-diff-check.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3d/allraw-ledger-diff-check.stdout.txt.gz",
+      "encoding": "gzip",
+      "stored_bytes": 916,
+      "stored_sha256": "774d3391c880f43711af835b15988ec3ba457be64d50e6fac6dc15d46a642b8e",
+      "decoded_bytes": 19646,
+      "decoded_sha256": "59ccb4dd2083e7d2ef62c0cf2880eaadd4248c824cdbf4acffda8c5d609124ee"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3d/authored14-diff-check.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3d/authored14-diff-check.stderr.txt.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3d/authored14-diff-check.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3d/authored14-diff-check.stdout.txt.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3d/canonical-protocol-audit.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3d/canonical-protocol-audit.json",
+      "encoding": "identity",
+      "stored_bytes": 1135,
+      "stored_sha256": "10b744707832ad2e1d208da9be84cd71d026c58fe7afb4bd890a3d3193a7c37a",
+      "decoded_bytes": 1135,
+      "decoded_sha256": "10b744707832ad2e1d208da9be84cd71d026c58fe7afb4bd890a3d3193a7c37a"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3d/commands.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3d/commands.json.gz",
+      "encoding": "gzip",
+      "stored_bytes": 4091,
+      "stored_sha256": "bed20b8a210ff41a7e90b5421d36a51849ce1c4e843a480adae79b8e614f94dd",
+      "decoded_bytes": 62402,
+      "decoded_sha256": "1c1d82a402f50777522f630b0b308b5af40c3687851ed1cfa64ba3debe2a1924"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3d/complete-transport-audit.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3d/complete-transport-audit.json.gz",
+      "encoding": "gzip",
+      "stored_bytes": 38791,
+      "stored_sha256": "9fa2f7988a383a753ab52c4220bacfe0f0c0eca21b39416e65356f27c0104854",
+      "decoded_bytes": 406039,
+      "decoded_sha256": "fe51b8ff9ae3e285ecf9f2aa168796cdbabfc0f161dcf7c5b9b06122aff6e9b9"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3d/current35-actual-binding-audit.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3d/current35-actual-binding-audit.json.gz",
+      "encoding": "gzip",
+      "stored_bytes": 11177,
+      "stored_sha256": "671ed8cdd6284a494ea00036183180dfd4765c622ad8b2c45007033e11d5ac30",
+      "decoded_bytes": 72603,
+      "decoded_sha256": "40bad54a78d6a13d5f9898bcd79a0854c91ab795adf2b0dfbf80c7a0ed72b8e6"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3d/full10-source.patch",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3d/full10-source.patch.gz",
+      "encoding": "gzip",
+      "stored_bytes": 8031,
+      "stored_sha256": "6231a1fd0f25ae997a17ab51a61c746a333a348bbf23e3d2f7eca0d2356611ab",
+      "decoded_bytes": 28829,
+      "decoded_sha256": "e2ce21030ebcd3c4664a9d78133d6f3df7054d3dee5f664bdd681e999a166c79"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3d/full14-ledger.patch",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3d/full14-ledger.patch.gz",
+      "encoding": "gzip",
+      "stored_bytes": 7506,
+      "stored_sha256": "55fe85fce9475ecf96347eaf69d4ced5cebaa0a53e8acec4bd6ad77a1d78321d",
+      "decoded_bytes": 76005,
+      "decoded_sha256": "fd955f3435ebd30ef9b0685797350fbc42045f510e9ecf31a3a6612e6d9d7ef5"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3d/quality-actual-classification.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3d/quality-actual-classification.json",
+      "encoding": "identity",
+      "stored_bytes": 4101,
+      "stored_sha256": "6ed0101cf02a62a3eeb3b3979a067df374bf7831932a36f2d2454afeb0dd417d",
+      "decoded_bytes": 4101,
+      "decoded_sha256": "6ed0101cf02a62a3eeb3b3979a067df374bf7831932a36f2d2454afeb0dd417d"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3d/review.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3d/review.json",
+      "encoding": "identity",
+      "stored_bytes": 4368,
+      "stored_sha256": "8f10a454876f2b0bb5143b041a2accb7bc9bf9f7f2ab847f53ad6b70f8c1ae48",
+      "decoded_bytes": 4368,
+      "decoded_sha256": "8f10a454876f2b0bb5143b041a2accb7bc9bf9f7f2ab847f53ad6b70f8c1ae48"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3d/source10-diff-check.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3d/source10-diff-check.stderr.txt.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3d/source10-diff-check.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3d/source10-diff-check.stdout.txt.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3e/allraw-ledger-diff-check.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3e/allraw-ledger-diff-check.stderr.txt.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3e/allraw-ledger-diff-check.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3e/allraw-ledger-diff-check.stdout.txt.gz",
+      "encoding": "gzip",
+      "stored_bytes": 916,
+      "stored_sha256": "774d3391c880f43711af835b15988ec3ba457be64d50e6fac6dc15d46a642b8e",
+      "decoded_bytes": 19646,
+      "decoded_sha256": "59ccb4dd2083e7d2ef62c0cf2880eaadd4248c824cdbf4acffda8c5d609124ee"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3e/authored14-diff-check.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3e/authored14-diff-check.stderr.txt.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3e/authored14-diff-check.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3e/authored14-diff-check.stdout.txt.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3e/canonical-protocol-audit.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3e/canonical-protocol-audit.json",
+      "encoding": "identity",
+      "stored_bytes": 2672,
+      "stored_sha256": "c67d31adff307c73237c8a0d8c0316159cd05b073026fbf87701c2495331c978",
+      "decoded_bytes": 2672,
+      "decoded_sha256": "c67d31adff307c73237c8a0d8c0316159cd05b073026fbf87701c2495331c978"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3e/commands.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3e/commands.json.gz",
+      "encoding": "gzip",
+      "stored_bytes": 4089,
+      "stored_sha256": "5dccfa3a2b1b82938d69f01cf5a11e033f8f93d86f8ccb8e39526ccd0740e970",
+      "decoded_bytes": 62403,
+      "decoded_sha256": "95284543c3d4e7f080b0fa862372059d165b8c8a65f3dcf316f4883691c8f6e9"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3e/complete-transport-audit.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3e/complete-transport-audit.json.gz",
+      "encoding": "gzip",
+      "stored_bytes": 38790,
+      "stored_sha256": "38053f21337f446bce1dbbd1363b63b70cebcaec407a14f3402a793d6d27d9f6",
+      "decoded_bytes": 406007,
+      "decoded_sha256": "7eabfd8485e937d7d6d25aa84914696542fa9788174a1f8bde4642a3cdc565d7"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3e/current35-actual-binding-audit.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3e/current35-actual-binding-audit.json.gz",
+      "encoding": "gzip",
+      "stored_bytes": 11177,
+      "stored_sha256": "56830ea9470b5860bc44c044433dd9bf603eef47f427f98c0f66ac666b02914b",
+      "decoded_bytes": 72603,
+      "decoded_sha256": "094fc6afb1070050fcd968f2f9c349b5386ae89e56fd5ed15071cba400ef3a72"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3e/full10-source.patch",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3e/full10-source.patch.gz",
+      "encoding": "gzip",
+      "stored_bytes": 8031,
+      "stored_sha256": "6231a1fd0f25ae997a17ab51a61c746a333a348bbf23e3d2f7eca0d2356611ab",
+      "decoded_bytes": 28829,
+      "decoded_sha256": "e2ce21030ebcd3c4664a9d78133d6f3df7054d3dee5f664bdd681e999a166c79"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3e/full14-ledger.patch",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3e/full14-ledger.patch.gz",
+      "encoding": "gzip",
+      "stored_bytes": 24632,
+      "stored_sha256": "c52262cd6fbb1ef2b78e52dab11c3518f8c51017ac068766825b7d2f8288c750",
+      "decoded_bytes": 119499,
+      "decoded_sha256": "330cc391380df3d7fa82fd901eb40800eee7d38136b281ee3700607f96b6a3d4"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3e/quality-actual-classification.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3e/quality-actual-classification.json",
+      "encoding": "identity",
+      "stored_bytes": 4101,
+      "stored_sha256": "8766a0a8870175adb4cd1f7d87a9fd2d6d42110d2ec3624411f2971ab491b78b",
+      "decoded_bytes": 4101,
+      "decoded_sha256": "8766a0a8870175adb4cd1f7d87a9fd2d6d42110d2ec3624411f2971ab491b78b"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3e/review.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3e/review.json",
+      "encoding": "identity",
+      "stored_bytes": 6077,
+      "stored_sha256": "2611c89144ec9c1f2f992a6e88efca856cbd3a62124105c35e7915eb5b88ed3c",
+      "decoded_bytes": 6077,
+      "decoded_sha256": "2611c89144ec9c1f2f992a6e88efca856cbd3a62124105c35e7915eb5b88ed3c"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3e/source10-diff-check.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3e/source10-diff-check.stderr.txt.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3e/source10-diff-check.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3e/source10-diff-check.stdout.txt.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/review_final_ledger.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/review_final_ledger.py",
+      "encoding": "identity",
+      "stored_bytes": 18524,
+      "stored_sha256": "2c25f496ca681cf2625ef61770f2614347f64f2a5daa442a83a97a7affafb0e6",
+      "decoded_bytes": 18524,
+      "decoded_sha256": "2c25f496ca681cf2625ef61770f2614347f64f2a5daa442a83a97a7affafb0e6"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/canonical-ledger-push.exitcode",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/canonical-ledger-push.exitcode",
+      "encoding": "identity",
+      "stored_bytes": 2,
+      "stored_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "decoded_bytes": 2,
+      "decoded_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/canonical-ledger-push.stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/canonical-ledger-push.stderr.gz",
+      "encoding": "gzip",
+      "stored_bytes": 127,
+      "stored_sha256": "e0bb9c9848f3a5b178f3a4cd3da8c54e12111753e9205181e446bf38eb41957e",
+      "decoded_bytes": 111,
+      "decoded_sha256": "3b86eab111111ac054a0fc07d8548f260756378affcad7e3c74353956b619fd0"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/canonical-ledger-push.stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/canonical-ledger-push.stdout.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/canonicalize_handoff.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/canonicalize_handoff.py",
+      "encoding": "identity",
+      "stored_bytes": 7756,
+      "stored_sha256": "255e94822e3766db0555f3cf315da14bffae8f02e83fd0c6f3db7391a167be6a",
+      "decoded_bytes": 7756,
+      "decoded_sha256": "255e94822e3766db0555f3cf315da14bffae8f02e83fd0c6f3db7391a167be6a"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/evidence-ledger-push.exitcode",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/evidence-ledger-push.exitcode",
+      "encoding": "identity",
+      "stored_bytes": 2,
+      "stored_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "decoded_bytes": 2,
+      "decoded_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/evidence-ledger-push.stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/evidence-ledger-push.stderr.gz",
+      "encoding": "gzip",
+      "stored_bytes": 127,
+      "stored_sha256": "ebeb816fee2e23ecd696a404044680df4dddcfa727087a4f62aa928408d678ed",
+      "decoded_bytes": 111,
+      "decoded_sha256": "8cf52da3c966526d546d423b4798fb6195fbf7fb7ecaea89343da37345c7d11f"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/evidence-ledger-push.stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/evidence-ledger-push.stdout.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/final-cloud-runtime.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/final-cloud-runtime.json",
+      "encoding": "identity",
+      "stored_bytes": 705,
+      "stored_sha256": "103edfe1d74db878af49b06c896375fb71f669be40e63fd83a880f6caa2e5faf",
+      "decoded_bytes": 705,
+      "decoded_sha256": "103edfe1d74db878af49b06c896375fb71f669be40e63fd83a880f6caa2e5faf"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/final-component-remote-readback.exitcode",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/final-component-remote-readback.exitcode",
+      "encoding": "identity",
+      "stored_bytes": 2,
+      "stored_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "decoded_bytes": 2,
+      "decoded_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/final-component-remote-readback.stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/final-component-remote-readback.stderr.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/final-component-remote-readback.stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/final-component-remote-readback.stdout.gz",
+      "encoding": "gzip",
+      "stored_bytes": 220,
+      "stored_sha256": "5283e1d52efa2cb62b1ac0201805c66ebdad977382fa2be5316b1a08ba0f9a52",
+      "decoded_bytes": 367,
+      "decoded_sha256": "db489042a2664ab0389baa0852bccfa78d7b0bb3eb8f13eee7214ab84ded04f3"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/final-custody-facts.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/final-custody-facts.json",
+      "encoding": "identity",
+      "stored_bytes": 1368,
+      "stored_sha256": "b18ec0f62e1d764d830a8881b5284130bb7fbcf4cc7ac2f37d598fbaede884ba",
+      "decoded_bytes": 1368,
+      "decoded_sha256": "b18ec0f62e1d764d830a8881b5284130bb7fbcf4cc7ac2f37d598fbaede884ba"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/final-fetch-G.stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/final-fetch-G.stderr.gz",
+      "encoding": "gzip",
+      "stored_bytes": 123,
+      "stored_sha256": "3e568de0631edfe2f1134810cf63c3aa520236dda91b5d1181a245933ddb35a0",
+      "decoded_bytes": 125,
+      "decoded_sha256": "88c77cc33c500bf9a8fe37d716cb11debc8d8d0eb249fb95d2d990e08c9f59d2"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/final-fetch-G.stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/final-fetch-G.stdout.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/final-fetch-origin.stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/final-fetch-origin.stderr.gz",
+      "encoding": "gzip",
+      "stored_bytes": 121,
+      "stored_sha256": "e73e4edc4e854f3757f3380f91065767ee20a12056d5adf5ce137a75351b70c7",
+      "decoded_bytes": 115,
+      "decoded_sha256": "900dac9b60523b1697e0ed15159c9c7c57a3b66a87109a7af300e5d2aec64cfe"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/final-fetch-origin.stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/final-fetch-origin.stdout.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/final-workspace-admission.exitcode",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/final-workspace-admission.exitcode",
+      "encoding": "identity",
+      "stored_bytes": 2,
+      "stored_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "decoded_bytes": 2,
+      "decoded_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/final-workspace-admission.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/final-workspace-admission.json.gz",
+      "encoding": "gzip",
+      "stored_bytes": 11980,
+      "stored_sha256": "de4282d7105376669df347aaf821dccd83f7efcd6dfb83d6c437bc7ade2987b9",
+      "decoded_bytes": 147971,
+      "decoded_sha256": "331a5d3607649be01d135de4e87905b04b35b57ff437864d623c99896bc75b54"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/final-workspace-admission.stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/final-workspace-admission.stderr.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/freeze_closeout.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/freeze_closeout.py",
+      "encoding": "identity",
+      "stored_bytes": 12617,
+      "stored_sha256": "67c74533eeec14a3bcf5030c0146402d3083d0c551aa53fd7ddf4c88d4d6bcbe",
+      "decoded_bytes": 12617,
+      "decoded_sha256": "67c74533eeec14a3bcf5030c0146402d3083d0c551aa53fd7ddf4c88d4d6bcbe"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/ledger-diff-check.stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/ledger-diff-check.stderr.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/ledger-diff-check.stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/ledger-diff-check.stdout.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/pre-closeout-status.stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/pre-closeout-status.stdout.gz",
+      "encoding": "gzip",
+      "stored_bytes": 61,
+      "stored_sha256": "36058b77dbc69a3e3f25a0e8c172995083ad2c168a1db017c2f9b8f00ffe4376",
+      "decoded_bytes": 41,
+      "decoded_sha256": "cd72e9dbd9f3a842046bac6db6bad85e1c45669db3a1b7d9e9193ab159e41cbf"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/receipt-byte-preservation-diff-check.stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/receipt-byte-preservation-diff-check.stderr.gz",
+      "encoding": "gzip",
+      "stored_bytes": 20,
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/receipt-byte-preservation-diff-check.stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/receipt-byte-preservation-diff-check.stdout.gz",
+      "encoding": "gzip",
+      "stored_bytes": 916,
+      "stored_sha256": "774d3391c880f43711af835b15988ec3ba457be64d50e6fac6dc15d46a642b8e",
+      "decoded_bytes": 19646,
+      "decoded_sha256": "59ccb4dd2083e7d2ef62c0cf2880eaadd4248c824cdbf4acffda8c5d609124ee"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/update_canonical_bindings.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/update_canonical_bindings.py",
+      "encoding": "identity",
+      "stored_bytes": 3870,
+      "stored_sha256": "3b4230d0b35704a2c2835f11b00ae4aa08dcffaf9a749047ed5a264b8290de35",
+      "decoded_bytes": 3870,
+      "decoded_sha256": "3b4230d0b35704a2c2835f11b00ae4aa08dcffaf9a749047ed5a264b8290de35"
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/root/update_ledger.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/update_ledger.py",
+      "encoding": "identity",
+      "stored_bytes": 24279,
+      "stored_sha256": "7db14b682db8dfd03c87920dd7c8d79b8528955ad749e90e98278bb882dad414",
+      "decoded_bytes": 24279,
+      "decoded_sha256": "7db14b682db8dfd03c87920dd7c8d79b8528955ad749e90e98278bb882dad414"
+    }
+  ],
+  "file_count": 56,
+  "stored_bytes": 263783,
+  "decoded_bytes": 1634579,
+  "law": "Root freezes the actual completed independent review and finite full metadata outputs; no source/environment copy or numerical rerun."
+}

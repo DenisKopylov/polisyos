@@ -1,0 +1,7 @@
+{
+  "schema": "policyos.e02.full_output_utf8.v1",
+  "encoding": "utf-8",
+  "decoded_bytes": 333,
+  "decoded_sha256": "38ff652c4342cb2bd002bb9cdcf4fafd790bb8debfc316c4edefa32dfc507ba7",
+  "text": "{\"decision\": \"GO_BOUNDED\", \"source_sha\": \"8236d9c368336a5ea20c1586f29aea7321db6536\", \"review\": {\"path\": \"/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/review.json\", \"bytes\": 26315, \"sha256\": \"d8ed8bf50d8097d2621bab578814e8acefd5c3b6e399a4fc0e0e89d93b1daae2\"}, \"selected_files\": 47, \"full_bytes\": 3713465}\n"
+}

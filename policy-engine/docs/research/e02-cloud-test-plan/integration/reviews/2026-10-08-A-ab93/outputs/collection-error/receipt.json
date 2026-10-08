@@ -1,0 +1,610 @@
+{
+  "candidate_sha": "ab93e222381372c54056b9f05e6c8cd7aedf2f2c",
+  "candidate_tree": "ee92f0719be5b02e212947dcd35f90a1276e875f",
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/results/positive-attempt2/pytest-tmp",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/results/positive-attempt2/full-output.junit.xml",
+    "tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history",
+    "tests/unit/runtime/quality/test_e02_interaction_history_epoch.py::test_actual_default_n5_n8_interaction_history_is_versioned_and_replayable",
+    "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v5_history_preserves_typed_conditional_interaction_evidence",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_prepared_n5_ignores_unconsumed_candidate_input_for_ksim",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_two_refusals_persist_no_run_and_n8_refuses",
+    "tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get",
+    "tests/integration/core_runtime/test_e02_served_cycle_custody.py::test_served_candidate_value_fresh_get_with_candidate_only_substrate",
+    "tests/integration/core_runtime/test_e02_recursive_partial_readback.py::test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_get",
+    "tests/integration/core_runtime/test_e02_terminal_status_readback.py::test_n6_terminal_decision_and_iteration_survive_history_readback",
+    "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_registered_ncm_output_damage_is_refused_with_distinct_reasons",
+    "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_registered_ncm_direct_zero_remains_a_numeric_zero",
+    "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_registered_coupled_queue_output_damage_is_refused",
+    "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_registered_coupled_direct_zero_queue_remains_numeric_zero",
+    "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_malformed_owner_ncm_reason_survives_n6_cas_history",
+    "tests/integration/runtime_quality/test_e02_registered_engine_applicability.py::test_registered_stock_flow_valid_slots_reach_the_real_producer",
+    "tests/integration/runtime_quality/test_e02_registered_engine_applicability.py::test_expected_applicability_rejects_a_changed_request_before_producer",
+    "tests/integration/core_runtime/test_e02_terminal_status_readback.py::test_repeated_candidate_hash_stop_block_projection_survives_history_readback",
+    "tests/integration/core_runtime/test_e02_recursive_partial_readback.py::test_workspace_partial_admissible_projects_as_stop_not_abstention"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/candidate/policy-engine",
+  "disk_after": {
+    "free_bytes": 43556569088,
+    "total_bytes": 245107195904,
+    "used_bytes": 201550626816
+  },
+  "disk_before": {
+    "free_bytes": 43557003264,
+    "total_bytes": 245107195904,
+    "used_bytes": 201550192640
+  },
+  "environment_key_names_after_scrub": [
+    "BROWSER_USE_ACCESS_VERIFYING_IDENTITY",
+    "CODEX_APP_TOOLS_PIPE_PATH",
+    "CODEX_CI",
+    "CODEX_CLI_PATH",
+    "CODEX_INTERNAL_ORIGINATOR_OVERRIDE",
+    "CODEX_MCP_NODE_PATH",
+    "CODEX_PERMISSION_PROFILE",
+    "CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE",
+    "CODEX_SESSION_ID",
+    "CODEX_SHELL",
+    "CODEX_TASK_WORKSPACE_VERIFYING_IDENTITY",
+    "CODEX_TECTONIC_PATH",
+    "CODEX_THREAD_ID",
+    "CODEX_VERSION",
+    "COLORTERM",
+    "COMMAND_MODE",
+    "DISABLE_AUTO_UPDATE",
+    "E02_CANDIDATE_ROOT",
+    "E02_CANDIDATE_SHA",
+    "E02_CANDIDATE_TREE",
+    "E02_GIT_ROOT",
+    "E02_ORIGIN_AUDIT",
+    "FPATH",
+    "GIT_PAGER",
+    "HOME",
+    "HOMEBREW_CELLAR",
+    "HOMEBREW_PREFIX",
+    "HOMEBREW_REPOSITORY",
+    "INFOPATH",
+    "JAX_PLATFORMS",
+    "LANG",
+    "LC_ALL",
+    "LC_CTYPE",
+    "LOGNAME",
+    "LOG_FORMAT",
+    "MKL_NUM_THREADS",
+    "MPLCONFIGDIR",
+    "MallocNanoZone",
+    "NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S",
+    "NO_COLOR",
+    "NUMEXPR_NUM_THREADS",
+    "OLDPWD",
+    "OMP_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "OSLogRateLimit",
+    "PAGER",
+    "PATH",
+    "PWD",
+    "PYTHONDONTWRITEBYTECODE",
+    "PYTHONHASHSEED",
+    "PYTHONNOUSERSITE",
+    "PYTHONPATH",
+    "RUST_LOG",
+    "SHELL",
+    "SHLVL",
+    "TEMP",
+    "TERM",
+    "TMP",
+    "TMPDIR",
+    "USER",
+    "VECLIB_MAXIMUM_THREADS",
+    "XDG_CACHE_HOME",
+    "XPC_FLAGS",
+    "XPC_SERVICE_NAME",
+    "ZSH_TMUX_AUTOSTART",
+    "ZSH_TMUX_AUTOSTARTED",
+    "_",
+    "__CF_USER_TEXT_ENCODING"
+  ],
+  "environment_values_recorded": false,
+  "finished_utc": "2026-10-07T23:26:13.827658+00:00",
+  "interrupted": null,
+  "junit_summary": {
+    "cases": [],
+    "errors": 0,
+    "failures": 0,
+    "present": true,
+    "skipped": 0,
+    "tests": 0
+  },
+  "loaded_module_origin_audit": {
+    "candidate_sha": "ab93e222381372c54056b9f05e6c8cd7aedf2f2c",
+    "candidate_tree": "ee92f0719be5b02e212947dcd35f90a1276e875f",
+    "errors": [],
+    "errors_count": 0,
+    "loaded_file_modules_checked_against_blob_and_mode": 1500,
+    "module_count": 1508,
+    "namespace_modules_checked": 8,
+    "ok": true,
+    "present": true,
+    "removed_live_paths": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/src"
+    ]
+  },
+  "output_dir": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/results/positive-attempt2",
+  "outputs": {
+    "junit": {
+      "bytes": 250,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/results/positive-attempt2/full-output.junit.xml",
+      "present": true,
+      "sha256": "7ad95cddcd6522cddb6cb731e168ebdabce58866238bfcfffde97d0778b0e58c"
+    },
+    "origin_audit": {
+      "bytes": 318101,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/results/positive-attempt2/origin-audit.json",
+      "present": true,
+      "sha256": "38e28377d914a8f364ba3f0c95fb47a659473fd5a6bfdcd951c31742ba5d7b22"
+    },
+    "stderr": {
+      "bytes": 398,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/results/positive-attempt2/stderr.txt",
+      "present": true,
+      "sha256": "2fbbcabad1ca28855d415b25054b02211d4d727ae6d1b8ee1ca5d05693ae4338"
+    },
+    "stdout": {
+      "bytes": 539,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/results/positive-attempt2/stdout.txt",
+      "present": true,
+      "sha256": "8d9f1116a81744674ba47afde556d0c1e2874ca484c3bbaad5ed15145d0067dc"
+    }
+  },
+  "peak_sampled_process_group_rss_kib": 936192,
+  "process_group_id": 15600,
+  "process_started_utc": "2026-10-07T23:25:50.269698+00:00",
+  "production_data_or_credential_environment_values_recorded": false,
+  "pytest_started": true,
+  "removed_environment_key_names": [
+    "GH_PAGER",
+    "SSH_AUTH_SOCK"
+  ],
+  "retry_count": 0,
+  "returncode": 4,
+  "rss_samples": 21,
+  "rss_unavailable_samples": 0,
+  "runtime_pins": {
+    "candidate_git_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+    "candidate_sha": "ab93e222381372c54056b9f05e6c8cd7aedf2f2c",
+    "candidate_tree": "ee92f0719be5b02e212947dcd35f90a1276e875f",
+    "check_plan": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/A-check-plan.json",
+      "sha256": "6a4230b9f237a9c33a572d2633e37d26d2216943f1e8956e42a06fae128334be"
+    },
+    "editable_live_paths_expected_removed": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/src"
+    ],
+    "export_prep": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/export-prep.json",
+      "sha256": "108d15e82ab08ed3eac61d98b85080b749117c29b548bec89a4cafed910989ea"
+    },
+    "export_prep_payload": {
+      "attempt1_preserved_paths": {
+        "export-prep-attempt1.json": "b2a613341c165947898b3ba4b44e8b52a7909df2f183ffb4d779406a9f6bbd20",
+        "harness/prepare_a_export-attempt1.py": "58c4b83c1e541e69a649aeb037207b82ebaf305ea6601ba8ef62a4d29fbcc624",
+        "results/prep-report-attempt1.md": "f1d3e1673ff63633925c3fdcb2b7b09a70d80f5e076cd953da889256e2d0cda8",
+        "source-manifest-attempt1.json": "cf661e8035f349eefbf30113ee1ef2f93aa2ca8ecde85d44085da1490648cb8e"
+      },
+      "candidate_sha": "ab93e222381372c54056b9f05e6c8cd7aedf2f2c",
+      "candidate_tree": "ee92f0719be5b02e212947dcd35f90a1276e875f",
+      "complete_architecture_bytes": 60229990,
+      "complete_architecture_entry_count": 733,
+      "export_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/candidate",
+      "full_architecture_inventory_matches_candidate_tree": true,
+      "groups": {
+        "architecture_other_governing_inputs": {
+          "bytes": 59698264,
+          "files": 694
+        },
+        "architecture_production_quality": {
+          "bytes": 217766,
+          "files": 17
+        },
+        "canonical_api_surface_companions": {
+          "bytes": 5076655,
+          "files": 9
+        },
+        "claim_dependency_field_registry_1825B": {
+          "bytes": 1825,
+          "files": 1
+        },
+        "python_and_build_config": {
+          "bytes": 954259,
+          "files": 6
+        },
+        "runtime_claim_registry_fixture": {
+          "bytes": 69470,
+          "files": 17
+        },
+        "source": {
+          "bytes": 54990755,
+          "files": 2911
+        },
+        "tests": {
+          "bytes": 32455454,
+          "files": 3304
+        },
+        "tools": {
+          "bytes": 12516371,
+          "files": 540
+        }
+      },
+      "limited_closure_blob_and_mode_readback_verified": true,
+      "limited_closure_entry_count": 7499,
+      "preflight_missing_inputs_now_in_export": [
+        "policy-engine/architecture/policy_design_case/layer3_gy_design_generation_contract.json",
+        "policy-engine/architecture/policy_design_case/layer3_gy_design_generation_replay_recordings.json",
+        "policy-engine/architecture/policy_design_case/layer3_gy_joint_simulation_horizon_contract.json"
+      ],
+      "preparation_script": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/harness/prepare_a_export.py",
+      "production_data_or_environment_exported": false,
+      "schema": "policyos.e02.local_source_export_prep.v2",
+      "selected_path_count_verified": 7499,
+      "source_entry_count": 2911,
+      "source_manifest": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/source-manifest.json",
+      "source_manifest_sha256": "584723b42846e072baaf3cad49c8bbbc67c37b7027bcce48afe143a715d35307",
+      "source_tree_fidelity_verified_separately": true,
+      "submodule_count": 0,
+      "supplement_added_bytes": 59698264,
+      "supplement_added_entry_count": 694,
+      "supplement_reason": "Tester preflight found three required governing architecture inputs absent from attempt 1; included the full pinned architecture tree.",
+      "symlink_count": 0,
+      "test_execution": "not_started",
+      "total_bytes": 165980819
+    },
+    "interpreter": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+      "site_packages": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+      "venv": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv"
+    },
+    "origin_guard": {
+      "copied_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/harness/sitecustomize.py",
+      "reference_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/harness/sitecustomize.py",
+      "sha256": "3663fbd6e9963c2beb428884c265fe9886c38d755598ea5bbab3e7ec66ff897d"
+    },
+    "pth_files": {
+      "_editable_impl_policy_engine.pth": "a7c4dd8ac0147ec574c4d5b1b1ad8b970afc425fc8fa0936a9a3d4f3a1645176",
+      "_virtualenv.pth": "69ac3d8f27e679c81b94ab30b3b56e9cd138219b1ba94a1fa3606d5a76a1433d"
+    },
+    "selector_count": 18,
+    "selectors": [
+      "tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history",
+      "tests/unit/runtime/quality/test_e02_interaction_history_epoch.py::test_actual_default_n5_n8_interaction_history_is_versioned_and_replayable",
+      "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v5_history_preserves_typed_conditional_interaction_evidence",
+      "tests/unit/runtime/quality/test_generation_cycle.py::test_prepared_n5_ignores_unconsumed_candidate_input_for_ksim",
+      "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_two_refusals_persist_no_run_and_n8_refuses",
+      "tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get",
+      "tests/integration/core_runtime/test_e02_served_cycle_custody.py::test_served_candidate_value_fresh_get_with_candidate_only_substrate",
+      "tests/integration/core_runtime/test_e02_recursive_partial_readback.py::test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_get",
+      "tests/integration/core_runtime/test_e02_terminal_status_readback.py::test_n6_terminal_decision_and_iteration_survive_history_readback",
+      "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_registered_ncm_output_damage_is_refused_with_distinct_reasons",
+      "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_registered_ncm_direct_zero_remains_a_numeric_zero",
+      "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_registered_coupled_queue_output_damage_is_refused",
+      "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_registered_coupled_direct_zero_queue_remains_numeric_zero",
+      "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_malformed_owner_ncm_reason_survives_n6_cas_history",
+      "tests/integration/runtime_quality/test_e02_registered_engine_applicability.py::test_registered_stock_flow_valid_slots_reach_the_real_producer",
+      "tests/integration/runtime_quality/test_e02_registered_engine_applicability.py::test_expected_applicability_rejects_a_changed_request_before_producer",
+      "tests/integration/core_runtime/test_e02_terminal_status_readback.py::test_repeated_candidate_hash_stop_block_projection_survives_history_readback",
+      "tests/integration/core_runtime/test_e02_recursive_partial_readback.py::test_workspace_partial_admissible_projects_as_stop_not_abstention"
+    ],
+    "source_manifest": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/source-manifest.json",
+      "sha256": "584723b42846e072baaf3cad49c8bbbc67c37b7027bcce48afe143a715d35307"
+    }
+  },
+  "schema": "policyos.e02.local_pytest_receipt.v1",
+  "source_integrity_after": {
+    "complete_architecture_git_tree": {
+      "entry_count": 733,
+      "matches_selected_manifest": true,
+      "total_bytes": 60229990
+    },
+    "complete_candidate_git_tree": {
+      "commit_sha": "ab93e222381372c54056b9f05e6c8cd7aedf2f2c",
+      "entry_count": 14839,
+      "git_ls_tree_raw_sha256": "6e5eb239e41c9cc26df9cf5ddfc2aa06e3812477744a99c48b9f5ce7870303d9",
+      "identity_verified": true,
+      "tree_sha": "ee92f0719be5b02e212947dcd35f90a1276e875f"
+    },
+    "errors": [],
+    "errors_count": 0,
+    "export_prep_verification": {
+      "attempt1_entry_count": 6805,
+      "attempt1_path_rows_preserved": true,
+      "attempt1_rows_changed_count": 0,
+      "attempt1_rows_missing_count": 0,
+      "attempt1_total_bytes_from_git": 106282555,
+      "candidate_sha": "ab93e222381372c54056b9f05e6c8cd7aedf2f2c",
+      "candidate_tree": "ee92f0719be5b02e212947dcd35f90a1276e875f",
+      "errors": [],
+      "errors_count": 0,
+      "manifest_entry_count": 7499,
+      "manifest_sha256": "584723b42846e072baaf3cad49c8bbbc67c37b7027bcce48afe143a715d35307",
+      "ok": true,
+      "preserved_attempt1_outputs": {
+        "export-prep-attempt1.json": {
+          "actual_sha256": "b2a613341c165947898b3ba4b44e8b52a7909df2f183ffb4d779406a9f6bbd20",
+          "expected_sha256": "b2a613341c165947898b3ba4b44e8b52a7909df2f183ffb4d779406a9f6bbd20"
+        },
+        "harness/prepare_a_export-attempt1.py": {
+          "actual_sha256": "58c4b83c1e541e69a649aeb037207b82ebaf305ea6601ba8ef62a4d29fbcc624",
+          "expected_sha256": "58c4b83c1e541e69a649aeb037207b82ebaf305ea6601ba8ef62a4d29fbcc624"
+        },
+        "results/prep-report-attempt1.md": {
+          "actual_sha256": "f1d3e1673ff63633925c3fdcb2b7b09a70d80f5e076cd953da889256e2d0cda8",
+          "expected_sha256": "f1d3e1673ff63633925c3fdcb2b7b09a70d80f5e076cd953da889256e2d0cda8"
+        },
+        "source-manifest-attempt1.json": {
+          "actual_sha256": "cf661e8035f349eefbf30113ee1ef2f93aa2ca8ecde85d44085da1490648cb8e",
+          "expected_sha256": "cf661e8035f349eefbf30113ee1ef2f93aa2ca8ecde85d44085da1490648cb8e"
+        }
+      },
+      "supplement_bytes_recomputed_from_git": 59698264,
+      "supplement_entry_count_recomputed": 694
+    },
+    "ok": true,
+    "selected_input_closure": {
+      "all_selected_rows_checked": 7499,
+      "bytes_read": 165980819,
+      "entry_count": 7499,
+      "expected_total_bytes_from_git_objects": 165980819,
+      "export_path_set_exact": true,
+      "extra_count": 0,
+      "extra_paths": [],
+      "file_type_denominator": {
+        ".blob": 11,
+        ".csv": 15,
+        ".cypher": 2,
+        ".duckdb": 4,
+        ".fixture": 2,
+        ".ini": 10,
+        ".json": 930,
+        ".jsonl": 1,
+        ".lock": 1,
+        ".md": 349,
+        ".mjs": 4,
+        ".pkl": 2,
+        ".py": 5945,
+        ".pyi": 5,
+        ".retired": 1,
+        ".sh": 27,
+        ".sql": 1,
+        ".tmpl": 7,
+        ".toml": 123,
+        ".ts": 15,
+        ".txt": 4,
+        ".typed": 2,
+        ".whl": 1,
+        ".yaml": 23,
+        ".yml": 12,
+        "[no_suffix]": 2
+      },
+      "groups_recomputed_from_git_objects": {
+        "architecture_other_governing_inputs": {
+          "bytes": 59698264,
+          "files": 694
+        },
+        "architecture_production_quality": {
+          "bytes": 217766,
+          "files": 17
+        },
+        "canonical_api_surface_companions": {
+          "bytes": 5076655,
+          "files": 9
+        },
+        "claim_dependency_field_registry_1825B": {
+          "bytes": 1825,
+          "files": 1
+        },
+        "python_and_build_config": {
+          "bytes": 954259,
+          "files": 6
+        },
+        "runtime_claim_registry_fixture": {
+          "bytes": 69470,
+          "files": 17
+        },
+        "source": {
+          "bytes": 54990755,
+          "files": 2911
+        },
+        "tests": {
+          "bytes": 32455454,
+          "files": 3304
+        },
+        "tools": {
+          "bytes": 12516371,
+          "files": 540
+        }
+      },
+      "manifest_sha256": "584723b42846e072baaf3cad49c8bbbc67c37b7027bcce48afe143a715d35307",
+      "missing_count": 0,
+      "missing_paths": [],
+      "mode_denominator_from_manifest": {
+        "100644": 7478,
+        "100755": 21
+      },
+      "mode_denominator_observed": {
+        "100644": 7478,
+        "100755": 21
+      },
+      "required_fixture_missing": [],
+      "source_file_count": 2911,
+      "source_tree_matches_complete_candidate_subtree": true
+    }
+  },
+  "source_integrity_before": {
+    "complete_architecture_git_tree": {
+      "entry_count": 733,
+      "matches_selected_manifest": true,
+      "total_bytes": 60229990
+    },
+    "complete_candidate_git_tree": {
+      "commit_sha": "ab93e222381372c54056b9f05e6c8cd7aedf2f2c",
+      "entry_count": 14839,
+      "git_ls_tree_raw_sha256": "6e5eb239e41c9cc26df9cf5ddfc2aa06e3812477744a99c48b9f5ce7870303d9",
+      "identity_verified": true,
+      "tree_sha": "ee92f0719be5b02e212947dcd35f90a1276e875f"
+    },
+    "errors": [],
+    "errors_count": 0,
+    "export_prep_verification": {
+      "attempt1_entry_count": 6805,
+      "attempt1_path_rows_preserved": true,
+      "attempt1_rows_changed_count": 0,
+      "attempt1_rows_missing_count": 0,
+      "attempt1_total_bytes_from_git": 106282555,
+      "candidate_sha": "ab93e222381372c54056b9f05e6c8cd7aedf2f2c",
+      "candidate_tree": "ee92f0719be5b02e212947dcd35f90a1276e875f",
+      "errors": [],
+      "errors_count": 0,
+      "manifest_entry_count": 7499,
+      "manifest_sha256": "584723b42846e072baaf3cad49c8bbbc67c37b7027bcce48afe143a715d35307",
+      "ok": true,
+      "preserved_attempt1_outputs": {
+        "export-prep-attempt1.json": {
+          "actual_sha256": "b2a613341c165947898b3ba4b44e8b52a7909df2f183ffb4d779406a9f6bbd20",
+          "expected_sha256": "b2a613341c165947898b3ba4b44e8b52a7909df2f183ffb4d779406a9f6bbd20"
+        },
+        "harness/prepare_a_export-attempt1.py": {
+          "actual_sha256": "58c4b83c1e541e69a649aeb037207b82ebaf305ea6601ba8ef62a4d29fbcc624",
+          "expected_sha256": "58c4b83c1e541e69a649aeb037207b82ebaf305ea6601ba8ef62a4d29fbcc624"
+        },
+        "results/prep-report-attempt1.md": {
+          "actual_sha256": "f1d3e1673ff63633925c3fdcb2b7b09a70d80f5e076cd953da889256e2d0cda8",
+          "expected_sha256": "f1d3e1673ff63633925c3fdcb2b7b09a70d80f5e076cd953da889256e2d0cda8"
+        },
+        "source-manifest-attempt1.json": {
+          "actual_sha256": "cf661e8035f349eefbf30113ee1ef2f93aa2ca8ecde85d44085da1490648cb8e",
+          "expected_sha256": "cf661e8035f349eefbf30113ee1ef2f93aa2ca8ecde85d44085da1490648cb8e"
+        }
+      },
+      "supplement_bytes_recomputed_from_git": 59698264,
+      "supplement_entry_count_recomputed": 694
+    },
+    "ok": true,
+    "selected_input_closure": {
+      "all_selected_rows_checked": 7499,
+      "bytes_read": 165980819,
+      "entry_count": 7499,
+      "expected_total_bytes_from_git_objects": 165980819,
+      "export_path_set_exact": true,
+      "extra_count": 0,
+      "extra_paths": [],
+      "file_type_denominator": {
+        ".blob": 11,
+        ".csv": 15,
+        ".cypher": 2,
+        ".duckdb": 4,
+        ".fixture": 2,
+        ".ini": 10,
+        ".json": 930,
+        ".jsonl": 1,
+        ".lock": 1,
+        ".md": 349,
+        ".mjs": 4,
+        ".pkl": 2,
+        ".py": 5945,
+        ".pyi": 5,
+        ".retired": 1,
+        ".sh": 27,
+        ".sql": 1,
+        ".tmpl": 7,
+        ".toml": 123,
+        ".ts": 15,
+        ".txt": 4,
+        ".typed": 2,
+        ".whl": 1,
+        ".yaml": 23,
+        ".yml": 12,
+        "[no_suffix]": 2
+      },
+      "groups_recomputed_from_git_objects": {
+        "architecture_other_governing_inputs": {
+          "bytes": 59698264,
+          "files": 694
+        },
+        "architecture_production_quality": {
+          "bytes": 217766,
+          "files": 17
+        },
+        "canonical_api_surface_companions": {
+          "bytes": 5076655,
+          "files": 9
+        },
+        "claim_dependency_field_registry_1825B": {
+          "bytes": 1825,
+          "files": 1
+        },
+        "python_and_build_config": {
+          "bytes": 954259,
+          "files": 6
+        },
+        "runtime_claim_registry_fixture": {
+          "bytes": 69470,
+          "files": 17
+        },
+        "source": {
+          "bytes": 54990755,
+          "files": 2911
+        },
+        "tests": {
+          "bytes": 32455454,
+          "files": 3304
+        },
+        "tools": {
+          "bytes": 12516371,
+          "files": 540
+        }
+      },
+      "manifest_sha256": "584723b42846e072baaf3cad49c8bbbc67c37b7027bcce48afe143a715d35307",
+      "missing_count": 0,
+      "missing_paths": [],
+      "mode_denominator_from_manifest": {
+        "100644": 7478,
+        "100755": 21
+      },
+      "mode_denominator_observed": {
+        "100644": 7478,
+        "100755": 21
+      },
+      "required_fixture_missing": [],
+      "source_file_count": 2911,
+      "source_tree_matches_complete_candidate_subtree": true
+    }
+  },
+  "started_utc": "2026-10-07T23:25:48.973847+00:00",
+  "status": "ERROR_EMPTY_TEST_RUN",
+  "timed_out": false,
+  "timeout_seconds": 240,
+  "wall_seconds": 22.215,
+  "workspace_after": {
+    "branch": "codex/e02-integration",
+    "head": "c7adfde6d039e47b1f304eff79340e31a9426270"
+  },
+  "workspace_before": {
+    "branch": "codex/e02-integration",
+    "head": "c7adfde6d039e47b1f304eff79340e31a9426270"
+  },
+  "workspace_branch_unchanged_during_run": true,
+  "workspace_head_unchanged_during_run": true
+}

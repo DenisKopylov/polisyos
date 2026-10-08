@@ -1,0 +1,239 @@
+{
+  "schema": "policyos.e02.independent-review.v1",
+  "reviewer": "F/fit_tmle independent of foundry author",
+  "source_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+  "source_tree": "d1b9a51e9ac48bf79251a53a0478cad7305da41a",
+  "specification_verdict": "GO within original LA002/LA037 migration criteria",
+  "engineering_quality_verdict": "GO for exact three-path consumer/docs completion; no blocking defect found",
+  "closure_decision": "Root/G decides canonical closure; this review does not widen source or install scope",
+  "checks": [
+    {
+      "name": "independent_native40",
+      "outcome": "PASS",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py",
+        "tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+        "tests/unit/foundry/mechanisms/test_mechanism_design.py",
+        "tests/unit/foundry/contracts/test_layout.py",
+        "tests/unit/foundry/compile/test_trinity_compiler.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "-o",
+        "cache_dir=/tmp/e02-F-continuation-20261006/fit-fry-review/native40-cache",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261006/fit-fry-review/native40-tmp"
+      ],
+      "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "output": "/tmp/e02-F-continuation-20261006/fit-fry-review/native40.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/fit-fry-review/native40.stdout.txt",
+        "bytes": 99,
+        "sha256": "6d06aadc35fe8b6836959b1fff8a291b9a581bfeda0a16c9847e7ab0e38e9e0c"
+      },
+      "execution_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/fit-fry-review/native40.json",
+        "bytes": 7684,
+        "sha256": "b2e86c552950ac4da26a4de07b90b84b789cfd91bfc2cb4b5aedddf7382f72f7"
+      },
+      "counts": {
+        "passed": 40,
+        "failed": 0,
+        "skipped": 0,
+        "warnings": 0,
+        "errors": 0
+      },
+      "exit_code": 0
+    },
+    {
+      "name": "real_compile_scientist_cas_freshreader",
+      "outcome": "PASS",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/compile/test_compile_artifact_contracts.py::test_native_compile_artifacts_survive_scientist_consumer_and_cas_reopen",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "-o",
+        "cache_dir=/tmp/e02-F-continuation-20261006/fit-fry-review/compiled1-cache",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261006/fit-fry-review/compiled1-tmp"
+      ],
+      "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "output": "/tmp/e02-F-continuation-20261006/fit-fry-review/compiled1.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/fit-fry-review/compiled1.stdout.txt",
+        "bytes": 98,
+        "sha256": "a992ed7d25f33c38049513f06d7a6f70960cc7721f9c785d404ffbaacc47e294"
+      },
+      "execution_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/fit-fry-review/compiled1.json",
+        "bytes": 7504,
+        "sha256": "b4a0232c474ead9521129ac0a8becdde1c92e1cf9bd869649157ad68ace3ac00"
+      },
+      "counts": {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "warnings": 0,
+        "errors": 0
+      },
+      "exit_code": 0
+    },
+    {
+      "name": "layout_path_corruption_after_real_cas",
+      "outcome": "FAIL",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py::test_native_registered_income_tax_patches_consume_layout_and_fresh_state",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "-o",
+        "cache_dir=/tmp/e02-F-continuation-20261006/fit-fry-review/negative3-cache",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261006/fit-fry-review/negative3-tmp",
+        "-p",
+        "layout_readback_removal"
+      ],
+      "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "output": "/tmp/e02-F-continuation-20261006/fit-fry-review/negative3.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/fit-fry-review/negative3.stdout.txt",
+        "bytes": 13700,
+        "sha256": "a63544700695cbc5a4d61e6d91554ac94953feb494b456784bf8eb322dad063a"
+      },
+      "execution_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/fit-fry-review/negative3.json",
+        "bytes": 8574,
+        "sha256": "e9091a0d44c4dd7a4fc386ad8ec192994515b1f06365156be90595da1e35a578"
+      },
+      "counts": {
+        "passed": 0,
+        "failed": 3,
+        "skipped": 0,
+        "warnings": 0,
+        "errors": 0
+      },
+      "exit_code": 1
+    },
+    {
+      "name": "full_state_page_docs_custody_and_native_directives",
+      "outcome": "PASS",
+      "command": "Read-only full byte/hash/source and rendered HTML ID verification; original real MkDocs command in referenced run",
+      "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "output": "/tmp/e02-F-continuation-20261006/fit-fry-review/evidence-custody-audit.json",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/fit-fry-review/evidence-custody-audit.json",
+        "bytes": 13494,
+        "sha256": "c53392495f0baf963f13600e5c5fc89204b4530b0aa605d900572d45e2888c39"
+      },
+      "actual_namespace_anchor_counts": {
+        "polisyos.ir.kernel.slots": 12,
+        "polisyos.foundry.contracts.state": 12,
+        "polisyos.foundry.execute.executor": 33
+      },
+      "original_run": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/state-docs.json",
+        "bytes": 3560,
+        "sha256": "7ef6f4390f8a1b8a84c8b8b628e4d1cf077c3a347420479185eb40aea36ef880"
+      },
+      "original_backend_preflight": "ERROR: MkDocs missing in application environment; preserved separately, never promoted"
+    },
+    {
+      "name": "installed_layout_source_equivalence_and_full_deciding_output_custody",
+      "outcome": "PASS",
+      "command": "git show exactsource:path and committed installed receipt/output full-byte verification; no installed rerun",
+      "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "output": "/tmp/e02-F-continuation-20261006/fit-fry-review/evidence-custody-audit.json",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/fit-fry-review/evidence-custody-audit.json",
+        "bytes": 13494,
+        "sha256": "c53392495f0baf963f13600e5c5fc89204b4530b0aa605d900572d45e2888c39"
+      },
+      "existing_git_files": [
+        {
+          "git_ref": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/independent/fit/wheel-compatibility.stdout.txt",
+          "git_blob": "397f7bc14ab3840ad259442f887f27049da804b8",
+          "bytes": 144237,
+          "sha256": "5191d6133ab7e753c5e9bd151bbe5a2085b668dafb433a376dd1232b1ee95b7b"
+        },
+        {
+          "git_ref": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/independent/fit/sdist-compatibility.stdout.txt",
+          "git_blob": "11a666e061aae5a76c0e3c6f7d870fd9231735c1",
+          "bytes": 144237,
+          "sha256": "2ed8d20b54410462f00badbdb875c5269f432afa97c676ff4bb1936a60c1dd5c"
+        }
+      ],
+      "scope": "Only unchanged IR slot owner and two compatibility facades, original wheel/sdist 13+13 tests; no new full FRY installed composition"
+    },
+    {
+      "name": "global_production_and_unknown_external_retirement",
+      "outcome": "UNRUN",
+      "command": "Not executed: outside original bounded migration criterion and current admitted review inputs",
+      "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "output": "Full-project docs/global IC/admitted production studies/unknown third-party wrapper retirement not established"
+    }
+  ],
+  "per_id": [
+    {
+      "id": "LA-002",
+      "verdict": "bounded GO",
+      "criterion": "Canonical four family declarations preserve IDs/parameters/assumptions/unknown-ID behavior; IR owns certificates; real finite PolicySpec\u2192CAS\u2192IC service/certificate consumers and registered method loading distinguish declarations from runtime mechanisms",
+      "deciding_checks": [
+        0
+      ],
+      "limitations": "No universal IC statement, no catalog membership as certificate, no four newly invented family\u2192runtime state maps; five runtime classes loaded, only income_tax executes in added state test"
+    },
+    {
+      "id": "LA-037",
+      "verdict": "bounded GO",
+      "criterion": "Canonical IR five-object layout identity, existing facades direct to owner, slot IDs/registry/unbound/order/family semantics and actual compile\u2192Scientist\u2192CAS/freshreader + kernel\u2192PatchOps\u2192state CAS readback retained; maintained state docs actual three native API directives render",
+      "deciding_checks": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "limitations": "Two known compatibility facades retained; unknown external retirement and whole-project docs/full latest installed FRY composition not established"
+    },
+    {
+      "id": "LA-001",
+      "verdict": "not re-adjudicated",
+      "criterion": "Previously implemented source-bound RNG/Treasury migration remains separate prior receipt; no fresh RNG acceptance claim from these tests",
+      "deciding_checks": [],
+      "limitations": "No new random-stream law changes in exact three-path review"
+    }
+  ],
+  "test_quality_observations": [
+    "The selected trinity unit happy path mocks pipeline construction. Fresh independent compile_artifact_contracts native selector supplies genuine current compiler outputs, Scientist consumer, stable repeats and CAS readback.",
+    "New income_tax test uses real registered kernel and actual PatchOps/state/CAS, but constructs PatchOps directly rather than executing compile_trinity. Kept distinct from separate actual compiler consumer.",
+    "Independent negative keeps canonical function identity/types/slot IDs/registry and changes only government.balance state path to tax_rate; all three addresses fail after actual CAS readback (0 versus independently expected 16). Marker/census or reflection alone cannot pass this oracle."
+  ],
+  "limits": [
+    "Synthetic finite properties are not admitted production/global certificate authority",
+    "Default Python3.14 DoWhy/EconML marker absence is not positive backend evidence",
+    "Full architecture/full integration/full docs not run; no generic inherited failure attribution",
+    "Scoped real docs warnings and initial missing-backend ERROR retained separately"
+  ],
+  "input_custody": {
+    "path": "/tmp/e02-F-continuation-20261006/fit-fry-review/evidence-custody-audit.json",
+    "bytes": 13494,
+    "sha256": "c53392495f0baf963f13600e5c5fc89204b4530b0aa605d900572d45e2888c39"
+  },
+  "source_worktree": "clean, attached, unchanged exact7f before/after independent execution and audit",
+  "production_writes": false
+}

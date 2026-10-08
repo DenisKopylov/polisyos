@@ -1,0 +1,263 @@
+{
+  "finding_id": "B220",
+  "primary_owner_from_full_TSV": {
+    "finding_id": "B220",
+    "unit": "F",
+    "docx_analytical_package": "P34",
+    "source_closure_owner": "GRF-02",
+    "source_bundle_ids": "GRF-02",
+    "source_status": "partial"
+  },
+  "bundle_owner_from_full_TSV": {
+    "bundle_id": "GRF-02",
+    "unit": "F",
+    "initial_writer_family": "F-W06",
+    "title": "Неизменяемый граф, mixed-edge export и версии кэша"
+  },
+  "original_card_refs": [
+    {
+      "criterion_id": "B220",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        5389,
+        5402
+      ],
+      "bytes": 3831,
+      "sha256": "d0c39288b089bc7e1a85c4eec40ffd1c4fa3273293734b758729b4bb7dc54b71",
+      "title": "## B220. Frozen-модель не обеспечивает неизменность topology; кэш и копия расходятся с текущим графом",
+      "byte_binding_check": "PASS"
+    }
+  ],
+  "original_text": "## B220. Frozen-модель не обеспечивает неизменность topology; кэш и копия расходятся с текущим графом\n\n**Происхождение и приоритет:** C21-05. Высокий для переиспользования изменяемых графов; средняя связующая правка. Основания: nested lists/frozen DTO, ID-based adjacency cache и cached export properties. [C21.R01–R02]\n\n**Проблема.** Pydantic `frozen=True` защищает присваивание полю, но `nodes`, `edges` и вложенные metadata остаются изменяемыми. Кэш adjacency адресуется `id(graph)`, а подготовленные Kuzu-строки — `cached_property`. Кроме того, обычный `model_copy(update=...)` переносит уже вычисленные cached properties в новый объект. В результате даже новый object-id не всегда устраняет устаревшую экспортную проекцию. Поверхностная immutable-семантика Pydantic документирована. [C21.E05]\n\n**CACHE01–CACHE04.** Для A→B после первого чтения `edges.clear()` разрешён, хотя прямое присваивание `edges=[]` запрещено. Сериализация видит ноль рёбер, тёплый `ancestors(B)` — A и B, холодная реконструкция — только B, экспорт продолжает содержать одно ребро. Отдельно `model_copy(update={'edges':[]})` даёт корректную новую adjacency, но наследует старую экспортную строку. Свежая валидированная версия согласует оба представления. Положительный контроль: weakref-cleanup после удаления объекта действительно очищает adjacency-cache.\n\n**Исправление.** Сделать семантически существенную topology глубоко неизменяемой и обновлять её через новый снимок. Конструктор новой версии обязан сбрасывать зависимые derived-properties; кэш связывается с реальной версией topology и правильной областью параметров. Подготовленные возвращаемые строки тоже не должны быть общим доступным для изменения источником истины.\n\nНе нужно пересчитывать hash большого графа при каждом BFS либо отключать все кэши. Предварительная проверка неизменяемой версии и одноразовая adjacency сохраняют выигрыш. Если mutable-builder нужен, он остаётся отдельной подготовительной формой и публикует immutable-view только после завершения.\n\n**Приёмка.** Проверить mutation-отказ, copy/update после прогрева cached property, согласованность dump/ancestors/export и правильное освобождение старого cache-entry. Здесь установлен механизм локального расхождения, а не порча настоящей Kuzu-базы. Прежнюю работающую weakref-инвалидацию нельзя ошибочно объявлять утечкой и заменять небезопасным LRU.\n\n",
+  "primary_acceptance_scope": "Deep immutable topology/nested data and detached prepared rows; warmed model_copy/update agrees with dump/ancestors/export, old-cache weakref release preserved.",
+  "source_chain": {
+    "producer": "CausalGraphModel immutable topology/model_copy/export",
+    "artifact": "detached row preparations and complete parallel edge records",
+    "bridge": "native NetworkX3.6.1 / schema1.0 CAS",
+    "consumer": "fresh graph reader, ancestors/export/cache readers"
+  },
+  "actual_recorded_consumer": "CausalGraphModel model_copy/dump/ancestors/export/rows → real native cache readers",
+  "surface": "CausalGraphModel typed graph and internal immutable cache/export provider; actual NetworkX/CSV/CAS reader values",
+  "deciding_receipt_refs": [
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json",
+      "bytes": 66228,
+      "sha256": "b36bac6bf8f01a2821d8077e34166acdda487d21467a8c06a706177747177b6b",
+      "git_blob": "c6c8242a2c00d38802a302f78bdbb8abb8d88c29",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B220"
+      ]
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json",
+      "bytes": 66228,
+      "sha256": "b36bac6bf8f01a2821d8077e34166acdda487d21467a8c06a706177747177b6b",
+      "git_blob": "c6c8242a2c00d38802a302f78bdbb8abb8d88c29",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B220"
+      ],
+      "json_pointer": "/per_id/0"
+    },
+    {
+      "git_ref": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json",
+      "bytes": 209475,
+      "sha256": "1ebacf5377764b5c0958d7e6597e10eab56536c570aacea64d25be3ee7cff908",
+      "git_blob": "3cdb63e03cebff1667de93028677e7b7a5dee163",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B220"
+      ],
+      "json_pointer": "/per_id/B220"
+    },
+    {
+      "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "head": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json",
+      "bytes": 50088,
+      "sha256": "d71112938c6ee404c4436979df7139a2b6c7948d34fea1597de48ec2d0704818",
+      "git_blob": "4f84768ca1b2399e27e1c6083c6bfbecf3e07263",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B220"
+      ],
+      "json_pointer": "/per_id/B220"
+    },
+    {
+      "git_ref": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+      "bytes": 60843,
+      "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8",
+      "git_blob": "0ebf3b625085f6521f7430b3d919e8e11848fc21",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B220"
+      ]
+    }
+  ],
+  "deciding_per_ID_carrier_ref": {
+    "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B220.json",
+    "bytes": 30698,
+    "sha256": "660dfec39583c5caa7e02b893e4c459711340b131f46e3d26deafeecc1ae62dc",
+    "git_blob": "780be003b99fb504c473f63f938fd570f56fc859"
+  },
+  "scientific_implementation": {
+    "sha": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+    "tree": "9fd2bd6d9aebdb48d1a2bed266483a8b4ab1974e",
+    "not_receipt_carrier": true
+  },
+  "recorded_independent_oracle_and_negative": "Native75+independent23; nested-freeze/row-alias/weakref removals each actualFAIL;518 retained19cache cases",
+  "complete_raw_receipt_checks_refs": [
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json#/checks/0",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json#/checks/1",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json#/checks/2",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json#/checks/3",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json#/checks/4",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json#/checks/5",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json#/checks/6",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json#/checks/7",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json#/checks/8",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/0",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/1",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/2",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/3",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/4",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/5",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/6",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/7",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/8",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/9",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/10",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/11",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/12",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/13",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/14",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/15",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/16",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/17",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/18",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/19",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/20",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/21",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/22",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/23",
+    "3dde887e22592cdd7c1fe8865707afdfd72dc6fb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json#/checks/24",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/0",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/1",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/2",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/3",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/4",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/5",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/6",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/7",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/8",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/9",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json#/checks/10",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/0",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/1",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/2",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/3",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/4",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/5",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/6",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/7",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/8",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/9",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/10",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/11",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/12",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/13"
+  ],
+  "historical_ROOT072": {
+    "check": "PASS",
+    "outcome": "closed",
+    "technical_original_criterion_recommendation": "closed",
+    "current_continuation_outcome_recommendation": "closed",
+    "original_criterion_remainder": "None for original local cache divergence property.",
+    "actual_consumer": "CausalGraphModel model_copy/dump/ancestors/export/rows → real native cache readers",
+    "oracle_and_negative": "Native75+independent23; nested-freeze/row-alias/weakref removals each actualFAIL;518 retained19cache cases",
+    "separate_unavailable_inputs_or_authority": "Live Kuzu/readiness/real causal authority remain UNRUN outside local property."
+  },
+  "independent_original_criterion_recommendation": {
+    "check": "PASS",
+    "outcome": "closed",
+    "basis": "Canonical cache provider fragment is internal stable; an older public-surface label must not recategorize this internal contract.",
+    "scientific_rerun": false,
+    "review_scope": "independent criterion/evidence reconciliation; not an independently rerun estimator measurement",
+    "missing_actual_original_criterion": null,
+    "new_owner_review_pending": false,
+    "not_formal_G_closure": true
+  },
+  "separate_unavailable_inputs_or_authority": "Live Kuzu/readiness/real causal authority remain UNRUN outside local property.",
+  "existing_author_or_reviewer_conflict": null,
+  "current_20261007_supplemental_review_refs": [
+    {
+      "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007.json",
+      "bytes": 53396,
+      "sha256": "67d54b44a65b303621ccbaed4b56d34bb43a1e210556292e21614967864b89e2",
+      "git_blob": "41eb49e017d64686c2e70cfe932d66720c7d5f44"
+    },
+    {
+      "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/independent-review.json",
+      "bytes": 9464,
+      "sha256": "2aed54bf598618110f073923d27fb2560301299db963bb2ba8460003d8b7b93b",
+      "git_blob": "9db18c93289f9f8fb0b8ca5a5b2137051cb490a1",
+      "material_role": "Complete independent final6f test-carrier review of installed8236 runtime; initial7f observer failure retained"
+    }
+  ],
+  "schema": "e02.F.original-finding.v3",
+  "primary_bundle": "GRF-02",
+  "criterion_short": "Deep immutable topology/nested data and detached prepared rows; warmed model_copy/update agrees with dump/ancestors/export, old-cache weakref release preserved.",
+  "check_result": "PASS",
+  "F_finding_outcome": "closed",
+  "F_technical_recommendation": "closed",
+  "F_rationale": "Canonical cache provider fragment is internal stable; an older public-surface label must not recategorize this internal contract.",
+  "code_sha": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+  "code_tree": "9fd2bd6d9aebdb48d1a2bed266483a8b4ab1974e",
+  "consumer": "CausalGraphModel model_copy/dump/ancestors/export/rows → real native cache readers",
+  "oracle_and_negative": "Native75+independent23; nested-freeze/row-alias/weakref removals each actualFAIL;518 retained19cache cases",
+  "G_finding_acceptance": {
+    "status": "not_issued",
+    "formal_G_closed": false
+  },
+  "G_code_acceptance": {
+    "status": "not_inferred",
+    "source_sha": null,
+    "basis": "Independent F GO/code-ready is not G code acceptance"
+  },
+  "original_missing_input": null,
+  "original_next_owner": null,
+  "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+  "root_assembled_source": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "not_new_numerical_proof": true
+  },
+  "new_property_followups_not_automatically_original_reopen": [
+    {
+      "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007.json",
+      "bytes": 53396,
+      "sha256": "67d54b44a65b303621ccbaed4b56d34bb43a1e210556292e21614967864b89e2",
+      "git_blob": "41eb49e017d64686c2e70cfe932d66720c7d5f44",
+      "tree": "c7c71a12bc04238dce414455a06849a9f49a824f",
+      "lane": "API",
+      "code_candidate_sha": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
+      "code_candidate_tree": "bd4d4488cbd8121fed1c0983d2e3cc3d8fef49a5",
+      "role": "Source-bound bounded delta/consumer evidence; no formal G closure"
+    }
+  ]
+}

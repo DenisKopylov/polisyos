@@ -1,0 +1,6 @@
+{
+  "schema": "policyos.e02.lossless_utf8_text.v1",
+  "decoded_bytes": 316,
+  "decoded_sha256": "c11a015b008df911ddc2617bdffed2b0822c196dcda8127d544c7bcf5b42d5dd",
+  "text": "Building source distribution...\nBuilding wheel...\nSuccessfully built /tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-source/policy_engine-0.1.0.tar.gz\nSuccessfully built /tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-source/policy_engine-0.1.0-py3-none-any.whl\n"
+}

@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/direct_probe.py", line 63, in <module>
+    retagged_result=execute('build_mgraph_then_only_retag_admg',retagged)
+  File "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/direct_probe.py", line 42, in execute
+    'node_status':outcome.status.value,
+                  ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'value'

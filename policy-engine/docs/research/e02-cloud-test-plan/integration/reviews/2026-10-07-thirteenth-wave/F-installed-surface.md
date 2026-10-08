@@ -1,0 +1,33 @@
+# F installed graph and LA-037 surface review
+
+**Decision:** bounded source/evidence GO for the reviewed installed graph consumers and LA-037 documentation delta. This is not a formal G finding-closure decision. No product-source change is carried by the installed API reconciliation slice; the newer 4ee wheel has a separately tested graph-profile guard.
+
+## Pinned source and output custody
+
+- `api-installed-graph-reconciliation-20261007.json@defa506dfbe226fbbdbdf7722ae84c03828e181b` binds slice base `90c72b5`, test carrier `6f39b0e` / tree `bd4d448`, and canonical distribution source `8236d9c` / tree `724a77c`. The carrier changes a test, a reference doc and a release fragment; source, worker, hatch, project and lock inputs are the canonical 8236 blobs. The 8236 `causal_graph.py` is blob `f2635665`.
+- Current F root `4ee2f2a` / tree `551d4e7` and F Fry head `defa506` / tree `5e6aa2b` share the same `causal_graph.py` blob `f2635665` as 8236, 519e482 and 36b18. The candidate heads are distinct; this comparison establishes the graph module bytes only, not identical whole trees. `36b18` changes the reconciliation producer/Node boundary, not `causal_graph.py`.
+- All deciding output bytes were checked against Git at their exact source commits. The API reconciliation manifest verifies 120/120 records (442,406 stored; 3,587,110 decoded bytes). The 4ee installed-profile manifest verifies 84/84 unique files and all 28 byte aliases (112 logical entries; 900,092 stored; 3,657,679 decoded bytes). The layout-doc manifest verifies 33/33 entries (229,255 stored; 1,327,546 decoded bytes); its 34th mandatory entry is the manifest itself. The layout handoff's nine source-input SHA/size pairs also match their pinned Git blobs.
+
+## Installed graph consumer evidence
+
+The API reconciliation receipt builds the wheel and sdist from exact source `8236d9c`, with rebuilt wheel hash equal to the source wheel (`5b056289…`, 15,116,457 bytes); sdist is `19121b3a…` (91,236,828 bytes). Each installed site has 3,459 verified product files (3,146 Python files); the final wheel and sdist each run the same two actual cases, with 761 imported product modules sourced from that site and no site-byte change. The tested path is real graph parameter emission and CSV helpers → `FileSystemCAS` typed graph persistence → separate isolated installed reader → full NetworkX multiedge payload and static-profile decision. The test exercises the ordinary `to_kuzu` dictionary-emission ABI, not a live Kuzu database. It claims no causal effect identification or authority.
+
+Final current 8236 wheel and sdist positive runs are 2/2 PASS each. The `remove_row_isolation` controls are 2/2 expected FAILs: removing row detachment causes the real consumer assertion to fail. Earlier `3bfc` positives are recorded as ERROR because the stale test expected static ancestry from a lagged graph; actual runtime raised the intended `ValueError` refusing static inference on `lag=1`. Earlier `7f` positives are ERROR because the observer failed to JSON-serialize an `ArtifactID` after the semantic child assertions; that is not a whole-test PASS or a product rejection. Those setup/oracle failures do not invalidate the later corrected receipt.
+
+This 8236 wheel/sdist wave is not the changed 4ee producer. It must not be used as proof of the `36b18` reconciliation guard.
+
+## Current MGraph producer boundary
+
+The old G native MGraph probe was pinned to `25cdea9` / source freeze `519e482`; it demonstrated actual type erasure and is a valid old-candidate counterexample, not current-code evidence. At `36b18` the canonical producer now checks the declared graph type before projection/filtering and refuses anything outside DAG/ADMG. The installed 4ee profile runs its exact wheel with Python 3.14.7, isolated mode and no `PYTHONPATH`; all 970 imported PolicyOS module origins are under the installed wheel site. Its focused native selector wave is 16 PASS (one retained pytest instrumentation warning), and the separate fresh child reader is a PASS.
+
+The focused tests use real `build_mgraph` output with MCAR metadata and the registered producer/`run_job`, direct `ReconcileCausalGraphNode`, supplied MethodResult and selected-CAS paths. They assert MGraph is refused without a result/artifact or graph-type rewrite, then reopen the original CAS graph and successfully call `extract_mgraph_metadata`. A same-edge ADMG control is admitted and read back by a fresh isolated process. The removal-control run fails at the expected `job.issues`/no-result assertion after removing the new profile guard, so it discriminates the property. This resolves the earlier source-derived MGraph escape at the tested producer/Node boundary; the 91/91 historical profile does not cover this new code. The 4ee evidence is wheel-only; a same-candidate sdist wave is UNRUN. The separate `ComposeSCMFragments` profile guard has source/unit coverage in `36b18`; it is outside the focused installed selector set.
+
+## LA-037 lifecycle and surface
+
+`layout-compatibility-docs-20261007.json@b634d8a17` binds docs-only candidate `6beacc8` / tree `64dc785`. Its three changed paths are `docs/reference/foundry/state.md` and the Foundry/compiler method READMEs; no runtime, shim, schema or public-surface contract bytes change. In source, IR `polisyos.ir.kernel.slots` owns the three types and two builders. Both nested Foundry addresses directly import the same five IR objects; the existing identity test checks all five and the sentinel test proves the Foundry facade does not hop through the compiler alias. First-party callers use IR directly.
+
+The docs accurately keep both paths as internal compatibility addresses under the existing public-surface default. Removal requires a separately tracked caller/reference migration, identity checks and release notes; no stable/public classification, new normative rule or sunset date is added. The scoped native check is 6 PASS; the actual maintained state-page MkDocs build is PASS and preserves the existing Material notice/nav messages. Full strict docs build remains UNRUN. Independent review of exact 4ee bytes found all three docs blobs identical to 6beacc and reported bounded source/docs GO; it inspected, rather than re-executed, author native/render outputs.
+
+## Limits
+
+The source and bounded installed behaviors reviewed here are GO; that does not close LA-007/019/020 or LA-037. Current 4ee has focused installed-wheel evidence, not a complete 91/91 replay or sdist proof. The 8236 API wave is specifically an older product-source identity. Optional DoWhy/EconML backends and live Kuzu are not positive witnesses. Full strict documentation build and future composed-distribution replay remain UNRUN.

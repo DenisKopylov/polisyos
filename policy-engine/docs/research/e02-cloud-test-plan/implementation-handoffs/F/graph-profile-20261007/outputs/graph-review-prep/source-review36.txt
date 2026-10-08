@@ -1,0 +1,1 @@
+GO_BOUNDED_SOURCE exact36b18cc / graph6blobs identical composed4ee2. No blocking source/companion findings. Ordinary Compose constructor already rejected unsupported tags; unsafe typedcopy guard is defensive. Runtime complement UNRUN until source-review authorization. Original B214 stays limited; no universal partial-graph identification.

@@ -1,0 +1,252 @@
+Merge made by the 'ort' strategy.
+ .../causal-installed-source-reconciliation.md      |   51 +
+ ...pi-installed-graph-reconciliation-20261007.json |  858 +++++++++++++++
+ .../author/capture.stderr                          |    0
+ .../author/capture.stdout.gz                       |  Bin 0 -> 858 bytes
+ .../capture_installed_graph_reconciliation.py      |   22 +
+ .../author/competing-to-canonical.patch.gz         |  Bin 0 -> 1304 bytes
+ .../author/fragment-validation-enforced.json       |   19 +
+ .../author/fragment-validation-enforced.stderr     |    0
+ .../author/fragment-validation-enforced.stdout     |    0
+ .../author/fragment-validation.json                |   19 +
+ .../author/fragment-validation.stderr              |    0
+ .../author/fragment-validation.stdout              |    0
+ .../author/installed-reconciliation-capture.json   |  126 +++
+ .../author/original-api-window-adjudication.json   |  282 +++++
+ .../author/reconcile_installed_sources.py          |   39 +
+ .../author/results-cell-F08-P048.json              |  524 ++++++++++
+ .../author/results-cell-F08-P048.stderr            |    0
+ .../author/results-query-B220.json                 |  520 ++++++++++
+ .../author/results-query-B220.stderr               |    0
+ .../author/results-query-F.json                    |  772 ++++++++++++++
+ .../author/results-query-F.stderr                  |    0
+ .../author/results-query-LA007.json                |  428 ++++++++
+ .../author/results-query-LA007.stderr              |    0
+ .../author/results-query-LA019.json                |  428 ++++++++
+ .../author/results-query-LA019.stderr              |    0
+ .../author/results-query-LA020.json                |  235 +++++
+ .../author/results-query-LA020.stderr              |    0
+ .../author/reviewed-to-competing.patch.gz          |  Bin 0 -> 3931 bytes
+ .../author/ruff-check.stderr                       |    0
+ .../author/ruff-check.stdout.gz                    |  Bin 0 -> 39 bytes
+ .../author/ruff-format.stderr                      |    0
+ .../author/ruff-format.stdout.gz                   |  Bin 0 -> 45 bytes
+ .../author/run_installed_graph_reconciliation.py   |   41 +
+ .../author/sdist-consumer-config.json              |    9 +
+ .../author/sdist-installed-proof-positive.json.gz  |  Bin 0 -> 9996 bytes
+ ...st-installed-proof-remove_row_isolation.json.gz |  Bin 0 -> 10058 bytes
+ .../author/sdist-positive.json                     |   30 +
+ .../author/sdist-positive.stderr                   |    0
+ .../author/sdist-positive.stdout.gz                |  Bin 0 -> 18152 bytes
+ .../author/sdist-remove_row_isolation.json         |   30 +
+ .../author/sdist-remove_row_isolation.stderr       |    0
+ .../author/sdist-remove_row_isolation.stdout.gz    |  Bin 0 -> 1519 bytes
+ .../author/source-reconciliation.json.gz           |  Bin 0 -> 7769 bytes
+ .../author/source-reconciliation.stderr            |    0
+ .../author/source-reconciliation.stdout.gz         |  Bin 0 -> 680 bytes
+ .../author/supported-window-binding.json           |  166 +++
+ .../author/wheel-consumer-config.json              |    9 +
+ .../author/wheel-installed-proof-positive.json.gz  |  Bin 0 -> 9999 bytes
+ ...el-installed-proof-remove_row_isolation.json.gz |  Bin 0 -> 10060 bytes
+ .../author/wheel-positive.json                     |   30 +
+ .../author/wheel-positive.stderr                   |    0
+ .../author/wheel-positive.stdout.gz                |  Bin 0 -> 18154 bytes
+ .../author/wheel-remove_row_isolation.json         |   30 +
+ .../author/wheel-remove_row_isolation.stderr       |    0
+ .../author/wheel-remove_row_isolation.stdout.gz    |  Bin 0 -> 1519 bytes
+ .../full-output-manifest.json                      | 1090 ++++++++++++++++++++
+ .../independent-cau/final-positive.execution.json  |   27 +
+ .../independent-cau/final-positive.stderr          |    0
+ .../independent-cau/final-positive.stdout.gz       |  Bin 0 -> 18154 bytes
+ .../independent-cau/final-removal-config.json      |   21 +
+ .../independent-cau/final-removal.execution.json   |   74 ++
+ .../independent-cau/final-removal.stderr           |    0
+ .../independent-cau/final-removal.stdout.gz        |  Bin 0 -> 1519 bytes
+ .../independent-cau/final-wheel-config.json        |    9 +
+ .../final-wheel-proof-positive.json.gz             |  Bin 0 -> 9999 bytes
+ .../final-wheel-proof-remove_row_isolation.json.gz |  Bin 0 -> 10060 bytes
+ .../independent-cau/independent-review.json        |  200 ++++
+ .../independent-cau/positive.execution.json        |   27 +
+ .../independent-cau/positive.stderr.gz             |  Bin 0 -> 588 bytes
+ .../independent-cau/positive.stdout.gz             |  Bin 0 -> 2357 bytes
+ .../independent-cau/review.stderr                  |    0
+ .../independent-cau/review.stdout.gz               |  Bin 0 -> 280 bytes
+ .../independent-cau/review_reconciliation.py       |   31 +
+ .../independent-cau/run_review_check.py            |   19 +
+ .../independent-cau/transfer-selection.json        |  128 +++
+ .../independent-cau/wheel-config.json              |    9 +
+ .../independent-cau/wheel-proof-positive.json.gz   |  Bin 0 -> 9993 bytes
+ .../initial-3bfc/capture.stderr                    |    0
+ .../initial-3bfc/capture.stdout.gz                 |  Bin 0 -> 838 bytes
+ .../capture_installed_graph_reconciliation.py      |   22 +
+ .../installed-reconciliation-capture.json          |  126 +++
+ .../run_installed_graph_reconciliation.py          |   41 +
+ .../initial-3bfc/sdist-consumer-config.json        |    9 +
+ .../sdist-installed-proof-positive.json.gz         |  Bin 0 -> 9995 bytes
+ ...st-installed-proof-remove_row_isolation.json.gz |  Bin 0 -> 10061 bytes
+ .../initial-3bfc/sdist-positive.json               |   30 +
+ .../initial-3bfc/sdist-positive.stderr             |    0
+ .../initial-3bfc/sdist-positive.stdout.gz          |  Bin 0 -> 1340 bytes
+ .../initial-3bfc/sdist-remove_row_isolation.json   |   30 +
+ .../initial-3bfc/sdist-remove_row_isolation.stderr |    0
+ .../sdist-remove_row_isolation.stdout.gz           |  Bin 0 -> 1345 bytes
+ .../initial-3bfc/wheel-consumer-config.json        |    9 +
+ .../wheel-installed-proof-positive.json.gz         |  Bin 0 -> 9998 bytes
+ ...el-installed-proof-remove_row_isolation.json.gz |  Bin 0 -> 10063 bytes
+ .../initial-3bfc/wheel-positive.json               |   30 +
+ .../initial-3bfc/wheel-positive.stderr             |    0
+ .../initial-3bfc/wheel-positive.stdout.gz          |  Bin 0 -> 1341 bytes
+ .../initial-3bfc/wheel-remove_row_isolation.json   |   30 +
+ .../initial-3bfc/wheel-remove_row_isolation.stderr |    0
+ .../wheel-remove_row_isolation.stdout.gz           |  Bin 0 -> 1345 bytes
+ .../observer-7f/capture.stderr                     |    0
+ .../observer-7f/capture.stdout.gz                  |  Bin 0 -> 892 bytes
+ .../capture_installed_graph_reconciliation.py      |   22 +
+ .../installed-reconciliation-capture.json          |  126 +++
+ .../run_installed_graph_reconciliation.py          |   41 +
+ .../observer-7f/sdist-consumer-config.json         |    9 +
+ .../sdist-installed-proof-positive.json.gz         |  Bin 0 -> 9991 bytes
+ ...st-installed-proof-remove_row_isolation.json.gz |  Bin 0 -> 10055 bytes
+ .../observer-7f/sdist-positive.json                |   30 +
+ .../observer-7f/sdist-positive.stderr.gz           |  Bin 0 -> 588 bytes
+ .../observer-7f/sdist-positive.stdout.gz           |  Bin 0 -> 2357 bytes
+ .../observer-7f/sdist-remove_row_isolation.json    |   30 +
+ .../observer-7f/sdist-remove_row_isolation.stderr  |    0
+ .../sdist-remove_row_isolation.stdout.gz           |  Bin 0 -> 1520 bytes
+ .../observer-7f/wheel-consumer-config.json         |    9 +
+ .../wheel-installed-proof-positive.json.gz         |  Bin 0 -> 9993 bytes
+ ...el-installed-proof-remove_row_isolation.json.gz |  Bin 0 -> 10058 bytes
+ .../observer-7f/wheel-positive.json                |   30 +
+ .../observer-7f/wheel-positive.stderr.gz           |  Bin 0 -> 588 bytes
+ .../observer-7f/wheel-positive.stdout.gz           |  Bin 0 -> 2357 bytes
+ .../observer-7f/wheel-remove_row_isolation.json    |   30 +
+ .../observer-7f/wheel-remove_row_isolation.stderr  |    0
+ .../wheel-remove_row_isolation.stdout.gz           |  Bin 0 -> 1520 bytes
+ ...07-installed-graph-contract-reconciliation.toml |   28 +
+ ...test_installed_graph_contract_reconciliation.py |  174 ++++
+ 125 files changed, 7159 insertions(+)
+ create mode 100644 policy-engine/docs/reference/foundry/causal-installed-source-reconciliation.md
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/capture.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/capture.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/capture_installed_graph_reconciliation.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/competing-to-canonical.patch.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/fragment-validation-enforced.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/fragment-validation-enforced.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/fragment-validation-enforced.stdout
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/fragment-validation.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/fragment-validation.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/fragment-validation.stdout
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/installed-reconciliation-capture.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/original-api-window-adjudication.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/reconcile_installed_sources.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/results-cell-F08-P048.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/results-cell-F08-P048.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/results-query-B220.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/results-query-B220.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/results-query-F.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/results-query-F.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/results-query-LA007.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/results-query-LA007.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/results-query-LA019.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/results-query-LA019.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/results-query-LA020.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/results-query-LA020.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/reviewed-to-competing.patch.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/ruff-check.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/ruff-check.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/ruff-format.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/ruff-format.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/run_installed_graph_reconciliation.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/sdist-consumer-config.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/sdist-installed-proof-positive.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/sdist-installed-proof-remove_row_isolation.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/sdist-positive.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/sdist-positive.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/sdist-positive.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/sdist-remove_row_isolation.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/sdist-remove_row_isolation.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/sdist-remove_row_isolation.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/source-reconciliation.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/source-reconciliation.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/source-reconciliation.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/supported-window-binding.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/wheel-consumer-config.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/wheel-installed-proof-positive.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/wheel-installed-proof-remove_row_isolation.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/wheel-positive.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/wheel-positive.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/wheel-positive.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/wheel-remove_row_isolation.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/wheel-remove_row_isolation.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/wheel-remove_row_isolation.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/full-output-manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/final-positive.execution.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/final-positive.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/final-positive.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/final-removal-config.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/final-removal.execution.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/final-removal.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/final-removal.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/final-wheel-config.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/final-wheel-proof-positive.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/final-wheel-proof-remove_row_isolation.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/independent-review.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/positive.execution.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/positive.stderr.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/positive.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/review.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/review.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/review_reconciliation.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/run_review_check.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/transfer-selection.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/wheel-config.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/wheel-proof-positive.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/capture.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/capture.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/capture_installed_graph_reconciliation.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/installed-reconciliation-capture.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/run_installed_graph_reconciliation.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/sdist-consumer-config.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/sdist-installed-proof-positive.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/sdist-installed-proof-remove_row_isolation.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/sdist-positive.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/sdist-positive.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/sdist-positive.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/sdist-remove_row_isolation.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/sdist-remove_row_isolation.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/sdist-remove_row_isolation.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/wheel-consumer-config.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/wheel-installed-proof-positive.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/wheel-installed-proof-remove_row_isolation.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/wheel-positive.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/wheel-positive.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/wheel-positive.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/wheel-remove_row_isolation.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/wheel-remove_row_isolation.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/wheel-remove_row_isolation.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/capture.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/capture.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/capture_installed_graph_reconciliation.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/installed-reconciliation-capture.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/run_installed_graph_reconciliation.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/sdist-consumer-config.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/sdist-installed-proof-positive.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/sdist-installed-proof-remove_row_isolation.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/sdist-positive.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/sdist-positive.stderr.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/sdist-positive.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/sdist-remove_row_isolation.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/sdist-remove_row_isolation.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/sdist-remove_row_isolation.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/wheel-consumer-config.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/wheel-installed-proof-positive.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/wheel-installed-proof-remove_row_isolation.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/wheel-positive.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/wheel-positive.stderr.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/wheel-positive.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/wheel-remove_row_isolation.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/wheel-remove_row_isolation.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/wheel-remove_row_isolation.stdout.gz
+ create mode 100644 policy-engine/release-fragments/unreleased/2026-10-07-installed-graph-contract-reconciliation.toml
+ create mode 100644 policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_graph_contract_reconciliation.py

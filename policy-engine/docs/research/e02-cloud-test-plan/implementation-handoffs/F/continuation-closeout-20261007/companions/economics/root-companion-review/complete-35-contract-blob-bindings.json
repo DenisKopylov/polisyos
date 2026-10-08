@@ -1,0 +1,177 @@
+[
+  {
+    "path": "policy-engine/docs/reference/ir/causal-graph-cache-rows.md",
+    "source_role": "reviewed",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/docs/reference/ir/causal-graph-cache-rows.md",
+    "source_role": "competing",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/docs/reference/ir/causal-graph-cache-rows.md",
+    "source_role": "canonical",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/docs/reference/ir/causal-graph-cache-rows.md",
+    "source_role": "api_carrier",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/docs/reference/ir/causal-graph-cache-rows.md",
+    "source_role": "root_evidence",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-cache-rows.toml",
+    "source_role": "reviewed",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-cache-rows.toml",
+    "source_role": "competing",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-cache-rows.toml",
+    "source_role": "canonical",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-cache-rows.toml",
+    "source_role": "api_carrier",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-cache-rows.toml",
+    "source_role": "root_evidence",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+    "source_role": "reviewed",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+    "source_role": "competing",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+    "source_role": "canonical",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+    "source_role": "api_carrier",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+    "source_role": "root_evidence",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+    "source_role": "reviewed",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+    "source_role": "competing",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+    "source_role": "canonical",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+    "source_role": "api_carrier",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+    "source_role": "root_evidence",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+    "source_role": "reviewed",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+    "source_role": "competing",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+    "source_role": "canonical",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+    "source_role": "api_carrier",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+    "source_role": "root_evidence",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+    "source_role": "reviewed",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+    "source_role": "competing",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+    "source_role": "canonical",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+    "source_role": "api_carrier",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+    "source_role": "root_evidence",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/tests/unit/ir/test_causal_graph_cache_rows.py",
+    "source_role": "reviewed",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/tests/unit/ir/test_causal_graph_cache_rows.py",
+    "source_role": "competing",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/tests/unit/ir/test_causal_graph_cache_rows.py",
+    "source_role": "canonical",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/tests/unit/ir/test_causal_graph_cache_rows.py",
+    "source_role": "api_carrier",
+    "binding_match": true
+  },
+  {
+    "path": "policy-engine/tests/unit/ir/test_causal_graph_cache_rows.py",
+    "source_role": "root_evidence",
+    "binding_match": true
+  }
+]

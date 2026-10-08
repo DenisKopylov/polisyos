@@ -1,0 +1,4 @@
+Would reformat: src/polisyos/foundry/methods/catalog/simulation/dynamics.py
+Would reformat: src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py
+Would reformat: tests/unit/runtime/quality/test_proving_ground_causal_forecast_search.py
+3 files would be reformatted, 89 files already formatted

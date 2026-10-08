@@ -1,0 +1,303 @@
+{
+  "schema": "e02.g.identity-audit.CD-stop.v1",
+  "read_only": true,
+  "pins": {
+    "G_head": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+    "G_tree": "f79fc5304324b92aeed741d7abdd6fc6f54a130a",
+    "C_head": "c5668bcb9ac76a55984fce0d196197dbfded1151",
+    "C_tree": "d360d36e2cf2dbd13e60422e174e229491e384be",
+    "D_receipt_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "D_receipt_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+    "D_candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "D_candidate_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+    "D_measured_implementation": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+    "D_measured_implementation_tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4"
+  },
+  "C": {
+    "root_report": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261007-C4.json@c5668bcb9ac76a55984fce0d196197dbfded1151",
+    "root_parent": "ca2ef334953ca85872b1917baf7f262bf6d45213",
+    "root_G_snapshot": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+    "G_snapshot_is_root_ancestor": false,
+    "root_is_G_ancestor": false,
+    "leaf_candidates": [
+      {
+        "name": "CAN",
+        "base": "79cbb05c90026973a32022ca02c63877b2cde1a5",
+        "candidate": "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+        "tree": "2d27c9c182cf550088c5a8c072dc2f36df84e20d",
+        "paths": [
+          "policy-engine/release-fragments/unreleased/2026-10-07-e02-canon-json-mapping.toml",
+          "policy-engine/src/polisyos/ir/artifacts/README.md",
+          "policy-engine/src/polisyos/ir/artifacts/io.py",
+          "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py"
+        ],
+        "diff_paths_exact": true,
+        "base_ancestor_of_candidate": true,
+        "candidate_ancestor_G": false,
+        "candidate_ancestor_C_root": false,
+        "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-canonical-json-mapping-20261007.json@60b523c2d0e1a587f2f1d4b92a0ac9a89a1f49db",
+        "receipt_refs_verified": 52,
+        "evidence_boundary": "46 frozen relevant tests PASS; 19 strict pre-byte negative cases and removal control; installed noneditable wheel UNRUN (offline Hatchling unavailable); bounded mapping-reader GO only, LA-021 remains held."
+      },
+      {
+        "name": "NET_ING",
+        "base": "13c0cde6bd8275d5b8d0deb73affa198325aa7c0",
+        "candidate": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+        "tree": "267fef2e1a46aee7a7b2c1f6baaa00bf66e3cbd9",
+        "paths": [
+          "policy-engine/tests/unit/fabric/data_plane/test_net_ing_registry_cleanup.py"
+        ],
+        "diff_paths_exact": true,
+        "base_ancestor_of_candidate": true,
+        "candidate_ancestor_G": false,
+        "candidate_ancestor_C_root": false,
+        "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-net-ing-owner-overlap-20261007.json@373c9623071f60c08f5e362e61d211829e5d8f5a",
+        "explicit_output_refs_verified": 19,
+        "evidence_boundary": "Test-only candidate; 10 selected tests PASS and property-removal expected FAIL. Its pinned source is streaming.py blob 80af60d90e2eb6aeed0d335c4dbe5d80c8c24c7c at 13c0/c694; current G uses blob 0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6. Therefore the PASS does not exercise G current source. No physical FD/socket/RSS proof, no B87 closure; offline frozen env provisioning ERROR (jaxlib wheel unavailable)."
+      },
+      {
+        "name": "C54_bookkeeping",
+        "base": "9b92ce235a6ae85085109b0bec2916a7b3ae732b",
+        "candidate": "c4e13a8c520d4a2fbf15b088642d0f88f8a1dbc5",
+        "tree": "043007706d1e781b2801d3adc76e03508c68751e",
+        "paths": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/build_c54_final_adjudicated.py",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py"
+        ],
+        "diff_paths_exact": true,
+        "base_ancestor_of_candidate": true,
+        "candidate_ancestor_G": false,
+        "candidate_ancestor_C_root": false,
+        "report_commit": "847929e3e0cac30fb49ff61a47ecaf46d41ac94d",
+        "explicit_receipt_refs_verified": 34,
+        "evidence_boundary": "Canonical bookkeeping builder/validator only; no product runtime verification or G finding closure."
+      }
+    ],
+    "C54": {
+      "report_commit": "847929e3e0cac30fb49ff61a47ecaf46d41ac94d",
+      "table_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c4-v4.json",
+      "table_rows": 54,
+      "C_bundles": 33,
+      "criterion_occurrences": 59,
+      "root_recommendation_counts": {
+        "closed": 31,
+        "limited": 9,
+        "held": 14
+      },
+      "G_formal_counts": {
+        "not_adjudicated": 54
+      },
+      "current_evaluation_counts": {
+        "c2_frozen_evidence_carried_forward": 44,
+        "criterion_binding_corrected": 5,
+        "fresh_criterion_evidence_reviewed": 5
+      },
+      "source_docs": [
+        "B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5 sha256 9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5 bytes 1336380",
+        "LA_r09_original.md@198076863e143dea9f89f02734b13d50dae3eed5 sha256 2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727 bytes 648034"
+      ],
+      "criterion_span_hashes_verified": 59,
+      "full_owner_TSV_rows": {
+        "bundle-owners.tsv": 127,
+        "finding-owners.tsv": 282
+      },
+      "all_C_findings_and_bundles_join_to_unit_C": true,
+      "C_root_handoff_references_exact": 8,
+      "formal_closure": 0
+    },
+    "carrier_warning": {
+      "G_to_C_root_tree_diff_paths": 986,
+      "changed_src_test_release_paths": 31,
+      "by_type": {
+        "src": 11,
+        "tests": 13,
+        "release": 7
+      },
+      "C_only_prior_source_commits_not_G_ancestors": [
+        "1eb32f013308de34d77572dd4af8ca048b2b9ee3",
+        "68eed6d56f48e9a676edeb3251902300a64d5fad",
+        "07bbb61ffa6d53709942bcda87c37daef1a04651"
+      ],
+      "stream_owner": "policy-engine/src/polisyos/fabric/data_plane/streaming.py is the actual C writer/consumer source; its C-tree blob differs from G current and is carried by the prior C source commits. Do not merge c566 as if it were docs-only; its C4 leaf candidates are not in c566 ancestry either.",
+      "owner_context": "Prior C review in integration/reviews/2026-10-07-eleventh-wave/C.md and C-prompt-independent-review.md documents the scoped C cleanup work and source mismatch; G current source blob remains 0915a4e9..., not C blob 80af60d9..."
+    },
+    "identity_result": "Receipts, source spans, direct slice pathsets and declared trees verify. Code admission remains separate; Croot must not be treated as a docs-only merge. NET PASS is bound to a source tree different from G current."
+  },
+  "D": {
+    "final_closeout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-closeout.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "ancestry": {
+      "617988f7cfb8e5cb74b6beba41704eb117b0e033_to_3b31": true,
+      "3b31_to_a795": true,
+      "a795_to_cbc": true,
+      "a795_ancestor_G": false,
+      "3b31_ancestor_G": false,
+      "G83_ancestor_a795": true
+    },
+    "full_source_footprints": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/full-source-footprints.json.gz@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "bytes": 242813,
+      "sha256": "dd59bae55468fc0b7eeb301e33ae73480bf81d8d39d6012938b26b533eab0030",
+      "comparisons": {
+        "198076863e143dea9f89f02734b13d50dae3eed5_to_a795": {
+          "paths": 3796,
+          "bytes_sum": 112865036,
+          "types": {
+            "docs": 3473,
+            "src": 90,
+            "tests": 162,
+            "release": 66,
+            "python_other": 1,
+            "other": 4
+          },
+          "exact_git_name_status_diff": true,
+          "candidate_blob_hash_and_size_refs_checked": 3796,
+          "unique_blob_objects_checked": 3420,
+          "content_mismatches": 0
+        },
+        "617988f7cfb8e5cb74b6beba41704eb117b0e033_to_a795": {
+          "paths": 554,
+          "bytes_sum": 9841338,
+          "types": {
+            "docs": 517,
+            "src": 14,
+            "tests": 13,
+            "release": 7,
+            "python_other": 1,
+            "other": 2
+          },
+          "exact_git_name_status_diff": true
+        },
+        "73c679235fee50fd920e9d7bb41c403cdff7779f_to_a795": {
+          "paths": 28,
+          "bytes_sum": 612834,
+          "types": {
+            "docs": 7,
+            "src": 9,
+            "tests": 7,
+            "release": 3,
+            "python_other": 1,
+            "other": 1
+          },
+          "exact_git_name_status_diff": true
+        }
+      },
+      "G_current_6e872_to_candidate_a795": {
+        "paths": 3375,
+        "types": {
+          "docs": 3069,
+          "src": 87,
+          "tests": 154,
+          "release": 61,
+          "python_other": 1,
+          "other": 3
+        }
+      },
+      "a795_to_receipt_cbc46": {
+        "paths": 269,
+        "all_added_docs": true,
+        "non_docs_paths": 0
+      }
+    },
+    "publication_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/publication-manifest.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "files": 268,
+      "bytes_excluding_manifest": 3706068,
+      "all_file_bytes_and_sha256_verified": true
+    },
+    "selected_source_bindings": {
+      "paths": 46,
+      "all_candidate_blob_identity_verified": true,
+      "complete_dependency_closure_established": false
+    },
+    "owner_and_original_binding": {
+      "denominator": {
+        "bundles": 17,
+        "unique_findings": 45,
+        "criterion_occurrences": 46,
+        "acceptance_binding_occurrences": 46
+      },
+      "full_TSV_rows": {
+        "bundle-owners.tsv": 127,
+        "finding-owners.tsv": 282
+      },
+      "all_46_findings_bundles_join_to_unit_D": true,
+      "original_criterion_spans_and_acceptance_bindings": {
+        "count": 46,
+        "line_offset_byte_length_and_sha256_verified": true
+      },
+      "original_criterion_ledger_refs_and_46_json_pointers_verified": true,
+      "canonical_card_refs": 17,
+      "card_refs_verified": true
+    },
+    "disposition": {
+      "proposals": {
+        "closed": 39,
+        "limited": 1,
+        "held": 5
+      },
+      "held_ids": [
+        "B131",
+        "B137",
+        "B157",
+        "B161",
+        "B164"
+      ],
+      "limited_ids": [
+        "B108"
+      ],
+      "currently_source_qualified_unique_proposals": {
+        "closed": 2,
+        "held": 5
+      },
+      "current_verification_missing_occurrences": 38,
+      "formal_closed": 0,
+      "G_accepted": 0,
+      "P41_not_established_occurrences": 46,
+      "interpretation": "39/1/5 are D proposal dispositions, not G acceptance or closure; 38 are missing current whole-property/import verification, not 38 unimplemented mechanisms."
+    },
+    "execution_limitations": {
+      "production_invocation": "UNRUN; runner signal -9, cause unknown, zero testcase phases; not a product FAIL and not evidence of OOM.",
+      "optional_backends": "Numerical/native-vector checks not run on supported backends remain SKIP/UNRUN.",
+      "global_companions": "Architecture/schema/frontend/release/inventory generators UNRUN.",
+      "production_data": "Read-only, no rows/text/vectors/weights scanned or full DB hash; paired Legal assets absent, ordered membership digest not established.",
+      "service_history_receipt": "HANDOFF separates implementation_sha=3b31 from fixture_receipt_source=a795. final-a795/new31 (31 PASS, 93 phases), affected22 (22 PASS, 66 phases), and consumption-removal1 (expected 1 FAIL, 3 phases) are bound by their archived command records and JUnit to source a795/tree 2cd7e7058eeb0431b0571b30af3ad80b9a3c2668; each records source_after=a795 and same_inputs=true. Separate first-3b31 scopes are historical.",
+      "service_history_portable_binding": {
+        "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/service-history-final-a795/receipt.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+        "handoff_implementation_sha": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "fixture_receipt_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "archive": {
+          "bytes": 137126,
+          "sha256": "24d4e9e9c67a8b880da6ee4e33a5dd0a74f3d65d0e5ea5ed041ebba66b87da8f",
+          "members": 102,
+          "all_members_match_manifest": true
+        },
+        "final_a795_scopes": {
+          "new31": {
+            "pass": 31,
+            "phases": 93,
+            "junit_bytes": 6495,
+            "junit_sha256": "b57e4e0693631111be00278fa909f471d61dbcaeb0ecef94c74e6e6b9aa3ac18"
+          },
+          "affected22": {
+            "pass": 22,
+            "phases": 66,
+            "junit_bytes": 4533,
+            "junit_sha256": "b2d270f53fcfd28de2933c23fdfb1031ce7d015392f94d9c71f81e81da88d707"
+          },
+          "consumption_removal1": {
+            "expected_fail": 1,
+            "phases": 3,
+            "junit_bytes": 3888,
+            "junit_sha256": "fc9d5c668b913f51bd4fab89109dd91d326d16c2c1202eca160c06e109b8cff6"
+          }
+        },
+        "3b31_to_a795_delta": "Only policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py changes (fixture); production src is identical.",
+        "interpretation": "Final 31/22 scopes execute candidate a795; first-3b31 scopes remain separately historical. No whole-D closure implied."
+      }
+    },
+    "identity_result": "Exact source/path/receipt identity is verified. D source candidate and receipts are not G ancestors; no code admission or finding closure is implied."
+  },
+  "audit_method": "Read immutable Git blobs at the pinned roots; compare declared changed path sets with git diff --name-status -z; verify tree and ancestry; stream-hash D candidate blobs; reconcile all C/D source spans and full owner TSVs. No tests, installs, ref updates or source mutations."
+}

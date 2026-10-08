@@ -1,0 +1,34 @@
+{
+  "utc": "2026-10-07T18:28:53.513071+00:00",
+  "policy": "Native Trash only; never empty; preserve Git and deciding receipts.",
+  "actions": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/candidate",
+      "inode": 174146677,
+      "device": 16777231,
+      "mtime_ns": 1791394853354895831,
+      "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+      "allocated_bytes": 62484480,
+      "state": "verified_in_native_Trash",
+      "native_exit": 0,
+      "native_stdout": "{\"native_success\":true,\"source_exists\":false,\"matches\":[{\"path\":\"/Users/deniskopylov/.Trash/candidate 21-28-53-773\",\"inode\":174146677,\"device\":16777231}]}\n",
+      "native_stderr": "",
+      "destination": "/Users/deniskopylov/.Trash/candidate 21-28-53-773"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/candidate",
+      "inode": 174191029,
+      "device": 16777231,
+      "mtime_ns": 1791396698341253061,
+      "candidate_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "candidate_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+      "allocated_bytes": 62455808,
+      "state": "verified_in_native_Trash",
+      "native_exit": 0,
+      "native_stdout": "{\"native_success\":true,\"source_exists\":false,\"matches\":[{\"path\":\"/Users/deniskopylov/.Trash/candidate 21-28-54-001\",\"inode\":174191029,\"device\":16777231}]}\n",
+      "native_stderr": "",
+      "destination": "/Users/deniskopylov/.Trash/candidate 21-28-54-001"
+    }
+  ]
+}

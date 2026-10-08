@@ -1,0 +1,38 @@
+{
+  "source_sha": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+  "source_tree": "707e9dbb08dc69d465f87867e51766406aff4fb7",
+  "start_utc": "2026-10-08T10:57:55.887117+00:00",
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1025/exact_pytest.py",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1052/B190-exact/input",
+    "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1052/B190-exact",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1052/B190-exact/selectors.json"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1052/B190-exact/input/policy-engine",
+  "selectors": [
+    "tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+    "tests/unit/foundry/calibration/test_identifiability.py"
+  ],
+  "timeout_s": 120,
+  "wall_s": 23.67056749999756,
+  "returncode": 0,
+  "timed_out": false,
+  "free_GiB": 44.90618896484375,
+  "isolation": "exact git archive; existing G Python env; no product source mutation/env install/production payload",
+  "loaded_origin_summary": {
+    "source_sha": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+    "pytest_returncode": 0,
+    "loaded_file_backed_polisyos_module_denominator": 941,
+    "source_mismatch_count": 0
+  },
+  "origin_inventory_ignored": {
+    "path": "policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1052/B190-exact/origins.json",
+    "bytes": 263677,
+    "sha256": "3fcb4b44a7a0a34c7e34810f58c0d7ebc3b61a541bf38427ca252a2bb41d1e3a"
+  },
+  "accepted_passive_source": "f2c102fa2ee588b91b2baaa8c9d1c393699838c0",
+  "passive_carry": "runtime/tests/README byte-identical; two document/release companions independently reviewed; no second wave"
+}

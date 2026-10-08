@@ -1,0 +1,115 @@
+{
+  "schema": "policyos.e02.G.delta_intake.v1",
+  "utc": "2026-10-08T11:09:30.403873+00:00",
+  "entry_G": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+  "new_heads": {
+    "origin/codex/e02-E-c09-sensitivity-20261008": "32bfa995ab6208067cfed27359fe8674a54c90cf",
+    "origin/codex/e02-F-c08-20261008": "ab48c152514b025618cd6e3fc9acc70a1ed773ee",
+    "origin/codex/e02-F-closeout-20261006": "8077016f144712b00a05f0b3b6701c51852f1d21",
+    "origin/codex/e02-L02-authentic-20261008": "ca78ef245e592f8adfbeb273f7a404c8e84a6ae8"
+  },
+  "census": {
+    "ref_count": 138,
+    "open_pr_count": 47,
+    "e02_pr_count": 46,
+    "new_pr_heads": [
+      {
+        "headRefName": "codex/e02-F-closeout-20261006",
+        "headRefOid": "8077016f144712b00a05f0b3b6701c51852f1d21",
+        "isDraft": true,
+        "number": 65,
+        "title": "fix(scientist): complete F causal consumers and source-bound 35-ID handoff",
+        "updatedAt": "2026-10-08T10:46:18Z",
+        "url": "https://github.com/DenisKopylov/polisyos/pull/65"
+      }
+    ]
+  },
+  "code_acceptance": [
+    {
+      "original_unit": "E",
+      "finding": "B190",
+      "accepted_source": "f2c102fa2ee588b91b2baaa8c9d1c393699838c0",
+      "runtime_source": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+      "runtime_tree": "707e9dbb08dc69d465f87867e51766406aff4fb7",
+      "evidence_head": "32bfa995ab6208067cfed27359fe8674a54c90cf",
+      "merge": "5dfc1c3229dbc98f487113c1e2f051d549519914",
+      "scope": "bounded internal local scalar-state supplier and fresh recomputing CAS reader only",
+      "profile": "execute_scalar_state_response_v1",
+      "false_gate_eligibility": true,
+      "whole_head_PASS": false,
+      "source_test_companion_paths": 5
+    }
+  ],
+  "G_finding_decisions": [
+    {
+      "id": "B190",
+      "outcome": "limited",
+      "original_pointer": {
+        "source": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          4752,
+          4761
+        ],
+        "sha256": "bb28f0e65d6317465c37bae99ed3a0bd89a03a3194f111e0f3faf24553724d53"
+      },
+      "capability_missing": [
+        "consumer_missing",
+        "implemented_but_not_orchestrated"
+      ],
+      "remaining": [
+        "canonical Node does not use artifact reader",
+        "mixed known/unsupported response slots refuse whole request; known partial preservation remains unfinished",
+        "affected Node/CAS/fresh-reader semantic verification after bridge",
+        "scientific law/context only for claims requiring them; no production dataset prerequisite"
+      ],
+      "whole_finding_closed": false
+    }
+  ],
+  "formal_closure_ids": [],
+  "metadata_acceptance": [
+    {
+      "input": "ca78ef245e592f8adfbeb273f7a404c8e84a6ae8",
+      "merge": "08f5814d39896623846709bface053503646e3f2",
+      "scope": "7 L02 qualification documents only; 58 records/61 occurrences; all authentic/installed states UNRUN"
+    }
+  ],
+  "fresh_check": {
+    "source": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+    "tests": 49,
+    "PASS": 49,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "loaded_polisyos_file_modules": 941,
+    "byte_mismatches": 0,
+    "wall_s": 23.67056749999756,
+    "Ruff": "PASS 2 authored Python files",
+    "format": "PASS 2 authored Python files",
+    "composed_src_tests_architecture_pyproject_lock_ruff_identity": "all identical to accepted f2; runtime/tests/README unchanged from c912"
+  },
+  "baseline_results": "import_results --check PASS; verification transfer/navigation only, raw_archives0/product_closure not_established",
+  "B190_custody": "77 transport entries matched; minimum-node packet separately bound by immutable source/companion Git blobs; no complete-manifest claim for that omitted file",
+  "B190_admission": "exact stored/decoded carrier9a2 snapshots verified, not reservation",
+  "C08_delta": "15 metadata paths reviewed;10 payloads/seven source pins matched; B56 configured synthetic workload permitted via real C01 shared admission; no runtime rerun/source acceptance",
+  "ORCH03_delta": "2 metadata paths/resume payload validated; exact interval helper/README/test expansion now granted by G",
+  "unchanged_HOLDs": [
+    "C09 interval ee0b held pending propagation repair",
+    "C09 mean1b8c held pending correct observed sampling-law label",
+    "C08 CPDAG2dd held pending graph-bound fresh proof readback; no score-only authority escape established",
+    "C07 library pending G schema/selected-family composition and C06/C10 adoption"
+  ],
+  "global_replay": "UNRUN until selected source freeze and independent reviews; then one portable broad run and scoped authentic local checks",
+  "quality_P41": "not_established for unmeasured global red; no inherited-red assertion",
+  "continuation_leases": "continuation-leases.json",
+  "resources": {
+    "free_GiB": 45.897132873535156,
+    "attention_threshold_GiB": 18,
+    "local_compute_slot": "idle",
+    "installs": "none",
+    "cleanup": "none",
+    "production_reads_exports": "none"
+  },
+  "main_publication_authorized": false,
+  "one_level_independent_reviewers": 6
+}

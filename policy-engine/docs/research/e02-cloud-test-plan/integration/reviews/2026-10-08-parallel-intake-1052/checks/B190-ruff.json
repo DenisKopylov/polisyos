@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/foundry/calibration/identifiability.py",
+    "tests/unit/foundry/calibration/test_identifiability_response_basis.py"
+  ],
+  "source": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-1052/B190-exact/input/policy-engine",
+  "file_denominator": [
+    "src/polisyos/foundry/calibration/identifiability.py",
+    "tests/unit/foundry/calibration/test_identifiability_response_basis.py"
+  ],
+  "wall_s": 0.16758958296850324,
+  "returncode": 0,
+  "mode": "automatic exact nearest config discovery"
+}

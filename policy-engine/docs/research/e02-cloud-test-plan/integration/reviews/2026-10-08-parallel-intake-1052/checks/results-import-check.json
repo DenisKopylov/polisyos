@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python3",
+    "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+    "--check"
+  ],
+  "source_entry": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+  "returncode": 0,
+  "capture": "complete earlier tool stdout from this intake; not a repeated import",
+  "verification_grade": "transfer_and_navigation_only",
+  "raw_archives_received": 0,
+  "product_closure": "not_established"
+}

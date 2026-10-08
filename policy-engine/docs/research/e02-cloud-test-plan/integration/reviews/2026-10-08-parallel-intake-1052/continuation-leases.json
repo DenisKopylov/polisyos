@@ -1,0 +1,111 @@
+{
+  "schema": "policyos.e02.G.continuation_lease_supplement.v1",
+  "source_entry_G": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+  "original_unit": "E",
+  "no_new_product_authority": true,
+  "grant_scope": "One-time exact-path supplements for the named B190 Node and interval propagation slices; not a general expansion of C09 dispatch source_scopes or sibling-write permission.",
+  "dispatch_conflict_check": {
+    "input": "dispatch.json@f2e8d2096b86148fb93d4eb61520d22002228a1d",
+    "all_roles_checked": [
+      "C01",
+      "C02",
+      "C03",
+      "C04",
+      "C05",
+      "C06",
+      "C07",
+      "C08",
+      "C09",
+      "C10",
+      "C11",
+      "C12",
+      "C13",
+      "L01",
+      "L02"
+    ],
+    "exact_additional_targets": [
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
+      "policy-engine/src/polisyos/calibration/interval_basis.py",
+      "policy-engine/src/polisyos/calibration/README.md",
+      "policy-engine/tests/unit/calibration/test_interval_basis.py"
+    ],
+    "conflicts": []
+  },
+  "interval_propagation": {
+    "canonical_writer": "ORCH03 existing /root/c09",
+    "topic": "codex/e02-E-c09-20261008",
+    "existing_path": "/dev/shm/e02-orch03-20261008/c09",
+    "grant": "G affirms exact source/test/README/release paths below, including previously unnamed interval_basis.py and canonical README; prior C09/evaluator test remains owned",
+    "write_paths": [
+      "policy-engine/src/polisyos/calibration/interval_basis.py",
+      "policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py",
+      "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "policy-engine/src/polisyos/scientist/methods/backtesting/temporal.py",
+      "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+      "policy-engine/src/polisyos/scientist/governance/calibration_validation.py",
+      "policy-engine/src/polisyos/scientist/governance/calibration_leaderboard.py",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_interval_basis.py",
+      "policy-engine/tests/unit/scientist/governance/test_interval_basis_promotion.py",
+      "policy-engine/tests/unit/calibration/test_forecast_interval_basis.py",
+      "policy-engine/tests/unit/scientist/governance/test_calibration_leaderboard.py",
+      "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+      "policy-engine/src/polisyos/calibration/README.md",
+      "policy-engine/release-fragments/unreleased/2026-10-08-c09-interval-consumer-basis.toml",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py",
+      "policy-engine/tests/unit/calibration/test_interval_basis.py"
+    ],
+    "source_proposal": "8077016f144712b00a05f0b3b6701c51852f1d21",
+    "property": "one recomputed interval-basis mechanism from actual finite rows/bounds/hits and the full requested source basis, retained through temporal/CAS/scoring/validation/promotion/forecast; declarations/count markers do not establish completeness",
+    "constraints": [
+      "Reuse existing producer/reader derivations and current typed artifacts; calibration helper imports only IR/core/common, no Scientist dependency",
+      "No new global trust/scientific law or B172/B173 ratification",
+      "Point-only diagnostics and complete predictive bridge-pending profiles remain explicit; report.degraded alone is not the predicate",
+      "No writes in C07 IR, C10 Runtime/S10/served, G generated schema/catalog/lock/inventory",
+      "Keep interval source HOLD until the forward immutable repair and affected runtime/negative/fresh-consumer evidence are accepted"
+    ]
+  },
+  "B190_node_bridge": {
+    "canonical_writer": "ORCH03 existing E/C09 B190 writer /root/producer_packets",
+    "topic": "codex/e02-E-c09-sensitivity-20261008",
+    "existing_path": "/dev/shm/e02-orch03-20261008/c09-sensitivity",
+    "accepted_supplier": "f2c102fa2ee588b91b2baaa8c9d1c393699838c0",
+    "runtime_source": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+    "grant": "existing supplier files remain owned; exact canonical Node and its mirrored tests are added to this same owner, no new Node/engine",
+    "new_write_paths": [
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py"
+    ],
+    "existing_write_paths": [
+      "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+      "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+      "policy-engine/src/polisyos/foundry/calibration/README.md"
+    ],
+    "required_property": [
+      "actual configured PropagateUncertaintyNode resolves/recomputes accepted matrix against expected exact SimulationResult source, target slots, axes/units/config/current manifest views",
+      "established dimensional affine or native-J response can retain nonzero change at zero baseline; true constant stays constant; no epsilon or arbitrary fallback coupling",
+      "preserve known projections and addressed unresolved outputs without pretending a full mapping; replace/guard unsafe old automatic fallback in this canonical Node",
+      "actual Node result persisted and fresh-read with positive, partial/unknown, wrong-source/unit/axis/manifest, counterfeit/refusal and retained-property removal controls",
+      "choose explicit source-qualified fixture input law/covariance only where the downstream claim requires it; no Fisher-rank-to-SD or fabricated scientific authority"
+    ],
+    "exclusions": [
+      "C11 Runtime assembly/registration and phase5_preflight",
+      "C07 IR carriers/schema/refs",
+      "C10 served/S10/generation-cycle consumers",
+      "G generated/global inventories and lockfiles",
+      "shared package README if another role owns it: supply a patch to that writer"
+    ],
+    "finding_B190": "limited; code acceptance of supplier does not close Node/full criterion"
+  },
+  "resume_contract": [
+    "Reuse the existing exact matching lane; no new checkout per wake",
+    "On actual cloud host rerun exact read-only workspace doctor resume with the actual branch/path immediately before resumed mutation and read back attachment/HEAD/status",
+    "Admission is a point-in-time snapshot, not a reservation or G source acceptance",
+    "Unexpected HEAD/branch/tree stops without reset/rebase/force/switch",
+    "Freeze the forward implementation, independent nonauthor review, one affected wave with source/environment/input pins, separate committed handoff and normal topic publication",
+    "No direct message to foreign human chat is authorized; publish Git handoff for G"
+  ]
+}

@@ -4,11 +4,11 @@ type = "added"
 component = "foundry"
 owner = "team-policyos-runtime"
 summary = "Add an opt-in local Jacobian profile for registered scalar state slots, with exact source/model/input identities, axes, units, seeds, execute requests and persisted replay states. A fresh internal reader recomputes the basis and rejects changed units, source, order and lineage."
-compatibility = "The response_slots keyword is additive. Historical callback and operational-metrics diagnostic paths remain available. The new basis is internal, numerical, and non-gating; no Node adapter, authority admission, registry, scheduler or lockfile changes."
+compatibility = "The response_slots keyword is additive. Historical callback and operational-metrics diagnostic paths remain available. The new basis is internal, numerical, and non-gating; the existing Scientist Node may opt into an exact-source local-response bridge; no authority admission, new registry, scheduler or lockfile changes."
 surface_classification = "internal: package-specific calibration entrypoint, response basis and recomputing reader; no root-stable export promotion"
 change_class = "internal"
 migration = "Existing callers need no migration. Opt-in callers use explicit inline moments/center, registered global scalar slots, an explicit bound StateSnapshot 2.2 and a persisted Jacobian-only profile. Nested initial/replay NPZ/schema bytes and exact selected leaf lineage are verified. Canonical cross-owner adapters must adopt the internal reader under their own law/target contract."
-limitations = "No callback authority, empirical calibration, stochastic law inference, vector summaries, profile/bootstrap basis, production data, or composed uncertainty/Scientist consumer admission. Shared public inventory and adapter adoption remain canonical-owner companions."
+limitations = "No callback authority, empirical calibration, stochastic law inference, vector summaries, profile/bootstrap basis, production data, or scientific/Runtime admission. Configured Scientist propagation remains a local, non-gating hypothesis; assembly and protected input facts remain canonical-owner companions."
 evidence = ["tests/unit/foundry/calibration/test_identifiability_response_basis.py", "src/polisyos/foundry/calibration/README.md"]
 public_surface_inventory_reviewed = false
 generated_client_compatibility = "not_applicable"
@@ -35,6 +35,20 @@ owner = "team-policyos-runtime"
 version_owner = "team-policyos-runtime"
 deprecation_window = "not_applicable"
 release_note = "The opt-in internal response basis has an explicit v1 profile and exact replay lineage; historical 1.0 matrices without that basis stay on their old reader path."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/foundry/calibration/README.md"]
+runbook_docs = ["src/polisyos/foundry/calibration/README.md"]
+
+
+[[compatibility_change]]
+id = "scientist-local-response-report"
+change_class = "persisted-artifact-format"
+impact = "additive"
+surface = "existing configured PropagateUncertaintyNode local projection and PropagationReport 1.1 metadata"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "The existing Node can resolve a persisted registered-state response basis, retain exact source/law views and address partial targets; all local projections and legacy bare-coefficient hypotheses remain non-gating. No new stable export is added."
 generated_client_compatibility = "not_applicable"
 migration_docs = ["src/polisyos/foundry/calibration/README.md"]
 runbook_docs = ["src/polisyos/foundry/calibration/README.md"]

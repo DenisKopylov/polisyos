@@ -5,6 +5,7 @@ from __future__ import annotations
 import jax
 import jax.numpy as jnp
 import pytest
+
 from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
     PropagateUncertaintyNode,
     _build_propagation_fn,
@@ -194,3 +195,14 @@ def test_build_propagation_fn_preserves_zero_baseline_effect():
 
     assert response(x=3.0)["y"] == pytest.approx(1.0)
     assert response(x=1.0)["y"] == pytest.approx(-1.0)
+
+
+@pytest.mark.parametrize("baseline", [0.0, 1.0, 1998.0])
+def test_native_projection_is_additive_and_keeps_dimensioned_slope(baseline):
+    from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import _native_projection
+
+    response = _native_projection("balance", baseline, {"rate": 4.0}, {"rate": 0.5})
+    assert response(rate=0.75)["balance"] == pytest.approx(baseline + 1.0)
+    assert float(
+        jax.jacfwd(lambda x: response(rate=x)["balance"])(jnp.asarray(0.5))
+    ) == pytest.approx(4.0)

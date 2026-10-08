@@ -638,3 +638,15 @@ def test_nested_state_npz_bytes_are_verified_before_state_interpretation(
                 finite_diff_rel_step=0.01,
             ),
         )
+
+
+def test_reader_returns_center_recomputed_from_persisted_state(response_case):
+    payload = _read(response_case)
+    assert payload["center_response"] == {"balance": pytest.approx(0.0)}
+
+
+def test_reader_does_not_trust_a_saved_center_response_claim(response_case):
+    matrix = _changed_matrix(
+        response_case, lambda payload: payload.update(center_response={"balance": 999.0})
+    )
+    assert _read(response_case, matrix=matrix)["center_response"] == {"balance": pytest.approx(0.0)}

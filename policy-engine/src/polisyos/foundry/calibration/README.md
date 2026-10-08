@@ -135,6 +135,47 @@ The basis describes a local numerical response and always has
 `gate_eligible=False`. It provides neither a measurement law nor causal,
 scientific, or Runtime admission. An uncertainty/Scientist adapter must select
 and validate its own source/law/target contract before consuming this internal
-basis; this producer does not implement that cross-owner adapter. Registered
+basis. The configured Scientist bridge below adopts that finite profile. Registered
 deterministic income tax is an available synthetic witness, not a calibrated
 fiscal model.
+
+
+### Configured Scientist local-response bridge
+
+The existing `PropagateUncertaintyNode` accepts an opt-in
+`params.propagation_response_basis` with `matrix_ref`, the ordered known
+`response_slots`, expected registered `response_units`, `parameter_center`, and
+`diagnostic_config`. Its expected source is the actual current
+`artifacts_index.simulation_result_ref`. The internal reader resolves exact
+selected manifests, verifies persisted source/replay state bytes and the
+Jacobian, and returns center values recomputed from those same states.
+
+`params.propagation_response_slots` records the full requested alias-to-slot
+roster. It must include the matrix's known roster; additional unsupported targets
+remain explicitly addressed UNKNOWN/missing-output envelopes. The report keeps
+both rosters and refuses to claim a complete mapping when an output is unresolved.
+No operational `Metrics` count or latency is used as a scientific state response.
+
+`params.propagation_input_envelope_refs` binds parameter axes to exact persisted
+IR envelopes. Each supplied envelope's `metadata.param_name`, registered
+`metadata.unit` and point must match the verified axis/unit/center. Missing laws
+hold rows with nonzero coefficients; verified zero-Jacobian local rows retain
+the actual center singleton without inventing a law. Covariance/law inputs are
+caller-declared and handled by the existing propagation dispatcher; Fisher,
+weighting and ridge values never become a parameter noise scale.
+
+The projection is the dimensioned **local** response
+`y_center + J * (x - parameter_center)`. It preserves response at a zero or
+nonzero baseline and does not prove a global affine law. Output intervals are
+non-gating heuristic local-linearization ranges, not estimator confidence
+intervals or scientific/Runtime admission. Exact source/matrix/input-law views
+remain in envelope/report manifests and the updated SimulationResult. Bare
+legacy `propagation_sensitivity` keeps its historical relative/additive numerics
+as an explicitly non-gating, consumer-asserted hypothesis; it does not establish
+a registered dimensional map or a full native mapping.
+
+The native synthetic income-tax witness gives balance `4 * rate - 2`, while
+`global.tax_rate` remains `0.125` (Jacobian zero). Its declared synthetic input
+standard deviation `0.25` gives local balance variance `1`; this fixture is not
+empirical calibration, a production law, or authority. Protected production
+facts and C11 assembly/admission remain separate owner inputs.

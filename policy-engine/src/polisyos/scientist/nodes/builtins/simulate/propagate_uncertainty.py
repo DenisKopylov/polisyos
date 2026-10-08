@@ -7,34 +7,48 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any, Protocol, cast
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ConfigDict, ValidationError
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import Metrics, SimulationResult, SimulationResultRef
+from polisyos.foundry.calibration.identifiability import (
+    IdentifiabilityDiagnosticConfig,
+    _load_execute_response_matrix,
+)
 from polisyos.foundry.calibration.report import CalibrationReport
 from polisyos.foundry.uncertainty.config import PropagationConfig
+from polisyos.foundry.uncertainty.delta import _missing_output_result
 from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher
 from polisyos.foundry.uncertainty.protocol import PropagationResult
 from polisyos.ir.analytics.uncertainty import (
+    DistributionFamily,
+    IntervalSemantics,
+    PropagationMethod,
     UncertaintyEnvelope,
+    UncertaintySource,
     load_uncertainty_envelope,
     persist_uncertainty_envelope,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_PROPAGATION_REPORT_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
     INPUT_CALIBRATION_REPORT_REF,
     INPUT_DATA_SNAPSHOT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 logger = get_logger(__name__)
 
@@ -74,6 +88,9 @@ _SPEC = NodeSpec(
         f"inputs.{INPUT_CALIBRATION_REPORT_REF}",
         "params.propagation_config",
         "params.propagation_sensitivity",
+        "params.propagation_response_basis",
+        "params.propagation_response_slots",
+        "params.propagation_input_envelope_refs",
     ],
     state_writes=[
         f"artifacts_index.{ARTIFACT_SIMULATION_RESULT_REF}",
@@ -106,41 +123,65 @@ class PropagateUncertaintyNode:
             )
 
         sim_result = _load_model(ctx, sim_result_ref, SimulationResult)
-        metrics = _load_model(ctx, sim_result.metrics_ref, Metrics)
-        metric_values = _extract_numeric_metrics(metrics)
-        if not metric_values:
-            return NodeOutcome(
-                status="skip",
-                state=state,
-                events=[NodeEvent(level="info", message="No numeric metrics for propagation")],
+        native = state.params.get("propagation_response_basis")
+        response_metadata: dict[str, Any] = {
+            "profile": "consumer_asserted_hypothesis",
+            "gate_eligible": False,
+        }
+        response_inputs = [
+            input_ref_from_artifact_ref(sim_result_ref, role="base_simulation_result")
+        ]
+        if native is not None:
+            # Native scientific state slots are distinct from operational Metrics.
+            # NATIVE_RESPONSE_BRIDGE: retained-marker control removes this dispatch.
+            (
+                results,
+                input_envelopes,
+                output_metric_ids,
+                mapped_params,
+                unmapped_metric_ids,
+                config,
+                response_metadata,
+                response_inputs,
+            ) = _native_response_results(ctx, state, sim_result_ref)
+        else:
+            metrics = _load_model(ctx, sim_result.metrics_ref, Metrics)
+            metric_values = _extract_numeric_metrics(metrics)
+            if not metric_values:
+                return NodeOutcome(
+                    status="skip",
+                    state=state,
+                    events=[NodeEvent(level="info", message="No numeric metrics for propagation")],
+                )
+            input_envelopes = _collect_input_envelopes(ctx, state)
+            if not input_envelopes:
+                return NodeOutcome(
+                    status="skip",
+                    state=state,
+                    events=[NodeEvent(level="info", message="No input uncertainty envelopes")],
+                )
+            config = _load_config(state)
+            nominal_params = {name: env.point_estimate for name, env in input_envelopes.items()}
+            simulation_fn, mapped_params = _build_propagation_fn(
+                state.params, base_metric_values=metric_values, nominal_params=nominal_params
             )
-
-        input_envelopes = _collect_input_envelopes(ctx, state)
-        if not input_envelopes:
-            return NodeOutcome(
-                status="skip",
-                state=state,
-                events=[NodeEvent(level="info", message="No input uncertainty envelopes")],
+            output_metric_ids = sorted(metric_values)
+            results = PropagationDispatcher(config).propagate(
+                simulation_fn=simulation_fn,
+                nominal_params=nominal_params,
+                input_envelopes=input_envelopes,
+                output_metric_ids=output_metric_ids,
+                is_jax_differentiable=True,
             )
-
-        config = _load_config(state)
-        dispatcher = PropagationDispatcher(config)
-
-        nominal_params = {name: env.point_estimate for name, env in input_envelopes.items()}
-        simulation_fn, mapped_params = _build_propagation_fn(
-            state.params,
-            base_metric_values=metric_values,
-            nominal_params=nominal_params,
-        )
-        output_metric_ids = sorted(metric_values.keys())
-
-        results = dispatcher.propagate(
-            simulation_fn=simulation_fn,
-            nominal_params=nominal_params,
-            input_envelopes=input_envelopes,
-            output_metric_ids=output_metric_ids,
-            is_jax_differentiable=True,
-        )
+            sensitivity_map = getattr(simulation_fn, "_sensitivity_map", {})
+            unmapped_metric_ids = [
+                name for name in output_metric_ids if not sensitivity_map.get(name)
+            ]
+            # Bare coefficients keep their historical numerics but cannot establish
+            # a source/unit-bound response or scientific admission.
+            results = [
+                _mark_response_scope(item, "consumer_asserted_hypothesis") for item in results
+            ]
 
         if not results:
             return NodeOutcome(
@@ -149,10 +190,6 @@ class PropagateUncertaintyNode:
                 events=[NodeEvent(level="info", message="Propagation yielded no results")],
             )
 
-        sensitivity_map = getattr(simulation_fn, "_sensitivity_map", {})
-        unmapped_metric_ids = [
-            metric_id for metric_id in output_metric_ids if not sensitivity_map.get(metric_id)
-        ]
         if unmapped_metric_ids:
             results = [
                 _mark_unresolved_sensitivity(item)
@@ -161,9 +198,7 @@ class PropagateUncertaintyNode:
                 for item in results
             ]
         missing_output_metric_ids = [
-            item.metric_id
-            for item in results
-            if _has_missing_output(item)
+            item.metric_id for item in results if _has_missing_output(item)
         ]
         incomplete_output_metric_ids = [
             item.metric_id
@@ -177,7 +212,7 @@ class PropagateUncertaintyNode:
         envelope_refs: dict[str, ArtifactRef] = {}
         artifacts: list[ArtifactRef] = []
         for item in results:
-            ref = persist_uncertainty_envelope(ctx.store, item.envelope)
+            ref = persist_uncertainty_envelope(ctx.store, item.envelope, inputs=response_inputs)
             envelope_refs[item.metric_id] = ref
             artifacts.append(ref)
 
@@ -191,6 +226,8 @@ class PropagateUncertaintyNode:
             unmapped_metric_ids=unmapped_metric_ids,
             missing_output_metric_ids=missing_output_metric_ids,
             incomplete_output_metric_ids=incomplete_output_metric_ids,
+            response_metadata=response_metadata,
+            inputs=response_inputs,
         )
 
         updated_sim = sim_result.model_copy(
@@ -201,26 +238,14 @@ class PropagateUncertaintyNode:
             }
         )
         update_inputs = [
-            InputRef(
-                artifact_id=str(sim_result_ref.artifact_id),
-                role="base_simulation_result",
-            ),
-            InputRef(
-                artifact_id=str(report_ref.artifact_id),
-                role="propagation_report",
-            ),
-            InputRef(
-                artifact_id=str(config_ref.artifact_id),
-                role="propagation_config",
+            input_ref_from_artifact_ref(sim_result_ref, role="base_simulation_result"),
+            input_ref_from_artifact_ref(report_ref, role="propagation_report"),
+            input_ref_from_artifact_ref(config_ref, role="propagation_config"),
+            *(
+                input_ref_from_artifact_ref(ref, role=f"metric_envelope.{name}")
+                for name, ref in envelope_refs.items()
             ),
         ]
-        for metric_id, ref in envelope_refs.items():
-            update_inputs.append(
-                InputRef(
-                    artifact_id=str(ref.artifact_id),
-                    role=f"metric_envelope.{metric_id}",
-                )
-            )
 
         updated_ref_payload = ctx.store.put_json(
             updated_sim,
@@ -231,7 +256,9 @@ class PropagateUncertaintyNode:
                 inputs=update_inputs,
             ),
         )
-        updated_ref = SimulationResultRef(artifact_id=updated_ref_payload.artifact_id)
+        updated_ref = SimulationResultRef.model_validate(
+            updated_ref_payload.model_dump(mode="python")
+        )
 
         new_state = branch_state(state, write_paths=("artifacts_index",)).state
         new_state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF] = updated_ref
@@ -256,8 +283,206 @@ class PropagateUncertaintyNode:
         )
 
 
+class _NativeResponseRequest(BaseModel):
+    """Internal, finite executed-response bridge; no authority is inferred."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    matrix_ref: ArtifactRef
+    response_slots: dict[str, str]
+    response_units: dict[str, dict[str, Any]]
+    parameter_center: dict[str, float]
+    diagnostic_config: IdentifiabilityDiagnosticConfig
+
+
+def _native_response_results(
+    ctx: ExecutionContext, state: ExperimentState, source_ref: ArtifactRef
+):
+    request = _NativeResponseRequest.model_validate(state.params["propagation_response_basis"])
+    requested = state.params.get("propagation_response_slots")
+    if (
+        not isinstance(requested, dict)
+        or not requested
+        or not all(
+            isinstance(k, str) and k and isinstance(v, str) and v for k, v in requested.items()
+        )
+    ):
+        raise ValueError("native response requires the complete requested slot roster")
+    if not request.response_slots or any(
+        requested.get(k) != v for k, v in request.response_slots.items()
+    ):
+        raise ValueError("requested slots contradict or omit the verified matrix roster")
+    # Resolve the real current SimulationResult and exact selected matrix view.
+    matrix_manifest = ctx.store.get_manifest(request.matrix_ref)
+    if matrix_manifest.kind != "foundry.identifiability_sensitivity_matrix":
+        raise ValueError("native response matrix has the wrong artifact kind")
+    payload = _load_execute_response_matrix(
+        ctx.store,
+        request.matrix_ref,
+        source_ref=SimulationResultRef.model_validate(source_ref.model_dump(mode="python")),
+        response_slots=request.response_slots,
+        parameter_center=request.parameter_center,
+        config=request.diagnostic_config,
+    )
+    basis = payload["response_basis"]
+    if request.response_units != basis["moment_units"]:
+        raise ValueError("requested response units differ from the registered state slots")
+    refs = state.params.get("propagation_input_envelope_refs", {})
+    if not isinstance(refs, dict) or not set(refs).issubset(basis["parameter_names"]):
+        raise ValueError("input law roster differs from the native parameter axes")
+    envelopes = {}
+    inputs = [
+        input_ref_from_artifact_ref(source_ref, role="base_simulation_result"),
+        input_ref_from_artifact_ref(request.matrix_ref, role="response_matrix"),
+    ]
+    for name, raw_ref in refs.items():
+        ref = ArtifactRef.model_validate(raw_ref)
+        manifest = ctx.store.get_manifest(ref)
+        if manifest.kind != "ir.uncertainty_envelope":
+            raise ValueError("native input law has the wrong artifact kind")
+        envelope = UncertaintyEnvelope.model_validate(
+            from_canonical_bytes(ctx.store.get_bytes(ref))
+        )
+        if (
+            envelope.metadata.get("param_name") != name
+            or envelope.metadata.get("unit") != basis["parameter_units"][name]
+            or envelope.point_estimate != request.parameter_center[name]
+        ):
+            raise ValueError("input law parameter/unit/center differs from the executed basis")
+        envelopes[name] = envelope
+        inputs.append(input_ref_from_artifact_ref(ref, role=f"input_envelope.{name}"))
+    # Native config errors must refuse, never silently fall back to defaults.
+    config = PropagationConfig.model_validate(state.params.get("propagation_config", {}))
+    dispatcher = PropagationDispatcher(config)
+    results = []
+    mapped = set()
+    unavailable = []
+    for name in requested:
+        if name not in request.response_slots:
+            item = _missing_output_result(name, input_param_names=list(basis["parameter_names"]))
+            unavailable.append(name)
+        else:
+            row = payload["jacobian"][basis["moment_names"].index(name)]
+            coefficients = dict(zip(basis["parameter_names"], row, strict=True))
+            active = {k: v for k, v in coefficients.items() if v != 0.0}
+            center_value = payload["center_response"][name]
+            if not active:
+                item = PropagationResult(
+                    metric_id=name,
+                    envelope=UncertaintyEnvelope(
+                        point_estimate=center_value,
+                        confidence_interval=(center_value, center_value),
+                        confidence_level=None,
+                        distribution_family=DistributionFamily.UNKNOWN,
+                        source=UncertaintySource.ENSEMBLE,
+                        propagation_method=PropagationMethod.DELTA_METHOD,
+                        interval_semantics=IntervalSemantics.DETERMINISTIC_BOUNDS,
+                        gate_eligible=False,
+                        metadata={"verified_zero_jacobian": True, "output_variance": 0.0},
+                    ),
+                    input_envelopes_used=[],
+                    method_used=PropagationMethod.DELTA_METHOD,
+                    diagnostics={"output_variance": 0.0, "verified_zero_jacobian": True},
+                )
+            elif not set(active).issubset(envelopes):
+                item = _missing_output_result(name, input_param_names=sorted(active))
+                item = PropagationResult(
+                    metric_id=name,
+                    envelope=item.envelope,
+                    input_envelopes_used=item.input_envelopes_used,
+                    method_used=item.method_used,
+                    diagnostics={
+                        **item.diagnostics,
+                        "missing_input_laws": sorted(set(active) - set(envelopes)),
+                    },
+                )
+                unavailable.append(name)
+            else:
+                selected = {k: envelopes[k] for k in active}
+                projection = _native_projection(
+                    name, center_value, active, request.parameter_center
+                )
+                item = dispatcher.propagate(
+                    simulation_fn=projection,
+                    nominal_params={k: request.parameter_center[k] for k in active},
+                    input_envelopes=selected,
+                    output_metric_ids=[name],
+                    is_jax_differentiable=True,
+                )[0]
+                if item.envelope.distribution_family is DistributionFamily.UNKNOWN:
+                    unavailable.append(name)
+                else:
+                    mapped.update(active)
+        results.append(
+            _mark_response_scope(
+                item, "execute_scalar_state_response_v1", unit=basis["moment_units"].get(name)
+            )
+        )
+    metadata = {
+        "profile": "execute_scalar_state_response_v1",
+        "gate_eligible": False,
+        "matrix_ref": request.matrix_ref.model_dump(mode="json"),
+        "source_ref": source_ref.model_dump(mode="json"),
+        "requested_slots": dict(requested),
+        "verified_slots": request.response_slots,
+        "response_units": basis["moment_units"],
+        "parameter_units": basis["parameter_units"],
+        "parameter_center": request.parameter_center,
+        "diagnostic_config": request.diagnostic_config.model_dump(mode="json"),
+        "projection": "persisted_state_local_jacobian",
+        "authority": "not_established",
+    }
+    return results, envelopes, list(requested), mapped, unavailable, config, metadata, inputs
+
+
+def _native_projection(
+    name: str, center_value: float, coefficients: Mapping[str, float], center: Mapping[str, float]
+):
+    """Dimensioned additive local projection, independent of response level."""
+
+    def response(**theta):
+        return {
+            name: center_value
+            + sum(coef * (theta[param] - center[param]) for param, coef in coefficients.items())
+        }
+
+    return response
+
+
+def _mark_response_scope(
+    result: PropagationResult, profile: str, *, unit=None
+) -> PropagationResult:
+    metadata = {
+        **result.envelope.metadata,
+        "response_profile": profile,
+        "authority": "not_established",
+    }
+    if unit is not None:
+        metadata["unit"] = unit
+    updates: dict[str, Any] = {"gate_eligible": False, "metadata": metadata}
+    if (
+        profile == "execute_scalar_state_response_v1"
+        and result.envelope.interval_semantics is not IntervalSemantics.DETERMINISTIC_BOUNDS
+    ):
+        # Local linearization is not an estimator CI or an authority certificate.
+        updates.update(
+            confidence_level=None,
+            interval_semantics=IntervalSemantics.HEURISTIC_RANGE,
+            is_heuristic_ci=True,
+            composition_provenance=None,
+        )
+    return PropagationResult(
+        metric_id=result.metric_id,
+        envelope=UncertaintyEnvelope.model_validate(
+            result.envelope.model_copy(update=updates).model_dump(mode="python")
+        ),
+        input_envelopes_used=result.input_envelopes_used,
+        method_used=result.method_used,
+        diagnostics={**result.diagnostics, "response_profile": profile, "gate_eligible": False},
+    )
+
+
 def _load_model(ctx: ExecutionContext, ref: ArtifactRef, model_cls):
-    payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(ctx.store.get_bytes(ref))
     return model_cls.model_validate(payload)
 
 
@@ -463,6 +688,8 @@ def _persist_report(
     unmapped_metric_ids: list[str],
     missing_output_metric_ids: list[str],
     incomplete_output_metric_ids: list[str],
+    response_metadata: Mapping[str, Any],
+    inputs: list[InputRef],
 ) -> ArtifactRef:
     mapping_status = (
         "resolved"
@@ -473,8 +700,7 @@ def _persist_report(
     )
     shared_provenance = results[0].diagnostics.get("draw_outcome_provenance") if results else None
     if shared_provenance is not None and not all(
-        item.diagnostics.get("draw_outcome_provenance") is shared_provenance
-        for item in results
+        item.diagnostics.get("draw_outcome_provenance") is shared_provenance for item in results
     ):
         shared_provenance = None
 
@@ -503,6 +729,11 @@ def _persist_report(
         "methods": [item.method_used.value for item in results],
         "diagnostics": diagnostics,
         "incomplete_output_metric_ids": sorted(incomplete_output_metric_ids),
+        "response_basis": dict(response_metadata),
+        "gate_eligible": False,
+        "full_mapping_established": not incomplete_output_metric_ids
+        and not unmapped_metric_ids
+        and response_metadata["profile"] == "execute_scalar_state_response_v1",
     }
     if shared_provenance is not None:
         payload["draw_outcome_provenance"] = shared_provenance
@@ -512,6 +743,7 @@ def _persist_report(
             kind="foundry.propagation_report",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.foundry.PropagationReport", version="1.1"),
+            inputs=inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )

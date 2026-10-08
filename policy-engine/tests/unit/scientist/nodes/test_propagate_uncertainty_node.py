@@ -1,6 +1,14 @@
 from __future__ import annotations
 
+import copy
+import json
 import logging
+import os
+import subprocess
+import sys
+from fractions import Fraction
+
+import pytest
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -17,8 +25,6 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintySource,
     persist_uncertainty_envelope,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
     PropagateUncertaintyNode,
 )
@@ -27,6 +33,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_SIMULATION_RESULT_REF,
     INPUT_DATA_SNAPSHOT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def test_propagate_uncertainty_node_updates_simulation_result(tmp_path) -> None:
@@ -101,7 +109,7 @@ def test_propagate_uncertainty_node_updates_simulation_result(tmp_path) -> None:
             "propagation_sensitivity": {
                 "applied_nodes": {"data_snapshot": 1.0},
                 "step_latency_ms": {"data_snapshot": 1.0},
-            }
+            },
         },
     )
 
@@ -119,3 +127,425 @@ def test_propagate_uncertainty_node_updates_simulation_result(tmp_path) -> None:
     report_ref = outcome.state.artifacts_index[ARTIFACT_PROPAGATION_REPORT_REF]
     report = from_canonical_bytes(store.get_bytes(report_ref.artifact_id))
     assert report["methods"] == [PropagationMethod.DELTA_METHOD.value] * 2
+
+
+def _native_fixture(tmp_path, *, reported_income=(2.0, 2.0), initial_balance=-2.0):
+    from decimal import Decimal
+
+    import jax.numpy as jnp
+
+    from polisyos.core.contracts.foundry import (
+        CompileRequest,
+        ExecPlan,
+        ExecuteRequest,
+        FoundryExecConfig,
+        FoundryInputBindings,
+        FoundryInputBindingsRef,
+        ProgramGraph,
+        StateSnapshotRef,
+    )
+    from polisyos.foundry.compile.api import compile as compile_foundry
+    from polisyos.foundry.contracts.state import GlobalState
+    from polisyos.foundry.execute.api import execute as execute_foundry
+    from polisyos.foundry.execute.executor import load_state_snapshot, put_state_snapshot
+    from polisyos.ir.governance.policy_spec import PolicySpec
+    from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+    from polisyos.ir.model_layer.model_spec import ModelSpec
+    from polisyos.ir.trinity import TrinityBundle
+
+    store = FileSystemCAS(tmp_path / "cas")
+    registry = build_default_registry_bundle(store)
+    policy = TrinityBundle(
+        problem_frame=ProblemFrame(problem_id="response", domain=ProblemDomain.FISCAL),
+        policy_spec=PolicySpec(
+            policy_id="response",
+            interventions=[
+                {
+                    "intervention_id": "tax",
+                    "kind": "income_tax",
+                    "target": {
+                        "kind": "predicate",
+                        "field": "id",
+                        "operator": "==",
+                        "value": "all",
+                    },
+                    "schedule": {"start_step": 0, "duration_steps": 1},
+                    "params": {"rate": Decimal("0.5")},
+                }
+            ],
+        ),
+        model_spec=ModelSpec(
+            model_id="response",
+            data_snapshot_ref="sha256:" + "0" * 64,
+            registry_bundle_ref=str(registry.bundle_ref.artifact_id),
+        ),
+    )
+    policy_ref = store.put_json(
+        policy,
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=policy.schema_version),
+        ),
+    )
+    compiled = compile_foundry(
+        store,
+        CompileRequest(
+            input_kind="trinity",
+            policy_ref=policy_ref,
+            registry_bundle_ref=registry.bundle_ref,
+        ),
+    )
+    assert compiled.ok
+    plan = ExecPlan.model_validate(from_canonical_bytes(store.get_bytes(compiled.exec_plan_ref)))
+    program = ProgramGraph.model_validate(from_canonical_bytes(store.get_bytes(plan.program_ref)))
+    tax_node = next(node for node in program.nodes if node.mechanism_type == "income_tax")
+    state = GlobalState.empty(n_agents=2, n_firms=1)
+    state = state.replace(
+        agents=state.agents.replace(
+            active=jnp.asarray([True, True]),
+            income=jnp.asarray([10.0, 10.0]),
+            reported_income=jnp.asarray(reported_income),
+        ),
+        government_balance=jnp.asarray(initial_balance),
+        tax_rate=jnp.asarray(0.125),
+    )
+    snapshot = put_state_snapshot(store, state=state, step=0)
+    state_ref = StateSnapshotRef(artifact_id=snapshot.artifact_id)
+    data_ref = store.put_json(
+        DataSnapshot(data_ref=state_ref),
+        PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+        ),
+    )
+    bindings = store.put_json(
+        FoundryInputBindings(
+            data_snapshot_ref=data_ref,
+            registry_bundle_ref=registry.bundle_ref,
+            rules=[],
+            bound_state_snapshot_ref=state_ref,
+        ),
+        PutOptions(kind="foundry.input_bindings", media_type="application/json"),
+    )
+    result = execute_foundry(
+        store,
+        ExecuteRequest(
+            exec_plan_ref=compiled.exec_plan_ref,
+            input_bindings_ref=FoundryInputBindingsRef(artifact_id=bindings.artifact_id),
+            registry_bundle_ref=registry.bundle_ref,
+            exec_config=FoundryExecConfig(seed=29),
+        ),
+    )
+    assert result.ok
+    simulation = SimulationResult.model_validate(
+        from_canonical_bytes(store.get_bytes(result.simulation_result_ref))
+    )
+    poststate = load_state_snapshot(store, snapshot_ref=simulation.state_snapshot_ref)
+    assert float(poststate.government_balance) == pytest.approx(
+        sum(reported_income) / 2 + initial_balance
+    )
+    return store, result.simulation_result_ref, f"{tax_node.node_id}.rate"
+
+
+@pytest.fixture(scope="module")
+def native_cases(tmp_path_factory):
+    from polisyos.foundry.calibration.identifiability import (
+        IdentifiabilityDiagnosticConfig,
+        identifiability_diagnostic,
+    )
+
+    cases = {}
+    for name, incomes, initial in (
+        ("zero", (2.0, 2.0), -2.0),
+        ("nonzero", (2.0, 2.0), -1.0),
+        ("scaled", (2000.0, 2000.0), -2.0),
+    ):
+        path = tmp_path_factory.mktemp(f"native_node_{name}")
+        store, source, parameter = _native_fixture(
+            path, reported_income=incomes, initial_balance=initial
+        )
+        diagnostic_config = IdentifiabilityDiagnosticConfig(
+            simulation_reps=2,
+            bootstrap_reps=0,
+            profile_grid_size=0,
+            seed=29,
+            finite_diff_rel_step=0.01,
+        )
+        slots = {"balance": "government.balance", "tax_rate": "global.tax_rate"}
+        diagnostic = identifiability_diagnostic(
+            store,
+            simulation_result_ref=source,
+            observed_moment_bundle={"balance": sum(incomes) / 2 + initial, "tax_rate": 0.125},
+            parameter_center={parameter: 0.5},
+            response_slots=slots,
+            config=diagnostic_config,
+        )
+        matrix = diagnostic.sensitivity_matrix_ref
+        payload = from_canonical_bytes(store.get_bytes(matrix))
+        env = UncertaintyEnvelope(
+            point_estimate=0.5,
+            confidence_interval=(0.0, 1.0),
+            confidence_level=0.95,
+            distribution_family=DistributionFamily.NORMAL,
+            source=UncertaintySource.TRUST,
+            propagation_method=PropagationMethod.NONE,
+            interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
+            gate_eligible=False,
+            metadata={
+                "param_name": parameter,
+                "unit": payload["response_basis"]["parameter_units"][parameter],
+                "std": 0.25,
+                "law_scope": "declared_synthetic_normal",
+            },
+        )
+        law = persist_uncertainty_envelope(store, env)
+        params = {
+            "propagation_response_basis": {
+                "matrix_ref": matrix.model_dump(mode="json"),
+                "response_slots": slots,
+                "response_units": payload["response_basis"]["moment_units"],
+                "parameter_center": {parameter: 0.5},
+                "diagnostic_config": diagnostic_config.model_dump(mode="json"),
+            },
+            "propagation_response_slots": slots,
+            "propagation_input_envelope_refs": {parameter: law.model_dump(mode="json")},
+            "propagation_config": {"preferred_method": "delta", "delta_covariance_jitter": 0.0},
+        }
+        cases[name] = (path, store, source, parameter, params)
+    return cases
+
+
+def _node(case, *, params=None, source=None):
+    _, store, original, _, expected = case
+    registry = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry, run_id="R_native_response")
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.native_response"))
+    state = ExperimentState(
+        run_id="R_native_response",
+        params=copy.deepcopy(expected if params is None else params),
+        artifacts_index={ARTIFACT_SIMULATION_RESULT_REF: original if source is None else source},
+    )
+    return PropagateUncertaintyNode().execute(ctx, state)
+
+
+def _persisted(case, outcome):
+    store = FileSystemCAS(case[0] / "cas")
+    assert outcome.status == "ok"
+    ref = outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF]
+    simulation = SimulationResult.model_validate(from_canonical_bytes(store.get_bytes(ref)))
+    report = from_canonical_bytes(store.get_bytes(simulation.propagation_report_ref))
+    envelopes = {
+        name: UncertaintyEnvelope.model_validate(from_canonical_bytes(store.get_bytes(env)))
+        for name, env in simulation.uncertainty_envelopes.items()
+    }
+    return store, simulation, report, envelopes
+
+
+@pytest.mark.parametrize(
+    "case_name,baseline,variance",
+    [
+        ("zero", 0.0, Fraction(1)),
+        ("nonzero", 1.0, Fraction(1)),
+        ("scaled", 1998.0, Fraction(1000000)),
+    ],
+)
+def test_native_node_dimensioned_response_and_constant(native_cases, case_name, baseline, variance):
+    case = native_cases[case_name]
+    _, simulation, report, envelopes = _persisted(case, _node(case))
+    assert set(envelopes) == {"balance", "tax_rate"}
+    assert envelopes["balance"].point_estimate == pytest.approx(baseline)
+    row = next(
+        item["diagnostics"] for item in report["diagnostics"] if item["metric_id"] == "balance"
+    )
+    assert row["output_variance"] == pytest.approx(float(variance), rel=2e-5)
+    assert envelopes["tax_rate"].point_estimate == pytest.approx(0.125)
+    assert envelopes["tax_rate"].confidence_interval == (0.125, 0.125)
+    assert envelopes["tax_rate"].metadata["verified_zero_jacobian"] is True
+    assert all(env.gate_eligible is False for env in envelopes.values())
+    assert envelopes["balance"].interval_semantics is IntervalSemantics.HEURISTIC_RANGE
+    assert report["response_basis"]["source_ref"]["artifact_id"] == str(case[2].artifact_id)
+    assert report["full_mapping_established"] is True
+    assert report["gate_eligible"] is False
+    assert "applied_nodes" not in simulation.uncertainty_envelopes
+
+
+def test_native_node_partial_requested_outputs_keep_known(native_cases):
+    case = native_cases["zero"]
+    params = copy.deepcopy(case[4])
+    params["propagation_response_slots"]["unknown"] = "not.registered"
+    store, sim, report, envelopes = _persisted(case, _node(case, params=params))
+    assert envelopes["balance"].metadata["output_std"] == pytest.approx(1.0, rel=2e-5)
+    assert envelopes["tax_rate"].point_estimate == pytest.approx(0.125)
+    assert envelopes["unknown"].distribution_family is DistributionFamily.UNKNOWN
+    assert envelopes["unknown"].metadata["failure"] == "missing_output"
+    assert envelopes["unknown"].confidence_level is None
+    assert report["output_metric_count"] == 3
+    assert report["missing_output_metric_ids"] == ["unknown"]
+    assert report["unmapped_metric_ids"] == ["unknown"]
+    assert report["full_mapping_established"] is False
+    assert report["response_basis"]["requested_slots"]["unknown"] == "not.registered"
+    roles = {item.role: item for item in store.get_manifest(sim.propagation_report_ref).inputs}
+    assert roles["response_matrix"].manifest_profile_sha256 == case[4][
+        "propagation_response_basis"
+    ]["matrix_ref"].get("manifest_profile_sha256")
+    assert set(roles) == {"base_simulation_result", "response_matrix", f"input_envelope.{case[3]}"}
+
+
+def test_native_node_missing_law_keeps_verified_constant(native_cases):
+    case = native_cases["zero"]
+    params = copy.deepcopy(case[4])
+    params["propagation_input_envelope_refs"] = {}
+    _, _, report, envelopes = _persisted(case, _node(case, params=params))
+    assert envelopes["balance"].distribution_family is DistributionFamily.UNKNOWN
+    assert report["full_mapping_established"] is False
+    assert envelopes["tax_rate"].confidence_interval == (0.125, 0.125)
+    assert envelopes["tax_rate"].metadata["verified_zero_jacobian"] is True
+
+
+@pytest.mark.parametrize(
+    "fault", ["target", "order", "units", "center", "config", "matrix_ref", "extra_input", "source"]
+)
+def test_native_node_exact_basis_refuses_counterfeits(native_cases, fault):
+    case = native_cases["zero"]
+    params = copy.deepcopy(case[4])
+    source = None
+    if fault == "target":
+        params["propagation_response_slots"]["balance"] = "global.tax_rate"
+    elif fault == "order":
+        params["propagation_response_basis"]["response_slots"] = dict(
+            reversed(list(params["propagation_response_basis"]["response_slots"].items()))
+        )
+    elif fault == "units":
+        params["propagation_response_basis"]["response_units"]["balance"]["currency"] = "EUR"
+    elif fault == "center":
+        params["propagation_response_basis"]["parameter_center"][case[3]] = 0.25
+    elif fault == "config":
+        params["propagation_response_basis"]["diagnostic_config"]["seed"] = 30
+    elif fault == "matrix_ref":
+        params["propagation_response_basis"]["matrix_ref"]["artifact_id"] = "sha256:" + "f" * 64
+    elif fault == "extra_input":
+        params["propagation_input_envelope_refs"]["invented.axis"] = next(
+            iter(params["propagation_input_envelope_refs"].values())
+        )
+    elif fault == "source":
+        store = case[1]
+        payload = from_canonical_bytes(store.get_bytes(case[2]))
+        payload["notes"] = [*payload["notes"], "different-current-source"]
+        manifest = store.get_manifest(case[2])
+        source = store.put_json(
+            payload,
+            PutOptions(
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+                schema=manifest.artifact_schema,
+                inputs=manifest.inputs,
+            ),
+        )
+    with pytest.raises((ValueError, RuntimeError, OSError, KeyError)):
+        _node(case, params=params, source=source)
+
+
+@pytest.mark.parametrize("fault", ["unit", "axis", "center"])
+def test_native_node_refuses_new_valid_cas_wrong_law(native_cases, fault):
+    case = native_cases["zero"]
+    params = copy.deepcopy(case[4])
+    store = case[1]
+    from polisyos.core.artifacts.manifest import ArtifactRef
+
+    ref = ArtifactRef.model_validate(params["propagation_input_envelope_refs"][case[3]])
+    payload = from_canonical_bytes(store.get_bytes(ref))
+    if fault == "unit":
+        payload["metadata"]["unit"] = {"kind": "money", "currency": "USD"}
+    elif fault == "axis":
+        payload["metadata"]["param_name"] = "invented.axis"
+    else:
+        payload["point_estimate"] = 0.25
+    forged = persist_uncertainty_envelope(store, UncertaintyEnvelope.model_validate(payload))
+    params["propagation_input_envelope_refs"][case[3]] = forged.model_dump(mode="json")
+    with pytest.raises(ValueError, match="parameter/unit/center"):
+        _node(case, params=params)
+
+
+def test_native_node_fresh_child_reads_actual_partial_report(native_cases):
+    case = native_cases["zero"]
+    params = copy.deepcopy(case[4])
+    params["propagation_response_slots"]["unknown"] = "not.registered"
+    outcome = _node(case, params=params)
+    ref = outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF]
+    script = "import json,sys\nfrom polisyos.core.artifacts.store import FileSystemCAS\nfrom polisyos.core.canon import from_canonical_bytes\nfrom polisyos.core.contracts.foundry import SimulationResultRef,SimulationResult\nfrom polisyos.ir.analytics.uncertainty import UncertaintyEnvelope,DistributionFamily\nstore=FileSystemCAS(sys.argv[1]);ref=SimulationResultRef.model_validate(json.loads(sys.argv[2]))\nsim=SimulationResult.model_validate(from_canonical_bytes(store.get_bytes(ref)))\nreport=from_canonical_bytes(store.get_bytes(sim.propagation_report_ref))\nenvs={k:UncertaintyEnvelope.model_validate(from_canonical_bytes(store.get_bytes(v))) for k,v in sim.uncertainty_envelopes.items()}\nassert report['full_mapping_established'] is False\nassert envs['unknown'].distribution_family is DistributionFamily.UNKNOWN\nassert abs(envs['balance'].metadata['output_std']-1)<1e-4\nassert envs['tax_rate'].confidence_interval==(0.125,0.125)\nassert all(not x.gate_eligible for x in envs.values())\nprint(json.dumps({'known':['balance','tax_rate'],'unavailable':['unknown'],'gate_eligible':False}))\n"
+    child = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            script,
+            str(case[0] / "cas"),
+            json.dumps(ref.model_dump(mode="json")),
+        ],
+        capture_output=True,
+        text=True,
+        env=os.environ.copy(),
+        check=False,
+    )
+    assert child.returncode == 0, child.stdout + child.stderr
+    assert json.loads(child.stdout.strip().splitlines()[-1])["gate_eligible"] is False
+
+
+def test_native_node_wrong_selected_manifest_refuses(native_cases):
+    case = native_cases["zero"]
+    params = copy.deepcopy(case[4])
+    params["propagation_response_basis"]["matrix_ref"]["manifest_profile_sha256"] = (
+        "sha256:" + "f" * 64
+    )
+    with pytest.raises((ValueError, RuntimeError, OSError, KeyError)):
+        _node(case, params=params)
+
+
+def test_native_node_refuses_new_cas_forged_jacobian(native_cases):
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.canon import CanonSpec
+
+    case = native_cases["zero"]
+    store = case[1]
+    params = copy.deepcopy(case[4])
+    matrix = ArtifactRef.model_validate(params["propagation_response_basis"]["matrix_ref"])
+    payload = from_canonical_bytes(store.get_bytes(matrix))
+    payload["jacobian"][0][0] = 0.0
+    manifest = store.get_manifest(matrix)
+    forged = store.put_json(
+        payload,
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            inputs=manifest.inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    params["propagation_response_basis"]["matrix_ref"] = forged.model_dump(mode="json")
+    with pytest.raises(ValueError, match="persisted-state finite differences"):
+        _node(case, params=params)
+
+
+def test_native_node_preserves_selected_law_view(native_cases):
+    from polisyos.core.artifacts.manifest import ArtifactRef, input_ref_from_artifact_ref
+
+    case = native_cases["zero"]
+    params = copy.deepcopy(case[4])
+    store = case[1]
+    original = ArtifactRef.model_validate(params["propagation_input_envelope_refs"][case[3]])
+    law = UncertaintyEnvelope.model_validate(from_canonical_bytes(store.get_bytes(original)))
+    selected = persist_uncertainty_envelope(
+        store,
+        law,
+        inputs=[input_ref_from_artifact_ref(case[2], role="declared_synthetic_fixture_source")],
+    )
+    assert selected.artifact_id == original.artifact_id
+    assert selected.manifest_profile_sha256 != original.manifest_profile_sha256
+    params["propagation_input_envelope_refs"][case[3]] = selected.model_dump(mode="json")
+    reopened, sim, report, envelopes = _persisted(case, _node(case, params=params))
+    assert envelopes["balance"].metadata["output_std"] == pytest.approx(1.0, rel=2e-5)
+    for ref in [sim.propagation_report_ref, *sim.uncertainty_envelopes.values()]:
+        inputs = reopened.get_manifest(ref).inputs
+        matches = [item for item in inputs if item.role == f"input_envelope.{case[3]}"]
+        assert matches == [input_ref_from_artifact_ref(selected, role=f"input_envelope.{case[3]}")]

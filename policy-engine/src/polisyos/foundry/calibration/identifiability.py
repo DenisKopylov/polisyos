@@ -1801,4 +1801,11 @@ def _load_execute_response_matrix(
         raise ValueError("response weighting/Fisher matrix differs from persisted states")
     if not np.array_equal(np.asarray(payload["jacobian"], dtype=float), jacobian):
         raise ValueError("response matrix differs from persisted-state finite differences")
-    return payload
+    # Only return center values after the same persisted-state replay and Jacobian
+    # verification. These numbers are recomputed, never trusted matrix claims.
+    return {
+        **payload,
+        "center_response": dict(
+            zip(expected.moment_names, samples[:n].mean(axis=0).tolist(), strict=True)
+        ),
+    }

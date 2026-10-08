@@ -1,0 +1,56 @@
+{
+  "schema": "policyos.e02.l01.minimum-binding.v1",
+  "execution_role": "L01",
+  "source_scope": "../source-delta.json",
+  "private_locators_and_digests": "local ignored only; no disclosure admission",
+  "authentic_execution": "UNRUN; L02",
+  "formal_G_closure": "not_adjudicated",
+  "historical_finding_outcomes": "unchanged; no verdict update",
+  "task": "L6 release/content identity",
+  "original_unit": "A",
+  "criterion_ids": [
+    "B01",
+    "B02",
+    "B03"
+  ],
+  "prior_packet": "../restart-20261008-bindings/packets/A-l6.json@621e9e7aec1af78da72b0c4b47a8cb8b79daa5fd",
+  "minimum_tuple": {
+    "source_alias": "LOCAL_DATA_ROOT_01",
+    "manifest_alias": "L01_ROOT_MANIFEST_20261008",
+    "bundle_manifest_alias": "L01_L6_BUNDLE_MANIFEST_01",
+    "members": [
+      "L01_L6_KNOBS_01",
+      "L01_L6_LEXMAP_01",
+      "L01_L6_OBSERVATION_ROUTES_01"
+    ],
+    "content_record_alias": "L01_L6_RELATED_RECORD_01",
+    "related_refusal_record_alias": "L01_L6_RELATED_RECORD_02",
+    "version_scope": "Observed control JSON content matches the existing September frame under its GY content rule; a source-owned release/replacement version is not established.",
+    "profile": "research root default; no admitted served profile inferred",
+    "purpose": "L6 control-input reconciliation and L02 criterion-specific root tracing",
+    "time": {
+      "manifest_generated_at_owner_supplied": "2026-05-10T00:00:00Z",
+      "frame_declared_at_owner_supplied": "2026-09-08T17:31:57.546038Z",
+      "input_observed_at": "2026-10-08T15:41:45.962265+00:00"
+    },
+    "currentness": "not_established"
+  },
+  "new_deciding_fact": "All three cached JSON objects match both the frame and refusal-suite source hashes in the time-stripped canonical GY domain. No production file reread or raw byte-SHA repeat. Byte-descriptor mismatch is the prior observation and remains separate.",
+  "record_limit": "Frame declares synthetic=false but label_status=not_collected and correctness_bound=null; suite declares synthetic=true. These are declared statuses, not empirical calibration or custody authority.",
+  "custody_trace": "Inventory owner/freshness/lineage/rights/fitness refs for the exact three members normalize to the same nominated bundle manifest. That manifest enumerates files and creation metadata; these refs do not supply an active issuer/verifier or versioned replacement grant. Configured authority producer identifies an owner fixture, not the data custodian.",
+  "root_trace": "Generic production aliases resolve from root manifest; L6 loader uses its fixed code-defined root. No equality of those roots or actual served path is inferred.",
+  "predicates": {
+    "cached content→record GY digest equality and exact source refs": "recomputed",
+    "frame time/status and manifest provenance fields": "owner_supplied",
+    "same release, legitimate replacement, authoritative currentness, actual served root/context": "not_established"
+  },
+  "held_transition": "Authentic positive for an admitted current source; no corruption or unauthorized-update conclusion. Plain content comparison requires no new issuer.",
+  "next_consumer": "L02 root/request→context→default L6 loader and criterion-specific N5/CAS/fresh reader on its selected G composition.",
+  "remaining_question": "One existing source-owned matching release/replacement ref with custodian/currentness; question pending, no manifest rewrite or new authority.",
+  "private_bindings": [
+    "policy-engine/_build/e02-L01-restart-20261008/private/public-alias-index.json",
+    "policy-engine/_build/e02-L01-custody-version-20261008/private/l6-content-domain-private.json"
+  ],
+  "new_deciding_output": "../evidence/L6-content-domain.json",
+  "falsifier": "GY time-stripped content can agree while release descriptors/currentness differ. A matching content hash cannot decide the authoritative version or fix L6 root routing."
+}

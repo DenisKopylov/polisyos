@@ -37,3 +37,26 @@ output metric uncertainty in Foundry simulations.
 - Last updated: 2026-09-28
 - Files: 12 Python files in this package
 - Exports: 12 names declared in `__all__`
+
+
+## Conditional mean-estimator numerical error
+
+The fixed random Monte Carlo path reports `mean_estimator_error` separately from
+`mc_std` (outcome dispersion) and the existing outcome quantiles. A complete finite
+corpus sampled from the implemented product of typed, nondegenerate Normal fits
+can report sample-mean standard error `s / sqrt(n)` with `ddof=1`. The field is a
+conditional numerical estimate: it assumes a fixed deterministic response and
+finite response variance, which this callback API cannot verify. It cannot admit
+an IID population, establish a confidence interval or promote a trust gate.
+
+Legacy interval-inferred laws, posterior/empirical rows (including weighted rows
+labelled `draw` or `iid`), unknown dependency, incomplete execution, fewer than two
+finite outputs, adaptive stopping and pooled QMC rows report an unavailable mean
+error. The G-based QMC producer does not retain independent scramble means; its
+pooled rows cannot supply this IID formula. The existing sampling recipe, seed,
+content hashes and requested/attempted/finite counts accompany the diagnostic.
+Scientific source/law authority and served consumer admission remain separate.
+
+The diagnostic persists in the existing uncertainty envelope metadata and reads
+back through the maintained CAS reader. Existing outcome intervals, composition
+profiles, `mc_std` and their gate semantics are unchanged by this additive field.

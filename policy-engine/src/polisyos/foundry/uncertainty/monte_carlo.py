@@ -273,6 +273,13 @@ def _unknown_joint_results(
                 metadata={
                     "failure": failure,
                     "input_param_names": input_param_names,
+                    "mean_estimator_error": {
+                        "status": "unavailable",
+                        "standard_error": None,
+                        "reason": failure,
+                        "attempted_draw_count": 0,
+                        "gate_eligible": False,
+                    },
                 },
             ),
             input_envelopes_used=input_param_names,
@@ -311,6 +318,71 @@ def _empirical_indices_from_uniform(
     cumulative = np.cumsum(np.asarray(probabilities, dtype=np.float64))
     indices = np.searchsorted(cumulative, clipped, side="right")
     return np.minimum(indices, len(probabilities) - 1)
+
+
+def _mean_estimator_error(
+    values: np.ndarray,
+    *,
+    config: PropagationConfig,
+    input_envelopes: Mapping[str, UncertaintyEnvelope],
+    input_digests: Mapping[str, str | None],
+    requested_count: int,
+    attempted_count: int,
+    incomplete: bool,
+    qmc_method: str | None,
+) -> dict[str, Any]:
+    """Describe conditional numerical error, never admit a scientific IID law."""
+    n = int(values.size)
+    diagnostic: dict[str, Any] = {
+        "status": "unavailable",
+        "standard_error": None,
+        "target": "implemented_push_forward_mean",
+        "estimator": "sample_mean",
+        "sampling_law": "implemented_product_of_typed_normal_fits",
+        "sampling_method": config.mc_sampling_method,
+        "seed": int(config.mc_seed),
+        "requested_draw_count": requested_count,
+        "attempted_draw_count": attempted_count,
+        "finite_output_count": n,
+        "input_envelope_sha256": dict(input_digests),
+        "assumptions": [
+            "fixed_deterministic_response_to_independent_input_draws",
+            "finite_response_variance",
+        ],
+        "assumptions_verified": False,
+        "source_law_authority": "not_established",
+        "gate_eligible": False,
+    }
+    if qmc_method is not None:
+        reason = "qmc_replica_means_not_retained"
+    elif config.adaptive_stopping.enabled:
+        reason = "adaptive_sampling"
+    elif not input_envelopes or any(
+        not isinstance(env.distribution_payload, ParametricFitCarrier)
+        or env.distribution_family is not DistributionFamily.NORMAL
+        or _normal_parametric_fit(env) is None
+        or _normal_parametric_fit(env)[1] < 1e-12
+        for env in input_envelopes.values()
+    ):
+        reason = "unsupported_input_sampling_law"
+    elif n < 2:
+        reason = "insufficient_independent_draws"
+    elif incomplete or n != attempted_count or attempted_count != requested_count:
+        reason = "incomplete_draw_denominator"
+    else:
+        with np.errstate(over="ignore", invalid="ignore"):
+            standard_error = float(np.std(values, dtype=np.float64, ddof=1) / math.sqrt(n))
+        if math.isfinite(standard_error):
+            diagnostic.update(
+                status="conditional_estimate",
+                standard_error=standard_error,
+                reason=None,
+                formula="sample_standard_deviation_ddof1/sqrt(n)",
+            )
+            return diagnostic
+        reason = "non_finite_mean_error"
+    diagnostic["reason"] = reason
+    return diagnostic
 
 
 class MonteCarloPropagator:
@@ -428,7 +500,9 @@ class MonteCarloPropagator:
             requested_n_samples=n_samples,
             qmc_summary=qmc_summary,
             sample_axis=(empirical_spec.sample_axis if empirical_spec is not None else "draw"),
-            joint_sample_id=(empirical_spec.joint_sample_id if empirical_spec is not None else None),
+            joint_sample_id=(
+                empirical_spec.joint_sample_id if empirical_spec is not None else None
+            ),
             parametric_fit_names=_parametric_fit_names(input_envelopes),
         )
 
@@ -834,8 +908,7 @@ class MonteCarloPropagator:
         )
         qmc_has_full_certificate = qmc_method is not None and qmc_scrambled and qmc_replicates >= 2
         input_envelope_digests = {
-            name: _envelope_content_digest(envelope)
-            for name, envelope in input_envelopes.items()
+            name: _envelope_content_digest(envelope) for name, envelope in input_envelopes.items()
         }
         input_identity_complete = all(
             value is not None for value in input_envelope_digests.values()
@@ -875,12 +948,20 @@ class MonteCarloPropagator:
             has_incomplete_draws = (
                 metric_failure_draw_count > 0 or stopped_early or not input_identity_complete
             )
+            mean_error = _mean_estimator_error(
+                np.asarray(valid, dtype=np.float64),
+                config=self._config,
+                input_envelopes=input_envelopes,
+                input_digests=input_envelope_digests,
+                requested_count=requested_n_samples,
+                attempted_count=actual_n_samples,
+                incomplete=has_incomplete_draws,
+                qmc_method=qmc_method,
+            )
             interval_semantics = IntervalSemantics.CONFIDENCE_INTERVAL
             confidence_level: float | None = level
             # Sampling cannot promote a non-gate-eligible input into a gate.
-            gate_eligible = all(
-                envelope.gate_eligible for envelope in input_envelopes.values()
-            )
+            gate_eligible = all(envelope.gate_eligible for envelope in input_envelopes.values())
             exactness = ExactnessKind.APPROXIMATION
             scope = ("expectation", "interval", "quantile", "cdf")
             sample_size_value: int | None = n_valid
@@ -925,6 +1006,7 @@ class MonteCarloPropagator:
                     "mc_n_valid": n_valid,
                     "mc_n_samples": actual_n_samples,
                     "fallback_point_estimate_source": point_source,
+                    "mean_estimator_error": mean_error,
                 }
                 if has_missing_output:
                     failure_metadata["missing_output_count"] = missing_count
@@ -1014,6 +1096,7 @@ class MonteCarloPropagator:
                     "mc_n_failed": actual_n_samples - n_valid,
                     "mc_batch_size": self._config.mc_batch_size,
                     "mc_std": std,
+                    "mean_estimator_error": mean_error,
                     "mc_seed": int(self._config.mc_seed),
                     "mc_sampling_method": self._config.mc_sampling_method,
                 }
@@ -1175,9 +1258,10 @@ class MonteCarloPropagator:
                         "missing_output": has_missing_output,
                         "missing_output_count": missing_count,
                         "draw_outcome_provenance": draw_outcome_provenance,
+                        "mean_estimator_error": mean_error,
                         "executor_failed_batches": failed,
                         "stopped_early": stopped_early,
-                    "output_coverage_complete": not has_incomplete_draws,
+                        "output_coverage_complete": not has_incomplete_draws,
                         "qmc_method": qmc_method,
                         "qmc_scrambled": qmc_scrambled if qmc_method is not None else None,
                         "qmc_replicates": qmc_replicates if qmc_method is not None else None,

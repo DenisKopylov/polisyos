@@ -1,0 +1,13 @@
+id = "2026-10-08-c09-mc-mean-error"
+title = "Separate conditional Monte Carlo mean error from outcome dispersion"
+type = "added"
+component = "foundry"
+owner = "team-foundry"
+summary = "Persist a non-gating mean-estimator numerical-error diagnostic for complete fixed random typed-Normal draws; unsupported laws and incomplete/adaptive/QMC corpora remain unavailable."
+change_class = "internal"
+surface_classification = "internal: uncertainty numerical diagnostics"
+compatibility = "Existing outcome intervals, mc_std, composition profiles, result schema and gates are unchanged. The new conditional diagnostic does not establish scientific IID, finite-variance or authority admission."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/foundry/uncertainty/README.md"]
+runbook_docs = ["src/polisyos/foundry/uncertainty/README.md"]
+evidence = ["tests/unit/foundry/uncertainty/test_mean_estimator_error.py"]

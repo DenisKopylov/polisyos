@@ -6,7 +6,7 @@ owner = "team-policyos-runtime"
 summary = "Add an opt-in local Jacobian profile for registered scalar state slots, with exact source/model/input identities, axes, units, seeds, execute requests and persisted replay states. A fresh internal reader recomputes the basis and rejects changed units, source, order and lineage."
 compatibility = "The response_slots keyword is additive. Historical callback and operational-metrics diagnostic paths remain available. The new basis is internal, numerical, and non-gating; no Node adapter, authority admission, registry, scheduler or lockfile changes."
 surface_classification = "internal: package-specific calibration entrypoint, response basis and recomputing reader; no root-stable export promotion"
-change_class = "python-public-api"
+change_class = "internal"
 migration = "Existing callers need no migration. Opt-in callers use explicit inline moments/center, registered global scalar slots, an explicit bound StateSnapshot 2.2 and a persisted Jacobian-only profile. Nested initial/replay NPZ/schema bytes and exact selected leaf lineage are verified. Canonical cross-owner adapters must adopt the internal reader under their own law/target contract."
 limitations = "No callback authority, empirical calibration, stochastic law inference, vector summaries, profile/bootstrap basis, production data, or composed uncertainty/Scientist consumer admission. Shared public inventory and adapter adoption remain canonical-owner companions."
 evidence = ["tests/unit/foundry/calibration/test_identifiability_response_basis.py", "src/polisyos/foundry/calibration/README.md"]
@@ -15,7 +15,7 @@ generated_client_compatibility = "not_applicable"
 
 [[compatibility_change]]
 id = "execute-state-response-basis"
-change_class = "python-public-api"
+change_class = "internal"
 impact = "additive"
 surface = "internal: package-specific identifiability_diagnostic response_slots keyword"
 owner = "team-policyos-runtime"

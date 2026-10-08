@@ -64,11 +64,12 @@
       ],
       "action": "reuse the internal recomputing reader; preserve unknown partial responses; separately validate law/target/context admission; do not infer authority from diagnostic IDENTIFIED or numerical rank",
       "outside_lease": [
-        "polisyos.scientist.nodes.uncertainty",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
         "polisyos.calibration adapters",
         "polisyos.ir"
       ],
-      "status": "UNRUN composed Node adoption; no production data prerequisite for generic mechanics"
+      "status": "UNRUN composed Node adoption; no production data prerequisite for generic mechanics",
+      "consumer_implementation": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py"
     },
     {
       "owner": "canonical public-surface inventory owner (G routes lease)",
@@ -79,7 +80,7 @@
         "source-qualified release fragment and package README"
       ],
       "action": "canonical owner classifies the existing package-specific export and updates inventory/compatibility only where required; internal reader is not promoted to root-stable; no new facade or registry, historical callers unchanged",
-      "status": "dependency packet, not inventory completeness PASS"
+      "status": "internal classification explicitly reviewed against existing Foundry supported window; no root-stable new export or universal external-caller absence claimed"
     }
   ],
   "limits": [

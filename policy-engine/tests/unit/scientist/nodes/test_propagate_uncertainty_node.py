@@ -611,8 +611,13 @@ def test_native_node_preserves_selected_law_view(native_cases):
         assert matches == [input_ref_from_artifact_ref(selected, role=f"input_envelope.{case[3]}")]
 
 
+@pytest.mark.parametrize(
+    "owned_role", ["metric_envelope.balance", "propagation_config", "propagation_report"]
+)
 @pytest.mark.parametrize("fault", ["missing", "duplicate", "extra", "foreign", "strip_selector"])
-def test_native_output_reader_refuses_incomplete_manifest_roster(native_cases, fault, monkeypatch):
+def test_native_output_reader_refuses_incomplete_manifest_roster(
+    native_cases, fault, owned_role, monkeypatch
+):
     from polisyos.core.artifacts.manifest import InputRef
 
     case = native_cases["zero"]
@@ -622,7 +627,7 @@ def test_native_output_reader_refuses_incomplete_manifest_roster(native_cases, f
     payload = from_canonical_bytes(store.get_bytes(ref))
     manifest = store.get_manifest(ref)
     inputs = list(manifest.inputs)
-    edge = next(item for item in inputs if item.role == "metric_envelope.balance")
+    edge = next(item for item in inputs if item.role == owned_role)
     if fault == "missing":
         inputs.remove(edge)
     elif fault == "duplicate":
@@ -642,6 +647,15 @@ def test_native_output_reader_refuses_incomplete_manifest_roster(native_cases, f
             schema=manifest.artifact_schema,
             inputs=inputs,
         ),
+    )
+    from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
+
+    selected = selected.model_copy(
+        update={
+            "manifest_profile_sha256": ManifestLifecycle.profile_sha256(
+                store.get_manifest(selected)
+            )
+        }
     )
     original_get = store.get_bytes
 
@@ -707,6 +721,15 @@ def test_finite_output_reader_allows_equal_ids_on_distinct_owned_aliases(native_
             inputs=inputs,
         ),
     )
+    from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
+
+    selected = selected.model_copy(
+        update={
+            "manifest_profile_sha256": ManifestLifecycle.profile_sha256(
+                store.get_manifest(selected)
+            )
+        }
+    )
     envelopes = _load_propagated_envelopes(store, selected)
     assert set(envelopes) == {"constant_a", "constant_b"}
     assert all(env.confidence_interval == (0.125, 0.125) for env in envelopes.values())
@@ -726,3 +749,98 @@ def test_native_node_refuses_supplied_law_without_selected_view(native_cases, mo
     )
     with pytest.raises(ValueError, match="exact selected manifest"):
         _node(case, params=params)
+
+
+def test_finite_output_reader_refuses_unselected_top_before_bytes(native_cases, monkeypatch):
+    case = native_cases["zero"]
+    outcome = _node(case)
+    ref = outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF]
+    assert ref.manifest_profile_sha256 is not None
+    incomplete = ref.model_copy(update={"manifest_profile_sha256": None})
+
+    def before_load(arg):
+        raise AssertionError("unselected container refusal must precede any bytes")
+
+    monkeypatch.setattr(case[1], "get_bytes", before_load)
+    with pytest.raises(ValueError, match="SimulationResult requires an exact selected"):
+        _load_propagated_envelopes(case[1], incomplete)
+
+
+@pytest.mark.parametrize(
+    "fault", ["config_selector", "law_selector", "law_duplicate", "law_missing"]
+)
+def test_finite_output_reader_refuses_changed_output_input_views(native_cases, fault, monkeypatch):
+    from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
+    from polisyos.core.artifacts.manifest import ArtifactRef, input_ref_from_artifact_ref
+
+    case = native_cases["zero"]
+    outcome = _node(case)
+    store = case[1]
+    sim_ref = outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF]
+    sim_manifest = store.get_manifest(sim_ref)
+    sim_payload = from_canonical_bytes(store.get_bytes(sim_ref))
+    edge = next(item for item in sim_manifest.inputs if item.role == "metric_envelope.balance")
+    envelope_ref = ArtifactRef(
+        artifact_id=edge.artifact_id,
+        kind="ir.uncertainty_envelope",
+        media_type="application/json",
+        manifest_profile_sha256=edge.manifest_profile_sha256,
+    )
+    envelope_manifest = store.get_manifest(envelope_ref)
+    inputs = list(envelope_manifest.inputs)
+    role = "propagation_config" if fault == "config_selector" else f"input_envelope.{case[3]}"
+    changed = next(item for item in inputs if item.role == role)
+    if fault == "law_duplicate":
+        inputs.append(changed)
+    elif fault == "law_missing":
+        inputs.remove(changed)
+    else:
+        inputs[inputs.index(changed)] = changed.model_copy(update={"manifest_profile_sha256": None})
+    envelope_ref = store.put_json(
+        from_canonical_bytes(store.get_bytes(envelope_ref)),
+        PutOptions(
+            kind=envelope_manifest.kind,
+            media_type=envelope_manifest.media_type,
+            schema=envelope_manifest.artifact_schema,
+            inputs=inputs,
+        ),
+    )
+    envelope_ref = envelope_ref.model_copy(
+        update={
+            "manifest_profile_sha256": ManifestLifecycle.profile_sha256(
+                store.get_manifest(envelope_ref)
+            )
+        }
+    )
+    sim_inputs = [
+        item
+        if item.role != edge.role
+        else input_ref_from_artifact_ref(envelope_ref, role=edge.role)
+        for item in sim_manifest.inputs
+    ]
+    selected = store.put_json(
+        sim_payload,
+        PutOptions(
+            kind=sim_manifest.kind,
+            media_type=sim_manifest.media_type,
+            schema=sim_manifest.artifact_schema,
+            inputs=sim_inputs,
+        ),
+    )
+    selected = selected.model_copy(
+        update={
+            "manifest_profile_sha256": ManifestLifecycle.profile_sha256(
+                store.get_manifest(selected)
+            )
+        }
+    )
+    original_get = store.get_bytes
+
+    def before_load(arg):
+        if getattr(arg, "kind", None) == "ir.uncertainty_envelope":
+            raise AssertionError("view refusal must precede envelope interpretation")
+        return original_get(arg)
+
+    monkeypatch.setattr(store, "get_bytes", before_load)
+    with pytest.raises(ValueError, match="config owned view|input law"):
+        _load_propagated_envelopes(store, selected)

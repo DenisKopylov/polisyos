@@ -172,7 +172,7 @@ The projection is the dimensioned **local** response
 nonzero baseline and does not prove a global affine law. Output intervals are
 non-gating heuristic local-linearization ranges, not estimator confidence
 intervals or scientific/Runtime admission. Exact source/matrix/input-law views
-remain in envelope/report manifests and the updated SimulationResult. The exact propagation-config view binds every output and report. The existing strict three-field IR payload refs are preserved; a finite Node output reader resolves the complete alias-owned SimulationResult manifest edges with mandatory selected profile selectors, refusing missing, duplicate, extra or contradictory edges before loading envelope bytes. It admits no default-latest selector substitution. Bare
+remain in envelope/report manifests and the updated SimulationResult. The exact propagation-config view binds every output and report. The existing strict three-field IR payload refs are preserved; a finite Node output reader requires a selected top SimulationResult and resolves its complete alias-owned envelope/config/report edges with mandatory selected profile selectors. It checks exact config and supplied-law views consistently across output/report manifests, refusing missing, duplicate, extra or contradictory owned edges before loading envelope bytes. It admits no default-latest selector substitution. Bare
 legacy `propagation_sensitivity` keeps its historical relative/additive numerics
 as an explicitly non-gating, consumer-asserted hypothesis; it does not establish
 a registered dimensional map or a full native mapping. Unmapped legacy siblings also use the addressed UNKNOWN/missing-output profile; they are not emitted as zero-variance Normal constants.

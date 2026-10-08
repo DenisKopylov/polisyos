@@ -542,40 +542,96 @@ def _load_propagated_envelopes(
     edges own those views; no default-latest or shape-only fallback is admitted.
     This reader verifies custody/ABI, not scientific or Runtime authority.
     """
+    if simulation_ref.manifest_profile_sha256 is None:
+        raise ValueError("propagated SimulationResult requires an exact selected manifest view")
+    manifest = store.get_manifest(simulation_ref)
     simulation = SimulationResult.model_validate(
         from_canonical_bytes(store.get_bytes(simulation_ref))
     )
     payload_refs = simulation.uncertainty_envelopes or {}
+    expected = {
+        "propagation_config": simulation.propagation_config_ref,
+        "propagation_report": simulation.propagation_report_ref,
+        **{f"metric_envelope.{name}": ref for name, ref in payload_refs.items()},
+    }
+    if any(ref is None for ref in expected.values()):
+        raise ValueError("propagated output has missing config/report owned view")
     edges = [
         item
-        for item in store.get_manifest(simulation_ref).inputs
-        if item.role.startswith("metric_envelope.")
+        for item in manifest.inputs
+        if item.role.startswith(("metric_envelope.", "propagation_config", "propagation_report"))
     ]
-    if len(edges) != len(payload_refs) or {item.role for item in edges} != {
-        f"metric_envelope.{name}" for name in payload_refs
-    }:
-        raise ValueError("propagated envelope manifest roster differs from the payload")
+    if len(edges) != len(expected) or {item.role for item in edges} != set(expected):
+        raise ValueError("propagated output manifest roster differs from the payload")
     refs = {}
-    for name, payload_ref in payload_refs.items():
-        matches = [item for item in edges if item.role == f"metric_envelope.{name}"]
+    manifests = {}
+    for role, payload_ref in expected.items():
+        matches = [item for item in edges if item.role == role]
         if (
             len(matches) != 1
             or str(matches[0].artifact_id) != str(payload_ref.artifact_id)
             or matches[0].manifest_profile_sha256 is None
+            or (
+                role in {"propagation_config", "propagation_report"}
+                and payload_ref.manifest_profile_sha256 != matches[0].manifest_profile_sha256
+            )
         ):
-            raise ValueError("propagated envelope has missing/duplicate/contradictory owned view")
+            raise ValueError("propagated output has missing/duplicate/contradictory owned view")
         ref = ArtifactRef(
             artifact_id=matches[0].artifact_id,
             kind=payload_ref.kind,
             media_type=payload_ref.media_type,
             manifest_profile_sha256=matches[0].manifest_profile_sha256,
         )
-        store.get_manifest(ref)
-        refs[name] = ref
-    # Resolve the complete roster before loading any output envelope.
+        manifests[role] = store.get_manifest(ref)
+        refs[role] = ref
+    config_ref = refs["propagation_config"]
+    config_edge = input_ref_from_artifact_ref(config_ref, role="propagation_config")
+    law_roster = None
+    law_refs = {}
+    for role, owned_manifest in manifests.items():
+        if role == "propagation_config":
+            continue
+        if [item for item in owned_manifest.inputs if item.role == "propagation_config"] != [
+            config_edge
+        ]:
+            raise ValueError("propagated output has contradictory config owned view")
+        laws = [item for item in owned_manifest.inputs if item.role.startswith("input_envelope.")]
+        if len({item.role for item in laws}) != len(laws) or any(
+            item.manifest_profile_sha256 is None for item in laws
+        ):
+            raise ValueError("propagated input laws have missing/duplicate selected owned views")
+        current = {item.role: item for item in laws}
+        if law_roster is not None and current != law_roster:
+            raise ValueError("propagated input law roster differs between owned outputs")
+        law_roster = current
+        for edge in laws:
+            ref = ArtifactRef(
+                artifact_id=edge.artifact_id,
+                kind="ir.uncertainty_envelope",
+                media_type="application/json",
+                manifest_profile_sha256=edge.manifest_profile_sha256,
+            )
+            store.get_manifest(ref)
+            law_refs[edge.role] = ref
+    # Resolve the entire finite selected-view closure before interpreting any
+    # output envelope. This is custody/ABI, not scientific admission.
+    config = PropagationConfig.model_validate(from_canonical_bytes(store.get_bytes(config_ref)))
+    report = from_canonical_bytes(store.get_bytes(refs["propagation_report"]))
+    if (
+        not isinstance(report, dict)
+        or report.get("response_basis", {}).get("propagation_config_ref")
+        != config_ref.model_dump(mode="json")
+        or report["response_basis"].get("propagation_config") != config.model_dump(mode="json")
+    ):
+        raise ValueError("propagated report/config content contradicts its owned views")
+    for ref in law_refs.values():
+        UncertaintyEnvelope.model_validate(from_canonical_bytes(store.get_bytes(ref)))
     return {
-        name: UncertaintyEnvelope.model_validate(from_canonical_bytes(store.get_bytes(ref)))
-        for name, ref in refs.items()
+        name: UncertaintyEnvelope.model_validate(
+            from_canonical_bytes(store.get_bytes(refs[f"metric_envelope.{name}"]))
+        )
+        for name in payload_refs
     }
 
 

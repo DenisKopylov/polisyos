@@ -1,0 +1,14 @@
+id = "2026-10-08-c08-proof-source-binding"
+title = "Bind finite CPDAG proofs to original graph bytes"
+type = "fixed"
+component = "foundry"
+owner = "team-foundry"
+summary = "Persist and freshly resolve the original finite-profile graph and exact causal_graph lineage for common and conditional proof artifacts."
+change_class = "internal"
+surface_classification = "internal: scoped causal proof and native query behavior"
+compatibility = "No DTO, schema, public signature or export change. Historical partial_graph_query proofs missing original graph/ref/lineage now refuse; unrelated legacy proofs retain their existing behavior."
+migration = "Re-persist old finite-profile proofs from their exact original graph before current readback; C11 supplies its own Level2 producer companion."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md"]
+runbook_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md"]
+evidence = ["tests/unit/ir/analytics/test_causal_proof_graph_binding.py", "tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py"]

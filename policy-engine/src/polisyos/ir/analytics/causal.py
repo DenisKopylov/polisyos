@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import logging
+import re
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -32,11 +34,19 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.artifacts import (
+    ArtifactID,
+    ArtifactStore,
+    InputRef,
+    get_json_artifact,
+    normalize_input_refs,
+    put_json_artifact,
+)
+from polisyos.ir.model_layer.canon import CanonSpec, to_canonical_bytes
 from polisyos.ir.registry.refs import (
     BridgePlausibilityReportRef,
     CausalEffectReportRef,
+    CausalGraphModelRef,
     DataReadinessReportRef,
     DPRobustnessCertificateRef,
     EvidenceBundleRef,
@@ -387,6 +397,46 @@ def load_causal_effect_report(
     return CausalEffectReport.model_validate(payload)
 
 
+def _partial_proof_graph_input(store: ArtifactStore, bundle: ProofBundle) -> InputRef | None:
+    """Resolve the original finite-profile graph and compare actual bytes, not ID spelling."""
+    if "partial_graph_query" not in bundle.metadata:
+        return None
+    basis = bundle.metadata["partial_graph_query"]
+    if not isinstance(basis, dict):
+        raise ValueError("Partial graph proof requires a typed graph basis.")
+    expected = basis.get("graph_payload_sha256")
+    if not isinstance(expected, str) or re.fullmatch(r"[0-9a-f]{64}", expected) is None:
+        raise ValueError("Partial graph proof requires the exact graph payload hash.")
+    if bundle.graph_ref is None:
+        raise ValueError("Partial graph proof requires its persisted original graph_ref.")
+    graph_id = ArtifactID(bundle.graph_ref)
+    manifest = store.get_manifest(graph_id)
+    manifest_payload = manifest if isinstance(manifest, dict) else manifest.model_dump(mode="json")
+    if (
+        manifest_payload.get("kind") != "ir.causal_graph_model"
+        or manifest_payload.get("media_type") != "application/json"
+        or manifest_payload.get("artifact_schema")
+        != {"name": "ir.causal_graph_model", "version": "1.0"}
+    ):
+        raise ValueError("Partial graph proof graph_ref must resolve to a typed causal graph.")
+    from polisyos.ir.analytics.causal_graph import load_causal_graph_model
+
+    graph = load_causal_graph_model(store, CausalGraphModelRef(artifact_id=graph_id))
+    actual_bytes_hash = hashlib.sha256(store.get_bytes(graph_id)).hexdigest()
+    typed_payload_hash = hashlib.sha256(
+        to_canonical_bytes(graph.model_dump(mode="json"), spec=CanonSpec(forbid_floats=False))
+    ).hexdigest()
+    if actual_bytes_hash != expected or typed_payload_hash != expected:
+        raise ValueError("Partial graph proof original graph content does not match its basis.")
+    return InputRef(artifact_id=graph_id, role="causal_graph")
+
+
+def _validate_partial_proof_graph_lineage(inputs: list[InputRef], graph_input: InputRef) -> None:
+    graph_inputs = [entry for entry in inputs if entry.role == "causal_graph"]
+    if len(graph_inputs) != 1 or graph_inputs[0] != graph_input:
+        raise ValueError("Partial graph proof requires exactly its original causal_graph input.")
+
+
 def persist_proof_bundle(
     store: ArtifactStore,
     bundle: ProofBundle,
@@ -395,7 +445,15 @@ def persist_proof_bundle(
     schema_name: str = "ir.proof_bundle",
     schema_version: str = "1.0",
 ) -> ProofBundleRef:
-    """Persist a proof bundle and return its typed artifact reference."""
+    """Persist a proof, resolving finite partial-profile graph content before publication."""
+    graph_input = _partial_proof_graph_input(store, bundle)
+    if graph_input is not None:
+        normalized_inputs = normalize_input_refs(inputs)
+        if any(entry.role == "causal_graph" for entry in normalized_inputs):
+            _validate_partial_proof_graph_lineage(normalized_inputs, graph_input)
+        else:
+            normalized_inputs.append(graph_input)
+        inputs = normalized_inputs
     ref = put_json_artifact(
         store,
         bundle.model_dump(mode="json"),
@@ -412,9 +470,15 @@ def load_proof_bundle(
     store: ArtifactStore,
     ref: ProofBundleRef,
 ) -> ProofBundle:
-    """Load proof bundle."""
+    """Load a proof and resolve its finite partial-profile source graph and exact lineage."""
     payload = get_json_artifact(store, ref.artifact_id)
-    return ProofBundle.model_validate(payload)
+    bundle = ProofBundle.model_validate(payload)
+    graph_input = _partial_proof_graph_input(store, bundle)
+    if graph_input is not None:
+        manifest = store.get_manifest(ref.artifact_id)
+        inputs = manifest.get("inputs") if isinstance(manifest, dict) else manifest.inputs
+        _validate_partial_proof_graph_lineage(normalize_input_refs(inputs), graph_input)
+    return bundle
 
 
 class PositivityDiagnosticReport(BaseModel):

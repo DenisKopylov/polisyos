@@ -109,7 +109,9 @@ def _proof_rules(result: object) -> list[str]:
     return [step.rule_name for step in getattr(result, "proof_steps", [])]
 
 
-def _required_distribution_snapshot(result: object) -> list[tuple[tuple[str, ...], tuple[str, ...]]]:
+def _required_distribution_snapshot(
+    result: object,
+) -> list[tuple[tuple[str, ...], tuple[str, ...]]]:
     return [
         (tuple(distribution.variables), tuple(distribution.conditioning))
         for distribution in getattr(result, "required_distributions", [])
@@ -219,8 +221,7 @@ def test_idc_algorithm_ratio_characterization_snapshot() -> None:
         "IDC_DECOMPOSE",
         "IDC_POSITIVITY",
         "G_FORMULA",
-        "ANCESTRAL_COLLAPSE",
-        "RULE1",
+        "G_FORMULA",
     ]
     assert result.trace == [
         "idc_algorithm: Y=['Y'], X=['X'], Z=['Z']",

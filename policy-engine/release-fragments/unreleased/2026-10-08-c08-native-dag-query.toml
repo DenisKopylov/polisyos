@@ -1,0 +1,14 @@
+id = "2026-10-08-c08-native-dag-query"
+title = "Preserve complete observed DAG marginal queries"
+type = "fixed"
+component = "foundry"
+owner = "team-foundry"
+summary = "Reuse existing truncated factorization before ancestral shortcuts for top-level full observed static DAG queries."
+change_class = "internal"
+surface_classification = "internal: scoped causal proof and native query behavior"
+compatibility = "Narrow native result correction retains original treatment/query; latent, partial-observation, PAG and recursive paths are outside this correction. No dependency or public signature change."
+migration = "Recompute affected native complete observed DAG queries on the corrected source; this is candidate mathematics, not scientific authority."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md"]
+runbook_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md"]
+evidence = ["tests/unit/foundry/methods/catalog/causal/test_id_engine_native_query_marginal.py"]

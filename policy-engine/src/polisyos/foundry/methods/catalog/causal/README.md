@@ -282,3 +282,35 @@ transport, policy, counterfactual and oracle-backed queries. The original graph
 is preserved, and graph/source assumptions and protected causal admission remain
 separate from this mathematical query result. Reconciliation still supports
 only its declared static DAG/ADMG profiles.
+
+### Persisted finite CPDAG proof source and native observed DAG queries
+
+For the declared finite CPDAG query profile, `CausalEngine.audit` persists the
+original `CausalGraphModel` for both common-functional and conditional results.
+The existing `ProofBundle.graph_ref` and a single `causal_graph` CAS `InputRef`
+bind that graph to the proof. `persist_proof_bundle` and `load_proof_bundle`
+resolve the real graph manifest and bytes, validate the typed graph, and compare
+both byte and canonical typed-payload hashes with the recorded query basis.
+A fresh reader refuses missing, changed or contradictory source graphs and
+missing, duplicate or incorrect graph lineage. An artifact ID is never treated
+as a content-hash witness.
+
+Historical finite-profile proof artifacts without this binding must be
+re-persisted from their original graph before using the current reader. Their
+historical receipts retain their original source scope. Generic legacy proof
+artifacts without `partial_graph_query` keep their existing behavior; DTO/schema,
+public signatures and export identities are unchanged. This source binding does
+not establish current selected-view admission, source or assumption authority,
+or protected ValuePort/Level2 composition. The C11 Level2 direct producer needs
+the committed dependency packet before its own exact composed replay.
+
+For a top-level query on a complete observed static DAG, native `id_algorithm`
+uses its existing truncated factorization before recursive ancestor restriction.
+This preserves the original treatment/query and sums outcome parents rather than
+returning a conditional distribution for an isolated treatment. The finite
+independent joint-table discriminator gives `P(Y=1|do(X))=7/10` or `3/10` when
+only the prior of Z changes in isolated-X, Z→Y graphs. Latent, partially observed,
+PAG, temporal and general recursive identification claims are outside this
+specific correction. The existing IDC wrapper may emit an unsimplified exact
+truncated-factorization denominator; its internal AST/proof-step snapshot is
+updated and checked against an independent conditional-law table.

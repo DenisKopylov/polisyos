@@ -1,0 +1,22 @@
+{
+  "schema": "policyos.e02.c08.c11-proof-source-requirement.v1",
+  "original_unit_owner": "F",
+  "implementing_partner": "C11",
+  "status": "bridge_missing/UNRUN",
+  "g_feedback": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+  "prior_source": "2dd8339c210caf973586f7ddec69b6b0a48f1df7",
+  "canonical_writer_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level2_causal.py",
+  "existing_producer": "Level2CausalFilter identify_with_fallback -> _persist_proof_bundle -> existing IR persist_proof_bundle",
+  "minimum_change": [
+    "For a proof carrying partial_graph_query, persist the exact graph supplied for that original identification using persist_causal_graph_model.",
+    "Bind its returned artifact_id to existing ProofBundle.graph_ref; refuse any supplied conflicting ref. Do not change legitimate bounded mathematical status or ranking.",
+    "Pass the proof to existing persist_proof_bundle, which resolves actual graph content and supplies the unique causal_graph InputRef."
+  ],
+  "minimum_check": [
+    "Actual Level2 finite CPDAG common and conditional query -> proof CAS -> fresh load_proof_bundle; exact original graph content and lineage resolve.",
+    "Changed, wrong, missing graph or graph lineage refuses with all mathematical markers retained.",
+    "Protected ValuePort/C10 selection and authority admission remain separately scoped; graph/source binding is not scientific authority."
+  ],
+  "scope": "C08 does not edit the C11 source lease. No parallel proof writer, graph authority engine, schema, enum or public facade is added.",
+  "next_result": "C11 append-only implementation and focused source-bound composed receipt on its own exact candidate."
+}

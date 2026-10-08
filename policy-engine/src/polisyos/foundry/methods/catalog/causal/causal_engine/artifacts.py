@@ -95,7 +95,12 @@ from polisyos.ir.analytics.causal import (
     proof_bundle_from_negative_certificate,
     proof_bundle_from_proximal_certificate,
 )
-from polisyos.ir.analytics.causal_graph import CausalGraphModel, EdgeMark, GraphType
+from polisyos.ir.analytics.causal_graph import (
+    CausalGraphModel,
+    EdgeMark,
+    GraphType,
+    persist_causal_graph_model,
+)
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
 from polisyos.ir.analytics.dual_certificate import hydrate_bounds_bundle_with_dual_certificate
 from polisyos.ir.analytics.dynamic_causal_semantics import (
@@ -235,11 +240,11 @@ from polisyos.ir.analytics.recoverability import (
 )
 from polisyos.ir.analytics.survey_quality import load_survey_quality_certificate
 from polisyos.ir.artifacts import ArtifactStore, InputRef, put_json_artifact
-from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.governance.phase1 import (
     build_phase1_gate_summary,
     load_phase1_flagship_dataset_ids,
 )
+from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     DynamicTreatmentRegimeRef,
@@ -2649,6 +2654,14 @@ class CausalEngineArtifactsMixin:
         if not isinstance(proof_payload, ProofBundle):
             proof_payload = ProofBundle.model_validate(proof_payload)
         if self._artifact_store is not None:
+            if "partial_graph_query" in proof_payload.metadata:
+                if graph is None:
+                    raise ValueError("Partial graph audit requires the original graph payload.")
+                original_graph_ref = persist_causal_graph_model(self._artifact_store, graph)
+                graph_id = str(original_graph_ref.artifact_id)
+                if proof_payload.graph_ref is not None and proof_payload.graph_ref != graph_id:
+                    raise ValueError("Partial graph audit supplied graph_ref contradicts its graph.")
+                proof_payload = proof_payload.model_copy(update={"graph_ref": graph_id})
             metadata_update = dict(proof_payload.metadata)
             if "bridge_plausibility_report" not in metadata_update:
                 for outputs in (node_outputs or {}).values():

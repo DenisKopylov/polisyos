@@ -607,6 +607,31 @@ def id_algorithm(
             _trace=_trace,
         )
 
+    # Preserve the requested query before recursive ancestral shortcuts can drop
+    # an isolated treatment or leave an outcome parent conditioned rather than
+    # marginalized. This is only the full observed static DAG profile already
+    # supported by the existing truncated-factorization implementation.
+    if (
+        _depth == 0
+        and graph.graph_type is GraphType.DAG
+        and frozenset(graph.nodes) == V
+        and X <= V
+        and Y <= V
+        and Y
+        and X.isdisjoint(Y)
+        and not extract_bidirected_edges(graph)
+    ):
+        return _dag_g_formula(
+            treatment=X,
+            outcome=Y,
+            graph=graph,
+            available_vars=V,
+            dataset_ref=dataset_ref,
+            domain=domain,
+            depth=_depth,
+            trace=_trace,
+        )
+
     # ------------------------------------------------------------------
     # Step 1: X = ∅  →  P(Y | An(Y)_G \ Y)  (marginalisation)
     # ------------------------------------------------------------------

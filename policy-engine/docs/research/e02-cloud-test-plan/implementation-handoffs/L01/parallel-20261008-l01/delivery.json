@@ -6,12 +6,12 @@
   "product_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
   "source_footprint": "30docs/evidence; zero production/test/config/lock/generated changes",
   "leaf_handoffs": {
-    "A": "../A/parallel-20261008-l01-inputs.json",
-    "B": "../B/parallel-20261008-l01-inputs.json",
-    "C": "../C/parallel-20261008-l01-inputs.json",
-    "D": "../D/parallel-20261008-l01-inputs.json",
-    "E": "../E/parallel-20261008-l01-inputs.json",
-    "F": "../F/parallel-20261008-l01-inputs.json"
+    "A": "../../A/parallel-20261008-l01-inputs.json",
+    "B": "../../B/parallel-20261008-l01-inputs.json",
+    "C": "../../C/parallel-20261008-l01-inputs.json",
+    "D": "../../D/parallel-20261008-l01-inputs.json",
+    "E": "../../E/parallel-20261008-l01-inputs.json",
+    "F": "../../F/parallel-20261008-l01-inputs.json"
   },
   "independent_reviews": {
     "bounded_runtime": "evidence/independent-runtime-review.md",

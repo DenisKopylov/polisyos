@@ -1,0 +1,72 @@
+{
+  "workspace_dirty_before": [],
+  "workspace_dirty_after": [],
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "e02_origin",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "-q",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-composed-affected-bcb122/junit.xml",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-composed-affected-bcb122/pytest-basetemp",
+    "tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py",
+    "tests/integration/core_runtime/test_e02_monetary_budget_hold.py",
+    "tests/unit/runtime/http/services/test_e02_monetary_usage_projection.py",
+    "tests/unit/core/test_llm_core.py",
+    "tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+    "tests/unit/scientist/orchestration/llm/test_factory.py",
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+    "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+    "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+    "tests/unit/scientist/orchestration/engine/test_budget.py",
+    "tests/unit/remediation/test_llm_01.py",
+    "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py::test_traced_client_sanitizes_requests_and_restores_responses"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+  "candidate_tree": "90d5cd02c18c4ed316c69eddead4515137ffd9d0",
+  "exit_code": 0,
+  "wall_s": 39.55480929202167,
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-composed-affected-bcb122:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "JAX_PLATFORMS": "cpu"
+  },
+  "probe_environment": {},
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+    "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 432,
+      "sha256": "de290611481fca57b8fe6a1ecb453c55c250220b325d386fcd3b550fd51b727e"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "e02_origin.py": {
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    "junit.xml": {
+      "bytes": 58150,
+      "sha256": "b6edeeab9e2b31c43b86e6c289d8652b21c88a68dfc38a466485223a002b6708"
+    },
+    "origins.json": {
+      "bytes": 1095,
+      "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+    }
+  }
+}

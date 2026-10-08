@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="3" time="0.188" timestamp="2026-10-08T02:35:14.571400+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.integration.core_runtime.test_e02_monetary_budget_hold" name="test_unknown_successful_http_completion_keeps_budget_reservation" time="0.025"><failure message="AssertionError: assert Decimal('0') &gt; 0&#10; +  where Decimal('0') = &lt;built-in method get of dict object at 0x109f68600&gt;('run', Decimal('0'))&#10; +    where &lt;built-in method get of dict object at 0x109f68600&gt; = {'run': Decimal('0')}.get&#10; +      where {'run': Decimal('0')} = BudgetState(limits={'run': BudgetLimit(key='run', max_usd=Decimal('1.00'), soft_limit_usd=None)}, spent={}, provider_spent={}, reserved={'run': Decimal('0')}).reserved&#10; +    and   Decimal('0') = Decimal(0)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x109743100&gt;
+
+    @pytest.mark.asyncio
+    async def test_unknown_successful_http_completion_keeps_budget_reservation(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """An obtained reply without cost or usage remains unknown and holds budget."""
+        monkeypatch.delenv("POLISYOS_LLM_SIMULATION_MODE", raising=False)
+        async with _gateway_http([_completion_payload(usage=False)]) as (base_url, requests):
+            client = _default_factory_client(base_url)
+            gateway = client.unwrap()
+            state = _budget_state()
+            enforcer = LLMBudgetEnforcer(
+                client=client,
+                budget_state=state,
+                budget_keys=["run"],
+                model_name=MODEL_NAME,
+                run_id="e02-unknown-http-completion",
+            )
+            accounting_error: LLMAccountingError | None = None
+            response: Any = None
+            try:
+                try:
+                    response = await enforcer.generate(
+                        user="actual loopback request",
+                        max_tokens=2,
+                        _prompt_tokens_estimate=1,
+                        _run_id="e02-unknown-http-completion",
+                    )
+                except LLMAccountingError as exc:
+                    accounting_error = exc
+                    response = exc.response
+    
+                assert len(requests) == 1
+&gt;               assert state.reserved.get("run", Decimal(0)) &gt; 0
+E               AssertionError: assert Decimal('0') &gt; 0
+E                +  where Decimal('0') = &lt;built-in method get of dict object at 0x109f68600&gt;('run', Decimal('0'))
+E                +    where &lt;built-in method get of dict object at 0x109f68600&gt; = {'run': Decimal('0')}.get
+E                +      where {'run': Decimal('0')} = BudgetState(limits={'run': BudgetLimit(key='run', max_usd=Decimal('1.00'), soft_limit_usd=None)}, spent={}, provider_spent={}, reserved={'run': Decimal('0')}).reserved
+E                +    and   Decimal('0') = Decimal(0)
+
+tests/integration/core_runtime/test_e02_monetary_budget_hold.py:140: AssertionError</failure></testcase><testcase classname="tests.integration.core_runtime.test_e02_monetary_budget_hold" name="test_known_http_cost_controls_commit_and_release_reservation[reported-cost]" time="0.003" /><testcase classname="tests.integration.core_runtime.test_e02_monetary_budget_hold" name="test_known_http_cost_controls_commit_and_release_reservation[reported-zero]" time="0.002" /></testsuite></testsuites>

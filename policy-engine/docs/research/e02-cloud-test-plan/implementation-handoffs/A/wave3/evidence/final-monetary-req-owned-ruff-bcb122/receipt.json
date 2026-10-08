@@ -1,0 +1,48 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/core/llm/response.py",
+    "src/polisyos/core/llm/settlement.py",
+    "src/polisyos/core/llm/traced_client.py",
+    "src/polisyos/scientist/orchestration/llm/gateway_client.py",
+    "src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+    "src/polisyos/scientist/orchestration/llm/factory.py",
+    "src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+    "src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+    "src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+    "tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py",
+    "tests/integration/core_runtime/test_e02_monetary_budget_hold.py",
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+    "tests/unit/remediation/test_llm_01.py",
+    "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+    "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "tests/unit/remediation/test_req_01_compiler_caller_census.py",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+  "candidate_tree": "90d5cd02c18c4ed316c69eddead4515137ffd9d0",
+  "workspace_dirty_before": [],
+  "workspace_dirty_after": [],
+  "exit_code": 0,
+  "wall_s": 0.21954562503378838,
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_command.py",
+    "sha256": "ef58301dceda92cf4a17214fd281cfcb3f6f50ba98480533bc0b191878a43798"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

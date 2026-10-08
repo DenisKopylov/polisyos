@@ -1,0 +1,48 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "B11-recorded-exhaustion",
+  "closure_ids": [],
+  "bundle_ids": ["CYC-04"],
+  "slice_base_sha": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+  "implementation_commits": ["4f53480daf94cb9a64ad0a3940fee50bd4a88469"],
+  "candidate_tree_sha": "e0b4384ea159275fc56e9aec351ea18179f1cea9",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=_build/e02-A-continuation-20261007/B11-recorded-exhaustion-frozen-4f534/junit.xml --basetemp=_build/e02-A-continuation-20261007/B11-recorded-exhaustion-frozen-4f534/pytest-basetemp tests/integration/core_runtime/test_e02_informative_voi_execution.py",
+      "target_sha": "4f53480daf94cb9a64ad0a3940fee50bd4a88469; tree=e0b4384ea159275fc56e9aec351ea18179f1cea9; test_blob=cfda87b22cb6bca6f473460658c236e4338a49d5",
+      "environment": "cwd=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine; PYTHONPATH=_build/e02-A-continuation-20261007/B11-recorded-exhaustion-frozen-4f534:src:.; OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 JAX_PLATFORMS=cpu",
+      "input_closure": "slice_base_tree=90d5cd02c18c4ed316c69eddead4515137ffd9d0; B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a#B11:L325-L336/span-sha256:37f6f0543710b466822aa39ffeb7d3ce5b9a4b57bed99dc429087a3a61ff268c; test_e02_informative_voi_execution.py@cfda87b22cb6bca6f473460658c236e4338a49d5; GenerationCycleController source@18f6cbc8cf3fe2e44ba6d0ed944bf6420d970d0d; SimpleVOIScheduler@c14f3425a40d71ae28278157b9e2293f657c6cb1; BudgetState@1a2fbb73bb87d60674d168791a214f882e79347f; BudgetMiddleware@596731c164fc1ad264b4f157f74b58cf73f7c513; candidate owner fixture helper test@c72bf052eab579caef765821f592c0207b8ed63f; independent n5_intake review: GO on exact test blob cfda87b22cb6bca6f473460658c236e4338a49d5. The unrelated existing dirty test path and ignored wave3 docs were unchanged during the run per receipt.",
+      "outcome": "PASS",
+      "output": "1 test passed in 18.06s. Local deciding outputs are under policy-engine/_build/e02-A-continuation-20261007/B11-recorded-exhaustion-frozen-4f534/. Root's byte-exact wave3 evidence-copy destination is implementation-handoffs/A/continuation-20261007-wave3/evidence/B11-recorded-exhaustion-frozen-4f534/: receipt.json@sha256:b12c4c565425eb7ff232e1c40d77557b13128cfdfeb44dcfa8d6a5e7baab6340; stdout.txt@sha256:a68a2f08179bad497e443b7959f35deacbfdcb86437037a813f0e9f91e1d54df; stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855; junit.xml@sha256:0082e7d8788211b3fcf935c22aeac783041ae5a344b59a2cc1eef8a60415d4fa; e02_origin.py@sha256:b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951; origins.json@sha256:fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d."
+    }
+  ],
+  "property": {
+    "statement": "For the bounded default CYC-04 path, a low-value-proxy candidate with positive fixture information signal advances to real N5/N8 while the test cap fits; after BudgetMiddleware records the full bounded run allowance as spent, that same kind of eligible candidate is stopped before N5 by the default controller. The information estimate remains a heuristic, not measured monetary VOI or a probability.",
+    "runtime_path": [
+      "Default GenerationCycleController + SimpleVOIScheduler receives the canonical BudgetState snapshot from BudgetMiddleware.",
+      "An eligible candidate with proxy_score=0.0 and fixture voi_estimate=0.4 advances under cap 1.0 with configured stage estimate 0.5 and reaches real JointSimulationPort/N5 plus default N8; existing positive/R1 evidence remains informative-voi-execution.json@sha256:8c0f04a5d35845d53043518c57b77a2cf1cf0a5c7fecb44a13121df965a0f73f.",
+      "For the negative branch, BudgetMiddleware starts with cap 1.0 and record_spend_safe('run', 1.0) yields spent 1.0/remaining 0; the same real controller preserves eligible N5 preflight but returns budget_exhausted_for_next_level and makes no additional N5 call.",
+      "Recorded fixture amount is scheduler-budget state only; this is not provider meter, billing, or settlement evidence."
+    ],
+    "proxy_divergence": "A zero-cap test can block before the controller ever observes prior spend. This joined case consumes the cap through the existing BudgetMiddleware API, passes its resulting BudgetState to the controller, and checks the execution effect (no N5 call), while retaining the separate positive real-N5 witness.",
+    "negative_controls": [
+      "After fixture spend exhausts the positive cap, hard N5 applicability remains eligible, but scheduler action/reason are defer/budget_exhausted_for_next_level, simulation is blocked with no result ref, and the observed N5 call list remains unchanged.",
+      "The paired existing positive case requires advance_by_information_value and a real N5 result when the same estimated stage cost fits; the R1 removal probe fails that unchanged assertion and observes zero N5 calls."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "B11 remains limited pending root adjudication: the bounded default scheduler path now demonstrates both low-proxy informative execution and stop after recorded test-fixture spend; the candidate-inspection surface still has no positive caveat projection established, and this packet does not change historical partial status or finding closure.",
+  "limitations_and_next_owner": [
+    "Root owns formal B11 finding adjudication; closure_ids remain empty and historical source status remains unchanged.",
+    "The $1.00 debit is a bounded test fixture recorded by the existing middleware, not provider-reported usage, external billing, or a settlement ledger; B66 remains separate and is not a B11 prerequisite.",
+    "The positive information value 0.4 is fixture-supplied and uncalibrated. The artifact-content route's existing 409 refusal does not establish a positive candidate-inspection view or audit/publication wording; keep that surface limitation explicit.",
+    "Scope is the default SimpleVOIScheduler/GenerationCycleController and bounded NCM path; no claim is made for every planner, scheduler, full scientific workflow, N9 currentness, or publication authority."
+  ]
+}

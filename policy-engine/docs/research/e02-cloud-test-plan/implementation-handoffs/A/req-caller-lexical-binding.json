@@ -1,0 +1,1073 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "REQ-01 tracked lexical compiler caller boundary",
+  "draft_state": "Ignored scratch handoff draft. bcb122 is the pinned census/architecture evidence snapshot, not asserted as the current branch tip or final carrier. The root owns one-time canonical raw-output copy and review-reference attachment; no tracked document is edited by this draft.",
+  "closure_ids": [],
+  "bundle_ids": [
+    "REQ-01"
+  ],
+  "finding_ids": [
+    "LA045"
+  ],
+  "finding_outcome": "limited",
+  "slice_base_sha": "ab93e222381372c54056b9f05e6c8cd7aedf2f2c",
+  "slice_base_tree_sha": "ee92f0719be5b02e212947dcd35f90a1276e875f",
+  "implementation_commits": [
+    "544aecec29fc6adf8a93505433de7877cd4f4615",
+    "10d7d8415a7f54077378b81ab09bb7437d184aa8"
+  ],
+  "implementation_commit_records": [
+    {
+      "sha": "544aecec29fc6adf8a93505433de7877cd4f4615",
+      "parents": [
+        "f081dbee4305fe864f6220c34887e871e9f0d28f"
+      ],
+      "tree": "317d177686e401a1e791ce9f1b9f973dd6e3889b",
+      "subject": "fix(e02): reconcile global and nonlocal compiler census bindings",
+      "role": "scanner lexical global/nonlocal binding-event routing and maintained behavioral controls",
+      "owned_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+        "policy-engine/tests/unit/remediation/test_req_01_compiler_caller_census.py"
+      ],
+      "scanner_git_blob_sha1": "d3b7791713f7a66bddfe949c4bba1158359315e2",
+      "scanner_sha256": "955929ee07ae6efc1dcfdea820b067b37ea8ef712d614b5d3276c3f94fed339a",
+      "test_git_blob_sha1": "04340a99388ac2a2b4a4e19caf8c0f1634cb6c6e",
+      "test_sha256": "98457faba49d9eb1454047937caaf4f17f4730a0f9095a112d4108e5947b2692"
+    },
+    {
+      "sha": "10d7d8415a7f54077378b81ab09bb7437d184aa8",
+      "parents": [
+        "7de75cca5d9fb4378906a603be2b01d17ecb7698"
+      ],
+      "tree": "0f1beaa5dad676d7e1e2dfdf5870982a0a1191cd",
+      "subject": "test(e02): falsify compiler census binding routing with markers retained",
+      "role": "test-only R1 mutation control: remove exactly the two routing loop iterators in an in-memory clone",
+      "owned_paths": [
+        "policy-engine/tests/unit/remediation/test_req_01_compiler_caller_census.py"
+      ],
+      "test_git_blob_sha1": "a6a1a4c7d9e30c95c767e310a0e60518f87bb566",
+      "test_sha256": "a6d5b324153aea73684b205dbb0e069fc69d2728f2a048277032dca21bcb14f2"
+    }
+  ],
+  "candidate_sha": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+  "candidate_tree_sha": "90d5cd02c18c4ed316c69eddead4515137ffd9d0",
+  "source_test_revision": {
+    "source_commit": "544aecec29fc6adf8a93505433de7877cd4f4615",
+    "source_test_tree": "317d177686e401a1e791ce9f1b9f973dd6e3889b",
+    "r1_test_commit": "10d7d8415a7f54077378b81ab09bb7437d184aa8",
+    "r1_test_tree": "0f1beaa5dad676d7e1e2dfdf5870982a0a1191cd",
+    "final_census_candidate": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+    "final_census_tree": "90d5cd02c18c4ed316c69eddead4515137ffd9d0",
+    "source_test_blobs_are_unchanged_at_final_candidate": true
+  },
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+    "policy-engine/tests/unit/remediation/test_req_01_compiler_caller_census.py"
+  ],
+  "full_path_footprint": {
+    "range": {
+      "base_sha": "ab93e222381372c54056b9f05e6c8cd7aedf2f2c",
+      "base_tree_sha": "ee92f0719be5b02e212947dcd35f90a1276e875f",
+      "candidate_sha": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+      "candidate_tree_sha": "90d5cd02c18c4ed316c69eddead4515137ffd9d0"
+    },
+    "derivation": "git diff --name-status ab93e222381372c54056b9f05e6c8cd7aedf2f2c bcb12224a9d24c02dc86c265be56b2fbc3971216; each path's base/candidate Git blob OID was read directly",
+    "total_changed_paths": 24,
+    "owned_mechanism_paths": 2,
+    "disjoint_assembly_paths": 22,
+    "arithmetic": "2 REQ-01-owned + 22 disjoint assembly paths = 24 complete base-to-candidate paths",
+    "paths": [
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+        "base_blob_sha1": "6e1691922fc512180d933f4fd8e6af4c94c41810",
+        "candidate_blob_sha1": "d3b7791713f7a66bddfe949c4bba1158359315e2",
+        "classification": "REQ-01-owned"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-a-completion-budget-retention.toml",
+        "base_blob_sha1": null,
+        "candidate_blob_sha1": "8314bceabcf33d7f18eddb0608b96f49b366b9c1",
+        "classification": "disjoint-assembly-dependency"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-a-monetary-observer-composition.toml",
+        "base_blob_sha1": null,
+        "candidate_blob_sha1": "51eb6feab1d5ca17bc7068e78278b0270e99a9e8",
+        "classification": "disjoint-assembly-dependency"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/src/polisyos/core/llm/README.md",
+        "base_blob_sha1": "a09e7eac747ef35749cd6ed3903c0cc257878ff9",
+        "candidate_blob_sha1": "d1e89b946620a522eb8c2cce104e7826905d3daa",
+        "classification": "disjoint-assembly-dependency"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/src/polisyos/core/llm/response.py",
+        "base_blob_sha1": "7f994fec0b2b9a8da55a10d9a101f5ebe2ca2144",
+        "candidate_blob_sha1": "33c7b310aef734b31c2ed2e61fe28d6525524b97",
+        "classification": "disjoint-assembly-dependency"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+        "base_blob_sha1": null,
+        "candidate_blob_sha1": "a21bca5b1280069d6852bad0b5437d9783925886",
+        "classification": "disjoint-assembly-dependency"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+        "base_blob_sha1": "8eb5b1d38f2b40c2a7b59054acacafd7c0b4b1d4",
+        "candidate_blob_sha1": "df786193b548215d84b4e7b1707c73272416d618",
+        "classification": "disjoint-assembly-dependency"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+        "base_blob_sha1": "badce72eed11befb1dfb083b233cb44452007bd7",
+        "candidate_blob_sha1": "da2cd6e7a6620d962507428c85d02fde2ea6acc7",
+        "classification": "disjoint-assembly-dependency"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "base_blob_sha1": "4a223413b8f81a07db4e11fd2aa310a615123b62",
+        "candidate_blob_sha1": "edc20aeef614fa3486868b04fc4be03ace992893",
+        "classification": "disjoint-assembly-dependency"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "base_blob_sha1": "9ec1ef8622779386ff7740df58781caa9643c9d4",
+        "candidate_blob_sha1": "596731c164fc1ad264b4f157f74b58cf73f7c513",
+        "classification": "disjoint-assembly-dependency"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+        "base_blob_sha1": "5baa6f28710f5c48f2ee904b8a547c2392b31dc4",
+        "candidate_blob_sha1": "adc3983b39788791803c0433d321dc9bf226a00f",
+        "classification": "disjoint-assembly-dependency"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "base_blob_sha1": "a9495ddede391755196189929ee02c10f75364cd",
+        "candidate_blob_sha1": "70b6067337a239d98ae468f2d8cb229a1d7bd336",
+        "classification": "disjoint-assembly-dependency"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+        "base_blob_sha1": "1e2be71d382f95f660b0b40a82006709308c7c65",
+        "candidate_blob_sha1": "311b66e54dea6c49c4a295121f3ece57aa4a30b9",
+        "classification": "disjoint-assembly-dependency"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "base_blob_sha1": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4",
+        "candidate_blob_sha1": "0dc65ee8cbe6477c50deb965d4d7cc12b3f6c5a2",
+        "classification": "disjoint-assembly-dependency"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "base_blob_sha1": "e339ef2fbf1a3e8718e6154d57d782a8298bed63",
+        "candidate_blob_sha1": "e4aece7bace8cc969a0c896727c09cd80cef25bf",
+        "classification": "disjoint-assembly-dependency"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tests/integration/core_runtime/test_e02_monetary_budget_hold.py",
+        "base_blob_sha1": null,
+        "candidate_blob_sha1": "46ce09a5e93fe8af94cd0bc2c75e8f99224da7cf",
+        "classification": "disjoint-assembly-dependency"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py",
+        "base_blob_sha1": null,
+        "candidate_blob_sha1": "17bde17d449101fffcf86c27712adf3fa5512fcd",
+        "classification": "disjoint-assembly-dependency"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+        "base_blob_sha1": "9b1793144e765179a38a8883a1916d567409c2c0",
+        "candidate_blob_sha1": "2c9e1ab1ed6b897cc2d20ad6c4f0f517359a6b50",
+        "classification": "disjoint-assembly-dependency"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tests/unit/remediation/test_req_01_compiler_caller_census.py",
+        "base_blob_sha1": null,
+        "candidate_blob_sha1": "a6a1a4c7d9e30c95c767e310a0e60518f87bb566",
+        "classification": "REQ-01-owned"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "base_blob_sha1": null,
+        "candidate_blob_sha1": "a8a6ad561cc598fb72c7fd6c0e2170b0d11dd36f",
+        "classification": "disjoint-assembly-dependency"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "base_blob_sha1": "89dde1da1d91b41c18e85fec0bd4ea6102f6f588",
+        "candidate_blob_sha1": "ea6399f0c8de7920d18bfdfbf5882e3cdd795688",
+        "classification": "disjoint-assembly-dependency"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "base_blob_sha1": "c5d808a9e005910f8bff973b01ae9126b9752f1e",
+        "candidate_blob_sha1": "0e99193a709e6db5c663eb2ac69f2f1c4a3169ae",
+        "classification": "disjoint-assembly-dependency"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "base_blob_sha1": "714eb91c2a371060e96ce2cd67a8f5cc0a113df5",
+        "candidate_blob_sha1": "4ac872ce11f1232eed5c35f66b073a76fb2d9125",
+        "classification": "disjoint-assembly-dependency"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+        "base_blob_sha1": null,
+        "candidate_blob_sha1": "f1b5da1a9d4ca25720379dd6202318a9c26b6f35",
+        "classification": "disjoint-assembly-dependency"
+      }
+    ]
+  },
+  "assembly_dependencies": [
+    {
+      "sha": "f081dbee4305fe864f6220c34887e871e9f0d28f",
+      "parent_shas": [
+        "ab93e222381372c54056b9f05e6c8cd7aedf2f2c"
+      ],
+      "subject": "test(runtime): exercise actual monetary producer to budget readback seam",
+      "classification": "disjoint sibling/assembly commit; its paths are listed in full_path_footprint"
+    },
+    {
+      "sha": "eee7c8f2b78fd8293fc9f1ee415fd16dec670f15",
+      "parent_shas": [
+        "544aecec29fc6adf8a93505433de7877cd4f4615"
+      ],
+      "subject": "feat(runtime): compose canonical B monetary observer producers",
+      "classification": "disjoint sibling/assembly commit; its paths are listed in full_path_footprint"
+    },
+    {
+      "sha": "83f0a0eb9f16eac2bc6fd79ced4587b2d4d48561",
+      "parent_shas": [
+        "eee7c8f2b78fd8293fc9f1ee415fd16dec670f15"
+      ],
+      "subject": "test(runtime): keep guarded cost readback within fresh app lifetime",
+      "classification": "disjoint sibling/assembly commit; its paths are listed in full_path_footprint"
+    },
+    {
+      "sha": "7de75cca5d9fb4378906a603be2b01d17ecb7698",
+      "parent_shas": [
+        "83f0a0eb9f16eac2bc6fd79ced4587b2d4d48561"
+      ],
+      "subject": "test(runtime): carry canonical B cache provenance companions",
+      "classification": "disjoint sibling/assembly commit; its paths are listed in full_path_footprint"
+    },
+    {
+      "sha": "6543d5a7835fa35aa8c96401ac954b24cc495cdc",
+      "parent_shas": [
+        "10d7d8415a7f54077378b81ab09bb7437d184aa8"
+      ],
+      "subject": "test(runtime): preserve unknown completion before budget reservation release",
+      "classification": "disjoint sibling/assembly commit; its paths are listed in full_path_footprint"
+    },
+    {
+      "sha": "95b7abf49915b0aa05c407e86c864308e910eab6",
+      "parent_shas": [
+        "6543d5a7835fa35aa8c96401ac954b24cc495cdc"
+      ],
+      "subject": "feat(runtime): compose canonical completion budget retention owners",
+      "classification": "disjoint sibling/assembly commit; its paths are listed in full_path_footprint"
+    },
+    {
+      "sha": "c8816ba08da65266eebae3630683efeebe8568c4",
+      "parent_shas": [
+        "95b7abf49915b0aa05c407e86c864308e910eab6"
+      ],
+      "subject": "test(e02-A): exercise unknown-cost durable owner retention",
+      "classification": "disjoint sibling/assembly commit; its paths are listed in full_path_footprint"
+    },
+    {
+      "sha": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+      "parent_shas": [
+        "c8816ba08da65266eebae3630683efeebe8568c4"
+      ],
+      "subject": "test(e02-A): compose canonical B retention companions",
+      "classification": "disjoint sibling/assembly commit; its paths are listed in full_path_footprint"
+    }
+  ],
+  "baseline_cells": [],
+  "source_criteria": [
+    {
+      "finding_id": "LA045",
+      "bundle_id": "REQ-01",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "source_git_blob_sha1": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+      "source_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+      "source_file_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+      "criterion_spans": [
+        {
+          "lines": [
+            2999,
+            3033
+          ],
+          "bytes": 6463,
+          "sha256": "56970bcb95cda770929f9d2189bd528c98722300f9e5b80b76c80dcdb115da28",
+          "role": "initial six family-extractor functions plus _DATA_FAMILY_ORDER, and LA-045 acceptance"
+        },
+        {
+          "lines": [
+            3434,
+            3447
+          ],
+          "bytes": 2250,
+          "sha256": "3db79240854b1c2940de8a926ce8e21a7818fcf42f23da35c13059112d02eaf4",
+          "role": "AM03 additional _digest private definition under LA-045; total seven functions plus one constant"
+        },
+        {
+          "lines": [
+            3477,
+            3495
+          ],
+          "bytes": 3347,
+          "sha256": "27dd72b0df747eaff64da2434bf0f8d65165c108f1df65b8ccccf03fab738144",
+          "role": "LA-045 acceptance across both definition subgroups"
+        }
+      ],
+      "amendment_index": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/amendment_index.json",
+        "git_blob_sha1": "2ac4525aaf4ae940cc110f44d4e217b2391e0eed",
+        "amendment_record": {
+          "id": "LA-045",
+          "heading": "## LA-045 — дополнительное private-определение, без новой карточки",
+          "start_line": 3434,
+          "amendment_id": "AM03",
+          "end_line": 3447,
+          "sha256": "3db79240854b1c2940de8a926ce8e21a7818fcf42f23da35c13059112d02eaf4"
+        }
+      },
+      "exact_private_definitions": {
+        "function_count": 7,
+        "constant_count": 1,
+        "function_names": [
+          "_data_families_from_obligation_graph",
+          "_data_family_token_from_frontier_item",
+          "_nested",
+          "_normalised_family",
+          "_slug_family",
+          "_ordered_data_families",
+          "_digest"
+        ],
+        "constant_names": [
+          "_DATA_FAMILY_ORDER"
+        ],
+        "interpretation": "The original six-function extractor cluster plus _DATA_FAMILY_ORDER and AM03's additional _digest definition are all within LA-045."
+      },
+      "preserve": [
+        "DataRequirementCompiler and the active construct extractor",
+        "injected resolver, governed mappings, reports, public wrappers, and output order",
+        "the heuristic fallback and its existing feature/lifecycle behavior"
+      ],
+      "acceptance_boundary": "Complete tracked and external caller boundary plus compiler, scenario, runtime/fabric, default/fallback, public-import, and packaging checks; this handoff establishes only the bounded tracked-Python census and scanner alias controls, not full acceptance."
+    }
+  ],
+  "prior_receipt_scope_correction": {
+    "prior_handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/LA045-caller-census.json",
+    "preserve_prior_rows_as_historical": true,
+    "correction_to_append": "The source scope in this earlier handoff incorrectly excluded _digest under AM03. The original LA-045 AM03 amendment (LA_r09_original.md lines 3434-3447; amendment_index.json record AM03) adds _digest to LA-045. The complete original set is seven private functions including _digest plus _DATA_FAMILY_ORDER, one constant. The six-function cluster plus constant remains a subgroup, not the full LA-045 symbol set.",
+    "dependent_old_scope_bindings_to_mark_superseded": [
+      "source_criteria.separate_name_outside_la045",
+      "property.nonclaims reference to AM03 as outside the finding",
+      "pattern_pass P36 statement that _digest is outside LA-045"
+    ],
+    "publication_instruction": "Append this as a dated scope erratum to the prior receipt; do not rewrite the historical 1a52 census/check outcomes or delete the original observed text."
+  },
+  "retirement_ancestry": {
+    "cleanup_commit": "fce9957e07987525a3d0a62150b6de2f8edce1de",
+    "ancestor_of_slice_base": true,
+    "compiler_source_path": "policy-engine/src/polisyos/data_requirement/compiler.py",
+    "compiler_git_blob_sha1_at_slice_base": "d91823b593427fe275b4b0b6d4f14c499a12aa2d",
+    "compiler_git_blob_sha1_at_candidate": "d91823b593427fe275b4b0b6d4f14c499a12aa2d",
+    "interpretation": "The already-accepted retirement is an ancestor and receives no new source-change credit here. This slice changes only the scanner and its maintained test; no compiler production source is edited and no cleanup is replayed."
+  },
+  "checks": [
+    {
+      "check_id": "REQ01-final-complete-tracked-python-census-bcb122",
+      "outcome": "PASS",
+      "property_result": "The tracked-tree selector completed and parsed every selected .py/.pyi blob. The resulting census verdict is UNRESOLVED; CLI exit 0 is not caller-absence evidence.",
+      "evidence_ref": "policy-engine/_build/e02-A-continuation-20261007/req-caller-census-final-bcb122/",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py"
+      ],
+      "target_sha": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+      "target_tree_sha": "90d5cd02c18c4ed316c69eddead4515137ffd9d0",
+      "environment": {
+        "status": "NOT_ESTABLISHED",
+        "reason": "The run receipt records argv, cwd, candidate, and outputs but no process environment; no environment is inferred."
+      },
+      "input_closure": {
+        "requested_ref": "HEAD at the pinned candidate bcb12224a9d24c02dc86c265be56b2fbc3971216",
+        "selector": "All tracked Git blob paths ending in .py or .pyi",
+        "exclusions": [],
+        "selected_path_count": 6611,
+        "file_type_denominator": {
+          ".py": 6606,
+          ".pyi": 5
+        },
+        "unique_blob_count": 6439,
+        "parse_error_count": 0,
+        "scanner_source": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+          "git_blob_sha1": "d3b7791713f7a66bddfe949c4bba1158359315e2",
+          "sha256": "955929ee07ae6efc1dcfdea820b067b37ea8ef712d614b5d3276c3f94fed339a"
+        },
+        "result_summary": {
+          "compiler_api_imports": 44,
+          "paths_with_compiler_api_imports": 18,
+          "computed_or_ambiguous_sites": 271,
+          "unresolved_callers": 271,
+          "direct_retired_imports": 0,
+          "retired_qualified_attributes": 0,
+          "retired_imported_name_uses": 0,
+          "retired_reflection_literals": 0,
+          "wildcard_compiler_imports": 0,
+          "absence_claim_supported": false
+        }
+      },
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-census-final-bcb122/receipt.json",
+          "bytes": 1183,
+          "sha256": "45892b297e82444f9273deae6f897b5bcec653168c6f2c103ea4779490280772"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-census-final-bcb122/stdout.txt",
+          "bytes": 157667,
+          "sha256": "e96b27b281f0b2a7d2abe3256323078c7eb8e76fc1b305bcf49ed9e0a035dbda"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-census-final-bcb122/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "check_id": "REQ01-maintained-binding-tests-10d7",
+      "outcome": "PASS",
+      "property_result": "The normal maintained suite completed 8 collected cases: 7 passed and the opt-in R1 test was skipped with the removal environment unset.",
+      "evidence_ref": "policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-maintained-final/",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-maintained-final/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-maintained-final/pytest-basetemp tests/unit/remediation/test_req_01_compiler_caller_census.py",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-maintained-final/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-maintained-final/pytest-basetemp",
+        "tests/unit/remediation/test_req_01_compiler_caller_census.py"
+      ],
+      "target_sha": "10d7d8415a7f54077378b81ab09bb7437d184aa8",
+      "target_tree_sha": "0f1beaa5dad676d7e1e2dfdf5870982a0a1191cd",
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-maintained-final:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu",
+        "probe_environment": {},
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python"
+      },
+      "input_closure": {
+        "selector": "tests/unit/remediation/test_req_01_compiler_caller_census.py",
+        "test_source": {
+          "path": "tests/unit/remediation/test_req_01_compiler_caller_census.py",
+          "git_blob_sha1": "a6a1a4c7d9e30c95c767e310a0e60518f87bb566",
+          "sha256": "a6d5b324153aea73684b205dbb0e069fc69d2728f2a048277032dca21bcb14f2"
+        },
+        "scanner_source": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+          "git_blob_sha1": "d3b7791713f7a66bddfe949c4bba1158359315e2",
+          "sha256": "955929ee07ae6efc1dcfdea820b067b37ea8ef712d614b5d3276c3f94fed339a"
+        },
+        "compiler_production_source": {
+          "path": "src/polisyos/data_requirement/compiler.py",
+          "git_blob_sha1": "d91823b593427fe275b4b0b6d4f14c499a12aa2d"
+        },
+        "junit_summary": {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 1,
+          "case_results": [
+            {
+              "name": "test_unrebound_global_and_nonlocal_import_aliases_remain_resolved",
+              "result": "PASS"
+            },
+            {
+              "name": "test_clean_global_nonlocal_alias_control_detects_removed_routing",
+              "result": "SKIP"
+            },
+            {
+              "name": "test_global_and_nonlocal_rebindings_are_unresolved_for_the_sibling_scope",
+              "result": "PASS"
+            },
+            {
+              "name": "test_rebound_global_and_nonlocal_getattr_receivers_are_unresolved",
+              "result": "PASS"
+            },
+            {
+              "name": "test_unrelated_global_and_nonlocal_callbacks_are_not_reflection_evidence",
+              "result": "PASS"
+            },
+            {
+              "name": "test_unknown_callback_with_compiler_receiver_and_retired_name_is_unresolved",
+              "result": "PASS"
+            },
+            {
+              "name": "test_known_import_rebound_with_dynamic_argument_stays_unresolved",
+              "result": "PASS"
+            },
+            {
+              "name": "test_local_shadow_does_not_change_the_sibling_import_binding",
+              "result": "PASS"
+            }
+          ]
+        }
+      },
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-binding-maintained-final/receipt.json",
+          "bytes": 2694,
+          "sha256": "0517f7b4ef8640b9e0ffce9b3b29ed4d1403bd214984f10f5dc494ba7eee5ad6"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-binding-maintained-final/stdout.txt",
+          "bytes": 109,
+          "sha256": "c017ceb4dd97a515ab60beb9f4dc9481a1df00e598dcb8a835a7f8945f2e3807"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-binding-maintained-final/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-binding-maintained-final/junit.xml",
+          "bytes": 1969,
+          "sha256": "ea1b6a953540d94f32949b17d41285174d8242ee417435d9de7383790f31a6a9"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-binding-maintained-final/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-binding-maintained-final/origins.json",
+          "bytes": 492,
+          "sha256": "af7f3e08e36fa78cf8850e144ebcdf92951ab038bac3da989700fdf9e734ba49"
+        }
+      ]
+    },
+    {
+      "check_id": "REQ01-R1-binding-routing-removal-correct-selector-6543",
+      "outcome": "FAIL",
+      "property_result": "The marker-preserving in-memory AST mutation removed only the two global_events/nonlocal_events routing iterators. The clean positive control fell from 3 expected dynamic import literals to 2, so its natural assertion failed. This is the expected red result for the property-removal falsifier, not a green product-test run.",
+      "evidence_ref": "policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-routing-R1-selector-corrected/",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-routing-R1-selector-corrected/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-routing-R1-selector-corrected/pytest-basetemp tests/unit/remediation/test_req_01_compiler_caller_census.py::test_clean_global_nonlocal_alias_control_detects_removed_routing",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-routing-R1-selector-corrected/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-routing-R1-selector-corrected/pytest-basetemp",
+        "tests/unit/remediation/test_req_01_compiler_caller_census.py::test_clean_global_nonlocal_alias_control_detects_removed_routing"
+      ],
+      "target_sha": "6543d5a7835fa35aa8c96401ac954b24cc495cdc",
+      "target_tree_sha": "24af65c064d813b9ce9f6c425f41833b8627178e",
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-routing-R1-selector-corrected:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu",
+        "probe_environment": {
+          "POLISYOS_E02_COMPILER_BINDING_ROUTING_REMOVAL": "1"
+        },
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python"
+      },
+      "input_closure": {
+        "selector": "tests/unit/remediation/test_req_01_compiler_caller_census.py::test_clean_global_nonlocal_alias_control_detects_removed_routing",
+        "test_source": {
+          "path": "tests/unit/remediation/test_req_01_compiler_caller_census.py",
+          "git_blob_sha1": "a6a1a4c7d9e30c95c767e310a0e60518f87bb566",
+          "sha256": "a6d5b324153aea73684b205dbb0e069fc69d2728f2a048277032dca21bcb14f2"
+        },
+        "scanner_source": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+          "git_blob_sha1": "d3b7791713f7a66bddfe949c4bba1158359315e2",
+          "sha256": "955929ee07ae6efc1dcfdea820b067b37ea8ef712d614b5d3276c3f94fed339a"
+        },
+        "mutation": "In an in-memory AST clone of the scanner, replace the iterators of exactly the two for-loops whose iterators are Name(global_events) and Name(nonlocal_events) with empty tuples; preserve all other scanner nodes, names, functions, labels, and markers. No source file is edited.",
+        "junit_summary": {
+          "tests": 1,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0,
+          "case_results": [
+            {
+              "name": "test_clean_global_nonlocal_alias_control_detects_removed_routing",
+              "result": "FAIL"
+            }
+          ]
+        }
+      },
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-binding-routing-R1-selector-corrected/receipt.json",
+          "bytes": 2705,
+          "sha256": "791cbce601797d5aadfaf5e4c95dba8d82da3a763f3c76d36862b771fa33c1d0"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-binding-routing-R1-selector-corrected/stdout.txt",
+          "bytes": 2505,
+          "sha256": "044adb7886627ecae4f62675afbe3eb8ad9a48fadb891c15ba6d3e6d823538ab"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-binding-routing-R1-selector-corrected/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-binding-routing-R1-selector-corrected/junit.xml",
+          "bytes": 2781,
+          "sha256": "d886047a8ea3139cbb4c1ae597244cc3864adc91f926cdf0d8e147f5dd46fbb7"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-binding-routing-R1-selector-corrected/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-binding-routing-R1-selector-corrected/origins.json",
+          "bytes": 492,
+          "sha256": "af7f3e08e36fa78cf8850e144ebcdf92951ab038bac3da989700fdf9e734ba49"
+        }
+      ]
+    },
+    {
+      "check_id": "REQ01-R1-guessed-selector-error-preserved-6543",
+      "outcome": "ERROR",
+      "property_result": "A prior guessed node selector matched no tests (pytest exit 4; JUnit contains zero test cases). Retained as a harness/selector error only; it is not a property result and is not replaced by or conflated with the corrected R1 run.",
+      "evidence_ref": "policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-routing-R1/",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-routing-R1/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-routing-R1/pytest-basetemp tests/unit/remediation/test_req_01_compiler_caller_census.py::test_r1_routing_removal_keeps_markers_and_fails_clean_alias_property",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-routing-R1/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-routing-R1/pytest-basetemp",
+        "tests/unit/remediation/test_req_01_compiler_caller_census.py::test_r1_routing_removal_keeps_markers_and_fails_clean_alias_property"
+      ],
+      "target_sha": "6543d5a7835fa35aa8c96401ac954b24cc495cdc",
+      "target_tree_sha": "24af65c064d813b9ce9f6c425f41833b8627178e",
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-routing-R1:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu",
+        "probe_environment": {
+          "POLISYOS_E02_COMPILER_BINDING_ROUTING_REMOVAL": "1"
+        },
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]"
+      },
+      "input_closure": {
+        "selector_attempted": "tests/unit/remediation/test_req_01_compiler_caller_census.py::test_r1_routing_removal_keeps_markers_and_fails_clean_alias_property",
+        "actual_maintained_selector": "tests/unit/remediation/test_req_01_compiler_caller_census.py::test_clean_global_nonlocal_alias_control_detects_removed_routing",
+        "junit_summary": {
+          "tests": 0,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "case_results": []
+        },
+        "interpretation": "No test was collected; do not treat exit 4 as a product or property failure."
+      },
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-binding-routing-R1/receipt.json",
+          "bytes": 2651,
+          "sha256": "ada8e4df153460692916279ac55f3072fefa4a5f9949801b5447d5a5e81b4f90"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-binding-routing-R1/stdout.txt",
+          "bytes": 23,
+          "sha256": "92dc5760e6cc050886d8c620ceed529c970920cfe90d38ec490675fdf51b4322"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-binding-routing-R1/stderr.txt",
+          "bytes": 304,
+          "sha256": "0556850c2464a76d70705975e710103a991b121233e585e758172d17c783ff9b"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-binding-routing-R1/junit.xml",
+          "bytes": 249,
+          "sha256": "01854cf2f0f3153009a0603a4fdf87ae548b3c2fab78b9e1bd8dc8d9d9a43041"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-binding-routing-R1/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-binding-routing-R1/origins.json",
+          "bytes": 492,
+          "sha256": "af7f3e08e36fa78cf8850e144ebcdf92951ab038bac3da989700fdf9e734ba49"
+        }
+      ]
+    },
+    {
+      "check_id": "REQ01-historical-controlled-global-nonlocal-residual-3ba1",
+      "outcome": "PASS",
+      "property_result": "The controlled residual probe completed successfully and confirmed two historical false positives: global and nonlocal aliases rebound to a lambda returning None still produced a retired-module dynamic-import literal and no unresolved record. These are controlled snippets, not actual tracked callers, and the scanner source differs from the pinned bcb122 source.",
+      "evidence_ref": "policy-engine/_build/e02-A-continuation-20261007/compiler-global-residual-3ba1/",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python _build/e02-A-continuation-20261007/compiler-global-residual/probe.py",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "_build/e02-A-continuation-20261007/compiler-global-residual/probe.py"
+      ],
+      "target_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "target_tree_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+      "environment": {
+        "status": "NOT_ESTABLISHED",
+        "reason": "The run receipt records argv, cwd, candidate, and output hashes but no process environment; no environment is inferred."
+      },
+      "input_closure": {
+        "selector": "One controlled Python probe with two cases (global rebinding and nonlocal rebinding); neither case is a repository caller.",
+        "probe_source": {
+          "path": "policy-engine/_build/e02-A-continuation-20261007/compiler-global-residual/probe.py",
+          "bytes": 1807,
+          "sha256": "47b77b11b401d7253deb6bf2f1506faf272daf515a1e68acf6530249ddf98c10"
+        },
+        "scanner_source": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+          "git_blob_sha1": "6e1691922fc512180d933f4fd8e6af4c94c41810",
+          "sha256": "4bac9ead00cb547e0ba4e7c3cfcf33578d253859fbf99c803085e96fce450402"
+        },
+        "cases": [
+          {
+            "case": "global",
+            "runtime_result": null,
+            "scanner_reported_dynamic_import": "polisyos.data_requirement.compiler",
+            "scanner_reported_unresolved": []
+          },
+          {
+            "case": "nonlocal",
+            "runtime_result": null,
+            "scanner_reported_dynamic_import": "polisyos.data_requirement.compiler",
+            "scanner_reported_unresolved": []
+          }
+        ],
+        "scope_limit": "The result is a bounded controlled false-positive witness only; it does not assert presence or absence of any tracked, external, or runtime caller."
+      },
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/compiler-global-residual-3ba1/receipt.json",
+          "bytes": 2179,
+          "sha256": "194477ca70f5f62b11e5a01893b088491377e920a2ddc2e4034bd95c7cf9d5bc"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/compiler-global-residual-3ba1/stdout.txt",
+          "bytes": 1420,
+          "sha256": "1e5f57cc5172d06b00ddbc2e14c7c383b5a5063314710c29520cbb30ec5660de"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/compiler-global-residual-3ba1/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "check_id": "REQ01-pinned-bcb122-architecture-guardrails-observation",
+      "outcome": "FAIL",
+      "property_result": "The full architecture guardrail command exited 1 at the pinned bcb122 evidence snapshot. It reported public-surface inventory and reference-doc drift (core.contracts export count 492 current vs 493 generated), deep-import baseline drift with 164 new deep-import-creep entries, runtime OpenAPI snapshot output-probe paths outside its assigned scratch root plus a generated OpenAPI mismatch, and a trust-claim-posture-register generated-output mismatch. The output also states that the standalone Atlas status-retirement inventory gate is not run by this command. The probe listed 12 wave3 evidence paths and summarized 69 additional paths; the wave3 copy overlap is recorded as a possible copy-race/harness interference, not as REQ caller evidence.",
+      "evidence_ref": "policy-engine/_build/e02-A-continuation-20261007/monetary-req-architecture-bcb122/",
+      "command": "uv run --no-sync polisyos-tools architecture guardrails check",
+      "command_argv": [
+        "uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "target_sha": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+      "target_tree_sha": "90d5cd02c18c4ed316c69eddead4515137ffd9d0",
+      "environment": {
+        "status": "NOT_ESTABLISHED",
+        "reason": "The run receipt records command, cwd, candidate, and output hashes but no process environment; no environment is inferred."
+      },
+      "input_closure": {
+        "selector": "Default full architecture guardrail command (no --skip-generated-checks); exact internal input denominator is not separately enumerated in the receipt.",
+        "observed_scope": {
+          "public_surface_inventory": "Drift: current core.contracts inventory lists 492 exports; generated expectation lists 493 and includes RecursiveCycleCheckpoint.",
+          "public_surface_reference": "Drift: docs/reference/public-surface.md reports 492 where generated expectation reports 493.",
+          "deep_import_baseline": "Baseline drift; 164 new deep-import-creep entries were reported.",
+          "runtime_openapi_snapshot": "Output probe reported 81 changed paths outside its assigned scratch root (12 were listed and 69 summarized as additional); generated schemas/runtime_api_v1.openapi.json did not match the checked-in schema.",
+          "trust_claim_posture_register": "Generated apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json did not match the checked-in artifact.",
+          "standalone_atlas_gate": "The stdout explicitly says architecture guardrails check does not run architecture/atlas_surfaces/check_status_retirement_inventory.py; no result for that separate gate is claimed."
+        },
+        "copy_race_observation": "The out-of-scratch paths shown by the probe are under the canonical wave3 evidence area being copied in the shared checkout. This is consistent with a copy race, but the receipt does not establish causal attribution; retain the guardrail FAIL and do not attribute this probe item to scanner behavior.",
+        "red_provenance": "not_established",
+        "p41_note": "No replay from the slice base with a complete architecture input denominator was performed for this packet; do not label the bcb122 architecture failure inherited."
+      },
+      "duration_seconds": 187.38013358303579,
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-req-architecture-bcb122/receipt.json",
+          "bytes": 1090,
+          "sha256": "5b456427d95747ec0f41df724a59caad3f2fcc2231b69cf530cea144d458de72"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-req-architecture-bcb122/stdout.txt",
+          "bytes": 128366,
+          "sha256": "55de4e11cf25b696eab4a28986c1c2d80e0ee9a2a722299abc9c14e3900594c7"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-req-architecture-bcb122/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    }
+  ],
+  "historical_observations": [
+    {
+      "run_id": "req-caller-census-full-eee7",
+      "candidate_sha": "eee7c8f2b78fd8293fc9f1ee415fd16dec670f15",
+      "candidate_tree_sha": "9c8e009c49e5f0476781b04629c4c45e1562247e",
+      "selector": "all tracked .py/.pyi blobs at that earlier tree",
+      "denominator": {
+        "selected_paths": 6608,
+        "py": 6603,
+        "pyi": 5,
+        "unique_blobs": 6436,
+        "parse_errors": 0
+      },
+      "result": {
+        "verdict": "UNRESOLVED",
+        "unresolved_sites": 271,
+        "absence_claim_supported": false
+      },
+      "scanner_sha256": "955929ee07ae6efc1dcfdea820b067b37ea8ef712d614b5d3276c3f94fed339a",
+      "raw_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-census-full-eee7/receipt.json",
+          "bytes": 1016,
+          "sha256": "3f587a037ae8aad48ce363fed0df7b270181a7dd6ede8a59abce98603de1255c"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-census-full-eee7/stdout.txt",
+          "bytes": 157667,
+          "sha256": "5cd5d5a84fffde0164b684ae6934073bc65db1a701a8c55c4b6831dabdf8f942"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/req-caller-census-full-eee7/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "status": "historical_observation_only; superseded for current tracked-tree denominator by bcb122; do not overwrite or treat 6608 as the current count"
+    },
+    {
+      "observation_id": "REQ01-global-nonlocal-rebinding-false-positive-3ba1",
+      "candidate_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "candidate_tree_sha": "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033",
+      "scanner_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py@6e1691922fc512180d933f4fd8e6af4c94c41810",
+      "summary": "Historical controlled global/nonlocal rebinding probe confirmed two false-positive dynamic-import literals when runtime result was None and unresolved output was empty. The snippets were controlled inputs, not actual tracked callers. The scanner source differs from the current pinned bcb122 scanner; see the later maintained global/nonlocal rebinding controls.",
+      "evidence_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/compiler-global-residual-3ba1/stdout.txt",
+      "evidence_sha256": "1e5f57cc5172d06b00ddbc2e14c7c383b5a5063314710c29520cbb30ec5660de"
+    }
+  ],
+  "related_existing_evidence": [
+    {
+      "reference": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/compiler-checks.json#/checks/1",
+      "candidate_sha": "1a520b209ce4bac86204137d15e765de05c08a73",
+      "scope": "previous bounded compiler/profile/fabric selected tests; historical evidence only",
+      "current_relevance": "The compiler production blob is identical at source base and final candidate, but this prior selected smoke is not reattributed as a fresh bcb122 full-acceptance run."
+    }
+  ],
+  "property": {
+    "statement": "For the complete LA-045 definition set, report statically resolved caller evidence across the pinned tracked Python tree while preserving active compiler behavior and making unresolved aliases visible.",
+    "established": [
+      "The final census recomputed the full tracked .py/.pyi denominator from candidate bcb122 and parsed all 6,611 selected paths with zero errors.",
+      "The current scanner reported zero direct retired-name imports, qualified attributes, imported-name uses, or reflection literals; it reported 271 computed/ambiguous sites and explicitly returned UNRESOLVED.",
+      "The maintained test source at 10d7 ran 7 ordinary cases successfully; its opt-in R1 case was skipped with the environment unset.",
+      "The corrected R1 run removed only the two binding-routing iterators in an in-memory AST clone and naturally failed the positive three-import assertion at two; source files and markers remained untouched.",
+      "The active DataRequirementCompiler source blob is unchanged between slice base and final candidate; the already-accepted helper retirement is an ancestor."
+    ],
+    "proxy_divergence": "A successful census command or zero direct literal/import findings cannot stand in for caller absence: 271 computed/ambiguous sites remain. The property-removal R1 keeps scanner markers and fixture syntax while removing the two routing behaviors; the maintained positive falls from three to two and fails, demonstrating that the witness measures the routing behavior rather than markers alone.",
+    "nonclaims": [
+      "No universal absence claim for external packages, generated code, untracked files, non-Python callers, runtime-computed targets, or entrypoint reachability.",
+      "No complete production resolver/catalog admission or authenticated profile/data claim.",
+      "No full runtime/fabric/default-fallback/public-import/installed-wheel acceptance is newly established by this scanner slice.",
+      "No LA-045 closure is proposed; closure_ids remains empty pending root adjudication against the corrected exact source scope and full acceptance boundary."
+    ],
+    "runtime_path": {
+      "scanner_entrypoint": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+      "maintained_behavior_test": "policy-engine/tests/unit/remediation/test_req_01_compiler_caller_census.py",
+      "active_compiler_identity": {
+        "path": "policy-engine/src/polisyos/data_requirement/compiler.py",
+        "git_blob_sha1_at_slice_base_and_pinned_snapshot": "d91823b593427fe275b4b0b6d4f14c499a12aa2d",
+        "scope_note": "Source identity is preserved; this slice does not execute or claim full production resolver acceptance."
+      },
+      "behavior_path": "The scanner walks tracked Git .py/.pyi blobs, parses each selected blob, resolves supported lexical/import/reflection cases, and reports unresolved computed sites. The maintained test exercises lexical bindings and property removal against that scanner."
+    },
+    "negative_controls": [
+      {
+        "control": "Global and nonlocal imported aliases that are not rebound remain resolvable.",
+        "maintained_case": "test_unrebound_global_and_nonlocal_import_aliases_remain_resolved",
+        "result": "PASS in the normal maintained run."
+      },
+      {
+        "control": "Global/nonlocal rebinding does not preserve a stale imported alias in the sibling scope.",
+        "maintained_case": "test_global_and_nonlocal_rebindings_are_unresolved_for_the_sibling_scope",
+        "result": "PASS in the normal maintained run."
+      },
+      {
+        "control": "Rebound getattr receivers remain unresolved.",
+        "maintained_case": "test_rebound_global_and_nonlocal_getattr_receivers_are_unresolved",
+        "result": "PASS in the normal maintained run."
+      },
+      {
+        "control": "Unrelated global/nonlocal callbacks do not count as reflection evidence.",
+        "maintained_case": "test_unrelated_global_and_nonlocal_callbacks_are_not_reflection_evidence",
+        "result": "PASS in the normal maintained run."
+      },
+      {
+        "control": "Unknown callbacks with a compiler receiver and retired name stay unresolved.",
+        "maintained_case": "test_unknown_callback_with_compiler_receiver_and_retired_name_is_unresolved",
+        "result": "PASS in the normal maintained run."
+      },
+      {
+        "control": "A known import rebound with a dynamic argument remains unresolved.",
+        "maintained_case": "test_known_import_rebound_with_dynamic_argument_stays_unresolved",
+        "result": "PASS in the normal maintained run."
+      },
+      {
+        "control": "A local shadow does not change the sibling import binding.",
+        "maintained_case": "test_local_shadow_does_not_change_the_sibling_import_binding",
+        "result": "PASS in the normal maintained run."
+      },
+      {
+        "control": "Removing both global/nonlocal binding-routing iterators while preserving AST markers makes the clean positive control fail naturally (expected 3 import literals, observed 2).",
+        "maintained_case": "test_clean_global_nonlocal_alias_control_detects_removed_routing",
+        "result": "The dedicated R1 property-removal run failed its natural assertion as expected; source files were not mutated."
+      }
+    ],
+    "historical_bounded_residual": {
+      "check_id": "REQ01-historical-controlled-global-nonlocal-residual-3ba1",
+      "candidate_sha": "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+      "scanner_git_blob_sha1": "6e1691922fc512180d933f4fd8e6af4c94c41810",
+      "scanner_sha256": "4bac9ead00cb547e0ba4e7c3cfcf33578d253859fbf99c803085e96fce450402",
+      "scope": "Two controlled global/nonlocal snippets only; not evidence of an actual tracked caller. At this earlier scanner snapshot, a rebound lambda returning None was still reported as a dynamic import literal with no unresolved record.",
+      "temporal_scope": "Historical scanner snapshot predating the current 544ae source and 10d7 maintained tests. The current maintained test cases above cover global/nonlocal rebinding; this historical witness is not reattributed to the pinned bcb122 scanner.",
+      "evidence_ref": "policy-engine/_build/e02-A-continuation-20261007/compiler-global-residual-3ba1/"
+    }
+  },
+  "predicate_basis": {
+    "tracked_tree_selector_and_denominator": "recomputed",
+    "scanner_and_test_blob_identity": "recomputed",
+    "maintained_alias_behavior": "recomputed",
+    "property_removal_behavior": "recomputed",
+    "production_resolver_admission": "not_established",
+    "external_dynamic_and_non_python_caller_absence": "not_established",
+    "basis_note": "The finite recomputed source predicate is complete only for tracked .py/.pyi blobs in candidate bcb122. The output itself reports 271 computed/ambiguous sites and absence_claim_supported=false.",
+    "architecture_guardrail_red_provenance": "not_established",
+    "architecture_guardrail_note": "The bcb122 command is an observed FAIL with output-level scope recorded in its check row. No P41 inherited classification is assigned because this packet has no slice-base replay over a complete architecture input denominator; the path-probe component also overlaps a shared wave3 evidence-copy window."
+  },
+  "independent_source_review": {
+    "reviewer_id": "basis_rule",
+    "review_reference": null,
+    "status": "independent delta review reference pending attachment; author makes no self-review claim",
+    "author_id": "compiler_retirement",
+    "self_review_claimed": false
+  },
+  "capability_state_or_finding_state": "limited",
+  "limitations_and_next_owner": [
+    "Root appends a scope erratum to the older LA045-caller-census.json so the AM03 _digest definition is included in the same LA-045 finding without rewriting historical census outcomes.",
+    "Root copies the final bcb122 census outputs once to the canonical wave3 evidence directory and replaces ignored raw refs in the publication draft; this scratch draft does not duplicate raw logs.",
+    "Root adjudicates LA-045 against the full acceptance boundary. This packet establishes a bounded tracked-source census and alias-control behavior, not external/runtime absence or full package/compiler acceptance.",
+    "The 271 computed/ambiguous sites remain unresolved; dynamic/external/non-Python scope stays not_established.",
+    "The prior eee7 census count 6,608 is retained only as a historical tree-specific observation; the current bcb122 count is 6,611.",
+    "The independent basis_rule source review reference must be attached before this draft is published as a current handoff.",
+    "The pinned bcb122 full architecture guardrail command exited 1. Its complete stdout/stderr are cited by path and SHA; observed failure classes are public-surface inventory/reference drift, deep-import baseline drift (164 new entries), runtime OpenAPI snapshot mismatch/output-probe interference, and trust-claim-posture generated-output mismatch. The separate Atlas status-retirement inventory gate is not run by this command.",
+    "The runtime OpenAPI output probe reported changed paths outside its assigned scratch root while canonical wave3 evidence was being copied. Keep this as a possible copy-race/harness interference; the receipt does not prove cause. No P41 inherited classification is made because no slice-base replay with complete architecture input denominator is included.",
+    "A historical 3ba1 controlled probe on scanner blob 6e169192 confirmed global/nonlocal rebound-lambda false positives, with runtime result None and unresolved output empty. It did not establish actual tracked callers and is not attributed to current bcb122 scanner blob d3b77917."
+  ],
+  "check_catalogue_ref": "this draft#/checks; deciding raw outputs are referenced by path@sha256 under ignored policy-engine/_build/",
+  "pattern_pass": {
+    "relevant_ids": [
+      "P35",
+      "P36",
+      "P38",
+      "P40"
+    ],
+    "application": [
+      "P35: current path counts are recomputed from the complete pinned Git tree; 6,606 + 5 = 6,611 and 2 owned + 22 disjoint = 24 changed paths.",
+      "P36: bind LA-045 to all seven functions including _digest and the one constant; append a correction to the prior scope statement.",
+      "P38: an exit-zero scanner walk with 271 unresolved sites is not caller absence; R1 fails when routing behavior is removed despite markers remaining.",
+      "P40: global/nonlocal alias writes were the same lexical-binding class one level deeper; widen the mechanism once and stop the site-by-site ladder while retaining computed/runtime residuals."
+    ]
+  },
+  "candidate_role": "Pinned evidence snapshot for the checks below; not asserted as the current branch tip or final carrier."
+}

@@ -1,0 +1,71 @@
+{
+  "workspace_dirty_before": [],
+  "workspace_dirty_after": [],
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "e02_origin",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "-q",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-observer-composed-eee7/junit.xml",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-observer-composed-eee7/pytest-basetemp",
+    "tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py",
+    "tests/unit/runtime/http/services/test_e02_monetary_usage_projection.py",
+    "tests/unit/core/test_llm_core.py::test_extract_llm_response_data_from_object",
+    "tests/unit/core/test_llm_core.py::test_extract_llm_response_data_from_dict",
+    "tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py::TestUsageParsing::test_total_cost_usd_is_parsed_from_usage",
+    "tests/unit/scientist/orchestration/llm/test_factory.py::test_create_traced_gateway_client_uses_plain_gateway_without_fallback_urls",
+    "tests/unit/scientist/orchestration/llm/test_factory.py::test_create_traced_gateway_client_accepts_injected_observability",
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestComputeCacheKey",
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestInMemoryPromptCache",
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient",
+    "tests/unit/remediation/test_llm_01.py",
+    "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py::test_gateway_prompt_form_maps_to_supported_user_message_once",
+    "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py::test_traced_client_sanitizes_requests_and_restores_responses"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "eee7c8f2b78fd8293fc9f1ee415fd16dec670f15",
+  "candidate_tree": "9c8e009c49e5f0476781b04629c4c45e1562247e",
+  "exit_code": 4,
+  "wall_s": 14.986298875010107,
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-observer-composed-eee7:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "JAX_PLATFORMS": "cpu"
+  },
+  "probe_environment": {},
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+    "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 23,
+      "sha256": "eee3a3e2a41b3d0f047acfdcd82b334583b123e9f6f6b0b7139c28f4a1019419"
+    },
+    "stderr.txt": {
+      "bytes": 292,
+      "sha256": "a6d19827ce847a1b3e5ab6257a1cbcd8c089e4a5de5014605466f82ad6df2cac"
+    },
+    "e02_origin.py": {
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    "junit.xml": {
+      "bytes": 249,
+      "sha256": "dfb26bd45267a6b111459d730dec8a611cde62da073bd5506554b47af66d5436"
+    },
+    "origins.json": {
+      "bytes": 1095,
+      "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+    }
+  }
+}

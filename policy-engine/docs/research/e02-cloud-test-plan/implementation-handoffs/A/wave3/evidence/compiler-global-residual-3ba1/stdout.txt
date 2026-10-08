@@ -1,0 +1,39 @@
+{
+  "candidate": [
+    "3ba1deaa55c54971c3200269dc1c81680e3d7167",
+    "abe1c8ae7ec1aa81a82cfc48dc07a8b5db3bc033"
+  ],
+  "scanner_sha256": "4bac9ead00cb547e0ba4e7c3cfcf33578d253859fbf99c803085e96fce450402",
+  "scope": "Controlled global/nonlocal rebinding residual; no actual tracked retired caller asserted",
+  "cases": [
+    {
+      "case": "global",
+      "source": "from importlib import import_module as load\ndef f():\n    global load\n    load = lambda name: None\n    return load(\"polisyos.data_requirement.compiler\")\n",
+      "runtime_result": null,
+      "reported_dynamic_imports": [
+        {
+          "path": "controlled-global.py",
+          "line": 5,
+          "module": "polisyos.data_requirement.compiler"
+        }
+      ],
+      "reported_unresolved": [],
+      "false_positive_confirmed": true
+    },
+    {
+      "case": "nonlocal",
+      "source": "def outer():\n    from importlib import import_module as load\n    def f():\n        nonlocal load\n        load = lambda name: None\n        return load(\"polisyos.data_requirement.compiler\")\n    return f()\n",
+      "runtime_result": null,
+      "reported_dynamic_imports": [
+        {
+          "path": "controlled-nonlocal.py",
+          "line": 6,
+          "module": "polisyos.data_requirement.compiler"
+        }
+      ],
+      "reported_unresolved": [],
+      "false_positive_confirmed": true
+    }
+  ],
+  "residual_confirmed": true
+}

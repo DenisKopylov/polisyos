@@ -1,0 +1,767 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "monetary-observer-producer-consumer-composition",
+  "closure_ids": [],
+  "bundle_ids": [
+    "LLM-01",
+    "LLM-02"
+  ],
+  "source_ids": [
+    "B64",
+    "B65",
+    "B66",
+    "B67",
+    "B68"
+  ],
+  "slice_base_sha": "f081dbee4305fe864f6220c34887e871e9f0d28f",
+  "implementation_commits": [
+    "544aecec29fc6adf8a93505433de7877cd4f4615",
+    "eee7c8f2b78fd8293fc9f1ee415fd16dec670f15",
+    "83f0a0eb9f16eac2bc6fd79ced4587b2d4d48561",
+    "7de75cca5d9fb4378906a603be2b01d17ecb7698",
+    "10d7d8415a7f54077378b81ab09bb7437d184aa8",
+    "6543d5a7835fa35aa8c96401ac954b24cc495cdc",
+    "95b7abf49915b0aa05c407e86c864308e910eab6",
+    "c8816ba08da65266eebae3630683efeebe8568c4",
+    "bcb12224a9d24c02dc86c265be56b2fbc3971216"
+  ],
+  "candidate_sha": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+  "candidate_tree_sha": "90d5cd02c18c4ed316c69eddead4515137ffd9d0",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+    "policy-engine/release-fragments/unreleased/2026-10-08-e02-a-completion-budget-retention.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-08-e02-a-monetary-observer-composition.toml",
+    "policy-engine/src/polisyos/core/llm/README.md",
+    "policy-engine/src/polisyos/core/llm/response.py",
+    "policy-engine/src/polisyos/core/llm/settlement.py",
+    "policy-engine/src/polisyos/core/llm/traced_client.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_monetary_budget_hold.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py",
+    "policy-engine/tests/unit/remediation/test_llm_01.py",
+    "policy-engine/tests/unit/remediation/test_req_01_compiler_caller_census.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "pre-B producer-to-consumer red",
+      "source_sha": "f081dbee4305fe864f6220c34887e871e9f0d28f",
+      "consumer_source_blobs": {
+        "policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py": "d9def16f689e51f7c5dccd330754b6d6cbc178a9",
+        "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py": "09f1d3ab8b1f0e2daef0f022e3d56f090a08ccc1"
+      },
+      "reported_state": "FAIL (8 failed, 1 skipped) at the authored loopback HTTP producer/consumer integration; callback existed before B6 but first typed cost_status assertion was unsatisfied.",
+      "evidence_ref": "policy-engine/_build/e02-A-continuation-20261007/monetary-producer-seam-pre-B-red-f081"
+    }
+  ],
+  "checks": [
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-producer-seam-pre-B-red-f081/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-producer-seam-pre-B-red-f081/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py"
+      ],
+      "target_sha": "f081dbee4305fe864f6220c34887e871e9f0d28f",
+      "target_tree_sha": "af7145883cd68d4baf4d9c5c63c87995277abdc5",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-producer-seam-pre-B-red-f081:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-producer-seam-pre-B-red-f081/receipt.json",
+        "test_selectors": [
+          "tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py"
+        ],
+        "source_candidate": "f081dbee4305fe864f6220c34887e871e9f0d28f",
+        "note": "Pre-B authored producer/consumer integration selector on f081; first semantic assertion is missing typed producer cost_status. Receipt/JUnit reports eight failures and one skipped R1 selector."
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 19.89183816703735,
+      "output": {
+        "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-producer-seam-pre-B-red-f081/receipt.json",
+        "full_outputs": {
+          "stdout.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-producer-seam-pre-B-red-f081/stdout.txt",
+            "bytes": 39335,
+            "sha256": "6d8c5f225dac6e5dded1d407554c12a0451f843506b9c98391a0304e1e497f54"
+          },
+          "stderr.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-producer-seam-pre-B-red-f081/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit.xml": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-producer-seam-pre-B-red-f081/junit.xml",
+            "bytes": 42965,
+            "sha256": "edca48e02137cce1291a5e5a339a2d1bc018dff246bdaa74ec34fba073d83cc1"
+          }
+        },
+        "result_detail": "Baseline red establishing the typed status gap before B6 source composition; not a product regression claim."
+      }
+    },
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-observer-composed-eee7/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-observer-composed-eee7/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py",
+        "tests/unit/runtime/http/services/test_e02_monetary_usage_projection.py",
+        "tests/unit/core/test_llm_core.py::test_extract_llm_response_data_from_object",
+        "tests/unit/core/test_llm_core.py::test_extract_llm_response_data_from_dict",
+        "tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py::TestUsageParsing::test_total_cost_usd_is_parsed_from_usage",
+        "tests/unit/scientist/orchestration/llm/test_factory.py::test_create_traced_gateway_client_uses_plain_gateway_without_fallback_urls",
+        "tests/unit/scientist/orchestration/llm/test_factory.py::test_create_traced_gateway_client_accepts_injected_observability",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestComputeCacheKey",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestInMemoryPromptCache",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient",
+        "tests/unit/remediation/test_llm_01.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py::test_gateway_prompt_form_maps_to_supported_user_message_once",
+        "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py::test_traced_client_sanitizes_requests_and_restores_responses"
+      ],
+      "target_sha": "eee7c8f2b78fd8293fc9f1ee415fd16dec670f15",
+      "target_tree_sha": "9c8e009c49e5f0476781b04629c4c45e1562247e",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-observer-composed-eee7:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-observer-composed-eee7/receipt.json",
+        "test_selectors": [
+          "tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py",
+          "tests/unit/runtime/http/services/test_e02_monetary_usage_projection.py",
+          "tests/unit/core/test_llm_core.py::test_extract_llm_response_data_from_object",
+          "tests/unit/core/test_llm_core.py::test_extract_llm_response_data_from_dict",
+          "tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py::TestUsageParsing::test_total_cost_usd_is_parsed_from_usage",
+          "tests/unit/scientist/orchestration/llm/test_factory.py::test_create_traced_gateway_client_uses_plain_gateway_without_fallback_urls",
+          "tests/unit/scientist/orchestration/llm/test_factory.py::test_create_traced_gateway_client_accepts_injected_observability",
+          "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestComputeCacheKey",
+          "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestInMemoryPromptCache",
+          "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient",
+          "tests/unit/remediation/test_llm_01.py",
+          "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py::test_gateway_prompt_form_maps_to_supported_user_message_once",
+          "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py::test_traced_client_sanitizes_requests_and_restores_responses"
+        ],
+        "source_candidate": "eee7c8f2b78fd8293fc9f1ee415fd16dec670f15",
+        "note": "Broad selected tests at eee7 include a misspelled/nonexistent prompt-sanitization selector; collection ended before tests ran."
+      },
+      "outcome": "ERROR",
+      "exit_code": 4,
+      "wall_s": 14.986298875010107,
+      "output": {
+        "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-observer-composed-eee7/receipt.json",
+        "full_outputs": {
+          "stdout.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-observer-composed-eee7/stdout.txt",
+            "bytes": 23,
+            "sha256": "eee3a3e2a41b3d0f047acfdcd82b334583b123e9f6f6b0b7139c28f4a1019419"
+          },
+          "stderr.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-observer-composed-eee7/stderr.txt",
+            "bytes": 292,
+            "sha256": "a6d19827ce847a1b3e5ab6257a1cbcd8c089e4a5de5014605466f82ad6df2cac"
+          },
+          "junit.xml": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-observer-composed-eee7/junit.xml",
+            "bytes": 249,
+            "sha256": "dfb26bd45267a6b111459d730dec8a611cde62da073bd5506554b47af66d5436"
+          }
+        },
+        "result_detail": "Pytest exit 4 / collection error caused by one invalid selector; not a product failure or green result."
+      }
+    },
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-observer-composed-selectors-corrected-eee7/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-observer-composed-selectors-corrected-eee7/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py",
+        "tests/unit/runtime/http/services/test_e02_monetary_usage_projection.py",
+        "tests/unit/core/test_llm_core.py::test_extract_llm_response_data_from_object",
+        "tests/unit/core/test_llm_core.py::test_extract_llm_response_data_from_dict",
+        "tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py::TestUsageParsing::test_total_cost_usd_is_parsed_from_usage",
+        "tests/unit/scientist/orchestration/llm/test_factory.py::test_create_traced_gateway_client_uses_plain_gateway_without_fallback_urls",
+        "tests/unit/scientist/orchestration/llm/test_factory.py::test_create_traced_gateway_client_accepts_injected_observability",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestComputeCacheKey",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestInMemoryPromptCache",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient",
+        "tests/unit/remediation/test_llm_01.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py::test_traced_client_sanitizes_requests_and_restores_responses"
+      ],
+      "target_sha": "eee7c8f2b78fd8293fc9f1ee415fd16dec670f15",
+      "target_tree_sha": "9c8e009c49e5f0476781b04629c4c45e1562247e",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-observer-composed-selectors-corrected-eee7:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-observer-composed-selectors-corrected-eee7/receipt.json",
+        "test_selectors": [
+          "tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py",
+          "tests/unit/runtime/http/services/test_e02_monetary_usage_projection.py",
+          "tests/unit/core/test_llm_core.py::test_extract_llm_response_data_from_object",
+          "tests/unit/core/test_llm_core.py::test_extract_llm_response_data_from_dict",
+          "tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py::TestUsageParsing::test_total_cost_usd_is_parsed_from_usage",
+          "tests/unit/scientist/orchestration/llm/test_factory.py::test_create_traced_gateway_client_uses_plain_gateway_without_fallback_urls",
+          "tests/unit/scientist/orchestration/llm/test_factory.py::test_create_traced_gateway_client_accepts_injected_observability",
+          "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestComputeCacheKey",
+          "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestInMemoryPromptCache",
+          "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient",
+          "tests/unit/remediation/test_llm_01.py",
+          "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py::test_traced_client_sanitizes_requests_and_restores_responses"
+        ],
+        "source_candidate": "eee7c8f2b78fd8293fc9f1ee415fd16dec670f15",
+        "note": "Corrected selected 73-case composition at eee7 across integration, A projection/core consumers, gateway/factory/cache, and B remediation/unit paths."
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 16.174828624993097,
+      "output": {
+        "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-observer-composed-selectors-corrected-eee7/receipt.json",
+        "full_outputs": {
+          "stdout.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-observer-composed-selectors-corrected-eee7/stdout.txt",
+            "bytes": 32672,
+            "sha256": "433b9c4442cf45ee899277034e7b98e1161bd6588601e2165cc5ead7219ccec7"
+          },
+          "stderr.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-observer-composed-selectors-corrected-eee7/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit.xml": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-observer-composed-selectors-corrected-eee7/junit.xml",
+            "bytes": 46438,
+            "sha256": "da068b65f8b17fd0dbc29121b55f49612bfe365b3a965535a74d3e66bea46d09"
+          }
+        },
+        "result_detail": "62 passed, 10 failed, 1 skipped. Includes the then-unfixed A Core/CAS fixture lifetime issue and B cache/accounting failures; historical diagnostic only, not final acceptance."
+      }
+    },
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-Core-readback-lifetime-corrected/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-Core-readback-lifetime-corrected/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py"
+      ],
+      "target_sha": "83f0a0eb9f16eac2bc6fd79ced4587b2d4d48561",
+      "target_tree_sha": "1ba4901e2d4f75f5d9d8521163a72c48c3a2b2c1",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-Core-readback-lifetime-corrected:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-Core-readback-lifetime-corrected/receipt.json",
+        "test_selectors": [
+          "tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py"
+        ],
+        "source_candidate": "83f0a0eb9f16eac2bc6fd79ced4587b2d4d48561",
+        "note": "Focused producer-budget-readback integration module at test-only correction 83f0."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 21.069728999980725,
+      "output": {
+        "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-Core-readback-lifetime-corrected/receipt.json",
+        "full_outputs": {
+          "stdout.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-Core-readback-lifetime-corrected/stdout.txt",
+            "bytes": 110,
+            "sha256": "fea30fd41275f5cb118dd54487469f6e1ee7b8c7c70b5aa112611f0b1a7d05fc"
+          },
+          "stderr.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-Core-readback-lifetime-corrected/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit.xml": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-Core-readback-lifetime-corrected/junit.xml",
+            "bytes": 2281,
+            "sha256": "87327431e5a69b6b8461f34e1d1990c8e1c72997796242ccb2657d483410569d"
+          }
+        },
+        "result_detail": "8 passed, 1 skipped. Covers six actual loopback HTTP status cases, partial callback evidence persisted manually through owned control/Core/CAS and resolved by fresh RunDetails GET, plus configured default factory cache reuse. The ordinary NL/worker path did not produce the manually persisted ExperimentState."
+      }
+    },
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-raw-decimal-R1-83f0/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-raw-decimal-R1-83f0/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py::test_r1_raw_float_decoder_removal_exposes_underflow_as_zero"
+      ],
+      "target_sha": "83f0a0eb9f16eac2bc6fd79ced4587b2d4d48561",
+      "target_tree_sha": "1ba4901e2d4f75f5d9d8521163a72c48c3a2b2c1",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-raw-decimal-R1-83f0:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {
+          "POLISYOS_E02_RAW_COST_DECIMAL_REMOVAL": "1"
+        }
+      },
+      "input_closure": {
+        "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-raw-decimal-R1-83f0/receipt.json",
+        "test_selectors": [
+          "tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py::test_r1_raw_float_decoder_removal_exposes_underflow_as_zero"
+        ],
+        "source_candidate": "83f0a0eb9f16eac2bc6fd79ced4587b2d4d48561",
+        "note": "Single maintained R1 removal selector at 83f0, with POLISYOS_E02_RAW_COST_DECIMAL_REMOVAL=1."
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 14.603707458009012,
+      "output": {
+        "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-raw-decimal-R1-83f0/receipt.json",
+        "full_outputs": {
+          "stdout.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-raw-decimal-R1-83f0/stdout.txt",
+            "bytes": 2553,
+            "sha256": "6dff6094d0c05b718bf4cf23abe7492071853ab29f8752484ed07268a7fd48fe"
+          },
+          "stderr.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-raw-decimal-R1-83f0/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit.xml": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-raw-decimal-R1-83f0/junit.xml",
+            "bytes": 2744,
+            "sha256": "e2322d28344c0492be497db3285a3f3c7a1c6f3dea10d0ea76f80d7a478bdac3"
+          }
+        },
+        "result_detail": "Expected falsifier: the probe removes only parse_float=Decimal from the actual GatewayLLMClient._post_json json.loads AST call. Unchanged raw positive 1e-1000 decodes to 0.0 and the assertion requiring invalid status fails naturally."
+      }
+    },
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-composed-affected-bcb122/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-composed-affected-bcb122/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py",
+        "tests/integration/core_runtime/test_e02_monetary_budget_hold.py",
+        "tests/unit/runtime/http/services/test_e02_monetary_usage_projection.py",
+        "tests/unit/core/test_llm_core.py",
+        "tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+        "tests/unit/scientist/orchestration/llm/test_factory.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "tests/unit/scientist/orchestration/engine/test_budget.py",
+        "tests/unit/remediation/test_llm_01.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py::test_traced_client_sanitizes_requests_and_restores_responses"
+      ],
+      "target_sha": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+      "target_tree_sha": "90d5cd02c18c4ed316c69eddead4515137ffd9d0",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-composed-affected-bcb122:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-composed-affected-bcb122/receipt.json",
+        "test_selectors": [
+          "tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py",
+          "tests/integration/core_runtime/test_e02_monetary_budget_hold.py",
+          "tests/unit/runtime/http/services/test_e02_monetary_usage_projection.py",
+          "tests/unit/core/test_llm_core.py",
+          "tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+          "tests/unit/scientist/orchestration/llm/test_factory.py",
+          "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+          "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+          "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+          "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+          "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+          "tests/unit/scientist/orchestration/engine/test_budget.py",
+          "tests/unit/remediation/test_llm_01.py",
+          "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py::test_traced_client_sanitizes_requests_and_restores_responses"
+        ],
+        "source_candidate": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+        "note": "Final affected A+B3 composition at bcb122: the integration, budget-hold, A projection/core/gateway/factory/cache/budget/settlement units and linked remediation selectors listed in the receipt."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 39.55480929202167,
+      "output": {
+        "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-composed-affected-bcb122/receipt.json",
+        "full_outputs": {
+          "stdout.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-composed-affected-bcb122/stdout.txt",
+            "bytes": 432,
+            "sha256": "de290611481fca57b8fe6a1ecb453c55c250220b325d386fcd3b550fd51b727e"
+          },
+          "stderr.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-composed-affected-bcb122/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit.xml": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-composed-affected-bcb122/junit.xml",
+            "bytes": 58150,
+            "sha256": "b6edeeab9e2b31c43b86e6c289d8652b21c88a68dfc38a466485223a002b6708"
+          }
+        },
+        "result_detail": "314 cases: 313 passed, 1 skipped; exit 0. This wave contains the observer integration selectors and B3 hold/unit dependencies; overlaps prior waves, so counts are not additive and do not represent all 106 neighboring tests."
+      }
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "target_sha": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_command.py",
+          "sha256": "ef58301dceda92cf4a17214fd281cfcb3f6f50ba98480533bc0b191878a43798"
+        },
+        "env_capture": "inherited environment; not fully captured"
+      },
+      "input_closure": {
+        "source_tree": "90d5cd02c18c4ed316c69eddead4515137ffd9d0",
+        "complete_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-req-architecture-bcb122/stdout.txt",
+        "generated_probe_concurrent_receipt_copy": "harness race; no inherited-red classification"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-req-architecture-bcb122/receipt.json",
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-req-architecture-bcb122/stdout.txt",
+        "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-req-architecture-bcb122/stderr.txt",
+        "exit_code": 1,
+        "wall_s": 187.38013358303579,
+        "summary": "Public inventory, deep-import baseline, OpenAPI and Atlas drift; additional generator isolation failure caused by concurrent copying of documentation receipts. Full output retained; no P41 inherited-red claim."
+      }
+    }
+  ],
+  "property": {
+    "statement": "For the tested registered gateway path, provider cost response bytes retain Decimal precision through JSON decoding and the actual traced callback emits typed known/missing/invalid cost evidence; the existing A aggregators and budget consumer preserve explicit reported zero, reject negative/underflow-invalid costs, keep mixed known-plus-missing totals unknown, and retain the callback evidence through the exercised manual Core/CAS artifact and fresh RunDetails GET.",
+    "runtime_path": [
+      "GatewayLLMClient._post_json parses raw provider JSON with parse_float=Decimal.",
+      "Actual GatewayLLMClient response normalization and TracedLLMClient callback produce cost_status/cost_origin/event identity from the loopback HTTP response.",
+      "A response_shapes._cost_event_evidence and _sum_call_events plus nl_pipeline._budget_cost_amount consume those callback events.",
+      "The partial-cost case explicitly inserts that real callback summary into an ExperimentState root artifact through the existing control-job/Core path; a fresh RuntimeApiContext RunDetails GET resolves the same CAS artifact and A recomputes the unknown amount.",
+      "The default factory cache case observes one actual provider request and a separate zero-cost reuse event using its configured 128-entry / 60-second cache settings."
+    ],
+    "proxy_divergence": "A status marker alone is insufficient: the R1 property-removal probe keeps raw HTTP bytes, callback path, event identity, and other markers unchanged, strips only parse_float=Decimal from the real gateway decoder, observes positive 1e-1000 become 0.0, and naturally fails the required invalid-status assertion. The consumer also distinguishes actual reported zero from absent cost and does not convert mixed known/missing evidence into a known subtotal.",
+    "negative_controls": [
+      "Explicit provider cost 0 is known/reported and remains budget amount 0.0; absent usage/cost remains missing/unknown and amount None.",
+      "Negative exact underflow and -0.02 costs become invalid; positive 1e-1000 remains exact Decimal and invalid rather than zero.",
+      "One reported callback plus one missing callback yields missing aggregate status, mixed origin, null aggregate cost, null budget amount, and unknown persisted run-budget state.",
+      "The maintained R1 selector is an expected-failure removal witness, not a product PASS.",
+      "Default factory cache hit causes exactly one provider HTTP request and emits a separate reuse event with zero cost and unmanaged settlement status."
+    ]
+  },
+  "predicate_basis": "not_established",
+  "bounded_tested_predicates": {
+    "basis": "recomputed",
+    "scope": "Local registered Gateway HTTP decoding, actual callback fields, A cost aggregation/budget consumer, and equality of the manually stored ExperimentState CAS reference after fresh GET."
+  },
+  "capability_state_or_finding_state": "Bounded B observer and A consumer composition is exercised. B64-B68 are not closed by this handoff. The ordinary NL/worker producer-to-artifact orchestration is not established by the manual ExperimentState readback (implemented_but_not_orchestrated at that boundary); no default durable cost summary surface or external invoice authority is claimed. Invoice/public settlement surface is explicitly out_of_scope.",
+  "source_checkpoint": {
+    "path": "policy-engine/_build/e02-A-continuation-20261007/canonical-B-observer-source-closure.json",
+    "sha256": "12167c8f5db2849d3c3a7bdce04710f6ea8e050674b657c3cbddadb7936edd54",
+    "source_base_sha": "f081dbee4305fe864f6220c34887e871e9f0d28f",
+    "source_base_tree": "af7145883cd68d4baf4d9c5c63c87995277abdc5",
+    "donor_sha": "2d0f65266a9b42f56bcc73264c43e0f296e10ac5",
+    "donor_tree": "dd10d17bc2caf9ed5beb3ca25a32db5ec92e558e",
+    "patch_sha256": "88b5eae1e72d4f2f6f3f3329c52905084a228ccd445553a04ebd8b9699e7875e",
+    "scope": "exact B-owned observer producer/cache closure; not durable settlement",
+    "exact_six_source_blobs": [
+      {
+        "path": "policy-engine/src/polisyos/core/llm/response.py",
+        "donor_blob": "33c7b310aef734b31c2ed2e61fe28d6525524b97"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+        "donor_blob": "a21bca5b1280069d6852bad0b5437d9783925886"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+        "donor_blob": "df786193b548215d84b4e7b1707c73272416d618"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "donor_blob": "0dc65ee8cbe6477c50deb965d4d7cc12b3f6c5a2"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "donor_blob": "e4aece7bace8cc969a0c896727c09cd80cef25bf"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+        "donor_blob": "311b66e54dea6c49c4a295121f3ece57aa4a30b9"
+      }
+    ]
+  },
+  "owned_footprint": {
+    "owned_path_count": 9,
+    "owned_paths": [
+      {
+        "path": "policy-engine/src/polisyos/core/llm/response.py",
+        "candidate_blob": "33c7b310aef734b31c2ed2e61fe28d6525524b97"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+        "candidate_blob": "a21bca5b1280069d6852bad0b5437d9783925886"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+        "candidate_blob": "df786193b548215d84b4e7b1707c73272416d618"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "candidate_blob": "0dc65ee8cbe6477c50deb965d4d7cc12b3f6c5a2"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "candidate_blob": "e4aece7bace8cc969a0c896727c09cd80cef25bf"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+        "candidate_blob": "311b66e54dea6c49c4a295121f3ece57aa4a30b9"
+      },
+      {
+        "path": "policy-engine/tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py",
+        "candidate_blob": "17bde17d449101fffcf86c27712adf3fa5512fcd"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "candidate_blob": "4ac872ce11f1232eed5c35f66b073a76fb2d9125"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+        "candidate_blob": "2c9e1ab1ed6b897cc2d20ad6c4f0f517359a6b50"
+      }
+    ],
+    "test_companions_checkpoint": {
+      "path": "policy-engine/_build/e02-A-continuation-20261007/canonical-B-observer-test-companions.json",
+      "sha256": "9213b5b99da68d36e2829450a0b77e1509a5750c5e26f2cd575cf9dbdf3a787c",
+      "donor_sha": "2d0f65266a9b42f56bcc73264c43e0f296e10ac5",
+      "donor_tree": "1ba4901e2d4f75f5d9d8521163a72c48c3a2b2c1",
+      "donor_commit": "7de75cca5d9fb4378906a603be2b01d17ecb7698",
+      "paths": [
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+          "donor_blob": "4ac872ce11f1232eed5c35f66b073a76fb2d9125",
+          "donor_sha256": "8e2a53ddf3245f983a8f030f4b07767d9be729d5a7e523c58a61cc3ddb1105fb",
+          "candidate_blob": "4ac872ce11f1232eed5c35f66b073a76fb2d9125",
+          "candidate_sha256": "8e2a53ddf3245f983a8f030f4b07767d9be729d5a7e523c58a61cc3ddb1105fb",
+          "donor_commit": "7de75cca5d9fb4378906a603be2b01d17ecb7698"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+          "donor_blob": "2c9e1ab1ed6b897cc2d20ad6c4f0f517359a6b50",
+          "donor_sha256": "b247897d69ec0c990aeb94700db0d471a46890e77ea6f181190e3eaa40d7b5de",
+          "candidate_blob": "2c9e1ab1ed6b897cc2d20ad6c4f0f517359a6b50",
+          "candidate_sha256": "b247897d69ec0c990aeb94700db0d471a46890e77ea6f181190e3eaa40d7b5de",
+          "donor_commit": "7de75cca5d9fb4378906a603be2b01d17ecb7698"
+        }
+      ]
+    },
+    "supporting_docs_and_release": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-a-monetary-observer-composition.toml",
+        "candidate_blob": "51eb6feab1d5ca17bc7068e78278b0270e99a9e8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/README.md",
+        "candidate_blob": "d1e89b946620a522eb8c2cce104e7826905d3daa"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+        "candidate_blob": "adc3983b39788791803c0433d321dc9bf226a00f"
+      }
+    ]
+  },
+  "carrier_footprint": {
+    "base_to_candidate_path_count": 24,
+    "base_to_candidate_insertions_deletions": "24 files changed, 5909 insertions(+), 468 deletions(-)",
+    "separate_B3_completion_budget_retention_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-08-e02-a-completion-budget-retention.toml",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_monetary_budget_hold.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py"
+    ],
+    "separate_B30_compiler_census_carrier_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+      "policy-engine/tests/unit/remediation/test_req_01_compiler_caller_census.py"
+    ],
+    "overlap": [
+      "policy-engine/src/polisyos/scientist/orchestration/llm/README.md is present in both B6 supporting docs and the later B3 carrier footprint."
+    ],
+    "classification": "The 24-path slice-base carrier diff contains the nine owned B6 source/test/companion files, B6 supporting docs/release, separate B3 completion-budget-retention work, and unrelated B30 compiler-census work. The B3 and B30 changes are not attributed to B6 or to its closure."
+  },
+  "slice_commit_footprint": {
+    "B6_source": [
+      "eee7c8f2b78fd8293fc9f1ee415fd16dec670f15"
+    ],
+    "B6_A_test_correction": [
+      "83f0a0eb9f16eac2bc6fd79ced4587b2d4d48561"
+    ],
+    "B6_test_companions": [
+      "7de75cca5d9fb4378906a603be2b01d17ecb7698"
+    ],
+    "B3_carrier": [
+      "6543d5a7835fa35aa8c96401ac954b24cc495cdc",
+      "95b7abf49915b0aa05c407e86c864308e910eab6",
+      "c8816ba08da65266eebae3630683efeebe8568c4",
+      "bcb12224a9d24c02dc86c265be56b2fbc3971216"
+    ],
+    "B30_carrier": [
+      "544aecec29fc6adf8a93505433de7877cd4f4615",
+      "10d7d8415a7f54077378b81ab09bb7437d184aa8"
+    ]
+  },
+  "limitations_and_next_owner": [
+    "B/A consumer: wire the actual ordinary NL/worker producer and its managed artifact into the consumer path, then verify fresh consumer readback without manually constructing ExperimentState.",
+    "B settlement/ledger owner: the observer callback reports settlement_status=unmanaged; a missing callback aggregate remains unknown. Establish any durable budget or settlement contract separately; no invoice authority is represented here.",
+    "B callback contract: explicit third-party partial typed settlement status remains unsupported; the tested partial aggregate is known-plus-missing and therefore aggregate missing, not an externally typed partial state.",
+    "A public-surface owner: no default RunDetails budget/cost projection is claimed; invoice and external billing surfaces remain out of scope unless separately authorized and contracted.",
+    "Finding owner: B64-B68 remain open/unverified; this packet supplies bounded runtime evidence, not finding closure or an institutionally authorized cost claim.",
+    "The source author did not perform an independent source review in this packet; treat the recorded tests as evidence for their listed bounded predicates only."
+  ],
+  "workspace_context": {
+    "observed_branch": "codex/e02-A-delivery-attached",
+    "observed_head": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+    "observed_tree": "90d5cd02c18c4ed316c69eddead4515137ffd9d0",
+    "git_status_at_packet_creation": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/",
+    "note": "Candidate SHA/tree are pinned commit identities. The pre-existing untracked wave3 documentation is not part of the committed candidate tree or the f081..bcb tracked diff; this packet is written under ignored policy-engine/_build only."
+  },
+  "architecture_reconciliation": {
+    "outcome": "FAIL",
+    "monetary_new_deep_edges": 9,
+    "root_direction_violation": "not observed in reviewed nine monetary source edges",
+    "required_owner_action": "B/Core stable facade or explicitly governed exact-edge baseline reconciliation; G canonical inventory/OpenAPI/Atlas regeneration after composed freeze. No A patches to B source or generated files.",
+    "inherited_red": "not_established"
+  }
+}

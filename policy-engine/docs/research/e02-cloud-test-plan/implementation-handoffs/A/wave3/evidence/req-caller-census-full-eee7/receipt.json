@@ -1,0 +1,27 @@
+{
+  "argv": [
+    ".venv/bin/python",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "eee7c8f2b78fd8293fc9f1ee415fd16dec670f15",
+  "candidate_tree": "9c8e009c49e5f0476781b04629c4c45e1562247e",
+  "workspace_dirty_before": [],
+  "workspace_dirty_after": [],
+  "exit_code": 0,
+  "wall_s": 42.422925834020134,
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_command.py",
+    "sha256": "ef58301dceda92cf4a17214fd281cfcb3f6f50ba98480533bc0b191878a43798"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 157667,
+      "sha256": "5cd5d5a84fffde0164b684ae6934073bc65db1a701a8c55c4b6831dabdf8f942"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

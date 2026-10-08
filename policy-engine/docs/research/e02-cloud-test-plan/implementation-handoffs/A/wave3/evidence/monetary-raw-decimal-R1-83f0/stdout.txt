@@ -1,0 +1,51 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_________ test_r1_raw_float_decoder_removal_exposes_underflow_as_zero __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x109c0e9e0>
+
+    @pytest.mark.asyncio
+    @pytest.mark.skipif(
+        os.environ.get("POLISYOS_E02_RAW_COST_DECIMAL_REMOVAL") != "1",
+        reason="R1 removal probe runs only with its explicit environment selector",
+    )
+    async def test_r1_raw_float_decoder_removal_exposes_underflow_as_zero(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Removing Decimal decoding makes the unchanged positive underflow look valid."""
+        from polisyos.runtime.http.services.control.response_shapes import _cost_event_evidence
+    
+        _install_r1_float_json_decoder(monkeypatch)
+        raw_payload = _completion_payload(cost_lexeme="1e-1000")
+        async with _http_completions([raw_payload]) as (base_url, requests):
+            events: list[dict[str, Any]] = []
+            client = _traced_client(base_url=base_url, events=events)
+            try:
+                response = await client.generate(
+                    user="retain exact tiny positive cost",
+                    max_tokens=1,
+                )
+            finally:
+                await client.aclose()
+    
+        assert len(requests) == 1
+        assert requests[0]["response_body"] == raw_payload
+        assert len(events) == 1
+        event = events[0]
+        assert event.get("provider_call") is True
+        assert event.get("cache_hit") is False
+        assert event.get("event_identity")
+        assert response.raw["usage"]["cost_usd"] == 0.0
+        # The invariant expects invalid. With ordinary float decoding the same raw
+        # positive lexeme underflows to zero, so this assertion naturally fails.
+>       assert event.get("cost_status") == "invalid", _cost_event_evidence(event)
+E       AssertionError: {'cache_hit': False, 'completion_tokens': 1, 'cost_delta_usd': -1.25e-05, 'cost_origin': 'reported', ...}
+E       assert 'known' == 'invalid'
+E         
+E         - invalid
+E         + known
+
+tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py:349: AssertionError
+=========================== short test summary info ============================
+FAILED tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py::test_r1_raw_float_decoder_removal_exposes_underflow_as_zero
+1 failed in 11.29s

@@ -1,0 +1,698 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "budget-completion-retention",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "6543d5a7835fa35aa8c96401ac954b24cc495cdc",
+  "implementation_commits": [
+    "95b7abf49915b0aa05c407e86c864308e910eab6"
+  ],
+  "candidate_tree_sha": "90d5cd02c18c4ed316c69eddead4515137ffd9d0",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-08-e02-a-completion-budget-retention.toml",
+    "policy-engine/src/polisyos/core/llm/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_monetary_budget_hold.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "check_id": "pre-B3-unknown-completion-red-6543",
+      "name": "Exact slice-base red: successful provider reply with missing cost released the reservation",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-owner-hold-pre-B3-red/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-owner-hold-pre-B3-red/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_monetary_budget_hold.py"
+      ],
+      "target_sha": "6543d5a7835fa35aa8c96401ac954b24cc495cdc",
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-owner-hold-pre-B3-red:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine"
+      },
+      "input_closure": {
+        "candidate_sha": "6543d5a7835fa35aa8c96401ac954b24cc495cdc",
+        "candidate_tree_sha": "24af65c064d813b9ce9f6c425f41833b8627178e",
+        "test_blob": "5de3015ef80ddeac317b7215dd1f9838ce1d2a02",
+        "scope": "One integration test file at exact B3 slice base; actual one-case red plus two known-cost controls."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "summary": "1 failed, 2 passed in 0.19s; exact failure: unknown successful HTTP completion left BudgetState.reserved[run] at Decimal(0), expected > 0. This is the pre-composition baseline witness, not an inherited-red/P41 closure decision.",
+        "junit_summary": {
+          "tests": 3,
+          "passed": 2,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "artifacts": {
+          "receipt.json": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-pre-B3-red/receipt.json",
+            "bytes": 2503,
+            "sha256": "26c3d13fb0871ee0c039c37d7a636d87ce37e1a19d29a26de3f3c88c1e23a7f8",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-pre-B3-red/receipt.json"
+          },
+          "stdout.txt": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-pre-B3-red/stdout.txt",
+            "bytes": 2934,
+            "sha256": "107c58c62894bcf9936be5bd685f92659435567c755dd23958fab7fe8ad38562",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-pre-B3-red/stdout.txt"
+          },
+          "stderr.txt": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-pre-B3-red/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-pre-B3-red/stderr.txt"
+          },
+          "junit.xml": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-pre-B3-red/junit.xml",
+            "bytes": 3541,
+            "sha256": "df1dcc2cc48d50f0061bff73c5414bbf4c0fb8573901b7acf06533b2456891c4",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-pre-B3-red/junit.xml"
+          },
+          "origins.json": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-pre-B3-red/origins.json",
+            "bytes": 492,
+            "sha256": "af7f3e08e36fa78cf8850e144ebcdf92951ab038bac3da989700fdf9e734ba49",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-pre-B3-red/origins.json"
+          },
+          "e02_origin.py": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-pre-B3-red/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-pre-B3-red/e02_origin.py"
+          }
+        },
+        "shared_copy_status": "byte_exact_canonical_copy_retained"
+      }
+    },
+    {
+      "check_id": "focused-completion-retention-c881",
+      "name": "Focused HTTP unknown-cost durable retention and known zero/positive controls",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-owner-hold-frozen-c881/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-owner-hold-frozen-c881/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_monetary_budget_hold.py"
+      ],
+      "target_sha": "c8816ba08da65266eebae3630683efeebe8568c4",
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-owner-hold-frozen-c881:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine"
+      },
+      "input_closure": {
+        "candidate_sha": "c8816ba08da65266eebae3630683efeebe8568c4",
+        "candidate_tree_sha": "e881d2d27af52ffdedc1dee35d7f979b322e76b6",
+        "source_commit": "95b7abf49915b0aa05c407e86c864308e910eab6",
+        "test_blob": "46ce09a5e93fe8af94cd0bc2c75e8f99224da7cf",
+        "scope": "The focused integration file exercises successful loopback HTTP response with missing usage, explicit FileBudgetLedger injection, fresh ledger/middleware reopen, same-key pre-provider retry refusal, R1 removal of durable admission, and known zero/positive controls. The R1 removal test itself passes by observing the expected absence of retained reservation when the property is removed."
+      },
+      "outcome": "PASS",
+      "output": {
+        "summary": "7 passed in 0.22s (pytest stdout); runner wall 1.2211500839912333s. This focused run is separate and overlaps the later affected suite; do not add test counts.",
+        "junit_summary": {
+          "tests": 7,
+          "passed": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "artifacts": {
+          "receipt.json": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-frozen-c881/receipt.json",
+            "bytes": 2504,
+            "sha256": "311edabb656328e54f9a8c3782bcd74be898866dec6f398d1ac1fa14b979ad77",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-frozen-c881/receipt.json"
+          },
+          "stdout.txt": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-frozen-c881/stdout.txt",
+            "bytes": 98,
+            "sha256": "9de5301c27ae23532fb97beb653d0ae02ede7ede4e205624027a3e6ca2a77a20",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-frozen-c881/stdout.txt"
+          },
+          "stderr.txt": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-frozen-c881/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-frozen-c881/stderr.txt"
+          },
+          "junit.xml": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-frozen-c881/junit.xml",
+            "bytes": 1555,
+            "sha256": "ff4f8e0c2e5edfebc588ae0b42f811336e90e666abddfc32e15e2fee094fcc84",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-frozen-c881/junit.xml"
+          },
+          "origins.json": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-frozen-c881/origins.json",
+            "bytes": 492,
+            "sha256": "af7f3e08e36fa78cf8850e144ebcdf92951ab038bac3da989700fdf9e734ba49",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-frozen-c881/origins.json"
+          },
+          "e02_origin.py": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-frozen-c881/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-owner-hold-frozen-c881/e02_origin.py"
+          }
+        },
+        "shared_copy_status": "byte_exact_canonical_copy_retained"
+      }
+    },
+    {
+      "check_id": "affected-budget-composition-bcb122",
+      "name": "Affected B consumer and A integration/unit suite on current B3 candidate",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-composed-affected-bcb122/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-composed-affected-bcb122/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py",
+        "tests/integration/core_runtime/test_e02_monetary_budget_hold.py",
+        "tests/unit/runtime/http/services/test_e02_monetary_usage_projection.py",
+        "tests/unit/core/test_llm_core.py",
+        "tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+        "tests/unit/scientist/orchestration/llm/test_factory.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "tests/unit/scientist/orchestration/engine/test_budget.py",
+        "tests/unit/remediation/test_llm_01.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py::test_traced_client_sanitizes_requests_and_restores_responses"
+      ],
+      "target_sha": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-composed-affected-bcb122:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine"
+      },
+      "input_closure": {
+        "candidate_sha": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+        "candidate_tree_sha": "90d5cd02c18c4ed316c69eddead4515137ffd9d0",
+        "source_blobs": {
+          "budget_enforcer.py": "70b6067337a239d98ae468f2d8cb229a1d7bd336",
+          "budget_middleware.py": "596731c164fc1ad264b4f157f74b58cf73f7c513",
+          "budget_ledger.py": "edc20aeef614fa3486868b04fc4be03ace992893"
+        },
+        "test_companion_commits": [
+          "c8816ba08da65266eebae3630683efeebe8568c4",
+          "bcb12224a9d24c02dc86c265be56b2fbc3971216"
+        ],
+        "full_base_to_candidate_path_count": 12,
+        "scope": "Affected test selectors are exactly those in argv; suite overlaps the focused c881 command and is not a second independent sample."
+      },
+      "outcome": "PASS",
+      "output": {
+        "summary": "313 passed, 1 skipped in 22.77s (pytest stdout); runner wall 39.55480929202167s. Preserve the skip; this is not a full repository suite.",
+        "junit_summary": {
+          "tests": 314,
+          "passed": 313,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 1
+        },
+        "artifacts": {
+          "receipt.json": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-composed-affected-bcb122/receipt.json",
+            "bytes": 3472,
+            "sha256": "3382ca6a3ab0de798e503d53b23113136c99f33eb270829093b55e369f6baa49",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-composed-affected-bcb122/receipt.json"
+          },
+          "stdout.txt": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-composed-affected-bcb122/stdout.txt",
+            "bytes": 432,
+            "sha256": "de290611481fca57b8fe6a1ecb453c55c250220b325d386fcd3b550fd51b727e",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-composed-affected-bcb122/stdout.txt"
+          },
+          "stderr.txt": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-composed-affected-bcb122/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-composed-affected-bcb122/stderr.txt"
+          },
+          "junit.xml": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-composed-affected-bcb122/junit.xml",
+            "bytes": 58150,
+            "sha256": "b6edeeab9e2b31c43b86e6c289d8652b21c88a68dfc38a466485223a002b6708",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-composed-affected-bcb122/junit.xml"
+          },
+          "origins.json": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-composed-affected-bcb122/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-composed-affected-bcb122/origins.json"
+          },
+          "e02_origin.py": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-composed-affected-bcb122/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-composed-affected-bcb122/e02_origin.py"
+          }
+        },
+        "shared_copy_status": "byte_exact_canonical_copy_retained"
+      }
+    },
+    {
+      "check_id": "owned-ruff-bcb122",
+      "name": "Ruff on affected budget owners and listed importers/companions",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/core/llm/response.py",
+        "src/polisyos/core/llm/settlement.py",
+        "src/polisyos/core/llm/traced_client.py",
+        "src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "src/polisyos/scientist/orchestration/llm/factory.py",
+        "src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py",
+        "tests/integration/core_runtime/test_e02_monetary_budget_hold.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "tests/unit/remediation/test_llm_01.py",
+        "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "tests/unit/remediation/test_req_01_compiler_caller_census.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py"
+      ],
+      "target_sha": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine"
+      },
+      "input_closure": {
+        "candidate_sha": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+        "candidate_tree_sha": "90d5cd02c18c4ed316c69eddead4515137ffd9d0",
+        "scope": "Exact 20 paths in the retained Ruff argv; includes 3 budget source owners, 5 B3 test paths and adjacent affected consumers."
+      },
+      "outcome": "PASS",
+      "output": {
+        "summary": "All checks passed!; wall 0.21954562503378838s.",
+        "artifacts": {
+          "receipt.json": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/final-monetary-req-owned-ruff-bcb122/receipt.json",
+            "sha256": "7b900603244f72d31bf29182231733b6017842db7212e595d6a8e7086cf0411b",
+            "bytes": 2302,
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/final-monetary-req-owned-ruff-bcb122/receipt.json"
+          },
+          "stdout.txt": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/final-monetary-req-owned-ruff-bcb122/stdout.txt",
+            "bytes": 19,
+            "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/final-monetary-req-owned-ruff-bcb122/stdout.txt"
+          },
+          "stderr.txt": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/final-monetary-req-owned-ruff-bcb122/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/final-monetary-req-owned-ruff-bcb122/stderr.txt"
+          }
+        },
+        "shared_copy_status": "byte_exact_canonical_copy_retained"
+      }
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "target_sha": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_command.py",
+          "sha256": "ef58301dceda92cf4a17214fd281cfcb3f6f50ba98480533bc0b191878a43798"
+        },
+        "env_capture": "inherited environment; not fully captured"
+      },
+      "input_closure": {
+        "source_tree": "90d5cd02c18c4ed316c69eddead4515137ffd9d0",
+        "complete_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-req-architecture-bcb122/stdout.txt",
+        "generated_probe_concurrent_receipt_copy": "harness race; no inherited-red classification"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-req-architecture-bcb122/receipt.json",
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-req-architecture-bcb122/stdout.txt",
+        "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/monetary-req-architecture-bcb122/stderr.txt",
+        "exit_code": 1,
+        "wall_s": 187.38013358303579,
+        "summary": "Public inventory, deep-import baseline, OpenAPI and Atlas drift; additional generator isolation failure caused by concurrent copying of documentation receipts. Full output retained; no P41 inherited-red claim."
+      }
+    }
+  ],
+  "property": {
+    "statement": "When an obtained provider response has unknown monetary usage/cost, the explicitly configured LLMBudgetEnforcer → BudgetMiddleware → FileBudgetLedger path retains a typed cost_unknown completion obligation and the run reservation, records no zero-cost spend receipt, and blocks a same-key retry before a second provider call; known zero and positive amounts remain distinct controls.",
+    "runtime_path": [
+      "loopback HTTP LLM provider response with missing usage",
+      "BudgetLedgerCompletionObligation in FileBudgetLedger snapshot",
+      "explicit BudgetMiddleware injection into LLMBudgetEnforcer",
+      "fresh FileBudgetLedger readback and enforcer pre-provider retry guard"
+    ],
+    "proxy_divergence": "A BudgetState-only in-memory check cannot establish process-restart durability, and a missing amount cannot be treated as zero or as a measured debit. The focused test reopens a fresh FileBudgetLedger instance and checks the persisted obligation, held run reservation, absent spend receipt, and refusal before another provider request. The R1 property-removal test keeps the same response path but removes only durable owner admission; it passes by witnessing that the persisted snapshot then has no reserved amount.",
+    "negative_controls": [
+      "Exact 6543 pre-composition baseline: missing-cost successful response ended with reservation 0 (1 red, 2 known-cost controls green).",
+      "Focused R1 removal of durable admission: expected test PASS observes the missing persisted reservation; do not report it as an ordinary gate failure.",
+      "Known zero-cost completion persists a zero receipt and releases reserve; known positive completion persists the reported amount and releases reserve.",
+      "Same-key retry is refused before a second provider request while the unknown completion is unresolved."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "implemented_but_not_orchestrated",
+  "limitations_and_next_owner": [
+    "This is a bounded completion-retention mechanism report, not a new B11 closure decision. The current A root row records B11 as limited with closure unchanged; see the pinned root adjudication reference below.",
+    "The tested durable path explicitly injects BudgetMiddleware with FileBudgetLedger. The complete tracked source callsite census finds two LLMBudgetEnforcer constructor callsites (translator and adversary), both BudgetState-only; durable fresh-process configuration for those callers is not established. Next owner: A runtime integration owner if that configuration is required for those callsites.",
+    "This local ledger path does not establish external provider invoice truth, independent billing reconciliation, or a real monetary debit. No invoice authority is claimed.",
+    "This slice does not re-run the original B11 scheduler priority, budget-defer, score-surface, or budget-exhaustion criteria. Existing B11 receipts remain separate: the current root row records informative VOI → real N5/value-conditional and budget-defer evidence plus 14 scheduler cases and a manual artifact-preview refusal; it leaves the public heuristic caveat and genuine exhaustion evidence as remaining work.",
+    "B66 is not a B11 prerequisite and is not evaluated or closed by this slice. No new HTTP endpoint is introduced; the persisted ledger is consumed only by the explicitly configured budget owner."
+  ],
+  "candidate_sha": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+  "slice_base_tree_sha": "24af65c064d813b9ce9f6c425f41833b8627178e",
+  "finding_ids": [
+    "B11"
+  ],
+  "finding_outcome": {
+    "B11": "limited"
+  },
+  "source_pin": {
+    "criterion": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "section": "B11. Информационный приоритет не должен обнуляться экономической эвристикой",
+      "lines": "325-336"
+    },
+    "implementation_commit": "95b7abf49915b0aa05c407e86c864308e910eab6",
+    "implementation_parent": "6543d5a7835fa35aa8c96401ac954b24cc495cdc",
+    "implementation_tree": "bae2a4d25def99faf1e2c7eb5e8964562eeb9d68",
+    "implementation_source_blobs": {
+      "budget_enforcer.py": "70b6067337a239d98ae468f2d8cb229a1d7bd336",
+      "budget_middleware.py": "596731c164fc1ad264b4f157f74b58cf73f7c513",
+      "budget_ledger.py": "edc20aeef614fa3486868b04fc4be03ace992893"
+    },
+    "test_companion_commits": [
+      "c8816ba08da65266eebae3630683efeebe8568c4",
+      "bcb12224a9d24c02dc86c265be56b2fbc3971216"
+    ],
+    "candidate_tree": "90d5cd02c18c4ed316c69eddead4515137ffd9d0",
+    "current_root_b11_adjudication": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+      "candidate_blob": "3bbebc438e989b58be07584cf5823611847d66bd",
+      "candidate_file_sha256": "c70f498ea39c1b9d2f6bb7c25da844feb5f28081dd714375bc0a951657c1b83b",
+      "json_pointer": "/current_root_adjudication_20261008/rows/B11",
+      "recorded_outcome": "limited",
+      "finding_outcome_change": "none",
+      "closure_change": "none",
+      "recorded_remaining": "public heuristic score caveat and genuine budget exhaustion evidence"
+    }
+  },
+  "test_companion_commits": [
+    "c8816ba08da65266eebae3630683efeebe8568c4",
+    "bcb12224a9d24c02dc86c265be56b2fbc3971216"
+  ],
+  "source_test_footprint": {
+    "denominator": "Complete `git diff --name-status --no-renames 6543d5a7835fa35aa8c96401ac954b24cc495cdc bcb12224a9d24c02dc86c265be56b2fbc3971216` path set read from immutable Git objects.",
+    "path_count": 12,
+    "counts_by_kind": {
+      "source": 3,
+      "test": 5,
+      "documentation_companion": 3,
+      "release_companion": 1
+    },
+    "source_paths": [
+      "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py"
+    ],
+    "test_paths": [
+      "policy-engine/tests/integration/core_runtime/test_e02_monetary_budget_hold.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py"
+    ],
+    "documentation_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-08-e02-a-completion-budget-retention.toml",
+      "policy-engine/src/polisyos/core/llm/README.md",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/README.md"
+    ],
+    "full_path_blob_manifest": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-a-completion-budget-retention.toml",
+        "kind": "release-companion",
+        "base_blob": null,
+        "candidate_blob": "8314bceabcf33d7f18eddb0608b96f49b366b9c1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/README.md",
+        "kind": "documentation-companion",
+        "base_blob": "63ea314eccd14f08ce85de91b1c3b288fc3e4ef8",
+        "candidate_blob": "d1e89b946620a522eb8c2cce104e7826905d3daa"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+        "kind": "documentation-companion",
+        "base_blob": "badce72eed11befb1dfb083b233cb44452007bd7",
+        "candidate_blob": "da2cd6e7a6620d962507428c85d02fde2ea6acc7"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "kind": "source",
+        "base_blob": "4a223413b8f81a07db4e11fd2aa310a615123b62",
+        "candidate_blob": "edc20aeef614fa3486868b04fc4be03ace992893"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "kind": "source",
+        "base_blob": "9ec1ef8622779386ff7740df58781caa9643c9d4",
+        "candidate_blob": "596731c164fc1ad264b4f157f74b58cf73f7c513"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+        "kind": "documentation-companion",
+        "base_blob": "3c45bde01b2eead23ba3219cea80b729357281c0",
+        "candidate_blob": "adc3983b39788791803c0433d321dc9bf226a00f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "kind": "source",
+        "base_blob": "a9495ddede391755196189929ee02c10f75364cd",
+        "candidate_blob": "70b6067337a239d98ae468f2d8cb229a1d7bd336"
+      },
+      {
+        "path": "policy-engine/tests/integration/core_runtime/test_e02_monetary_budget_hold.py",
+        "kind": "test",
+        "base_blob": "5de3015ef80ddeac317b7215dd1f9838ce1d2a02",
+        "candidate_blob": "46ce09a5e93fe8af94cd0bc2c75e8f99224da7cf"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "kind": "test",
+        "base_blob": null,
+        "candidate_blob": "a8a6ad561cc598fb72c7fd6c0e2170b0d11dd36f"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "kind": "test",
+        "base_blob": "89dde1da1d91b41c18e85fec0bd4ea6102f6f588",
+        "candidate_blob": "ea6399f0c8de7920d18bfdfbf5882e3cdd795688"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "kind": "test",
+        "base_blob": "c5d808a9e005910f8bff973b01ae9126b9752f1e",
+        "candidate_blob": "0e99193a709e6db5c663eb2ac69f2f1c4a3169ae"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+        "kind": "test",
+        "base_blob": null,
+        "candidate_blob": "f1b5da1a9d4ca25720379dd6202318a9c26b6f35"
+      }
+    ],
+    "range_numstat": {
+      "source_additions": 2179,
+      "source_deletions": 167,
+      "tests_additions": 1282,
+      "tests_deletions": 16,
+      "documentation_and_release_additions": 39,
+      "documentation_and_release_deletions": 2,
+      "total_additions": 3500,
+      "total_deletions": 185
+    },
+    "scope_note": "All 12 paths are within the 95b7 implementation plus c881/bcb test-companion range. The 4 docs/release files document this owner composition. The five test paths include the focused HTTP property probe and companion ledger/middleware/enforcer coverage. No foreign commit is included in this slice range.",
+    "consumer_callsite_census": {
+      "candidate_sha": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+      "complete_source_denominator": "All 2700 tracked .py files under policy-engine/src/polisyos at the immutable candidate tree (git ls-tree -r; files ending .py).",
+      "command": "git grep -n -E 'LLMBudgetEnforcer\\(' bcb12224a9d24c02dc86c265be56b2fbc3971216 -- policy-engine/src/**/*.py",
+      "matches": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+          "line": 127,
+          "blob": "11ac91e6e7a68453b2d322c448a1812dac1ff4cb",
+          "configuration": "passes budget_state, budget_keys, model_name, run_id; does not pass budget_middleware"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+          "line": 199,
+          "blob": "6b3bac9e054559146050e44634dd41a3445b5061",
+          "configuration": "passes budget_state, budget_keys, model_name, run_id; does not pass budget_middleware"
+        }
+      ],
+      "budget_middleware_keyword_constructor_arguments": "0 in tracked product source; full candidate grep found only internal attribute assignments in budget_enforcer.py and async_executor.py.",
+      "interpretation": "The two existing A caller constructors remain BudgetState-only. Durable fresh-process behavior is verified only for explicit injection in the bounded test fixture; default A durable wiring is not established."
+    }
+  },
+  "criterion_source": "B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a#B11 (original criterion only; B66 expansion excluded).",
+  "evidence_record": {
+    "evidence_copy_policy": "Complete moderate deciding outputs are retained once under A/wave3/evidence/<run>/ with byte-exact size and SHA verification; raw basetemps/unique CAS remain local and are not copied.",
+    "runs": [
+      "monetary-owner-hold-pre-B3-red",
+      "monetary-owner-hold-frozen-c881",
+      "monetary-composed-affected-bcb122",
+      "final-monetary-req-owned-ruff-bcb122"
+    ],
+    "candidate": {
+      "sha": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+      "tree": "90d5cd02c18c4ed316c69eddead4515137ffd9d0"
+    },
+    "candidate_stage": "immutable implementation source/test candidate; handoff pending separate documentation commit",
+    "canonical_evidence_directory_status": "byte_exact_canonical_copy_retained",
+    "root_b11_current_adjudication": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json@3bbebc438e989b58be07584cf5823611847d66bd#/current_root_adjudication_20261008/rows/B11"
+  },
+  "independent_review_context": {
+    "source_review": "not included in this author draft; this is not a source-review disposition.",
+    "formal_finding_owner": "Root/A finding adjudication; no semantic-owner ratification inferred from test adjacency."
+  },
+  "pattern_pass": {
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P04",
+      "P05",
+      "P10",
+      "P29",
+      "P37",
+      "P38",
+      "P41"
+    ],
+    "existing_antipatterns": [
+      "P01/P02 bounded gap: optional FileBudgetLedger path is exercised, but the complete source callsite census shows the two current A LLMBudgetEnforcer constructors remain BudgetState-only.",
+      "P04/P10 risk: unknown amount must remain distinct from known zero and reported positive cost.",
+      "P05: local accounting acknowledgement is not an external invoice or billing authority.",
+      "P38: in-memory state alone is a persistence proxy; fresh ledger reopen and actual retry consumer check the property."
+    ],
+    "target_pattern": "Reuse BudgetMiddleware and FileBudgetLedger; preserve unknown completion as typed durable obligation and reservation; verify through a fresh owner instance and actual enforcer retry decision.",
+    "missing_capability_labels": [
+      "implemented_but_not_orchestrated for default A durable configuration; external invoice truth remains not_established and is outside this mechanism."
+    ],
+    "acceptance_signal": "Exact-base pre-composition red for the lost reservation; focused unknown-cost durable positive and owner-removal witness; known zero/positive controls; current affected suite and Ruff pass. The current root B11 finding remains limited with no closure change."
+  },
+  "behavioral_evidence": {
+    "focused_candidate": "c8816ba08da65266eebae3630683efeebe8568c4",
+    "current_candidate": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+    "fresh_process_readback": "The test reopens FileBudgetLedger through a new instance and checks the held reservation and cost_unknown obligation before same-key retry.",
+    "provider_call_control": "The same-key retry is rejected before a second loopback HTTP provider request.",
+    "known_amount_controls": [
+      "known zero",
+      "known positive"
+    ],
+    "property_removal": "R1 removes only durable admission; the test passes on observing the property disappeared from the persisted reservation state."
+  },
+  "coverage_boundary": {
+    "b11_relation": "B11 remains limited under the current root row, with no closure change. Existing separate B11 evidence is recorded there; this slice does not add proof for the remaining public heuristic-score caveat or genuine-exhaustion criterion.",
+    "b66_relation": "B66 is not a B11 prerequisite and is not evaluated or closed by this slice. This packet does not claim external billing truth, production provider settlement, or all B66 obligations.",
+    "default_a_configuration": {
+      "predicate_basis": "not_established",
+      "source_census_ref": "source_test_footprint.consumer_callsite_census",
+      "statement": "Two LLMBudgetEnforcer constructor callsites occur in the complete tracked source census; both pass only BudgetState and neither passes durable BudgetMiddleware."
+    },
+    "surface": "surface_out_of_scope for new HTTP/API endpoint; persistence is consumed by explicitly configured BudgetMiddleware/LLMBudgetEnforcer."
+  },
+  "documentation_companions": [
+    "policy-engine/release-fragments/unreleased/2026-10-08-e02-a-completion-budget-retention.toml",
+    "policy-engine/src/polisyos/core/llm/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/README.md"
+  ],
+  "changed_paths_scope": {
+    "base": "6543d5a7835fa35aa8c96401ac954b24cc495cdc",
+    "candidate": "bcb12224a9d24c02dc86c265be56b2fbc3971216",
+    "full_path_count": 12,
+    "source": 3,
+    "tests": 5,
+    "docs_and_release": 4
+  },
+  "foreign_assembly_companion_commits": [],
+  "review_decisions": [],
+  "historical_unfrozen_reviews": [],
+  "architecture_reconciliation": {
+    "outcome": "FAIL",
+    "monetary_new_deep_edges": 9,
+    "root_direction_violation": "not observed in reviewed nine monetary source edges",
+    "required_owner_action": "B/Core stable facade or explicitly governed exact-edge baseline reconciliation; G canonical inventory/OpenAPI/Atlas regeneration after composed freeze. No A patches to B source or generated files.",
+    "inherited_red": "not_established"
+  }
+}

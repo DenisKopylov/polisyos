@@ -1,0 +1,63 @@
+{
+  "workspace_dirty_before": [
+    "?? policy-engine/tests/integration/core_runtime/test_e02_monetary_budget_hold.py"
+  ],
+  "workspace_dirty_after": [
+    "?? policy-engine/tests/integration/core_runtime/test_e02_monetary_budget_hold.py"
+  ],
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "e02_origin",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "-q",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-maintained-final/junit.xml",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-maintained-final/pytest-basetemp",
+    "tests/unit/remediation/test_req_01_compiler_caller_census.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "10d7d8415a7f54077378b81ab09bb7437d184aa8",
+  "candidate_tree": "0f1beaa5dad676d7e1e2dfdf5870982a0a1191cd",
+  "exit_code": 0,
+  "wall_s": 0.9784424160025083,
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/req-caller-binding-maintained-final:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "JAX_PLATFORMS": "cpu"
+  },
+  "probe_environment": {},
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+    "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 109,
+      "sha256": "c017ceb4dd97a515ab60beb9f4dc9481a1df00e598dcb8a835a7f8945f2e3807"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "e02_origin.py": {
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    "junit.xml": {
+      "bytes": 1969,
+      "sha256": "ea1b6a953540d94f32949b17d41285174d8242ee417435d9de7383790f31a6a9"
+    },
+    "origins.json": {
+      "bytes": 492,
+      "sha256": "af7f3e08e36fa78cf8850e144ebcdf92951ab038bac3da989700fdf9e734ba49"
+    }
+  }
+}

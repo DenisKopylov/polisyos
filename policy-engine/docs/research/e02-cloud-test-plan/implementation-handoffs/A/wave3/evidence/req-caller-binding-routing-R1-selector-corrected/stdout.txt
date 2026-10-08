@@ -1,0 +1,48 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______ test_clean_global_nonlocal_alias_control_detects_removed_routing _______
+
+    @pytest.mark.skipif(
+        os.environ.get("POLISYOS_E02_COMPILER_BINDING_ROUTING_REMOVAL") != "1",
+        reason="R1 mutation witness runs only when binding-routing removal is requested",
+    )
+    def test_clean_global_nonlocal_alias_control_detects_removed_routing() -> None:
+        scanner_tree = ast.parse(_SCANNER_PATH.read_text(encoding="utf-8"), filename=str(_SCANNER_PATH))
+        routing_loops = [
+            node
+            for node in ast.walk(scanner_tree)
+            if isinstance(node, ast.For)
+            and isinstance(node.iter, ast.Name)
+            and node.iter.id in {"global_events", "nonlocal_events"}
+        ]
+        assert len(routing_loops) == 2
+        assert {node.iter.id for node in routing_loops if isinstance(node.iter, ast.Name)} == {
+            "global_events",
+            "nonlocal_events",
+        }
+        for node in routing_loops:
+            node.iter = ast.Tuple(elts=[], ctx=ast.Load())
+        ast.fix_missing_locations(scanner_tree)
+    
+        namespace: dict[str, object] = {
+            "__file__": str(_SCANNER_PATH),
+            "__name__": "e02_census_tracked_python_r1_probe",
+        }
+        exec(  # noqa: S102 - execute an in-memory AST clone of the tracked scanner.
+            compile(scanner_tree, str(_SCANNER_PATH), "exec"), namespace
+        )
+        probe_source_findings = namespace["source_findings"]
+        findings = probe_source_findings(
+            "synthetic_req_01_binding_routing_removal.py",
+            _clean_global_nonlocal_import_source(),
+            _PACKAGE_INIT_PATHS,
+        )
+    
+>       assert len(findings["dynamic_import_literals"]) == 3
+E       AssertionError: assert 2 == 3
+E        +  where 2 = len([{'line': 5, 'module': 'polisyos.data_requirement.compiler', 'path': 'synthetic_req_01_binding_routing_removal.py'}, {'line': 16, 'module': 'polisyos.data_requirement.compiler', 'path': 'synthetic_req_01_binding_routing_removal.py'}])
+
+tests/unit/remediation/test_req_01_compiler_caller_census.py:111: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_req_01_compiler_caller_census.py::test_clean_global_nonlocal_alias_control_detects_removed_routing
+1 failed in 0.06s

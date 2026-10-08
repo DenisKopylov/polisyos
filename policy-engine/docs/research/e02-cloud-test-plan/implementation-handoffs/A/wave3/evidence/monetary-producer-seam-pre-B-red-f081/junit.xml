@@ -1,0 +1,893 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="1" tests="9" time="16.068" timestamp="2026-10-08T02:06:52.682168+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.integration.core_runtime.test_e02_monetary_producer_budget_readback" name="test_actual_http_cost_events_keep_typed_meaning[reported-zero]" time="14.974"><failure message="AssertionError: ('reported-zero', {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': None, ...})&#10;assert None == 'known'&#10; +  where None = &lt;built-in method get of dict object at 0x13d7ce200&gt;('cost_status')&#10; +    where &lt;built-in method get of dict object at 0x13d7ce200&gt; = {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': None, ...}.get">case_name = 'reported-zero'
+payloads = [b'{"choices":[{"message":{"content":"loopback answer"}}],"model":"gpt-4o","provider":"loopback-provider","usage":{"prompt_tokens":1,"completion_tokens":1,"cost_usd":0}}']
+prompts = ['report an actual zero'], event_statuses = ['known']
+event_origins = ['reported'], summary_status = 'known'
+summary_origin = 'reported'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        (
+            "case_name",
+            "payloads",
+            "prompts",
+            "event_statuses",
+            "event_origins",
+            "summary_status",
+            "summary_origin",
+        ),
+        [
+            (
+                "reported-zero",
+                [_completion_payload(cost_lexeme="0")],
+                ["report an actual zero"],
+                ["known"],
+                ["reported"],
+                "known",
+                "reported",
+            ),
+            (
+                "positive-underflow",
+                [_completion_payload(cost_lexeme="1e-1000")],
+                ["retain exact tiny positive cost"],
+                ["invalid"],
+                ["unknown"],
+                "invalid",
+                "unknown",
+            ),
+            (
+                "negative-underflow",
+                [_completion_payload(cost_lexeme="-1e-1000")],
+                ["retain exact tiny negative cost"],
+                ["invalid"],
+                ["unknown"],
+                "invalid",
+                "unknown",
+            ),
+            (
+                "negative-cost",
+                [_completion_payload(cost_lexeme="-0.02")],
+                ["reject a negative provider cost"],
+                ["invalid"],
+                ["unknown"],
+                "invalid",
+                "unknown",
+            ),
+            (
+                "missing-unknown",
+                [_completion_payload(usage_known=False)],
+                ["leave cost and usable token evidence missing"],
+                ["missing"],
+                ["unknown"],
+                "missing",
+                "unknown",
+            ),
+            (
+                "reported-and-estimated",
+                [
+                    _completion_payload(cost_lexeme="0.02"),
+                    _completion_payload(),
+                ],
+                ["report a cost", "omit reported cost but include usage"],
+                ["known", "missing"],
+                ["reported", "estimated"],
+                "known",
+                "mixed",
+            ),
+        ],
+        ids=(
+            "reported-zero",
+            "positive-underflow",
+            "negative-underflow",
+            "negative-cost",
+            "missing-unknown",
+            "reported-and-estimated",
+        ),
+    )
+    async def test_actual_http_cost_events_keep_typed_meaning(
+        case_name: str,
+        payloads: list[bytes],
+        prompts: list[str],
+        event_statuses: list[str],
+        event_origins: list[str],
+        summary_status: str,
+        summary_origin: str,
+    ) -&gt; None:
+        """The real HTTP decoder, trace callback, and A budget gate preserve source meaning."""
+        from polisyos.runtime.http.services.control.nl_pipeline import _budget_cost_amount
+        from polisyos.runtime.http.services.control.response_shapes import (
+            _cost_event_evidence,
+            _sum_call_events,
+        )
+    
+        async with _http_completions(payloads) as (base_url, requests):
+            events: list[dict[str, Any]] = []
+            client = _traced_client(base_url=base_url, events=events)
+            responses: list[Any] = []
+            try:
+                for prompt in prompts:
+                    responses.append(await client.generate(user=prompt, max_tokens=1))
+            finally:
+                await client.aclose()
+    
+        assert len(requests) == len(payloads), case_name
+        assert all(item["idempotency_key"] for item in requests), case_name
+        assert len(events) == len(prompts), case_name
+        assert len(responses) == len(prompts), case_name
+    
+        for event, status, origin in zip(events, event_statuses, event_origins, strict=True):
+            # This is deliberately the first semantic assertion: on the pre-adoption
+            # f029 source the callback exists but has no typed producer cost status.
+&gt;           assert event.get("cost_status") == status, (case_name, event)
+E           AssertionError: ('reported-zero', {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': None, ...})
+E           assert None == 'known'
+E            +  where None = &lt;built-in method get of dict object at 0x13d7ce200&gt;('cost_status')
+E            +    where &lt;built-in method get of dict object at 0x13d7ce200&gt; = {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': None, ...}.get
+
+tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py:277: AssertionError</failure></testcase><testcase classname="tests.integration.core_runtime.test_e02_monetary_producer_budget_readback" name="test_actual_http_cost_events_keep_typed_meaning[positive-underflow]" time="0.002"><failure message="AssertionError: ('positive-underflow', {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': None, ...})&#10;assert None == 'invalid'&#10; +  where None = &lt;built-in method get of dict object at 0x13d8be740&gt;('cost_status')&#10; +    where &lt;built-in method get of dict object at 0x13d8be740&gt; = {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': None, ...}.get">case_name = 'positive-underflow'
+payloads = [b'{"choices":[{"message":{"content":"loopback answer"}}],"model":"gpt-4o","provider":"loopback-provider","usage":{"prompt_tokens":1,"completion_tokens":1,"cost_usd":1e-1000}}']
+prompts = ['retain exact tiny positive cost'], event_statuses = ['invalid']
+event_origins = ['unknown'], summary_status = 'invalid'
+summary_origin = 'unknown'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        (
+            "case_name",
+            "payloads",
+            "prompts",
+            "event_statuses",
+            "event_origins",
+            "summary_status",
+            "summary_origin",
+        ),
+        [
+            (
+                "reported-zero",
+                [_completion_payload(cost_lexeme="0")],
+                ["report an actual zero"],
+                ["known"],
+                ["reported"],
+                "known",
+                "reported",
+            ),
+            (
+                "positive-underflow",
+                [_completion_payload(cost_lexeme="1e-1000")],
+                ["retain exact tiny positive cost"],
+                ["invalid"],
+                ["unknown"],
+                "invalid",
+                "unknown",
+            ),
+            (
+                "negative-underflow",
+                [_completion_payload(cost_lexeme="-1e-1000")],
+                ["retain exact tiny negative cost"],
+                ["invalid"],
+                ["unknown"],
+                "invalid",
+                "unknown",
+            ),
+            (
+                "negative-cost",
+                [_completion_payload(cost_lexeme="-0.02")],
+                ["reject a negative provider cost"],
+                ["invalid"],
+                ["unknown"],
+                "invalid",
+                "unknown",
+            ),
+            (
+                "missing-unknown",
+                [_completion_payload(usage_known=False)],
+                ["leave cost and usable token evidence missing"],
+                ["missing"],
+                ["unknown"],
+                "missing",
+                "unknown",
+            ),
+            (
+                "reported-and-estimated",
+                [
+                    _completion_payload(cost_lexeme="0.02"),
+                    _completion_payload(),
+                ],
+                ["report a cost", "omit reported cost but include usage"],
+                ["known", "missing"],
+                ["reported", "estimated"],
+                "known",
+                "mixed",
+            ),
+        ],
+        ids=(
+            "reported-zero",
+            "positive-underflow",
+            "negative-underflow",
+            "negative-cost",
+            "missing-unknown",
+            "reported-and-estimated",
+        ),
+    )
+    async def test_actual_http_cost_events_keep_typed_meaning(
+        case_name: str,
+        payloads: list[bytes],
+        prompts: list[str],
+        event_statuses: list[str],
+        event_origins: list[str],
+        summary_status: str,
+        summary_origin: str,
+    ) -&gt; None:
+        """The real HTTP decoder, trace callback, and A budget gate preserve source meaning."""
+        from polisyos.runtime.http.services.control.nl_pipeline import _budget_cost_amount
+        from polisyos.runtime.http.services.control.response_shapes import (
+            _cost_event_evidence,
+            _sum_call_events,
+        )
+    
+        async with _http_completions(payloads) as (base_url, requests):
+            events: list[dict[str, Any]] = []
+            client = _traced_client(base_url=base_url, events=events)
+            responses: list[Any] = []
+            try:
+                for prompt in prompts:
+                    responses.append(await client.generate(user=prompt, max_tokens=1))
+            finally:
+                await client.aclose()
+    
+        assert len(requests) == len(payloads), case_name
+        assert all(item["idempotency_key"] for item in requests), case_name
+        assert len(events) == len(prompts), case_name
+        assert len(responses) == len(prompts), case_name
+    
+        for event, status, origin in zip(events, event_statuses, event_origins, strict=True):
+            # This is deliberately the first semantic assertion: on the pre-adoption
+            # f029 source the callback exists but has no typed producer cost status.
+&gt;           assert event.get("cost_status") == status, (case_name, event)
+E           AssertionError: ('positive-underflow', {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': None, ...})
+E           assert None == 'invalid'
+E            +  where None = &lt;built-in method get of dict object at 0x13d8be740&gt;('cost_status')
+E            +    where &lt;built-in method get of dict object at 0x13d8be740&gt; = {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': None, ...}.get
+
+tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py:277: AssertionError</failure></testcase><testcase classname="tests.integration.core_runtime.test_e02_monetary_producer_budget_readback" name="test_actual_http_cost_events_keep_typed_meaning[negative-underflow]" time="0.002"><failure message="AssertionError: ('negative-underflow', {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': None, ...})&#10;assert None == 'invalid'&#10; +  where None = &lt;built-in method get of dict object at 0x13d9bd940&gt;('cost_status')&#10; +    where &lt;built-in method get of dict object at 0x13d9bd940&gt; = {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': None, ...}.get">case_name = 'negative-underflow'
+payloads = [b'{"choices":[{"message":{"content":"loopback answer"}}],"model":"gpt-4o","provider":"loopback-provider","usage":{"prompt_tokens":1,"completion_tokens":1,"cost_usd":-1e-1000}}']
+prompts = ['retain exact tiny negative cost'], event_statuses = ['invalid']
+event_origins = ['unknown'], summary_status = 'invalid'
+summary_origin = 'unknown'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        (
+            "case_name",
+            "payloads",
+            "prompts",
+            "event_statuses",
+            "event_origins",
+            "summary_status",
+            "summary_origin",
+        ),
+        [
+            (
+                "reported-zero",
+                [_completion_payload(cost_lexeme="0")],
+                ["report an actual zero"],
+                ["known"],
+                ["reported"],
+                "known",
+                "reported",
+            ),
+            (
+                "positive-underflow",
+                [_completion_payload(cost_lexeme="1e-1000")],
+                ["retain exact tiny positive cost"],
+                ["invalid"],
+                ["unknown"],
+                "invalid",
+                "unknown",
+            ),
+            (
+                "negative-underflow",
+                [_completion_payload(cost_lexeme="-1e-1000")],
+                ["retain exact tiny negative cost"],
+                ["invalid"],
+                ["unknown"],
+                "invalid",
+                "unknown",
+            ),
+            (
+                "negative-cost",
+                [_completion_payload(cost_lexeme="-0.02")],
+                ["reject a negative provider cost"],
+                ["invalid"],
+                ["unknown"],
+                "invalid",
+                "unknown",
+            ),
+            (
+                "missing-unknown",
+                [_completion_payload(usage_known=False)],
+                ["leave cost and usable token evidence missing"],
+                ["missing"],
+                ["unknown"],
+                "missing",
+                "unknown",
+            ),
+            (
+                "reported-and-estimated",
+                [
+                    _completion_payload(cost_lexeme="0.02"),
+                    _completion_payload(),
+                ],
+                ["report a cost", "omit reported cost but include usage"],
+                ["known", "missing"],
+                ["reported", "estimated"],
+                "known",
+                "mixed",
+            ),
+        ],
+        ids=(
+            "reported-zero",
+            "positive-underflow",
+            "negative-underflow",
+            "negative-cost",
+            "missing-unknown",
+            "reported-and-estimated",
+        ),
+    )
+    async def test_actual_http_cost_events_keep_typed_meaning(
+        case_name: str,
+        payloads: list[bytes],
+        prompts: list[str],
+        event_statuses: list[str],
+        event_origins: list[str],
+        summary_status: str,
+        summary_origin: str,
+    ) -&gt; None:
+        """The real HTTP decoder, trace callback, and A budget gate preserve source meaning."""
+        from polisyos.runtime.http.services.control.nl_pipeline import _budget_cost_amount
+        from polisyos.runtime.http.services.control.response_shapes import (
+            _cost_event_evidence,
+            _sum_call_events,
+        )
+    
+        async with _http_completions(payloads) as (base_url, requests):
+            events: list[dict[str, Any]] = []
+            client = _traced_client(base_url=base_url, events=events)
+            responses: list[Any] = []
+            try:
+                for prompt in prompts:
+                    responses.append(await client.generate(user=prompt, max_tokens=1))
+            finally:
+                await client.aclose()
+    
+        assert len(requests) == len(payloads), case_name
+        assert all(item["idempotency_key"] for item in requests), case_name
+        assert len(events) == len(prompts), case_name
+        assert len(responses) == len(prompts), case_name
+    
+        for event, status, origin in zip(events, event_statuses, event_origins, strict=True):
+            # This is deliberately the first semantic assertion: on the pre-adoption
+            # f029 source the callback exists but has no typed producer cost status.
+&gt;           assert event.get("cost_status") == status, (case_name, event)
+E           AssertionError: ('negative-underflow', {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': None, ...})
+E           assert None == 'invalid'
+E            +  where None = &lt;built-in method get of dict object at 0x13d9bd940&gt;('cost_status')
+E            +    where &lt;built-in method get of dict object at 0x13d9bd940&gt; = {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': None, ...}.get
+
+tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py:277: AssertionError</failure></testcase><testcase classname="tests.integration.core_runtime.test_e02_monetary_producer_budget_readback" name="test_actual_http_cost_events_keep_typed_meaning[negative-cost]" time="0.002"><failure message="AssertionError: ('negative-cost', {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': -1.25e-05, ...})&#10;assert None == 'invalid'&#10; +  where None = &lt;built-in method get of dict object at 0x13d9cb140&gt;('cost_status')&#10; +    where &lt;built-in method get of dict object at 0x13d9cb140&gt; = {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': -1.25e-05, ...}.get">case_name = 'negative-cost'
+payloads = [b'{"choices":[{"message":{"content":"loopback answer"}}],"model":"gpt-4o","provider":"loopback-provider","usage":{"prompt_tokens":1,"completion_tokens":1,"cost_usd":-0.02}}']
+prompts = ['reject a negative provider cost'], event_statuses = ['invalid']
+event_origins = ['unknown'], summary_status = 'invalid'
+summary_origin = 'unknown'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        (
+            "case_name",
+            "payloads",
+            "prompts",
+            "event_statuses",
+            "event_origins",
+            "summary_status",
+            "summary_origin",
+        ),
+        [
+            (
+                "reported-zero",
+                [_completion_payload(cost_lexeme="0")],
+                ["report an actual zero"],
+                ["known"],
+                ["reported"],
+                "known",
+                "reported",
+            ),
+            (
+                "positive-underflow",
+                [_completion_payload(cost_lexeme="1e-1000")],
+                ["retain exact tiny positive cost"],
+                ["invalid"],
+                ["unknown"],
+                "invalid",
+                "unknown",
+            ),
+            (
+                "negative-underflow",
+                [_completion_payload(cost_lexeme="-1e-1000")],
+                ["retain exact tiny negative cost"],
+                ["invalid"],
+                ["unknown"],
+                "invalid",
+                "unknown",
+            ),
+            (
+                "negative-cost",
+                [_completion_payload(cost_lexeme="-0.02")],
+                ["reject a negative provider cost"],
+                ["invalid"],
+                ["unknown"],
+                "invalid",
+                "unknown",
+            ),
+            (
+                "missing-unknown",
+                [_completion_payload(usage_known=False)],
+                ["leave cost and usable token evidence missing"],
+                ["missing"],
+                ["unknown"],
+                "missing",
+                "unknown",
+            ),
+            (
+                "reported-and-estimated",
+                [
+                    _completion_payload(cost_lexeme="0.02"),
+                    _completion_payload(),
+                ],
+                ["report a cost", "omit reported cost but include usage"],
+                ["known", "missing"],
+                ["reported", "estimated"],
+                "known",
+                "mixed",
+            ),
+        ],
+        ids=(
+            "reported-zero",
+            "positive-underflow",
+            "negative-underflow",
+            "negative-cost",
+            "missing-unknown",
+            "reported-and-estimated",
+        ),
+    )
+    async def test_actual_http_cost_events_keep_typed_meaning(
+        case_name: str,
+        payloads: list[bytes],
+        prompts: list[str],
+        event_statuses: list[str],
+        event_origins: list[str],
+        summary_status: str,
+        summary_origin: str,
+    ) -&gt; None:
+        """The real HTTP decoder, trace callback, and A budget gate preserve source meaning."""
+        from polisyos.runtime.http.services.control.nl_pipeline import _budget_cost_amount
+        from polisyos.runtime.http.services.control.response_shapes import (
+            _cost_event_evidence,
+            _sum_call_events,
+        )
+    
+        async with _http_completions(payloads) as (base_url, requests):
+            events: list[dict[str, Any]] = []
+            client = _traced_client(base_url=base_url, events=events)
+            responses: list[Any] = []
+            try:
+                for prompt in prompts:
+                    responses.append(await client.generate(user=prompt, max_tokens=1))
+            finally:
+                await client.aclose()
+    
+        assert len(requests) == len(payloads), case_name
+        assert all(item["idempotency_key"] for item in requests), case_name
+        assert len(events) == len(prompts), case_name
+        assert len(responses) == len(prompts), case_name
+    
+        for event, status, origin in zip(events, event_statuses, event_origins, strict=True):
+            # This is deliberately the first semantic assertion: on the pre-adoption
+            # f029 source the callback exists but has no typed producer cost status.
+&gt;           assert event.get("cost_status") == status, (case_name, event)
+E           AssertionError: ('negative-cost', {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': -1.25e-05, ...})
+E           assert None == 'invalid'
+E            +  where None = &lt;built-in method get of dict object at 0x13d9cb140&gt;('cost_status')
+E            +    where &lt;built-in method get of dict object at 0x13d9cb140&gt; = {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': -1.25e-05, ...}.get
+
+tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py:277: AssertionError</failure></testcase><testcase classname="tests.integration.core_runtime.test_e02_monetary_producer_budget_readback" name="test_actual_http_cost_events_keep_typed_meaning[missing-unknown]" time="0.002"><failure message="AssertionError: ('missing-unknown', {'cache_hit': False, 'cache_key': None, 'completion_tokens': 0, 'cost_delta_usd': None, ...})&#10;assert None == 'missing'&#10; +  where None = &lt;built-in method get of dict object at 0x13d9dde80&gt;('cost_status')&#10; +    where &lt;built-in method get of dict object at 0x13d9dde80&gt; = {'cache_hit': False, 'cache_key': None, 'completion_tokens': 0, 'cost_delta_usd': None, ...}.get">case_name = 'missing-unknown'
+payloads = [b'{"choices":[{"message":{"content":"loopback answer"}}],"model":"gpt-4o","provider":"loopback-provider","usage":{}}']
+prompts = ['leave cost and usable token evidence missing']
+event_statuses = ['missing'], event_origins = ['unknown']
+summary_status = 'missing', summary_origin = 'unknown'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        (
+            "case_name",
+            "payloads",
+            "prompts",
+            "event_statuses",
+            "event_origins",
+            "summary_status",
+            "summary_origin",
+        ),
+        [
+            (
+                "reported-zero",
+                [_completion_payload(cost_lexeme="0")],
+                ["report an actual zero"],
+                ["known"],
+                ["reported"],
+                "known",
+                "reported",
+            ),
+            (
+                "positive-underflow",
+                [_completion_payload(cost_lexeme="1e-1000")],
+                ["retain exact tiny positive cost"],
+                ["invalid"],
+                ["unknown"],
+                "invalid",
+                "unknown",
+            ),
+            (
+                "negative-underflow",
+                [_completion_payload(cost_lexeme="-1e-1000")],
+                ["retain exact tiny negative cost"],
+                ["invalid"],
+                ["unknown"],
+                "invalid",
+                "unknown",
+            ),
+            (
+                "negative-cost",
+                [_completion_payload(cost_lexeme="-0.02")],
+                ["reject a negative provider cost"],
+                ["invalid"],
+                ["unknown"],
+                "invalid",
+                "unknown",
+            ),
+            (
+                "missing-unknown",
+                [_completion_payload(usage_known=False)],
+                ["leave cost and usable token evidence missing"],
+                ["missing"],
+                ["unknown"],
+                "missing",
+                "unknown",
+            ),
+            (
+                "reported-and-estimated",
+                [
+                    _completion_payload(cost_lexeme="0.02"),
+                    _completion_payload(),
+                ],
+                ["report a cost", "omit reported cost but include usage"],
+                ["known", "missing"],
+                ["reported", "estimated"],
+                "known",
+                "mixed",
+            ),
+        ],
+        ids=(
+            "reported-zero",
+            "positive-underflow",
+            "negative-underflow",
+            "negative-cost",
+            "missing-unknown",
+            "reported-and-estimated",
+        ),
+    )
+    async def test_actual_http_cost_events_keep_typed_meaning(
+        case_name: str,
+        payloads: list[bytes],
+        prompts: list[str],
+        event_statuses: list[str],
+        event_origins: list[str],
+        summary_status: str,
+        summary_origin: str,
+    ) -&gt; None:
+        """The real HTTP decoder, trace callback, and A budget gate preserve source meaning."""
+        from polisyos.runtime.http.services.control.nl_pipeline import _budget_cost_amount
+        from polisyos.runtime.http.services.control.response_shapes import (
+            _cost_event_evidence,
+            _sum_call_events,
+        )
+    
+        async with _http_completions(payloads) as (base_url, requests):
+            events: list[dict[str, Any]] = []
+            client = _traced_client(base_url=base_url, events=events)
+            responses: list[Any] = []
+            try:
+                for prompt in prompts:
+                    responses.append(await client.generate(user=prompt, max_tokens=1))
+            finally:
+                await client.aclose()
+    
+        assert len(requests) == len(payloads), case_name
+        assert all(item["idempotency_key"] for item in requests), case_name
+        assert len(events) == len(prompts), case_name
+        assert len(responses) == len(prompts), case_name
+    
+        for event, status, origin in zip(events, event_statuses, event_origins, strict=True):
+            # This is deliberately the first semantic assertion: on the pre-adoption
+            # f029 source the callback exists but has no typed producer cost status.
+&gt;           assert event.get("cost_status") == status, (case_name, event)
+E           AssertionError: ('missing-unknown', {'cache_hit': False, 'cache_key': None, 'completion_tokens': 0, 'cost_delta_usd': None, ...})
+E           assert None == 'missing'
+E            +  where None = &lt;built-in method get of dict object at 0x13d9dde80&gt;('cost_status')
+E            +    where &lt;built-in method get of dict object at 0x13d9dde80&gt; = {'cache_hit': False, 'cache_key': None, 'completion_tokens': 0, 'cost_delta_usd': None, ...}.get
+
+tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py:277: AssertionError</failure></testcase><testcase classname="tests.integration.core_runtime.test_e02_monetary_producer_budget_readback" name="test_actual_http_cost_events_keep_typed_meaning[reported-and-estimated]" time="0.002"><failure message="AssertionError: ('reported-and-estimated', {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': 0.019987500000000002, ...})&#10;assert None == 'known'&#10; +  where None = &lt;built-in method get of dict object at 0x13d9eabc0&gt;('cost_status')&#10; +    where &lt;built-in method get of dict object at 0x13d9eabc0&gt; = {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': 0.019987500000000002, ...}.get">case_name = 'reported-and-estimated'
+payloads = [b'{"choices":[{"message":{"content":"loopback answer"}}],"model":"gpt-4o","provider":"loopback-provider","usage":{"pr...oopback answer"}}],"model":"gpt-4o","provider":"loopback-provider","usage":{"prompt_tokens":1,"completion_tokens":1}}']
+prompts = ['report a cost', 'omit reported cost but include usage']
+event_statuses = ['known', 'missing'], event_origins = ['reported', 'estimated']
+summary_status = 'known', summary_origin = 'mixed'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        (
+            "case_name",
+            "payloads",
+            "prompts",
+            "event_statuses",
+            "event_origins",
+            "summary_status",
+            "summary_origin",
+        ),
+        [
+            (
+                "reported-zero",
+                [_completion_payload(cost_lexeme="0")],
+                ["report an actual zero"],
+                ["known"],
+                ["reported"],
+                "known",
+                "reported",
+            ),
+            (
+                "positive-underflow",
+                [_completion_payload(cost_lexeme="1e-1000")],
+                ["retain exact tiny positive cost"],
+                ["invalid"],
+                ["unknown"],
+                "invalid",
+                "unknown",
+            ),
+            (
+                "negative-underflow",
+                [_completion_payload(cost_lexeme="-1e-1000")],
+                ["retain exact tiny negative cost"],
+                ["invalid"],
+                ["unknown"],
+                "invalid",
+                "unknown",
+            ),
+            (
+                "negative-cost",
+                [_completion_payload(cost_lexeme="-0.02")],
+                ["reject a negative provider cost"],
+                ["invalid"],
+                ["unknown"],
+                "invalid",
+                "unknown",
+            ),
+            (
+                "missing-unknown",
+                [_completion_payload(usage_known=False)],
+                ["leave cost and usable token evidence missing"],
+                ["missing"],
+                ["unknown"],
+                "missing",
+                "unknown",
+            ),
+            (
+                "reported-and-estimated",
+                [
+                    _completion_payload(cost_lexeme="0.02"),
+                    _completion_payload(),
+                ],
+                ["report a cost", "omit reported cost but include usage"],
+                ["known", "missing"],
+                ["reported", "estimated"],
+                "known",
+                "mixed",
+            ),
+        ],
+        ids=(
+            "reported-zero",
+            "positive-underflow",
+            "negative-underflow",
+            "negative-cost",
+            "missing-unknown",
+            "reported-and-estimated",
+        ),
+    )
+    async def test_actual_http_cost_events_keep_typed_meaning(
+        case_name: str,
+        payloads: list[bytes],
+        prompts: list[str],
+        event_statuses: list[str],
+        event_origins: list[str],
+        summary_status: str,
+        summary_origin: str,
+    ) -&gt; None:
+        """The real HTTP decoder, trace callback, and A budget gate preserve source meaning."""
+        from polisyos.runtime.http.services.control.nl_pipeline import _budget_cost_amount
+        from polisyos.runtime.http.services.control.response_shapes import (
+            _cost_event_evidence,
+            _sum_call_events,
+        )
+    
+        async with _http_completions(payloads) as (base_url, requests):
+            events: list[dict[str, Any]] = []
+            client = _traced_client(base_url=base_url, events=events)
+            responses: list[Any] = []
+            try:
+                for prompt in prompts:
+                    responses.append(await client.generate(user=prompt, max_tokens=1))
+            finally:
+                await client.aclose()
+    
+        assert len(requests) == len(payloads), case_name
+        assert all(item["idempotency_key"] for item in requests), case_name
+        assert len(events) == len(prompts), case_name
+        assert len(responses) == len(prompts), case_name
+    
+        for event, status, origin in zip(events, event_statuses, event_origins, strict=True):
+            # This is deliberately the first semantic assertion: on the pre-adoption
+            # f029 source the callback exists but has no typed producer cost status.
+&gt;           assert event.get("cost_status") == status, (case_name, event)
+E           AssertionError: ('reported-and-estimated', {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': 0.019987500000000002, ...})
+E           assert None == 'known'
+E            +  where None = &lt;built-in method get of dict object at 0x13d9eabc0&gt;('cost_status')
+E            +    where &lt;built-in method get of dict object at 0x13d9eabc0&gt; = {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': 0.019987500000000002, ...}.get
+
+tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py:277: AssertionError</failure></testcase><testcase classname="tests.integration.core_runtime.test_e02_monetary_producer_budget_readback" name="test_r1_raw_float_decoder_removal_exposes_underflow_as_zero" time="0.000"><skipped type="pytest.skip" message="R1 removal probe runs only with its explicit environment selector">/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py:315: R1 removal probe runs only with its explicit environment selector</skipped></testcase><testcase classname="tests.integration.core_runtime.test_e02_monetary_producer_budget_readback" name="test_partial_http_cost_events_survive_owned_core_cas_and_fresh_details_get" time="0.719"><failure message="AssertionError: assert [None, None] == ['known', 'missing']&#10;  &#10;  At index 0 diff: None != 'known'&#10;  Use -v to get more diff">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-producer-seam-pre-B-red-f081/pytest-basetemp/test_partial_http_cost_events_0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13d8e1b50&gt;
+
+    @pytest.mark.asyncio
+    async def test_partial_http_cost_events_survive_owned_core_cas_and_fresh_details_get(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """A real partial producer summary survives the existing Core/CAS readback path.
+    
+        This is a manual ExperimentState producer for the surface check. The traced
+        callback events are real loopback HTTP observations, but this test does not
+        claim an ordinary NL request or worker created the state artifact.
+        """
+        pytest.importorskip("fastapi.testclient")
+        from fastapi.testclient import TestClient
+    
+        from polisyos.core import canon
+        from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+        from polisyos.core.security.tenant_context import tenant_scope
+        from polisyos.data_forge.read_api import catalog as catalog_api
+        from polisyos.runtime.http.app import create_runtime_api_app
+        from polisyos.runtime.http.container import RuntimeContainerOverrides
+        from polisyos.runtime.http.dependencies import build_runtime_api_context
+        from polisyos.runtime.http.services.control.nl_pipeline import (
+            _aggregate_variant_costs,
+            _budget_cost_amount,
+        )
+        from polisyos.runtime.http.services.control.response_shapes import _sum_call_events
+        from polisyos.runtime.quality import substrate_registry
+        from polisyos.scientist.orchestration.engine.state import ExperimentState
+        from tests._helpers.control_worker import dispatch_one_control_job
+        from tests.unit.runtime.http.test_control_job_execution_intent import _valid_intake_for_mode
+    
+        monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+        monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+        monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+        monkeypatch.setenv(
+            "POLISYOS_CONTROL_SQLITE_PATH", (tmp_path / "control.sqlite3").as_posix()
+        )
+        monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+    
+        catalog_root = tmp_path / "monetary-readback-catalog"
+        catalog_api.build_slice0_fixture_catalog_graph(catalog_root).close()
+        curated_root = tmp_path / "monetary-readback-curated"
+        curated_root.mkdir()
+        monkeypatch.setenv("POLISYOS_CURATED_DIR", curated_root.as_posix())
+        monkeypatch.setattr(
+            catalog_api,
+            "default_acquisition_overlay_path",
+            lambda _root: tmp_path / "absent-acquisition-overlay.duckdb",
+        )
+        default_catalog_paths = substrate_registry.default_substrate_catalog_paths
+        repo_root = Path(__file__).resolve().parents[3]
+        monkeypatch.setattr(
+            substrate_registry,
+            "default_substrate_catalog_paths",
+            lambda root: (
+                replace(
+                    default_catalog_paths(root),
+                    l1_dcat_path=catalog_root / "catalog.duckdb",
+                )
+                if Path(root).resolve() == repo_root
+                else default_catalog_paths(root)
+            ),
+        )
+    
+        async with _http_completions(
+            [
+                _completion_payload(cost_lexeme="0.02"),
+                _completion_payload(usage_known=False),
+            ]
+        ) as (base_url, requests):
+            events: list[dict[str, Any]] = []
+            client = _traced_client(base_url=base_url, events=events)
+            try:
+                await client.generate(user="actual paid HTTP response", max_tokens=1)
+                await client.generate(user="actual unknown HTTP response", max_tokens=1)
+            finally:
+                await client.aclose()
+    
+        assert len(requests) == 2
+        assert len(events) == 2
+&gt;       assert [event.get("cost_status") for event in events] == ["known", "missing"]
+E       AssertionError: assert [None, None] == ['known', 'missing']
+E         
+E         At index 0 diff: None != 'known'
+E         Use -v to get more diff
+
+tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py:432: AssertionError</failure></testcase><testcase classname="tests.integration.core_runtime.test_e02_monetary_producer_budget_readback" name="test_default_factory_cache_hit_is_one_provider_call_and_a_reuse_event" time="0.003"><failure message="AssertionError: assert None == 'known'&#10; +  where None = &lt;built-in method get of dict object at 0x13f4d75c0&gt;('cost_status')&#10; +    where &lt;built-in method get of dict object at 0x13f4d75c0&gt; = {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': 0.019987500000000002, ...}.get">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13f48ce60&gt;
+
+    @pytest.mark.asyncio
+    async def test_default_factory_cache_hit_is_one_provider_call_and_a_reuse_event(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """An ordinary default-cache hit is visible as a zero-cost reuse callback."""
+        from polisyos.runtime.http.services.control.nl_pipeline import _budget_cost_amount
+        from polisyos.runtime.http.services.control.response_shapes import (
+            _cost_event_evidence,
+            _sum_call_events,
+        )
+        from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
+    
+        monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "false")
+        monkeypatch.setenv("POLISYOS_LLM_GATEWAY_API_KEY", "sk-e02-local-monetary-producer")
+        monkeypatch.setenv("POLISYOS_LLM_GATEWAY_MAX_RETRIES", "0")
+        monkeypatch.setenv("POLISYOS_LLM_GATEWAY_PROVIDER", "loopback-provider")
+        monkeypatch.delenv("POLISYOS_LLM_FALLBACK_URLS", raising=False)
+        monkeypatch.setenv("POLISYOS_LLM_GATEWAY_PRIVACY_SANITIZATION", "false")
+        monkeypatch.setenv("POLISYOS_LLM_CACHE_MAXSIZE", "128")
+        monkeypatch.setenv("POLISYOS_LLM_CACHE_TTL_S", "60")
+        monkeypatch.setenv("POLISYOS_LLM_PROMPT_SANITIZER", "false")
+    
+        async with _http_completions([_completion_payload(cost_lexeme="0.02")]) as (
+            base_url,
+            requests,
+        ):
+            monkeypatch.setenv("POLISYOS_LLM_GATEWAY_BASE_URL", base_url)
+            events: list[dict[str, Any]] = []
+            client = create_traced_gateway_client(
+                model_name=MODEL_NAME,
+                provider_hint="loopback-provider",
+                run_id="e02-default-cache-readback",
+                model_variant_id="loopback-variant",
+                call_observer=events.append,
+            )
+            assert client is not None
+            try:
+                first = await client.generate(user="same deterministic cache prompt", max_tokens=1)
+                second = await client.generate(user="same deterministic cache prompt", max_tokens=1)
+            finally:
+                await client.aclose()
+    
+        assert first.content == second.content
+        assert len(requests) == 1
+        assert len(events) == 2
+        reported, reused = events
+&gt;       assert reported.get("cost_status") == "known"
+E       AssertionError: assert None == 'known'
+E        +  where None = &lt;built-in method get of dict object at 0x13f4d75c0&gt;('cost_status')
+E        +    where &lt;built-in method get of dict object at 0x13f4d75c0&gt; = {'cache_hit': False, 'cache_key': None, 'completion_tokens': 1, 'cost_delta_usd': 0.019987500000000002, ...}.get
+
+tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py:651: AssertionError</failure></testcase></testsuite></testsuites>

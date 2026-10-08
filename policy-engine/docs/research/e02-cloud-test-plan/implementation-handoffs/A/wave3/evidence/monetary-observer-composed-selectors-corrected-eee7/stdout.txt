@@ -1,0 +1,647 @@
+......sF.............................................FF.FF..F.FF......FF [ 98%]
+.                                                                        [100%]
+=================================== FAILURES ===================================
+__ test_partial_http_cost_events_survive_owned_core_cas_and_fresh_details_get __
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/monetary-observer-composed-selectors-corrected-eee7/pytest-basetemp/test_partial_http_cost_events_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x132a04850>
+
+    @pytest.mark.asyncio
+    async def test_partial_http_cost_events_survive_owned_core_cas_and_fresh_details_get(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """A real partial producer summary survives the existing Core/CAS readback path.
+    
+        This is a manual ExperimentState producer for the surface check. The traced
+        callback events are real loopback HTTP observations, but this test does not
+        claim an ordinary NL request or worker created the state artifact.
+        """
+        pytest.importorskip("fastapi.testclient")
+        from fastapi.testclient import TestClient
+    
+        from polisyos.core import canon
+        from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+        from polisyos.core.security.tenant_context import tenant_scope
+        from polisyos.data_forge.read_api import catalog as catalog_api
+        from polisyos.runtime.http.app import create_runtime_api_app
+        from polisyos.runtime.http.container import RuntimeContainerOverrides
+        from polisyos.runtime.http.dependencies import build_runtime_api_context
+        from polisyos.runtime.http.services.control.nl_pipeline import (
+            _aggregate_variant_costs,
+            _budget_cost_amount,
+        )
+        from polisyos.runtime.http.services.control.response_shapes import _sum_call_events
+        from polisyos.runtime.quality import substrate_registry
+        from polisyos.scientist.orchestration.engine.state import ExperimentState
+        from tests._helpers.control_worker import dispatch_one_control_job
+        from tests.unit.runtime.http.test_control_job_execution_intent import _valid_intake_for_mode
+    
+        monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+        monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+        monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+        monkeypatch.setenv(
+            "POLISYOS_CONTROL_SQLITE_PATH", (tmp_path / "control.sqlite3").as_posix()
+        )
+        monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+    
+        catalog_root = tmp_path / "monetary-readback-catalog"
+        catalog_api.build_slice0_fixture_catalog_graph(catalog_root).close()
+        curated_root = tmp_path / "monetary-readback-curated"
+        curated_root.mkdir()
+        monkeypatch.setenv("POLISYOS_CURATED_DIR", curated_root.as_posix())
+        monkeypatch.setattr(
+            catalog_api,
+            "default_acquisition_overlay_path",
+            lambda _root: tmp_path / "absent-acquisition-overlay.duckdb",
+        )
+        default_catalog_paths = substrate_registry.default_substrate_catalog_paths
+        repo_root = Path(__file__).resolve().parents[3]
+        monkeypatch.setattr(
+            substrate_registry,
+            "default_substrate_catalog_paths",
+            lambda root: (
+                replace(
+                    default_catalog_paths(root),
+                    l1_dcat_path=catalog_root / "catalog.duckdb",
+                )
+                if Path(root).resolve() == repo_root
+                else default_catalog_paths(root)
+            ),
+        )
+    
+        async with _http_completions(
+            [
+                _completion_payload(cost_lexeme="0.02"),
+                _completion_payload(usage_known=False),
+            ]
+        ) as (base_url, requests):
+            events: list[dict[str, Any]] = []
+            client = _traced_client(base_url=base_url, events=events)
+            try:
+                await client.generate(user="actual paid HTTP response", max_tokens=1)
+                await client.generate(user="actual unknown HTTP response", max_tokens=1)
+            finally:
+                await client.aclose()
+    
+        assert len(requests) == 2
+        assert len(events) == 2
+        assert [event.get("cost_status") for event in events] == ["known", "missing"]
+        assert [event.get("cost_origin") for event in events] == ["reported", "unknown"]
+        summary = _sum_call_events(events)
+        assert summary["cost_status"] == "missing"
+        assert summary["cost_origin"] == "mixed"
+        assert summary["cost_usd"] is None
+    
+        variant = {
+            "cost_usd": summary["cost_usd"],
+            "cost_status": summary["cost_status"],
+            "cost_origin": summary["cost_origin"],
+            "estimated_cost_usd": summary["estimated_cost_usd"],
+            "cost_delta_usd": summary["cost_delta_usd"],
+            "cost_events": list(summary["cost_events"]),
+        }
+        assert _budget_cost_amount(variant) is None
+        run_cost = _aggregate_variant_costs([variant])
+        assert run_cost["cost_usd"] is None
+        assert run_cost["cost_status"] == "missing"
+        budget_status = "unknown" if run_cost["cost_usd"] is None else "within_budget"
+    
+        cas_root = tmp_path / ".polisyos"
+        first_context = build_runtime_api_context(
+            cas_root=cas_root,
+            core_runs_root=cas_root / "runs",
+        )
+        first_app = create_runtime_api_app(
+            cas_root=cas_root,
+            container_overrides=RuntimeContainerOverrides(runtime_api_context=first_context),
+            allow_fixture_identity=True,
+        )
+        with TestClient(first_app) as client:
+            accepted_response = client.post(
+                "/api/v1/control/runs/nl",
+                json={
+                    "request": "Persist a bounded cost summary for fresh inspection.",
+                    "llm_model": MODEL_NAME,
+                    "context": {
+                        "evaluation_safety_attempt": _valid_intake_for_mode(
+                            "simulate_only"
+                        ).model_dump(mode="json")
+                    },
+                },
+            )
+            assert accepted_response.status_code == 200, accepted_response.text
+            accepted = accepted_response.json()
+            service = first_app.state._control_service
+            state_refs: dict[str, ArtifactRef] = {}
+            core_run_ids: dict[str, str] = {}
+    
+            def persist_manual_experiment_state(owner_service: Any) -> None:
+                admission = owner_service._control_store.current_execution_job_admission()
+                job = admission.job
+                scope = admission.scope
+                assert job.job_id == accepted["job_id"]
+                assert scope.status == "established"
+                assert scope.tenant_id == TENANT_ID
+                assert scope.cell_id == CELL_ID
+                with owner_service._install_execution_scope(scope):
+                    core_run_id, core_context = owner_service._start_generation_run_context(
+                        job=job,
+                        execution_scope=scope,
+                    )
+                    params = {
+                        "llm_model_variants": [variant],
+                        "llm_cost_events": list(summary["cost_events"]),
+                        "llm_cost_usd": summary["cost_usd"],
+                        "llm_cost_status": summary["cost_status"],
+                        "llm_cost_origin": summary["cost_origin"],
+                        "run_cost_usd": run_cost["cost_usd"],
+                        "run_cost_status": run_cost["cost_status"],
+                        "run_cost_origin": run_cost["cost_origin"],
+                        "run_estimated_cost_usd": run_cost["estimated_cost_usd"],
+                        "run_budget_usd": 1.0,
+                        "run_budget_status": budget_status,
+                    }
+                    state = ExperimentState(
+                        run_id=str(job.run_id),
+                        control_job_id=job.job_id,
+                        execution_profile="dev",
+                        params=params,
+                    )
+                    state_ref = owner_service._put_json_artifact_ref(
+                        state.model_dump(mode="json"),
+                        kind="scientist.experiment_state",
+                        schema_name="polisyos.scientist.orchestration.engine.ExperimentState",
+                        schema_version=state.schema_version,
+                    )
+                    manifest_ref = owner_service._finish_generation_run_context(
+                        job=job,
+                        execution_scope=scope,
+                        core_run_id=core_run_id,
+                        context=core_context,
+                        outputs=[state_ref],
+                        status="ok",
+                    )
+                    progress = {
+                        "state": "completed",
+                        "phase": "natural_language_run",
+                        "status": "monetary_budget_readback_fixture",
+                        "execution_band": "candidate",
+                        "candidate_computation_status": "completed",
+                        "execution_intent_band": "simulate_only",
+                        "run_id": job.run_id,
+                        "run_budget_status": budget_status,
+                        **owner_service._core_run_progress_fields(
+                            job=job,
+                            core_run_id=core_run_id,
+                            manifest_ref=manifest_ref,
+                        ),
+                    }
+                    owner_service._control_store.complete_job(
+                        job_id=job.job_id,
+                        run_id=job.run_id,
+                        capability_manifest_ref=job.capability_manifest_ref,
+                        progress=progress,
+                    )
+                    state_refs[job.job_id] = state_ref
+                    core_run_ids[job.job_id] = core_run_id
+    
+            assert (
+                dispatch_one_control_job(
+                    store=service._control_store,
+                    handler=lambda _snapshot: persist_manual_experiment_state(service),
+                    expected_job_id=accepted["job_id"],
+                )
+                == accepted["job_id"]
+            )
+            completed = service._control_store.get_job(accepted["job_id"])
+            assert completed is not None and completed.state == "completed"
+            core_run_id = core_run_ids[accepted["job_id"]]
+            expected_state_ref = state_refs[accepted["job_id"]]
+    
+        fresh_context = build_runtime_api_context(
+            cas_root=cas_root,
+            core_runs_root=cas_root / "runs",
+        )
+        fresh_app = create_runtime_api_app(
+            cas_root=cas_root,
+            container_overrides=RuntimeContainerOverrides(runtime_api_context=fresh_context),
+            allow_fixture_identity=True,
+        )
+        with TestClient(fresh_app) as fresh_client:
+            response = fresh_client.get(f"/api/v1/runs/{core_run_id}")
+            assert response.status_code == 200, response.text
+            run = response.json()["run"]
+            refs = [ArtifactRef.model_validate(item) for item in run["root_artifacts"]]
+            state_ref = next(ref for ref in refs if ref.kind == "scientist.experiment_state")
+            assert artifact_ref_identity_key(state_ref) == artifact_ref_identity_key(
+                expected_state_ref
+            )
+            assert run["control_job_id"] == completed.job_id
+    
+        with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
+>           assert fresh_context.store.verify(state_ref).ok
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py:586: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/resilience.py:282: in _wrapped
+    return self._guard.run(attr, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.http.resilience.BlockingDependencyGuard object at 0x132ee9e00>
+func = <bound method FileSystemCAS.verify of <polisyos.core.artifacts.store.FileSystemCAS object at 0x132ee9ba0>>
+args = (ArtifactRef(artifact_id=ArtifactID(root='sha256:f983e4dc8c3561ba02c0de518b33b122f867f213520218b6a73e28902a3ec574'), kind='scientist.experiment_state', media_type='application/json', manifest_profile_sha256=None),)
+kwargs = {}
+
+    def run(self, func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
+        if self._closed:
+>           raise RuntimeDependencyUnavailableError(
+                self._dependency_name,
+                detail=f"{self._dependency_name} dependency guard is closed",
+            )
+E           polisyos.runtime.http.errors.RuntimeDependencyUnavailableError: content_addressed_storage dependency guard is closed
+
+src/polisyos/runtime/http/resilience.py:102: RuntimeDependencyUnavailableError
+____ TestCachingLLMClient.test_caches_deterministic_positional_prompt_calls ____
+
+self = <llm.test_prompt_cache.TestCachingLLMClient object at 0x1327d0cd0>
+
+    @pytest.mark.asyncio
+    async def test_caches_deterministic_positional_prompt_calls(self):
+        base_client = _FakeLLMClient()
+        cache = InMemoryPromptCache(maxsize=10, default_ttl_s=3600)
+        client = CachingLLMClient(
+            base_client,
+            cache=cache,
+            model="m",
+            ttl_s=3600,
+        )
+    
+>       first = await client.generate("hello", temperature=0.0)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py:257: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/orchestration/llm/prompt_cache.py:525: in generate
+    response = await self._generate(args, kwargs, participation)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/prompt_cache.py:696: in _generate
+    response = await asyncio.shield(flight.task)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.scientist.orchestration.llm.prompt_cache.CachingLLMClient object at 0x1331e6520>
+cache_key = 'cb30f2f09c42b2f056b305b2473570e02a0900159bf9c7f8b2679035f3a684b0'
+args = ('hello',), kwargs = {'temperature': 0.0}, admission = None
+deadline = None
+observation = _FlightObservation(settlement=None, response=GatewayLLMResponse(content='answer:hello', usage=GatewayUsage(prompt_toke...d but mandatory accounting failed; reconciliation required: unknown provider amount cannot publish a reusable result'))
+
+    async def _produce(
+        self,
+        cache_key: str,
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
+        admission: tuple[CacheReuseRequest, CacheReuseDecision] | None,
+        deadline: float | None,
+        observation: _FlightObservation,
+    ) -> Any:
+        """Produce and publish one cache miss, always releasing its flight."""
+    
+        current_task = asyncio.current_task()
+        try:
+            async with asyncio.timeout_at(deadline):
+                response = await self._call_provider(args, kwargs)
+                observation.response = response
+                response = self._complete_physical_response(response)
+                observation.settlement = producer_settlement(response)
+                if isinstance(response, GatewayLLMResponse):
+                    _mark_cache_response(response, status="miss", cache_key=cache_key)
+    
+                amount, _ = _completion_amount(extract_llm_response_data(response), self._model)
+                if amount is None:
+                    from polisyos.core.llm.traced_client import LLMAccountingError
+    
+>                   raise LLMAccountingError(
+                        response=response,
+                        event={"settlement_status": "unknown", "cost_origin": "unknown"},
+                        cause=RuntimeError(
+                            "unknown provider amount cannot publish a reusable result"
+                        ),
+                    )
+E                   polisyos.core.llm.traced_client.LLMAccountingError: LLM provider result received but mandatory accounting failed; reconciliation required: unknown provider amount cannot publish a reusable result
+
+src/polisyos/scientist/orchestration/llm/prompt_cache.py:749: LLMAccountingError
+___ TestCachingLLMClient.test_cache_hits_do_not_share_mutable_response_state ___
+
+self = <llm.test_prompt_cache.TestCachingLLMClient object at 0x1327d0b90>
+
+    @pytest.mark.asyncio
+    async def test_cache_hits_do_not_share_mutable_response_state(self):
+        base_client = _FakeLLMClient()
+        cache = InMemoryPromptCache(maxsize=10, default_ttl_s=3600)
+        client = CachingLLMClient(
+            base_client,
+            cache=cache,
+            model="m",
+            ttl_s=3600,
+        )
+    
+>       first = await client.generate("hello", temperature=0.0)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py:279: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/orchestration/llm/prompt_cache.py:525: in generate
+    response = await self._generate(args, kwargs, participation)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/prompt_cache.py:696: in _generate
+    response = await asyncio.shield(flight.task)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.scientist.orchestration.llm.prompt_cache.CachingLLMClient object at 0x1331e6650>
+cache_key = 'cb30f2f09c42b2f056b305b2473570e02a0900159bf9c7f8b2679035f3a684b0'
+args = ('hello',), kwargs = {'temperature': 0.0}, admission = None
+deadline = None
+observation = _FlightObservation(settlement=None, response=GatewayLLMResponse(content='answer:hello', usage=GatewayUsage(prompt_toke...d but mandatory accounting failed; reconciliation required: unknown provider amount cannot publish a reusable result'))
+
+    async def _produce(
+        self,
+        cache_key: str,
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
+        admission: tuple[CacheReuseRequest, CacheReuseDecision] | None,
+        deadline: float | None,
+        observation: _FlightObservation,
+    ) -> Any:
+        """Produce and publish one cache miss, always releasing its flight."""
+    
+        current_task = asyncio.current_task()
+        try:
+            async with asyncio.timeout_at(deadline):
+                response = await self._call_provider(args, kwargs)
+                observation.response = response
+                response = self._complete_physical_response(response)
+                observation.settlement = producer_settlement(response)
+                if isinstance(response, GatewayLLMResponse):
+                    _mark_cache_response(response, status="miss", cache_key=cache_key)
+    
+                amount, _ = _completion_amount(extract_llm_response_data(response), self._model)
+                if amount is None:
+                    from polisyos.core.llm.traced_client import LLMAccountingError
+    
+>                   raise LLMAccountingError(
+                        response=response,
+                        event={"settlement_status": "unknown", "cost_origin": "unknown"},
+                        cause=RuntimeError(
+                            "unknown provider amount cannot publish a reusable result"
+                        ),
+                    )
+E                   polisyos.core.llm.traced_client.LLMAccountingError: LLM provider result received but mandatory accounting failed; reconciliation required: unknown provider amount cannot publish a reusable result
+
+src/polisyos/scientist/orchestration/llm/prompt_cache.py:749: LLMAccountingError
+__________ TestCachingLLMClient.test_frozen_snapshot_with_url_reuses ___________
+
+self = <llm.test_prompt_cache.TestCachingLLMClient object at 0x1328843e0>
+
+    @pytest.mark.asyncio
+    async def test_frozen_snapshot_with_url_reuses(self):
+        base_client = _FakeLLMClient()
+        client = CachingLLMClient(
+            base_client,
+            cache=InMemoryPromptCache(maxsize=10, default_ttl_s=3600),
+            model="m",
+            ttl_s=3600,
+        )
+        metadata = _frozen_snapshot_metadata()
+    
+        first = await client.generate(
+            user="Use https://example.org/frozen report with uncertainty_notes",
+            metadata=metadata,
+            temperature=0.0,
+        )
+        second = await client.generate(
+            user="Use https://example.org/frozen report with uncertainty_notes",
+            metadata=metadata,
+            temperature=0.0,
+        )
+    
+        assert first.content == second.content
+>       assert len(base_client.calls) == 1
+E       AssertionError: assert 2 == 1
+E        +  where 2 = len([((), {'metadata': {'cache_reuse': {'scope': 'policy-a', 'snapshot': {'content_hash': 'sha256:03f6089715e37b45ec4fd9cf..., 'tenant': 'tenant-a'}}, 'temperature': 0.0, 'user': 'Use https://example.org/frozen report with uncertainty_notes'})])
+E        +    where [((), {'metadata': {'cache_reuse': {'scope': 'policy-a', 'snapshot': {'content_hash': 'sha256:03f6089715e37b45ec4fd9cf..., 'tenant': 'tenant-a'}}, 'temperature': 0.0, 'user': 'Use https://example.org/frozen report with uncertainty_notes'})] = <llm.test_prompt_cache._FakeLLMClient object at 0x1333fc3e0>.calls
+
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py:342: AssertionError
+_____ TestCachingLLMClient.test_changed_snapshot_bytes_or_hash_cannot_hit ______
+
+self = <llm.test_prompt_cache.TestCachingLLMClient object at 0x1327cac30>
+
+    @pytest.mark.asyncio
+    async def test_changed_snapshot_bytes_or_hash_cannot_hit(self):
+        base_client = _FakeLLMClient()
+        cache = InMemoryPromptCache(maxsize=10, default_ttl_s=3600)
+        client = CachingLLMClient(base_client, cache=cache, model="m", ttl_s=3600)
+    
+        original = _frozen_snapshot_metadata(content=b"original")
+        changed = _frozen_snapshot_metadata(content=b"changed")
+        stale_hash = _frozen_snapshot_metadata(content=b"changed")
+        stale_hash["cache_reuse"]["snapshot"]["content_hash"] = original["cache_reuse"][
+            "snapshot"
+        ]["content_hash"]
+    
+        await client.generate(
+            user="Use https://example.org/frozen report",
+            metadata=original,
+            temperature=0.0,
+        )
+        await client.generate(
+            user="Use https://example.org/frozen report",
+            metadata=changed,
+            temperature=0.0,
+        )
+        await client.generate(
+            user="Use https://example.org/frozen report",
+            metadata=stale_hash,
+            temperature=0.0,
+        )
+    
+        assert len(base_client.calls) == 3
+>       assert cache.size == 2
+E       assert 0 == 2
+E        +  where 0 = <polisyos.scientist.orchestration.llm.prompt_cache.InMemoryPromptCache object at 0x133375910>.size
+
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py:380: AssertionError
+____ TestCachingLLMClient.test_four_identical_allowed_misses_single_flight _____
+
+self = <llm.test_prompt_cache.TestCachingLLMClient object at 0x132875f50>
+
+    @pytest.mark.asyncio
+    async def test_four_identical_allowed_misses_single_flight(self):
+        base_client = _SlowLLMClient()
+        client = CachingLLMClient(
+            base_client,
+            cache=InMemoryPromptCache(maxsize=10, default_ttl_s=3600),
+            model="m",
+            ttl_s=3600,
+        )
+        metadata = _frozen_snapshot_metadata()
+        tasks = [
+            asyncio.create_task(
+                client.generate(
+                    user="Use https://example.org/frozen report",
+                    metadata=metadata,
+                    temperature=0.0,
+                )
+            )
+            for _ in range(4)
+        ]
+        await asyncio.wait_for(base_client.started.wait(), timeout=1.0)
+        base_client.release.set()
+        responses = await asyncio.gather(*tasks)
+    
+>       assert len(base_client.calls) == 1
+E       AssertionError: assert 4 == 1
+E        +  where 4 = len([((), {'metadata': {'cache_reuse': {'scope': 'policy-a', 'snapshot': {'content_hash': 'sha256:03f6089715e37b45ec4fd9cf...ersion': 'snapshot-v1'}, 'tenant': 'tenant-a'}}, 'temperature': 0.0, 'user': 'Use https://example.org/frozen report'})])
+E        +    where [((), {'metadata': {'cache_reuse': {'scope': 'policy-a', 'snapshot': {'content_hash': 'sha256:03f6089715e37b45ec4fd9cf...ersion': 'snapshot-v1'}, 'tenant': 'tenant-a'}}, 'temperature': 0.0, 'user': 'Use https://example.org/frozen report'})] = <llm.test_prompt_cache._SlowLLMClient object at 0x13337d160>.calls
+
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py:454: AssertionError
+______ TestCachingLLMClient.test_cancelled_follower_does_not_cancel_owner ______
+
+self = <llm.test_prompt_cache.TestCachingLLMClient object at 0x132881040>
+
+    @pytest.mark.asyncio
+    async def test_cancelled_follower_does_not_cancel_owner(self):
+        base_client = _SlowLLMClient()
+        client = CachingLLMClient(
+            base_client,
+            cache=InMemoryPromptCache(maxsize=10, default_ttl_s=3600),
+            model="m",
+            ttl_s=3600,
+        )
+        metadata = _frozen_snapshot_metadata()
+        owner = asyncio.create_task(
+            client.generate("same prompt", metadata=metadata, temperature=0.0)
+        )
+        await asyncio.wait_for(base_client.started.wait(), timeout=1.0)
+        follower = asyncio.create_task(
+            client.generate("same prompt", metadata=metadata, temperature=0.0)
+        )
+        await asyncio.sleep(0)
+        follower.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await follower
+    
+        base_client.release.set()
+        response = await owner
+    
+        assert response.content == "answer:same prompt"
+>       assert len(base_client.calls) == 1
+E       AssertionError: assert 2 == 1
+E        +  where 2 = len([(('same prompt',), {'metadata': {'cache_reuse': {'scope': 'policy-a', 'snapshot': {'content_hash': 'sha256:03f6089715...: True, 'ref': 'artifact://evidence/policy-a', 'version': 'snapshot-v1'}, 'tenant': 'tenant-a'}}, 'temperature': 0.0})])
+E        +    where [(('same prompt',), {'metadata': {'cache_reuse': {'scope': 'policy-a', 'snapshot': {'content_hash': 'sha256:03f6089715...: True, 'ref': 'artifact://evidence/policy-a', 'version': 'snapshot-v1'}, 'tenant': 'tenant-a'}}, 'temperature': 0.0})] = <llm.test_prompt_cache._SlowLLMClient object at 0x13324f9d0>.calls
+
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py:515: AssertionError
+_________ TestCachingLLMClient.test_failed_owner_clears_inflight_entry _________
+
+self = <llm.test_prompt_cache.TestCachingLLMClient object at 0x132881220>
+
+    @pytest.mark.asyncio
+    async def test_failed_owner_clears_inflight_entry(self):
+        base_client = _SlowLLMClient(fail_first=True)
+        client = CachingLLMClient(
+            base_client,
+            cache=InMemoryPromptCache(maxsize=10, default_ttl_s=3600),
+            model="m",
+            ttl_s=3600,
+        )
+        metadata = _frozen_snapshot_metadata()
+        first = asyncio.create_task(
+            client.generate("same prompt", metadata=metadata, temperature=0.0)
+        )
+        await asyncio.wait_for(base_client.started.wait(), timeout=1.0)
+        follower = asyncio.create_task(
+            client.generate("same prompt", metadata=metadata, temperature=0.0)
+        )
+        await asyncio.sleep(0)
+        base_client.release.set()
+        results = await asyncio.gather(first, follower, return_exceptions=True)
+    
+>       assert all(isinstance(result, RuntimeError) for result in results)
+E       assert False
+E        +  where False = all(<generator object TestCachingLLMClient.test_failed_owner_clears_inflight_entry.<locals>.<genexpr> at 0x132fe83c0>)
+
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py:538: AssertionError
+_________ test_cache_hits_emit_reuse_without_duplicate_provider_usage __________
+
+    @pytest.mark.asyncio
+    async def test_cache_hits_emit_reuse_without_duplicate_provider_usage() -> None:
+        provider = _PromptProvider(raw=None)
+        metrics = _Metrics()
+        cached = CachingLLMClient(
+            provider,
+            cache=InMemoryPromptCache(maxsize=4, default_ttl_s=3600),
+            model="fixture-model",
+            ttl_s=3600,
+        )
+        traced = _traced(cached, metrics=metrics)
+    
+        first = await traced.generate(user="hello")
+        second = await traced.generate(user="hello")
+        third = await traced.generate(user="hello")
+    
+        assert len(provider.calls) == 1
+>       assert [event["status"] for event in metrics.events] == ["success", "cache_hit", "cache_hit"]
+E       AssertionError: assert ['success', '...s', 'success'] == ['success', '..., 'cache_hit']
+E         
+E         At index 1 diff: 'success' != 'cache_hit'
+E         Use -v to get more diff
+
+tests/unit/remediation/test_llm_01.py:213: AssertionError
+_ test_budget_enforcer_charges_misses_not_cache_reuse_and_charges_after_expiry _
+
+    @pytest.mark.asyncio
+    async def test_budget_enforcer_charges_misses_not_cache_reuse_and_charges_after_expiry() -> None:
+        provider = _PromptProvider(raw=None)
+        cached = CachingLLMClient(
+            provider,
+            cache=InMemoryPromptCache(maxsize=4, default_ttl_s=0.02),
+            model="fixture-model",
+            ttl_s=0.02,
+        )
+        traced = _traced(cached)
+        budget_state = BudgetState(
+            limits={"run": BudgetLimit(key="run", max_usd=Decimal("1.00"))},
+        )
+        enforcer = LLMBudgetEnforcer(
+            client=traced,
+            budget_state=budget_state,
+            budget_keys=["run"],
+            model_name="fixture-model",
+        )
+    
+        await enforcer.generate(user="hello", max_tokens=2, _prompt_tokens_estimate=3)
+        await enforcer.generate(user="hello", max_tokens=2, _prompt_tokens_estimate=3)
+        await asyncio.sleep(0.04)
+        await enforcer.generate(user="hello", max_tokens=2, _prompt_tokens_estimate=3)
+    
+        assert len(provider.calls) == 2
+>       assert budget_state.spent["run"] == Decimal("0.04")
+E       AssertionError: assert Decimal('0.06') == Decimal('0.04')
+E        +  where Decimal('0.04') = Decimal('0.04')
+
+tests/unit/remediation/test_llm_01.py:251: AssertionError
+=========================== short test summary info ============================
+FAILED tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py::test_partial_http_cost_events_survive_owned_core_cas_and_fresh_details_get
+FAILED tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_caches_deterministic_positional_prompt_calls
+FAILED tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_cache_hits_do_not_share_mutable_response_state
+FAILED tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_frozen_snapshot_with_url_reuses
+FAILED tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_changed_snapshot_bytes_or_hash_cannot_hit
+FAILED tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_four_identical_allowed_misses_single_flight
+FAILED tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_cancelled_follower_does_not_cancel_owner
+FAILED tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_failed_owner_clears_inflight_entry
+FAILED tests/unit/remediation/test_llm_01.py::test_cache_hits_emit_reuse_without_duplicate_provider_usage
+FAILED tests/unit/remediation/test_llm_01.py::test_budget_enforcer_charges_misses_not_cache_reuse_and_charges_after_expiry
+10 failed, 62 passed, 1 skipped in 1.32s

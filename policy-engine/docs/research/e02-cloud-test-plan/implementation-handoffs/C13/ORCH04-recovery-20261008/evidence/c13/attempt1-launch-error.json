@@ -1,0 +1,7 @@
+{
+  "outcome": "ERROR",
+  "testcases_started": false,
+  "attempted_wrapper": "/usr/bin/time -v",
+  "error": "FileNotFoundError [Errno2] No such file or directory /usr/bin/time",
+  "followup": "Python os.wait4 exact PID measurement; no test criterion or runtime guard changes"
+}

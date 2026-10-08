@@ -1,0 +1,16 @@
+{
+  "label": "C13-local-after",
+  "argv": [
+    "git",
+    "cat-file",
+    "-t",
+    "996dea4e17ff1acbdb2d0ef0d90e81956f6d4eda"
+  ],
+  "cwd": "/workspace/polisyos",
+  "pid": 1449,
+  "start_utc": "2026-10-08T15:41:53.268427+00:00",
+  "end_utc": "2026-10-08T15:41:53.271232+00:00",
+  "exit_code": 128,
+  "stdout": "",
+  "stderr": "fatal: git cat-file: could not get object info\n"
+}

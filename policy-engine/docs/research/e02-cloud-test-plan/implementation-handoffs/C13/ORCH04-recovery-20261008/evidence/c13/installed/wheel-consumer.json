@@ -1,0 +1,28 @@
+{
+  "label": "wheel-consumer",
+  "argv": [
+    "/workspace/ORCH04-environments/installed-wheel/bin/python",
+    "-I",
+    "/workspace/ORCH04-evidence/c13/installed/launch_installed.py",
+    "/workspace/ORCH04-evidence/c13/installed",
+    "wheel",
+    "/workspace/ORCH04-environments/installed-check-carriers"
+  ],
+  "cwd": "/workspace/ORCH04-environments/installed-check-carriers",
+  "pid": 5908,
+  "started_utc": "2026-10-08T15:51:47.402108+00:00",
+  "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "extra_env": {
+    "E02_DOWHY_FIXTURE_PATH": "/workspace/ORCH04-environments/installed-check-carriers/test_dowhy_worker.py",
+    "E02_GCM_FIXTURE_PATH": "/workspace/ORCH04-environments/installed-check-carriers/test_gcm_backend_contract.py",
+    "E02_PROFILE_EXPECTED_JSON": "/workspace/ORCH04-evidence/c13/installed/profile-expected.json",
+    "E02_TEST_DOWHY_WORKER_PYTHON": "/workspace/ORCH04-environments/worker/bin/python"
+  },
+  "output": "/workspace/ORCH04-evidence/c13/installed/wheel-consumer.log",
+  "exit_code": 0,
+  "wall_seconds": 50.30524756,
+  "max_rss_kib": 699176,
+  "user_cpu_seconds": 52.515308,
+  "system_cpu_seconds": 4.283237,
+  "output_sha256": "0bdedf6ec7d7ff6df36422091deee7f549861b779adca6a1ae642707c02831cf"
+}

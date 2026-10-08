@@ -1,0 +1,32 @@
+{
+  "executable": "/workspace/ORCH04-environments/app/bin/python",
+  "python": "3.14.2",
+  "platform": "linux",
+  "modules": {
+    "torch": {
+      "origin": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/torch/__init__.py",
+      "version": "2.10.0+cu128"
+    },
+    "gpytorch": {
+      "origin": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/gpytorch/__init__.py",
+      "version": "1.15.1"
+    },
+    "botorch": {
+      "origin": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/botorch/__init__.py",
+      "version": "0.16.1"
+    },
+    "linear_operator": {
+      "origin": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/linear_operator/__init__.py",
+      "version": "0.6"
+    },
+    "numpy": {
+      "origin": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/numpy/__init__.py",
+      "version": "2.3.5"
+    },
+    "scipy": {
+      "origin": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/scipy/__init__.py",
+      "version": "1.16.3"
+    }
+  },
+  "qualification": "Import readiness only. No GP fit, native search/funnel numerical consumer, or product PASS."
+}

@@ -1,0 +1,137 @@
+{
+  "schema": "policyos.e02.companion_requirement.v1",
+  "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "origin": "Independent C13 read-only source/artifact verification",
+  "canonical_owner": "G coordinates shared packaging owners; F owns named packaging test mechanism",
+  "exact_files": [
+    "policy-engine/tests/repo_quality/tools/test_hatch_packaging.py",
+    "policy-engine/ops/cloud/gcp/package_repo.sh"
+  ],
+  "consumer_property": "Every required current Hatch force-include source is carried into the native-test context and the actual GCP source archive so extracted build can resolve original resource bytes. Context denominator and legacy equivalence expectations must represent the current declared packaging contract.",
+  "assets_complete_denominator": [
+    {
+      "source": "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+      "wheel_destination": "polisyos/foundry/methods/catalog/_resources/method_catalog_dependency_digest_domains.toml",
+      "source_blob": "caf4fa98a0669f6d81bd8b5db0014cb015b9492f",
+      "sha256": "186078f2cd5c24cdef007449109d5667f60f4f7949c9b663026e5658e538bb5b",
+      "bytes": 38632,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false
+    },
+    {
+      "source": "policy-engine/data/dataset_catalog/metrics_map.yaml",
+      "wheel_destination": "polisyos/data_forge/domains/catalog/_resources/metrics_map.yaml",
+      "source_blob": "7f6cf78a02e4e58219353548af604de49e796442",
+      "sha256": "0877e6521e4dd66dbc2c08010367c79f672c37a8b6b30e68f47b10135f680266",
+      "bytes": 2163,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false
+    },
+    {
+      "source": "policy-engine/data/dataset_catalog/proxy_metric_alignments.yaml",
+      "wheel_destination": "polisyos/data_forge/domains/catalog/_resources/proxy_metric_alignments.yaml",
+      "source_blob": "649cd9a249ca12745b4ed9c9871d2aca57eb0a61",
+      "sha256": "4c6c04bb99ea566b061c7b2d23540d22f8eb7c043067585a7e9b93ccaf87388b",
+      "bytes": 293,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false
+    },
+    {
+      "source": "policy-engine/data/dataset_catalog/seed_variable_alignments.yaml",
+      "wheel_destination": "polisyos/data_forge/domains/catalog/_resources/seed_variable_alignments.yaml",
+      "source_blob": "49d63f6e693ab9488fad50b25d75b042f3dff9dd",
+      "sha256": "cb1daa3237ff58d8c875571ff2459a55c5182c3a4f13a076497a517f9a8740d8",
+      "bytes": 1309,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false
+    },
+    {
+      "source": "policy-engine/data/dataset_catalog/wvs_indicator_registry.yaml",
+      "wheel_destination": "polisyos/data_forge/domains/catalog/_resources/wvs_indicator_registry.yaml",
+      "source_blob": "e28c9dfc7e83f3c7d2fbf020312dcfdd66bee3a0",
+      "sha256": "dabbadf04fdbf6c4658a720a6af5b63a60c69727b2350c0424368691399e413d",
+      "bytes": 160329,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false
+    },
+    {
+      "source": "policy-engine/workers/dowhy-014/.python-version",
+      "wheel_destination": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/.python-version",
+      "source_blob": "e4fba2183587225f216eeada4c78dfab6b2e65f5",
+      "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+      "bytes": 5,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false
+    },
+    {
+      "source": "policy-engine/workers/dowhy-014/README.md",
+      "wheel_destination": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/README.md",
+      "source_blob": "84528b455b39585aa3e507e4c6697213c7f7365a",
+      "sha256": "fc4b60aecff0f52a19866c17da419ac4583de6fe09d74b424f8f9908f795f198",
+      "bytes": 4934,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false
+    },
+    {
+      "source": "policy-engine/workers/dowhy-014/protocol.py",
+      "wheel_destination": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/protocol.py",
+      "source_blob": "ca392779e3351e4cf13b23db0a27077487a29368",
+      "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239",
+      "bytes": 4704,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false
+    },
+    {
+      "source": "policy-engine/workers/dowhy-014/pyproject.toml",
+      "wheel_destination": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/pyproject.toml",
+      "source_blob": "770a46160a0b13614507d345f729910c9e81acde",
+      "sha256": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447",
+      "bytes": 379,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false
+    },
+    {
+      "source": "policy-engine/workers/dowhy-014/uv.lock",
+      "wheel_destination": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/uv.lock",
+      "source_blob": "77ce3b5392703b452d70da87c0f57372b88e9117",
+      "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a",
+      "bytes": 98340,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false
+    },
+    {
+      "source": "policy-engine/workers/dowhy-014/worker.py",
+      "wheel_destination": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/worker.py",
+      "source_blob": "8e4ea39ce6b4f03626b30fb674b0d3f881557aef",
+      "sha256": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253",
+      "bytes": 10652,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false
+    }
+  ],
+  "test_context_source": "LEGACY sdist include list rather than current Hatch required resource footprint",
+  "actual_gcp_include_paths": [
+    "policy-engine/README.md",
+    "policy-engine/pyproject.toml",
+    "policy-engine/hatch.toml",
+    "policy-engine/uv.lock",
+    "policy-engine/src",
+    "policy-engine/tools",
+    "policy-engine/schemas",
+    "policy-engine/ops"
+  ],
+  "deciding_evidence": {
+    "scoped_test": "evidence/c13/packaging-contract.log",
+    "raw": "6 failed,4 passed; all6 FileNotFoundError metrics_map.yaml in fixture copies",
+    "real_archive": "evidence/c13/gcp-archive/extracted-wheel-build.log",
+    "archive_build": "Canonical UPLOAD=0 source archive exits0; extracted wheel build exits2, forced include data/dataset_catalog/metrics_map.yaml unavailable."
+  },
+  "minimal_requirement": "Named canonical owner updates resource custody in existing test-context/archive paths, retaining production exclusions and source hashes; no C13 source edit. Re-run affected packaging/archive consumers on changed exact source.",
+  "other_readonly_observations": [
+    {
+      "file": "policy-engine/Dockerfile.reproducible",
+      "observation": "Manifest COPY stages plus src/tools observed; current force-include source custody before uv sync requires owner review. Docker execution not performed; buildability not established."
+    }
+  ],
+  "authority": "Build/input custody only; no production deployment/data/backend numerical claim."
+}

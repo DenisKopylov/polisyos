@@ -1,0 +1,343 @@
+{
+  "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "files": {
+    "evidence/host/host.json": {
+      "sha256": "159f1cc2c075f92b023e01a09dea21703bcb393efcc4c705036fc91ca88e1777",
+      "bytes": 6570,
+      "local_origin": "/workspace/ORCH04-evidence/host/host.json"
+    },
+    "evidence/host/filesystems.log": {
+      "sha256": "2cf97ea1db7e30ec532788c4fba7a02db0c8d97a581aa1490a310d4452f823d0",
+      "bytes": 1033,
+      "local_origin": "/workspace/ORCH04-evidence/host/filesystems.log"
+    },
+    "evidence/host/cgroups.log": {
+      "sha256": "82fa73a4c296bb1310efc76f2cc667a34aba1ae562797e497d7820379455a148",
+      "bytes": 3767,
+      "local_origin": "/workspace/ORCH04-evidence/host/cgroups.log"
+    },
+    "evidence/host/runtime-tools.log": {
+      "sha256": "cbc1d6be09e1d99515e290ddb42ab6ddddc4e0ddb96fa700a419c571f58aac71",
+      "bytes": 8555,
+      "local_origin": "/workspace/ORCH04-evidence/host/runtime-tools.log"
+    },
+    "evidence/host/repository.log": {
+      "sha256": "b8c9d6412d673f4e0b56d5cea082b4fd60d1256431a715733a6363f11906e5a9",
+      "bytes": 526,
+      "local_origin": "/workspace/ORCH04-evidence/host/repository.log"
+    },
+    "evidence/host/app-origins.json": {
+      "sha256": "ddfc778bf040ed029714d96cfc4ba1145ebc2baf21404a1af5d630b383179dfd",
+      "bytes": 47040,
+      "local_origin": "/workspace/ORCH04-evidence/host/app-origins.json"
+    },
+    "evidence/host/worker-origins.json": {
+      "sha256": "0206e4ee0e4e48d6b9f32e91eb80950768c4472dfe93e2c7ab29a6cd94d78b47",
+      "bytes": 13826,
+      "local_origin": "/workspace/ORCH04-evidence/host/worker-origins.json"
+    },
+    "evidence/host/worker-alias-origins.json": {
+      "sha256": "73caab18a6755b6287f87d833c5f9339378b11b4b9c64c7d376e36b1d8c28791",
+      "bytes": 15476,
+      "local_origin": "/workspace/ORCH04-evidence/host/worker-alias-origins.json"
+    },
+    "evidence/host/worker-alias.log": {
+      "sha256": "e9f6b89fe0c099d67d2ec9d66d2dda1e587b4cf4708ce77762295ebf5ad344d8",
+      "bytes": 119,
+      "local_origin": "/workspace/ORCH04-evidence/host/worker-alias.log"
+    },
+    "evidence/host/GP-import-readiness.json": {
+      "sha256": "fb8c590427d2a01bf086bd08ecd5d3a0becc774155c0fe85ec2383ccd2e0627e",
+      "bytes": 1172,
+      "local_origin": "/workspace/ORCH04-evidence/host/GP-import-readiness.json"
+    },
+    "evidence/host/GP-import-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "local_origin": "/workspace/ORCH04-evidence/host/GP-import-stderr.log"
+    },
+    "evidence/host/provision.json": {
+      "sha256": "da995d7e4defacbafcecbf25bc0a85fc6b7b797302fbcc1aad955595e0bf3845",
+      "bytes": 6816,
+      "local_origin": "/workspace/ORCH04-evidence/host/provision.json"
+    },
+    "evidence/host/provision-resource-samples.json": {
+      "sha256": "c4a7d1d8fff2a3cdcef87de67497ac7eb738b32e7ce9492347b164fc1bcc714f",
+      "bytes": 60081,
+      "local_origin": "/workspace/ORCH04-evidence/host/provision-resource-samples.json"
+    },
+    "evidence/host/provision-app.log": {
+      "sha256": "ced6379adff4aa01d3c7b5a29c5a6c05812f0a84228b3e8197e6745bfc0435cc",
+      "bytes": 6785,
+      "local_origin": "/workspace/ORCH04-evidence/host/provision-app.log"
+    },
+    "evidence/host/provision-worker.log": {
+      "sha256": "fd80775e65606dff1cc92eac70f371ce74c9e3cc4cf65faeca4ef114a9afa1f2",
+      "bytes": 2298,
+      "local_origin": "/workspace/ORCH04-evidence/host/provision-worker.log"
+    },
+    "evidence/host/provision-node.log": {
+      "sha256": "d1a200915274e4834be1810ed1e97813e8959dcdd209a152f79a5a26385ca56b",
+      "bytes": 5262,
+      "local_origin": "/workspace/ORCH04-evidence/host/provision-node.log"
+    },
+    "evidence/host/activate-tools.sh": {
+      "sha256": "313f434e9840ce68f64cc973367e45e87c3696b335775f677d01550477c704db",
+      "bytes": 663,
+      "local_origin": "/workspace/ORCH04-evidence/host/activate-tools.sh"
+    },
+    "evidence/host/packaging-tooling.in": {
+      "sha256": "0dcdf50fa71bbe6aa99b2d0691d204204311ba2041176104ce3cbee6c360fea7",
+      "bytes": 18,
+      "local_origin": "/workspace/ORCH04-evidence/host/packaging-tooling.in"
+    },
+    "evidence/host/packaging-tooling.lock": {
+      "sha256": "31fe00b10ed1f85a5d668a7f9dfb2dff0f6ec51f885820fa0727cc38327cd9a3",
+      "bytes": 1606,
+      "local_origin": "/workspace/ORCH04-evidence/host/packaging-tooling.lock"
+    },
+    "evidence/host/provision-packaging-compile.log": {
+      "sha256": "02ec800c455ae031fe0f0e189d3655e53ba5b355bd6638cf2d11696f3edcdc93",
+      "bytes": 1633,
+      "local_origin": "/workspace/ORCH04-evidence/host/provision-packaging-compile.log"
+    },
+    "evidence/host/provision-packaging-sync.log": {
+      "sha256": "078898b1fc76400afba519ab7749731e275da257d8b168dd3036b233812b22a1",
+      "bytes": 326,
+      "local_origin": "/workspace/ORCH04-evidence/host/provision-packaging-sync.log"
+    },
+    "evidence/host/run_scoped.py": {
+      "sha256": "2676d9f73a419cd0a287817d5118a219c9e9b071ead11942e783399b1484d7be",
+      "bytes": 6029,
+      "local_origin": "/workspace/ORCH04-evidence/host/run_scoped.py"
+    },
+    "evidence/host/build_installed.py": {
+      "sha256": "6b7aaf44f81c616dd45040ac3c616ed9dc6061bdaee1cc49e416e30ecff9e385",
+      "bytes": 6651,
+      "local_origin": "/workspace/ORCH04-evidence/host/build_installed.py"
+    },
+    "evidence/host/test_gcp_archive.py": {
+      "sha256": "89fe141cb0fcdfcd31d18438c6bf6ffacf94bbe80cc76ccf61a56e7f3bc95df0",
+      "bytes": 2316,
+      "local_origin": "/workspace/ORCH04-evidence/host/test_gcp_archive.py"
+    },
+    "evidence/host/probe_python_origins.py": {
+      "sha256": "62003e1c2978a5ce44801561b19ff4cf6c2d51f9ddfc4fedc31d6eb36835fdc4",
+      "bytes": 1564,
+      "local_origin": "/workspace/ORCH04-evidence/host/probe_python_origins.py"
+    },
+    "evidence/host/verify_profile_readiness.py": {
+      "sha256": "acede98a62e5c41c066a8be6ea9bfc5df19ce0801543c0eea9fe8b899d9f3d08",
+      "bytes": 543,
+      "local_origin": "/workspace/ORCH04-evidence/host/verify_profile_readiness.py"
+    },
+    "evidence/c13/attempt1-launch-error.json": {
+      "sha256": "913d9336dc4bbf3dcc4e58f4ef1553184ce544ba89f546d9a3770343969ce1dc",
+      "bytes": 278,
+      "local_origin": "/workspace/ORCH04-evidence/c13/attempt1-launch-error.json"
+    },
+    "evidence/c13/source-manifest.json": {
+      "sha256": "a9b78d8aef3fd374ca66b8681e8a96b0d30fb9da9586aa825d96220b056027af",
+      "bytes": 2542,
+      "local_origin": "/workspace/ORCH04-evidence/c13/source-manifest.json"
+    },
+    "evidence/c13/scoped-checks.json": {
+      "sha256": "5921fd1eb5c043d9b2d148324b1e173193e0567b51e97b33182ff20180d43576",
+      "bytes": 16573,
+      "local_origin": "/workspace/ORCH04-evidence/c13/scoped-checks.json"
+    },
+    "evidence/c13/resource-samples.json": {
+      "sha256": "1938ab0ac6fa22997cf79c37900561da0e421515646f6fb25328153a5f66ab67",
+      "bytes": 15821,
+      "local_origin": "/workspace/ORCH04-evidence/c13/resource-samples.json"
+    },
+    "evidence/c13/gcm-query.log": {
+      "sha256": "57b99667bf08138bb67e9d9b20029d7d499e8d6ae0a45f8135e1dba07fa3e2e7",
+      "bytes": 132043,
+      "local_origin": "/workspace/ORCH04-evidence/c13/gcm-query.log"
+    },
+    "evidence/c13/gcm-query-junit.xml": {
+      "sha256": "58e38271bfea37bde8647c446b076a0c9999f587669fbfc2acfd769bb8823ca9",
+      "bytes": 441,
+      "local_origin": "/workspace/ORCH04-evidence/c13/gcm-query-junit.xml"
+    },
+    "evidence/c13/dowhy-native.log": {
+      "sha256": "069097af11ba88c8361d736e3f07062ffd3f8334467660b3fb13599f5b354656",
+      "bytes": 2338,
+      "local_origin": "/workspace/ORCH04-evidence/c13/dowhy-native.log"
+    },
+    "evidence/c13/dowhy-native-junit.xml": {
+      "sha256": "2eb73f5ce10add3366392264f654068568a19fbda26221d323fef790e1de5fd5",
+      "bytes": 3659,
+      "local_origin": "/workspace/ORCH04-evidence/c13/dowhy-native-junit.xml"
+    },
+    "evidence/c13/worker-backend.log": {
+      "sha256": "689d904a41d2f76a77906924d2778f9e68fa29487a73651de8fa35187683182d",
+      "bytes": 6040,
+      "local_origin": "/workspace/ORCH04-evidence/c13/worker-backend.log"
+    },
+    "evidence/c13/worker-backend-junit.xml": {
+      "sha256": "971f55789e8fcd8ab938ce43d8fa75182d023c58e16b5432a0ec368b6478a9ca",
+      "bytes": 4563,
+      "local_origin": "/workspace/ORCH04-evidence/c13/worker-backend-junit.xml"
+    },
+    "evidence/c13/node-client.log": {
+      "sha256": "d0e7d7efe9cdcc8f16f1ab1d6d2aef2b67f1048999f78a043a4bb4008dfb3536",
+      "bytes": 3080,
+      "local_origin": "/workspace/ORCH04-evidence/c13/node-client.log"
+    },
+    "evidence/c13/dashboard-contracts.log": {
+      "sha256": "8d34e9a0234b1ba6f8881dca68402b2d751b7b6c6dddaa42a661ae73f25fe7ad",
+      "bytes": 1122,
+      "local_origin": "/workspace/ORCH04-evidence/c13/dashboard-contracts.log"
+    },
+    "evidence/c13/dashboard-build.log": {
+      "sha256": "ecf77b94fb494f3f356b4ee44933358e20ab123859e7c774bf29724f685ec0df",
+      "bytes": 17587,
+      "local_origin": "/workspace/ORCH04-evidence/c13/dashboard-build.log"
+    },
+    "evidence/c13/packaging-contract.log": {
+      "sha256": "a822f53565f727dc73d11ac8160e6fa4c7260d6c8d43b722b38709ba09a28469",
+      "bytes": 29733,
+      "local_origin": "/workspace/ORCH04-evidence/c13/packaging-contract.log"
+    },
+    "evidence/c13/packaging-contract-junit.xml": {
+      "sha256": "5ae65be9880dc59e3dce1711dee0a70156373a2dc0cf8900703796def9428409",
+      "bytes": 29917,
+      "local_origin": "/workspace/ORCH04-evidence/c13/packaging-contract-junit.xml"
+    },
+    "evidence/c13/installed/artifacts.json": {
+      "sha256": "deddfe1a60a1409faac9b2dfd32e7dc4f1b1e88dad96e67ece5548df443dc5f4",
+      "bytes": 895643,
+      "local_origin": "/workspace/ORCH04-evidence/c13/installed/artifacts.json"
+    },
+    "evidence/c13/installed/carrier-manifest.json": {
+      "sha256": "3836540796875691185e3a95841129e458d3124da99494756d7153f3a809a105",
+      "bytes": 1571,
+      "local_origin": "/workspace/ORCH04-evidence/c13/installed/carrier-manifest.json"
+    },
+    "evidence/c13/installed/profile-expected.json": {
+      "sha256": "1cf04cb7b7fbb98bfe909f1c446b80acb7e8a6fee29e593ca9f7adfa7f36ea83",
+      "bytes": 810,
+      "local_origin": "/workspace/ORCH04-evidence/c13/installed/profile-expected.json"
+    },
+    "evidence/c13/installed/launch_installed.py": {
+      "sha256": "1a1b87a95827e856bff5b714fac26e244a4fb9bbda8df3dfb2e32e249f2777e7",
+      "bytes": 2157,
+      "local_origin": "/workspace/ORCH04-evidence/c13/installed/launch_installed.py"
+    },
+    "evidence/c13/installed/wheel-consumer.log": {
+      "sha256": "0bdedf6ec7d7ff6df36422091deee7f549861b779adca6a1ae642707c02831cf",
+      "bytes": 546378,
+      "local_origin": "/workspace/ORCH04-evidence/c13/installed/wheel-consumer.log"
+    },
+    "evidence/c13/installed/wheel-origin-proof.json": {
+      "sha256": "3f797d2b7eab7d779150778b9a12f18a2ce38a5cdc33312865057ff85b43458b",
+      "bytes": 161746,
+      "local_origin": "/workspace/ORCH04-evidence/c13/installed/wheel-origin-proof.json"
+    },
+    "evidence/c13/installed/wheel-junit.xml": {
+      "sha256": "4c9131bd5c7dc785155a929fd26cb02b062ac81f7bb2ad8d446a4d6b42709317",
+      "bytes": 684,
+      "local_origin": "/workspace/ORCH04-evidence/c13/installed/wheel-junit.xml"
+    },
+    "evidence/c13/installed/rebuilt-sdist-consumer.log": {
+      "sha256": "129a214ea164d8baf7cd6050b9161d7dfa172e11a2c5019a2a90e10e772ae58c",
+      "bytes": 565898,
+      "local_origin": "/workspace/ORCH04-evidence/c13/installed/rebuilt-sdist-consumer.log"
+    },
+    "evidence/c13/installed/rebuilt-sdist-origin-proof.json": {
+      "sha256": "1aad22afd4160487ad24d50e08e4d4f2d344adced46dfb34c163b4d262024918",
+      "bytes": 169082,
+      "local_origin": "/workspace/ORCH04-evidence/c13/installed/rebuilt-sdist-origin-proof.json"
+    },
+    "evidence/c13/installed/rebuilt-sdist-junit.xml": {
+      "sha256": "450585deea9914602a9774e6ebd92d8aea889b592faee5dabfd1997bac16a03f",
+      "bytes": 684,
+      "local_origin": "/workspace/ORCH04-evidence/c13/installed/rebuilt-sdist-junit.xml"
+    },
+    "evidence/c13/installed/wheel-build.log": {
+      "sha256": "f789ddff035ee671b6f06ce33669b580941a6d0855694993cc2deab7044efee0",
+      "bytes": 128,
+      "local_origin": "/workspace/ORCH04-evidence/c13/installed/wheel-build.log"
+    },
+    "evidence/c13/installed/sdist-build.log": {
+      "sha256": "2c79007893bba1dd7600a994efc21fc4a529ce13c2938c92456268368f95067e",
+      "bytes": 125,
+      "local_origin": "/workspace/ORCH04-evidence/c13/installed/sdist-build.log"
+    },
+    "evidence/c13/installed/rebuilt-sdist-wheel.log": {
+      "sha256": "f5ac21891e641a4837d2084afdc63e6c9a041e30d1b9aadb7f73a69303db1c4b",
+      "bytes": 129,
+      "local_origin": "/workspace/ORCH04-evidence/c13/installed/rebuilt-sdist-wheel.log"
+    },
+    "evidence/c13/installed/wheel-consumer.json": {
+      "sha256": "40198973c6ca92b5a7de73f45ca03de5a4ee16e84ff241e3c3fcfc50a3302269",
+      "bytes": 1244,
+      "local_origin": "/workspace/ORCH04-evidence/c13/installed/wheel-consumer.json"
+    },
+    "evidence/c13/installed/rebuilt-sdist-consumer.json": {
+      "sha256": "53789f0e85756715447bda5dda04dde516a61351a56c0abc7f155472c0537554",
+      "bytes": 1282,
+      "local_origin": "/workspace/ORCH04-evidence/c13/installed/rebuilt-sdist-consumer.json"
+    },
+    "evidence/c13/gcp-archive/package.json": {
+      "sha256": "52a34d0f9a01fc181874eddfd85b187dbace1b3e3a16195d095cfc4cb994a49d",
+      "bytes": 441,
+      "local_origin": "/workspace/ORCH04-evidence/c13/gcp-archive/package.json"
+    },
+    "evidence/c13/gcp-archive/package.log": {
+      "sha256": "1844c6a3cf6999b521cc6e9619e6050c000b26ba0da0630cc2920c11fac0ef52",
+      "bytes": 107,
+      "local_origin": "/workspace/ORCH04-evidence/c13/gcp-archive/package.log"
+    },
+    "evidence/c13/gcp-archive/extracted-wheel-build.json": {
+      "sha256": "1bb152fee716f2292e0864993f86efe4a1ea4c7c8546e870c0bce2cf10dc558f",
+      "bytes": 632,
+      "local_origin": "/workspace/ORCH04-evidence/c13/gcp-archive/extracted-wheel-build.json"
+    },
+    "evidence/c13/gcp-archive/extracted-wheel-build.log": {
+      "sha256": "6f424869946dd30cf8f4a7d795e69fe81b20045b14f1e56cb3f94feadc4ad219",
+      "bytes": 1943,
+      "local_origin": "/workspace/ORCH04-evidence/c13/gcp-archive/extracted-wheel-build.log"
+    },
+    "evidence/c13/gcp-archive/archive-manifest.json": {
+      "sha256": "a21e1d7944f829edf02d4165a4151bbf65a63acef43c5a92b93d27aac52b58c6",
+      "bytes": 304424,
+      "local_origin": "/workspace/ORCH04-evidence/c13/gcp-archive/archive-manifest.json"
+    },
+    "evidence/admission/C13-create.json": {
+      "sha256": "6da97a78c28329465e60bb5aa8e6a29e71e2be9ac8bcbb7b2733acbc22d19708",
+      "bytes": 24558,
+      "local_origin": "/workspace/ORCH04-evidence/admission/C13-create.json"
+    },
+    "evidence/admission/C13-resume.json": {
+      "sha256": "e2475692adb0851c91956f45c9e00dca0360c0c86559635c13e6eb95e8dc7a57",
+      "bytes": 30261,
+      "local_origin": "/workspace/ORCH04-evidence/admission/C13-resume.json"
+    },
+    "evidence/custody/C13-local-after.json": {
+      "sha256": "80a65d42aa994c23c86a9e56457210e47b8ad2279f103bec2e0d7d34ecce34a3",
+      "bytes": 381,
+      "local_origin": "/workspace/ORCH04-evidence/custody/C13-local-after.json"
+    },
+    "evidence/custody/C13-exact-origin-fetch.json": {
+      "sha256": "8974dc6888ce0927f1a16c135457e322fcf2b42eeb686b49df2d90cf8f9298aa",
+      "bytes": 506,
+      "local_origin": "/workspace/ORCH04-evidence/custody/C13-exact-origin-fetch.json"
+    },
+    "HANDOFF.json": {
+      "sha256": "90b015b3b7e8d2f8e8a4f5c7fde3f61745f824288bacac77ed7dc7a3e3d442ab",
+      "bytes": 14619
+    },
+    "packaging-companion-requirement.json": {
+      "sha256": "24c2d144ae07a799966c7eb1e2916fae2cae4d409988b67a9add386aefddb2ff",
+      "bytes": 7068
+    },
+    "host-after.json": {
+      "sha256": "d6cf69c665b1ef6d6558300965f8106243d76875068b141a263a352771f378ab",
+      "bytes": 1993
+    }
+  },
+  "rule": "Exact full moderate deciding bytes preserved; hashes identify local large artifacts separately."
+}

@@ -1,0 +1,317 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "execution_role": "C13",
+  "slice": "ORCH04-recovery-20261008-scoped-conformance",
+  "slice_base_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "implementation_commits": [],
+  "verified_upstream_source_commits": [
+    "0321633c0e6d9a87bccfbbe889a4998934c52dd3"
+  ],
+  "candidate_tree_sha": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+  "source_parents": [
+    "f1f99ba5d040e138e3b3b0849d53c9df17d1f437"
+  ],
+  "branch": "codex/e02-C13-recovery-20261008",
+  "actual_repository_root": "/workspace/ORCH04-C13",
+  "write_mode": "read_only_verification; C13 evidence/receipt documents only",
+  "admission": "evidence/admission/C13-resume.json",
+  "original_criterion": "execution-prompts/parallel-2026-10-08/C13.md + COMMON + restart COMMON at immutable source",
+  "checks": [
+    {
+      "label": "gcm-query",
+      "command_argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--basetemp=/workspace/ORCH04-evidence/c13/gcm-query-basetemp",
+        "--junitxml=/workspace/ORCH04-evidence/c13/gcm-query-junit.xml",
+        "-q",
+        "-s",
+        "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_query_consumer_binds_complete_cas_projection_and_original_request"
+      ],
+      "target_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "source_tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+      "environment": "host frozen profiles evidence/host/provision.json + installed origins",
+      "input_closure": "evidence/c13/source-manifest.json + selected complete immutable Git tree",
+      "outcome": "PASS",
+      "raw_exit_code": 0,
+      "wall_seconds": 121.33361315800005,
+      "max_rss_kib": 636856,
+      "output": "evidence/c13/gcm-query.log",
+      "interpretation": "One genuine GCM/query CAS consumer with complete projected field/original-request/missing-artifact corruptions."
+    },
+    {
+      "label": "dowhy-native",
+      "command_argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--basetemp=/workspace/ORCH04-evidence/c13/dowhy-native-basetemp",
+        "--junitxml=/workspace/ORCH04-evidence/c13/dowhy-native-junit.xml",
+        "-q",
+        "-s",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py"
+      ],
+      "target_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "source_tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+      "environment": "host frozen profiles evidence/host/provision.json + installed origins",
+      "input_closure": "evidence/c13/source-manifest.json + selected complete immutable Git tree",
+      "outcome": "PASS",
+      "raw_exit_code": 0,
+      "wall_seconds": 125.96386349199997,
+      "max_rss_kib": 611716,
+      "output": "evidence/c13/dowhy-native.log",
+      "interpretation": "20 current canonical native tests, not transferred historical20PASS."
+    },
+    {
+      "label": "worker-backend",
+      "command_argv": [
+        "/workspace/ORCH04-environments/worker/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--basetemp=/workspace/ORCH04-evidence/c13/worker-backend-basetemp",
+        "--junitxml=/workspace/ORCH04-evidence/c13/worker-backend-junit.xml",
+        "-q",
+        "-s",
+        "tests"
+      ],
+      "target_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "source_tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+      "environment": "host frozen profiles evidence/host/provision.json + installed origins",
+      "input_closure": "evidence/c13/source-manifest.json + selected complete immutable Git tree",
+      "outcome": "PASS",
+      "raw_exit_code": 0,
+      "wall_seconds": 49.28330578800001,
+      "max_rss_kib": 305312,
+      "output": "evidence/c13/worker-backend.log",
+      "interpretation": "25 real locked DoWhy worker tests on bounded synthetic models."
+    },
+    {
+      "label": "node-client",
+      "command_argv": [
+        "corepack",
+        "pnpm",
+        "--filter",
+        "@polisyos/runtime-api-client",
+        "test"
+      ],
+      "target_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "source_tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+      "environment": "host frozen profiles evidence/host/provision.json + installed origins",
+      "input_closure": "evidence/c13/source-manifest.json + selected complete immutable Git tree",
+      "outcome": "PASS",
+      "raw_exit_code": 0,
+      "wall_seconds": 12.899746084999947,
+      "max_rss_kib": 223412,
+      "output": "evidence/c13/node-client.log",
+      "interpretation": "9 current canonical client tests; not recovered historical Node5/removal receipt."
+    },
+    {
+      "label": "dashboard-contracts",
+      "command_argv": [
+        "corepack",
+        "pnpm",
+        "--filter",
+        "@polisyos/runtime-dashboard",
+        "run",
+        "test:contracts"
+      ],
+      "target_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "source_tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+      "environment": "host frozen profiles evidence/host/provision.json + installed origins",
+      "input_closure": "evidence/c13/source-manifest.json + selected complete immutable Git tree",
+      "outcome": "PASS",
+      "raw_exit_code": 0,
+      "wall_seconds": 14.387704168999903,
+      "max_rss_kib": 153848,
+      "output": "evidence/c13/dashboard-contracts.log",
+      "interpretation": "1 contract test; component evidence only, no browser/UI served positive."
+    },
+    {
+      "label": "dashboard-build",
+      "command_argv": [
+        "corepack",
+        "pnpm",
+        "--filter",
+        "@polisyos/runtime-dashboard",
+        "run",
+        "build"
+      ],
+      "target_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "source_tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+      "environment": "host frozen profiles evidence/host/provision.json + installed origins",
+      "input_closure": "evidence/c13/source-manifest.json + selected complete immutable Git tree",
+      "outcome": "PASS",
+      "raw_exit_code": 0,
+      "wall_seconds": 124.80015282499994,
+      "max_rss_kib": 1784668,
+      "output": "evidence/c13/dashboard-build.log",
+      "interpretation": "Ordinary supported frontend typecheck + production build/security/source checks."
+    },
+    {
+      "label": "packaging-contract",
+      "command_argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--basetemp=/workspace/ORCH04-evidence/c13/packaging-contract-basetemp",
+        "--junitxml=/workspace/ORCH04-evidence/c13/packaging-contract-junit.xml",
+        "-q",
+        "-s",
+        "tests/repo_quality/tools/test_hatch_packaging.py"
+      ],
+      "target_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "source_tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+      "environment": "host frozen profiles evidence/host/provision.json + installed origins",
+      "input_closure": "evidence/c13/source-manifest.json + selected complete immutable Git tree",
+      "outcome": "FAIL",
+      "raw_exit_code": 1,
+      "wall_seconds": 137.09886189300005,
+      "max_rss_kib": 172196,
+      "output": "evidence/c13/packaging-contract.log",
+      "interpretation": "Current native packaging contexts lack required resources;6FAIL/4PASS"
+    },
+    {
+      "label": "wheel-installed",
+      "command_argv": [
+        "/workspace/ORCH04-environments/installed-wheel/bin/python",
+        "-I",
+        "/workspace/ORCH04-evidence/c13/installed/launch_installed.py",
+        "/workspace/ORCH04-evidence/c13/installed",
+        "wheel",
+        "/workspace/ORCH04-environments/installed-check-carriers"
+      ],
+      "target_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "source_tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+      "outcome": "PASS",
+      "raw_exit_code": 0,
+      "cases": 3,
+      "observed_product_origins": 911,
+      "origin_violations": 0,
+      "wall_seconds": 50.30524756,
+      "max_rss_kib": 699176,
+      "output": "evidence/c13/installed/wheel-consumer.log",
+      "origin_proof": "evidence/c13/installed/wheel-origin-proof.json",
+      "input_closure": "Exact runtime-carrier/source fixture manifest + six worker asset hashes + selected worker Python/lock + literal frozen dependency-site reuse; source imports excluded.",
+      "interpretation": "Actual installed MethodJob/CAS, fresh readers, worker-asset removal/restoration and true GCM/Scientist consumer; candidate computation only, interval gate false."
+    },
+    {
+      "label": "rebuilt-sdist-installed",
+      "command_argv": [
+        "/workspace/ORCH04-environments/installed-rebuilt-sdist/bin/python",
+        "-I",
+        "/workspace/ORCH04-evidence/c13/installed/launch_installed.py",
+        "/workspace/ORCH04-evidence/c13/installed",
+        "rebuilt-sdist",
+        "/workspace/ORCH04-environments/installed-check-carriers"
+      ],
+      "target_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "source_tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+      "outcome": "PASS",
+      "raw_exit_code": 0,
+      "cases": 3,
+      "observed_product_origins": 911,
+      "origin_violations": 0,
+      "wall_seconds": 57.76924631099996,
+      "max_rss_kib": 702200,
+      "output": "evidence/c13/installed/rebuilt-sdist-consumer.log",
+      "origin_proof": "evidence/c13/installed/rebuilt-sdist-origin-proof.json",
+      "input_closure": "Exact runtime-carrier/source fixture manifest + six worker asset hashes + selected worker Python/lock + literal frozen dependency-site reuse; source imports excluded.",
+      "interpretation": "Actual installed MethodJob/CAS, fresh readers, worker-asset removal/restoration and true GCM/Scientist consumer; candidate computation only, interval gate false."
+    },
+    {
+      "label": "actual-gcp-archive-wheel",
+      "outcome": "FAIL",
+      "target_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "source_tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+      "raw_exit_code": 2,
+      "output": "evidence/c13/gcp-archive/extracted-wheel-build.log",
+      "interpretation": "Actual no-upload source archive omits current mandatory Hatch assets; build cannot resolve metrics_map.yaml."
+    },
+    {
+      "label": "GP-import-readiness",
+      "outcome": "PASS",
+      "target_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "output": "evidence/host/GP-import-readiness.json",
+      "interpretation": "Imports only. GP numerical/native search result not established."
+    },
+    {
+      "label": "portable-replay",
+      "outcome": "UNRUN",
+      "interpretation": "Await explicit G-selected final freeze manifest and independent reviews; no all-production-input barrier."
+    },
+    {
+      "label": "T1-complete-code-api-census",
+      "outcome": "UNRUN",
+      "interpretation": "911 observed loaded origins per installed profile are a bounded runtime origin denominator, not a complete issuer/consumer-chain census."
+    }
+  ],
+  "property": {
+    "statement": "Supported-profile source-qualified native, packaged and installed consumers retain complete selected source/worker/CAS identity; setup/import/package construction and numerical consumers are distinguished.",
+    "runtime_path": [
+      "selected source/profile",
+      "genuine Linux DoWhy0.14 worker",
+      "MethodJob",
+      "CAS persisted artifact",
+      "fresh installed reader",
+      "query/Scientist consumer"
+    ],
+    "negative_controls": [
+      "Canonical GCM CAS projection/request/artifact corruptions",
+      "Canonical DoWhy full native controls",
+      "Installed worker asset removal with unchanged result bytes and fresh reader refusal; restoration",
+      "Packaging missing/wrong-config/companion resource failure"
+    ],
+    "proxy_divergence": "Wheel generation and four curated-resource inclusion alone do not show a functioning installed consumer; GP imports do not show numerical fit. Actual GCP archive packages successfully but its extracted wheel is unbuildable due absent required source assets."
+  },
+  "predicate_basis": "independently_reconciled",
+  "source_acceptance": "Reserved to G; scoped measured results do not accept final C10/C11 composition.",
+  "formal_closure": "Reserved to G; none claimed.",
+  "production_payload": "No production exports/uploads; synthetic known DGPs only.",
+  "unavailable_recovered_bytes": [
+    {
+      "old_C13_receipt": "996dea4e17ff1acbdb2d0ef0d90e81956f6d4eda",
+      "state": "unavailable on measured host/time; local object absent; exact-origin fetch exit128 not our ref",
+      "evidence": [
+        "evidence/custody/C13-local-after.json",
+        "evidence/custody/C13-exact-origin-fetch.json"
+      ],
+      "qualification": "No global absence claim and no recovered historical UI/Node/Fraction/native PASS transfer."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "G freeze/reviews needed for one portable final composition replay.",
+    "G/F named canonical owners receive packaging-companion-requirement.json; C13 read-only, no source repair.",
+    "C10 canonical served/browser DTO companion missing and C11 held inputs remain separate root/leaf packets.",
+    "No production/scientific authority, universal rounding law, GP numerical success, EconML readiness or real browser positive claimed.",
+    "C13 receipt docs are not a new packaging-accepted product candidate; exact tested source predates added receipt docs."
+  ],
+  "runner_limitations": [
+    {
+      "attempt": "First scoped launch",
+      "outcome": "ERROR before testcases",
+      "cause": "Missing /usr/bin/time",
+      "resolution": "Exact process os.wait4 resource measurement; no criterion/profile/guard relaxation."
+    }
+  ],
+  "packet_manifest": "packet-manifest.json",
+  "local_large_artifacts": {
+    "source_wheel": "/workspace/ORCH04-evidence/c13/installed/source-wheel/policy_engine-0.1.0-py3-none-any.whl",
+    "rebuilt_wheel": "/workspace/ORCH04-evidence/c13/installed/rebuilt-wheel/policy_engine-0.1.0-py3-none-any.whl",
+    "sdist": "/workspace/ORCH04-evidence/c13/installed/sdist/policy_engine-0.1.0.tar.gz",
+    "qualification": "Artifacts retained on workspace volume; complete hashes/member manifests and full moderate deciding outputs committed. No archived product source/production data in receipt."
+  }
+}

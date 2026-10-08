@@ -15,23 +15,23 @@
   "evidence_paths": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/source-root-20261008@18be88029cc8602709ba821bff51f46e3669c242",
   "checks": "Exact command/fullstdout/fullstderr in frozen evidence; additional metadata-only source origin recompute in source-root-20261008-delivery. No pytest/JUnit job executed.",
   "reader_outcome": {
-    "positive": "Returned typed L6 bundle using exactly3 selected actual controls through explicit read-only projection; optional3 absent",
-    "negative_missing": "l6_control_artifact_missing forLexmap before productionopens",
-    "negative_forged_hash": "intervention_substrate_bundle_content_hash_mismatch with payloadmarkersretained",
-    "fresh_snapshot": "in-memory semantic content revalidation, not persistedCAS/HTTPGET",
-    "source_origins": "1430 actual file-backed PolicyOS module origins independently matched Git; source archive execution with existing localdeps, not installedwheel"
+    "positive": "Returned a typed L6 bundle from exactly 3 selected actual controls through an explicit read-only projection; all 3 optional inputs absent.",
+    "negative_missing": "l6_control_artifact_missing for the Lex-map before any production open.",
+    "negative_forged_hash": "intervention_substrate_bundle_content_hash_mismatch with payload markers retained.",
+    "fresh_snapshot": "In-memory semantic content revalidation; persisted CAS and fresh HTTP GET were not executed.",
+    "source_origins": "All 1,430 actual file-backed PolicyOS module origins matched immutable Git blobs. Execution used a source archive with existing local dependencies; no installed-wheel claim."
   },
   "source_root_outcome": {
-    "source_derived_roots": "HTTP owner parents6 passes todesign_generation; direct qualitycycle parents4; conditional caller/contextbranches may avoidloader",
-    "path_comparison": "Primary and explicitprojection required3 resolve tosavedidentities; receipt/snapshot sourcedefaults differ",
-    "actual_serving_process_root_profile_context": "not_established within narrowPID/executable/TCPscope",
-    "request_env_production_data_root": "separate resolver in tracedcall path; not proof of controllingfixedloader"
+    "source_derived_roots": "The HTTP owner derives parents[6] and passes that root to design_generation. The direct quality-cycle caller derives parents[4]. Conditional context/proposal branches can avoid the loader.",
+    "path_comparison": "The 3 required paths under the primary root and explicit projection resolve to the saved identities. Source defaults under the receipt checkout and execution snapshot differ.",
+    "actual_serving_process_root_profile_context": "not_established within the narrow PID/executable/TCP observation.",
+    "request_env_production_data_root": "A separate resolver in the traced call path; it does not prove control of the fixed-path loader."
   },
-  "property_vs_predicate": "Loader parses JSON and derives semanticselfidentity; no nominated raw-final-manifest descriptor/currentnesspreflight here. See frozen property-predicate-packet.json. No protectedeffect escape or RuntimewholePASS inferred.",
-  "historical_raw_identity": "Old5-input observer/L01 two rawdescriptor mismatches reused only for nominated3; current before/after savedstatmatch, no newraw-bytechecksum. Still no stale/intentionalupdate/mixedrelease adjudication.",
+  "property_vs_predicate": "The loader parses JSON and derives semantic self-identity. It does not compare nominated raw final-manifest descriptors or establish currentness. See the frozen property-predicate packet. No protected effect or whole Runtime PASS was inferred.",
+  "historical_raw_identity": "The historical five-input L02/L01 observation reported two raw descriptor mismatches. This reader witness reuses the three nominated identities with unchanged before/after stat fingerprints and no new raw-byte checksum. Stale manifest, intentional update and mixed release remain unresolved.",
   "authority_or_law_issued": false,
-  "source_acceptance": "No new runtime source admission byL02; Gselected immutablecomposition named separately",
-  "technical_proposal": "C10/A existing source/context intake binds actual servingroot/versionedinputbasis if authenticclaim isrequested, otherwise candidateunknown remains typed. L01/nominatedcustodian supplies existing matchingpair or legitimate versionedreplacement/currentness. No secondvalidator atL02.",
+  "source_acceptance": "L02 issued no new runtime source admission. The immutable G composition is named separately.",
+  "technical_proposal": "C10/A uses its existing source/context intake to bind the actual serving root and versioned input basis when claiming authenticity; a candidate may retain a typed unknown. L01/the nominated custodian supplies a matching pair or legitimate versioned replacement/currentness. L02 creates no parallel validator.",
   "original_unit_receipt": {
     "unit": "A",
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/source-root-20261008-l02.json",
@@ -57,20 +57,20 @@
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/handoffs/E.json",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/handoffs/F.json"
     ],
-    "explicit_denominator": "4 namedpacketJSON +3 namedunit-handoffJSON; A-l6 separately inspected forL6. Wildcard shorthand in frozenadjacentinputsummary is editorial only.",
+    "explicit_denominator": "4 explicitly named packet JSON files plus 3 explicitly named unit handoff JSON files. A-l6 was inspected separately for the L6 witness. This qualifies the wildcard shorthand in the frozen adjacent input summary.",
     "new_ready_authentic_tuple": false,
-    "boundaries_ref": "source-root-20261008/new-relevant-input-boundaries.json@18be; I3snapshot/livecursor, I4generation/model/caller, B194evaluator/draw, B56aggregateworkload separatelynot_established; no globalall-inputbarrier"
+    "boundaries_ref": "source-root-20261008/new-relevant-input-boundaries.json@18be. I3 snapshot/live cursor, I4 generation/model/caller, B194 evaluator/draw and B56 aggregate workload bindings remain separately not_established; there is no global all-input barrier."
   },
   "independent_review": {
     "path": "source-root-20261008-delivery/frozen-review.json",
     "sha256": "dd152d8edbfc8e7609a0f23e8acc443b0a798094ce4994ec84741d272ff23ea0",
     "verdict": "GO_BOUNDED",
     "blocking_findings": 0,
-    "nonblocking": "Adjacent packetglobprecision correctedbyexplicitselectedrefs inthishandoff; no source/propertychange or numericalrerun"
+    "nonblocking": "The adjacent packet reference shorthand is qualified by the explicit selected paths in this handoff. No source/property change or numerical rerun."
   },
-  "cleanup": "nativeTrash receipt in source-root-20261008-delivery;3 inactive repeatable directories only. Production/venvs/code/private/auditreports preserved, Trash notemptied.",
-  "publication": "normalown-topicpush only; firstevidence remote24payloadreadback matches18be; finalhandoff remoteHEAD/tree/bytes readback follows",
-  "baseline_result_pack": "unusedinthisslice, no transfer-derivedPASS",
+  "cleanup": "The native Trash receipt records 3 inactive repeatable directories moved. Production inputs, existing environments, canonical code and private/audit reports were preserved; Trash was not emptied.",
+  "publication": "Normal push to the own topic only. Evidence remote readback matched 18be and all 24 payloads. Final handoff remote HEAD/tree/byte readback follows.",
+  "baseline_result_pack": "Unused in this slice; no transfer-derived PASS.",
   "formal_closure_ids": [],
   "created_at_utc": "2026-10-08T18:15:09.440377+00:00"
 }

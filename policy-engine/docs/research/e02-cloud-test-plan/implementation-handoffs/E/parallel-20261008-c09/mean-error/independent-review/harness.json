@@ -1,0 +1,18 @@
+{
+  "child_peak_rss_kib": 398316,
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/probe.py"
+  ],
+  "cwd": "/dev/shm/e02-orch03-20261008/c09",
+  "elapsed_seconds": 4.647128409997094,
+  "env_selected": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-orch03-20261008/c09/policy-engine/src"
+  },
+  "returncode": 0,
+  "source_sha": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+  "source_tree": "7a4ee9e71c793827abef998540dcd12ab129c4ba",
+  "stderr_path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/probe.stderr.txt",
+  "stdout_path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/probe.stdout.json"
+}

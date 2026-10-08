@@ -1,0 +1,54 @@
+{
+  "classification": "ERROR reviewer_harness_output_serialization",
+  "correction": "str(ref.artifact_id) in reviewer scratch fresh-child JSON only",
+  "error": "TypeError ArtifactID not JSON serializable in child output, all child load/compare/Fraction assertions precede serialization",
+  "files": [
+    {
+      "bytes": 14333,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/attempt-1/child-inputs.json",
+      "sha256": "a64a3284a169dfea0787d735c5e944c1e511b001ec5aba8f029b0a667e1a9a9e"
+    },
+    {
+      "bytes": 2029,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/attempt-1/fresh-child.py",
+      "sha256": "9ca2f87ae01e8b41a9aa97271493881d505cd3aaed3f1727f632cf5d0c729cba"
+    },
+    {
+      "bytes": 1672,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/attempt-1/fresh-child.stderr.txt",
+      "sha256": "4133f4e4aeddf6349a3321edda86542e42fb1dc1007b4b863f306f46d2586a21"
+    },
+    {
+      "bytes": 0,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/attempt-1/fresh-child.stdout.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 778,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/attempt-1/harness.json",
+      "sha256": "b891160766094c33fb675d16bba0ee8f1d3c742abb39fff238e17726c2c54220"
+    },
+    {
+      "bytes": 11634,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/attempt-1/probe.py",
+      "sha256": "fc1769e2e41e88b55189329ad55b7104694287f466222210d11cdb2b7c00a483"
+    },
+    {
+      "bytes": 1913,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/attempt-1/probe.stderr.txt",
+      "sha256": "db914c5cc9b0797323b5d1db8b2798cc48e167cfe00b0a735f24c3979b2c080c"
+    },
+    {
+      "bytes": 0,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/attempt-1/probe.stdout.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1422,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/attempt-1/run-harness.py",
+      "sha256": "925cdd84661c80249cb094f9f242d2f6e878138cf799df5f232361021ad6690c"
+    }
+  ],
+  "product_verdict": "UNRUN complete transferable review; native assertions and CAS comparisons ran before final logging error",
+  "source_delta": "none"
+}

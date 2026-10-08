@@ -1,0 +1,373 @@
+[
+  {
+    "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/typed_normal_100/cas",
+    "diagnostic": {
+      "assumptions": [
+        "fixed_deterministic_response_to_independent_input_draws",
+        "finite_response_variance"
+      ],
+      "assumptions_verified": false,
+      "attempted_draw_count": 100,
+      "estimator": "sample_mean",
+      "finite_output_count": 100,
+      "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+      "gate_eligible": false,
+      "input_envelope_sha256": {
+        "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+      },
+      "reason": null,
+      "requested_draw_count": 100,
+      "sampling_law": "implemented_product_of_typed_normal_fits",
+      "sampling_method": "random",
+      "seed": 61,
+      "source_law_authority": "not_established",
+      "standard_error": 0.09977753031397178,
+      "status": "conditional_estimate",
+      "target": "implemented_push_forward_mean"
+    },
+    "name": "typed_normal_100",
+    "reference": {
+      "artifact_id": "sha256:e93109c4a9052bb0c1bd0c710e06f75976ef072639874b6273760424c6d23c73",
+      "kind": "ir.uncertainty_envelope",
+      "media_type": "application/json"
+    },
+    "sample_sha256": "69afcd4b287ac4a3c308050d0ae38441714ab10d546b5e2434f617e877813e0f"
+  },
+  {
+    "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/same_seed_repeat/cas",
+    "diagnostic": {
+      "assumptions": [
+        "fixed_deterministic_response_to_independent_input_draws",
+        "finite_response_variance"
+      ],
+      "assumptions_verified": false,
+      "attempted_draw_count": 100,
+      "estimator": "sample_mean",
+      "finite_output_count": 100,
+      "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+      "gate_eligible": false,
+      "input_envelope_sha256": {
+        "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+      },
+      "reason": null,
+      "requested_draw_count": 100,
+      "sampling_law": "implemented_product_of_typed_normal_fits",
+      "sampling_method": "random",
+      "seed": 61,
+      "source_law_authority": "not_established",
+      "standard_error": 0.09977753031397178,
+      "status": "conditional_estimate",
+      "target": "implemented_push_forward_mean"
+    },
+    "name": "same_seed_repeat",
+    "reference": {
+      "artifact_id": "sha256:e93109c4a9052bb0c1bd0c710e06f75976ef072639874b6273760424c6d23c73",
+      "kind": "ir.uncertainty_envelope",
+      "media_type": "application/json"
+    },
+    "sample_sha256": "69afcd4b287ac4a3c308050d0ae38441714ab10d546b5e2434f617e877813e0f"
+  },
+  {
+    "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/typed_normal_400/cas",
+    "diagnostic": {
+      "assumptions": [
+        "fixed_deterministic_response_to_independent_input_draws",
+        "finite_response_variance"
+      ],
+      "assumptions_verified": false,
+      "attempted_draw_count": 400,
+      "estimator": "sample_mean",
+      "finite_output_count": 400,
+      "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+      "gate_eligible": false,
+      "input_envelope_sha256": {
+        "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+      },
+      "reason": null,
+      "requested_draw_count": 400,
+      "sampling_law": "implemented_product_of_typed_normal_fits",
+      "sampling_method": "random",
+      "seed": 61,
+      "source_law_authority": "not_established",
+      "standard_error": 0.049859451584235284,
+      "status": "conditional_estimate",
+      "target": "implemented_push_forward_mean"
+    },
+    "name": "typed_normal_400",
+    "reference": {
+      "artifact_id": "sha256:21dfe76b975e4d7e0838a44df5ab3ca87a1553670bc301fb566f4b58731aec7f",
+      "kind": "ir.uncertainty_envelope",
+      "media_type": "application/json"
+    },
+    "sample_sha256": "65f35a758204a0a0a031efb84c33be444b47eb3ace80194174f6231e00469291"
+  },
+  {
+    "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/weighted_fake_iid/cas",
+    "diagnostic": {
+      "assumptions": [
+        "fixed_deterministic_response_to_independent_input_draws",
+        "finite_response_variance"
+      ],
+      "assumptions_verified": false,
+      "attempted_draw_count": 100,
+      "estimator": "sample_mean",
+      "finite_output_count": 100,
+      "gate_eligible": false,
+      "input_envelope_sha256": {
+        "x": "50fe89f22be621ac9a44784f17fb90e0ddf34b0fe6b7ac6567b13382bf02b80a"
+      },
+      "reason": "unsupported_input_sampling_law",
+      "requested_draw_count": 100,
+      "sampling_law": "implemented_product_of_typed_normal_fits",
+      "sampling_method": "random",
+      "seed": 61,
+      "source_law_authority": "not_established",
+      "standard_error": null,
+      "status": "unavailable",
+      "target": "implemented_push_forward_mean"
+    },
+    "name": "weighted_fake_iid",
+    "reference": {
+      "artifact_id": "sha256:8598bb02eeea89acec833f976215f385a3318cafc4fd87e61181f14ecba39b0a",
+      "kind": "ir.uncertainty_envelope",
+      "media_type": "application/json"
+    },
+    "sample_sha256": "a62b24420ec8ba33ce3292bbd8b35f9ab487408cea09ae280efe8170137b66cf"
+  },
+  {
+    "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/qmc_two_scrambles_pooled/cas",
+    "diagnostic": {
+      "assumptions": [
+        "fixed_deterministic_response_to_independent_input_draws",
+        "finite_response_variance"
+      ],
+      "assumptions_verified": false,
+      "attempted_draw_count": 100,
+      "estimator": "sample_mean",
+      "finite_output_count": 100,
+      "gate_eligible": false,
+      "input_envelope_sha256": {
+        "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+      },
+      "reason": "qmc_replica_means_not_retained",
+      "requested_draw_count": 100,
+      "sampling_law": "implemented_product_of_typed_normal_fits",
+      "sampling_method": "sobol",
+      "seed": 61,
+      "source_law_authority": "not_established",
+      "standard_error": null,
+      "status": "unavailable",
+      "target": "implemented_push_forward_mean"
+    },
+    "name": "qmc_two_scrambles_pooled",
+    "reference": {
+      "artifact_id": "sha256:8474893a6b5fff5cd2cd4123fff622d6f39f7246eb646d0b29cfca3075f9ac49",
+      "kind": "ir.uncertainty_envelope",
+      "media_type": "application/json"
+    },
+    "sample_sha256": "fd3eeceb10bf2c03b3bf083440c39982d9e0404ae2804807f3795d9fc598b3e6"
+  },
+  {
+    "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/one_success_100_attempts/cas",
+    "diagnostic": {
+      "assumptions": [
+        "fixed_deterministic_response_to_independent_input_draws",
+        "finite_response_variance"
+      ],
+      "assumptions_verified": false,
+      "attempted_draw_count": 100,
+      "estimator": "sample_mean",
+      "finite_output_count": 1,
+      "gate_eligible": false,
+      "input_envelope_sha256": {
+        "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+      },
+      "reason": "insufficient_independent_draws",
+      "requested_draw_count": 100,
+      "sampling_law": "implemented_product_of_typed_normal_fits",
+      "sampling_method": "random",
+      "seed": 61,
+      "source_law_authority": "not_established",
+      "standard_error": null,
+      "status": "unavailable",
+      "target": "implemented_push_forward_mean"
+    },
+    "name": "one_success_100_attempts",
+    "reference": {
+      "artifact_id": "sha256:bdd3d4397df6b5f6c49f0b5d4fba852cec6f98cc60dd77f951292268c4b7980e",
+      "kind": "ir.uncertainty_envelope",
+      "media_type": "application/json"
+    },
+    "sample_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  {
+    "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/counterfeit_mean_error/cas",
+    "diagnostic": {
+      "assumptions": [
+        "fixed_deterministic_response_to_independent_input_draws",
+        "finite_response_variance"
+      ],
+      "assumptions_verified": false,
+      "attempted_draw_count": 100,
+      "estimator": "sample_mean",
+      "finite_output_count": 100,
+      "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+      "gate_eligible": false,
+      "input_envelope_sha256": {
+        "x": "3863f43b61b91e2054b5e19b7c966e14b1663a37efd8f11002618465f601cf60"
+      },
+      "reason": null,
+      "requested_draw_count": 100,
+      "sampling_law": "implemented_product_of_typed_normal_fits",
+      "sampling_method": "random",
+      "seed": 61,
+      "source_law_authority": "not_established",
+      "standard_error": 0.09977753031397178,
+      "status": "conditional_estimate",
+      "target": "implemented_push_forward_mean"
+    },
+    "name": "counterfeit_mean_error",
+    "reference": {
+      "artifact_id": "sha256:837b2f408f18fffe13842c2976d6a23147c3ce3fded6c4f20cfea3d9baf1f025",
+      "kind": "ir.uncertainty_envelope",
+      "media_type": "application/json"
+    },
+    "sample_sha256": "69afcd4b287ac4a3c308050d0ae38441714ab10d546b5e2434f617e877813e0f"
+  },
+  {
+    "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/removed_guard_weighted/cas",
+    "diagnostic": {
+      "assumptions": [
+        "fixed_deterministic_response_to_independent_input_draws",
+        "finite_response_variance"
+      ],
+      "assumptions_verified": false,
+      "attempted_draw_count": 100,
+      "estimator": "sample_mean",
+      "finite_output_count": 100,
+      "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+      "gate_eligible": false,
+      "input_envelope_sha256": {
+        "x": "50fe89f22be621ac9a44784f17fb90e0ddf34b0fe6b7ac6567b13382bf02b80a"
+      },
+      "reason": null,
+      "requested_draw_count": 100,
+      "sampling_law": "implemented_product_of_typed_normal_fits",
+      "sampling_method": "random",
+      "seed": 61,
+      "source_law_authority": "not_established",
+      "standard_error": 0.07722458393307383,
+      "status": "conditional_estimate",
+      "target": "implemented_push_forward_mean"
+    },
+    "name": "removed_guard_weighted",
+    "reference": {
+      "artifact_id": "sha256:467fdbeb9f7f0ac9977e6a380228f15f7a39b7ad11d808a4f2c5578a232f70eb",
+      "kind": "ir.uncertainty_envelope",
+      "media_type": "application/json"
+    },
+    "sample_sha256": "a62b24420ec8ba33ce3292bbd8b35f9ab487408cea09ae280efe8170137b66cf"
+  },
+  {
+    "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/removed_guard_qmc/cas",
+    "diagnostic": {
+      "assumptions": [
+        "fixed_deterministic_response_to_independent_input_draws",
+        "finite_response_variance"
+      ],
+      "assumptions_verified": false,
+      "attempted_draw_count": 100,
+      "estimator": "sample_mean",
+      "finite_output_count": 100,
+      "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+      "gate_eligible": false,
+      "input_envelope_sha256": {
+        "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+      },
+      "reason": null,
+      "requested_draw_count": 100,
+      "sampling_law": "implemented_product_of_typed_normal_fits",
+      "sampling_method": "sobol",
+      "seed": 61,
+      "source_law_authority": "not_established",
+      "standard_error": 0.10050378152592121,
+      "status": "conditional_estimate",
+      "target": "implemented_push_forward_mean"
+    },
+    "name": "removed_guard_qmc",
+    "reference": {
+      "artifact_id": "sha256:7d402c4c740716f57f4aca84834b520601a7be7394c3780792532c580840cf28",
+      "kind": "ir.uncertainty_envelope",
+      "media_type": "application/json"
+    },
+    "sample_sha256": "fd3eeceb10bf2c03b3bf083440c39982d9e0404ae2804807f3795d9fc598b3e6"
+  },
+  {
+    "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/removed_guard_one_success/cas",
+    "diagnostic": {
+      "assumptions": [
+        "fixed_deterministic_response_to_independent_input_draws",
+        "finite_response_variance"
+      ],
+      "assumptions_verified": false,
+      "attempted_draw_count": 100,
+      "estimator": "sample_mean",
+      "finite_output_count": 1,
+      "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+      "gate_eligible": false,
+      "input_envelope_sha256": {
+        "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+      },
+      "reason": null,
+      "requested_draw_count": 100,
+      "sampling_law": "implemented_product_of_typed_normal_fits",
+      "sampling_method": "random",
+      "seed": 61,
+      "source_law_authority": "not_established",
+      "standard_error": 0.0,
+      "status": "conditional_estimate",
+      "target": "implemented_push_forward_mean"
+    },
+    "name": "removed_guard_one_success",
+    "reference": {
+      "artifact_id": "sha256:ef89cee786480d639b1c2750e470fc928f832ade6ad1b21171882c0418b77fed",
+      "kind": "ir.uncertainty_envelope",
+      "media_type": "application/json"
+    },
+    "sample_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  {
+    "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/removed_guard_supported_positive/cas",
+    "diagnostic": {
+      "assumptions": [
+        "fixed_deterministic_response_to_independent_input_draws",
+        "finite_response_variance"
+      ],
+      "assumptions_verified": false,
+      "attempted_draw_count": 100,
+      "estimator": "sample_mean",
+      "finite_output_count": 100,
+      "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+      "gate_eligible": false,
+      "input_envelope_sha256": {
+        "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+      },
+      "reason": null,
+      "requested_draw_count": 100,
+      "sampling_law": "implemented_product_of_typed_normal_fits",
+      "sampling_method": "random",
+      "seed": 61,
+      "source_law_authority": "not_established",
+      "standard_error": 0.09977753031397178,
+      "status": "conditional_estimate",
+      "target": "implemented_push_forward_mean"
+    },
+    "name": "removed_guard_supported_positive",
+    "reference": {
+      "artifact_id": "sha256:e93109c4a9052bb0c1bd0c710e06f75976ef072639874b6273760424c6d23c73",
+      "kind": "ir.uncertainty_envelope",
+      "media_type": "application/json"
+    },
+    "sample_sha256": "69afcd4b287ac4a3c308050d0ae38441714ab10d546b5e2434f617e877813e0f"
+  }
+]

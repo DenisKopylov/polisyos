@@ -1,0 +1,5409 @@
+{
+  "body_seconds": 3.569908123987261,
+  "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "fresh_child_command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/fresh-child.py"
+  ],
+  "fresh_child_exit": 0,
+  "fresh_child_refs": 11,
+  "fresh_child_seconds": 0.5713745020038914,
+  "guard_removal_expected_fail": 3,
+  "loaded_module_count": 99,
+  "loaded_module_mismatches": 0,
+  "max_rss_kib": 398316,
+  "packages": {
+    "jax": "0.8.2",
+    "numpy": "2.3.5",
+    "pydantic": "2.12.5",
+    "scipy": "1.16.3"
+  },
+  "parent_sha": "514f90058104f7dd8ada1c83b8bf5f62bfc33b88",
+  "pid": 1033672,
+  "positive_native_reports": 7,
+  "producer": "/dev/shm/e02-orch03-20261008/c09/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "records": [
+    {
+      "body_seconds": 0.7593962849932723,
+      "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/typed_normal_100/cas",
+      "configuration": {
+        "adaptive_stopping": {
+          "check_interval": 100,
+          "ci_half_width_target": 0.01,
+          "enabled": false,
+          "max_samples": 10000,
+          "min_samples": 200
+        },
+        "auto_select_strategy": true,
+        "compute_sensitivity": true,
+        "confidence_level": 0.95,
+        "delta_covariance_jitter": 1e-09,
+        "delta_use_full_covariance": true,
+        "mc_batch_size": 200,
+        "mc_min_valid_samples": 50,
+        "mc_n_samples": 100,
+        "mc_qmc_replicates": 1,
+        "mc_qmc_scramble": true,
+        "mc_sampling_method": "random",
+        "mc_seed": 61,
+        "preferred_method": "auto"
+      },
+      "finite_samples": [
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0
+      ],
+      "fraction_expected_se": 0.09977753031397177,
+      "fraction_se_squared": "56/5625",
+      "input": {
+        "composition_provenance": null,
+        "confidence_interval": [
+          -2.0,
+          2.0
+        ],
+        "confidence_level": 0.95,
+        "distribution_family": "normal",
+        "distribution_payload": {
+          "carrier_type": "parametric_fit",
+          "family": "normal",
+          "parameters": {
+            "mean": 0.0,
+            "std": 1.0
+          },
+          "support": null
+        },
+        "gate_eligible": false,
+        "interval_semantics": "confidence_interval",
+        "is_heuristic_ci": false,
+        "metadata": {},
+        "numeric_policy": {
+          "absolute_tolerance": 1e-12,
+          "decimal_places": 12,
+          "mode": "float_round_12",
+          "policy_id": "bounded_float_v1"
+        },
+        "point_estimate": 0.0,
+        "propagation_method": "none",
+        "sample_size": null,
+        "schema_version": "1.1",
+        "source": "calibration"
+      },
+      "mc_std": 0.9927739500999451,
+      "mean_estimator_error": {
+        "assumptions": [
+          "fixed_deterministic_response_to_independent_input_draws",
+          "finite_response_variance"
+        ],
+        "assumptions_verified": false,
+        "attempted_draw_count": 100,
+        "estimator": "sample_mean",
+        "finite_output_count": 100,
+        "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+        "gate_eligible": false,
+        "input_envelope_sha256": {
+          "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+        },
+        "reason": null,
+        "requested_draw_count": 100,
+        "sampling_law": "implemented_product_of_typed_normal_fits",
+        "sampling_method": "random",
+        "seed": 61,
+        "source_law_authority": "not_established",
+        "standard_error": 0.09977753031397178,
+        "status": "conditional_estimate",
+        "target": "implemented_push_forward_mean"
+      },
+      "name": "typed_normal_100",
+      "output_gate_eligible": false,
+      "reference": {
+        "artifact_id": "sha256:e93109c4a9052bb0c1bd0c710e06f75976ef072639874b6273760424c6d23c73",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "removal": false,
+      "result_diagnostics": {
+        "draw_outcome_provenance": {
+          "attempted_draw_count": 100,
+          "draw_identity_basis": "sampling_recipe+draw_index+sampled_input_sha256",
+          "failure_records": [],
+          "implementation_identity_status": "not_established",
+          "input_identity_status": "content_hashed",
+          "outcome_denominator_complete": true,
+          "requested_draw_count": 100,
+          "sampling_recipe": {
+            "config": {
+              "adaptive_stopping": {
+                "check_interval": 100,
+                "ci_half_width_target": 0.01,
+                "enabled": false,
+                "max_samples": 10000,
+                "min_samples": 200
+              },
+              "auto_select_strategy": true,
+              "compute_sensitivity": true,
+              "confidence_level": 0.95,
+              "delta_covariance_jitter": 1e-09,
+              "delta_use_full_covariance": true,
+              "mc_batch_size": 200,
+              "mc_min_valid_samples": 50,
+              "mc_n_samples": 100,
+              "mc_qmc_replicates": 1,
+              "mc_qmc_scramble": true,
+              "mc_sampling_method": "random",
+              "mc_seed": 61,
+              "preferred_method": "auto"
+            },
+            "input_envelope_sha256": {
+              "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+            },
+            "input_param_names": [
+              "x"
+            ],
+            "joint_sample_id": null,
+            "sample_axis": "draw"
+          },
+          "schema_version": "1.0",
+          "successful_draw_count": 100,
+          "unattempted_draw_count": 0
+        },
+        "executor_failed_batches": 0,
+        "mean_estimator_error": {
+          "assumptions": [
+            "fixed_deterministic_response_to_independent_input_draws",
+            "finite_response_variance"
+          ],
+          "assumptions_verified": false,
+          "attempted_draw_count": 100,
+          "estimator": "sample_mean",
+          "finite_output_count": 100,
+          "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+          "gate_eligible": false,
+          "input_envelope_sha256": {
+            "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+          },
+          "reason": null,
+          "requested_draw_count": 100,
+          "sampling_law": "implemented_product_of_typed_normal_fits",
+          "sampling_method": "random",
+          "seed": 61,
+          "source_law_authority": "not_established",
+          "standard_error": 0.09977753031397178,
+          "status": "conditional_estimate",
+          "target": "implemented_push_forward_mean"
+        },
+        "missing_output": false,
+        "missing_output_count": 0,
+        "n_failed": 0,
+        "n_samples": 100,
+        "n_valid": 100,
+        "output_coverage_complete": true,
+        "qmc_method": null,
+        "qmc_replicates": null,
+        "qmc_scrambled": null,
+        "stopped_early": false
+      },
+      "sample_sha256": "69afcd4b287ac4a3c308050d0ae38441714ab10d546b5e2434f617e877813e0f",
+      "source_sha": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+      "surface": "actual_MonteCarloPropagator_persist_freshCAS"
+    },
+    {
+      "body_seconds": 0.02887709200149402,
+      "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/same_seed_repeat/cas",
+      "configuration": {
+        "adaptive_stopping": {
+          "check_interval": 100,
+          "ci_half_width_target": 0.01,
+          "enabled": false,
+          "max_samples": 10000,
+          "min_samples": 200
+        },
+        "auto_select_strategy": true,
+        "compute_sensitivity": true,
+        "confidence_level": 0.95,
+        "delta_covariance_jitter": 1e-09,
+        "delta_use_full_covariance": true,
+        "mc_batch_size": 200,
+        "mc_min_valid_samples": 50,
+        "mc_n_samples": 100,
+        "mc_qmc_replicates": 1,
+        "mc_qmc_scramble": true,
+        "mc_sampling_method": "random",
+        "mc_seed": 61,
+        "preferred_method": "auto"
+      },
+      "finite_samples": [
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0
+      ],
+      "fraction_expected_se": 0.09977753031397177,
+      "fraction_se_squared": "56/5625",
+      "input": {
+        "composition_provenance": null,
+        "confidence_interval": [
+          -2.0,
+          2.0
+        ],
+        "confidence_level": 0.95,
+        "distribution_family": "normal",
+        "distribution_payload": {
+          "carrier_type": "parametric_fit",
+          "family": "normal",
+          "parameters": {
+            "mean": 0.0,
+            "std": 1.0
+          },
+          "support": null
+        },
+        "gate_eligible": false,
+        "interval_semantics": "confidence_interval",
+        "is_heuristic_ci": false,
+        "metadata": {},
+        "numeric_policy": {
+          "absolute_tolerance": 1e-12,
+          "decimal_places": 12,
+          "mode": "float_round_12",
+          "policy_id": "bounded_float_v1"
+        },
+        "point_estimate": 0.0,
+        "propagation_method": "none",
+        "sample_size": null,
+        "schema_version": "1.1",
+        "source": "calibration"
+      },
+      "mc_std": 0.9927739500999451,
+      "mean_estimator_error": {
+        "assumptions": [
+          "fixed_deterministic_response_to_independent_input_draws",
+          "finite_response_variance"
+        ],
+        "assumptions_verified": false,
+        "attempted_draw_count": 100,
+        "estimator": "sample_mean",
+        "finite_output_count": 100,
+        "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+        "gate_eligible": false,
+        "input_envelope_sha256": {
+          "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+        },
+        "reason": null,
+        "requested_draw_count": 100,
+        "sampling_law": "implemented_product_of_typed_normal_fits",
+        "sampling_method": "random",
+        "seed": 61,
+        "source_law_authority": "not_established",
+        "standard_error": 0.09977753031397178,
+        "status": "conditional_estimate",
+        "target": "implemented_push_forward_mean"
+      },
+      "name": "same_seed_repeat",
+      "output_gate_eligible": false,
+      "reference": {
+        "artifact_id": "sha256:e93109c4a9052bb0c1bd0c710e06f75976ef072639874b6273760424c6d23c73",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "removal": false,
+      "result_diagnostics": {
+        "draw_outcome_provenance": {
+          "attempted_draw_count": 100,
+          "draw_identity_basis": "sampling_recipe+draw_index+sampled_input_sha256",
+          "failure_records": [],
+          "implementation_identity_status": "not_established",
+          "input_identity_status": "content_hashed",
+          "outcome_denominator_complete": true,
+          "requested_draw_count": 100,
+          "sampling_recipe": {
+            "config": {
+              "adaptive_stopping": {
+                "check_interval": 100,
+                "ci_half_width_target": 0.01,
+                "enabled": false,
+                "max_samples": 10000,
+                "min_samples": 200
+              },
+              "auto_select_strategy": true,
+              "compute_sensitivity": true,
+              "confidence_level": 0.95,
+              "delta_covariance_jitter": 1e-09,
+              "delta_use_full_covariance": true,
+              "mc_batch_size": 200,
+              "mc_min_valid_samples": 50,
+              "mc_n_samples": 100,
+              "mc_qmc_replicates": 1,
+              "mc_qmc_scramble": true,
+              "mc_sampling_method": "random",
+              "mc_seed": 61,
+              "preferred_method": "auto"
+            },
+            "input_envelope_sha256": {
+              "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+            },
+            "input_param_names": [
+              "x"
+            ],
+            "joint_sample_id": null,
+            "sample_axis": "draw"
+          },
+          "schema_version": "1.0",
+          "successful_draw_count": 100,
+          "unattempted_draw_count": 0
+        },
+        "executor_failed_batches": 0,
+        "mean_estimator_error": {
+          "assumptions": [
+            "fixed_deterministic_response_to_independent_input_draws",
+            "finite_response_variance"
+          ],
+          "assumptions_verified": false,
+          "attempted_draw_count": 100,
+          "estimator": "sample_mean",
+          "finite_output_count": 100,
+          "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+          "gate_eligible": false,
+          "input_envelope_sha256": {
+            "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+          },
+          "reason": null,
+          "requested_draw_count": 100,
+          "sampling_law": "implemented_product_of_typed_normal_fits",
+          "sampling_method": "random",
+          "seed": 61,
+          "source_law_authority": "not_established",
+          "standard_error": 0.09977753031397178,
+          "status": "conditional_estimate",
+          "target": "implemented_push_forward_mean"
+        },
+        "missing_output": false,
+        "missing_output_count": 0,
+        "n_failed": 0,
+        "n_samples": 100,
+        "n_valid": 100,
+        "output_coverage_complete": true,
+        "qmc_method": null,
+        "qmc_replicates": null,
+        "qmc_scrambled": null,
+        "stopped_early": false
+      },
+      "sample_sha256": "69afcd4b287ac4a3c308050d0ae38441714ab10d546b5e2434f617e877813e0f",
+      "source_sha": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+      "surface": "actual_MonteCarloPropagator_persist_freshCAS"
+    },
+    {
+      "body_seconds": 0.859277192997979,
+      "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/typed_normal_400/cas",
+      "configuration": {
+        "adaptive_stopping": {
+          "check_interval": 100,
+          "ci_half_width_target": 0.01,
+          "enabled": false,
+          "max_samples": 10000,
+          "min_samples": 200
+        },
+        "auto_select_strategy": true,
+        "compute_sensitivity": true,
+        "confidence_level": 0.95,
+        "delta_covariance_jitter": 1e-09,
+        "delta_use_full_covariance": true,
+        "mc_batch_size": 200,
+        "mc_min_valid_samples": 50,
+        "mc_n_samples": 400,
+        "mc_qmc_replicates": 1,
+        "mc_qmc_scramble": true,
+        "mc_sampling_method": "random",
+        "mc_seed": 61,
+        "preferred_method": "auto"
+      },
+      "finite_samples": [
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "fraction_expected_se": 0.04985945158423528,
+      "fraction_se_squared": "1417/570000",
+      "input": {
+        "composition_provenance": null,
+        "confidence_interval": [
+          -2.0,
+          2.0
+        ],
+        "confidence_level": 0.95,
+        "distribution_family": "normal",
+        "distribution_payload": {
+          "carrier_type": "parametric_fit",
+          "family": "normal",
+          "parameters": {
+            "mean": 0.0,
+            "std": 1.0
+          },
+          "support": null
+        },
+        "gate_eligible": false,
+        "interval_semantics": "confidence_interval",
+        "is_heuristic_ci": false,
+        "metadata": {},
+        "numeric_policy": {
+          "absolute_tolerance": 1e-12,
+          "decimal_places": 12,
+          "mode": "float_round_12",
+          "policy_id": "bounded_float_v1"
+        },
+        "point_estimate": 0.0,
+        "propagation_method": "none",
+        "sample_size": null,
+        "schema_version": "1.1",
+        "source": "calibration"
+      },
+      "mc_std": 0.9959418773651123,
+      "mean_estimator_error": {
+        "assumptions": [
+          "fixed_deterministic_response_to_independent_input_draws",
+          "finite_response_variance"
+        ],
+        "assumptions_verified": false,
+        "attempted_draw_count": 400,
+        "estimator": "sample_mean",
+        "finite_output_count": 400,
+        "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+        "gate_eligible": false,
+        "input_envelope_sha256": {
+          "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+        },
+        "reason": null,
+        "requested_draw_count": 400,
+        "sampling_law": "implemented_product_of_typed_normal_fits",
+        "sampling_method": "random",
+        "seed": 61,
+        "source_law_authority": "not_established",
+        "standard_error": 0.049859451584235284,
+        "status": "conditional_estimate",
+        "target": "implemented_push_forward_mean"
+      },
+      "name": "typed_normal_400",
+      "output_gate_eligible": false,
+      "reference": {
+        "artifact_id": "sha256:21dfe76b975e4d7e0838a44df5ab3ca87a1553670bc301fb566f4b58731aec7f",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "removal": false,
+      "result_diagnostics": {
+        "draw_outcome_provenance": {
+          "attempted_draw_count": 400,
+          "draw_identity_basis": "sampling_recipe+draw_index+sampled_input_sha256",
+          "failure_records": [],
+          "implementation_identity_status": "not_established",
+          "input_identity_status": "content_hashed",
+          "outcome_denominator_complete": true,
+          "requested_draw_count": 400,
+          "sampling_recipe": {
+            "config": {
+              "adaptive_stopping": {
+                "check_interval": 100,
+                "ci_half_width_target": 0.01,
+                "enabled": false,
+                "max_samples": 10000,
+                "min_samples": 200
+              },
+              "auto_select_strategy": true,
+              "compute_sensitivity": true,
+              "confidence_level": 0.95,
+              "delta_covariance_jitter": 1e-09,
+              "delta_use_full_covariance": true,
+              "mc_batch_size": 200,
+              "mc_min_valid_samples": 50,
+              "mc_n_samples": 400,
+              "mc_qmc_replicates": 1,
+              "mc_qmc_scramble": true,
+              "mc_sampling_method": "random",
+              "mc_seed": 61,
+              "preferred_method": "auto"
+            },
+            "input_envelope_sha256": {
+              "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+            },
+            "input_param_names": [
+              "x"
+            ],
+            "joint_sample_id": null,
+            "sample_axis": "draw"
+          },
+          "schema_version": "1.0",
+          "successful_draw_count": 400,
+          "unattempted_draw_count": 0
+        },
+        "executor_failed_batches": 0,
+        "mean_estimator_error": {
+          "assumptions": [
+            "fixed_deterministic_response_to_independent_input_draws",
+            "finite_response_variance"
+          ],
+          "assumptions_verified": false,
+          "attempted_draw_count": 400,
+          "estimator": "sample_mean",
+          "finite_output_count": 400,
+          "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+          "gate_eligible": false,
+          "input_envelope_sha256": {
+            "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+          },
+          "reason": null,
+          "requested_draw_count": 400,
+          "sampling_law": "implemented_product_of_typed_normal_fits",
+          "sampling_method": "random",
+          "seed": 61,
+          "source_law_authority": "not_established",
+          "standard_error": 0.049859451584235284,
+          "status": "conditional_estimate",
+          "target": "implemented_push_forward_mean"
+        },
+        "missing_output": false,
+        "missing_output_count": 0,
+        "n_failed": 0,
+        "n_samples": 400,
+        "n_valid": 400,
+        "output_coverage_complete": true,
+        "qmc_method": null,
+        "qmc_replicates": null,
+        "qmc_scrambled": null,
+        "stopped_early": false
+      },
+      "sample_sha256": "65f35a758204a0a0a031efb84c33be444b47eb3ace80194174f6231e00469291",
+      "source_sha": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+      "surface": "actual_MonteCarloPropagator_persist_freshCAS"
+    },
+    {
+      "body_seconds": 0.4206546409986913,
+      "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/weighted_fake_iid/cas",
+      "configuration": {
+        "adaptive_stopping": {
+          "check_interval": 100,
+          "ci_half_width_target": 0.01,
+          "enabled": false,
+          "max_samples": 10000,
+          "min_samples": 200
+        },
+        "auto_select_strategy": true,
+        "compute_sensitivity": true,
+        "confidence_level": 0.95,
+        "delta_covariance_jitter": 1e-09,
+        "delta_use_full_covariance": true,
+        "mc_batch_size": 200,
+        "mc_min_valid_samples": 50,
+        "mc_n_samples": 100,
+        "mc_qmc_replicates": 1,
+        "mc_qmc_scramble": true,
+        "mc_sampling_method": "random",
+        "mc_seed": 61,
+        "preferred_method": "auto"
+      },
+      "finite_samples": [
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0
+      ],
+      "fraction_expected_se": 0.07722458393307383,
+      "fraction_se_squared": "41/6875",
+      "input": {
+        "composition_provenance": null,
+        "confidence_interval": [
+          -2.0,
+          2.0
+        ],
+        "confidence_level": 0.95,
+        "distribution_family": "bootstrap",
+        "distribution_payload": {
+          "carrier_type": "posterior_samples",
+          "sample_axis": "draw",
+          "samples": [
+            -1.0,
+            1.0
+          ],
+          "weights": [
+            0.85,
+            0.15
+          ]
+        },
+        "gate_eligible": false,
+        "interval_semantics": "confidence_interval",
+        "is_heuristic_ci": false,
+        "metadata": {
+          "iid": true,
+          "sampling_law": "independent_normal"
+        },
+        "numeric_policy": {
+          "absolute_tolerance": 1e-12,
+          "decimal_places": 12,
+          "mode": "float_round_12",
+          "policy_id": "bounded_float_v1"
+        },
+        "point_estimate": 0.0,
+        "propagation_method": "none",
+        "sample_size": null,
+        "schema_version": "1.1",
+        "source": "calibration"
+      },
+      "mc_std": 0.7683749198913574,
+      "mean_estimator_error": {
+        "assumptions": [
+          "fixed_deterministic_response_to_independent_input_draws",
+          "finite_response_variance"
+        ],
+        "assumptions_verified": false,
+        "attempted_draw_count": 100,
+        "estimator": "sample_mean",
+        "finite_output_count": 100,
+        "gate_eligible": false,
+        "input_envelope_sha256": {
+          "x": "50fe89f22be621ac9a44784f17fb90e0ddf34b0fe6b7ac6567b13382bf02b80a"
+        },
+        "reason": "unsupported_input_sampling_law",
+        "requested_draw_count": 100,
+        "sampling_law": "implemented_product_of_typed_normal_fits",
+        "sampling_method": "random",
+        "seed": 61,
+        "source_law_authority": "not_established",
+        "standard_error": null,
+        "status": "unavailable",
+        "target": "implemented_push_forward_mean"
+      },
+      "name": "weighted_fake_iid",
+      "output_gate_eligible": false,
+      "reference": {
+        "artifact_id": "sha256:8598bb02eeea89acec833f976215f385a3318cafc4fd87e61181f14ecba39b0a",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "removal": false,
+      "result_diagnostics": {
+        "draw_outcome_provenance": {
+          "attempted_draw_count": 100,
+          "draw_identity_basis": "sampling_recipe+draw_index+sampled_input_sha256",
+          "failure_records": [],
+          "implementation_identity_status": "not_established",
+          "input_identity_status": "content_hashed",
+          "outcome_denominator_complete": true,
+          "requested_draw_count": 100,
+          "sampling_recipe": {
+            "config": {
+              "adaptive_stopping": {
+                "check_interval": 100,
+                "ci_half_width_target": 0.01,
+                "enabled": false,
+                "max_samples": 10000,
+                "min_samples": 200
+              },
+              "auto_select_strategy": true,
+              "compute_sensitivity": true,
+              "confidence_level": 0.95,
+              "delta_covariance_jitter": 1e-09,
+              "delta_use_full_covariance": true,
+              "mc_batch_size": 200,
+              "mc_min_valid_samples": 50,
+              "mc_n_samples": 100,
+              "mc_qmc_replicates": 1,
+              "mc_qmc_scramble": true,
+              "mc_sampling_method": "random",
+              "mc_seed": 61,
+              "preferred_method": "auto"
+            },
+            "input_envelope_sha256": {
+              "x": "50fe89f22be621ac9a44784f17fb90e0ddf34b0fe6b7ac6567b13382bf02b80a"
+            },
+            "input_param_names": [
+              "x"
+            ],
+            "joint_sample_id": null,
+            "sample_axis": "draw"
+          },
+          "schema_version": "1.0",
+          "successful_draw_count": 100,
+          "unattempted_draw_count": 0
+        },
+        "executor_failed_batches": 0,
+        "mean_estimator_error": {
+          "assumptions": [
+            "fixed_deterministic_response_to_independent_input_draws",
+            "finite_response_variance"
+          ],
+          "assumptions_verified": false,
+          "attempted_draw_count": 100,
+          "estimator": "sample_mean",
+          "finite_output_count": 100,
+          "gate_eligible": false,
+          "input_envelope_sha256": {
+            "x": "50fe89f22be621ac9a44784f17fb90e0ddf34b0fe6b7ac6567b13382bf02b80a"
+          },
+          "reason": "unsupported_input_sampling_law",
+          "requested_draw_count": 100,
+          "sampling_law": "implemented_product_of_typed_normal_fits",
+          "sampling_method": "random",
+          "seed": 61,
+          "source_law_authority": "not_established",
+          "standard_error": null,
+          "status": "unavailable",
+          "target": "implemented_push_forward_mean"
+        },
+        "missing_output": false,
+        "missing_output_count": 0,
+        "n_failed": 0,
+        "n_samples": 100,
+        "n_valid": 100,
+        "output_coverage_complete": true,
+        "qmc_method": null,
+        "qmc_replicates": null,
+        "qmc_scrambled": null,
+        "stopped_early": false
+      },
+      "sample_sha256": "a62b24420ec8ba33ce3292bbd8b35f9ab487408cea09ae280efe8170137b66cf",
+      "source_sha": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+      "surface": "actual_MonteCarloPropagator_persist_freshCAS"
+    },
+    {
+      "body_seconds": 0.45392925702617504,
+      "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/qmc_two_scrambles_pooled/cas",
+      "configuration": {
+        "adaptive_stopping": {
+          "check_interval": 100,
+          "ci_half_width_target": 0.01,
+          "enabled": false,
+          "max_samples": 10000,
+          "min_samples": 200
+        },
+        "auto_select_strategy": true,
+        "compute_sensitivity": true,
+        "confidence_level": 0.95,
+        "delta_covariance_jitter": 1e-09,
+        "delta_use_full_covariance": true,
+        "mc_batch_size": 200,
+        "mc_min_valid_samples": 50,
+        "mc_n_samples": 100,
+        "mc_qmc_replicates": 2,
+        "mc_qmc_scramble": true,
+        "mc_sampling_method": "sobol",
+        "mc_seed": 61,
+        "preferred_method": "auto"
+      },
+      "finite_samples": [
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0
+      ],
+      "fraction_expected_se": 0.10050378152592121,
+      "fraction_se_squared": "1/99",
+      "input": {
+        "composition_provenance": null,
+        "confidence_interval": [
+          -2.0,
+          2.0
+        ],
+        "confidence_level": 0.95,
+        "distribution_family": "normal",
+        "distribution_payload": {
+          "carrier_type": "parametric_fit",
+          "family": "normal",
+          "parameters": {
+            "mean": 0.0,
+            "std": 1.0
+          },
+          "support": null
+        },
+        "gate_eligible": false,
+        "interval_semantics": "confidence_interval",
+        "is_heuristic_ci": false,
+        "metadata": {},
+        "numeric_policy": {
+          "absolute_tolerance": 1e-12,
+          "decimal_places": 12,
+          "mode": "float_round_12",
+          "policy_id": "bounded_float_v1"
+        },
+        "point_estimate": 0.0,
+        "propagation_method": "none",
+        "sample_size": null,
+        "schema_version": "1.1",
+        "source": "calibration"
+      },
+      "mc_std": 1.0,
+      "mean_estimator_error": {
+        "assumptions": [
+          "fixed_deterministic_response_to_independent_input_draws",
+          "finite_response_variance"
+        ],
+        "assumptions_verified": false,
+        "attempted_draw_count": 100,
+        "estimator": "sample_mean",
+        "finite_output_count": 100,
+        "gate_eligible": false,
+        "input_envelope_sha256": {
+          "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+        },
+        "reason": "qmc_replica_means_not_retained",
+        "requested_draw_count": 100,
+        "sampling_law": "implemented_product_of_typed_normal_fits",
+        "sampling_method": "sobol",
+        "seed": 61,
+        "source_law_authority": "not_established",
+        "standard_error": null,
+        "status": "unavailable",
+        "target": "implemented_push_forward_mean"
+      },
+      "name": "qmc_two_scrambles_pooled",
+      "output_gate_eligible": false,
+      "reference": {
+        "artifact_id": "sha256:8474893a6b5fff5cd2cd4123fff622d6f39f7246eb646d0b29cfca3075f9ac49",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "removal": false,
+      "result_diagnostics": {
+        "draw_outcome_provenance": {
+          "attempted_draw_count": 100,
+          "draw_identity_basis": "sampling_recipe+draw_index+sampled_input_sha256",
+          "failure_records": [],
+          "implementation_identity_status": "not_established",
+          "input_identity_status": "content_hashed",
+          "outcome_denominator_complete": true,
+          "requested_draw_count": 100,
+          "sampling_recipe": {
+            "config": {
+              "adaptive_stopping": {
+                "check_interval": 100,
+                "ci_half_width_target": 0.01,
+                "enabled": false,
+                "max_samples": 10000,
+                "min_samples": 200
+              },
+              "auto_select_strategy": true,
+              "compute_sensitivity": true,
+              "confidence_level": 0.95,
+              "delta_covariance_jitter": 1e-09,
+              "delta_use_full_covariance": true,
+              "mc_batch_size": 200,
+              "mc_min_valid_samples": 50,
+              "mc_n_samples": 100,
+              "mc_qmc_replicates": 2,
+              "mc_qmc_scramble": true,
+              "mc_sampling_method": "sobol",
+              "mc_seed": 61,
+              "preferred_method": "auto"
+            },
+            "input_envelope_sha256": {
+              "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+            },
+            "input_param_names": [
+              "x"
+            ],
+            "joint_sample_id": null,
+            "sample_axis": "draw"
+          },
+          "schema_version": "1.0",
+          "successful_draw_count": 100,
+          "unattempted_draw_count": 0
+        },
+        "executor_failed_batches": 0,
+        "mean_estimator_error": {
+          "assumptions": [
+            "fixed_deterministic_response_to_independent_input_draws",
+            "finite_response_variance"
+          ],
+          "assumptions_verified": false,
+          "attempted_draw_count": 100,
+          "estimator": "sample_mean",
+          "finite_output_count": 100,
+          "gate_eligible": false,
+          "input_envelope_sha256": {
+            "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+          },
+          "reason": "qmc_replica_means_not_retained",
+          "requested_draw_count": 100,
+          "sampling_law": "implemented_product_of_typed_normal_fits",
+          "sampling_method": "sobol",
+          "seed": 61,
+          "source_law_authority": "not_established",
+          "standard_error": null,
+          "status": "unavailable",
+          "target": "implemented_push_forward_mean"
+        },
+        "missing_output": false,
+        "missing_output_count": 0,
+        "n_failed": 0,
+        "n_samples": 100,
+        "n_valid": 100,
+        "output_coverage_complete": true,
+        "qmc_method": "sobol",
+        "qmc_replicates": 2,
+        "qmc_scrambled": true,
+        "stopped_early": false
+      },
+      "sample_sha256": "fd3eeceb10bf2c03b3bf083440c39982d9e0404ae2804807f3795d9fc598b3e6",
+      "source_sha": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+      "surface": "actual_MonteCarloPropagator_persist_freshCAS"
+    },
+    {
+      "body_seconds": 0.11671198200201616,
+      "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/one_success_100_attempts/cas",
+      "configuration": {
+        "adaptive_stopping": {
+          "check_interval": 100,
+          "ci_half_width_target": 0.01,
+          "enabled": false,
+          "max_samples": 10000,
+          "min_samples": 200
+        },
+        "auto_select_strategy": true,
+        "compute_sensitivity": true,
+        "confidence_level": 0.95,
+        "delta_covariance_jitter": 1e-09,
+        "delta_use_full_covariance": true,
+        "mc_batch_size": 200,
+        "mc_min_valid_samples": 50,
+        "mc_n_samples": 100,
+        "mc_qmc_replicates": 1,
+        "mc_qmc_scramble": true,
+        "mc_sampling_method": "random",
+        "mc_seed": 61,
+        "preferred_method": "auto"
+      },
+      "finite_samples": [],
+      "fraction_expected_se": null,
+      "fraction_se_squared": null,
+      "input": {
+        "composition_provenance": null,
+        "confidence_interval": [
+          -2.0,
+          2.0
+        ],
+        "confidence_level": 0.95,
+        "distribution_family": "normal",
+        "distribution_payload": {
+          "carrier_type": "parametric_fit",
+          "family": "normal",
+          "parameters": {
+            "mean": 0.0,
+            "std": 1.0
+          },
+          "support": null
+        },
+        "gate_eligible": false,
+        "interval_semantics": "confidence_interval",
+        "is_heuristic_ci": false,
+        "metadata": {},
+        "numeric_policy": {
+          "absolute_tolerance": 1e-12,
+          "decimal_places": 12,
+          "mode": "float_round_12",
+          "policy_id": "bounded_float_v1"
+        },
+        "point_estimate": 0.0,
+        "propagation_method": "none",
+        "sample_size": null,
+        "schema_version": "1.1",
+        "source": "calibration"
+      },
+      "mc_std": null,
+      "mean_estimator_error": {
+        "assumptions": [
+          "fixed_deterministic_response_to_independent_input_draws",
+          "finite_response_variance"
+        ],
+        "assumptions_verified": false,
+        "attempted_draw_count": 100,
+        "estimator": "sample_mean",
+        "finite_output_count": 1,
+        "gate_eligible": false,
+        "input_envelope_sha256": {
+          "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+        },
+        "reason": "insufficient_independent_draws",
+        "requested_draw_count": 100,
+        "sampling_law": "implemented_product_of_typed_normal_fits",
+        "sampling_method": "random",
+        "seed": 61,
+        "source_law_authority": "not_established",
+        "standard_error": null,
+        "status": "unavailable",
+        "target": "implemented_push_forward_mean"
+      },
+      "name": "one_success_100_attempts",
+      "output_gate_eligible": false,
+      "reference": {
+        "artifact_id": "sha256:bdd3d4397df6b5f6c49f0b5d4fba852cec6f98cc60dd77f951292268c4b7980e",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "removal": false,
+      "result_diagnostics": {
+        "draw_outcome_provenance": {
+          "attempted_draw_count": 100,
+          "draw_identity_basis": "sampling_recipe+draw_index+sampled_input_sha256",
+          "failure_records": [
+            {
+              "draw_index": 1,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "606ebfed30bdef7d5e8533ac935ed996f1c57c1908975486e28bd64c924f1340"
+            },
+            {
+              "draw_index": 2,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "b7b3dc9be771a306d81ca4ddd66df96d4c260d242ed23039cc6ccc5c843d35bb"
+            },
+            {
+              "draw_index": 3,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "a9de41474f21df2718c937fad67f67894ba5b376b6fbcfafc16c709313488863"
+            },
+            {
+              "draw_index": 4,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "cf5bb801312ea2e6905ec65a344252870a18acedb9ea95ee2f4bddec5da4cd0e"
+            },
+            {
+              "draw_index": 5,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "5528d14212d8bb5d253512b53493d9ada1dc4acddc7473335dba729bbfbe4257"
+            },
+            {
+              "draw_index": 6,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "5badcc1e0ff97662129cdf7dd6c32a84a303edb392d7b5b395cda080fb0d2ee0"
+            },
+            {
+              "draw_index": 7,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "a23bbb42a7a7f7e91d78707beb7a7157ed2d1f5542490b8e089587a1dc79f880"
+            },
+            {
+              "draw_index": 8,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "ea52929fd912a5acf0f2da2fd1b4863ea5836d364ee054b847e1fb3f0ab2562f"
+            },
+            {
+              "draw_index": 9,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "fa21b5183058a4ff3640f8475c47b3179a989c3e48dac82d00a9bcf3e1e9ef91"
+            },
+            {
+              "draw_index": 10,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "579788b6c0604068ba16f0c2eaeecb43b8137130c9c4a615f09afcaac335e4d2"
+            },
+            {
+              "draw_index": 11,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "fd3b08e34533519e4a5b1046621d2475ce37d57feb1e2cd2de989373c9a9c91b"
+            },
+            {
+              "draw_index": 12,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "05057566e39fa4d8c2fd05e3e9f18c2ca23d2f31c6ac669105a5f24f804604fb"
+            },
+            {
+              "draw_index": 13,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "5dad7d821e53c5a81fbe57b2f83c94e5b5bb0195c70960a2fbb04db7a0d0f9f2"
+            },
+            {
+              "draw_index": 14,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "016b21201646b08194c1da606376afdd7b7c1b6c98dcab55aa02ea5f8a10ba4a"
+            },
+            {
+              "draw_index": 15,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "20082cfe029ac2f636a717c7e51099061f7161fe30f7798dca2bbd2ebd230979"
+            },
+            {
+              "draw_index": 16,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "8c4fd5bbd400a099ea0b02880fd15c29300267082742b20324222d4c4094e0fe"
+            },
+            {
+              "draw_index": 17,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "7e1b18066f403a6894a0697450932bfe3664521bc65eb7536cc960c2800b394e"
+            },
+            {
+              "draw_index": 18,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "1ac211c2fb366a81b395e155f344510d1ca25d15e4f74e15bb8c4727a3e4379d"
+            },
+            {
+              "draw_index": 19,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "2191ecf59af599d1ed43dbb3628e6d02ac2ed2418efbd8d5f20904e2b4bb7427"
+            },
+            {
+              "draw_index": 20,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "378b2a785a343cd3d92e082e19f8ceff0797449a3830deb5bbd8dcb46fdc3300"
+            },
+            {
+              "draw_index": 21,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "f8870fb6e380057616a2cc5bef745c15fd9044b042b47657f1137bcd62111b87"
+            },
+            {
+              "draw_index": 22,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "57fc2c1a8a6b69e4216bd8d70dbaa70c3f44dd17e51fd13de65b8da76c7ea636"
+            },
+            {
+              "draw_index": 23,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "6d109f5f06a1971ba5ce7da81275b6db72f38bbcd5c1006b7179971cae29f16e"
+            },
+            {
+              "draw_index": 24,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "b3a343d0f5a685e70fabe3490f5a292a58cb7698768ad9998c7ca634021c4a8b"
+            },
+            {
+              "draw_index": 25,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "0544e10e1e444f5ae7a5de49c810ba6d516cde1f5d037da4cfc30431176f40b6"
+            },
+            {
+              "draw_index": 26,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "346ee1107139d945ab6e92b646e98854f51e2fa997eb9b884e949fe4a1314729"
+            },
+            {
+              "draw_index": 27,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "6a75128ee0a99a6294992b3efd89d6a668626b945e843ce6b37f984e18edf752"
+            },
+            {
+              "draw_index": 28,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "3103ac9c577e364cc6da3d345e575ee1e7dbd28e9d5a03d536cf90c963b8abe6"
+            },
+            {
+              "draw_index": 29,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "5e45e5022fc37b12a51d101ac71b82171e6cc4adb43ed6a272730b9586f66be1"
+            },
+            {
+              "draw_index": 30,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "767f8f743da3ef4a1df5687ae6a0b5395424f884335e44f67956a228bbee3753"
+            },
+            {
+              "draw_index": 31,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "04d319fc5995d7d479af17864bb552783fa443ee7036437501aaa22190151e0f"
+            },
+            {
+              "draw_index": 32,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "60a24a9de976b0c3d6cf4e178ede87647fad4f1cd6a5393a758cd9d3d39236b6"
+            },
+            {
+              "draw_index": 33,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "469f3934457d7ba8d0596b07f63136c550ae5ae538f1562bd13aa258b90cb6a2"
+            },
+            {
+              "draw_index": 34,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "b2ad166d9f3f3544854756cfd0ee5f60e3b26d1c171d38478d9f89dcd27b0d09"
+            },
+            {
+              "draw_index": 35,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "a956ada156f87b25eb7b742a8831c5d510658c20e7a2358c5025e8f38b806c96"
+            },
+            {
+              "draw_index": 36,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "8633cb9fa74a54bd477404ad1def55b8b2aa8f7391aa872cd6e34a2cc945c9a2"
+            },
+            {
+              "draw_index": 37,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "19bf86d5da67c5424633f1cfe2d6c81d86b69adfe86b42e29427477106b79f87"
+            },
+            {
+              "draw_index": 38,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "fcc5acd935dbd88a2da8d25f640949e3613241a482cbe1c973a6490ef71c0ad9"
+            },
+            {
+              "draw_index": 39,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "757288c0c4e3da8e75d6702cae3289cdb2e0644ad8caca7cabe1a07b0c3f65bb"
+            },
+            {
+              "draw_index": 40,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "ac8799a364b71727d5d1948662489b684dd179bf4a6e1df3b59c8cb9426f82a8"
+            },
+            {
+              "draw_index": 41,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "a1c38ce61044f98ee5ce31c7c9364a37097ecab207a856999a8bb58ede3f6351"
+            },
+            {
+              "draw_index": 42,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "4183c79b094da04313d893dc53bd874e4fb6df76b72ca35db2e47ac8ec4426b4"
+            },
+            {
+              "draw_index": 43,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "ad2a5a9b3f0a0cdb5fc86be47b1335a96c0fe03e0762e6209c21ac09460f5819"
+            },
+            {
+              "draw_index": 44,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "e55f19ad556a269b4f3c4fdfaa677864f89bc6d5a2279cf37c8d3b4446867b17"
+            },
+            {
+              "draw_index": 45,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "31242f6007fc36cae7f26a6861ad25ac77acb7afe67487dc6494b581e1fa337a"
+            },
+            {
+              "draw_index": 46,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "bcc3d54e9204dfe3a08e0d2526f1edd1d2bc7ef1fceed3185ba1f57172a8b17c"
+            },
+            {
+              "draw_index": 47,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "fda8507e759c157e8df34582afdc4b593bf7800a7fb6c5de8effa6b55d7824f1"
+            },
+            {
+              "draw_index": 48,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "d65c0ecbadb2746d6d38219144a4f05b4db4699b24902061ddf733755f1d0f7a"
+            },
+            {
+              "draw_index": 49,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "b941117da1c5729515e94586b657cb3a404c5aa186e831ed74042fe40dcf5dda"
+            },
+            {
+              "draw_index": 50,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "b059275f0fa3d487bdc9de58478d1b05ca1201c3f9f603eacdbd8163d88bbf3b"
+            },
+            {
+              "draw_index": 51,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "5d844eb01658ec60a198101f3c2eceec0914aa6e3f1227af1edaaaa3182f4ac8"
+            },
+            {
+              "draw_index": 52,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "456dfbee05db4a26734dc77de73410a103c2a6fd7130b922560449ed8cc88af2"
+            },
+            {
+              "draw_index": 53,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "690e0ca1071b157e7ceac30ebda65dddd328fc5c1bbab7d5d652889f3a4ab95a"
+            },
+            {
+              "draw_index": 54,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "a12d04b0176661a65fcc672a1aa10973df2a93bd2fb23ad1f81765ce80c12649"
+            },
+            {
+              "draw_index": 55,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "904b7286c8da77b449be98e02fb27cd1f5a869ca41630d8c392a003b286ab045"
+            },
+            {
+              "draw_index": 56,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "f1b2738e885305066453c08ad0df364995d3265d3b7be43c5ac033da438653ea"
+            },
+            {
+              "draw_index": 57,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "8a7211bac0392234c10add638f3cee37402b3f49f174b1660d2514effbd6c461"
+            },
+            {
+              "draw_index": 58,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "403769f300e7d27d7843f2745791ca015554c47fc2c8b6a291297a7c79a9e90b"
+            },
+            {
+              "draw_index": 59,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "616a1939e0e9a7828db54bd014912c8cafd1884206a672193f895c90ec921c6c"
+            },
+            {
+              "draw_index": 60,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "d87666bf76525e798b07bd87e9cc7dd4c3186dc5cc8c7eda8a3d661f8020bb3b"
+            },
+            {
+              "draw_index": 61,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "33c2921efa1385148cbaac67754b8c0ad3022fe34debbc7b2771f5e8db369940"
+            },
+            {
+              "draw_index": 62,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "93a55dd81f77c97d8815f5c25843cea35f2733626ca428135a1078b073a66f9c"
+            },
+            {
+              "draw_index": 63,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "914c40a31394d308e16634a36eb6da90940930806c69261a738b1ab2b2151aa5"
+            },
+            {
+              "draw_index": 64,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "14a42c239f6a9d4baa628dc205d96e9189b1f3eab5d004009d66eb728bc9f1d9"
+            },
+            {
+              "draw_index": 65,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "89de62b43fa01295f5ba388097a2cf01ab69e3bc8fdb39feeafecfd22db495ff"
+            },
+            {
+              "draw_index": 66,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "3975874c7c777bff4230e31733672fd4c28258b7548ae4657be4fd36f9721337"
+            },
+            {
+              "draw_index": 67,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "f2c2ad9b7b49aca6e1f2dae037c308ea51970755cb3692f021f0950bc6259dd9"
+            },
+            {
+              "draw_index": 68,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "4dd88d953f570732b0a171893018e367a4d5672db2720d1065843cf6f8dde626"
+            },
+            {
+              "draw_index": 69,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "ff8b32904b23f158e9970bd096ac54e8331174e0d7a5c55462dddd3c10d7cccb"
+            },
+            {
+              "draw_index": 70,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "64106598b5af3a1c48cd103809d6da2b5b47cb5b3f008f9b742ceae38aad6ab8"
+            },
+            {
+              "draw_index": 71,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "4ac09b554106f2829cb75ebb6812d2cd42bc84d5aa3ed4d310aae387d23a9e79"
+            },
+            {
+              "draw_index": 72,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "dc535a57cf048e9a5c8e10ecbf3a8d9a5d8624e9b8906bc3f2e8b5e9286d1f0d"
+            },
+            {
+              "draw_index": 73,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "daaded9ea99a3b0d55e2c6cda24781a2128be2c9bac601e53fb385bdd05658fc"
+            },
+            {
+              "draw_index": 74,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "5d4c29866fafaf06e42d2ccf54d6e35b5954255733134c99aeb8d74df95bd0da"
+            },
+            {
+              "draw_index": 75,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "b39521305b6577c3f1391fd153a00fb6a3c410204000331e71cea9bc16a4d085"
+            },
+            {
+              "draw_index": 76,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "74e98e7943ba058e9ebefcdfbb157fa1d2ed53991bfe00be6a1a1cd630e834e4"
+            },
+            {
+              "draw_index": 77,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "53731f6fe74bcd75a477ef0181d673395d22ced39eb4e2e2bf6654147b626537"
+            },
+            {
+              "draw_index": 78,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "6ac5d7f509793a84a1b2c7f6e3cde5c6b93a5e88b4ef7a5b5d6a496d9c57e77f"
+            },
+            {
+              "draw_index": 79,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "eae45d66625c2e406102a3412d223e90b15e0cea7ea11bf721a45e990e9bb5d4"
+            },
+            {
+              "draw_index": 80,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "40ec8e841786b458f8bdffa151ee3d09cfbf618bf3305ae0274fb0ac6e390617"
+            },
+            {
+              "draw_index": 81,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "d9233cfa0925cbffb588eae129f7c4c90eae1f494cd44f95a80c43f18ce821c7"
+            },
+            {
+              "draw_index": 82,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "5405bb87d8fd3fd92bcb5947cd58cd2b3eae6c00295272b6db379e5861edbda1"
+            },
+            {
+              "draw_index": 83,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "93abe21d02449d5c692279615a2c41246c37d4bf3ff087f0a0f1b230f7edcd27"
+            },
+            {
+              "draw_index": 84,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "34b2342ba56871ee4ed2c8232b6c51f9d104c1f639e66bdf0ac418b69eda0ef5"
+            },
+            {
+              "draw_index": 85,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "dd6213b57e49d9aa291082d5d78328aaa344dd86a8c13778d34eeb8f32cfb9c0"
+            },
+            {
+              "draw_index": 86,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "0179c6abfc731e0ddb2ae2693b43c06443ce49a7ab840af128af17c9d71616ee"
+            },
+            {
+              "draw_index": 87,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "ad0ef6812f999efefbf59bc5836602ae134d773fbf66a07de9fb9a17e71648a0"
+            },
+            {
+              "draw_index": 88,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "fe4dec73f55aba27e62aff856c1b10a0c5d0e7ef81bf6ad187ed694cfbd131af"
+            },
+            {
+              "draw_index": 89,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "69a892a863e36d89bad65254de8fd110ccec25cfcda699d95675f885cf3a33f5"
+            },
+            {
+              "draw_index": 90,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "ffe32e37ed11c16a1fa0d69c69164f486eb27207686e5cc74c9f0c1d64e6d6e8"
+            },
+            {
+              "draw_index": 91,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "737dc37b9d1547726534f9ac7d04a1aba977e19e72cdbcbe5c3e17e6c4394f54"
+            },
+            {
+              "draw_index": 92,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "ac16b4f4d126f6ad05857df78098c9adeaa882f51e3d5a8dd8505d8507c5abd6"
+            },
+            {
+              "draw_index": 93,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "f905c0b87b2713a88d5bd3a15ed1b9b1dba7b2d22a2df5aafbe8a0e1e4fe20fb"
+            },
+            {
+              "draw_index": 94,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "faf9b0dbc38e71e1e01e678886bba01250ab0d7068b929bb7937ad3cfba31602"
+            },
+            {
+              "draw_index": 95,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "17cbda4ad2ccd1218ea3338cd30ad061a44fb1a5c3ce4fa163769396f184b336"
+            },
+            {
+              "draw_index": 96,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "af7cdd095b5cec847d18a003ae7fc45f4eae4203a78fbaa7f0758f77c5206858"
+            },
+            {
+              "draw_index": 97,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "374940292799a90f1b62d275337ae3666873c86297b6373b441bdd218f1921c2"
+            },
+            {
+              "draw_index": 98,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "eb01c8580be7c8354cdd54aeeef05286459585476b77c3d422c0ea2c6d01d3f4"
+            },
+            {
+              "draw_index": 99,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "02cde8ca718a39e5d007d2802157ec2c1a0dfd3eb856f8172aa1c638445233cb"
+            }
+          ],
+          "implementation_identity_status": "not_established",
+          "input_identity_status": "content_hashed",
+          "outcome_denominator_complete": true,
+          "requested_draw_count": 100,
+          "sampling_recipe": {
+            "config": {
+              "adaptive_stopping": {
+                "check_interval": 100,
+                "ci_half_width_target": 0.01,
+                "enabled": false,
+                "max_samples": 10000,
+                "min_samples": 200
+              },
+              "auto_select_strategy": true,
+              "compute_sensitivity": true,
+              "confidence_level": 0.95,
+              "delta_covariance_jitter": 1e-09,
+              "delta_use_full_covariance": true,
+              "mc_batch_size": 200,
+              "mc_min_valid_samples": 50,
+              "mc_n_samples": 100,
+              "mc_qmc_replicates": 1,
+              "mc_qmc_scramble": true,
+              "mc_sampling_method": "random",
+              "mc_seed": 61,
+              "preferred_method": "auto"
+            },
+            "input_envelope_sha256": {
+              "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+            },
+            "input_param_names": [
+              "x"
+            ],
+            "joint_sample_id": null,
+            "sample_axis": "draw"
+          },
+          "schema_version": "1.0",
+          "successful_draw_count": 1,
+          "unattempted_draw_count": 0
+        },
+        "executor_failed_batches": 0,
+        "mean_estimator_error": {
+          "assumptions": [
+            "fixed_deterministic_response_to_independent_input_draws",
+            "finite_response_variance"
+          ],
+          "assumptions_verified": false,
+          "attempted_draw_count": 100,
+          "estimator": "sample_mean",
+          "finite_output_count": 1,
+          "gate_eligible": false,
+          "input_envelope_sha256": {
+            "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+          },
+          "reason": "insufficient_independent_draws",
+          "requested_draw_count": 100,
+          "sampling_law": "implemented_product_of_typed_normal_fits",
+          "sampling_method": "random",
+          "seed": 61,
+          "source_law_authority": "not_established",
+          "standard_error": null,
+          "status": "unavailable",
+          "target": "implemented_push_forward_mean"
+        },
+        "missing_output": false,
+        "missing_output_count": 0,
+        "n_failed": 99,
+        "n_samples": 100,
+        "n_valid": 1,
+        "output_coverage_complete": false,
+        "qmc_method": null,
+        "qmc_replicates": null,
+        "qmc_scrambled": null,
+        "stopped_early": false
+      },
+      "sample_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "source_sha": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+      "surface": "actual_MonteCarloPropagator_persist_freshCAS"
+    },
+    {
+      "body_seconds": 0.028163806011434644,
+      "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/counterfeit_mean_error/cas",
+      "configuration": {
+        "adaptive_stopping": {
+          "check_interval": 100,
+          "ci_half_width_target": 0.01,
+          "enabled": false,
+          "max_samples": 10000,
+          "min_samples": 200
+        },
+        "auto_select_strategy": true,
+        "compute_sensitivity": true,
+        "confidence_level": 0.95,
+        "delta_covariance_jitter": 1e-09,
+        "delta_use_full_covariance": true,
+        "mc_batch_size": 200,
+        "mc_min_valid_samples": 50,
+        "mc_n_samples": 100,
+        "mc_qmc_replicates": 1,
+        "mc_qmc_scramble": true,
+        "mc_sampling_method": "random",
+        "mc_seed": 61,
+        "preferred_method": "auto"
+      },
+      "finite_samples": [
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0
+      ],
+      "fraction_expected_se": 0.09977753031397177,
+      "fraction_se_squared": "56/5625",
+      "input": {
+        "composition_provenance": null,
+        "confidence_interval": [
+          -2.0,
+          2.0
+        ],
+        "confidence_level": 0.95,
+        "distribution_family": "normal",
+        "distribution_payload": {
+          "carrier_type": "parametric_fit",
+          "family": "normal",
+          "parameters": {
+            "mean": 0.0,
+            "std": 1.0
+          },
+          "support": null
+        },
+        "gate_eligible": false,
+        "interval_semantics": "confidence_interval",
+        "is_heuristic_ci": false,
+        "metadata": {
+          "mean_estimator_error": {
+            "gate_eligible": true,
+            "standard_error": 999.0,
+            "status": "admitted"
+          }
+        },
+        "numeric_policy": {
+          "absolute_tolerance": 1e-12,
+          "decimal_places": 12,
+          "mode": "float_round_12",
+          "policy_id": "bounded_float_v1"
+        },
+        "point_estimate": 0.0,
+        "propagation_method": "none",
+        "sample_size": null,
+        "schema_version": "1.1",
+        "source": "calibration"
+      },
+      "mc_std": 0.9927739500999451,
+      "mean_estimator_error": {
+        "assumptions": [
+          "fixed_deterministic_response_to_independent_input_draws",
+          "finite_response_variance"
+        ],
+        "assumptions_verified": false,
+        "attempted_draw_count": 100,
+        "estimator": "sample_mean",
+        "finite_output_count": 100,
+        "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+        "gate_eligible": false,
+        "input_envelope_sha256": {
+          "x": "3863f43b61b91e2054b5e19b7c966e14b1663a37efd8f11002618465f601cf60"
+        },
+        "reason": null,
+        "requested_draw_count": 100,
+        "sampling_law": "implemented_product_of_typed_normal_fits",
+        "sampling_method": "random",
+        "seed": 61,
+        "source_law_authority": "not_established",
+        "standard_error": 0.09977753031397178,
+        "status": "conditional_estimate",
+        "target": "implemented_push_forward_mean"
+      },
+      "name": "counterfeit_mean_error",
+      "output_gate_eligible": false,
+      "reference": {
+        "artifact_id": "sha256:837b2f408f18fffe13842c2976d6a23147c3ce3fded6c4f20cfea3d9baf1f025",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "removal": false,
+      "result_diagnostics": {
+        "draw_outcome_provenance": {
+          "attempted_draw_count": 100,
+          "draw_identity_basis": "sampling_recipe+draw_index+sampled_input_sha256",
+          "failure_records": [],
+          "implementation_identity_status": "not_established",
+          "input_identity_status": "content_hashed",
+          "outcome_denominator_complete": true,
+          "requested_draw_count": 100,
+          "sampling_recipe": {
+            "config": {
+              "adaptive_stopping": {
+                "check_interval": 100,
+                "ci_half_width_target": 0.01,
+                "enabled": false,
+                "max_samples": 10000,
+                "min_samples": 200
+              },
+              "auto_select_strategy": true,
+              "compute_sensitivity": true,
+              "confidence_level": 0.95,
+              "delta_covariance_jitter": 1e-09,
+              "delta_use_full_covariance": true,
+              "mc_batch_size": 200,
+              "mc_min_valid_samples": 50,
+              "mc_n_samples": 100,
+              "mc_qmc_replicates": 1,
+              "mc_qmc_scramble": true,
+              "mc_sampling_method": "random",
+              "mc_seed": 61,
+              "preferred_method": "auto"
+            },
+            "input_envelope_sha256": {
+              "x": "3863f43b61b91e2054b5e19b7c966e14b1663a37efd8f11002618465f601cf60"
+            },
+            "input_param_names": [
+              "x"
+            ],
+            "joint_sample_id": null,
+            "sample_axis": "draw"
+          },
+          "schema_version": "1.0",
+          "successful_draw_count": 100,
+          "unattempted_draw_count": 0
+        },
+        "executor_failed_batches": 0,
+        "mean_estimator_error": {
+          "assumptions": [
+            "fixed_deterministic_response_to_independent_input_draws",
+            "finite_response_variance"
+          ],
+          "assumptions_verified": false,
+          "attempted_draw_count": 100,
+          "estimator": "sample_mean",
+          "finite_output_count": 100,
+          "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+          "gate_eligible": false,
+          "input_envelope_sha256": {
+            "x": "3863f43b61b91e2054b5e19b7c966e14b1663a37efd8f11002618465f601cf60"
+          },
+          "reason": null,
+          "requested_draw_count": 100,
+          "sampling_law": "implemented_product_of_typed_normal_fits",
+          "sampling_method": "random",
+          "seed": 61,
+          "source_law_authority": "not_established",
+          "standard_error": 0.09977753031397178,
+          "status": "conditional_estimate",
+          "target": "implemented_push_forward_mean"
+        },
+        "missing_output": false,
+        "missing_output_count": 0,
+        "n_failed": 0,
+        "n_samples": 100,
+        "n_valid": 100,
+        "output_coverage_complete": true,
+        "qmc_method": null,
+        "qmc_replicates": null,
+        "qmc_scrambled": null,
+        "stopped_early": false
+      },
+      "sample_sha256": "69afcd4b287ac4a3c308050d0ae38441714ab10d546b5e2434f617e877813e0f",
+      "source_sha": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+      "surface": "actual_MonteCarloPropagator_persist_freshCAS"
+    },
+    {
+      "body_seconds": 0.02924092800822109,
+      "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/removed_guard_weighted/cas",
+      "configuration": {
+        "adaptive_stopping": {
+          "check_interval": 100,
+          "ci_half_width_target": 0.01,
+          "enabled": false,
+          "max_samples": 10000,
+          "min_samples": 200
+        },
+        "auto_select_strategy": true,
+        "compute_sensitivity": true,
+        "confidence_level": 0.95,
+        "delta_covariance_jitter": 1e-09,
+        "delta_use_full_covariance": true,
+        "mc_batch_size": 200,
+        "mc_min_valid_samples": 50,
+        "mc_n_samples": 100,
+        "mc_qmc_replicates": 1,
+        "mc_qmc_scramble": true,
+        "mc_sampling_method": "random",
+        "mc_seed": 61,
+        "preferred_method": "auto"
+      },
+      "discriminator_message": "runtime eligibility discriminator rejected property removal",
+      "discriminator_result": "EXPECTED_FAIL",
+      "finite_samples": [
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0
+      ],
+      "fraction_expected_se": 0.07722458393307383,
+      "fraction_se_squared": "41/6875",
+      "input": {
+        "composition_provenance": null,
+        "confidence_interval": [
+          -2.0,
+          2.0
+        ],
+        "confidence_level": 0.95,
+        "distribution_family": "bootstrap",
+        "distribution_payload": {
+          "carrier_type": "posterior_samples",
+          "sample_axis": "draw",
+          "samples": [
+            -1.0,
+            1.0
+          ],
+          "weights": [
+            0.85,
+            0.15
+          ]
+        },
+        "gate_eligible": false,
+        "interval_semantics": "confidence_interval",
+        "is_heuristic_ci": false,
+        "metadata": {
+          "iid": true,
+          "sampling_law": "independent_normal"
+        },
+        "numeric_policy": {
+          "absolute_tolerance": 1e-12,
+          "decimal_places": 12,
+          "mode": "float_round_12",
+          "policy_id": "bounded_float_v1"
+        },
+        "point_estimate": 0.0,
+        "propagation_method": "none",
+        "sample_size": null,
+        "schema_version": "1.1",
+        "source": "calibration"
+      },
+      "mc_std": 0.7683749198913574,
+      "mean_estimator_error": {
+        "assumptions": [
+          "fixed_deterministic_response_to_independent_input_draws",
+          "finite_response_variance"
+        ],
+        "assumptions_verified": false,
+        "attempted_draw_count": 100,
+        "estimator": "sample_mean",
+        "finite_output_count": 100,
+        "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+        "gate_eligible": false,
+        "input_envelope_sha256": {
+          "x": "50fe89f22be621ac9a44784f17fb90e0ddf34b0fe6b7ac6567b13382bf02b80a"
+        },
+        "reason": null,
+        "requested_draw_count": 100,
+        "sampling_law": "implemented_product_of_typed_normal_fits",
+        "sampling_method": "random",
+        "seed": 61,
+        "source_law_authority": "not_established",
+        "standard_error": 0.07722458393307383,
+        "status": "conditional_estimate",
+        "target": "implemented_push_forward_mean"
+      },
+      "name": "removed_guard_weighted",
+      "output_gate_eligible": false,
+      "reference": {
+        "artifact_id": "sha256:467fdbeb9f7f0ac9977e6a380228f15f7a39b7ad11d808a4f2c5578a232f70eb",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "removal": true,
+      "result_diagnostics": {
+        "draw_outcome_provenance": {
+          "attempted_draw_count": 100,
+          "draw_identity_basis": "sampling_recipe+draw_index+sampled_input_sha256",
+          "failure_records": [],
+          "implementation_identity_status": "not_established",
+          "input_identity_status": "content_hashed",
+          "outcome_denominator_complete": true,
+          "requested_draw_count": 100,
+          "sampling_recipe": {
+            "config": {
+              "adaptive_stopping": {
+                "check_interval": 100,
+                "ci_half_width_target": 0.01,
+                "enabled": false,
+                "max_samples": 10000,
+                "min_samples": 200
+              },
+              "auto_select_strategy": true,
+              "compute_sensitivity": true,
+              "confidence_level": 0.95,
+              "delta_covariance_jitter": 1e-09,
+              "delta_use_full_covariance": true,
+              "mc_batch_size": 200,
+              "mc_min_valid_samples": 50,
+              "mc_n_samples": 100,
+              "mc_qmc_replicates": 1,
+              "mc_qmc_scramble": true,
+              "mc_sampling_method": "random",
+              "mc_seed": 61,
+              "preferred_method": "auto"
+            },
+            "input_envelope_sha256": {
+              "x": "50fe89f22be621ac9a44784f17fb90e0ddf34b0fe6b7ac6567b13382bf02b80a"
+            },
+            "input_param_names": [
+              "x"
+            ],
+            "joint_sample_id": null,
+            "sample_axis": "draw"
+          },
+          "schema_version": "1.0",
+          "successful_draw_count": 100,
+          "unattempted_draw_count": 0
+        },
+        "executor_failed_batches": 0,
+        "mean_estimator_error": {
+          "assumptions": [
+            "fixed_deterministic_response_to_independent_input_draws",
+            "finite_response_variance"
+          ],
+          "assumptions_verified": false,
+          "attempted_draw_count": 100,
+          "estimator": "sample_mean",
+          "finite_output_count": 100,
+          "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+          "gate_eligible": false,
+          "input_envelope_sha256": {
+            "x": "50fe89f22be621ac9a44784f17fb90e0ddf34b0fe6b7ac6567b13382bf02b80a"
+          },
+          "reason": null,
+          "requested_draw_count": 100,
+          "sampling_law": "implemented_product_of_typed_normal_fits",
+          "sampling_method": "random",
+          "seed": 61,
+          "source_law_authority": "not_established",
+          "standard_error": 0.07722458393307383,
+          "status": "conditional_estimate",
+          "target": "implemented_push_forward_mean"
+        },
+        "missing_output": false,
+        "missing_output_count": 0,
+        "n_failed": 0,
+        "n_samples": 100,
+        "n_valid": 100,
+        "output_coverage_complete": true,
+        "qmc_method": null,
+        "qmc_replicates": null,
+        "qmc_scrambled": null,
+        "stopped_early": false
+      },
+      "sample_sha256": "a62b24420ec8ba33ce3292bbd8b35f9ab487408cea09ae280efe8170137b66cf",
+      "source_sha": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+      "surface": "actual_MonteCarloPropagator_persist_freshCAS"
+    },
+    {
+      "body_seconds": 0.008204185985960066,
+      "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/removed_guard_qmc/cas",
+      "configuration": {
+        "adaptive_stopping": {
+          "check_interval": 100,
+          "ci_half_width_target": 0.01,
+          "enabled": false,
+          "max_samples": 10000,
+          "min_samples": 200
+        },
+        "auto_select_strategy": true,
+        "compute_sensitivity": true,
+        "confidence_level": 0.95,
+        "delta_covariance_jitter": 1e-09,
+        "delta_use_full_covariance": true,
+        "mc_batch_size": 200,
+        "mc_min_valid_samples": 50,
+        "mc_n_samples": 100,
+        "mc_qmc_replicates": 2,
+        "mc_qmc_scramble": true,
+        "mc_sampling_method": "sobol",
+        "mc_seed": 61,
+        "preferred_method": "auto"
+      },
+      "discriminator_message": "runtime eligibility discriminator rejected property removal",
+      "discriminator_result": "EXPECTED_FAIL",
+      "finite_samples": [
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0
+      ],
+      "fraction_expected_se": 0.10050378152592121,
+      "fraction_se_squared": "1/99",
+      "input": {
+        "composition_provenance": null,
+        "confidence_interval": [
+          -2.0,
+          2.0
+        ],
+        "confidence_level": 0.95,
+        "distribution_family": "normal",
+        "distribution_payload": {
+          "carrier_type": "parametric_fit",
+          "family": "normal",
+          "parameters": {
+            "mean": 0.0,
+            "std": 1.0
+          },
+          "support": null
+        },
+        "gate_eligible": false,
+        "interval_semantics": "confidence_interval",
+        "is_heuristic_ci": false,
+        "metadata": {},
+        "numeric_policy": {
+          "absolute_tolerance": 1e-12,
+          "decimal_places": 12,
+          "mode": "float_round_12",
+          "policy_id": "bounded_float_v1"
+        },
+        "point_estimate": 0.0,
+        "propagation_method": "none",
+        "sample_size": null,
+        "schema_version": "1.1",
+        "source": "calibration"
+      },
+      "mc_std": 1.0,
+      "mean_estimator_error": {
+        "assumptions": [
+          "fixed_deterministic_response_to_independent_input_draws",
+          "finite_response_variance"
+        ],
+        "assumptions_verified": false,
+        "attempted_draw_count": 100,
+        "estimator": "sample_mean",
+        "finite_output_count": 100,
+        "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+        "gate_eligible": false,
+        "input_envelope_sha256": {
+          "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+        },
+        "reason": null,
+        "requested_draw_count": 100,
+        "sampling_law": "implemented_product_of_typed_normal_fits",
+        "sampling_method": "sobol",
+        "seed": 61,
+        "source_law_authority": "not_established",
+        "standard_error": 0.10050378152592121,
+        "status": "conditional_estimate",
+        "target": "implemented_push_forward_mean"
+      },
+      "name": "removed_guard_qmc",
+      "output_gate_eligible": false,
+      "reference": {
+        "artifact_id": "sha256:7d402c4c740716f57f4aca84834b520601a7be7394c3780792532c580840cf28",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "removal": true,
+      "result_diagnostics": {
+        "draw_outcome_provenance": {
+          "attempted_draw_count": 100,
+          "draw_identity_basis": "sampling_recipe+draw_index+sampled_input_sha256",
+          "failure_records": [],
+          "implementation_identity_status": "not_established",
+          "input_identity_status": "content_hashed",
+          "outcome_denominator_complete": true,
+          "requested_draw_count": 100,
+          "sampling_recipe": {
+            "config": {
+              "adaptive_stopping": {
+                "check_interval": 100,
+                "ci_half_width_target": 0.01,
+                "enabled": false,
+                "max_samples": 10000,
+                "min_samples": 200
+              },
+              "auto_select_strategy": true,
+              "compute_sensitivity": true,
+              "confidence_level": 0.95,
+              "delta_covariance_jitter": 1e-09,
+              "delta_use_full_covariance": true,
+              "mc_batch_size": 200,
+              "mc_min_valid_samples": 50,
+              "mc_n_samples": 100,
+              "mc_qmc_replicates": 2,
+              "mc_qmc_scramble": true,
+              "mc_sampling_method": "sobol",
+              "mc_seed": 61,
+              "preferred_method": "auto"
+            },
+            "input_envelope_sha256": {
+              "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+            },
+            "input_param_names": [
+              "x"
+            ],
+            "joint_sample_id": null,
+            "sample_axis": "draw"
+          },
+          "schema_version": "1.0",
+          "successful_draw_count": 100,
+          "unattempted_draw_count": 0
+        },
+        "executor_failed_batches": 0,
+        "mean_estimator_error": {
+          "assumptions": [
+            "fixed_deterministic_response_to_independent_input_draws",
+            "finite_response_variance"
+          ],
+          "assumptions_verified": false,
+          "attempted_draw_count": 100,
+          "estimator": "sample_mean",
+          "finite_output_count": 100,
+          "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+          "gate_eligible": false,
+          "input_envelope_sha256": {
+            "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+          },
+          "reason": null,
+          "requested_draw_count": 100,
+          "sampling_law": "implemented_product_of_typed_normal_fits",
+          "sampling_method": "sobol",
+          "seed": 61,
+          "source_law_authority": "not_established",
+          "standard_error": 0.10050378152592121,
+          "status": "conditional_estimate",
+          "target": "implemented_push_forward_mean"
+        },
+        "missing_output": false,
+        "missing_output_count": 0,
+        "n_failed": 0,
+        "n_samples": 100,
+        "n_valid": 100,
+        "output_coverage_complete": true,
+        "qmc_method": "sobol",
+        "qmc_replicates": 2,
+        "qmc_scrambled": true,
+        "stopped_early": false
+      },
+      "sample_sha256": "fd3eeceb10bf2c03b3bf083440c39982d9e0404ae2804807f3795d9fc598b3e6",
+      "source_sha": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+      "surface": "actual_MonteCarloPropagator_persist_freshCAS"
+    },
+    {
+      "body_seconds": 0.026214479003101587,
+      "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/removed_guard_one_success/cas",
+      "configuration": {
+        "adaptive_stopping": {
+          "check_interval": 100,
+          "ci_half_width_target": 0.01,
+          "enabled": false,
+          "max_samples": 10000,
+          "min_samples": 200
+        },
+        "auto_select_strategy": true,
+        "compute_sensitivity": true,
+        "confidence_level": 0.95,
+        "delta_covariance_jitter": 1e-09,
+        "delta_use_full_covariance": true,
+        "mc_batch_size": 200,
+        "mc_min_valid_samples": 50,
+        "mc_n_samples": 100,
+        "mc_qmc_replicates": 1,
+        "mc_qmc_scramble": true,
+        "mc_sampling_method": "random",
+        "mc_seed": 61,
+        "preferred_method": "auto"
+      },
+      "discriminator_message": "runtime eligibility discriminator rejected property removal",
+      "discriminator_result": "EXPECTED_FAIL",
+      "finite_samples": [],
+      "fraction_expected_se": null,
+      "fraction_se_squared": null,
+      "input": {
+        "composition_provenance": null,
+        "confidence_interval": [
+          -2.0,
+          2.0
+        ],
+        "confidence_level": 0.95,
+        "distribution_family": "normal",
+        "distribution_payload": {
+          "carrier_type": "parametric_fit",
+          "family": "normal",
+          "parameters": {
+            "mean": 0.0,
+            "std": 1.0
+          },
+          "support": null
+        },
+        "gate_eligible": false,
+        "interval_semantics": "confidence_interval",
+        "is_heuristic_ci": false,
+        "metadata": {},
+        "numeric_policy": {
+          "absolute_tolerance": 1e-12,
+          "decimal_places": 12,
+          "mode": "float_round_12",
+          "policy_id": "bounded_float_v1"
+        },
+        "point_estimate": 0.0,
+        "propagation_method": "none",
+        "sample_size": null,
+        "schema_version": "1.1",
+        "source": "calibration"
+      },
+      "mc_std": null,
+      "mean_estimator_error": {
+        "assumptions": [
+          "fixed_deterministic_response_to_independent_input_draws",
+          "finite_response_variance"
+        ],
+        "assumptions_verified": false,
+        "attempted_draw_count": 100,
+        "estimator": "sample_mean",
+        "finite_output_count": 1,
+        "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+        "gate_eligible": false,
+        "input_envelope_sha256": {
+          "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+        },
+        "reason": null,
+        "requested_draw_count": 100,
+        "sampling_law": "implemented_product_of_typed_normal_fits",
+        "sampling_method": "random",
+        "seed": 61,
+        "source_law_authority": "not_established",
+        "standard_error": 0.0,
+        "status": "conditional_estimate",
+        "target": "implemented_push_forward_mean"
+      },
+      "name": "removed_guard_one_success",
+      "output_gate_eligible": false,
+      "reference": {
+        "artifact_id": "sha256:ef89cee786480d639b1c2750e470fc928f832ade6ad1b21171882c0418b77fed",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "removal": true,
+      "result_diagnostics": {
+        "draw_outcome_provenance": {
+          "attempted_draw_count": 100,
+          "draw_identity_basis": "sampling_recipe+draw_index+sampled_input_sha256",
+          "failure_records": [
+            {
+              "draw_index": 1,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "606ebfed30bdef7d5e8533ac935ed996f1c57c1908975486e28bd64c924f1340"
+            },
+            {
+              "draw_index": 2,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "b7b3dc9be771a306d81ca4ddd66df96d4c260d242ed23039cc6ccc5c843d35bb"
+            },
+            {
+              "draw_index": 3,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "a9de41474f21df2718c937fad67f67894ba5b376b6fbcfafc16c709313488863"
+            },
+            {
+              "draw_index": 4,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "cf5bb801312ea2e6905ec65a344252870a18acedb9ea95ee2f4bddec5da4cd0e"
+            },
+            {
+              "draw_index": 5,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "5528d14212d8bb5d253512b53493d9ada1dc4acddc7473335dba729bbfbe4257"
+            },
+            {
+              "draw_index": 6,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "5badcc1e0ff97662129cdf7dd6c32a84a303edb392d7b5b395cda080fb0d2ee0"
+            },
+            {
+              "draw_index": 7,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "a23bbb42a7a7f7e91d78707beb7a7157ed2d1f5542490b8e089587a1dc79f880"
+            },
+            {
+              "draw_index": 8,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "ea52929fd912a5acf0f2da2fd1b4863ea5836d364ee054b847e1fb3f0ab2562f"
+            },
+            {
+              "draw_index": 9,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "fa21b5183058a4ff3640f8475c47b3179a989c3e48dac82d00a9bcf3e1e9ef91"
+            },
+            {
+              "draw_index": 10,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "579788b6c0604068ba16f0c2eaeecb43b8137130c9c4a615f09afcaac335e4d2"
+            },
+            {
+              "draw_index": 11,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "fd3b08e34533519e4a5b1046621d2475ce37d57feb1e2cd2de989373c9a9c91b"
+            },
+            {
+              "draw_index": 12,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "05057566e39fa4d8c2fd05e3e9f18c2ca23d2f31c6ac669105a5f24f804604fb"
+            },
+            {
+              "draw_index": 13,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "5dad7d821e53c5a81fbe57b2f83c94e5b5bb0195c70960a2fbb04db7a0d0f9f2"
+            },
+            {
+              "draw_index": 14,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "016b21201646b08194c1da606376afdd7b7c1b6c98dcab55aa02ea5f8a10ba4a"
+            },
+            {
+              "draw_index": 15,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "20082cfe029ac2f636a717c7e51099061f7161fe30f7798dca2bbd2ebd230979"
+            },
+            {
+              "draw_index": 16,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "8c4fd5bbd400a099ea0b02880fd15c29300267082742b20324222d4c4094e0fe"
+            },
+            {
+              "draw_index": 17,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "7e1b18066f403a6894a0697450932bfe3664521bc65eb7536cc960c2800b394e"
+            },
+            {
+              "draw_index": 18,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "1ac211c2fb366a81b395e155f344510d1ca25d15e4f74e15bb8c4727a3e4379d"
+            },
+            {
+              "draw_index": 19,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "2191ecf59af599d1ed43dbb3628e6d02ac2ed2418efbd8d5f20904e2b4bb7427"
+            },
+            {
+              "draw_index": 20,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "378b2a785a343cd3d92e082e19f8ceff0797449a3830deb5bbd8dcb46fdc3300"
+            },
+            {
+              "draw_index": 21,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "f8870fb6e380057616a2cc5bef745c15fd9044b042b47657f1137bcd62111b87"
+            },
+            {
+              "draw_index": 22,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "57fc2c1a8a6b69e4216bd8d70dbaa70c3f44dd17e51fd13de65b8da76c7ea636"
+            },
+            {
+              "draw_index": 23,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "6d109f5f06a1971ba5ce7da81275b6db72f38bbcd5c1006b7179971cae29f16e"
+            },
+            {
+              "draw_index": 24,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "b3a343d0f5a685e70fabe3490f5a292a58cb7698768ad9998c7ca634021c4a8b"
+            },
+            {
+              "draw_index": 25,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "0544e10e1e444f5ae7a5de49c810ba6d516cde1f5d037da4cfc30431176f40b6"
+            },
+            {
+              "draw_index": 26,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "346ee1107139d945ab6e92b646e98854f51e2fa997eb9b884e949fe4a1314729"
+            },
+            {
+              "draw_index": 27,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "6a75128ee0a99a6294992b3efd89d6a668626b945e843ce6b37f984e18edf752"
+            },
+            {
+              "draw_index": 28,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "3103ac9c577e364cc6da3d345e575ee1e7dbd28e9d5a03d536cf90c963b8abe6"
+            },
+            {
+              "draw_index": 29,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "5e45e5022fc37b12a51d101ac71b82171e6cc4adb43ed6a272730b9586f66be1"
+            },
+            {
+              "draw_index": 30,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "767f8f743da3ef4a1df5687ae6a0b5395424f884335e44f67956a228bbee3753"
+            },
+            {
+              "draw_index": 31,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "04d319fc5995d7d479af17864bb552783fa443ee7036437501aaa22190151e0f"
+            },
+            {
+              "draw_index": 32,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "60a24a9de976b0c3d6cf4e178ede87647fad4f1cd6a5393a758cd9d3d39236b6"
+            },
+            {
+              "draw_index": 33,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "469f3934457d7ba8d0596b07f63136c550ae5ae538f1562bd13aa258b90cb6a2"
+            },
+            {
+              "draw_index": 34,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "b2ad166d9f3f3544854756cfd0ee5f60e3b26d1c171d38478d9f89dcd27b0d09"
+            },
+            {
+              "draw_index": 35,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "a956ada156f87b25eb7b742a8831c5d510658c20e7a2358c5025e8f38b806c96"
+            },
+            {
+              "draw_index": 36,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "8633cb9fa74a54bd477404ad1def55b8b2aa8f7391aa872cd6e34a2cc945c9a2"
+            },
+            {
+              "draw_index": 37,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "19bf86d5da67c5424633f1cfe2d6c81d86b69adfe86b42e29427477106b79f87"
+            },
+            {
+              "draw_index": 38,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "fcc5acd935dbd88a2da8d25f640949e3613241a482cbe1c973a6490ef71c0ad9"
+            },
+            {
+              "draw_index": 39,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "757288c0c4e3da8e75d6702cae3289cdb2e0644ad8caca7cabe1a07b0c3f65bb"
+            },
+            {
+              "draw_index": 40,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "ac8799a364b71727d5d1948662489b684dd179bf4a6e1df3b59c8cb9426f82a8"
+            },
+            {
+              "draw_index": 41,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "a1c38ce61044f98ee5ce31c7c9364a37097ecab207a856999a8bb58ede3f6351"
+            },
+            {
+              "draw_index": 42,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "4183c79b094da04313d893dc53bd874e4fb6df76b72ca35db2e47ac8ec4426b4"
+            },
+            {
+              "draw_index": 43,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "ad2a5a9b3f0a0cdb5fc86be47b1335a96c0fe03e0762e6209c21ac09460f5819"
+            },
+            {
+              "draw_index": 44,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "e55f19ad556a269b4f3c4fdfaa677864f89bc6d5a2279cf37c8d3b4446867b17"
+            },
+            {
+              "draw_index": 45,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "31242f6007fc36cae7f26a6861ad25ac77acb7afe67487dc6494b581e1fa337a"
+            },
+            {
+              "draw_index": 46,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "bcc3d54e9204dfe3a08e0d2526f1edd1d2bc7ef1fceed3185ba1f57172a8b17c"
+            },
+            {
+              "draw_index": 47,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "fda8507e759c157e8df34582afdc4b593bf7800a7fb6c5de8effa6b55d7824f1"
+            },
+            {
+              "draw_index": 48,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "d65c0ecbadb2746d6d38219144a4f05b4db4699b24902061ddf733755f1d0f7a"
+            },
+            {
+              "draw_index": 49,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "b941117da1c5729515e94586b657cb3a404c5aa186e831ed74042fe40dcf5dda"
+            },
+            {
+              "draw_index": 50,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "b059275f0fa3d487bdc9de58478d1b05ca1201c3f9f603eacdbd8163d88bbf3b"
+            },
+            {
+              "draw_index": 51,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "5d844eb01658ec60a198101f3c2eceec0914aa6e3f1227af1edaaaa3182f4ac8"
+            },
+            {
+              "draw_index": 52,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "456dfbee05db4a26734dc77de73410a103c2a6fd7130b922560449ed8cc88af2"
+            },
+            {
+              "draw_index": 53,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "690e0ca1071b157e7ceac30ebda65dddd328fc5c1bbab7d5d652889f3a4ab95a"
+            },
+            {
+              "draw_index": 54,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "a12d04b0176661a65fcc672a1aa10973df2a93bd2fb23ad1f81765ce80c12649"
+            },
+            {
+              "draw_index": 55,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "904b7286c8da77b449be98e02fb27cd1f5a869ca41630d8c392a003b286ab045"
+            },
+            {
+              "draw_index": 56,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "f1b2738e885305066453c08ad0df364995d3265d3b7be43c5ac033da438653ea"
+            },
+            {
+              "draw_index": 57,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "8a7211bac0392234c10add638f3cee37402b3f49f174b1660d2514effbd6c461"
+            },
+            {
+              "draw_index": 58,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "403769f300e7d27d7843f2745791ca015554c47fc2c8b6a291297a7c79a9e90b"
+            },
+            {
+              "draw_index": 59,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "616a1939e0e9a7828db54bd014912c8cafd1884206a672193f895c90ec921c6c"
+            },
+            {
+              "draw_index": 60,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "d87666bf76525e798b07bd87e9cc7dd4c3186dc5cc8c7eda8a3d661f8020bb3b"
+            },
+            {
+              "draw_index": 61,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "33c2921efa1385148cbaac67754b8c0ad3022fe34debbc7b2771f5e8db369940"
+            },
+            {
+              "draw_index": 62,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "93a55dd81f77c97d8815f5c25843cea35f2733626ca428135a1078b073a66f9c"
+            },
+            {
+              "draw_index": 63,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "914c40a31394d308e16634a36eb6da90940930806c69261a738b1ab2b2151aa5"
+            },
+            {
+              "draw_index": 64,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "14a42c239f6a9d4baa628dc205d96e9189b1f3eab5d004009d66eb728bc9f1d9"
+            },
+            {
+              "draw_index": 65,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "89de62b43fa01295f5ba388097a2cf01ab69e3bc8fdb39feeafecfd22db495ff"
+            },
+            {
+              "draw_index": 66,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "3975874c7c777bff4230e31733672fd4c28258b7548ae4657be4fd36f9721337"
+            },
+            {
+              "draw_index": 67,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "f2c2ad9b7b49aca6e1f2dae037c308ea51970755cb3692f021f0950bc6259dd9"
+            },
+            {
+              "draw_index": 68,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "4dd88d953f570732b0a171893018e367a4d5672db2720d1065843cf6f8dde626"
+            },
+            {
+              "draw_index": 69,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "ff8b32904b23f158e9970bd096ac54e8331174e0d7a5c55462dddd3c10d7cccb"
+            },
+            {
+              "draw_index": 70,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "64106598b5af3a1c48cd103809d6da2b5b47cb5b3f008f9b742ceae38aad6ab8"
+            },
+            {
+              "draw_index": 71,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "4ac09b554106f2829cb75ebb6812d2cd42bc84d5aa3ed4d310aae387d23a9e79"
+            },
+            {
+              "draw_index": 72,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "dc535a57cf048e9a5c8e10ecbf3a8d9a5d8624e9b8906bc3f2e8b5e9286d1f0d"
+            },
+            {
+              "draw_index": 73,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "daaded9ea99a3b0d55e2c6cda24781a2128be2c9bac601e53fb385bdd05658fc"
+            },
+            {
+              "draw_index": 74,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "5d4c29866fafaf06e42d2ccf54d6e35b5954255733134c99aeb8d74df95bd0da"
+            },
+            {
+              "draw_index": 75,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "b39521305b6577c3f1391fd153a00fb6a3c410204000331e71cea9bc16a4d085"
+            },
+            {
+              "draw_index": 76,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "74e98e7943ba058e9ebefcdfbb157fa1d2ed53991bfe00be6a1a1cd630e834e4"
+            },
+            {
+              "draw_index": 77,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "53731f6fe74bcd75a477ef0181d673395d22ced39eb4e2e2bf6654147b626537"
+            },
+            {
+              "draw_index": 78,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "6ac5d7f509793a84a1b2c7f6e3cde5c6b93a5e88b4ef7a5b5d6a496d9c57e77f"
+            },
+            {
+              "draw_index": 79,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "eae45d66625c2e406102a3412d223e90b15e0cea7ea11bf721a45e990e9bb5d4"
+            },
+            {
+              "draw_index": 80,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "40ec8e841786b458f8bdffa151ee3d09cfbf618bf3305ae0274fb0ac6e390617"
+            },
+            {
+              "draw_index": 81,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "d9233cfa0925cbffb588eae129f7c4c90eae1f494cd44f95a80c43f18ce821c7"
+            },
+            {
+              "draw_index": 82,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "5405bb87d8fd3fd92bcb5947cd58cd2b3eae6c00295272b6db379e5861edbda1"
+            },
+            {
+              "draw_index": 83,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "93abe21d02449d5c692279615a2c41246c37d4bf3ff087f0a0f1b230f7edcd27"
+            },
+            {
+              "draw_index": 84,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "34b2342ba56871ee4ed2c8232b6c51f9d104c1f639e66bdf0ac418b69eda0ef5"
+            },
+            {
+              "draw_index": 85,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "dd6213b57e49d9aa291082d5d78328aaa344dd86a8c13778d34eeb8f32cfb9c0"
+            },
+            {
+              "draw_index": 86,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "0179c6abfc731e0ddb2ae2693b43c06443ce49a7ab840af128af17c9d71616ee"
+            },
+            {
+              "draw_index": 87,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "ad0ef6812f999efefbf59bc5836602ae134d773fbf66a07de9fb9a17e71648a0"
+            },
+            {
+              "draw_index": 88,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "fe4dec73f55aba27e62aff856c1b10a0c5d0e7ef81bf6ad187ed694cfbd131af"
+            },
+            {
+              "draw_index": 89,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "69a892a863e36d89bad65254de8fd110ccec25cfcda699d95675f885cf3a33f5"
+            },
+            {
+              "draw_index": 90,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "ffe32e37ed11c16a1fa0d69c69164f486eb27207686e5cc74c9f0c1d64e6d6e8"
+            },
+            {
+              "draw_index": 91,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "737dc37b9d1547726534f9ac7d04a1aba977e19e72cdbcbe5c3e17e6c4394f54"
+            },
+            {
+              "draw_index": 92,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "ac16b4f4d126f6ad05857df78098c9adeaa882f51e3d5a8dd8505d8507c5abd6"
+            },
+            {
+              "draw_index": 93,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "f905c0b87b2713a88d5bd3a15ed1b9b1dba7b2d22a2df5aafbe8a0e1e4fe20fb"
+            },
+            {
+              "draw_index": 94,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "faf9b0dbc38e71e1e01e678886bba01250ab0d7068b929bb7937ad3cfba31602"
+            },
+            {
+              "draw_index": 95,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "17cbda4ad2ccd1218ea3338cd30ad061a44fb1a5c3ce4fa163769396f184b336"
+            },
+            {
+              "draw_index": 96,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "af7cdd095b5cec847d18a003ae7fc45f4eae4203a78fbaa7f0758f77c5206858"
+            },
+            {
+              "draw_index": 97,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "374940292799a90f1b62d275337ae3666873c86297b6373b441bdd218f1921c2"
+            },
+            {
+              "draw_index": 98,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "eb01c8580be7c8354cdd54aeeef05286459585476b77c3d422c0ea2c6d01d3f4"
+            },
+            {
+              "draw_index": 99,
+              "output_outcomes": [
+                {
+                  "error_type": null,
+                  "outcome_code": "non_finite_output",
+                  "output_metric_id": "y"
+                }
+              ],
+              "sampled_input_sha256": "02cde8ca718a39e5d007d2802157ec2c1a0dfd3eb856f8172aa1c638445233cb"
+            }
+          ],
+          "implementation_identity_status": "not_established",
+          "input_identity_status": "content_hashed",
+          "outcome_denominator_complete": true,
+          "requested_draw_count": 100,
+          "sampling_recipe": {
+            "config": {
+              "adaptive_stopping": {
+                "check_interval": 100,
+                "ci_half_width_target": 0.01,
+                "enabled": false,
+                "max_samples": 10000,
+                "min_samples": 200
+              },
+              "auto_select_strategy": true,
+              "compute_sensitivity": true,
+              "confidence_level": 0.95,
+              "delta_covariance_jitter": 1e-09,
+              "delta_use_full_covariance": true,
+              "mc_batch_size": 200,
+              "mc_min_valid_samples": 50,
+              "mc_n_samples": 100,
+              "mc_qmc_replicates": 1,
+              "mc_qmc_scramble": true,
+              "mc_sampling_method": "random",
+              "mc_seed": 61,
+              "preferred_method": "auto"
+            },
+            "input_envelope_sha256": {
+              "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+            },
+            "input_param_names": [
+              "x"
+            ],
+            "joint_sample_id": null,
+            "sample_axis": "draw"
+          },
+          "schema_version": "1.0",
+          "successful_draw_count": 1,
+          "unattempted_draw_count": 0
+        },
+        "executor_failed_batches": 0,
+        "mean_estimator_error": {
+          "assumptions": [
+            "fixed_deterministic_response_to_independent_input_draws",
+            "finite_response_variance"
+          ],
+          "assumptions_verified": false,
+          "attempted_draw_count": 100,
+          "estimator": "sample_mean",
+          "finite_output_count": 1,
+          "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+          "gate_eligible": false,
+          "input_envelope_sha256": {
+            "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+          },
+          "reason": null,
+          "requested_draw_count": 100,
+          "sampling_law": "implemented_product_of_typed_normal_fits",
+          "sampling_method": "random",
+          "seed": 61,
+          "source_law_authority": "not_established",
+          "standard_error": 0.0,
+          "status": "conditional_estimate",
+          "target": "implemented_push_forward_mean"
+        },
+        "missing_output": false,
+        "missing_output_count": 0,
+        "n_failed": 99,
+        "n_samples": 100,
+        "n_valid": 1,
+        "output_coverage_complete": false,
+        "qmc_method": null,
+        "qmc_replicates": null,
+        "qmc_scrambled": null,
+        "stopped_early": false
+      },
+      "sample_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "source_sha": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+      "surface": "actual_MonteCarloPropagator_persist_freshCAS"
+    },
+    {
+      "body_seconds": 0.027725830004783347,
+      "cas_root": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/removed_guard_supported_positive/cas",
+      "configuration": {
+        "adaptive_stopping": {
+          "check_interval": 100,
+          "ci_half_width_target": 0.01,
+          "enabled": false,
+          "max_samples": 10000,
+          "min_samples": 200
+        },
+        "auto_select_strategy": true,
+        "compute_sensitivity": true,
+        "confidence_level": 0.95,
+        "delta_covariance_jitter": 1e-09,
+        "delta_use_full_covariance": true,
+        "mc_batch_size": 200,
+        "mc_min_valid_samples": 50,
+        "mc_n_samples": 100,
+        "mc_qmc_replicates": 1,
+        "mc_qmc_scramble": true,
+        "mc_sampling_method": "random",
+        "mc_seed": 61,
+        "preferred_method": "auto"
+      },
+      "discriminator_result": "PASS ordinary supported profile remains executable",
+      "finite_samples": [
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0
+      ],
+      "fraction_expected_se": 0.09977753031397177,
+      "fraction_se_squared": "56/5625",
+      "input": {
+        "composition_provenance": null,
+        "confidence_interval": [
+          -2.0,
+          2.0
+        ],
+        "confidence_level": 0.95,
+        "distribution_family": "normal",
+        "distribution_payload": {
+          "carrier_type": "parametric_fit",
+          "family": "normal",
+          "parameters": {
+            "mean": 0.0,
+            "std": 1.0
+          },
+          "support": null
+        },
+        "gate_eligible": false,
+        "interval_semantics": "confidence_interval",
+        "is_heuristic_ci": false,
+        "metadata": {},
+        "numeric_policy": {
+          "absolute_tolerance": 1e-12,
+          "decimal_places": 12,
+          "mode": "float_round_12",
+          "policy_id": "bounded_float_v1"
+        },
+        "point_estimate": 0.0,
+        "propagation_method": "none",
+        "sample_size": null,
+        "schema_version": "1.1",
+        "source": "calibration"
+      },
+      "mc_std": 0.9927739500999451,
+      "mean_estimator_error": {
+        "assumptions": [
+          "fixed_deterministic_response_to_independent_input_draws",
+          "finite_response_variance"
+        ],
+        "assumptions_verified": false,
+        "attempted_draw_count": 100,
+        "estimator": "sample_mean",
+        "finite_output_count": 100,
+        "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+        "gate_eligible": false,
+        "input_envelope_sha256": {
+          "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+        },
+        "reason": null,
+        "requested_draw_count": 100,
+        "sampling_law": "implemented_product_of_typed_normal_fits",
+        "sampling_method": "random",
+        "seed": 61,
+        "source_law_authority": "not_established",
+        "standard_error": 0.09977753031397178,
+        "status": "conditional_estimate",
+        "target": "implemented_push_forward_mean"
+      },
+      "name": "removed_guard_supported_positive",
+      "output_gate_eligible": false,
+      "reference": {
+        "artifact_id": "sha256:e93109c4a9052bb0c1bd0c710e06f75976ef072639874b6273760424c6d23c73",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "removal": true,
+      "result_diagnostics": {
+        "draw_outcome_provenance": {
+          "attempted_draw_count": 100,
+          "draw_identity_basis": "sampling_recipe+draw_index+sampled_input_sha256",
+          "failure_records": [],
+          "implementation_identity_status": "not_established",
+          "input_identity_status": "content_hashed",
+          "outcome_denominator_complete": true,
+          "requested_draw_count": 100,
+          "sampling_recipe": {
+            "config": {
+              "adaptive_stopping": {
+                "check_interval": 100,
+                "ci_half_width_target": 0.01,
+                "enabled": false,
+                "max_samples": 10000,
+                "min_samples": 200
+              },
+              "auto_select_strategy": true,
+              "compute_sensitivity": true,
+              "confidence_level": 0.95,
+              "delta_covariance_jitter": 1e-09,
+              "delta_use_full_covariance": true,
+              "mc_batch_size": 200,
+              "mc_min_valid_samples": 50,
+              "mc_n_samples": 100,
+              "mc_qmc_replicates": 1,
+              "mc_qmc_scramble": true,
+              "mc_sampling_method": "random",
+              "mc_seed": 61,
+              "preferred_method": "auto"
+            },
+            "input_envelope_sha256": {
+              "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+            },
+            "input_param_names": [
+              "x"
+            ],
+            "joint_sample_id": null,
+            "sample_axis": "draw"
+          },
+          "schema_version": "1.0",
+          "successful_draw_count": 100,
+          "unattempted_draw_count": 0
+        },
+        "executor_failed_batches": 0,
+        "mean_estimator_error": {
+          "assumptions": [
+            "fixed_deterministic_response_to_independent_input_draws",
+            "finite_response_variance"
+          ],
+          "assumptions_verified": false,
+          "attempted_draw_count": 100,
+          "estimator": "sample_mean",
+          "finite_output_count": 100,
+          "formula": "sample_standard_deviation_ddof1/sqrt(n)",
+          "gate_eligible": false,
+          "input_envelope_sha256": {
+            "x": "36723213a2dea04f3d4655aadb1cca6c1b7f75417a6878d096136a6a349952d9"
+          },
+          "reason": null,
+          "requested_draw_count": 100,
+          "sampling_law": "implemented_product_of_typed_normal_fits",
+          "sampling_method": "random",
+          "seed": 61,
+          "source_law_authority": "not_established",
+          "standard_error": 0.09977753031397178,
+          "status": "conditional_estimate",
+          "target": "implemented_push_forward_mean"
+        },
+        "missing_output": false,
+        "missing_output_count": 0,
+        "n_failed": 0,
+        "n_samples": 100,
+        "n_valid": 100,
+        "output_coverage_complete": true,
+        "qmc_method": null,
+        "qmc_replicates": null,
+        "qmc_scrambled": null,
+        "stopped_early": false
+      },
+      "sample_sha256": "69afcd4b287ac4a3c308050d0ae38441714ab10d546b5e2434f617e877813e0f",
+      "source_sha": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+      "surface": "actual_MonteCarloPropagator_persist_freshCAS"
+    }
+  ],
+  "removal_supported_control_pass": 1,
+  "source_sha": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+  "source_tree": "7a4ee9e71c793827abef998540dcd12ab129c4ba",
+  "status": "PASS bounded numerical production/CAS checks; conditional assumptions unverified; no authority or whole B21 closure"
+}

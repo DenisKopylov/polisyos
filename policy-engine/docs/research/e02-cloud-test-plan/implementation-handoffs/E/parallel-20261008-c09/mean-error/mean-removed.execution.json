@@ -1,0 +1,22 @@
+{
+  "source_sha": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+  "source_tree": "7a4ee9e71c793827abef998540dcd12ab129c4ba",
+  "method": "in-process remove sqrt(n) scaling of actual runtime result, retained status/source fields/assumptions/seed/markers and code files unchanged",
+  "argv": [
+    "-ra",
+    "-q",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--benchmark-storage=file://./_cache/benchmarks",
+    "-q",
+    "tests/unit/foundry/uncertainty/test_mean_estimator_error.py::test_actual_iid_mean_error_matches_independent_fraction_after_fresh_cas_reader",
+    "--basetemp=/dev/shm/e02-orch03-20261008/c09-scratch/mean-removed",
+    "--junitxml=/dev/shm/e02-orch03-20261008/c09-scratch/mean-removed.junit.xml",
+    "-o",
+    "cache_dir=/dev/shm/e02-orch03-20261008/c09-scratch/mean-removed-cache"
+  ],
+  "pytest_returncode": 1,
+  "expected_returncode": 1,
+  "wall_seconds_after_import": 1.9144512230122928,
+  "max_rss_kib": 322188
+}

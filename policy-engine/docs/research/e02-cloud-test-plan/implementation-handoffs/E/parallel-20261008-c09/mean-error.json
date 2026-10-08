@@ -1,0 +1,169 @@
+{
+  "schema": "policyos.e02.orch03.source_handoff.v1",
+  "role": "C09",
+  "original_unit_owner": "E producer; B21 remains A/SIM-03",
+  "canonical_writer": "/root/c09",
+  "topic": "codex/e02-E-c09-20261008",
+  "slice": "conditional-monte-carlo-mean-error",
+  "slice_base_sha": "514f90058104f7dd8ada1c83b8bf5f62bfc33b88",
+  "slice_base_tree": "5b178089910f581c76a4e2557e61458ba88369d1",
+  "G_dependency_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "candidate_sha": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+  "candidate_tree": "7a4ee9e71c793827abef998540dcd12ab129c4ba",
+  "implementation_commits": [
+    "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747"
+  ],
+  "source_acceptance_G": "not_issued",
+  "formal_finding_closure": "not_issued",
+  "closed_ids": [],
+  "original_criterion": {
+    "finding": "B21",
+    "owner": "A",
+    "bundle": "SIM-03",
+    "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "binding": {
+      "criterion_id": "B21",
+      "document": "B_r19",
+      "lines": [
+        451,
+        464
+      ],
+      "sha256": "f2e8020b22206a84bcdcbf796bfb0c00545c4d8b211d75f20c45a91283c16084",
+      "card": "SIM-03"
+    },
+    "text": "## B21. Запрошенная и фактическая кратность вычислений должны совпадать по смыслу\n\n*Источник карточки: A:B21. Унаследовано из прочитанной сводки A; не новый интеграционный прогон.*\n\n**Подтверждение:** код. В `JointSimulationRequest` есть `replications`, но прочитанный NCM-runner задаёт `n_samples=1`; в нескольких horizon-runners верхнеуровневое replications явно не передаётся. Это не означает, что во всём проекте нет повторений: нижележащие методы имеют собственные параметры, а Foundry содержит парный Monte Carlo. [A.R08: 220–245, 1040–1310; A.R18]\n\n**Экономное расширение:** один явный договор между запросом, адаптером и методом: сколько независимых/парных повторений запрошено, сколько фактически выполнено, какие seeds и units они обозначают. Допустим ограниченный первый расчёт, но с фактическим числом повторений. Не нужны десятки тысяч запусков; важна управляемость даже двух.\n\nЕсть связанный риск: `paired_monte_carlo_effect` при одном повторении выставляет standard error=0. Для стохастического результата это не оценённая нулевая неопределённость. Сам helper можно переиспользовать, сохранив состояния «не оценено»/«неприменимо» и отдельно подтверждённый детерминированный ноль. [A.R18: 280–335; P08]\n\n**Критерий:** изменение допустимого числа повторений меняет фактическую работу или выдаёт явное ограничение. Count, seeds и оценка численной ошибки согласованы. Один стохастический draw не выдаётся за точную оценку. Численная Monte Carlo-ошибка не заменяет неопределённость модели мира.\n\n**Приоритет и предел:** высокий для достоверного малого примера, средняя сложность. Полная параметризация всех методов не исследована; не предлагается универсально навязывать один тип повторений каждому движку.\n\n",
+    "scope": "C09 supplier numerical-error followup only; full repetitions→JointSimulationRequest/NCM/horizon consumer criterion not closed"
+  },
+  "full_footprint": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-c09-mc-mean-error.toml",
+      "base_blob": null,
+      "candidate_blob": "a45d6544911a6a56ffc19c1d2017a83e3e628511"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "base_blob": "bac389e63610174746854b07789871e343f57b51",
+      "candidate_blob": "8fbdae4b4dbfd655d4b3bed4a925fe1ebf4a31c4"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "base_blob": "7bd39d2e9e437a4b98a292a8da7b3744f7f3182c",
+      "candidate_blob": "df6bf19660512724859dd1d6cd09821b2baca721"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py",
+      "base_blob": null,
+      "candidate_blob": "ff6b899ecf8d91d7275f56a16336fe9404b3c0c3"
+    }
+  ],
+  "full_diff": "mean-error/implementation.diff",
+  "non_behavior_delta": "three preexisting wraps and diagnostics indentation normalized by Ruff; full diff preserved",
+  "property": "Separate mean-estimator numerical error from outcome dispersion/quantiles. Actual complete fixed random draws using typed nondegenerate Normal fit payloads supply conditional sample mean SEM with ddof1; unsupported law/design, incomplete or n<2 corpus gives explicit unavailable. Seed, source content hashes and complete actual counts accompany the persisted diagnostic. No scientific IID/regularity/source authority or gate promotion.",
+  "producer_artifact_bridge_consumer_surface": [
+    "MonteCarloPropagator.propagate actual canonical PRNG and sampler",
+    "_eval_and_record complete attempted output corpus and existing failure inventory",
+    "_build_results recomputed mean_estimator_error metadata+diagnostics",
+    "persist_uncertainty_envelope existing CAS route",
+    "load_uncertainty_envelope fresh store reader and independent new child process",
+    "UncertaintyEnvelope metadata; old outcome/quantile/mc_std/composition/gate fields preserved"
+  ],
+  "oracle_negative": {
+    "oracle": "independent Fraction.from_float actual persisted output samples: SEM²=sum((xi-xbar)²)/(n(n−1)); actual seeded100/400/replay controls. Known same sample variance n4→n16 panel halves SEM, arithmetic fixture only.",
+    "negative": "weighted PosteriorSamplesCarrier sample_axis=draw/fake iid marker, forged mean_error input metadata, unknown dependency/legacy inferred law, incomplete output and true1success/100 attempted draws, adaptive and pooled QMC",
+    "retained_marker_controls": "independent3 profile-guard removal EXPECTED_FAIL through actual producer/CAS/child while supported control PASS; author1 formula-removal pytestEXPECTED_FAIL restoring outcome spread instead of SEM. All strings/enums/seed/assumption fields and source files retained."
+  },
+  "checks": [
+    {
+      "name": "mean-base",
+      "check_state": "FAIL expected baseline missing numerical-error channel",
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_sha": "514f90058104f7dd8ada1c83b8bf5f62bfc33b88",
+      "outputs": [
+        "mean-base.execution.json",
+        "mean-base.stdout.txt",
+        "mean-base.stderr.txt",
+        "mean-base.junit.xml"
+      ]
+    },
+    {
+      "name": "mean-final",
+      "check_state": "PASS",
+      "counts": {
+        "tests": 37,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_sha": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+      "outputs": [
+        "mean-final.execution.json",
+        "mean-final.stdout.txt",
+        "mean-final.stderr.txt",
+        "mean-final.junit.xml"
+      ]
+    },
+    {
+      "name": "mean-removed",
+      "check_state": "EXPECTED_FAIL",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_sha": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+      "outputs": [
+        "mean-removed.execution.json",
+        "mean-removed.stdout.txt",
+        "mean-removed.stderr.txt",
+        "mean-removed.junit.xml"
+      ]
+    }
+  ],
+  "static": "mean-error/mean-static.execution.json",
+  "independent_review": {
+    "path": "mean-error/independent-review/independent-review.json",
+    "sha256": "1a0841360b86a7628f01770a18248246e6f6b7cacb7edf8be2e9d14729e9f52e",
+    "decision": "GO",
+    "native_reports": 7,
+    "child_reopened_refs": 11,
+    "property_removals_expected_fail": 3,
+    "actually_loaded_source_blobs": 99,
+    "mismatches": 0,
+    "scope": "scoped conditional numerical channel only; no wholeB21/E/backend/installed/authority acceptance"
+  },
+  "full_output_custody": "mean-error/artifact-manifest.json; includes independent synthetic CAS blobs/manifests, child inputs, original attempt1 serialization ERROR and corrected successful attempt; no production inputs",
+  "checks_interpretation": [
+    "final37PASS/0FAIL/0ERROR/0SKIP;22.875987926seconds/maxRSS1495148KiB includes2 affected composedCI selectors after MC import dependency change; not repetition of unchanged CI79",
+    "one existing JAX numpy.clip DeprecationWarning retained in exact stdout; no warning suppression",
+    "one baseline actual2selector FAIL on preimplementation source expected absence, not an inherited global red proof",
+    "one author runtime scaling property removal pytestFAIL is expected;3 independent law/design/denominator removals expected semanticFAIL, not unexpected product suiteFAIL",
+    "independent first logger attemptERROR(ArtifactID JSON serialization), fullbytesretained; source/nativeinput unchanged; corrected scratch retryPASS used for final verdict",
+    "final wave started after complete nonauthor immutable GO/native/child outputs; final hashed reviewJSON arrived before publication; no second wave"
+  ],
+  "delta_only_carry": {
+    "CI_receipt": "514f90058104f7dd8ada1c83b8bf5f62bfc33b88:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission.json",
+    "CI_source": "ee0b2c85289d8c5537ba4e01713d9be71e2f557e",
+    "unchanged_CI_paths": 5,
+    "proof": "independent source-closure.json plus exact blob matches; current MC affects imported module,2 real composedCAS consumers repeated; full79 old checks not claimed as wholecurrenthead37",
+    "E_source": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c not imported; bounded Uniform pilot/frozen-main and independent scramble replica SEM distinct profiles/source-reuse packet only"
+  },
+  "limitations": [
+    "SEM numeric conditional on fixed deterministic response and finite response variance, explicitly unverified; hidden shared RNG/state Yi=Z or exp(.3X²) infinite-second-moment falsifiers cannot be scientifically admitted by finite draws",
+    "new metadata gate_eligible=False; outer historical outcome envelope gates/interval semantics unchanged, neither validated nor upgraded by the field",
+    "typedNormal fit std>=1e−12 only; inferred CI law/unresolved/unsupported payloads, empirical/posterior/weighted rows, adaptive, incomplete and QMC pooled rows unavailable",
+    "G QMC lacks retained independent replica means; no IID formula applied; adopting E_source replica mechanism requires exact dependency/source selection",
+    "public config n>=100/minvalid>=10 retained; n1 witness is actual1 finite output/100 attempted, not manufactured one-draw configured profile",
+    "no full B21 closure, installed/wheel/sdist/global/C13 wave or default C10 scientific authority chain PASS claimed",
+    "source/mean_error fields do not issue institution/source-law authority; authentic facts minimal L01 packets, semantics owner decisions distinct",
+    "P41 inherited/global red not_established; global prior scannerERROR/Ruff/public-surface red not erased"
+  ],
+  "requirements": "supplier-requirements.json",
+  "cleanup": "No cleanup performed; source/docs/unique inputs/deciding outputs and active environment retained."
+}

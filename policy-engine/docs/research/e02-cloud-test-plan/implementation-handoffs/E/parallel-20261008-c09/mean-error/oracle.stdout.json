@@ -1,0 +1,133 @@
+{
+  "RQMC_negative": {
+    "conclusion": "Pooled row s/sqrt(n) unavailable; independent-scramble replicate-mean mechanism is separate E_source8d reuse input, not supplied by this G slice.",
+    "method": "fixed Sobol/Halton net, or independent scrambles with pooled individual rows"
+  },
+  "controlled_equal_sample_variance_scaling": {
+    "basis": "Exact constructed arithmetic panels, not synthetic stochastic sampling coverage.",
+    "n_first": 4,
+    "n_second": 16,
+    "sample_variance_each": 6,
+    "sem_ratio": 0.5
+  },
+  "dependent_copy_negative": {
+    "conclusion": "Internal source draw count and sample s alone do not certify output independence.",
+    "law": "Y_i=Z, Z~N(0,1), same random Z all i",
+    "observed_sample_variance": 0,
+    "true_mean_variance": 1
+  },
+  "finite_rows_not_finite_variance_negative": {
+    "conclusion": "Every finite draw finite does not establish finite variance; regular profile remains an assumption.",
+    "law": "X~N(0,1), Y=exp(0.3X\u00b2)",
+    "mean": 1.5811388300841895,
+    "second_moment": "infinite"
+  },
+  "formula": "SEM\u00b2=sum_i(x_i-xbar)\u00b2/(n*(n-1))",
+  "meaning": "Conditional finite-sample sample-mean SEM; not a causal/model CI or independence/regularity certificate",
+  "panels": [
+    {
+      "n": 4,
+      "rows": [
+        -2,
+        0,
+        4,
+        6
+      ],
+      "sem": 1.8257418583505538,
+      "sem_square_fraction": "10/3"
+    },
+    {
+      "n": 3,
+      "rows": [
+        0,
+        0,
+        3
+      ],
+      "sem": 1.0,
+      "sem_square_fraction": "1"
+    },
+    {
+      "n": 4,
+      "rows": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "sem": 0.6454972243679028,
+      "sem_square_fraction": "5/12"
+    },
+    {
+      "n": 4,
+      "rows": [
+        -3,
+        3,
+        0,
+        0
+      ],
+      "sem": 1.224744871391589,
+      "sem_square_fraction": "3/2"
+    },
+    {
+      "n": 16,
+      "rows": [
+        -3,
+        3,
+        -3,
+        3,
+        -3,
+        3,
+        -3,
+        3,
+        -3,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sem": 0.6123724356957945,
+      "sem_square_fraction": "3/8"
+    },
+    {
+      "n": 1,
+      "rows": [
+        0
+      ],
+      "sem": null,
+      "sem_square_fraction": null
+    },
+    {
+      "n": 3,
+      "rows": [
+        2,
+        2,
+        2
+      ],
+      "sem": 0.0,
+      "sem_square_fraction": "0"
+    },
+    {
+      "n": 3,
+      "rows": [
+        -1000000000000.0,
+        0.0,
+        1000000000000.0
+      ],
+      "sem": 577350269189.6257,
+      "sem_square_fraction": "1000000000000000000000000/3"
+    },
+    {
+      "n": 3,
+      "rows": [
+        1000000000000.0,
+        1000000000001.0,
+        1000000000002.0
+      ],
+      "sem": 0.5773502691896257,
+      "sem_square_fraction": "1/3"
+    }
+  ]
+}

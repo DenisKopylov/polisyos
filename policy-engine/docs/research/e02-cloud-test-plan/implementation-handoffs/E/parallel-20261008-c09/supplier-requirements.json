@@ -1,0 +1,593 @@
+{
+  "schema": "policyos.e02.orch03.c09_supplier_requirement.v1",
+  "role": "C09",
+  "original_owner": "E except B21A/LA036C preserved",
+  "status": "committed requirements and source-selection choices; no G source acceptance or authentic production authority inferred",
+  "G": {
+    "sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767"
+  },
+  "reviewed_E_source": {
+    "sha": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+    "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+    "carrier": "7bf53fd0cf69a568b37d8a881e26bfb16c315653",
+    "policy": "distinct historical source; no cumulative carrier applied; prior PASS only on its exact input/source closure"
+  },
+  "exact_component_blob_census": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "G": {
+        "blob": "e9302eb353ab7be6b03f4812ab9b473fb9555f64",
+        "bytes": 42532,
+        "sha256": "d27c5411e53701f85a15f26e59d4d5a6b05cc4aa08eea05ec6deef22a858b5ba"
+      },
+      "E_source": {
+        "blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+        "bytes": 59611,
+        "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3"
+      },
+      "selection": "not_imported_by_C09_leaf"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "G": null,
+      "E_source": {
+        "blob": "5ce80d5d2481ea86f8950fb1da1cbaebf3ebccd5",
+        "bytes": 27666,
+        "sha256": "808fc6a04d7bd74addfd7a77d6607c480b8b61a7e4a637e72177058f412dbce0"
+      },
+      "selection": "not_imported_by_C09_leaf"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/trust_scorer.py",
+      "G": {
+        "blob": "5f992719cd610d350ce76b71f1bd9f60cbe9ceb8",
+        "bytes": 4040,
+        "sha256": "2076dcce76f68aa5b5b6963f9cc575f20b906ce0ce12d7e3227f1832cbb656a0"
+      },
+      "E_source": {
+        "blob": "2cdeeda5ca0aea9a98ba9da0cdded69b84a84bd4",
+        "bytes": 1385,
+        "sha256": "572afda4dcffdaa70dd185a1fc2b7cb780a2776072fc15657a27f0bd1a57654c"
+      },
+      "selection": "not_imported_by_C09_leaf"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "G": {
+        "blob": "db07beb895ca7c2262bcd945d3940bc46e008590",
+        "bytes": 60989,
+        "sha256": "f4b9d3a96fbceb6408c756d338dcedc17706a1d7751cb675ea3efb7f5c3b8d58"
+      },
+      "E_source": {
+        "blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+        "bytes": 81721,
+        "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6"
+      },
+      "selection": "not_imported_by_C09_leaf"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/__init__.py",
+      "G": {
+        "blob": "441f696705f24b92ea9da69492f55e051265c96b",
+        "bytes": 851,
+        "sha256": "2a4a6888990dc62d9e92b5f87898e7d2e3abe605ec9001377f4de07d1ad1e70b"
+      },
+      "E_source": {
+        "blob": "cf6830efbf67557bb3530bac7d37d71b278d6c92",
+        "bytes": 2217,
+        "sha256": "42d6b4c46672c228d067b14a03f79db2b702d0325558d4cd89b615d7c025bbfc"
+      },
+      "selection": "not_imported_by_C09_leaf"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "G": {
+        "blob": "7bd39d2e9e437a4b98a292a8da7b3744f7f3182c",
+        "bytes": 56618,
+        "sha256": "2679d546e048f466ceb96a80d69571ee953d0a402a596d423cc04e2c2d4ac9b1"
+      },
+      "E_source": {
+        "blob": "d638aa6ed9a591a9c685cbd318a45c36e202bf9a",
+        "bytes": 71486,
+        "sha256": "4860382fe26db3ad6a29c206aada4b94123b7cd4d941ee79c58beae342f5c47f"
+      },
+      "selection": "not_imported_by_C09_leaf"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "G": null,
+      "E_source": {
+        "blob": "7de7727e16cc6dcc25340ef583ff05764bc3882b",
+        "bytes": 22618,
+        "sha256": "a29fff79a9d9d7cf47f66809f2fcfcc6188722af6f5f1617eb5a78ce5c5a0f4a"
+      },
+      "selection": "not_imported_by_C09_leaf"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "G": {
+        "blob": "f64ce5319b4fd88c98ba6cd5bab7af9e8f880c37",
+        "bytes": 78948,
+        "sha256": "13cb4dc9b68f848bfbed3378e5cd5f8bd7c176dc98015661233f155761db8d7b"
+      },
+      "E_source": {
+        "blob": "c0811821f814a05eaa001450beee9aba3e73bb7e",
+        "bytes": 92721,
+        "sha256": "6ca715f13ca9ee0cd825ebea359d4cdaca0cbe67090e930d56fb224f7dbb8aca"
+      },
+      "selection": "not_imported_by_C09_leaf"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+      "G": {
+        "blob": "aad1abdd89ac8dda43918981bc21f4a9755601a2",
+        "bytes": 48771,
+        "sha256": "f27ac7b81044bfa12d6b0aa889c2733a8926e3b70a7570924837ae2ee7b52108"
+      },
+      "E_source": {
+        "blob": "712bb1a7c8e0e72f418163a912eb6134bbf07b29",
+        "bytes": 48902,
+        "sha256": "22c94e028427c7239d93ebb30e8f080f3c31682749fabe8b9ac833c6bf1a9e8f"
+      },
+      "selection": "not_imported_by_C09_leaf"
+    }
+  ],
+  "original_bindings": {
+    "B190": {
+      "original_unit": "E",
+      "bundle": "UQP-01",
+      "refs": [
+        {
+          "criterion_id": "B190",
+          "document": "B_r19",
+          "lines": [
+            4752,
+            4761
+          ],
+          "sha256": "bb28f0e65d6317465c37bae99ed3a0bd89a03a3194f111e0f3faf24553724d53",
+          "card": "UQP-01"
+        }
+      ]
+    },
+    "B194": {
+      "original_unit": "E",
+      "bundle": "UQP-03",
+      "refs": [
+        {
+          "criterion_id": "B194",
+          "document": "B_r19",
+          "lines": [
+            4792,
+            4801
+          ],
+          "sha256": "47058d366d7ff7e11ed2348e96b2f56659a999f1f0839a02edc92804b295711e",
+          "card": "UQP-03"
+        }
+      ]
+    },
+    "B197": {
+      "original_unit": "E",
+      "bundle": "CAL-06",
+      "refs": [
+        {
+          "criterion_id": "B197",
+          "document": "B_r19",
+          "lines": [
+            4922,
+            4935
+          ],
+          "sha256": "2f5e64ff7238ff5a340224382fa2875b57ea9e960e0e50bfea7f349c6a83ff3d",
+          "card": "CAL-06"
+        }
+      ]
+    },
+    "B200": {
+      "original_unit": "E",
+      "bundle": "UQS-01",
+      "refs": [
+        {
+          "criterion_id": "B200",
+          "document": "B_r19",
+          "lines": [
+            4964,
+            4977
+          ],
+          "sha256": "721775dd6bad0fdd3c7392ef5030fcba3032c7f31094b189d99dce422ecc7b2d",
+          "card": "UQS-01"
+        }
+      ]
+    },
+    "B21": {
+      "original_unit": "A",
+      "bundle": "SIM-03",
+      "refs": [
+        {
+          "criterion_id": "B21",
+          "document": "B_r19",
+          "lines": [
+            451,
+            464
+          ],
+          "sha256": "f2e8020b22206a84bcdcbf796bfb0c00545c4d8b211d75f20c45a91283c16084",
+          "card": "SIM-03"
+        }
+      ]
+    },
+    "LA-036": {
+      "original_unit": "C",
+      "bundle": "BER-01",
+      "refs": [
+        {
+          "criterion_id": "LA-036",
+          "document": "LA_r09",
+          "lines": [
+            2103,
+            2145
+          ],
+          "sha256": "ebc61d92552c6dfbf538aed17c8a7ed476ee4322fc9df09f7ed3b89e8c530a2a",
+          "card": "BER-01"
+        }
+      ]
+    }
+  },
+  "existing_capability_choices": [
+    {
+      "id": "B190",
+      "existing_path": "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+      "producer": "identifiability_diagnostic → _build_execute_summary_evaluator → actual foundry.execute.api.execute → persisted SimulationResult/Metrics → _persist_sensitivity_matrix",
+      "existing_matrix_fields": [
+        "schema_version",
+        "moment_names",
+        "parameter_names",
+        "jacobian",
+        "fisher_information",
+        "weighting_matrix",
+        "finite_diff_steps"
+      ],
+      "existing_missing_basis": [
+        "typed units/scale",
+        "source/model input refs on matrix manifest",
+        "content-bound evaluator identity"
+      ],
+      "free_C09_work": "Extend only the owned native sensitivity producer/intake with exact axes/source/model/unit binding, preserving non-gating local diagnostic profile. Existing native execution helper can be reused; no new simulation service.",
+      "partner_bridge": "PropagateUncertaintyNode currently params-only affine; outside C09/C08 declared lease. G must appoint exact Node adapter writer before source mutation.",
+      "tests_proposal": [
+        "policy-engine/tests/unit/foundry/calibration/test_identifiability_sensitivity_basis.py"
+      ],
+      "consumer_discriminator": "zero-baseline y=x−2 retains variance1; wrong-axis/wrong-unit/fake/unresolved map refuses rather than fallback-links; constant model variance0 remains valid.",
+      "current_work": "Root appointed disjoint /root/producer_packets native sensitivity leaf from G on codex/e02-E-c09-sensitivity-20261008; outside this C09 write lease. Node bridge remains G-appointed consumer writer."
+    },
+    {
+      "id": "B194",
+      "existing_path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "producer": "MonteCarloPropagator.propagate → _eval_and_record → _build_results",
+      "free_C09_work": "Bind complete terminal attempted-draw inventory to configured source/evaluator and persist before external use. Reuse E_source sampling_admission.reconcile_draw_outcomes; do not reconstruct successes from count-only markers.",
+      "existing_E_fields": [
+        "requested_draw_count",
+        "attempted_draw_count",
+        "successful_draw_count",
+        "unattempted_draw_count",
+        "sampling_recipe",
+        "failure_records",
+        "draw_records"
+      ],
+      "limitation": "No named served evaluator/source-law packet; all exceptions in callback currently become draw failure. Typed global vs transient failure semantics require exact existing execution profile rather than invented taxonomy.",
+      "partner_bridge": "Scientist configured Node/Welfare/served consumer, named by G",
+      "tests_proposal": [
+        "policy-engine/tests/unit/foundry/uncertainty/test_draw_source_basis.py"
+      ]
+    },
+    {
+      "id": "B197",
+      "existing_paths": [
+        "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+        "policy-engine/src/polisyos/foundry/calibration/report.py",
+        "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py"
+      ],
+      "producer": "Calibrator(CalibratorInputs) → run → strict CalibrationReportv2 coordinate_projection → put_calibration_report → fresh envelopes_from_calibration",
+      "free_C09_work": "Use actual configured known-noise cross-sectional fit and existing projection, publish artifact lineage/input/ref/readback companion. Do not rebuild tied covariance or fabricate noise/independence authority.",
+      "limitation": "E_source gaussian_observation_std profile row_law_basis=consumer_asserted and covariance_authority_basis=not_established; mathematical fixture supports technical projection only.",
+      "tests_proposal": [
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator_source_noise_lineage.py"
+      ]
+    },
+    {
+      "id": "B200",
+      "existing_path": "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+      "producer": "existing envelope producers → persisted envelope refs → aggregator._prepare_inputs → precision/bayesian/widest result",
+      "free_C09_work": "Preserve exact-ref dedup/non-gating behavior. A producer-owned relationship manifest can resolve existing refs and preserve repeated vs distinct measurement units before aggregator; do not promote metadata independence string to authority.",
+      "limitation": "No in-lease appointed source measurement/replicate covariance relationship issuer yet; currently independence_basis=consumer_asserted in E_source.",
+      "tests_proposal": [
+        "policy-engine/tests/unit/foundry/uncertainty/test_measurement_lineage_aggregation.py"
+      ]
+    },
+    {
+      "id": "B21",
+      "existing_path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "free_C09_work": "Add a method-specific mean numerical-error diagnostic on actual complete IID draws; s/sqrt(n) only declared regular IID profile; n<2 unavailable. Preserve independent-scramble replication SE and single-QMC restricted scope. Never use outcome quantiles or mc_std as mean-estimator confidence.",
+      "tests_proposal": [
+        "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_mean_error_profile.py"
+      ],
+      "limitation": "Requested replications→JointSimulationRequest/NCM/horizon bridge remains A/C10 own; numerical profile must include exact source/law/estimand/seed/draw count and gatefalse.",
+      "current_work": "G-based C09 conditional nongating typed-Normal fixed-IID mean diagnostic source1b8c9e1c; no passing status claimed in this requirement packet until separate source handoff."
+    },
+    {
+      "id": "LA-036",
+      "smallest_existing_capability_choice": "Exact finite observed-feature row law + weighted conditional strata, or C08 exact supported Gaussian SCM projection after scoped admitted binding. Retain BERL conditional refusal until law-bound sampler is wired.",
+      "wrong_reuse": "Bayesian posterior parameter draws are not observed feature rows. dependent_copula.py uses Var(E[Y|coalition]) global sensitivity, not per-instance coalition expectations. No label-only reuse.",
+      "law_producer_scope_proposal": "C09 foundry/uncertainty/ observed-feature law producer using existing ArtifactStore/InputRef; actual IR contract companions C07 and model source C08, actual consumer adapters remain canonical C/BERL owner and served C10/C11. Exact source lease must be granted; no broad sensitivity catalog takeover.",
+      "tests_proposal": [
+        "policy-engine/tests/unit/foundry/uncertainty/test_observed_feature_law.py"
+      ],
+      "limitation": "Current source census has no verified observed-feature conditional-law issuer/intake. Declared covariance can supply mathematical fixture only, never source verification.",
+      "trigger": "G appoints scoped existing CAS law artifact/schema intake with exact observed-feature role, source/model/epoch/support/purpose and verifier context."
+    }
+  ],
+  "profile_source_decisions": [
+    {
+      "id": "predictive-FRC-supplier",
+      "canonical_owner": "E ForecastOwner; G composition, C10 served consumer, original source/rule issuer",
+      "decision": "G already supplies real NumPy ETS predictive fit/CAS/reopened reader. C09 actual79-case slice preserves this while repairing requested numerical intervals. Select EForecastOwnerv2 measurement contract only with complete outsidelease calibration facade/forecast_bridge companion; neither C09 nor C07 may silently copy that shared facade.",
+      "source_paths": [
+        "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+        "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+        "policy-engine/src/polisyos/calibration/__init__.py"
+      ],
+      "source_receipt": "7bf53fd0cf69a568b37d8a881e26bfb16c315653:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2.json",
+      "minimum_packet": {
+        "owner": "actual source/history/profile/rule issuer plus C10 configured S10 consumer",
+        "required": [
+          "CAS allowed root plus exact DataSnapshotRef/DataSchemaRef/data bytes/manifests/content identities and target metric/unit/source_native scale",
+          "Exact ForecastOwnerRequest v2/ForecastCalibrationProfile request ref, ETS FQN and alpha/beta, explicit contiguous train/holdout/horizon, seed, no invented current refs",
+          "Exact calibration rule ref/bytes/version, complete model/policy specification pair, measurement/time provenance",
+          "Distinct prediction/observation/data-valid/policy-effective/window times from actual source facts; per-pair row IDs and attempted/eligible/observed/failure outcomes",
+          "For authority admission only: canonical current verifier/context/issuer/revision/scope/fresh challenge and actual verification; producer label/self-written credibility evidence does not substitute"
+        ]
+      },
+      "trigger": "G exact source/facade selection, then actual supported/default consumer wiring with target schema/unit/scale and real model/policy/rule/time/measurement refs. Missing verifier is only an authority condition, not a blocker to native predictive mechanics."
+    },
+    {
+      "id": "trust-purpose-profile",
+      "canonical_owner": "Backtest trust-profile scientific owner and G composition; C10 gate consumer",
+      "decision": "G still implements heuristic weighted TrustScorer, E-source returnsNone,None. B172/B173 guards are present on G and actually exercised, but whole E withholding receipt cannot transfer. C09 malformed numerical evidence is now degraded/nontrusteligible regardless these heuristic weights.",
+      "minimum_semantic_decision": [
+        "selected claim/purpose",
+        "independent sampling unit and dependence/repeat profile",
+        "equivalence margin and direction/unit of metric",
+        "missing diagnostics and multiplicity policy",
+        "compatibility/version of preserved historical scores"
+      ],
+      "trigger": "accountable existing trust profile selection before treating synthetic complete grade as population or scientific trust"
+    },
+    {
+      "id": "B21-law-and-runner",
+      "canonical_owner": "A/C10 simulation replica consumer; C09 mean-error supplier; G source selection",
+      "decision": "Do not use output quantiles/mc_std as MC mean CI. E_source separately has bounded Uniform[0,1] pilot/frozen-main certificate plus independent scramble replica means/SEM; these are different exact profiles and not automatically present on G. G C09 preserves unavailable QMC numerical error because G only retains pooled rows/counts.",
+      "minimum_packet": [
+        "actual replica count and complete attempted input/seed roster",
+        "law/pure-response target/support profile and effective source/config identity",
+        "IID units versus independent full scramble means",
+        "no copied/common shock rows disguised as independent repeats",
+        "actual runner→JointSimulationRequest/NCM/horizon→persisted all-results/readback bridge"
+      ],
+      "E_reuse_scope": "source-qualified independent_scramble_replication_v1 producer and finite bounded pilot/frozen-main method; whole delta/dependencies must reconcile before any adoption"
+    },
+    {
+      "id": "LA-036-observed-feature-law",
+      "canonical_owner": "C09 scoped law producer selected by G; C08 exact model supplier; C07 selected IR companions; C10 explanation_reliability/C11 phase5_preflight; canonical BERL conditional adapter",
+      "decision": "Existing posterior parameter draws and GCM noise posterior are not observed feature conditional law. Choose smallest maintained capability: exact finite weighted observed rows/conditional strata, or declared supported Gaussian model with explicit observed-feature projection. No new generic engine needed.",
+      "minimum_packet": {
+        "owner": "C09 law producer plus C08 model/C10 explanation reliability/C11 preflight/C07 IR",
+        "required": [
+          "Observed feature row identity/feature axes/physical units, observed-conditioned law tied to exact model/epoch/support/bounds and source/content IDs",
+          "Real conditional-law inference profile and covariance/replicate/measurement lineage; posterior parameter sample rows alone not feature conditional law"
+        ]
+      },
+      "required_contract": [
+        "verified role=observed_feature_law",
+        "exact ordered feature names/physical units",
+        "source+model CAS manifest/bytes/content identity",
+        "population/cohort/selection and applicable time/epoch",
+        "support and conditioning-event probability/profile",
+        "conditional sampler identity and verification context where authority required"
+      ],
+      "oracle": "rho=.8, f(x)=x1, x=(1,1): conditional(.6,.4), marginal(1,0); independentrho0(1,0). Finite rows(-1,-1)/(1,1):(.5,.5). These are mathematical fixtures, not authentic law authority.",
+      "trigger": "G appoints exact existing CAS law/schema intake and BERL adapter lease after capability selection; authentic source facts L01 only. Generic refusal remains supported meanwhile."
+    }
+  ],
+  "minimum_factual_L01_packets": [
+    {
+      "id": "B190",
+      "supplier": "Scientist response/Jacobian/execution source owner; C09 mathematical producer",
+      "fields": [
+        "source_ref + exact manifest view/content digest",
+        "source role/allowed purpose",
+        "model/evaluator artifact refs and implementation/schema revision",
+        "subject/estimand/outcome/contrast/population + unit/scale",
+        "applicable observation/design/effective/prediction time roles",
+        "resolved custody/verifier provenance + freshness/current epoch",
+        "ordered parameter/moment axes",
+        "dimensioned Jacobian map and evaluation center",
+        "complete response domain and partial-output mask"
+      ],
+      "trigger": "G-appointed Node adapter plus admitted response packet",
+      "consumer": "PropagateUncertaintyNode fresh response/CAS reader",
+      "packet_scope": "non-secret aliases/digests only where custody permits; confidential paths/rows remain local",
+      "gate_basis": "not_established until actual source resolve/content-bind/verifier"
+    },
+    {
+      "id": "B194",
+      "supplier": "Scientist configured evaluator/domain owner and Foundry source-law issuer",
+      "fields": [
+        "source_ref + exact manifest view/content digest",
+        "source role/allowed purpose",
+        "model/evaluator artifact refs and implementation/schema revision",
+        "subject/estimand/outcome/contrast/population + unit/scale",
+        "applicable observation/design/effective/prediction time roles",
+        "resolved custody/verifier provenance + freshness/current epoch",
+        "declared joint input law/support + draw sampling design",
+        "ordered draw IDs/seed stream and requested budget",
+        "terminal success/failure/refusal per draw/output",
+        "transient retry-same-draw policy vs new independent replicate",
+        "typed global contract/access failure policy"
+      ],
+      "trigger": "actual configured evaluator + exact law and attempted ledger",
+      "consumer": "existing Node/Welfare/served consumer",
+      "packet_scope": "non-secret aliases/digests only where custody permits; confidential paths/rows remain local",
+      "gate_basis": "not_established until actual source resolve/content-bind/verifier"
+    },
+    {
+      "id": "B197",
+      "supplier": "Foundry configured Calibrator/source-fit/noise issuer",
+      "fields": [
+        "source_ref + exact manifest view/content digest",
+        "source role/allowed purpose",
+        "model/evaluator artifact refs and implementation/schema revision",
+        "subject/estimand/outcome/contrast/population + unit/scale",
+        "applicable observation/design/effective/prediction time roles",
+        "resolved custody/verifier provenance + freshness/current epoch",
+        "exact CalibratorInputs config/program/ExecPlan/base-state/registries/parameter refs",
+        "raw target source refs; row IDs + train/validation masks",
+        "known noise scales/profile and independent-observation premise",
+        "trainable addresses/tie groups/bounds/projection ordering"
+      ],
+      "trigger": "named actual fit/noise source input refs matching strict reportv2",
+      "consumer": "configured CalibrationReport reader/Welfare consumer",
+      "packet_scope": "non-secret aliases/digests only where custody permits; confidential paths/rows remain local",
+      "gate_basis": "not_established until actual source resolve/content-bind/verifier"
+    },
+    {
+      "id": "B200",
+      "supplier": "Foundry/Scientist source measurement/replicate relationship issuer",
+      "fields": [
+        "source_ref + exact manifest view/content digest",
+        "source role/allowed purpose",
+        "model/evaluator artifact refs and implementation/schema revision",
+        "subject/estimand/outcome/contrast/population + unit/scale",
+        "applicable observation/design/effective/prediction time roles",
+        "resolved custody/verifier provenance + freshness/current epoch",
+        "information-unit IDs with exact artifact refs",
+        "shared observation IDs/versions and replicate groups",
+        "covariance joint model/order or scoped independence basis",
+        "prior/likelihood/posterior role and overlap exclusion"
+      ],
+      "trigger": "actual relationship issuer/verification input rather than metadata strings",
+      "consumer": "fresh E aggregator",
+      "packet_scope": "non-secret aliases/digests only where custody permits; confidential paths/rows remain local",
+      "gate_basis": "not_established until actual source resolve/content-bind/verifier"
+    },
+    {
+      "id": "LA-036",
+      "supplier": "C09 observed-feature law producer; C08 model; local L01 source custodian facts",
+      "fields": [
+        "source_ref + exact manifest view/content digest",
+        "source role/allowed purpose",
+        "model/evaluator artifact refs and implementation/schema revision",
+        "subject/estimand/outcome/contrast/population + unit/scale",
+        "applicable observation/design/effective/prediction time roles",
+        "resolved custody/verifier provenance + freshness/current epoch",
+        "observed-feature role and exact ordered variable names",
+        "finite rows/weights/support or declared Gaussian conditional parameters",
+        "population/cohort/source selection and law/model epoch",
+        "conditioning event support and coalition sampling bound",
+        "nonlinear MC estimator/error/tolerance if selected"
+      ],
+      "trigger": "scoped typed law and verifier contract selected by G/C07; finite fixture can exercise mechanics without factual authority",
+      "consumer": "BERL canonical conditional adapter and C10 explanation_reliability/C11 phase5_preflight",
+      "packet_scope": "non-secret aliases/digests only where custody permits; confidential paths/rows remain local",
+      "gate_basis": "not_established until actual source resolve/content-bind/verifier"
+    }
+  ],
+  "cross_owner_contracts": {
+    "C07": "B31 resolved numerical relation remains nongating; outside polisyos.calibration facade notC07 owned. Source shape is not a sampler/law admission.",
+    "C08": "GCM noise posterior is not observed feature law; exact model/source/feature identity supplied only if selected supported Gaussian profile.",
+    "C10": "actual served/default supplier and S10 consumer must resolve and measure exact compatible forecast/observation corpus and all attempted denominator; no causal claims from predictive outcomes.",
+    "G": "composition/generated/lock selection plus original history carry; no F/E self-authored authority or integration push"
+  },
+  "source_search_limits": {
+    "ref": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+    "selector_prefixes": [
+      "policy-engine/src/",
+      "policy-engine/config/",
+      "policy-engine/configs/"
+    ],
+    "file_suffixes": [
+      ".py",
+      ".json",
+      ".toml",
+      ".yaml",
+      ".yml",
+      ".ini",
+      ".cfg"
+    ],
+    "tracked_all_paths": 22901,
+    "selected_paths": 2726,
+    "selected_file_types": {
+      "py": 2703,
+      "json": 12,
+      "yaml": 11
+    },
+    "matches": {
+      "ForecastOwner": {
+        "returncode": 0,
+        "matches": [
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py:212:class ForecastOwnerRequest(BaseModel):",
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py:235:    def _validate_request(self) -> ForecastOwnerRequest:",
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py:264:class ForecastOwnerResult(BaseModel):",
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py:325:        request = ForecastOwnerRequest.model_validate(",
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py:581:    store: ArtifactStore, request: ForecastOwnerRequest",
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py:627:    request: ForecastOwnerRequest,",
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py:777:class ForecastOwner:",
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py:786:    def run(self, request: ForecastOwnerRequest) -> ForecastOwnerResult:",
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py:792:            configured_request = ForecastOwnerRequest.model_validate(",
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py:1310:        return ForecastOwnerResult(",
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py:1338:def run_forecast_owner(store: FileSystemCAS, request: ForecastOwnerRequest) -> ForecastOwnerResult:",
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py:1341:    return ForecastOwner(store).run(request)",
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py:1347:    \"ForecastOwner\",",
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py:1348:    \"ForecastOwnerRequest\",",
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py:1349:    \"ForecastOwnerResult\","
+        ],
+        "stderr": ""
+      },
+      "run_forecast_owner": {
+        "returncode": 0,
+        "matches": [
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py:1338:def run_forecast_owner(store: FileSystemCAS, request: ForecastOwnerRequest) -> ForecastOwnerResult:",
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py:1352:    \"run_forecast_owner\","
+        ],
+        "stderr": ""
+      },
+      "prepare_native_replay": {
+        "returncode": 0,
+        "matches": [
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py:183:def prepare_native_replay(",
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py:612:            prepare_native_replay,",
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py:618:            state = prepare_native_replay("
+        ],
+        "stderr": ""
+      },
+      "FORECAST_KEY": {
+        "returncode": 0,
+        "matches": [
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py:48:FORECAST_KEY = \"backtest_native_forecast_ref\"",
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py:221:    if inputs.get(\"input_bindings_ref\") or state.get(\"artifacts_index\", {}).get(FORECAST_KEY):",
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py:521:                DerivedArtifact(role=FORECAST_KEY, ref=forecast_ref),",
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py:609:            FORECAST_KEY,",
+          "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c:policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py:624:                result[\"artifacts_index\"][FORECAST_KEY]"
+        ],
+        "stderr": ""
+      }
+    },
+    "interpretation": "ForecastOwner literal references within selected source/config paths are in its own module only; existing native_replay literal callers are orchestrator/run_simulation. This is not zero external/computed/untracked callers, nor proof of default served wiring."
+  },
+  "P41": "not_established; no full-denominator inherited red proof",
+  "missing_historical_custody": "No old raw archive transfer or source PR prose used as new candidate PASS. Non-deciding175c history not mandatory new-method input.",
+  "next_concrete_results": [
+    "publish narrow MC conditional mean error source/receipt after independent review",
+    "root-appointed native sensitivity producer response basis leaf; then exact G-appointed Node adapter",
+    "G selects compatible ForecastOwner v2 +calibration facade source, C10 configured actual consumer replay",
+    "G/C07 choose existing observed-feature law intake, C09/C08 supply exact profile then BERL/C10/C11 negatives"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "source_sha": "514f90058104f7dd8ada1c83b8bf5f62bfc33b88",
+  "source_tree": "5b178089910f581c76a4e2557e61458ba88369d1",
+  "state": "FAIL expected baseline missing diagnostic counterexample",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py",
+    "-k",
+    "actual_iid or actual_one_success",
+    "--basetemp=/dev/shm/e02-orch03-20261008/c09-scratch/mean-base",
+    "--junitxml=/dev/shm/e02-orch03-20261008/c09-scratch/mean-base.junit.xml",
+    "-o",
+    "cache_dir=/dev/shm/e02-orch03-20261008/c09-scratch/mean-base-cache"
+  ],
+  "cwd": "/dev/shm/e02-orch03-20261008/c09",
+  "returncode": 1,
+  "junit_counts": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "2",
+    "skipped": "0",
+    "tests": "2",
+    "time": "1.308",
+    "timestamp": "2026-10-08T09:43:57.744556+00:00",
+    "hostname": "6d6fd139922b"
+  },
+  "qualification": "new source-followup test body before implementation; tests are not part of baseline candidate; stdout/stderr/JUnit preserved; total wall/RSS not measured for this baseline invocation, no invented values"
+}

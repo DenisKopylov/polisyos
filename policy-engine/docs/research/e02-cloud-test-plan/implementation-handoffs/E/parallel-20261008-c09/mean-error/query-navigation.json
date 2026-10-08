@@ -1,0 +1,69 @@
+[
+  {
+    "finding": "B21",
+    "matching_cells": 8,
+    "displayed_cells": 8,
+    "historical_states": {
+      "FAILED": 1,
+      "PASS": 7
+    },
+    "raw_archives_received": 0,
+    "grade": "source_reported_compact_text_only; candidate_routes",
+    "qualification": "transfer/navigation only; query states are not candidate verdicts; ownership/card bytes separate"
+  },
+  {
+    "finding": "B190",
+    "matching_cells": 23,
+    "displayed_cells": 10,
+    "historical_states": {
+      "PASS": 23
+    },
+    "raw_archives_received": 0,
+    "grade": "source_reported_compact_text_only; candidate_routes",
+    "qualification": "transfer/navigation only; query states are not candidate verdicts; ownership/card bytes separate"
+  },
+  {
+    "finding": "B194",
+    "matching_cells": 10,
+    "displayed_cells": 10,
+    "historical_states": {
+      "PASS": 10
+    },
+    "raw_archives_received": 0,
+    "grade": "source_reported_compact_text_only; candidate_routes",
+    "qualification": "transfer/navigation only; query states are not candidate verdicts; ownership/card bytes separate"
+  },
+  {
+    "finding": "B197",
+    "matching_cells": 13,
+    "displayed_cells": 10,
+    "historical_states": {
+      "PASS": 13
+    },
+    "raw_archives_received": 0,
+    "grade": "source_reported_compact_text_only; candidate_routes",
+    "qualification": "transfer/navigation only; query states are not candidate verdicts; ownership/card bytes separate"
+  },
+  {
+    "finding": "B200",
+    "matching_cells": 9,
+    "displayed_cells": 9,
+    "historical_states": {
+      "PASS": 9
+    },
+    "raw_archives_received": 0,
+    "grade": "source_reported_compact_text_only; candidate_routes",
+    "qualification": "transfer/navigation only; query states are not candidate verdicts; ownership/card bytes separate"
+  },
+  {
+    "finding": "LA-036",
+    "matching_cells": 5,
+    "displayed_cells": 5,
+    "historical_states": {
+      "PASS": 5
+    },
+    "raw_archives_received": 0,
+    "grade": "source_reported_compact_text_only; candidate_routes",
+    "qualification": "transfer/navigation only; query states are not candidate verdicts; ownership/card bytes separate"
+  }
+]

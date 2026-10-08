@@ -1,0 +1,440 @@
+diff --git a/policy-engine/release-fragments/unreleased/2026-10-08-c09-mc-mean-error.toml b/policy-engine/release-fragments/unreleased/2026-10-08-c09-mc-mean-error.toml
+new file mode 100644
+index 000000000..a45d65449
+--- /dev/null
++++ b/policy-engine/release-fragments/unreleased/2026-10-08-c09-mc-mean-error.toml
+@@ -0,0 +1,13 @@
++id = "2026-10-08-c09-mc-mean-error"
++title = "Separate conditional Monte Carlo mean error from outcome dispersion"
++type = "added"
++component = "foundry"
++owner = "team-foundry"
++summary = "Persist a non-gating mean-estimator numerical-error diagnostic for complete fixed random typed-Normal draws; unsupported laws and incomplete/adaptive/QMC corpora remain unavailable."
++change_class = "internal"
++surface_classification = "internal: uncertainty numerical diagnostics"
++compatibility = "Existing outcome intervals, mc_std, composition profiles, result schema and gates are unchanged. The new conditional diagnostic does not establish scientific IID, finite-variance or authority admission."
++generated_client_compatibility = "not_applicable"
++migration_docs = ["src/polisyos/foundry/uncertainty/README.md"]
++runbook_docs = ["src/polisyos/foundry/uncertainty/README.md"]
++evidence = ["tests/unit/foundry/uncertainty/test_mean_estimator_error.py"]
+diff --git a/policy-engine/src/polisyos/foundry/uncertainty/README.md b/policy-engine/src/polisyos/foundry/uncertainty/README.md
+index bac389e63..8fbdae4b4 100644
+--- a/policy-engine/src/polisyos/foundry/uncertainty/README.md
++++ b/policy-engine/src/polisyos/foundry/uncertainty/README.md
+@@ -37,3 +37,26 @@ output metric uncertainty in Foundry simulations.
+ - Last updated: 2026-09-28
+ - Files: 12 Python files in this package
+ - Exports: 12 names declared in `__all__`
++
++
++## Conditional mean-estimator numerical error
++
++The fixed random Monte Carlo path reports `mean_estimator_error` separately from
++`mc_std` (outcome dispersion) and the existing outcome quantiles. A complete finite
++corpus sampled from the implemented product of typed, nondegenerate Normal fits
++can report sample-mean standard error `s / sqrt(n)` with `ddof=1`. The field is a
++conditional numerical estimate: it assumes a fixed deterministic response and
++finite response variance, which this callback API cannot verify. It cannot admit
++an IID population, establish a confidence interval or promote a trust gate.
++
++Legacy interval-inferred laws, posterior/empirical rows (including weighted rows
++labelled `draw` or `iid`), unknown dependency, incomplete execution, fewer than two
++finite outputs, adaptive stopping and pooled QMC rows report an unavailable mean
++error. The G-based QMC producer does not retain independent scramble means; its
++pooled rows cannot supply this IID formula. The existing sampling recipe, seed,
++content hashes and requested/attempted/finite counts accompany the diagnostic.
++Scientific source/law authority and served consumer admission remain separate.
++
++The diagnostic persists in the existing uncertainty envelope metadata and reads
++back through the maintained CAS reader. Existing outcome intervals, composition
++profiles, `mc_std` and their gate semantics are unchanged by this additive field.
+diff --git a/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py b/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
+index 7bd39d2e9..df6bf1966 100644
+--- a/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
++++ b/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
+@@ -273,6 +273,13 @@ def _unknown_joint_results(
+                 metadata={
+                     "failure": failure,
+                     "input_param_names": input_param_names,
++                    "mean_estimator_error": {
++                        "status": "unavailable",
++                        "standard_error": None,
++                        "reason": failure,
++                        "attempted_draw_count": 0,
++                        "gate_eligible": False,
++                    },
+                 },
+             ),
+             input_envelopes_used=input_param_names,
+@@ -313,6 +320,71 @@ def _empirical_indices_from_uniform(
+     return np.minimum(indices, len(probabilities) - 1)
+ 
+ 
++def _mean_estimator_error(
++    values: np.ndarray,
++    *,
++    config: PropagationConfig,
++    input_envelopes: Mapping[str, UncertaintyEnvelope],
++    input_digests: Mapping[str, str | None],
++    requested_count: int,
++    attempted_count: int,
++    incomplete: bool,
++    qmc_method: str | None,
++) -> dict[str, Any]:
++    """Describe conditional numerical error, never admit a scientific IID law."""
++    n = int(values.size)
++    diagnostic: dict[str, Any] = {
++        "status": "unavailable",
++        "standard_error": None,
++        "target": "implemented_push_forward_mean",
++        "estimator": "sample_mean",
++        "sampling_law": "implemented_product_of_typed_normal_fits",
++        "sampling_method": config.mc_sampling_method,
++        "seed": int(config.mc_seed),
++        "requested_draw_count": requested_count,
++        "attempted_draw_count": attempted_count,
++        "finite_output_count": n,
++        "input_envelope_sha256": dict(input_digests),
++        "assumptions": [
++            "fixed_deterministic_response_to_independent_input_draws",
++            "finite_response_variance",
++        ],
++        "assumptions_verified": False,
++        "source_law_authority": "not_established",
++        "gate_eligible": False,
++    }
++    if qmc_method is not None:
++        reason = "qmc_replica_means_not_retained"
++    elif config.adaptive_stopping.enabled:
++        reason = "adaptive_sampling"
++    elif not input_envelopes or any(
++        not isinstance(env.distribution_payload, ParametricFitCarrier)
++        or env.distribution_family is not DistributionFamily.NORMAL
++        or _normal_parametric_fit(env) is None
++        or _normal_parametric_fit(env)[1] < 1e-12
++        for env in input_envelopes.values()
++    ):
++        reason = "unsupported_input_sampling_law"
++    elif n < 2:
++        reason = "insufficient_independent_draws"
++    elif incomplete or n != attempted_count or attempted_count != requested_count:
++        reason = "incomplete_draw_denominator"
++    else:
++        with np.errstate(over="ignore", invalid="ignore"):
++            standard_error = float(np.std(values, dtype=np.float64, ddof=1) / math.sqrt(n))
++        if math.isfinite(standard_error):
++            diagnostic.update(
++                status="conditional_estimate",
++                standard_error=standard_error,
++                reason=None,
++                formula="sample_standard_deviation_ddof1/sqrt(n)",
++            )
++            return diagnostic
++        reason = "non_finite_mean_error"
++    diagnostic["reason"] = reason
++    return diagnostic
++
++
+ class MonteCarloPropagator:
+     """Monte carlo propagator public type."""
+ 
+@@ -428,7 +500,9 @@ class MonteCarloPropagator:
+             requested_n_samples=n_samples,
+             qmc_summary=qmc_summary,
+             sample_axis=(empirical_spec.sample_axis if empirical_spec is not None else "draw"),
+-            joint_sample_id=(empirical_spec.joint_sample_id if empirical_spec is not None else None),
++            joint_sample_id=(
++                empirical_spec.joint_sample_id if empirical_spec is not None else None
++            ),
+             parametric_fit_names=_parametric_fit_names(input_envelopes),
+         )
+ 
+@@ -834,8 +908,7 @@ class MonteCarloPropagator:
+         )
+         qmc_has_full_certificate = qmc_method is not None and qmc_scrambled and qmc_replicates >= 2
+         input_envelope_digests = {
+-            name: _envelope_content_digest(envelope)
+-            for name, envelope in input_envelopes.items()
++            name: _envelope_content_digest(envelope) for name, envelope in input_envelopes.items()
+         }
+         input_identity_complete = all(
+             value is not None for value in input_envelope_digests.values()
+@@ -875,12 +948,20 @@ class MonteCarloPropagator:
+             has_incomplete_draws = (
+                 metric_failure_draw_count > 0 or stopped_early or not input_identity_complete
+             )
++            mean_error = _mean_estimator_error(
++                np.asarray(valid, dtype=np.float64),
++                config=self._config,
++                input_envelopes=input_envelopes,
++                input_digests=input_envelope_digests,
++                requested_count=requested_n_samples,
++                attempted_count=actual_n_samples,
++                incomplete=has_incomplete_draws,
++                qmc_method=qmc_method,
++            )
+             interval_semantics = IntervalSemantics.CONFIDENCE_INTERVAL
+             confidence_level: float | None = level
+             # Sampling cannot promote a non-gate-eligible input into a gate.
+-            gate_eligible = all(
+-                envelope.gate_eligible for envelope in input_envelopes.values()
+-            )
++            gate_eligible = all(envelope.gate_eligible for envelope in input_envelopes.values())
+             exactness = ExactnessKind.APPROXIMATION
+             scope = ("expectation", "interval", "quantile", "cdf")
+             sample_size_value: int | None = n_valid
+@@ -925,6 +1006,7 @@ class MonteCarloPropagator:
+                     "mc_n_valid": n_valid,
+                     "mc_n_samples": actual_n_samples,
+                     "fallback_point_estimate_source": point_source,
++                    "mean_estimator_error": mean_error,
+                 }
+                 if has_missing_output:
+                     failure_metadata["missing_output_count"] = missing_count
+@@ -1014,6 +1096,7 @@ class MonteCarloPropagator:
+                     "mc_n_failed": actual_n_samples - n_valid,
+                     "mc_batch_size": self._config.mc_batch_size,
+                     "mc_std": std,
++                    "mean_estimator_error": mean_error,
+                     "mc_seed": int(self._config.mc_seed),
+                     "mc_sampling_method": self._config.mc_sampling_method,
+                 }
+@@ -1175,9 +1258,10 @@ class MonteCarloPropagator:
+                         "missing_output": has_missing_output,
+                         "missing_output_count": missing_count,
+                         "draw_outcome_provenance": draw_outcome_provenance,
++                        "mean_estimator_error": mean_error,
+                         "executor_failed_batches": failed,
+                         "stopped_early": stopped_early,
+-                    "output_coverage_complete": not has_incomplete_draws,
++                        "output_coverage_complete": not has_incomplete_draws,
+                         "qmc_method": qmc_method,
+                         "qmc_scrambled": qmc_scrambled if qmc_method is not None else None,
+                         "qmc_replicates": qmc_replicates if qmc_method is not None else None,
+diff --git a/policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py b/policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py
+new file mode 100644
+index 000000000..ff6b899ec
+--- /dev/null
++++ b/policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py
+@@ -0,0 +1,221 @@
++"""Separate conditional mean-estimator error from sampled outcome dispersion."""
++
++from __future__ import annotations
++
++from fractions import Fraction
++from pathlib import Path
++
++import pytest
++
++from polisyos.core.artifacts.ir_adapter import build_ir_artifact_store
++from polisyos.foundry.uncertainty.config import AdaptiveStoppingConfig, PropagationConfig
++from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
++from polisyos.ir.analytics.uncertainty import (
++    DistributionFamily,
++    IntervalSemantics,
++    ParametricFitCarrier,
++    PosteriorSamplesCarrier,
++    PropagationMethod,
++    UncertaintyEnvelope,
++    UncertaintySource,
++    load_uncertainty_envelope,
++    persist_uncertainty_envelope,
++)
++
++
++def _normal_law() -> UncertaintyEnvelope:
++    return UncertaintyEnvelope(
++        point_estimate=0.0,
++        confidence_interval=(-2.0, 2.0),
++        distribution_family=DistributionFamily.NORMAL,
++        source=UncertaintySource.CALIBRATION,
++        propagation_method=PropagationMethod.NONE,
++        interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
++        distribution_payload=ParametricFitCarrier(
++            family=DistributionFamily.NORMAL,
++            parameters={"mean": 0.0, "std": 1.0},
++        ),
++        gate_eligible=False,
++    )
++
++
++def _propagate(config: PropagationConfig, env: UncertaintyEnvelope | None = None):
++    return MonteCarloPropagator(config).propagate(
++        lambda x=0.0: {"y": -1.0 if x < 0 else 1.0},
++        {"x": 0.0},
++        {"x": _normal_law() if env is None else env},
++        ["y"],
++    )[0]
++
++
++def _fraction_sem_squared(samples: tuple[float, ...]) -> Fraction:
++    vals = [Fraction.from_float(x) for x in samples]
++    mean = sum(vals) / len(vals)
++    return sum((x - mean) ** 2 for x in vals) / (len(vals) * (len(vals) - 1))
++
++
++def test_actual_iid_mean_error_matches_independent_fraction_after_fresh_cas_reader(
++    tmp_path: Path,
++) -> None:
++    result = _propagate(PropagationConfig(mc_n_samples=100, mc_seed=27))
++    store = build_ir_artifact_store(tmp_path / "cas")
++    ref = persist_uncertainty_envelope(store, result.envelope)
++    fresh = load_uncertainty_envelope(build_ir_artifact_store(tmp_path / "cas"), ref)
++    assert isinstance(fresh.distribution_payload, PosteriorSamplesCarrier)
++    samples = fresh.distribution_payload.samples
++    expected = float(_fraction_sem_squared(samples)) ** 0.5
++    diagnostic = fresh.metadata["mean_estimator_error"]
++    assert diagnostic == result.diagnostics["mean_estimator_error"]
++    assert diagnostic["status"] == "conditional_estimate"
++    assert diagnostic["standard_error"] == pytest.approx(expected, rel=1e-12)
++    assert diagnostic["requested_draw_count"] == diagnostic["attempted_draw_count"] == 100
++    assert diagnostic["finite_output_count"] == 100
++    assert diagnostic["target"] == "implemented_push_forward_mean"
++    assert diagnostic["assumptions_verified"] is False
++    assert diagnostic["gate_eligible"] is False
++    assert fresh.gate_eligible is False
++    assert diagnostic["standard_error"] < fresh.metadata["mc_std"] / 5
++    assert fresh.confidence_interval == (-1.0, 1.0)
++    assert diagnostic["seed"] == 27
++    assert diagnostic["input_envelope_sha256"]["x"]
++
++
++@pytest.mark.parametrize("method,scrambled,replicas", [("sobol", False, 1), ("sobol", True, 2)])
++def test_qmc_rows_do_not_become_iid_mean_error(method, scrambled, replicas) -> None:
++    result = _propagate(
++        PropagationConfig(
++            mc_n_samples=100,
++            mc_sampling_method=method,
++            mc_qmc_scramble=scrambled,
++            mc_qmc_replicates=replicas,
++        )
++    )
++    diagnostic = result.envelope.metadata["mean_estimator_error"]
++    assert diagnostic["status"] == "unavailable"
++    assert diagnostic["standard_error"] is None
++    assert diagnostic["reason"] == "qmc_replica_means_not_retained"
++    assert result.diagnostics["n_samples"] == 100
++
++
++def test_legacy_inferred_normal_law_does_not_claim_regular_iid_support() -> None:
++    env = _normal_law().model_copy(update={"distribution_payload": None})
++    result = _propagate(PropagationConfig(mc_n_samples=100), env)
++    assert result.envelope.metadata["mean_estimator_error"]["reason"] == (
++        "unsupported_input_sampling_law"
++    )
++    assert result.envelope.metadata["mean_estimator_error"]["standard_error"] is None
++
++
++def test_weighted_empirical_draw_axis_and_iid_marker_do_not_launder_profile() -> None:
++    env = _normal_law().model_copy(
++        update={
++            "distribution_family": DistributionFamily.BOOTSTRAP,
++            "distribution_payload": PosteriorSamplesCarrier(
++                samples=(-1.0, 1.0),
++                weights=(0.9, 0.1),
++                sample_axis="draw",
++            ),
++            "metadata": {"iid": True, "sampling_law": "independent_normal"},
++        }
++    )
++    result = _propagate(PropagationConfig(mc_n_samples=100), env)
++    diagnostic = result.envelope.metadata["mean_estimator_error"]
++    assert diagnostic["status"] == "unavailable"
++    assert diagnostic["standard_error"] is None
++    assert diagnostic["reason"] == "unsupported_input_sampling_law"
++
++
++def test_adaptive_sampling_does_not_use_fixed_iid_formula() -> None:
++    result = _propagate(
++        PropagationConfig(
++            adaptive_stopping=AdaptiveStoppingConfig(
++                enabled=True,
++                min_samples=100,
++                max_samples=200,
++                check_interval=100,
++                ci_half_width_target=10.0,
++            )
++        )
++    )
++    assert result.envelope.metadata["mean_estimator_error"]["reason"] == "adaptive_sampling"
++    assert result.envelope.metadata["mean_estimator_error"]["standard_error"] is None
++
++
++def test_actual_one_success_out_of_full_attempts_has_unavailable_error_after_cas(
++    tmp_path: Path,
++) -> None:
++    calls = 0
++
++    def one_success(x=0.0):
++        nonlocal calls
++        calls += 1
++        # First call is nominal replay; the next is the sole successful sampled output.
++        return {"y": 1.0 if calls <= 2 else float("nan")}
++
++    result = MonteCarloPropagator(PropagationConfig(mc_n_samples=100)).propagate(
++        one_success, {"x": 0.0}, {"x": _normal_law()}, ["y"]
++    )[0]
++    ref = persist_uncertainty_envelope(build_ir_artifact_store(tmp_path / "cas"), result.envelope)
++    fresh = load_uncertainty_envelope(build_ir_artifact_store(tmp_path / "cas"), ref)
++    diagnostic = fresh.metadata["mean_estimator_error"]
++    assert diagnostic["finite_output_count"] == 1
++    assert diagnostic["requested_draw_count"] == diagnostic["attempted_draw_count"] == 100
++    assert diagnostic["status"] == "unavailable"
++    assert diagnostic["reason"] == "insufficient_independent_draws"
++    assert diagnostic["standard_error"] is None
++    assert fresh.gate_eligible is False
++    assert result.diagnostics["n_failed"] == 99
++
++
++def test_incomplete_outputs_never_renormalize_to_complete_iid_sample() -> None:
++    def partial(x=0.0):
++        return {"y": x if x >= 0 else float("nan")}
++
++    result = MonteCarloPropagator(PropagationConfig(mc_n_samples=100)).propagate(
++        partial, {"x": 0.0}, {"x": _normal_law()}, ["y"]
++    )[0]
++    diagnostic = result.envelope.metadata["mean_estimator_error"]
++    assert 2 <= diagnostic["finite_output_count"] < diagnostic["attempted_draw_count"]
++    assert diagnostic["reason"] == "incomplete_draw_denominator"
++    assert diagnostic["standard_error"] is None
++    assert result.envelope.gate_eligible is False
++
++
++def test_unknown_dependency_refuses_before_draws_and_withholds_mean_error() -> None:
++    env = _normal_law().model_copy(update={"metadata": {"dependence": "unknown"}})
++    result = _propagate(PropagationConfig(mc_n_samples=100), env)
++    diagnostic = result.envelope.metadata["mean_estimator_error"]
++    assert diagnostic["status"] == "unavailable"
++    assert diagnostic["reason"] == "unknown_dependency"
++    assert diagnostic["standard_error"] is None
++    assert diagnostic["attempted_draw_count"] == 0
++    assert result.envelope.gate_eligible is False
++
++
++def test_fake_mean_error_metadata_does_not_replace_actual_output_arithmetic() -> None:
++    env = _normal_law().model_copy(
++        update={
++            "metadata": {"mean_estimator_error": {"standard_error": 999.0, "status": "admitted"}}
++        }
++    )
++    result = _propagate(PropagationConfig(mc_n_samples=100), env)
++    diagnostic = result.envelope.metadata["mean_estimator_error"]
++    samples = result.envelope.distribution_payload.samples
++    assert diagnostic["standard_error"] == pytest.approx(
++        float(_fraction_sem_squared(samples)) ** 0.5
++    )
++    assert diagnostic["status"] == "conditional_estimate"
++    assert diagnostic["assumptions_verified"] is False
++    assert diagnostic["gate_eligible"] is False
++
++
++def test_fixed_constant_response_has_zero_conditional_error_without_authority() -> None:
++    result = MonteCarloPropagator(PropagationConfig(mc_n_samples=100)).propagate(
++        lambda x=0.0: {"y": 7.0}, {"x": 0.0}, {"x": _normal_law()}, ["y"]
++    )[0]
++    diagnostic = result.envelope.metadata["mean_estimator_error"]
++    assert diagnostic["standard_error"] == 0.0
++    assert diagnostic["status"] == "conditional_estimate"
++    assert diagnostic["assumptions_verified"] is False
++    assert diagnostic["gate_eligible"] is False
++    assert result.envelope.gate_eligible is False

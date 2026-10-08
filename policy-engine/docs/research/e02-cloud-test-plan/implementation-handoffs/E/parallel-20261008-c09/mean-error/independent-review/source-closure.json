@@ -1,0 +1,78 @@
+{
+  "E": {
+    "contains_replica_means": true,
+    "mc_blob": "d638aa6ed9a591a9c685cbd318a45c36e202bf9a",
+    "mc_equals_new_candidate": false,
+    "receipt_carry": "NOT_CARRIED; distinct producer/profile/implementation",
+    "source": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c"
+  },
+  "G": {
+    "contains_replica_means": false,
+    "mc_blob": "7bd39d2e9e437a4b98a292a8da7b3744f7f3182c",
+    "mc_equals_slice_base": true,
+    "source": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b"
+  },
+  "base": "514f90058104f7dd8ada1c83b8bf5f62bfc33b88",
+  "parent": "514f90058104f7dd8ada1c83b8bf5f62bfc33b88",
+  "paths": [
+    {
+      "bytes": 937,
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-c09-mc-mean-error.toml",
+      "sha256": "00d42c75ca928181b97e3f46c1ebe323e40e3a2db82d0854b263fe0136daa8c0",
+      "source_blob": "a45d6544911a6a56ffc19c1d2017a83e3e628511"
+    },
+    {
+      "bytes": 3447,
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "sha256": "1570e8a6bb2721255934e83c8cfa073cc4a2132c20b539318de3a2168f01e50c",
+      "source_blob": "8fbdae4b4dbfd655d4b3bed4a925fe1ebf4a31c4"
+    },
+    {
+      "bytes": 60061,
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "sha256": "0bf11df46da6a2025bdd3e9c41309acdc1658f258ee969800c2d6904e8ce7fab",
+      "source_blob": "df6bf19660512724859dd1d6cd09821b2baca721"
+    },
+    {
+      "bytes": 9264,
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py",
+      "sha256": "a247e1385e1426752c8784691affc4c213102086dd3e87b5046431a7440edec0",
+      "source_blob": "ff6b899ecf8d91d7275f56a16336fe9404b3c0c3"
+    }
+  ],
+  "source": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+  "status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/supplier-requirements.json\n",
+  "tree": "7a4ee9e71c793827abef998540dcd12ab129c4ba",
+  "unchanged_reviewed_CI_paths": [
+    {
+      "byte_identical": true,
+      "ci_blob": "68acb8d97ec90984e5fe9a47384bae6878ff0b96",
+      "mc_frozen_blob": "68acb8d97ec90984e5fe9a47384bae6878ff0b96",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-c09-backtest-interval-admission.toml"
+    },
+    {
+      "byte_identical": true,
+      "ci_blob": "2dfea9bd3d450ecdb4f87cc48bc60468d8412ba0",
+      "mc_frozen_blob": "2dfea9bd3d450ecdb4f87cc48bc60468d8412ba0",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/README.md"
+    },
+    {
+      "byte_identical": true,
+      "ci_blob": "5f9f5e3ebf316b38faa81735a5f3942de0fa5d01",
+      "mc_frozen_blob": "5f9f5e3ebf316b38faa81735a5f3942de0fa5d01",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py"
+    },
+    {
+      "byte_identical": true,
+      "ci_blob": "6dadf837033e0234f0e5c8070b331e29daed765a",
+      "mc_frozen_blob": "6dadf837033e0234f0e5c8070b331e29daed765a",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py"
+    },
+    {
+      "byte_identical": true,
+      "ci_blob": "5960e956db8ecce938b9d9a775ad72744bc49598",
+      "mc_frozen_blob": "5960e956db8ecce938b9d9a775ad72744bc49598",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py"
+    }
+  ]
+}

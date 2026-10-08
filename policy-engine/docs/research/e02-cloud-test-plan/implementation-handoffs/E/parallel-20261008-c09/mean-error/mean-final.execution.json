@@ -1,0 +1,42 @@
+{
+  "source_sha": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+  "source_tree": "7a4ee9e71c793827abef998540dcd12ab129c4ba",
+  "cwd": "/dev/shm/e02-orch03-20261008/c09/policy-engine",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/foundry/uncertainty/test_mean_estimator_error.py",
+    "tests/unit/foundry/uncertainty/test_monte_carlo.py",
+    "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+    "tests/unit/foundry/uncertainty/test_adaptive_stopping.py",
+    "tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py::test_actual_backtest_keeps_unavailable_intervals_non_gating_after_cas_readback[interval0]",
+    "tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py::test_same_intervals_changed_observations_change_actual_persisted_coverage",
+    "--basetemp=/dev/shm/e02-orch03-20261008/c09-scratch/mean-final",
+    "--junitxml=/dev/shm/e02-orch03-20261008/c09-scratch/mean-final.junit.xml",
+    "-o",
+    "cache_dir=/dev/shm/e02-orch03-20261008/c09-scratch/mean-final-cache"
+  ],
+  "returncode": 0,
+  "interrupted": null,
+  "wall_seconds": 22.87598792600329,
+  "max_rss_kib": 1495148,
+  "outputs": {
+    "stdout.txt": {
+      "path": "/dev/shm/e02-orch03-20261008/c09-scratch/mean-final.stdout.txt",
+      "bytes": 647,
+      "sha256": "df324fde622bb9151b8a59bd3a47c54494340b6d0ce47b67ef1c14baa308d6e4"
+    },
+    "stderr.txt": {
+      "path": "/dev/shm/e02-orch03-20261008/c09-scratch/mean-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "junit.xml": {
+      "path": "/dev/shm/e02-orch03-20261008/c09-scratch/mean-final.junit.xml",
+      "bytes": 6350,
+      "sha256": "dfc9599abf8e1792b33cbe5dadf0600e5cff3ca7363e675207ec30931d4d3132"
+    }
+  }
+}

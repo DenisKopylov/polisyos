@@ -1,0 +1,386 @@
+{
+  "all_attempts": [
+    {
+      "classification": "navigation missing guessed filenames; follow-up rg --files established only maintained monte_carlo.py; no MonteCarloMethod class exists",
+      "command": "rg on guessed scientist/methods/uncertainty/monte_carlo_method.py + foundry/uncertainty/methods.py + actual source/tests",
+      "kind": "read-only navigation",
+      "product_result": "no product FAIL/UNRUN selector assigned",
+      "returncode": 2
+    },
+    {
+      "classification": "ERROR reviewer-only final child-log serialization ArtifactID\u2192JSON",
+      "complete_error": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/attempt-1/probe.stderr.txt",
+      "correction": "str artifact ID only in scratch logger; additional scratch explicit mc_std comparison and direct child timing; no source change",
+      "kind": "native harness attempt1",
+      "native_assertions": "all producer and child assertions preceded serialization; not used alone as final PASS",
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/attempt-1/harness.json",
+      "returncode": 1,
+      "source_or_input_change": "none"
+    },
+    {
+      "classification": "PASS native synthetic scoped numerical property and retained-marker sensitivity controls",
+      "kind": "corrected native harness attempt2",
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/harness.json",
+      "returncode": 0
+    }
+  ],
+  "artifacts": [
+    {
+      "bytes": 14333,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/attempt-1/child-inputs.json",
+      "sha256": "a64a3284a169dfea0787d735c5e944c1e511b001ec5aba8f029b0a667e1a9a9e"
+    },
+    {
+      "bytes": 2517,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/attempt-1/classification.json",
+      "sha256": "86f8ae5f946e63737f55714332cb7ab3e687f6de4f719c56423ee797fb8d5b4f"
+    },
+    {
+      "bytes": 2029,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/attempt-1/fresh-child.py",
+      "sha256": "9ca2f87ae01e8b41a9aa97271493881d505cd3aaed3f1727f632cf5d0c729cba"
+    },
+    {
+      "bytes": 1672,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/attempt-1/fresh-child.stderr.txt",
+      "sha256": "4133f4e4aeddf6349a3321edda86542e42fb1dc1007b4b863f306f46d2586a21"
+    },
+    {
+      "bytes": 0,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/attempt-1/fresh-child.stdout.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 778,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/attempt-1/harness.json",
+      "sha256": "b891160766094c33fb675d16bba0ee8f1d3c742abb39fff238e17726c2c54220"
+    },
+    {
+      "bytes": 11634,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/attempt-1/probe.py",
+      "sha256": "fc1769e2e41e88b55189329ad55b7104694287f466222210d11cdb2b7c00a483"
+    },
+    {
+      "bytes": 1913,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/attempt-1/probe.stderr.txt",
+      "sha256": "db914c5cc9b0797323b5d1db8b2798cc48e167cfe00b0a735f24c3979b2c080c"
+    },
+    {
+      "bytes": 0,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/attempt-1/probe.stdout.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1422,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/attempt-1/run-harness.py",
+      "sha256": "925cdd84661c80249cb094f9f242d2f6e878138cf799df5f232361021ad6690c"
+    },
+    {
+      "bytes": 14333,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/child-inputs.json",
+      "sha256": "a64a3284a169dfea0787d735c5e944c1e511b001ec5aba8f029b0a667e1a9a9e"
+    },
+    {
+      "bytes": 2034,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/fresh-child.py",
+      "sha256": "8e91b60594c74cbeff99c1f05b70078498a7c473dda1895ddf32ce8b4e32ef9f"
+    },
+    {
+      "bytes": 0,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/fresh-child.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 13211,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/fresh-child.stdout.json",
+      "sha256": "f56a26b90209b3aea618e3f0195804ff1b179a6084a82ab799beb633fcb6ba9f"
+    },
+    {
+      "bytes": 20938,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/full-diff.patch",
+      "sha256": "03a4cb687835768ab6e551567178272032dceef42e2bad730d6930bb930cbed8"
+    },
+    {
+      "bytes": 778,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/harness.json",
+      "sha256": "69ce22478a508f90227e35227c08f1b1375fbfb3e5ee7d262b017eaccef874a5"
+    },
+    {
+      "bytes": 29780,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/loaded-module-origins.json",
+      "sha256": "350bbe4c3f1c2cb177315ae0ca34aadd73054fb342c49335d23bea26eb69c68b"
+    },
+    {
+      "bytes": 11635,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/probe.py",
+      "sha256": "ed34c5694ff9d8a1d1fbae9a99ec49581ad67581a45d327cf92390e877f65131"
+    },
+    {
+      "bytes": 0,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/probe.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 165798,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/probe.stdout.json",
+      "sha256": "17ddf783badf1e9a72959d09466ebdcd6e777cf9bb2c0920687532f2b64f91a0"
+    },
+    {
+      "bytes": 1422,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/run-harness.py",
+      "sha256": "925cdd84661c80249cb094f9f242d2f6e878138cf799df5f232361021ad6690c"
+    },
+    {
+      "bytes": 3303,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/source-closure.json",
+      "sha256": "50d7d5c32dc7e2bc2df123de932a861c349408025b5c9cd4e62cf7ba53870c56"
+    }
+  ],
+  "blocking_findings": [],
+  "cleanup": "None performed; preserve source/docs/deciding outputs/scratch during current review and author wave.",
+  "contract_review": {
+    "SEM_is_not_outcome_quantile_or_CI": true,
+    "conditional_assumptions_unverified": true,
+    "excluded": "interval-inferred/unknown/unsupported/family-mismatched/bounded-fit laws, empirical/posterior/weighted rows even draw/iid labelled, unknown dependency, incomplete execution, n<2, adaptive stopping, QMC lacking retained independent replica means",
+    "legacy_outcome_intervals_and_mc_std_unchanged": true,
+    "scientific_gate_eligible": false,
+    "supported": "complete fixed random implemented product of typed nondegenerate Normal fits std>=1e-12, conditional fixed deterministic finite-variance response assumption"
+  },
+  "engineering_verdict": "GO no blocking finding in full4path delta; targeted private helper only and existing CAS metadata reader reused",
+  "executed": {
+    "child_reopened_refs": 11,
+    "commands": [
+      [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/probe.py"
+      ],
+      [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/fresh-child.py"
+      ]
+    ],
+    "cwd": "/dev/shm/e02-orch03-20261008/c09",
+    "environment_selected": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/dev/shm/e02-orch03-20261008/c09/policy-engine/src"
+    },
+    "fresh_child_stderr_bytes": 0,
+    "interpreter": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "native_attempted_counts": [
+      100,
+      400
+    ],
+    "native_reports": 7,
+    "origin_scope_count": 99,
+    "packages": {
+      "jax": "0.8.2",
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5",
+      "scipy": "1.16.3"
+    },
+    "peak_rss_kib": 398316,
+    "property_removals_expected_FAIL": 3,
+    "returncode": 0,
+    "stderr_bytes": 0,
+    "stdout_stderr_complete": true,
+    "supported_control_under_removal": 1,
+    "wall_seconds": 4.647128409997094
+  },
+  "full_diff_review": {
+    "all_paths": [
+      {
+        "bytes": 937,
+        "path": "policy-engine/release-fragments/unreleased/2026-10-08-c09-mc-mean-error.toml",
+        "sha256": "00d42c75ca928181b97e3f46c1ebe323e40e3a2db82d0854b263fe0136daa8c0",
+        "source_blob": "a45d6544911a6a56ffc19c1d2017a83e3e628511"
+      },
+      {
+        "bytes": 3447,
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+        "sha256": "1570e8a6bb2721255934e83c8cfa073cc4a2132c20b539318de3a2168f01e50c",
+        "source_blob": "8fbdae4b4dbfd655d4b3bed4a925fe1ebf4a31c4"
+      },
+      {
+        "bytes": 60061,
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+        "sha256": "0bf11df46da6a2025bdd3e9c41309acdc1658f258ee969800c2d6904e8ce7fab",
+        "source_blob": "df6bf19660512724859dd1d6cd09821b2baca721"
+      },
+      {
+        "bytes": 9264,
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py",
+        "sha256": "a247e1385e1426752c8784691affc4c213102086dd3e87b5046431a7440edec0",
+        "source_blob": "ff6b899ecf8d91d7275f56a16336fe9404b3c0c3"
+      }
+    ],
+    "code_companion_schema": "metadata-only additive internal channel; no IR/schema/generator/public facade change; current release enum not_applicable",
+    "non_behavior_changes": "three format wraps and diagnostics indentation",
+    "patch": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/review-1b8/full-diff.patch",
+    "previous_CI_carry": [
+      {
+        "byte_identical": true,
+        "ci_blob": "68acb8d97ec90984e5fe9a47384bae6878ff0b96",
+        "mc_frozen_blob": "68acb8d97ec90984e5fe9a47384bae6878ff0b96",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-08-c09-backtest-interval-admission.toml"
+      },
+      {
+        "byte_identical": true,
+        "ci_blob": "2dfea9bd3d450ecdb4f87cc48bc60468d8412ba0",
+        "mc_frozen_blob": "2dfea9bd3d450ecdb4f87cc48bc60468d8412ba0",
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/README.md"
+      },
+      {
+        "byte_identical": true,
+        "ci_blob": "5f9f5e3ebf316b38faa81735a5f3942de0fa5d01",
+        "mc_frozen_blob": "5f9f5e3ebf316b38faa81735a5f3942de0fa5d01",
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py"
+      },
+      {
+        "byte_identical": true,
+        "ci_blob": "6dadf837033e0234f0e5c8070b331e29daed765a",
+        "mc_frozen_blob": "6dadf837033e0234f0e5c8070b331e29daed765a",
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py"
+      },
+      {
+        "byte_identical": true,
+        "ci_blob": "5960e956db8ecce938b9d9a775ad72744bc49598",
+        "mc_frozen_blob": "5960e956db8ecce938b9d9a775ad72744bc49598",
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_evaluator_interval_admission.py"
+      }
+    ]
+  },
+  "head_after_probe": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+  "independence": {
+    "no_children": true,
+    "no_integration_writes": true,
+    "no_live_source_or_test_edits": true,
+    "runtime_removal_scope": "reviewer scratch/in-process function replacement only, restored after controls"
+  },
+  "matrix": [
+    {
+      "bound": "exact realized arithmetic plus implemented internal draw path; not population coverage or empirical scientific law",
+      "cases": [
+        "typed_normal_100",
+        "typed_normal_400",
+        "same_seed_repeat"
+      ],
+      "oracle": "Fraction.from_float persisted samples; SEM\u00b2=sum((x-mean)\u00b2)/(n(n-1)); no NumPy/std production algorithm in oracle",
+      "requirement": "Conditional standard error uses actual complete corpus, ddof1 and n, separate from outcome spread",
+      "result": "PASS",
+      "surface": "MonteCarloPropagator \u2192 persist_uncertainty_envelope \u2192 load_uncertainty_envelope(new store + separate process)"
+    },
+    {
+      "cases": [
+        "weighted_fake_iid",
+        "counterfeit_mean_error"
+      ],
+      "negative": "finite outputs and fake IID markers remain; weighted mean SEM unavailable despite finite corpus",
+      "oracle": "typed payload classification independent of iid/sampling_law/mean_estimator_error marker",
+      "requirement": "Caller metadata does not declare/replace law/error/authority",
+      "result": "PASS",
+      "surface": "actual normal and weighted PosteriorSamplesCarrier input propagation and fresh CAS"
+    },
+    {
+      "bound": "E8d independent-replica method not included or carried",
+      "cases": [
+        "qmc_two_scrambles_pooled"
+      ],
+      "oracle": "sampling design; no retained independent replica means in current G producer",
+      "requirement": "Pooled QMC rows do not use flat-row IID SEM",
+      "result": "PASS",
+      "surface": "actual sobol2 independently scrambled pools through producer/CAS/fresh child"
+    },
+    {
+      "cases": [
+        "one_success_100_attempts"
+      ],
+      "negative": "real configured100; no private helper n1 or illicit config below public minimum; fallback has no persisted posterior rows but exact counts and unavailable diagnostic survive",
+      "oracle": "explicit nominal+1 success callback and actual producer attempted/finite/failure counts",
+      "requirement": "One successful output out of full attempts never creates zero reported SEM or silently drops failures",
+      "result": "PASS",
+      "surface": "public mc_n_samples=100 callback \u2192 actual 1 finite/99 failed \u2192 existing insufficient-sample envelope \u2192 CAS/fresh child"
+    },
+    {
+      "bound": "Outer historical envelope gate/interval semantics are unchanged, not newly validated or upgraded",
+      "markers": {
+        "assumptions_verified": false,
+        "gate_eligible": false,
+        "source_law_authority": "not_established"
+      },
+      "oracle": "fixed deterministic response and finite variance are explicit assumptions; no verifier/factual packet in this synthetic check",
+      "requirement": "Known unverified response regularity cannot become scientific admission via new error channel",
+      "result": "PASS bounded non-gating profile",
+      "surface": "persisted diagnostic + code/dataflow + README/release"
+    },
+    {
+      "bound": "This corroboration removes runtime guard in-memory; author source-patch removal final wave remains separate",
+      "cases": [
+        "removed_guard_weighted",
+        "removed_guard_qmc",
+        "removed_guard_one_success"
+      ],
+      "expected_fail": 3,
+      "oracle": "supported-law and full denominator discriminator",
+      "ordinary_control": "removed_guard_supported_positive PASS",
+      "requirement": "Remove runtime property while keeping all marker diagnostics must fail",
+      "result": "PASS sensitivity control",
+      "surface": "in-process replacement of runtime helper; actual propagator/CAS/fresh child; source files read-only",
+      "unexpected_fail": 0
+    },
+    {
+      "bound": "99 actually imported maintained modules; not a universal dynamic/external import denominator",
+      "loaded_blob_mismatch": 0,
+      "loaded_modules": 99,
+      "new_paths": 4,
+      "oracle": "immutable 1b8 Git blobs and previous ee CI blobs",
+      "previous_CI_paths_unchanged": 5,
+      "requirement": "No unintended source/CI/profile composition carry",
+      "result": "PASS",
+      "surface": "git blob closure and all actually loaded maintained sources"
+    }
+  ],
+  "next_concrete_result": "C09 executes single affected focused wave on immutable1b8; commits complete deciding outputs and separately handoff; root composes exact leaves after reviews and G chooses composition",
+  "original_binding": {
+    "bound_bytes_sha256": "f2e8020b22206a84bcdcbf796bfb0c00545c4d8b211d75f20c45a91283c16084",
+    "card_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "card_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "finding": "B21",
+    "lines": [
+      451,
+      464
+    ],
+    "producer_helper_owner": "C09/E foundry uncertainty; team-foundry",
+    "scope": "requested repetitions/count/seed/units and honest numerical error; stochastic one-draw must not imply zero uncertainty; numeric sampling error differs from world/model uncertainty",
+    "unit_owner": "A / SIM-03",
+    "whole_original_criterion": "not adjudicated by this helper slice"
+  },
+  "preparation": {
+    "analytic_oracles_path": "/dev/shm/e02-orch03-20261008/oracle-empirical/mean-error/oracle.stdout.json",
+    "description": "independent Fraction same-variance n4\u2192n16 exact SEM1/2; dependent-copy finite-variance falsifier; constructed panels not DGP coverage"
+  },
+  "remaining_limits": [
+    "No scientific/empirical source law, IID population, finite-variance, independence or real-world/model uncertainty authority established.",
+    "Arbitrary callback hidden shared randomness/state (Yi=Z) and Normal-input exp(0.3X\u00b2) infinite second moment falsifiers remain explicit unverified assumption boundary; prepared analytic oracle supplied separately.",
+    "Current G QMC independent scramble means are not retained; named E8d source reuse requirement remains separate, no pooled-row SEM.",
+    "Adaptive/incomplete/unknown/law guards reviewed statically and maintained tests inspected; independent runtime probe covers weighted, QMC and1/100; author final affected tests own other branches.",
+    "No installed/wheel/sdist/whole B21/full E/broad BKT/IR/C10 consumer or policy authority PASS inferred; no test quota imposed.",
+    "Root/leaf source-ready and helper GO remain separate from G code acceptance and formal finding closure.",
+    "Fresh reader checks 11 synthetic CAS refs; source/data input admission/CAS provenance authority on real sources requires canonical owner packet."
+  ],
+  "reviewer": "/root/oracle_empirical",
+  "role": "ORCH03 direct independent oracle/reviewer C09",
+  "schema_version": "1.0",
+  "source_status_after_probe": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/supplier-requirements.json",
+  "specification_verdict": "GO / PASS bounded additive conditional numerical-error property; final author affected wave pending",
+  "target": {
+    "E_receipt_carry": "none; different current producer/profile/replica-means implementation",
+    "E_source": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+    "G_dependency": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "lane": "/dev/shm/e02-orch03-20261008/c09",
+    "parent_and_slice_base": "514f90058104f7dd8ada1c83b8bf5f62bfc33b88",
+    "source_sha": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+    "source_tree": "7a4ee9e71c793827abef998540dcd12ab129c4ba",
+    "topic": "codex/e02-E-c09-20261008"
+  },
+  "writer": "/root/c09"
+}

@@ -1,0 +1,49 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_actual_iid_mean_error_matches_independent_fraction_after_fresh_cas_reader _
+
+tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c09-scratch/mean-base/test_actual_iid_mean_error_mat0')
+
+    def test_actual_iid_mean_error_matches_independent_fraction_after_fresh_cas_reader(
+        tmp_path: Path,
+    ) -> None:
+        result = _propagate(PropagationConfig(mc_n_samples=100, mc_seed=27))
+        store = build_ir_artifact_store(tmp_path / "cas")
+        ref = persist_uncertainty_envelope(store, result.envelope)
+        fresh = load_uncertainty_envelope(build_ir_artifact_store(tmp_path / "cas"), ref)
+        assert isinstance(fresh.distribution_payload, PosteriorSamplesCarrier)
+        samples = fresh.distribution_payload.samples
+        expected = float(_fraction_sem_squared(samples)) ** 0.5
+>       diagnostic = fresh.metadata["mean_estimator_error"]
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'mean_estimator_error'
+
+policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py:68: KeyError
+_ test_actual_one_success_out_of_full_attempts_has_unavailable_error_after_cas _
+
+tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c09-scratch/mean-base/test_actual_one_success_out_of0')
+
+    def test_actual_one_success_out_of_full_attempts_has_unavailable_error_after_cas(
+        tmp_path: Path,
+    ) -> None:
+        calls = 0
+    
+        def one_success(x=0.0):
+            nonlocal calls
+            calls += 1
+            # First call is nominal replay; the next is the sole successful sampled output.
+            return {"y": 1.0 if calls <= 2 else float("nan")}
+    
+        result = MonteCarloPropagator(PropagationConfig(mc_n_samples=100)).propagate(
+            one_success, {"x": 0.0}, {"x": _normal_law()}, ["y"]
+        )[0]
+        ref = persist_uncertainty_envelope(build_ir_artifact_store(tmp_path / "cas"), result.envelope)
+        fresh = load_uncertainty_envelope(build_ir_artifact_store(tmp_path / "cas"), ref)
+>       diagnostic = fresh.metadata["mean_estimator_error"]
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'mean_estimator_error'
+
+policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py:162: KeyError
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py::test_actual_iid_mean_error_matches_independent_fraction_after_fresh_cas_reader
+FAILED policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py::test_actual_one_success_out_of_full_attempts_has_unavailable_error_after_cas

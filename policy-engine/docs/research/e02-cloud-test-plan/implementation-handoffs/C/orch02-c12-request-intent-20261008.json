@@ -133,10 +133,12 @@
       "wall_seconds": 29.37854561000006,
       "maxrss_kib": 285060,
       "timeout_seconds": null,
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/stdout.txt",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/stdout.txt.gz",
       "stdout_alias": null,
       "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/source-input-closure.json",
-      "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/command.json"
+      "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/command.json",
+      "output_encoding": "gzip",
+      "decompressed_output_sha256": "8f758b0c2f726a250a3599a1d82d6d8eafd90824ec183c50eabe3bc7b8bbf87d"
     },
     {
       "name": "c12-intent-semantic",
@@ -209,10 +211,12 @@
       "wall_seconds": 3.785772397999949,
       "maxrss_kib": 198788,
       "timeout_seconds": null,
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/stdout.txt",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/stdout.txt.gz",
       "stdout_alias": null,
       "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/source-input-closure.json",
-      "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/command.json"
+      "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/command.json",
+      "output_encoding": "gzip",
+      "decompressed_output_sha256": "9da8df0a92552757f713a7fa237f5e84006178f499fa58c7d29441255ba640d0"
     },
     {
       "name": "ruff-final",
@@ -471,7 +475,9 @@
   "reproduction": "Use exact source192 with declared locked Python3.14 app profile and native hnswlib0.8.0/NumPy2.3.5. Export shared scripts from coordinator02191 to isolated scratch; preserve historical semantic_collect-c12-executed.py as semantic_collect.py for C12 recipe, recreate scratch/venv/bin/python through ordinary uv tooling. Original command.json records actual argv/cwd/isolated DB,CAS/basetemp and origins; no environment/assets copy. Default full wave was first wall measurement with no timeout; any repeat can select timeout from29.38s measured suite cost.",
   "evidence_aliases": {
     "c12-intent-semantic/stdout.txt": "native/c12-intent-semantic/semantic.json same complete bytes @b28341fc6cdc232c43e50b5c6c0be5bf18e5dcdd70aafa670be36c11fd0e544c",
-    "c12-callable-residual/stdout.txt": "native/c12-callable-residual/semantic.json same complete bytes @0d7cafbf25a6efb68720a7a772b77382c58fcfd5a54d753b402858155b92e600"
+    "c12-callable-residual/stdout.txt": "native/c12-callable-residual/semantic.json same complete bytes @0d7cafbf25a6efb68720a7a772b77382c58fcfd5a54d753b402858155b92e600",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/stdout.txt.gz; losslessgzip decompressed original8f758b0c2f726a250a3599a1d82d6d8eafd90824ec183c50eabe3bc7b8bbf87d",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/stdout.txt.gz; losslessgzip decompressed original9da8df0a92552757f713a7fa237f5e84006178f499fa58c7d29441255ba640d0"
   },
   "cleanup": "No permanent cleanup; unique source/outputs preserved; no venv/nativefixtureDB/index/assets copied to Git.",
   "receipt_footprint": {
@@ -495,7 +501,7 @@
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/resource.json",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/runtime-origins.json",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/stderr.txt",
-      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/stdout.txt.gz",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-intent-semantic/command.json",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-intent-semantic/resource.json",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-intent-semantic/semantic.json",
@@ -505,7 +511,7 @@
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/resource.json",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/runtime-origins.json",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/stderr.txt",
-      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/stdout.txt.gz",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture.receipt.json",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture.stderr.txt",
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture.stdout.txt",
@@ -533,5 +539,35 @@
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/source-input-closure.json"
     ],
     "scope": "Separate handoff/evidence commit; candidate source footprint above remains exactly6. No fixture DB, array, HNSW asset, venv or confidential payload included."
+  },
+  "evidence_representation": {
+    "purpose": "Preserve complete captured pytest stdout bytes including trailing whitespace while satisfying repository text-whitespace checks; no source/runtime delta or rerun",
+    "original_plain_logs_preserved_in_commit": "310a833fa82a053830711062653e66c78129a2c8",
+    "lossless_archives": [
+      {
+        "original_commit": "310a833fa82a053830711062653e66c78129a2c8",
+        "original_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/stdout.txt",
+        "original_blob": "d4a606f978aec3089547b8d9c0c800e02521f2aa",
+        "storage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/stdout.txt.gz",
+        "encoding": "gzip",
+        "compressed_bytes": 273,
+        "compressed_sha256": "5a271fd77b04bc98bd0c9c7a214318af9d25a31d36bdcfdb49871fa9ab524863",
+        "decompressed_bytes": 559,
+        "decompressed_sha256": "8f758b0c2f726a250a3599a1d82d6d8eafd90824ec183c50eabe3bc7b8bbf87d",
+        "readback": "decompression equals immutable310 original Git blob exactly; unchanged original command-output fingerprints"
+      },
+      {
+        "original_commit": "310a833fa82a053830711062653e66c78129a2c8",
+        "original_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/stdout.txt",
+        "original_blob": "a238fa61c6430ddbc98934f50fe6a7f680cf6cbd",
+        "storage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/stdout.txt.gz",
+        "encoding": "gzip",
+        "compressed_bytes": 271,
+        "compressed_sha256": "5fae2a639fc0ece07700a2874b27aeefd232df5cc50f75f514d110b86040543a",
+        "decompressed_bytes": 559,
+        "decompressed_sha256": "9da8df0a92552757f713a7fa237f5e84006178f499fa58c7d29441255ba640d0",
+        "readback": "decompression equals immutable310 original Git blob exactly; unchanged original command-output fingerprints"
+      }
+    ]
   }
 }

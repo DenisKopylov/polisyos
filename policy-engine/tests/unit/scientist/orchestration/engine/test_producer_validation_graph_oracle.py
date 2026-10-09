@@ -95,7 +95,7 @@ class _AliasSplittingFieldGraph(_GraphShape):
     def equal_values_different_alias(cls, value: int, info: ValidationInfo) -> int:
         if value == 23:
             assert info.data is not None
-            info.data["rows"] = [info.data["leaf"].model_copy(deep=True)]
+            info.data["rows"][0] = info.data["leaf"].model_copy(deep=True)
         return value
 
 

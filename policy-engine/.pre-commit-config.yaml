@@ -38,7 +38,7 @@ repos:
     rev: v0.14.10
     hooks:
       - id: ruff
-        args: [--config=policy-engine/ruff.toml, --fix]
+        args: [--config=policy-engine/architecture/tooling/ruff/workspace_root.toml, --fix]
         files: >-
           (?x)^policy-engine/(
             src/polisyos/.*\.pyi?$|
@@ -52,7 +52,7 @@ repos:
             migrate\.py$
           )
       - id: ruff-format
-        args: [--config=policy-engine/ruff.toml]
+        args: [--config=policy-engine/architecture/tooling/ruff/workspace_root.toml]
         files: >-
           (?x)^policy-engine/(
             src/polisyos/.*\.pyi?$|

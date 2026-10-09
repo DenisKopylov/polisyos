@@ -81,7 +81,9 @@ def _render_mypy(repo_root: Path, data: dict[str, Any]) -> tuple[RenderedFile, .
     fragments = [_read_fragment(repo_root, path) for path in config["override_fragments"]]
 
     root_content = _comment_notice("mypy.ini") + _ensure_trailing_newline(base)
-    generated_content = _comment_notice(config["generated_config"]) + _join_blocks([base, *fragments])
+    generated_content = _comment_notice(config["generated_config"]) + _join_blocks(
+        [base, *fragments]
+    )
     return (
         RenderedFile(repo_root / config["root_config"], root_content, repo_root),
         RenderedFile(repo_root / config["generated_config"], generated_content, repo_root),
@@ -104,9 +106,24 @@ def _render_ruff(repo_root: Path, data: dict[str, Any]) -> tuple[RenderedFile, .
     generated_content = _comment_notice(generated_config) + _join_blocks(
         [base, "[lint.per-file-ignores]\n", *fragments]
     )
+    workspace_root_config = config["workspace_root_generated_config"]
+    workspace_root_prefix = config["workspace_root_prefix"]
+    workspace_root_fragments = [
+        _read_ruff_per_file_ignore_fragment(
+            repo_root,
+            path,
+            workspace_root_config,
+            pattern_prefix=workspace_root_prefix,
+        )
+        for path in config["per_file_ignore_fragments"]
+    ]
+    workspace_root_content = _comment_notice(workspace_root_config) + _join_blocks(
+        [base, "[lint.per-file-ignores]\n", *workspace_root_fragments]
+    )
     return (
         RenderedFile(repo_root / config["root_config"], root_content, repo_root),
         RenderedFile(repo_root / generated_config, generated_content, repo_root),
+        RenderedFile(repo_root / workspace_root_config, workspace_root_content, repo_root),
     )
 
 
@@ -119,8 +136,10 @@ def _render_mkdocs(repo_root: Path, data: dict[str, Any]) -> tuple[RenderedFile,
         "nav:\n",
         *(_read_fragment(repo_root, path) for path in config["nav_fragments"]),
     ]
-    root_content = _comment_notice("mkdocs.yml") + f'INHERIT: {config["generated_config"]}\n'
-    generated_content = _comment_notice(config["generated_config"], comment="#") + _join_blocks(blocks)
+    root_content = _comment_notice("mkdocs.yml") + f"INHERIT: {config['generated_config']}\n"
+    generated_content = _comment_notice(config["generated_config"], comment="#") + _join_blocks(
+        blocks
+    )
     return (
         RenderedFile(repo_root / config["root_config"], root_content, repo_root),
         RenderedFile(repo_root / config["generated_config"], generated_content, repo_root),
@@ -143,7 +162,11 @@ _RUFF_PER_FILE_IGNORE_KEY_RE = re.compile(
 
 
 def _read_ruff_per_file_ignore_fragment(
-    repo_root: Path, relative_path: str, generated_config: str
+    repo_root: Path,
+    relative_path: str,
+    generated_config: str,
+    *,
+    pattern_prefix: str | None = None,
 ) -> str:
     fragment = _read_fragment(repo_root, relative_path)
     generated_dir = (repo_root / generated_config).parent
@@ -153,25 +176,30 @@ def _read_ruff_per_file_ignore_fragment(
         if match is None:
             rendered_lines.append(line)
             continue
-        rendered_lines.append(
-            (
-                f'{match.group("indent")}"'
-                f'{_ruff_pattern_for_generated_config(match.group("pattern"), repo_root, generated_dir)}'
-                f'"{match.group("suffix")}'
-            )
-        )
+        pattern = match.group("pattern")
+        if pattern_prefix is None:
+            rendered_pattern = _ruff_pattern_for_generated_config(pattern, repo_root, generated_dir)
+        else:
+            rendered_pattern = _ruff_pattern_for_prefix(pattern, pattern_prefix)
+        rendered_lines.append(f'{match.group("indent")}"{rendered_pattern}"{match.group("suffix")}')
     return "\n".join(rendered_lines) + ("\n" if fragment.endswith("\n") else "")
 
 
 def _ruff_pattern_for_generated_config(pattern: str, repo_root: Path, generated_dir: Path) -> str:
     """Render repo-root-relative Ruff patterns relative to the generated config."""
 
+    prefix = os.path.relpath(repo_root, generated_dir).replace(os.sep, "/")
+    return _ruff_pattern_for_prefix(pattern, prefix)
+
+
+def _ruff_pattern_for_prefix(pattern: str, prefix: str) -> str:
+    """Render a repo-root-relative Ruff pattern below a caller's project root."""
+
     negated = pattern.startswith("!")
     subject = pattern[1:] if negated else pattern
     if subject.startswith(("/", "./", "../")):
         return pattern
-    prefix = os.path.relpath(repo_root, generated_dir).replace(os.sep, "/")
-    rendered = f"{prefix}/{subject}" if prefix != "." else subject
+    rendered = f"{prefix}/{subject}" if prefix not in {"", "."} else subject
     return f"!{rendered}" if negated else rendered
 
 
@@ -267,8 +295,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         print("Generated configs, but override report still has findings:", file=sys.stderr)
         for finding in override_findings:
             print(
-                f"- {finding['check']} {finding['tool']} {finding['subject']}: "
-                f"{finding['detail']}",
+                f"- {finding['check']} {finding['tool']} {finding['subject']}: {finding['detail']}",
                 file=sys.stderr,
             )
         return 1

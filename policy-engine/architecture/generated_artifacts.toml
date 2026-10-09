@@ -1109,6 +1109,7 @@ source_of_truth = "architecture/tooling/tool_config_split.toml and architecture/
 outputs = [
   "architecture/tooling/mypy/generated.ini",
   "architecture/tooling/ruff/generated.toml",
+  "architecture/tooling/ruff/workspace_root.toml",
   "architecture/tooling/mkdocs/generated.yml",
   "mypy.ini",
   "ruff.toml",

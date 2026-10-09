@@ -26,7 +26,9 @@ override_fragments = [
 root_config = "ruff.toml"
 base_config = "architecture/tooling/ruff/base.toml"
 generated_config = "architecture/tooling/ruff/generated.toml"
-root_policy = "Root ruff.toml extends the generated operational config and keeps only loader/cache policy."
+workspace_root_generated_config = "architecture/tooling/ruff/workspace_root.toml"
+workspace_root_prefix = "policy-engine"
+root_policy = "Product-root discovery uses root_config; Git-workspace-root callers use workspace_root_generated_config directly."
 per_file_ignore_fragments = [
   "architecture/tooling/ruff/per-file-ignores/10-tests-ir.toml",
   "architecture/tooling/ruff/per-file-ignores/20-core.toml",

@@ -1,0 +1,118 @@
+{
+  "schema": "policyos.e02.local_path_leases.v1",
+  "source_base_sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+  "commit_owner": "root",
+  "branch": "codex/e02-unified-local-20261009",
+  "one_level_delegation": true,
+  "writers": {
+    "i1_c05": {
+      "scope": "C05 owner-bounded current-G structural composition; preserve G _resources/all exports; add generation_basis_matches_members for I4",
+      "mechanisms": [
+        "data_forge/domains/catalog/batch/{config,harvester,material_inputs,core_sources/loaders}.py",
+        "data_forge/domains/catalog/{knowledge/proxy_penalties,selection}.py",
+        "fabric/retrieval/service.py",
+        "data_forge/kernel/{io/generation_basis,pipeline/manifests}.py",
+        "data_forge/domains/catalog/batch/pipeline.py",
+        "data_forge/domains/catalog/batch/core_sources/validators.py",
+        "data_forge/domains/catalog/batch/core_sources/benchmark.py",
+        "data_forge/domains/catalog/batch/core_sources/api.py",
+        "data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+        "data_forge/domains/catalog/batch/core_sources/registry.py",
+        "data_forge/domains/catalog/batch/source_registry.py",
+        "data_forge/domains/catalog/registry.py",
+        "data_forge/domains/catalog/source_modules.py"
+      ],
+      "companions": [
+        "C05 READMEs/releases",
+        "tests/unit/remediation/test_dfi_03.py",
+        "tests/unit/remediation/test_dfk_02.py",
+        "{core,ir,fabric}/__init__.py",
+        "data_forge/read_api/catalog.py"
+      ]
+    },
+    "i4_c12": {
+      "mechanisms": [
+        "data_forge/domains/legal/batch/embedder.py",
+        "data_forge/domains/legal/embedding_projection.py",
+        "lex/knowledge/store.py",
+        "lex/knowledge/search.py"
+      ],
+      "companions": [
+        "tests/unit/remediation/test_emb_03.py",
+        "Legal README/release"
+      ]
+    },
+    "q1_b_contracts": {
+      "mechanisms": [
+        "scientist/orchestration/engine/state_branching.py",
+        "scientist/orchestration/engine/executor.py",
+        "scientist/orchestration/engine/async_executor.py",
+        "scientist/methods/runner/_activity_worker.py",
+        "data_forge/read_api/academic.py",
+        "scientist/orchestration/engine/skg_snapshot.py",
+        "core/artifacts/__init__.py"
+      ],
+      "companions": [
+        "prepared B seven tests and READMEs/releases: exact authored footprint recorded at implementation boundary"
+      ]
+    },
+    "dx0_native": {
+      "mechanisms": [
+        "architecture/tooling/tool_config_split.toml",
+        "tools/devx/workspace/tool_configs.py",
+        ".pre-commit-config.yaml"
+      ],
+      "companions": [
+        "generated Ruff family",
+        "focused tool-config behavioral tests"
+      ]
+    },
+    "runtime_v1_v2": {
+      "mechanisms": [
+        "runtime/quality/design_generation.py",
+        "runtime/quality/generation_source.py",
+        "runtime/quality/cycle_substrate.py",
+        "runtime/http/services/control/{generation_cycle,run_lifecycle}.py",
+        "runtime/http/routes/{runs,control}.py",
+        "core/contracts/{control,runtime}.py"
+      ],
+      "companions": [
+        "dashboard api/{types,validators}.ts",
+        "OverviewTab consumer/tests",
+        "mirrored runtime tests"
+      ],
+      "scope": "ordinary persisted N4/child/context/CAS -> fresh GET typed projection -> actual parsed browser; generators/root reserved"
+    }
+  },
+  "root_reserved": [
+    "pyproject/uv.lock and non-Ruff schema/generators",
+    "core artifacts/LLM/CAN except prepared-B facade",
+    "Legal shared embeddings prerequisites",
+    "all Git staging/commits/push"
+  ],
+  "read_only": [
+    "q0_crosswalk",
+    "numerical_semantics",
+    "custody_empirical"
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P01",
+      "P02",
+      "P05",
+      "P10",
+      "P29",
+      "P31",
+      "P32",
+      "P33",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "target": "real source-bound producer/artifact/bridge/consumer plus semantic/removal control; full finding denominator preserved",
+    "missing_labels": "finding-specific, no task-success propagation",
+    "acceptance_signal": "independent review and fresh exact candidate evidence per original occurrence; proposals separate from G adjudication"
+  }
+}

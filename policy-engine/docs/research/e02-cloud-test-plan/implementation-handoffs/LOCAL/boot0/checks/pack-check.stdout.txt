@@ -1,0 +1,79 @@
+{
+  "schema": "policyos.e02.local_execution_pack_validation.v1",
+  "scope": "complete planning graph/criterion pointers; no runtime acceptance",
+  "result": "PASS",
+  "sources": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+      "sha256": "590cb7631422175148022217a96fc1c234f8ba4f0d22e83bde46d9636bdd5ce0"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+      "sha256": "488806f7ffa455a84e311e19b2cc1d207016b587625abf846ddd11753b21cd7d"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/INPUTS.json",
+      "sha256": "b000d61906fc0d732287f1a50cbb1ca902c23f4d08a292e4330734f5147431da"
+    }
+  ],
+  "denominator": {
+    "bundles": 127,
+    "findings": 282,
+    "criterion_occurrences": 291
+  },
+  "author_proposals": {
+    "open": 7,
+    "limited": 54,
+    "closed": 198,
+    "held": 23
+  },
+  "historical_ledger_counts": {
+    "partial": 260,
+    "open": 1,
+    "closed": 9,
+    "held": 12
+  },
+  "tasks": 26,
+  "original_tasks": 23,
+  "finding_task_links": 319,
+  "topological_order": [
+    "BOOT0",
+    "S1",
+    "S3",
+    "Q1",
+    "R1",
+    "V6",
+    "V7",
+    "Q0",
+    "I1",
+    "I2",
+    "T1",
+    "R2",
+    "R3",
+    "R4",
+    "I3",
+    "I4",
+    "V1",
+    "V2",
+    "V3",
+    "V4",
+    "V5",
+    "S2",
+    "T2",
+    "Q2",
+    "DX0",
+    "DEC0"
+  ],
+  "unrouted_findings": [],
+  "all_original_criterion_pointers_resolved": true,
+  "historical_B198_retained": true,
+  "new_formal_closure_ids": []
+}

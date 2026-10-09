@@ -32,9 +32,6 @@ class AggregationStrategy(str, Enum):
     BAYESIAN_COMBINATION = "bayesian_combination"
 
 
-_ESTABLISHED_INDEPENDENCE_VALUES = frozenset({"independent"})
-
-
 @dataclass(frozen=True, slots=True)
 class _AggregationContext:
     """Facts about the supplied inputs that formulas must not infer numerically."""
@@ -68,37 +65,15 @@ def _is_content_bound_origin_id(value: object) -> bool:
     return bool(normalized) and not normalized.startswith("inline:")
 
 
-def _is_established_independence_value(value: object) -> bool:
-    """Accept only explicit canonical independence evidence."""
-    if value is True:
-        return True
-    return (
-        isinstance(value, str)
-        and value.strip().lower().replace("-", "_")
-        in _ESTABLISHED_INDEPENDENCE_VALUES
-    )
-
-
 def _has_unknown_dependency(envelopes: Sequence[UncertaintyEnvelope]) -> bool:
-    """Return whether independence is absent, conflicting, or unrecognized."""
-    for envelope in envelopes:
-        dependency_values = [
-            envelope.metadata[key]
-            for key in ("dependency", "dependence")
-            if key in envelope.metadata
-        ]
-        independence = envelope.metadata.get("independence")
-        if independence is False:
-            return True
-        if dependency_values:
-            if not all(_is_established_independence_value(value) for value in dependency_values):
-                return True
-            if independence is not None and not _is_established_independence_value(independence):
-                return True
-            continue
-        if not _is_established_independence_value(independence):
-            return True
-    return False
+    """Treat distinct inputs as dependent until a source-bound relation is resolved.
+
+    The current envelope carrier has no relation resolver, so caller metadata labels such as
+    ``True`` or ``"independent"`` cannot authorize a precision-style formula. Exact duplicate
+    origins have already been collapsed before this check.
+    """
+
+    return len(envelopes) > 1
 
 
 def _prepare_inputs(
@@ -120,16 +95,12 @@ def _prepare_inputs(
             unique.append(envelope)
             continue
         if previous != envelope:
-            raise UncertaintyCompatibilityError(
-                f"conflicting envelopes for origin {origin!r}"
-            )
+            raise UncertaintyCompatibilityError(f"conflicting envelopes for origin {origin!r}")
 
     normalized = tuple(unique)
     dependency_unknown = _has_unknown_dependency(normalized)
     effective_information_count = (
-        len(normalized)
-        if all_origins_bound and not dependency_unknown
-        else None
+        len(normalized) if all_origins_bound and not dependency_unknown else None
     )
     context = _AggregationContext(
         source_count=len(envelopes),
@@ -331,10 +302,14 @@ def _precision_weighted(
     *,
     context: _AggregationContext,
 ) -> UncertaintyEnvelope:
-    if context.effective_information_count is None or context.dependency_unknown or any(
-        env.interval_semantics is not IntervalSemantics.CONFIDENCE_INTERVAL
-        or env.is_heuristic_ci
-        for env in envelopes
+    if (
+        context.effective_information_count is None
+        or context.dependency_unknown
+        or any(
+            env.interval_semantics is not IntervalSemantics.CONFIDENCE_INTERVAL
+            or env.is_heuristic_ci
+            for env in envelopes
+        )
     ):
         return _widest(
             envelopes,
@@ -408,10 +383,14 @@ def _bayesian_combination(
     *,
     context: _AggregationContext,
 ) -> UncertaintyEnvelope:
-    if context.effective_information_count is None or context.dependency_unknown or any(
-        env.interval_semantics is not IntervalSemantics.CONFIDENCE_INTERVAL
-        or env.is_heuristic_ci
-        for env in envelopes
+    if (
+        context.effective_information_count is None
+        or context.dependency_unknown
+        or any(
+            env.interval_semantics is not IntervalSemantics.CONFIDENCE_INTERVAL
+            or env.is_heuristic_ci
+            for env in envelopes
+        )
     ):
         return _widest(
             envelopes,

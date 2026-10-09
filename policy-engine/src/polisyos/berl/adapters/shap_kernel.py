@@ -6,9 +6,11 @@ import math
 from collections.abc import Mapping
 from dataclasses import dataclass
 from itertools import combinations
+from typing import Final
 
 from polisyos.berl.adapters._utils import background_rows_from_context, int_param
 from polisyos.berl.adapters.protocol import (
+    AdapterUnavailableError,
     AssumptionReport,
     ExplanationContext,
     RawExplanation,
@@ -16,6 +18,10 @@ from polisyos.berl.adapters.protocol import (
     UncertaintyReport,
 )
 from polisyos.berl.metrics.infidelity import additive_reconstruct_delta
+
+SUPPORTED_KERNEL_SHAP_FEATURE_DEPENDENCE_POLICIES: Final[frozenset[str]] = frozenset(
+    {"marginal", "marginal_interventional"}
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -37,6 +43,15 @@ class KernelSHAPAdapter:
         x: Mapping[str, float],
         context: ExplanationContext,
     ) -> RawExplanation:
+        if (
+            self.method_id == "kernel_shap_conditional"
+            or context.feature_dependence_policy
+            not in SUPPORTED_KERNEL_SHAP_FEATURE_DEPENDENCE_POLICIES
+        ):
+            raise AdapterUnavailableError(
+                "empirical replacement KernelSHAP has no verified conditional law; "
+                f"feature-dependence policy {context.feature_dependence_policy!r} is unsupported"
+            )
         feature_names = context.feature_names
         max_features = int_param(context, "max_exact_shap_features", self.max_exact_features)
         if len(feature_names) > max_features:
@@ -72,15 +87,11 @@ class KernelSHAPAdapter:
             total = 0.0
             for size in range(feature_count):
                 weight = (
-                    math.factorial(size)
-                    * math.factorial(feature_count - size - 1)
-                    / factorial_n
+                    math.factorial(size) * math.factorial(feature_count - size - 1) / factorial_n
                 )
                 for subset in combinations(others, size):
                     coalition = frozenset(subset)
-                    total += weight * (
-                        value(coalition | {feature}) - value(coalition)
-                    )
+                    total += weight * (value(coalition | {feature}) - value(coalition))
             attributions[feature] = total
 
         return RawExplanation(

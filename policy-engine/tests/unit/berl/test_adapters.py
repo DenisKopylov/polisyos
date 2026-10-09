@@ -1,19 +1,23 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.berl.adapters.ale import ALEAdapter
 from polisyos.berl.adapters.gradients import FiniteDifferenceGradientAdapter
 from polisyos.berl.adapters.lime import LIMEAdapter
-from polisyos.berl.adapters.protocol import ExplanationContext
+from polisyos.berl.adapters.protocol import AdapterUnavailableError, ExplanationContext
 from polisyos.berl.adapters.shap_kernel import KernelSHAPAdapter
 
 
-def _context() -> ExplanationContext:
+def _context(
+    *,
+    feature_dependence_policy: str = "conditional_observational",
+) -> ExplanationContext:
     return ExplanationContext(
         feature_names=("x1", "x2"),
         output_scale="logit",
         perturbation_distribution="conditional_empirical_local",
-        feature_dependence_policy="conditional_observational",
+        feature_dependence_policy=feature_dependence_policy,
     )
 
 
@@ -79,6 +83,33 @@ def test_kernel_shap_exact_enumeration_matches_linear_model() -> None:
 
     assert explanation.attributions == {"x1": pytest.approx(2.0), "x2": pytest.approx(6.0)}
     assert adapter.reconstruct_delta(explanation, {"x1": 0.5, "x2": 1.0}) == pytest.approx(4.0)
+
+
+@pytest.mark.parametrize(
+    ("method_id", "feature_dependence_policy"),
+    [
+        ("kernel_shap", "conditional_observational"),
+        ("kernel_shap_conditional", "marginal_interventional"),
+    ],
+)
+def test_kernel_shap_direct_call_refuses_unverified_conditional_route(
+    method_id: str,
+    feature_dependence_policy: str,
+) -> None:
+    model_calls: list[dict[str, float]] = []
+
+    def model(features: dict[str, float]) -> float:
+        model_calls.append(dict(features))
+        return features["x1"]
+
+    with pytest.raises(AdapterUnavailableError, match="verified conditional law"):
+        KernelSHAPAdapter(method_id=method_id).explain(
+            model,
+            {"x1": 1.0, "x2": 1.0},
+            _context(feature_dependence_policy=feature_dependence_policy),
+        )
+
+    assert model_calls == []
 
 
 def test_lime_adapter_fits_local_linear_reconstruction() -> None:

@@ -108,17 +108,64 @@ def test_duplicate_origin_is_used_once_for_narrowing(method: AggregationStrategy
     "method",
     [AggregationStrategy.PRECISION_WEIGHTED, AggregationStrategy.BAYESIAN_COMBINATION],
 )
-def test_equal_values_with_different_origins_remain_distinct(method: AggregationStrategy) -> None:
-    """Numeric equality is not provenance: two independent origins may narrow once."""
+def test_distinct_origins_without_resolved_relation_do_not_enable_formula(
+    method: AggregationStrategy,
+) -> None:
+    """Different content origins do not prove that their measurements are independent."""
     left = _normal_env(10.0, 1.0, origin_id="origin-a")
     right = _normal_env(10.0, 1.0, origin_id="origin-b")
 
     result = aggregate_envelopes([left, right], method=method)
 
-    assert extract_std(result) == pytest.approx(1.0 / (2.0**0.5), abs=1e-9)
+    assert result.confidence_interval == (
+        min(left.ci_lower, right.ci_lower),
+        max(left.ci_upper, right.ci_upper),
+    )
+    assert result.interval_semantics is IntervalSemantics.DETERMINISTIC_BOUNDS
+    assert result.confidence_level is None
+    assert result.gate_eligible is False
     assert result.metadata["source_count"] == 2
-    assert result.metadata["effective_information_count"] == 2
-    assert result.sample_size == 2
+    assert result.metadata["effective_information_count"] is None
+    assert result.sample_size is None
+
+
+@pytest.mark.parametrize(
+    "asserted_relation",
+    [
+        {"dependency": "independent"},
+        {"independence": True},
+        {"dependency": True},
+        {"dependency": "independent", "independence": True},
+    ],
+)
+@pytest.mark.parametrize(
+    "method",
+    [AggregationStrategy.PRECISION_WEIGHTED, AggregationStrategy.BAYESIAN_COMBINATION],
+)
+def test_caller_asserted_independence_does_not_enable_formula(
+    asserted_relation: dict[str, object],
+    method: AggregationStrategy,
+) -> None:
+    """A metadata label is not a resolved producer-bound measurement relation."""
+    left = _normal_env(10.0, 1.0, origin_id="origin-a", dependency=None).model_copy(
+        update={"metadata": {"envelope_id": "origin-a", **asserted_relation}}
+    )
+    right = _normal_env(10.0, 1.0, origin_id="origin-b", dependency=None).model_copy(
+        update={"metadata": {"envelope_id": "origin-b", **asserted_relation}}
+    )
+
+    result = aggregate_envelopes([left, right], method=method)
+
+    assert result.confidence_interval == (
+        min(left.ci_lower, right.ci_lower),
+        max(left.ci_upper, right.ci_upper),
+    )
+    assert result.interval_semantics is IntervalSemantics.DETERMINISTIC_BOUNDS
+    assert result.confidence_level is None
+    assert result.gate_eligible is False
+    assert result.metadata["effective_information_count"] is None
+    assert result.metadata["effective_information_count_status"] == "not_established"
+    assert result.sample_size is None
 
 
 def test_conflicting_values_for_one_origin_fail_closed() -> None:
@@ -148,7 +195,7 @@ def test_mixed_confidence_and_credible_inputs_do_not_gain_statistical_label() ->
     assert result.interval_semantics is IntervalSemantics.DETERMINISTIC_BOUNDS
     assert result.confidence_level is None
     assert result.gate_eligible is False
-    assert result.metadata["effective_information_count"] == 2
+    assert result.metadata["effective_information_count"] is None
 
 
 def test_unknown_dependency_does_not_narrow_or_remain_gate_eligible() -> None:

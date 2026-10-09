@@ -1,0 +1,18 @@
+id = "2026-10-09-e02-b200-unresolved-dependence"
+title = "Keep unverified multi-source dependence out of uncertainty narrowing"
+type = "fixed"
+component = "foundry.uncertainty"
+owner = "team-runtime-quality"
+summary = "Precision-weighted and Bayesian aggregation no longer treat caller metadata labels or distinct origin IDs as proof that measurements are independent. Without a resolved source-bound relation, distinct origins produce the existing non-gating deterministic hull with effective information count not established; exact duplicate origins still collapse."
+evidence = [
+  "tests/unit/remediation/test_uqs_01.py",
+]
+compatibility = "No envelope schema changes. Multi-origin precision-weighted and Bayesian requests that previously narrowed on dependency='independent' or independence=true now return a conservative non-gating hull."
+change_class = "internal"
+surface_classification = "public_experimental: polisyos.foundry.uncertainty.aggregate_envelopes behavior"
+migration = "No payload migration is required. Producers must not rely on caller-authored independence labels to authorize formula-based aggregation."
+api = "The aggregator retains duplicate-origin collapse, marks distinct-source dependence not_established, and declines precision-style narrowing until a resolved relation exists."
+limitations = "This fail-closed behavior does not add a measurement/dependency relation artifact or resolver; a producer-bound source, replicate design, axis, time and likelihood-role relation remains a separate capability."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/foundry/uncertainty/README.md"]
+runbook_docs = []

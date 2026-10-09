@@ -24,3 +24,13 @@ produce and validate explanation-reliability evidence. Do not mark this package
 - `empirical_bernstein_upper_bound`
 - `hoeffding_upper_bound`
 - `estimate_local_infidelity`
+
+## Feature-Dependence Limits
+
+`kernel_shap` and `kernel_shap_marginal` currently implement exact Shapley values over an
+empirical replacement background. They run only when the request declares `marginal` or
+`marginal_interventional`. The `kernel_shap_conditional` identifier and any KernelSHAP request
+with the default `conditional_observational` profile return a diagnostic with no attribution:
+BERL does not currently admit a verified observed-feature conditional law or sampler. A future
+conditional producer must bind its law, source population, feature order, and version before this
+adapter can make a conditional claim.

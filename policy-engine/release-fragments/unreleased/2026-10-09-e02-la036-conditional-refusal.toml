@@ -1,0 +1,19 @@
+id = "2026-10-09-e02-la036-conditional-refusal"
+title = "Refuse KernelSHAP conditional requests without a verified feature law"
+type = "fixed"
+component = "berl"
+owner = "team-runtime-quality"
+summary = "KernelSHAP requests declared conditional now return a diagnostic with no attribution instead of running empirical replacement and labeling the result conditional. Declared marginal/interventional requests retain the empirical replacement result and canonical kernel_shap effective identity."
+evidence = [
+  "tests/unit/remediation/test_ber_01.py",
+  "tests/unit/berl/test_adapters.py",
+]
+compatibility = "No bundle schema changes. Consumers of kernel_shap_conditional or the default conditional_observational request profile may now receive a diagnostic and no attributions until a verified conditional-law producer is available."
+change_class = "internal"
+surface_classification = "public_experimental: BERL explanation method result behavior"
+migration = "Requests that rely on the existing empirical replacement calculation must declare marginal or marginal_interventional. The conditional method identifier remains accepted as a request but is explicitly unavailable."
+api = "The service and direct adapter reject unsupported conditional KernelSHAP routes through the typed unavailable/diagnostic path; marginal replacement requests continue to emit effective_method_id=kernel_shap."
+limitations = "This closes the false conditional attribution path only. BERL still has no admitted conditional-law producer or persisted source-bound conditional artifact, and no runtime/Scientist bridge consumes one. No conditional distribution is synthesized."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/berl/README.md"]
+runbook_docs = []

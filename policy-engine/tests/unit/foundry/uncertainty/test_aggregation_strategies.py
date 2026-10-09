@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.foundry.uncertainty.aggregator import AggregationStrategy, aggregate_envelopes
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
@@ -40,8 +41,8 @@ def _normal_env(
 
 
 class TestPrecisionWeighted:
-    def test_precision_weighted_narrows_ci(self) -> None:
-        """Combined CI should be narrower than any individual envelope."""
+    def test_precision_weighted_without_resolved_relation_uses_non_gating_hull(self) -> None:
+        """Caller labels and distinct IDs do not establish statistical independence."""
         env1 = _normal_env(
             10.0,
             2.0,
@@ -60,13 +61,10 @@ class TestPrecisionWeighted:
             method=AggregationStrategy.PRECISION_WEIGHTED,
         )
 
-        assert result.ci_width < env1.ci_width
-        assert result.ci_width < env2.ci_width
-        assert result.composition_provenance is not None
-        assert result.composition_provenance.exactness == ExactnessKind.APPROXIMATION
+        _assert_unresolved_hull(result, [env1, env2])
 
-    def test_precision_weighted_equal_variance_averages(self) -> None:
-        """With equal variances, point estimate should be the simple average."""
+    def test_precision_weighted_equal_variance_does_not_trust_independence_label(self) -> None:
+        """Equal variances still require a resolved relation before narrowing."""
         env1 = _normal_env(
             10.0,
             1.0,
@@ -85,14 +83,10 @@ class TestPrecisionWeighted:
             method=AggregationStrategy.PRECISION_WEIGHTED,
         )
 
-        assert result.point_estimate == pytest.approx(11.0, abs=0.01)
-        assert result.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
-        assert result.gate_eligible is True
-        assert result.metadata["effective_information_count"] == 2
-        assert result.sample_size == 2
+        _assert_unresolved_hull(result, [env1, env2])
 
-    def test_precision_weighted_favors_precise(self) -> None:
-        """Point estimate should be closer to the more precise (lower variance) source."""
+    def test_precision_weighted_does_not_favor_a_source_without_resolved_relation(self) -> None:
+        """The requested formula cannot use caller metadata to choose a source weight."""
         env_precise = _normal_env(
             10.0,
             0.5,
@@ -111,12 +105,12 @@ class TestPrecisionWeighted:
             method=AggregationStrategy.PRECISION_WEIGHTED,
         )
 
-        assert abs(result.point_estimate - 10.0) < abs(result.point_estimate - 20.0)
+        _assert_unresolved_hull(result, [env_precise, env_imprecise])
 
 
 class TestBayesianCombination:
     def test_bayesian_equivalent_to_precision_weighted_for_normals(self) -> None:
-        """For independent normals, Bayesian and precision-weighted should agree."""
+        """Neither formula narrows based only on caller-authored independence labels."""
         envs = [
             _normal_env(
                 10.0,
@@ -135,36 +129,30 @@ class TestBayesianCombination:
         pw = aggregate_envelopes(envs, method=AggregationStrategy.PRECISION_WEIGHTED)
         bc = aggregate_envelopes(envs, method=AggregationStrategy.BAYESIAN_COMBINATION)
 
-        assert pw.point_estimate == pytest.approx(bc.point_estimate, abs=0.01)
-        assert pw.ci_width == pytest.approx(bc.ci_width, abs=0.05)
-        assert pw.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
-        assert bc.interval_semantics is IntervalSemantics.CREDIBLE_INTERVAL
-        assert pw.gate_eligible is True
-        assert bc.gate_eligible is True
-        assert pw.metadata["effective_information_count"] == 2
-        assert bc.metadata["effective_information_count"] == 2
+        _assert_unresolved_hull(pw, envs)
+        _assert_unresolved_hull(bc, envs)
+        assert pw.confidence_interval == bc.confidence_interval
 
-    def test_bayesian_interval_semantics(self) -> None:
+    def test_bayesian_interval_semantics_remain_unestablished_without_relation(self) -> None:
+        envs = [
+            _normal_env(
+                5.0,
+                1.0,
+                origin_id="native-bayes-interval-left",
+                dependency="independent",
+            ),
+            _normal_env(
+                6.0,
+                1.0,
+                origin_id="native-bayes-interval-right",
+                dependency="independent",
+            ),
+        ]
         result = aggregate_envelopes(
-            [
-                _normal_env(
-                    5.0,
-                    1.0,
-                    origin_id="native-bayes-interval-left",
-                    dependency="independent",
-                ),
-                _normal_env(
-                    6.0,
-                    1.0,
-                    origin_id="native-bayes-interval-right",
-                    dependency="independent",
-                ),
-            ],
+            envs,
             method=AggregationStrategy.BAYESIAN_COMBINATION,
         )
-        assert result.interval_semantics == IntervalSemantics.CREDIBLE_INTERVAL
-        assert result.gate_eligible is True
-        assert result.metadata["effective_information_count"] == 2
+        _assert_unresolved_hull(result, envs)
 
 
 class TestWidestBackwardCompat:
@@ -220,7 +208,7 @@ class TestAggregatorEdgeCases:
         with pytest.raises(ValueError, match="Cannot aggregate empty"):
             aggregate_envelopes([], method="widest")
 
-    def test_bayesian_combination_narrows_ci(self) -> None:
+    def test_bayesian_combination_without_resolved_relation_does_not_narrow(self) -> None:
         env1 = _normal_env(
             10.0,
             2.0,
@@ -237,8 +225,7 @@ class TestAggregatorEdgeCases:
             [env1, env2],
             method=AggregationStrategy.BAYESIAN_COMBINATION,
         )
-        assert result.ci_width < env1.ci_width
-        assert result.ci_width < env2.ci_width
+        _assert_unresolved_hull(result, [env1, env2])
 
     def test_aggregate_mixed_heuristic_downgrades_semantics(self) -> None:
         normal = _normal_env(10.0, 2.0)
@@ -255,3 +242,23 @@ class TestAggregatorEdgeCases:
         )
         result = aggregate_envelopes([normal, heuristic], method="widest")
         assert result.interval_semantics == IntervalSemantics.HEURISTIC_RANGE
+
+
+def _assert_unresolved_hull(
+    result: UncertaintyEnvelope,
+    inputs: list[UncertaintyEnvelope],
+) -> None:
+    """Assert that a missing relation keeps the full outer range non-gating."""
+
+    assert result.confidence_interval == (
+        min(envelope.confidence_interval[0] for envelope in inputs),
+        max(envelope.confidence_interval[1] for envelope in inputs),
+    )
+    assert result.interval_semantics is IntervalSemantics.DETERMINISTIC_BOUNDS
+    assert result.confidence_level is None
+    assert result.gate_eligible is False
+    assert result.metadata["effective_information_count"] is None
+    assert result.metadata["effective_information_count_status"] == "not_established"
+    assert result.sample_size is None
+    assert result.composition_provenance is not None
+    assert result.composition_provenance.exactness is ExactnessKind.OUTER_BOUND

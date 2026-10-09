@@ -14,6 +14,7 @@ def test_orchestrator_returns_bounded_bundle_for_three_methods() -> None:
         methods=("kernel_shap", "lime", "ale_local_bin"),
         output_name="eligibility_risk",
         output_scale="logit",
+        feature_dependence_policy="marginal_interventional",
         background_rows=rows,
         n_eval_perturbations=64,
         residual_cap=10.0,

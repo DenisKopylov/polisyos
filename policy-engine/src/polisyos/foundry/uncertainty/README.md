@@ -17,6 +17,13 @@ output metric uncertainty in Foundry simulations.
 - **Aggregation** - envelope merging for multi-strategy or multi-run outputs.
 - **Config-driven fallback** - strategy choice is explicit and inspectable.
 
+Precision-weighted and Bayesian aggregation require resolved independence evidence for distinct
+inputs. Distinct content-bound origin IDs establish identity, not statistical independence; envelope
+metadata labels such as `dependency="independent"` or `independence=true` do not establish that
+relation. Until a source-bound relation resolver is wired, multi-origin inputs retain a conservative
+non-gating hull and an unestablished effective-information count. Exact duplicate origins are still
+collapsed before aggregation.
+
 ## Public API
 
 | Type/Function                   | Description                                               |

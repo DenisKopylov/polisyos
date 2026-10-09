@@ -23,6 +23,10 @@ from polisyos.berl.adapters.protocol import (
     ExplanationContext,
     RawExplanation,
     ScalarModel,
+    UnavailableAdapter,
+)
+from polisyos.berl.adapters.shap_kernel import (
+    SUPPORTED_KERNEL_SHAP_FEATURE_DEPENDENCE_POLICIES,
 )
 from polisyos.berl.contracts.explanation_bundle import (
     AuditReport,
@@ -164,7 +168,11 @@ class ExplanationOrchestrator:
         methods: list[MethodExplanation] = []
         attribution_vectors: list[AttributionVector] = []
         for method_id in request.methods:
-            adapter = self._adapters.get(method_id)
+            adapter = _adapter_for_request(
+                method_id,
+                request.feature_dependence_policy,
+                self._adapters,
+            )
             if adapter is None:
                 methods.append(_diagnostic_method(method_id, "adapter_not_registered"))
                 continue
@@ -430,7 +438,10 @@ def default_adapters() -> dict[str, ExplanationAdapter]:
         "kernel_shap": cast("ExplanationAdapter", KernelSHAPAdapter()),
         "kernel_shap_conditional": cast(
             "ExplanationAdapter",
-            KernelSHAPAdapter(method_id="kernel_shap_conditional"),
+            UnavailableAdapter(
+                method_id="kernel_shap_conditional",
+                diagnostic=_CONDITIONAL_KERNEL_SHAP_UNAVAILABLE,
+            ),
         ),
         "kernel_shap_marginal": cast(
             "ExplanationAdapter",
@@ -447,6 +458,37 @@ def default_adapters() -> dict[str, ExplanationAdapter]:
         "permutation_importance": cast("ExplanationAdapter", PermutationImportanceAdapter()),
         "ebm_components": cast("ExplanationAdapter", EBMComponentAdapter()),
     }
+
+
+_CONDITIONAL_KERNEL_SHAP_UNAVAILABLE = (
+    "no verified conditional law over observed features is available for KernelSHAP; "
+    "no attribution was produced"
+)
+
+
+def _adapter_for_request(
+    method_id: str,
+    feature_dependence_policy: str,
+    adapters: Mapping[str, ExplanationAdapter],
+) -> ExplanationAdapter | None:
+    """Refuse KernelSHAP requests whose declared feature law is not implemented."""
+
+    if method_id == "kernel_shap_conditional":
+        return UnavailableAdapter(
+            method_id=method_id,
+            diagnostic=_CONDITIONAL_KERNEL_SHAP_UNAVAILABLE,
+        )
+    if method_id in {"kernel_shap", "kernel_shap_marginal"} and (
+        feature_dependence_policy not in SUPPORTED_KERNEL_SHAP_FEATURE_DEPENDENCE_POLICIES
+    ):
+        return UnavailableAdapter(
+            method_id=method_id,
+            diagnostic=(
+                "empirical replacement KernelSHAP has no verified conditional law; "
+                f"feature-dependence policy {feature_dependence_policy!r} is unsupported"
+            ),
+        )
+    return adapters.get(method_id)
 
 
 def detect_redundancy_clusters_from_bundle(
@@ -548,10 +590,7 @@ def _freeze(value: object) -> object:
         return (
             type(value).__module__,
             type(value).__qualname__,
-            tuple(
-                (item.name, _freeze(getattr(value, item.name)))
-                for item in fields(value)
-            ),
+            tuple((item.name, _freeze(getattr(value, item.name))) for item in fields(value)),
         )
     if isinstance(value, (str, int, float, bool, type(None))):
         return value

@@ -1,0 +1,27 @@
+{
+  "source": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+  "algorithm": "UTF-8 newline-joined inclusive lines with final newline",
+  "occurrences": [
+    {
+      "id": "B01",
+      "matches": true,
+      "actual": "515ee67aec37de92c27b20c9ddd90cc61c95c41608b1daf4eddc88d640c78759"
+    },
+    {
+      "id": "B02",
+      "matches": true,
+      "actual": "6b6265c0da20f55356b1a97a791c6d2e909fd1a38c32b8ccd8375bce507c1f38"
+    },
+    {
+      "id": "B03",
+      "matches": true,
+      "actual": "9dcbf9befc0921cfe71e8cb743417b59cc9faec769ae21342ff874c21260314d"
+    }
+  ],
+  "original_card_context_read_lines": [
+    196,
+    240
+  ],
+  "outcome": "PASS wording identity only"
+}

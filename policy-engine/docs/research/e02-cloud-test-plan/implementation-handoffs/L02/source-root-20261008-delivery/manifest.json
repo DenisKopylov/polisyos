@@ -1,0 +1,42 @@
+{
+  "source_evidence_commit": "18be88029cc8602709ba821bff51f46e3669c242",
+  "payloads": [
+    {
+      "path": "evidence-remote-readback.json",
+      "bytes": 252,
+      "sha256": "e0d31131ed564fd3fc8cc2820ce0c2bb195697f949d5b8cb456afb3f12de54f1"
+    },
+    {
+      "path": "frozen-review.json",
+      "bytes": 8578,
+      "sha256": "dd152d8edbfc8e7609a0f23e8acc443b0a798094ce4994ec84741d272ff23ea0"
+    },
+    {
+      "path": "latest-G-readback.json",
+      "bytes": 251,
+      "sha256": "749d99868e48757ee6685aeef1b426607dffd1449216d923d97633474d79d171"
+    },
+    {
+      "path": "native-trash-cleanup.json",
+      "bytes": 2739,
+      "sha256": "7787790a16bca70aa4d07a0f00f1c2d4f3d137737a447aa77f516a23b99e5a91"
+    },
+    {
+      "path": "origin-recompute.command.json",
+      "bytes": 1034,
+      "sha256": "3d0a0c23a955698ca45a459808200e376868c4cc0883651b36ad40d939110fbb"
+    },
+    {
+      "path": "origin-recompute.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "origin-recompute.stdout",
+      "bytes": 292,
+      "sha256": "0743bd1b352b34dd600e6f1009a714c9abc3fa44c0d1957c23bffb37ab8c07fe"
+    }
+  ],
+  "payload_denominator": 7,
+  "scope": "deliverysupplementonly; unit/root handoff hashreadback atpublishedHEAD"
+}

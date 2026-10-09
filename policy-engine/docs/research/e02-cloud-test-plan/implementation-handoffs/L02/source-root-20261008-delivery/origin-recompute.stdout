@@ -1,0 +1,1 @@
+{"source": "dee58973f7673299070b7c7374f419b0adb8175c", "module_origin_file_sha256": "79395ec4866a34f1f6001436de689216e0cb7d5f14d4612d0ffa11b8207e9c4d", "actual_file_backed_module_denominator": 1430, "Git_blob_mismatches": [], "outcome": "PASS exact-source origin readback; no payload reads"}

@@ -1,0 +1,15 @@
+{
+  "source": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "tree": "4caee698bd9a6c61277a1608bb38376b669f0372",
+  "archive_argv": [
+    "git",
+    "archive",
+    "dee58973f7673299070b7c7374f419b0adb8175c",
+    "policy-engine/src"
+  ],
+  "archive_sha256": "e0efd7b00d30f3b75dd91ce6abb6fef91a264bfb0256b35d268a50a8ac5aea5f",
+  "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c",
+  "kind": "immutable Git archive runtime snapshot, no Git checkout/branch/worktree created",
+  "files": 2914,
+  "bytes": 54972498
+}

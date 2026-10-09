@@ -1,0 +1,46 @@
+{
+  "read_latest": "AGENTS/CONTRIBUTING/HANDOFF/restartCOMMON/originalL02 + prior observer command/profile/outputs; unchanged execution-org and relevant pattern register read by exact blob",
+  "rows": [
+    {
+      "path": "AGENTS.md",
+      "current_G_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+      "unchanged_from_predecessor_G": true
+    },
+    {
+      "path": "policy-engine/CONTRIBUTING.md",
+      "current_G_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+      "unchanged_from_predecessor_G": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+      "current_G_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e",
+      "unchanged_from_predecessor_G": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08/COMMON.md",
+      "current_G_blob": "9f4fff6450d0fc6babf3c28457f3387136a2228f",
+      "unchanged_from_predecessor_G": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/COMMON.md",
+      "current_G_blob": "116b74d20e0bb9a9e9421bc48a6d95b86a373a79",
+      "unchanged_from_predecessor_G": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/L02.md",
+      "current_G_blob": "e97385084b0101fcc6dca2c5aba5519ab55b3090",
+      "unchanged_from_predecessor_G": true
+    },
+    {
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "current_G_blob": "652fb2d0b3fbcaa48681adf2e79b66486b4a65a1",
+      "unchanged_from_predecessor_G": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/README.md",
+      "current_G_blob": "036ff3998acb4ea915f23b68e53c07f6fe89bbf7",
+      "unchanged_from_predecessor_G": true
+    }
+  ],
+  "baseline_pack_used_in_slice": false
+}

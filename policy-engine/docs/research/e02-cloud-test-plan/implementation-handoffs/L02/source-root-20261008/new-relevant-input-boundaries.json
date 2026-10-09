@@ -1,0 +1,20 @@
+{
+  "source_topic": "5bcc319d1c2c08d7abba82fe87b818e502caea78",
+  "consumer_source": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "packet_scope": [
+    "C-i3",
+    "C-legal",
+    "E-b194",
+    "F-b56"
+  ],
+  "new_ready_authentic_pair": false,
+  "boundaries": {
+    "I3": "snapshot is not live dataset/run/confirmed cursor/content binding; B source contract owner + C04 exact replay tuple needed; B83 identity only its criterion",
+    "I4": "C05 versioned ordered request basis + C12 persisted generation/model/live query provider same-profile tuple not established; structured/text independent",
+    "B194": "metadata size/calibration label do not bind actual evaluator/output axes-units/input-law/attempted draw outcomes; selected C08/C09/C10 suppliers",
+    "B56": "no measured aggregate workload/admission instance/recipe/roster/cap profile; C01/C10 + workload custodian supplies only this tuple"
+  },
+  "no_blanket_all_input_barrier": true,
+  "source_refs": "implementation-handoffs/L01/restart-20261008-bindings/packets/*.json + handoffs/{C,E,F}.json, all7 selected objects byte-identical in L01/currentG",
+  "local_review": "policy-engine/docs/research/e02-cloud-test-plan/.tmp/l02-source-root-20261008/prepared/new-l01-task-pairs.json; bounded review, no host-input absence claim"
+}

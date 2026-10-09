@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "git",
+    "archive",
+    "dee58973f7673299070b7c7374f419b0adb8175c",
+    "policy-engine/architecture",
+    "policy-engine/pyproject.toml",
+    "policy-engine/uv.lock"
+  ],
+  "source": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "sha256": "42d3e78cb34d04b2f435226ada5e1445ffab1624ac5dec07b18785bcf46b10ad",
+  "archive_bytes": 61706240,
+  "reason": "Package import requires digest-domain registry companion before reader; source-only snapshot failure before payload/property, not product diagnosis"
+}

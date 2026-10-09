@@ -1,0 +1,58 @@
+Traceback (most recent call last):
+  File "<string>", line 17, in <module>
+    from polisyos.runtime.quality.intervention_substrate import load_l6_intervention_substrate,default_l6_bundle_paths,InterventionSubstrateError,verify_intervention_substrate_bundle_content_hash
+  File "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c/policy-engine/src/polisyos/runtime/quality/__init__.py", line 270, in <module>
+    from .closeout_reader import (
+    ...<7 lines>...
+    )
+  File "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c/policy-engine/src/polisyos/runtime/quality/closeout_reader.py", line 13, in <module>
+    from polisyos.runtime.quality.closeout_compatibility import (
+        build_closeout_compatibility_record_from_bundle_dir,
+    )
+  File "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c/policy-engine/src/polisyos/runtime/quality/closeout_compatibility.py", line 9, in <module>
+    from polisyos.runtime.quality.scorecard import (
+    ...<2 lines>...
+    )
+  File "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c/policy-engine/src/polisyos/runtime/quality/scorecard.py", line 18, in <module>
+    from polisyos.foundry.validation.method_quality import normalize_foundry_method_report
+  File "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c/policy-engine/src/polisyos/foundry/validation/__init__.py", line 12, in <module>
+    from polisyos.foundry.validation.phase0_closure import (
+        build_foundry_phase0_closure_report,
+    )
+  File "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c/policy-engine/src/polisyos/foundry/validation/phase0_closure.py", line 16, in <module>
+    from polisyos.foundry.agent_sim.world import (
+    ...<3 lines>...
+    )
+  File "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c/policy-engine/src/polisyos/foundry/agent_sim/__init__.py", line 84, in <module>
+    from .government_policy import (
+    ...<4 lines>...
+    )
+  File "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c/policy-engine/src/polisyos/foundry/agent_sim/government_policy.py", line 18, in <module>
+    from polisyos.foundry.welfare.social_weights import (
+    ...<2 lines>...
+    )
+  File "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c/policy-engine/src/polisyos/foundry/welfare/social_weights.py", line 10, in <module>
+    from polisyos.foundry.methods.catalog.policy.welfare import (
+    ...<2 lines>...
+    )
+  File "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c/policy-engine/src/polisyos/foundry/methods/catalog/__init__.py", line 133, in <module>
+    from polisyos.foundry.methods.catalog.dependency_authority import (
+    ...<2 lines>...
+    )
+  File "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c/policy-engine/src/polisyos/foundry/methods/catalog/dependency_authority.py", line 7157, in <module>
+    _OWNER_ENTRYPOINT_SPECS = derive_owner_entrypoint_denominator_from_source(
+        module_file=Path(__file__),
+        protocol_concrete_pairs=_OWNER_PROTOCOL_CONCRETE_PAIRS,
+    )
+  File "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c/policy-engine/src/polisyos/foundry/methods/catalog/dependency_authority.py", line 6119, in derive_owner_entrypoint_denominator_from_source
+    registry = load_digest_domain_registry(_DIGEST_REGISTRY_PATH)
+  File "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c/policy-engine/src/polisyos/foundry/methods/catalog/dependency_evidence.py", line 2253, in load_digest_domain_registry
+    return decode_digest_domain_registry_toml(path.read_bytes())
+                                              ~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 782, in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 776, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-source-root-20261008/exact-source/dee58973f7673299070b7c7374f419b0adb8175c/policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml'

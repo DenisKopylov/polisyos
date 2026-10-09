@@ -1,0 +1,82 @@
+{
+  "utc": "2026-10-08T18:02:09.261166+00:00",
+  "source": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "path_only": true,
+  "payload_read_or_rehash": false,
+  "rows": [
+    {
+      "root_kind": "primary_product_origin_derived",
+      "input_id": "knob_dictionary",
+      "resolved_path_matches_saved_identity": true,
+      "serving_root_observed": false
+    },
+    {
+      "root_kind": "primary_product_origin_derived",
+      "input_id": "lex_map",
+      "resolved_path_matches_saved_identity": true,
+      "serving_root_observed": false
+    },
+    {
+      "root_kind": "primary_product_origin_derived",
+      "input_id": "observation_contract",
+      "resolved_path_matches_saved_identity": true,
+      "serving_root_observed": false
+    },
+    {
+      "root_kind": "own_receipt_checkout_origin_derived",
+      "input_id": "knob_dictionary",
+      "resolved_path_matches_saved_identity": false,
+      "serving_root_observed": false
+    },
+    {
+      "root_kind": "own_receipt_checkout_origin_derived",
+      "input_id": "lex_map",
+      "resolved_path_matches_saved_identity": false,
+      "serving_root_observed": false
+    },
+    {
+      "root_kind": "own_receipt_checkout_origin_derived",
+      "input_id": "observation_contract",
+      "resolved_path_matches_saved_identity": false,
+      "serving_root_observed": false
+    },
+    {
+      "root_kind": "exact_execution_snapshot_origin_derived",
+      "input_id": "knob_dictionary",
+      "resolved_path_matches_saved_identity": false,
+      "serving_root_observed": false
+    },
+    {
+      "root_kind": "exact_execution_snapshot_origin_derived",
+      "input_id": "lex_map",
+      "resolved_path_matches_saved_identity": false,
+      "serving_root_observed": false
+    },
+    {
+      "root_kind": "exact_execution_snapshot_origin_derived",
+      "input_id": "observation_contract",
+      "resolved_path_matches_saved_identity": false,
+      "serving_root_observed": false
+    },
+    {
+      "root_kind": "explicit_selected_reader_projection",
+      "input_id": "knob_dictionary",
+      "resolved_path_matches_saved_identity": true,
+      "serving_root_observed": false
+    },
+    {
+      "root_kind": "explicit_selected_reader_projection",
+      "input_id": "lex_map",
+      "resolved_path_matches_saved_identity": true,
+      "serving_root_observed": false
+    },
+    {
+      "root_kind": "explicit_selected_reader_projection",
+      "input_id": "observation_contract",
+      "resolved_path_matches_saved_identity": true,
+      "serving_root_observed": false
+    }
+  ],
+  "scope": "four named source/reader roots \u00d7 three nominated controls; primary/own paths inferred from files, no serving module origin asserted",
+  "live_binding": "not_established"
+}

@@ -1,0 +1,135 @@
+{
+  "receipt_kind": "l02_source_root_caller_trace",
+  "status": "prepared_readonly_unrun",
+  "source_snapshot": {
+    "G_commit": "dee58973f7673299070b7c7374f419b0adb8175c",
+    "G_tree": "4caee698bd9a6c61277a1608bb38376b669f0372",
+    "inspection": "immutable git source and packet reads only; no live production root observation, payload reads/writes, or runtime/test execution"
+  },
+  "http_trace": {
+    "run_lifecycle": {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+      "refs": ["2047-2050", "2295-2346", "5368-5455", "5471-5515"],
+      "root_expression": "Path(__file__).resolve().parents[6]",
+      "module_origin_result": "<checkout>/policy-engine"
+    },
+    "control_generation_cycle": {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "blob": "29459ff167cad1e011a2de626a627b30d0336a01",
+      "refs": ["1037-1053", "1077-1158"],
+      "flow": "run_lifecycle passes repo_root into the HTTP cycle wrapper. If no CycleSubstrateContext is admitted and simulate_only/n4_proposal_only selects the proposal lane, design_generation receives that root. If context is admitted, the recursive controller receives the root and owner-bound context."
+    },
+    "design_generation": {
+      "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+      "blob": "a12f1aade3ef5368bdd1571df52a2ef32538f7c1",
+      "refs": ["885-910", "968-996", "1276-1315", "1355-1360", "1391-1434", "1659-1671", "2180-2192", "2954-2972", "3354-3365"],
+      "root_handling": "The HTTP route supplies <checkout>/policy-engine explicitly, so Path.cwd() fallback is not selected.",
+      "loader_conditions": [
+        "The no-context candidate_proposal_only branch skips lever-slice derivation, returns before atom binding, and does not call load_l6_intervention_substrate.",
+        "With a context lacking intervention_substrate, derive_lever_space_prompt_slice can call load_l6_intervention_substrate(repo_root.resolve()).",
+        "With context candidate_levers but no intervention_substrate, _content_bound_candidates can call the same loader.",
+        "The non-proposal shadow ranker also attempts the loader; loader failure reduces surrogate trust to proposal_only."
+      ]
+    }
+  },
+  "direct_quality_generation_cycle": {
+    "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+    "refs": ["11593-11630", "11633-11667"],
+    "consumer": "_select_value_method and selection-receipt replay call _value_method_route_constraint. It loads the L6 substrate only if inputs contains observation_to_contract_manifest, then replaces observation_manifest with that supplied mapping.",
+    "root_expression": "Path(__file__).resolve().parents[4]",
+    "module_origin_result": "<checkout>/policy-engine"
+  },
+  "l6_reader_source": {
+    "path": "policy-engine/src/polisyos/runtime/quality/intervention_substrate.py",
+    "blob": "4fbc772508cc7183a95301556608a6c7101b2f15",
+    "refs": ["1030-1101"],
+    "source_default_if_no_promoted_override": {
+      "root": "<repo_root>/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles",
+      "required_members": [
+        "intervention_bundle_v1/intervention_knob_dictionary.json",
+        "intervention_bundle_v1/lex_intervention_map.json",
+        "method_contract_bundle_v1/observation_to_contract_manifest.json"
+      ],
+      "optional_members": [
+        "intervention_bundle_v1/policy_scenario_templates.json",
+        "runtime_bundle_v1/slot_family_manifest.json",
+        "<repo_root>/architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json"
+      ]
+    },
+    "loaded_binding_fields": ["source_refs", "source_content_hashes", "content_hash"]
+  },
+  "configured_root_boundary": {
+    "production_data_source": {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/production_data.py",
+      "blob": "2a07d333f6272328e171a5c9f641420c2c419abf",
+      "refs": ["22-72", "651-670"],
+      "source_behavior": "resolve_production_data_root accepts params.production_data_root or POLISYOS_PRODUCTION_DATA_ROOT and resolves root/manifest.json role entries."
+    },
+    "correction": "L01 also identifies production_data.apply_production_data_defaults as a separate promoter of named substrate paths. The traced source-root formulas do not establish which promoted or default path an ordinary served request actually resolves. No live root or file was observed here; do not treat the fixed source default as the current configured path."
+  },
+  "L01_A_l6_packet": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/packets/A-l6.json",
+    "blob": "6aefcd34a5e12b3bc07500c1c0278861f58e6545",
+    "json_pointers": ["#/tuple", "#/tuple/selected_members", "#/reconciliation", "#/predicates", "#/held_transition", "#/minimum_next_input", "#/falsifier"],
+    "role_and_scope": {
+      "schema": "policyos.e02.l01.minimum-binding.v1",
+      "task": "T1 / L6 factual input binding",
+      "criterion_ids": ["B01", "B02", "B03"],
+      "authentic_consumer_check": "UNRUN; L02 owns it",
+      "finding_adjudication": "unchanged; formal G closure not_adjudicated"
+    },
+    "tuple_aliases_and_time": {
+      "source_alias": "LOCAL_DATA_ROOT_01",
+      "manifest_alias": "L01_ROOT_MANIFEST_20261008",
+      "bundle_manifest_alias": "L01_L6_BUNDLE_MANIFEST_01",
+      "profile": "research owner default; not an admitted served profile",
+      "purpose": "L6 intervention substrate / observation-method routing",
+      "root_generated_at": "2026-05-10T00:00:00Z",
+      "observed_at": "2026-10-08T15:41:45.962265+00:00",
+      "root_to_bundle_manifest_checksum_matches": true
+    },
+    "selected_final_manifest_member_results": [
+      {
+        "alias": "L01_L6_KNOBS_01",
+        "regular_named_input_present": true,
+        "exact_logical_descriptor_count": 1,
+        "size_matches": false,
+        "checksum_matches": false,
+        "outcome": "FAIL"
+      },
+      {
+        "alias": "L01_L6_LEXMAP_01",
+        "regular_named_input_present": true,
+        "exact_logical_descriptor_count": 1,
+        "size_matches": false,
+        "checksum_matches": false,
+        "outcome": "FAIL"
+      },
+      {
+        "alias": "L01_L6_OBSERVATION_ROUTES_01",
+        "regular_named_input_present": true,
+        "exact_logical_descriptor_count": 1,
+        "size_matches": true,
+        "checksum_matches": true,
+        "outcome": "PASS"
+      }
+    ],
+    "interpretation_boundary": "L01 recomputed root-to-bundle-manifest binding and selected member size/checksum comparisons. The two final-manifest member mismatches are observed for the nominated aliases. Active custodian, legitimate replacement, relocation/currentness, admitted purpose, and the actual ordinary served path remain not_established. No HTTP POST was attempted and no runtime defect is inferred.",
+    "private_raw_paths_and_digests": "withheld; do not read the packet's local receipt paths or infer payload bytes"
+  },
+  "minimal_L6_source_root_raw_byte_descriptor_property_packet": {
+    "prepared_only": true,
+    "property": "The exact root and bundle manifest selected by the served consumer must nominate each exact logical member path, and the opened raw member bytes must match that member descriptor's size and checksum before JSON parsing and L6 content binding.",
+    "minimum_observable_chain": [
+      "Bind the actual configured source-root alias to its root manifest and the root manifest to the nominated bundle manifest; preserve the already-recomputed root-to-bundle checksum result.",
+      "Resolve each member by its exact descriptor path relative to the manifest-declared root and under the nominated bundle root; do not basename-search or census directories.",
+      "Compare raw byte size and checksum for the three selected members, then show the same resolved members feed load_l6_intervention_substrate and its source_refs/source_content_hashes."
+    ],
+    "discriminator": "Keep aliases and manifest names fixed while changing one nominated member's raw bytes: descriptor acceptance must fail. The L01 packet already records this failure for knobs and Lex map; the observation-route member is the matching control.",
+    "minimum_missing_input_for_authentic_positive": "One existing matching bytes/manifest pair or an existing versioned replacement manifest, supplied/referenced by the custodian of the nominated bundle. The exact private locator is not exposed in the packet.",
+    "candidate_band": "Keep scope unknown as a typed limitation when there is no protected claim; do not require an issuer/owner authorization to make a candidate proposal. Do not label the L6 substrate authentic or promoted from this candidate path. Require issuer/validity only when claiming a protected admitted profile.",
+    "acceptance_boundary": "This preparation does not establish that the ordinary served request selects LOCAL_DATA_ROOT_01 or that its L6 reader opens the nominated members. The packet says the actual served path and authentic consumer check remain not_established/UNRUN."
+  }
+}

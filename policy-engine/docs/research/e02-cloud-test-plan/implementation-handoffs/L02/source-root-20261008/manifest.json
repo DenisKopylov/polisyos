@@ -1,0 +1,128 @@
+{
+  "schema": "policyos.e02.l02.receipt_payload_manifest.v1",
+  "source": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "payload_file_denominator": 24,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 2875,
+      "sha256": "138828754be9b476158e11270842d61b1b99f275b94d645b9da2a256423cdb6a"
+    },
+    {
+      "path": "bootstrap/admission.command.json",
+      "bytes": 458,
+      "sha256": "d789ddb63e485aa008fd7f7c6ad4f36245c5d83320fa80d78ff2b32d68d1ce3b"
+    },
+    {
+      "path": "bootstrap/admission.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "bootstrap/admission.stdout.gz",
+      "bytes": 7015,
+      "sha256": "ce960a7b46a7e771ca897b82cc12b6e8e302e1bf53665a326dff89080e985fa3"
+    },
+    {
+      "path": "bootstrap/instructions-readback.json",
+      "bytes": 1926,
+      "sha256": "038339f20c5cd9a80cf142b0aa6b037178c9046ccf79d20f46d7534a059f1d72"
+    },
+    {
+      "path": "bootstrap/path-preflight.json",
+      "bytes": 2188,
+      "sha256": "23974268b6ea25470e764afe72bd47bcd24369b638b3be037b2b70fcb763ffd7"
+    },
+    {
+      "path": "bootstrap/snapshot-companions.json",
+      "bytes": 520,
+      "sha256": "c23842e8669173b67aff8ccc263a40311f2a3047ad13f090b036554dd99c3d06"
+    },
+    {
+      "path": "bootstrap/snapshot.json",
+      "bytes": 625,
+      "sha256": "b6d0df53d534bb988356656b1198a258d352c4e90c61d7b9d31db9e1700a3458"
+    },
+    {
+      "path": "bootstrap/source-family.json",
+      "bytes": 2427,
+      "sha256": "36034ea5f5fb2b006976e9cf7b179a720857ad34a2489e9ffd754a4a24d4add3"
+    },
+    {
+      "path": "checks/criterion-readback.json",
+      "bytes": 796,
+      "sha256": "df3530f51ba4589f533479c6ae066994bd831f5a1d25c93f63650cf1864a4cdf"
+    },
+    {
+      "path": "checks/loader.command.json",
+      "bytes": 6161,
+      "sha256": "f26f66701c88b6eab36c42ecbd03f214fe4c90aef4f0972f24dbff1c12b8a98b"
+    },
+    {
+      "path": "checks/loader.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "checks/loader.stdout",
+      "bytes": 2054,
+      "sha256": "b666e19e98f4b4fd2521e8484696aba69596c3c647f2d0afbc7349403a61cfc4"
+    },
+    {
+      "path": "checks/process-scope.json",
+      "bytes": 524,
+      "sha256": "34fc86cb5bae9bc1713d9ccaaf206c715bfb4ba52bbdf2711d40fe14b1d3f7cf"
+    },
+    {
+      "path": "checks/resource.json",
+      "bytes": 593,
+      "sha256": "3e203107e7c9f2cbc295ac94a100d15259709b7284f4b95dd602da6a453c21ba"
+    },
+    {
+      "path": "checks/root-path-comparison.json",
+      "bytes": 2719,
+      "sha256": "983a5e77ce856ccf62d01f5395e21f520bf74e6470df4bdc97b898e589d3eb46"
+    },
+    {
+      "path": "checks/setup-source-only.command.json",
+      "bytes": 6036,
+      "sha256": "6adc9224920fb425f3604e2605d61a3c314b0e36e28a8aa2a23e1b56e02e2a6b"
+    },
+    {
+      "path": "checks/setup-source-only.stderr",
+      "bytes": 5722,
+      "sha256": "4087fdef9b5e405297a9b13d5990c2b74b21749f6e248467bb3abbfa6793d1e8"
+    },
+    {
+      "path": "checks/setup-source-only.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "checks/source-origin-readback.json",
+      "bytes": 541,
+      "sha256": "3057d4fab8b08f9c61f7bd01047540437f08c8a1ec0cd32f779100f1593f1be4"
+    },
+    {
+      "path": "criterion-scope.json",
+      "bytes": 1258,
+      "sha256": "72bec93909680633f4743da948bd5f3d39e56677002ca68eb033edbc3b0655b9"
+    },
+    {
+      "path": "new-relevant-input-boundaries.json",
+      "bytes": 1291,
+      "sha256": "8656c3d9760057f746eada7cc4d55c47c95d84308ddc0eb7417822aaca084dee"
+    },
+    {
+      "path": "prepared/caller-trace.json",
+      "bytes": 9287,
+      "sha256": "b820fc56e59c1f514e3552611f9606bf78ddded9136af6f6f850b30bb0e63bf9"
+    },
+    {
+      "path": "property-predicate-packet.json",
+      "bytes": 4795,
+      "sha256": "9e2e92e5af3489ae53874bb813276d7475f8bec14c3e6a13fd6d35226768ce3b"
+    }
+  ],
+  "raw_private_reports": "local ignored only; no production payload/export"
+}

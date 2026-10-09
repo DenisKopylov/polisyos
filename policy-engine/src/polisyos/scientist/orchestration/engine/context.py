@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from polisyos.core.security import AuditLog
-    from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGRead
+    from polisyos.data_forge.read_api.academic import PreparedSKGRead
     from polisyos.pdc import EvalSafetyVerifierPort, EvaluationExecutionContext
     from polisyos.scientist.evidence.claims.head_index import ClaimLedgerOwnerPort
     from polisyos.scientist.orchestration.engine.metrics_protocol import EngineMetricsCollector

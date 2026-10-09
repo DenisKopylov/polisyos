@@ -3,8 +3,10 @@ from __future__ import annotations
 import argparse
 import importlib
 import json
+import os
 import sys
 import tempfile
+from contextlib import ExitStack
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -12,7 +14,7 @@ from typing import TYPE_CHECKING
 import uvicorn
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, ContextManager
 
     from polisyos.core.artifacts import ArtifactRef, FileSystemCAS
     from polisyos.pdc import Layer2S2DesignSearchInput
@@ -62,8 +64,7 @@ def _build_run_paper_search_input(
     policy_engine_root = Path(__file__).resolve().parents[3]
     proving_case = json.loads(
         (
-            policy_engine_root
-            / "architecture/policy_design_case/layer2_first_proving_case.json"
+            policy_engine_root / "architecture/policy_design_case/layer2_first_proving_case.json"
         ).read_text(encoding="utf-8")
     )
     manifest = json.loads(
@@ -75,15 +76,11 @@ def _build_run_paper_search_input(
     candidate_space = manifest["candidate_space"]
     base_case_id = str(proving_case["case_id"])
     case_id = (
-        f"{base_case_id}__dashboard_{fixture_role}"
-        if fixture_role is not None
-        else base_case_id
+        f"{base_case_id}__dashboard_{fixture_role}" if fixture_role is not None else base_case_id
     )
     return Layer2S2DesignSearchInput(
         case_id=case_id,
-        intent_ref=(
-            "repo://architecture/policy_design_case/layer2_first_proving_case.json"
-        ),
+        intent_ref=("repo://architecture/policy_design_case/layer2_first_proving_case.json"),
         grammar_ref="repo://src/polisyos/policy_grammar",
         instrument_families=tuple(candidate_space["instrument_families"]),
         parameter_space={
@@ -92,12 +89,8 @@ def _build_run_paper_search_input(
         },
         actor_ref="actor://ua/ministry-of-economy",
         domain="ukrainian_msme_credit",
-        objective_refs=tuple(
-            f"objective://{item}" for item in proving_case["constructs"]
-        ),
-        construct_refs=tuple(
-            f"construct://{item}" for item in proving_case["constructs"]
-        ),
+        objective_refs=tuple(f"objective://{item}" for item in proving_case["constructs"]),
+        construct_refs=tuple(f"construct://{item}" for item in proving_case["constructs"]),
         authority_profile_ref="authority_profile.shadow",
         requested_posture="shadow",
         generated_at=datetime(2026, 5, 30, tzinfo=UTC),
@@ -116,9 +109,7 @@ def _persist_run_paper_fixture_binding(
     _ensure_policy_engine_import_roots()
     from polisyos.pdc import persist_s2_design_search_run, run_s2_shadow_design_loop
 
-    search_run = run_s2_shadow_design_loop(
-        _build_run_paper_search_input(fixture_role=fixture_role)
-    )
+    search_run = run_s2_shadow_design_loop(_build_run_paper_search_input(fixture_role=fixture_role))
     persisted = persist_s2_design_search_run(
         search_run,
         store=store,
@@ -175,15 +166,45 @@ def _build_dashboard_fixture_env(
         tmp_root,
         include_run_paper_fixtures=include_run_paper_fixtures,
         run_paper_binding_factory=(
-            _persist_run_paper_fixture_binding
-            if include_run_paper_fixtures
-            else None
+            _persist_run_paper_fixture_binding if include_run_paper_fixtures else None
         ),
         include_test_client=include_test_client,
     )
     if include_bound_run_paper_fixture:
         env["run_paper_bound_run_id"] = _install_bound_run_paper_fixture(env)
     return env
+
+
+def _build_source_bound_catalog_profile_fixture(
+    tmp_root: Path,
+) -> ContextManager[dict[str, object]]:
+    """Build the opt-in configured candidate fixture used by one browser witness."""
+    _ensure_policy_engine_import_roots()
+    fixture_module = importlib.import_module("_helpers.runtime_api.catalog_profile_source_fixture")
+    return fixture_module.source_bound_catalog_profile_fixture(tmp_root)
+
+
+def _install_source_bound_legal_search_fixture(
+    env: dict[str, object],
+    tmp_root: Path,
+) -> None:
+    """Add a controlled Legal producer snapshot to the browser fixture runtime."""
+    _ensure_policy_engine_import_roots()
+    fixture_module = importlib.import_module("_helpers.runtime_api.legal_search_profile_fixture")
+    fixture = fixture_module.build_legal_search_profile_fixture(tmp_root / "legal-search-profile")
+
+    from polisyos.runtime.http.container import LegalQueryEncoderProvider
+
+    container = env["app"].state.runtime_container
+    provider = LegalQueryEncoderProvider(fixture.encoder)
+    container.legal_query_encoder_provider = provider
+    if container.control_service is not None:
+        container.control_service.bind_legal_query_encoder_provider(provider)
+    env["legal_search_output_dir"] = str(fixture.output_dir)
+    env["legal_search_fixture_boundary"] = (
+        "controlled Legal producer fixture; selected snapshot only; "
+        "no authority or currentness claim"
+    )
 
 
 def main() -> None:
@@ -198,26 +219,33 @@ def main() -> None:
     args = parser.parse_args()
 
     tmp_root = Path(tempfile.mkdtemp(prefix="runtime-dashboard-e2e-"))
-    env = _build_dashboard_fixture_env(
-        tmp_root,
-        include_run_paper_fixtures=args.include_run_paper_fixtures,
-        include_bound_run_paper_fixture=args.include_bound_run_paper_fixture,
-        include_test_client=False,
+    source_bound_catalog_fixture = (
+        os.environ.get("POLISYOS_DASHBOARD_SOURCE_BOUND_PROFILE_FIXTURE") == "1"
     )
-    app = env["app"]
+    with ExitStack() as fixture_stack:
+        if source_bound_catalog_fixture:
+            env = fixture_stack.enter_context(_build_source_bound_catalog_profile_fixture(tmp_root))
+        else:
+            env = _build_dashboard_fixture_env(
+                tmp_root,
+                include_run_paper_fixtures=args.include_run_paper_fixtures,
+                include_bound_run_paper_fixture=args.include_bound_run_paper_fixture,
+                include_test_client=False,
+            )
+        if source_bound_catalog_fixture:
+            _install_source_bound_legal_search_fixture(env, tmp_root)
+        app = env["app"]
 
-    if args.metadata_file:
-        metadata_path = Path(args.metadata_file)
-        metadata_path.parent.mkdir(parents=True, exist_ok=True)
-        metadata = {
-            key: value
-            for key, value in env.items()
-            if key not in {"app", "client", "cas_root"}
-        }
-        _assert_dashboard_fixture_clean(metadata)
-        metadata_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+        if args.metadata_file:
+            metadata_path = Path(args.metadata_file)
+            metadata_path.parent.mkdir(parents=True, exist_ok=True)
+            metadata = {
+                key: value for key, value in env.items() if key not in {"app", "client", "cas_root"}
+            }
+            _assert_dashboard_fixture_clean(metadata)
+            metadata_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
 
-    uvicorn.run(app, host=args.host, port=args.port, log_level="warning")
+        uvicorn.run(app, host=args.host, port=args.port, log_level="warning")
 
 
 if __name__ == "__main__":

@@ -75,6 +75,8 @@ current loader accepts both versions through the selected manifest view, while
 a 1.0 payload that contains the 1.1 field is rejected. Existing 1.0 artifacts
 need no migration; strict 1.0 readers reject 1.1 at the schema-version
 boundary and must be upgraded before consuming Twin-linked traces.
+The writer refuses a noncanonical schema name before artifact emission, matching
+the loader's fixed `ir.causal_evidence_bundle` identity.
 
 The field remains optional in the domain model, so historical EvidenceBundle
 payloads still load with `None`, and runs without a typed twin result or typed
@@ -114,8 +116,10 @@ adapter persists this summary against selected `scientist.method_evidence`; a fr
 the selected manifest profile and recomputes summary fields from the source draw bytes. It reports
 weights as not supplied, parameter units as not established, and `gate_eligible=False`. This does
 not replace the legacy `summarize_bayesian_calibration_posterior()` path, alter
-`UncertaintyEnvelope`, or authorize calibration, causal, or policy conclusions. Default
-orchestration/dispatch is not wired to the new candidate profile.
+`UncertaintyEnvelope`, or authorize calibration, causal, or policy conclusions.
+The native MethodJob producer returns persisted mean and median summary refs.
+The default uncertainty consumer still uses `UncertaintyEnvelope`; selecting a
+summary role and binding its parameters to an evaluator requires an owner mapping.
 
 ## Depends on / depended on by
 

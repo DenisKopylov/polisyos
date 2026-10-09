@@ -253,3 +253,14 @@ def test_core_contract_facades_accept_core_artifact_id_values() -> None:
     for ref in refs:
         assert str(ref.artifact_id) == _ID
         assert ref.artifact_id.hex == "a" * 64
+
+
+def test_core_contract_wildcard_import_resolves_the_declared_surface() -> None:
+    from polisyos.core import contracts
+    from polisyos.core.contracts.chronology import NativeChronologyQualified
+
+    namespace: dict[str, object] = {}
+    exec("from polisyos.core.contracts import *", namespace)  # noqa: S102 -- fixed trusted import.
+    assert set(contracts.__all__) <= namespace.keys()
+    assert namespace["NativeChronologyQualified"] is NativeChronologyQualified
+    assert all(name.isidentifier() for name in contracts.__all__)

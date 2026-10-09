@@ -1,0 +1,20 @@
+id = "2026-10-09-e02-derived-observation-selected-views"
+title = "Preserve selected CAS views through derived-observation lineage"
+type = "changed"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "Derived-observation projections now bind exact selected CAS manifest profiles across recipe inputs, derived outputs, certificates, and epoch recompute receipts. Profile-bearing records use conditional minor schema versions; profileless records retain their existing serialized fields and schema versions."
+evidence = [
+  "src/polisyos/runtime/quality/derived_observations.py",
+  "tests/unit/runtime/quality/test_derived_observations.py",
+]
+compatibility = "Profileless recipe/certificate v2 and epoch-recompute v1 payloads keep the prior optional-field omission, byte projection, and CAS SchemaInfo versions. Records with selected input or output manifest profiles use recipe/certificate payload tag v2.1 plus schema 2.1.0, and epoch receipt tag v1.1 plus schema 1.1.0. Current readers accept both versions only when the tag, exact selectors, lineage, and selected manifest views agree; old strict readers reject the new minor tag. SourceSeries and TransformFamilyRegistry payloads and schemas are unchanged."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.runtime.quality module DTOs and versioned persisted selected-view lineage; no HTTP or generated-client change"
+migration = "No rewrite is required for profileless historical artifacts. Keep them on the v2/v1 reader branch. Consumers of selector-bearing records must use a v2.1/v1.1-capable reader, which reloads the exact selected manifest view before reuse."
+api = "Existing derivation APIs retain ArtifactRef selectors through the internal contract projection, recipe, output manifest, certificate, and epoch receipt. Schema versions are selected from the actual persisted profile references, not caller-supplied version assertions."
+limitations = "A profile digest binds a selected CAS manifest view; it does not establish producer authority, external source custody, or broader scope. The CAS owner/access checks remain separate."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

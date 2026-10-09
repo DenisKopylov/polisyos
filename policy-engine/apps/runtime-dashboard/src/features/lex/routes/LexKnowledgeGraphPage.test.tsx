@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 
@@ -6,6 +6,8 @@ const {
   useCapabilitiesMock,
   useLexGraphStatsMock,
   useLexPipelineStatusMock,
+  useLexSearchProfileMock,
+  refetchLexSearchProfileMock,
   useLexSearchMock,
   useLexTriggerMock,
   useTelemetryReadyMarkMock,
@@ -13,6 +15,8 @@ const {
   useCapabilitiesMock: vi.fn(),
   useLexGraphStatsMock: vi.fn(),
   useLexPipelineStatusMock: vi.fn(),
+  useLexSearchProfileMock: vi.fn(),
+  refetchLexSearchProfileMock: vi.fn(),
   useLexSearchMock: vi.fn(),
   useLexTriggerMock: vi.fn(),
   useTelemetryReadyMarkMock: vi.fn(),
@@ -35,14 +39,24 @@ vi.mock("@/api/hooks/useLexSearch", () => ({
   useLexSearch: (...args: unknown[]) => useLexSearchMock(...args),
 }));
 
+vi.mock("@/api/hooks/useLexSearchProfile", () => ({
+  useLexSearchProfile: (...args: unknown[]) => useLexSearchProfileMock(...args),
+}));
+
 vi.mock("@/api/hooks/useLexTrigger", () => ({
   useLexTrigger: (...args: unknown[]) => useLexTriggerMock(...args),
 }));
 
-vi.mock("@/app/providers/TelemetryProvider", () => ({
-  useTelemetryReadyMark: (...args: unknown[]) =>
-    useTelemetryReadyMarkMock(...args),
-}));
+vi.mock("@/app/providers/TelemetryProvider", async () => {
+  const actual = await vi.importActual<
+    typeof import("@/app/providers/TelemetryProvider")
+  >("@/app/providers/TelemetryProvider");
+  return {
+    ...actual,
+    useTelemetryReadyMark: (...args: unknown[]) =>
+      useTelemetryReadyMarkMock(...args),
+  };
+});
 
 vi.mock("@/shared/i18n/LocaleProvider", async () => {
   const actual = await vi.importActual<
@@ -58,12 +72,14 @@ vi.mock("@/shared/i18n/LocaleProvider", async () => {
 });
 
 import LexKnowledgeGraphPage from "@/features/lex/routes/LexKnowledgeGraphPage";
+import { createQueryHookWrapper } from "@/test/queryHook";
 
 function renderLexPage() {
   return render(
     <MemoryRouter>
       <LexKnowledgeGraphPage />
     </MemoryRouter>,
+    { wrapper: createQueryHookWrapper() },
   );
 }
 
@@ -102,6 +118,39 @@ describe("LexKnowledgeGraphPage", () => {
       }),
     );
     useLexSearchMock.mockReset();
+    useLexSearchProfileMock.mockReset();
+    useLexSearchProfileMock.mockImplementation((outputDir: string) => ({
+      data: {
+        output_dir: outputDir,
+        query_generation_intent: [
+          {
+            basis_kind: "legal_lex_facts_embedding",
+            generation_id: "generation-facts-1",
+            inventory_json:
+              '{"basis":{"basis_kind":"legal_lex_facts_embedding"}}',
+          },
+        ],
+        status: "available",
+      },
+      error: null,
+      refetch: refetchLexSearchProfileMock,
+    }));
+    refetchLexSearchProfileMock.mockReset();
+    refetchLexSearchProfileMock.mockResolvedValue({
+      data: {
+        output_dir: "data/lex_knowledge",
+        query_generation_intent: [
+          {
+            basis_kind: "legal_lex_facts_embedding",
+            generation_id: "generation-facts-1",
+            inventory_json:
+              '{"basis":{"basis_kind":"legal_lex_facts_embedding"}}',
+          },
+        ],
+        status: "available",
+      },
+      error: null,
+    });
     useLexSearchMock.mockReturnValue({
       data: {
         query: "transportability",
@@ -118,7 +167,9 @@ describe("LexKnowledgeGraphPage", () => {
             subject_name: "policy",
           },
         ],
+        search_mode: "vector",
         total: 1,
+        vector_refusal_code: null,
       },
       error: null,
       isPending: false,
@@ -203,7 +254,7 @@ describe("LexKnowledgeGraphPage", () => {
       isFetching: false,
       refetch: vi.fn(),
     });
-    useLexSearchMock.mockReturnValueOnce({
+    useLexSearchMock.mockReturnValue({
       data: {
         query: "missing",
         results: [],
@@ -226,5 +277,122 @@ describe("LexKnowledgeGraphPage", () => {
     expect(
       screen.getByText('pages.lex.noResults:{"query":"missing"}'),
     ).toBeInTheDocument();
+  });
+
+  it("posts the click-framed selected profile and displays returned retrieval mode", async () => {
+    const user = userEvent.setup();
+    const mutate = vi.fn();
+    refetchLexSearchProfileMock.mockResolvedValueOnce({
+      data: {
+        output_dir: "data/lex_knowledge",
+        query_generation_intent: [
+          {
+            basis_kind: "legal_lex_facts_embedding",
+            generation_id: "generation-facts-click-time",
+            inventory_json:
+              '{"basis":{"basis_kind":"legal_lex_facts_embedding"}}',
+          },
+        ],
+        status: "available",
+      },
+      error: null,
+    });
+    useLexSearchMock.mockReturnValue({
+      data: {
+        query: "transportability",
+        results: [],
+        search_mode: "vector",
+        total: 0,
+        vector_refusal_code: null,
+      },
+      error: null,
+      isPending: false,
+      mutate,
+    });
+    renderLexPage();
+
+    await user.type(
+      screen.getByLabelText("pages.lex.knowledgeSearch"),
+      "transportability",
+    );
+    await user.click(screen.getByRole("button", { name: "pages.lex.search" }));
+
+    await waitFor(() => {
+      expect(refetchLexSearchProfileMock).toHaveBeenCalled();
+      expect(mutate).toHaveBeenCalledWith({
+        query: "transportability",
+        top_k: 20,
+        output_dir: "data/lex_knowledge",
+        query_generation_intent: [
+          {
+            basis_kind: "legal_lex_facts_embedding",
+            generation_id: "generation-facts-click-time",
+            inventory_json:
+              '{"basis":{"basis_kind":"legal_lex_facts_embedding"}}',
+          },
+        ],
+      });
+    });
+    expect(screen.getByTestId("lex-search-result-mode")).toHaveTextContent(
+      "pages.lex.vectorSearchMode",
+    );
+  });
+
+  it("keeps a typed no-profile refusal visible with text results", async () => {
+    const user = userEvent.setup();
+    const mutate = vi.fn();
+    useLexSearchProfileMock.mockReturnValue({
+      data: {
+        output_dir: "data/lex_knowledge",
+        refusal_code: "selected_generation_unavailable",
+        status: "refused",
+      },
+      error: null,
+      refetch: refetchLexSearchProfileMock,
+    });
+    refetchLexSearchProfileMock.mockResolvedValue({
+      data: {
+        output_dir: "data/lex_knowledge",
+        refusal_code: "selected_generation_unavailable",
+        status: "refused",
+      },
+      error: null,
+    });
+    useLexSearchMock.mockReturnValue({
+      data: {
+        query: "missing generation",
+        results: [],
+        search_mode: "text",
+        total: 0,
+        vector_refusal_code: "query_profile_unavailable",
+      },
+      error: null,
+      isPending: false,
+      mutate,
+    });
+    renderLexPage();
+
+    await user.type(
+      screen.getByLabelText("pages.lex.knowledgeSearch"),
+      "missing generation",
+    );
+    await user.click(screen.getByRole("button", { name: "pages.lex.search" }));
+
+    await waitFor(() => {
+      expect(mutate).toHaveBeenCalledWith({
+        query: "missing generation",
+        top_k: 20,
+        output_dir: "data/lex_knowledge",
+      });
+    });
+    expect(screen.getByTestId("lex-search-profile-status")).toHaveTextContent(
+      "pages.lex.selectedProfileUnavailable",
+    );
+    expect(screen.getByTestId("lex-search-profile-status")).toHaveTextContent(
+      "selected_generation_unavailable",
+    );
+    expect(screen.getByTestId("lex-search-result-mode")).toHaveTextContent(
+      "pages.lex.textSearchMode pages.lex.vectorSearchRefused query_profile_unavailable",
+    );
   });
 });

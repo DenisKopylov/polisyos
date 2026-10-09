@@ -87,7 +87,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGRead
+    from polisyos.data_forge.read_api.academic import PreparedSKGRead
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import (
     NodeError,

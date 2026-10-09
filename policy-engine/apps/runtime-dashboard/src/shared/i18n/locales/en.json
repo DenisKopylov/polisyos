@@ -1724,6 +1724,11 @@
       "searchPlaceholder": "Search facts (e.g. бюджетний дефіцит, liability, tax rate...)",
       "searching": "Searching...",
       "search": "Search",
+      "selectedProfileAvailable": "A selected fact-generation snapshot is available. Search rechecks it before vector retrieval.",
+      "selectedProfileUnavailable": "No selected fact-generation snapshot is available. Search can continue as text retrieval.",
+      "vectorSearchMode": "Vector retrieval",
+      "textSearchMode": "Text retrieval",
+      "vectorSearchRefused": "Vector retrieval was refused; these results use text retrieval. Reason:",
       "noResults": "No results found for \"{query}\"",
       "resultsSummary": "{count, plural, one {# result for \"{query}\"} other {# results for \"{query}\"}}",
       "columns": {

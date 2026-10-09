@@ -354,6 +354,22 @@ class TestEvidenceBundle:
         with pytest.raises(ValueError, match="v1.0 payload contains the v1.1 field"):
             load_causal_evidence_bundle(store, ref)
 
+    @pytest.mark.parametrize(
+        "schema_name", ["custom.causal_evidence_bundle", "", "ir.method_evidence"]
+    )
+    def test_noncanonical_schema_is_refused_before_write(self, tmp_path, monkeypatch, schema_name):
+        store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "cas"))
+        bundle = EvidenceBundle(run_id="schema-mismatch", query_str="P(Y|do(X))")
+
+        def forbidden_write(*args, **kwargs):
+            pytest.fail("noncanonical EvidenceBundle reached artifact emission")
+
+        monkeypatch.setattr(
+            "polisyos.ir.analytics.evidence_bundle.put_json_artifact", forbidden_write
+        )
+        with pytest.raises(ValueError, match="Unsupported causal EvidenceBundle schema name"):
+            persist_causal_evidence_bundle(store, bundle, schema_name=schema_name)
+
     def test_persist_causal_evidence_bundle_round_trip(self, tmp_path):
         store = FileSystemCAS(tmp_path / "cas")
         bundle = EvidenceBundle(

@@ -15,7 +15,6 @@ from polisyos.core import FullPrefixVerifier
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import canon as core_canon
 from polisyos.core import contracts as core_contracts
-from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 
 ArtifactID = core_artifacts.ArtifactID
 ArtifactManifest = core_artifacts.ArtifactManifest
@@ -127,7 +126,7 @@ def _expected_replayed_manifest(
 ) -> ArtifactManifest:
     """Reconstruct current v3 or explicitly historical v1/v2 persisted views."""
     if persisted_schema_version == "v3":
-        return ManifestLifecycle.expected_for_write(
+        return core_artifacts.expected_artifact_manifest_for_write(
             artifact_id=ref.artifact_id,
             data=payload,
             opts=ArtifactWriteOptions(
@@ -483,7 +482,7 @@ class _ChronologyPersistenceOwner:
                 reloaded != raw
                 or not self._store.verify(ref).ok
                 or manifest
-                != ManifestLifecycle.expected_for_write(
+                != core_artifacts.expected_artifact_manifest_for_write(
                     artifact_id=expected_ref.artifact_id,
                     data=raw,
                     opts=write_options,
@@ -748,7 +747,7 @@ class _ChronologyPersistenceOwner:
                 code=missing_code,
                 evidence_ref=expected_ref,
             )
-        expected_manifest = ManifestLifecycle.expected_for_write(
+        expected_manifest = core_artifacts.expected_artifact_manifest_for_write(
             artifact_id=expected_ref.artifact_id,
             data=payload,
             opts=options,

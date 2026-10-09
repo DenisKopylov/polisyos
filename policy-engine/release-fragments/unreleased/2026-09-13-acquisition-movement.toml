@@ -22,7 +22,7 @@ migration = "Migration owner: team-runtime. Before rollout, review the journal's
 api = "Existing acquisition route list/detail and Depth-N Cycle Board surfaces expose native admission and separately admitted historical movement. Native qualification does not grant action authority, publication eligibility, improved design grade, or GY register closure."
 limitations = "The canonical WDI cost row is not selected, and the default configuration has typed empty institutional mandate/signing/epoch/GY slots. Repository measurement does not establish global absence of institutional appointments. Fixture pricing is hypothetical and does not establish production readiness. Supplier completion and GY admission are separate closing acts. Dependency timeout is unknown acknowledgement, not cancellation or proof that no commit occurred. Canonical OpenAPI and generated clients are unchanged in this lane; the retained journal, not this fragment, records verification outcomes."
 generated_client_compatibility = "breaking_requires_consumer_action"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = ["src/polisyos/runtime/http/services/README.md"]
 runbook_docs = ["src/polisyos/runtime/http/services/README.md"]
 

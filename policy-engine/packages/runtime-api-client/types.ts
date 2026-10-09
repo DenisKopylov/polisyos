@@ -650,6 +650,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/control/lex/search-profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read the selected Legal fact-generation request snapshot */
+        get: operations["get_lex_search_profile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/control/lex/status/{pipeline_id}": {
         parameters: {
             query?: never;
@@ -11158,6 +11175,45 @@ export interface components {
             state: "pending" | "running" | "completed" | "failed";
         };
         /**
+         * LexSearchProfileAvailableResponse
+         * @description Expose a selected Legal fact-generation request snapshot.
+         *
+         *     This is a snapshot of the selected persisted generation, not a statement
+         *     that its members, index, or encoder remain current. Search revalidates those
+         *     properties when it consumes the snapshot.
+         */
+        LexSearchProfileAvailableResponse: {
+            meta: components["schemas"]["ApiMeta"];
+            /** Output Dir */
+            output_dir: string;
+            /** Query Generation Intent */
+            query_generation_intent: components["schemas"]["LegalQueryGenerationIntentV1"][];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            status: "available";
+        };
+        /**
+         * LexSearchProfileRefusedResponse
+         * @description Return a typed refusal when no selected fact-generation snapshot exists.
+         */
+        LexSearchProfileRefusedResponse: {
+            meta: components["schemas"]["ApiMeta"];
+            /** Output Dir */
+            output_dir: string;
+            /**
+             * Refusal Code
+             * @enum {string}
+             */
+            refusal_code: "query_profile_generation_unavailable" | "query_profile_malformed" | "selected_generation_unavailable";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            status: "refused";
+        };
+        /**
          * LexSearchRequest
          * @description POST /api/v1/control/lex/search — search knowledge graph facts.
          */
@@ -11186,7 +11242,6 @@ export interface components {
             results?: components["schemas"]["LexSearchResultItem"][];
             /**
              * Search Mode
-             * @default text
              * @enum {string}
              */
             search_mode: "text" | "vector";
@@ -11196,7 +11251,7 @@ export interface components {
              */
             total: number;
             /** Vector Refusal Code */
-            vector_refusal_code?: string | null;
+            vector_refusal_code: string | null;
         };
         /**
          * LexSearchResultItem
@@ -20792,6 +20847,92 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LexSearchResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_lex_search_profile: {
+        parameters: {
+            query: {
+                output_dir: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LexSearchProfileAvailableResponse"] | components["schemas"]["LexSearchProfileRefusedResponse"];
                 };
             };
             /** @description Malformed request payload or parameters. */

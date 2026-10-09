@@ -5,12 +5,14 @@ from __future__ import annotations
 import re
 import time
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from threading import RLock
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 
 from polisyos.common.logger import get_logger
 from polisyos.data_forge.domains.catalog.knowledge.store import DatasetCatalogStore
+from polisyos.data_forge.domains.catalog.knowledge.types import DatasetSearchResponse
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -229,6 +231,7 @@ class QueryMetrics:
     top_score: float = 0.0
     mean_score: float = 0.0
     vector_search_refusal: str | None = None
+    search_mode: Literal["text", "vector"] | None = None
 
 
 def _normalize_text(value: str) -> str:
@@ -308,29 +311,25 @@ class DatasetCatalogGraph:
         self._embedding_disabled = False
         self._embedding_warning_logged = False
         self._embedder_generation_intent: tuple[str, str] | None = None
-        self._query_generation_id: str | None = None
-        self._last_vector_search_refusal: str | None = None
         self._last_query_metrics: QueryMetrics | None = None
+        self._query_lock = RLock()
 
-    def _get_query_embedding(self, query: str) -> np.ndarray | None:
-        self._query_generation_id = None
-        self._last_vector_search_refusal = None
+    def _get_query_embedding(self, query: str) -> tuple[np.ndarray | None, str | None, str | None]:
+        """Return the query vector, selected generation ID, and local refusal."""
         if self._embedding_disabled:
-            self._last_vector_search_refusal = "query_encoder_disabled"
-            return None
+            return None, None, "query_encoder_disabled"
         generation = self._store._current_dataset_generation()
         if generation is None:
-            self._last_vector_search_refusal = (
-                self._store.vector_index_refusal_reason or "selected_generation_unavailable"
+            return (
+                None,
+                None,
+                self._store.vector_index_refusal_reason or "selected_generation_unavailable",
             )
-            return None
         if generation.inventory.get("embedding_model") != self._embedding_model_name:
-            self._last_vector_search_refusal = "query_embedding_model_mismatch"
-            return None
+            return None, None, "query_embedding_model_mismatch"
         raw_device = generation.inventory.get("embedding_device")
         if not isinstance(raw_device, str) or not raw_device.strip():
-            self._last_vector_search_refusal = "selected_generation_intent_unavailable"
-            return None
+            return None, None, "selected_generation_intent_unavailable"
         generation_device = raw_device.strip()
         try:
             generation_intent = (self._embedding_model_name, generation_device)
@@ -345,8 +344,7 @@ class DatasetCatalogGraph:
             dimension = _effective_encoder_dimension(self._embedder)
             device = _effective_encoder_device(self._embedder, requested=generation_device)
             if dimension is None or device is None:
-                self._last_vector_search_refusal = "query_encoder_intent_unavailable"
-                return None
+                return None, None, "query_encoder_intent_unavailable"
             if not self._store._query_generation_matches_encoder(
                 generation=generation,
                 encoder=self._embedder,
@@ -354,26 +352,25 @@ class DatasetCatalogGraph:
                 embedding_device=device,
                 embedding_dimension=dimension,
             ):
-                self._last_vector_search_refusal = (
+                return (
+                    None,
+                    None,
                     self._store.vector_index_refusal_reason
-                    or "query_encoder_generation_intent_mismatch"
+                    or "query_encoder_generation_intent_mismatch",
                 )
-                return None
-            self._query_generation_id = generation.generation_id
             vec = self._embedder.encode([query])[0].astype(np.float32)
             norm = np.linalg.norm(vec)
             if norm > 0:
                 vec = vec / norm
-            return vec
+            return vec, generation.generation_id, None
         except Exception as exc:
             self._embedding_disabled = True
-            self._last_vector_search_refusal = "query_encoder_execution_failed"
             if not self._embedding_warning_logged:
                 logger.warning(
                     "Failed to enable query embeddings; falling back to text-only search: {}", exc
                 )
                 self._embedding_warning_logged = True
-            return None
+            return None, None, "query_encoder_execution_failed"
 
     @staticmethod
     def _expanded_text_queries(query: str) -> list[str]:
@@ -557,10 +554,16 @@ class DatasetCatalogGraph:
         vector_score: float,
         final_score: float,
         explain: bool,
+        search_mode: Literal["text", "vector"],
         vector_search_refusal: str | None = None,
     ) -> DatasetSearchResult:
+        result_update = {
+            "similarity": final_score,
+            "search_mode": search_mode,
+            "vector_refusal_code": vector_search_refusal,
+        }
         if not explain:
-            return item.model_copy(update={"similarity": final_score})
+            return item.model_copy(update=result_update)
         metric_boost = self._metric_boost(item, query)
         source_boost = self._source_boost(item, query)
         freshness_boost = self._freshness_boost(item)
@@ -578,9 +581,7 @@ class DatasetCatalogGraph:
         }
         if vector_search_refusal is not None:
             explanation["vector_search_refusal"] = vector_search_refusal
-        return item.model_copy(
-            update={"similarity": final_score, "search_explanation": explanation}
-        )
+        return item.model_copy(update={**result_update, "search_explanation": explanation})
 
     def search_datasets(
         self,
@@ -593,13 +594,59 @@ class DatasetCatalogGraph:
         filters: SearchFilters | None = None,
         explain: bool = False,
     ) -> list[DatasetSearchResult]:
+        """Find datasets and preserve the legacy list-returning interface."""
+        return self.search_datasets_with_status(
+            query,
+            domain_filter=domain_filter,
+            top_k=top_k,
+            vector_weight=vector_weight,
+            text_weight=text_weight,
+            filters=filters,
+            explain=explain,
+        ).results
+
+    def search_datasets_with_status(
+        self,
+        query: str,
+        *,
+        domain_filter: str | None = None,
+        top_k: int = 10,
+        vector_weight: float = 0.7,
+        text_weight: float = 0.3,
+        filters: SearchFilters | None = None,
+        explain: bool = False,
+    ) -> DatasetSearchResponse:
+        """Return results and retrieval status from one atomic query."""
+        with self._query_lock:
+            return self._search_datasets_with_status(
+                query,
+                domain_filter=domain_filter,
+                top_k=top_k,
+                vector_weight=vector_weight,
+                text_weight=text_weight,
+                filters=filters,
+                explain=explain,
+            )
+
+    def _search_datasets_with_status(
+        self,
+        query: str,
+        *,
+        domain_filter: str | None = None,
+        top_k: int = 10,
+        vector_weight: float = 0.7,
+        text_weight: float = 0.3,
+        filters: SearchFilters | None = None,
+        explain: bool = False,
+    ) -> DatasetSearchResponse:
+        """Search under the query lock, keeping status local to this invocation."""
         candidate_k = max(top_k * 10, 20)
         text_start = time.perf_counter()
         text_results = self._search_text_candidates(query, top_k=candidate_k)
         text_ms = (time.perf_counter() - text_start) * 1000.0
 
         vector_ms = 0.0
-        vec = self._get_query_embedding(query)
+        vec, query_generation_id, vector_refusal_code = self._get_query_embedding(query)
         vector_results: list[DatasetSearchResult] = []
         if vec is not None:
             vector_start = time.perf_counter()
@@ -607,11 +654,11 @@ class DatasetCatalogGraph:
                 vec,
                 top_k=candidate_k,
                 min_similarity=0.2,
-                expected_generation_id=self._query_generation_id,
+                expected_generation_id=query_generation_id,
             )
             vector_ms = (time.perf_counter() - vector_start) * 1000.0
             if self._store.vector_index_refusal_reason is not None:
-                self._last_vector_search_refusal = self._store.vector_index_refusal_reason
+                vector_refusal_code = self._store.vector_index_refusal_reason
                 vec = None
                 vector_results = []
                 vector_ms = 0.0
@@ -631,9 +678,10 @@ class DatasetCatalogGraph:
                 mean_score=float(sum(item.similarity for item in results) / len(results))
                 if results
                 else 0.0,
-                vector_search_refusal=self._last_vector_search_refusal,
+                vector_search_refusal=vector_refusal_code,
+                search_mode="text",
             )
-            return [
+            projected_results = [
                 self._with_explanation(
                     item,
                     query=query,
@@ -645,10 +693,16 @@ class DatasetCatalogGraph:
                     + self._freshness_boost(item)
                     + self._tier_boost(item),
                     explain=explain,
-                    vector_search_refusal=self._last_vector_search_refusal,
+                    search_mode="text",
+                    vector_search_refusal=vector_refusal_code,
                 )
                 for item in results
             ]
+            return DatasetSearchResponse(
+                results=projected_results,
+                search_mode="text",
+                vector_refusal_code=vector_refusal_code,
+            )
 
         scores: dict[str, float] = {}
         text_score_map: dict[str, float] = {}
@@ -693,6 +747,7 @@ class DatasetCatalogGraph:
                     vector_score=vector_score_map.get(did, 0.0),
                     final_score=score,
                     explain=explain,
+                    search_mode="vector",
                 )
             )
             if len(out) >= top_k:
@@ -708,8 +763,9 @@ class DatasetCatalogGraph:
             top_score=float(out[0].similarity) if out else 0.0,
             mean_score=float(sum(item.similarity for item in out) / len(out)) if out else 0.0,
             vector_search_refusal=None,
+            search_mode="vector",
         )
-        return out
+        return DatasetSearchResponse(results=out, search_mode="vector")
 
     def suggest_related(self, dataset_id: str, *, top_k: int = 5) -> list[DatasetSearchResult]:
         base_dataset = self._store.get_dataset(dataset_id)

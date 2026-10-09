@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass
+import os
+import subprocess
+import sys
+from dataclasses import dataclass, replace
 from decimal import Decimal
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import pytest
-from pydantic import ValidationError
+from pydantic import BaseModel, ConfigDict, ValidationError
 
 from polisyos.core import artifacts, canon
 from polisyos.runtime.quality import derived_observations as derived_module
@@ -217,6 +220,34 @@ def _evidence_ref(store: artifacts.FileSystemCAS, label: str) -> artifacts.Artif
     )
 
 
+def _selected_source_view(
+    store: artifacts.FileSystemCAS,
+    source_ref: artifacts.ArtifactRef,
+    *,
+    environment_tag: str,
+    kind: str | None = None,
+    media_type: str | None = None,
+    schema: artifacts.SchemaInfo | None = None,
+) -> artifacts.ArtifactRef:
+    manifest = store.get_manifest(source_ref)
+    return store.put_bytes(
+        store.get_bytes(source_ref),
+        artifacts.PutOptions(
+            kind=kind or manifest.kind,
+            media_type=media_type or manifest.media_type,
+            schema=schema or manifest.artifact_schema,
+            producer=manifest.producer,
+            env=artifacts.EnvInfo(
+                python="test-runtime",
+                platform=environment_tag,
+                deps_lock_hash="sha256:" + "a" * 64,
+            ),
+            inputs=manifest.inputs,
+            canon=manifest.canon,
+        ),
+    )
+
+
 def _authority(
     store: artifacts.FileSystemCAS,
     *,
@@ -354,6 +385,411 @@ def test_registered_families_share_recipe_cache_certificate_and_passport_boundar
     assert "observed_series" in second.certificate.may_not_use_for
     assert len(recipe.inputs) == len(refs)
     assert all(item.artifact.manifest_sha256.startswith("sha256:") for item in recipe.inputs)
+    assert recipe.schema_version == derived_module.DERIVATION_SCHEMA_VERSION
+    assert first.certificate.schema_version == derived_module.DERIVATION_SCHEMA_VERSION
+    assert store.get_manifest(first.derived_artifact_ref).artifact_schema == (
+        derived_module._DERIVED_SERIES_SCHEMA
+    )
+    persisted_recipe_ref = derived_module.persist_derivation_recipe_artifact(store, recipe)
+    assert store.get_manifest(persisted_recipe_ref).artifact_schema == (
+        derived_module._DERIVATION_RECIPE_SCHEMA
+    )
+    assert store.get_manifest(first.certificate_artifact_ref).artifact_schema == (
+        derived_module._CERTIFICATE_SCHEMA
+    )
+    # Profile-less v2 projections keep their prior wire shape: optional
+    # selector keys are absent rather than serialized as null.
+    assert "manifest_profile_sha256" not in json.dumps(recipe.model_dump(mode="json"))
+    assert "derived_artifact_ref" not in json.dumps(first.certificate.model_dump(mode="json"))
+    mismatched_recipe = recipe.model_dump(mode="python")
+    mismatched_recipe["schema_version"] = derived_module.SELECTED_VIEW_DERIVATION_SCHEMA_VERSION
+    with pytest.raises(ValidationError):
+        derived_module.DerivationRecipe.model_validate(mismatched_recipe)
+
+
+def test_selected_source_profile_is_bound_through_recipe_and_fresh_process_consumer(
+    tmp_path: Path,
+) -> None:
+    store, refs, output_basis, _, _ = _case_inputs(
+        tmp_path / "cas",
+        "price_level_rebase",
+    )
+    source_ref = refs["amount"]
+    selected_source_ref = _selected_source_view(
+        store,
+        source_ref,
+        environment_tag="selected-view",
+    )
+    assert selected_source_ref.artifact_id == source_ref.artifact_id
+    assert selected_source_ref.manifest_profile_sha256 is not None
+    assert selected_source_ref.manifest_profile_sha256 != source_ref.manifest_profile_sha256
+
+    recipe = build_derivation_recipe(
+        store,
+        registry=_registry(),
+        input_refs={**refs, "amount": selected_source_ref},
+        output_variable_id="test.selected.source.profile",
+        output_basis=output_basis,
+    )
+    assert recipe.schema_version == derived_module.SELECTED_VIEW_DERIVATION_SCHEMA_VERSION
+    amount = next(item for item in recipe.inputs if item.role == "amount")
+    assert amount.artifact.manifest_profile_sha256 == selected_source_ref.manifest_profile_sha256
+
+    recipe_ref = derived_module.persist_derivation_recipe_artifact(store, recipe)
+    persisted_recipe_manifest = store.get_manifest(recipe_ref)
+    assert persisted_recipe_manifest.artifact_schema == (
+        derived_module._DERIVATION_RECIPE_SELECTED_VIEW_SCHEMA
+    )
+    persisted_amount_edge = next(
+        item for item in persisted_recipe_manifest.inputs if item.role == "source:amount"
+    )
+    assert persisted_amount_edge.artifact_id == source_ref.artifact_id
+    assert (
+        persisted_amount_edge.manifest_profile_sha256 == selected_source_ref.manifest_profile_sha256
+    )
+
+    script = """
+import json
+import sys
+from pathlib import Path
+from polisyos.core import artifacts
+from polisyos.runtime.quality import derived_observations as derived
+store = artifacts.FileSystemCAS(Path(sys.argv[1]))
+recipe_ref = artifacts.ArtifactRef.model_validate(json.loads(sys.argv[2]))
+recipe = derived._read_derivation_recipe_artifact(store, recipe_ref)
+materialized = derived.materialize_derivation(store, recipe)
+manifest = store.get_manifest(materialized.derived_artifact_ref)
+source_edge = next(item for item in manifest.inputs if item.role == "source:amount")
+certificate_manifest = store.get_manifest(materialized.certificate_artifact_ref)
+certificate_input = next(
+    item for item in certificate_manifest.inputs if item.role == "source:amount"
+)
+consumption = derived.consume_certified_derivation(
+    store,
+    certificate_ref=materialized.certificate_artifact_ref,
+    consumer_method_id="test.selected.profile.consumer@1.0.0",
+)
+print(json.dumps({
+    "recipe_source_profile": next(
+        item.artifact.manifest_profile_sha256
+        for item in recipe.inputs
+        if item.role == "amount"
+    ),
+    "derived_input_profile": source_edge.manifest_profile_sha256,
+    "certificate_input_profile": certificate_input.manifest_profile_sha256,
+    "consumed": consumption.cache_verified,
+    "certificate_source_profile": next(
+        item.artifact.manifest_profile_sha256
+        for item in materialized.certificate.recipe.inputs
+        if item.role == "amount"
+    ),
+}))
+"""
+    environment = dict(os.environ)
+    source_root = str(Path(__file__).resolve().parents[4] / "src")
+    environment["PYTHONPATH"] = os.pathsep.join(
+        part for part in (source_root, environment.get("PYTHONPATH", "")) if part
+    )
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            script,
+            str(tmp_path / "cas"),
+            json.dumps(recipe_ref.model_dump(mode="json")),
+        ],
+        check=True,
+        capture_output=True,
+        env=environment,
+        text=True,
+        timeout=60,
+    )
+    fresh_read = json.loads(result.stdout)
+    assert fresh_read["recipe_source_profile"] == selected_source_ref.manifest_profile_sha256
+    assert fresh_read["derived_input_profile"] == selected_source_ref.manifest_profile_sha256
+    assert fresh_read["certificate_input_profile"] == selected_source_ref.manifest_profile_sha256
+    assert fresh_read["certificate_source_profile"] == selected_source_ref.manifest_profile_sha256
+    assert fresh_read["consumed"] is True
+
+
+def test_selected_view_recipe_version_is_rejected_by_strict_legacy_reader(
+    tmp_path: Path,
+) -> None:
+    store, refs, output_basis, _, _ = _case_inputs(
+        tmp_path / "cas",
+        "price_level_rebase",
+    )
+    selected_amount_ref = _selected_source_view(
+        store,
+        refs["amount"],
+        environment_tag="selected-version",
+    )
+    recipe = build_derivation_recipe(
+        store,
+        registry=_registry(),
+        input_refs={**refs, "amount": selected_amount_ref},
+        output_variable_id="test.selected.schema.version",
+        output_basis=output_basis,
+    )
+    assert recipe.schema_version == derived_module.SELECTED_VIEW_DERIVATION_SCHEMA_VERSION
+    persisted_ref = derived_module.persist_derivation_recipe_artifact(store, recipe)
+    assert store.get_manifest(persisted_ref).artifact_schema == (
+        derived_module._DERIVATION_RECIPE_SELECTED_VIEW_SCHEMA
+    )
+
+    class LegacyRecipeTag(BaseModel):
+        model_config = ConfigDict(extra="forbid")
+
+        schema_version: Literal["polisyos.runtime.derived_observations.v2"]
+
+    payload = derived_module._canonical_payload(store.get_bytes(persisted_ref))
+    with pytest.raises(ValidationError):
+        LegacyRecipeTag.model_validate(payload)
+
+    materialized = materialize_derivation(store, recipe)
+    assert materialized.certificate.schema_version == (
+        derived_module.SELECTED_VIEW_DERIVATION_SCHEMA_VERSION
+    )
+    assert store.get_manifest(materialized.certificate_artifact_ref).artifact_schema == (
+        derived_module._CERTIFICATE_SELECTED_VIEW_SCHEMA
+    )
+    certificate_payload = derived_module._canonical_payload(
+        store.get_bytes(materialized.certificate_artifact_ref)
+    )
+
+    class LegacyCertificateTag(BaseModel):
+        model_config = ConfigDict(extra="forbid")
+
+        schema_version: Literal["polisyos.runtime.derived_observations.v2"]
+
+    with pytest.raises(ValidationError):
+        LegacyCertificateTag.model_validate(certificate_payload)
+
+    mismatched = recipe.model_dump(mode="python")
+    mismatched["schema_version"] = derived_module.DERIVATION_SCHEMA_VERSION
+    mismatched["recipe_id"] = derived_module._identity(
+        "derivation-recipe", {key: value for key, value in mismatched.items() if key != "recipe_id"}
+    )
+    with pytest.raises(ValidationError):
+        derived_module.DerivationRecipe.model_validate(mismatched)
+
+    mismatched_certificate = materialized.certificate.model_dump(mode="python")
+    mismatched_certificate["schema_version"] = derived_module.DERIVATION_SCHEMA_VERSION
+    with pytest.raises(ValidationError):
+        derived_module.DerivationCertificate.model_validate(mismatched_certificate)
+
+
+def test_selected_source_view_with_missing_authority_edge_is_refused(tmp_path: Path) -> None:
+    store, refs, output_basis, _, _ = _case_inputs(
+        tmp_path / "cas",
+        "price_level_rebase",
+    )
+    source_ref = refs["amount"]
+    default_manifest = store.get_manifest(source_ref)
+    selected_without_parent = store.put_bytes(
+        store.get_bytes(source_ref),
+        artifacts.PutOptions(
+            kind=default_manifest.kind,
+            media_type=default_manifest.media_type,
+            schema=default_manifest.artifact_schema,
+            producer=default_manifest.producer,
+            inputs=(),
+            canon=default_manifest.canon,
+        ),
+    )
+
+    assert selected_without_parent.artifact_id == source_ref.artifact_id
+    assert selected_without_parent.manifest_profile_sha256 is not None
+    assert selected_without_parent.manifest_profile_sha256 != source_ref.manifest_profile_sha256
+    assert store.get_manifest(selected_without_parent).inputs == []
+
+    selected_refs = {**refs, "amount": selected_without_parent}
+    with pytest.raises(DerivationRefusalError) as refusal:
+        build_derivation_recipe(
+            store,
+            registry=_registry(),
+            input_refs=selected_refs,
+            output_variable_id="test.selected.source.missing.authority",
+            output_basis=output_basis,
+        )
+
+    assert refusal.value.code is DerivationRefusalCode.INPUT_ARTIFACT_DRIFT
+
+
+@pytest.mark.parametrize(
+    ("variant", "expected_code"),
+    [
+        ("kind", DerivationRefusalCode.BASIS_MISMATCH),
+        ("media_type", DerivationRefusalCode.INPUT_ARTIFACT_DRIFT),
+        ("schema", DerivationRefusalCode.INPUT_ARTIFACT_DRIFT),
+    ],
+)
+def test_selected_source_view_must_match_fixed_intake_contract(
+    tmp_path: Path,
+    variant: str,
+    expected_code: DerivationRefusalCode,
+) -> None:
+    store, refs, output_basis, _, _ = _case_inputs(
+        tmp_path / "cas",
+        "price_level_rebase",
+    )
+    source_ref = refs["amount"]
+    manifest = store.get_manifest(source_ref)
+    selected_source_ref = _selected_source_view(
+        store,
+        source_ref,
+        environment_tag=f"wrong-{variant}",
+        kind="test.foreign_source" if variant == "kind" else None,
+        media_type="application/octet-stream" if variant == "media_type" else None,
+        schema=(
+            artifacts.SchemaInfo(name="test.foreign-source", version="9.0.0")
+            if variant == "schema"
+            else None
+        ),
+    )
+    assert selected_source_ref.artifact_id == source_ref.artifact_id
+    assert selected_source_ref.manifest_profile_sha256 != source_ref.manifest_profile_sha256
+    if variant == "kind":
+        assert selected_source_ref.kind != derived_module.SOURCE_SERIES_KIND
+    else:
+        assert store.get_manifest(selected_source_ref).kind == manifest.kind
+
+    with pytest.raises(DerivationRefusalError) as refusal:
+        build_derivation_recipe(
+            store,
+            registry=_registry(),
+            input_refs={**refs, "amount": selected_source_ref},
+            output_variable_id=f"test.selected.source.wrong.{variant}",
+            output_basis=output_basis,
+        )
+
+    assert refusal.value.code is expected_code
+
+
+def test_selected_source_refuses_unresolvable_profile_digest(tmp_path: Path) -> None:
+    store, refs, output_basis, _, _ = _case_inputs(
+        tmp_path / "cas",
+        "price_level_rebase",
+    )
+    source_ref = refs["amount"]
+    wrong_profile = source_ref.model_copy(update={"manifest_profile_sha256": "sha256:" + "f" * 64})
+
+    with pytest.raises(DerivationRefusalError) as refusal:
+        build_derivation_recipe(
+            store,
+            registry=_registry(),
+            input_refs={**refs, "amount": wrong_profile},
+            output_variable_id="test.selected.source.wrong.profile",
+            output_basis=output_basis,
+        )
+
+    assert refusal.value.code is DerivationRefusalCode.INPUT_ARTIFACT_DRIFT
+
+    malformed_profile = source_ref.model_copy(
+        update={"manifest_profile_sha256": "not-a-profile-digest"}
+    )
+    with pytest.raises(DerivationRefusalError) as malformed_refusal:
+        build_derivation_recipe(
+            store,
+            registry=_registry(),
+            input_refs={**refs, "amount": malformed_profile},
+            output_variable_id="test.selected.source.malformed.profile",
+            output_basis=output_basis,
+        )
+    assert malformed_refusal.value.code is DerivationRefusalCode.INPUT_ARTIFACT_DRIFT
+
+
+def test_selected_source_view_corruption_refuses_recipe_consumer(tmp_path: Path) -> None:
+    store, refs, output_basis, _, _ = _case_inputs(
+        tmp_path / "cas",
+        "price_level_rebase",
+    )
+    source_ref = refs["amount"]
+    selected_source_ref = _selected_source_view(
+        store,
+        source_ref,
+        environment_tag="corrupt-after-admission",
+    )
+    recipe = build_derivation_recipe(
+        store,
+        registry=_registry(),
+        input_refs={**refs, "amount": selected_source_ref},
+        output_variable_id="test.selected.source.corrupt",
+        output_basis=output_basis,
+    )
+    view_path = store._layout.view_manifest_path(
+        selected_source_ref.artifact_id,
+        selected_source_ref.manifest_profile_sha256,
+    )
+    corrupted = json.loads(view_path.read_text(encoding="utf-8"))
+    corrupted["producer"]["version"] = "tampered-selected-profile"
+    view_path.write_text(json.dumps(corrupted), encoding="utf-8")
+
+    with pytest.raises(DerivationRefusalError) as refusal:
+        materialize_derivation(store, recipe)
+
+    assert refusal.value.code is DerivationRefusalCode.INPUT_ARTIFACT_DRIFT
+
+
+def test_certificate_retains_selected_derived_output_view(tmp_path: Path) -> None:
+    store, refs, output_basis, _, _ = _case_inputs(
+        tmp_path / "cas",
+        "price_level_rebase",
+    )
+    selected_amount_ref = _selected_source_view(
+        store,
+        refs["amount"],
+        environment_tag="selected-output-lineage",
+    )
+    recipe = build_derivation_recipe(
+        store,
+        registry=_registry(),
+        input_refs={**refs, "amount": selected_amount_ref},
+        output_variable_id="test.derived.selected.output.view",
+        output_basis=output_basis,
+    )
+    sources = derived_module._load_recipe_sources(
+        store,
+        recipe,
+        refusal_code=DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
+    )
+    series = derived_module._derive_series(recipe, sources)
+    wrong_default = store.put_bytes(
+        derived_module._canonical_bytes(series),
+        artifacts.PutOptions(
+            kind=derived_module.DERIVED_SERIES_KIND,
+            media_type="application/json",
+            schema=derived_module._DERIVED_SERIES_SCHEMA,
+            producer=derived_module._DERIVATION_PRODUCER,
+            inputs=(),
+            canon=artifacts.CanonInfo.from_spec(derived_module._CANON_SPEC),
+        ),
+    )
+    assert wrong_default.manifest_profile_sha256 is None
+    assert store.get_manifest(wrong_default).inputs == []
+
+    materialized = materialize_derivation(store, recipe)
+    assert materialized.derived_artifact_ref.artifact_id == wrong_default.artifact_id
+    assert materialized.derived_artifact_ref.manifest_profile_sha256 is not None
+    assert materialized.certificate.derived_artifact_ref == materialized.derived_artifact_ref
+    selected_manifest = store.get_manifest(materialized.derived_artifact_ref)
+    assert selected_manifest.inputs == derived_module._expected_output_inputs(recipe)
+    certificate_manifest = store.get_manifest(materialized.certificate_artifact_ref)
+    derived_edge = next(
+        item for item in certificate_manifest.inputs if item.role == "derived_series"
+    )
+    assert (
+        derived_edge.manifest_profile_sha256
+        == materialized.derived_artifact_ref.manifest_profile_sha256
+    )
+
+    consumed = consume_certified_derivation(
+        artifacts.FileSystemCAS(tmp_path / "cas"),
+        certificate_ref=materialized.certificate_artifact_ref,
+        consumer_method_id="test.selected.derived.consumer@1.0.0",
+    )
+    assert consumed.derived_artifact_id == materialized.derived_artifact_ref.artifact_id
+    assert consumed.cache_verified is True
 
 
 def test_recipe_identity_excludes_only_manifest_created_at(tmp_path: Path) -> None:
@@ -474,7 +910,7 @@ def _persist_recipe_graph_without_public_intake(
         inputs=derived_module._expected_output_inputs(recipe),
         refusal_code=DerivationRefusalCode.CACHE_ARTIFACT_DRIFT,
     )
-    certificate = derived_module._certificate(recipe, sources, derived_ref.artifact_id)
+    certificate = derived_module._certificate(recipe, sources, derived_ref)
     certificate_ref, _ = derived_module._put_or_verify(
         store,
         payload=certificate,
@@ -482,7 +918,7 @@ def _persist_recipe_graph_without_public_intake(
         schema=derived_module._CERTIFICATE_SCHEMA,
         inputs=derived_module._expected_certificate_inputs(
             recipe,
-            derived_ref.artifact_id,
+            derived_ref,
         ),
         refusal_code=DerivationRefusalCode.CERTIFICATE_DRIFT,
     )
@@ -1415,11 +1851,21 @@ def _epoch_recompute_fixture(
     output_label: str = "primary",
     authority_purpose: str = "decision_validity_epoch_transition",
     use_graph_digest_as_outer: bool = False,
+    selected_source_profile: bool = False,
 ) -> _EpochRecomputeFixture:
     store, refs, output_basis, _, _ = _case_inputs(
         tmp_path / "cas",
         "price_level_rebase",
     )
+    if selected_source_profile:
+        refs = {
+            **refs,
+            "amount": _selected_source_view(
+                store,
+                refs["amount"],
+                environment_tag="epoch-selected-source-view",
+            ),
+        }
     recipe = build_derivation_recipe(
         store,
         registry=_registry(),
@@ -1583,11 +2029,19 @@ def test_epoch_inheritance_recompute_receipt_round_trips_exact_owner_graph(
 
     assert reread == persisted
     assert persisted.receipt_content_hash == str(persisted.receipt_artifact_ref.artifact_id)
+    assert payload["schema_version"] == derived_module._EPOCH_RECOMPUTE_SCHEMA_VERSION
+    assert manifest.artifact_schema == (derived_module._EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_SCHEMA)
     assert payload["state"] == "completed"
     assert payload["predicate_class"] == "recomputed"
     assert payload["dependency_denominator_ref"] == expected_outer_denominator_ref
     assert payload["derived_artifact_ref"] == fixture.derived_ref.model_dump(mode="json")
     assert "series" not in payload
+    mismatched_payload = dict(payload)
+    mismatched_payload["schema_version"] = (
+        derived_module._SELECTED_VIEW_EPOCH_RECOMPUTE_SCHEMA_VERSION
+    )
+    with pytest.raises(ValidationError):
+        derived_module.EpochInheritanceRecomputeReceipt.model_validate(mismatched_payload)
     assert tuple((row.role, str(row.artifact_id)) for row in manifest.inputs) == (
         ("derivation_certificate", str(fixture.certificate_ref.artifact_id)),
         ("derivation_recipe", str(fixture.recipe_ref.artifact_id)),
@@ -1596,6 +2050,48 @@ def test_epoch_inheritance_recompute_receipt_round_trips_exact_owner_graph(
         ("graph_edge_source", str(fixture.source_ref.artifact_id)),
         ("graph_edge_target", str(fixture.target_ref.artifact_id)),
     )
+
+
+def test_epoch_recompute_receipt_preserves_selected_source_profile_on_fresh_reader(
+    tmp_path: Path,
+) -> None:
+    fixture = _epoch_recompute_fixture(tmp_path, selected_source_profile=True)
+    source_profile = fixture.source_ref.manifest_profile_sha256
+    assert source_profile is not None
+
+    persisted = _produce_epoch_recompute(fixture)
+    receipt_manifest = fixture.store.get_manifest(persisted.receipt_artifact_ref)
+    source_edge = next(item for item in receipt_manifest.inputs if item.role == "graph_edge_source")
+    assert source_edge.manifest_profile_sha256 == source_profile
+    payload = derived_module._canonical_payload(
+        fixture.store.get_bytes(persisted.receipt_artifact_ref)
+    )
+    assert payload["source_ref"]["manifest_profile_sha256"] == source_profile
+    assert payload["schema_version"] == (
+        derived_module._SELECTED_VIEW_EPOCH_RECOMPUTE_SCHEMA_VERSION
+    )
+    assert receipt_manifest.artifact_schema == (
+        derived_module._EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_SELECTED_VIEW_SCHEMA
+    )
+
+    class LegacyEpochTag(BaseModel):
+        model_config = ConfigDict(extra="forbid")
+
+        schema_version: Literal["polisyos.runtime.epoch-inheritance-recompute-receipt.v1"]
+
+    with pytest.raises(ValidationError):
+        LegacyEpochTag.model_validate(payload)
+    mismatched_payload = dict(payload)
+    mismatched_payload["schema_version"] = derived_module._EPOCH_RECOMPUTE_SCHEMA_VERSION
+    with pytest.raises(ValidationError):
+        derived_module.EpochInheritanceRecomputeReceipt.model_validate(mismatched_payload)
+
+    fresh_fixture = replace(
+        fixture,
+        store=artifacts.FileSystemCAS(tmp_path / "cas"),
+    )
+    reread = _read_epoch_recompute(fresh_fixture, persisted.receipt_artifact_ref)
+    assert reread == persisted
 
 
 def test_epoch_inheritance_recompute_rejects_graph_digest_substituted_for_outer_denominator(

@@ -175,8 +175,13 @@ def build_knowledge_tool_registry(
             continue
 
         try:
-            definition = _method_to_tool_definition(name, method, domain=_infer_domain(name))
-            registry.register(definition, method)
+            handler = method
+            if name == "search_datasets":
+                status_method = getattr(toolkit, "search_datasets_with_status", None)
+                if callable(status_method):
+                    handler = status_method
+            definition = _method_to_tool_definition(name, handler, domain=_infer_domain(name))
+            registry.register(definition, handler)
         except Exception as exc:
             logger.debug("Failed to register tool %s: %s", name, exc)
 

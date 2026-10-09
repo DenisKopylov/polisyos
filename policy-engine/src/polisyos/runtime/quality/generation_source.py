@@ -16,7 +16,6 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     ArtifactSameInputClosureInfo,
@@ -357,7 +356,7 @@ def _ref_selects_manifest(ref: ArtifactRef, manifest: artifacts.ArtifactManifest
     if ref.kind != manifest.kind or ref.media_type != manifest.media_type:
         return False
     return ref.manifest_profile_sha256 is None or (
-        ref.manifest_profile_sha256 == ManifestLifecycle.profile_sha256(manifest)
+        ref.manifest_profile_sha256 == artifacts.artifact_manifest_profile_sha256(manifest)
     )
 
 
@@ -1902,7 +1901,7 @@ class GenerationSourceRepository:
                 kind=manifest.kind,
                 media_type=manifest.media_type,
                 manifest_profile_sha256=(
-                    ManifestLifecycle.profile_sha256(manifest)
+                    artifacts.artifact_manifest_profile_sha256(manifest)
                     if ref.manifest_profile_sha256 is not None
                     else None
                 ),
@@ -2662,7 +2661,7 @@ class GenerationSourceRepository:
                 kind=manifest.kind,
                 media_type=manifest.media_type,
                 manifest_profile_sha256=(
-                    ManifestLifecycle.profile_sha256(manifest)
+                    artifacts.artifact_manifest_profile_sha256(manifest)
                     if ref.manifest_profile_sha256 is not None
                     else None
                 ),
@@ -2849,7 +2848,7 @@ class GenerationSourceRepository:
                 kind=manifest.kind,
                 media_type=manifest.media_type,
                 manifest_profile_sha256=(
-                    ManifestLifecycle.profile_sha256(manifest)
+                    artifacts.artifact_manifest_profile_sha256(manifest)
                     if ref.manifest_profile_sha256 is not None
                     else None
                 ),
@@ -3271,7 +3270,7 @@ class GenerationSourceRepository:
                 kind=manifest.kind,
                 media_type=manifest.media_type,
                 manifest_profile_sha256=(
-                    ManifestLifecycle.profile_sha256(manifest)
+                    artifacts.artifact_manifest_profile_sha256(manifest)
                     if ref.manifest_profile_sha256 is not None
                     else None
                 ),

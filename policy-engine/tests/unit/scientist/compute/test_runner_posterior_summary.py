@@ -6,7 +6,7 @@ from typing import Any, ClassVar
 import numpy as np
 import pytest
 
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.observability import DeterminismTier
@@ -188,6 +188,56 @@ def test_method_job_returns_fresh_readable_summary_refs_for_both_point_roles(tmp
             summary.source_method_evidence_ref.manifest_profile_sha256
             == result.method_evidence_ref.manifest_profile_sha256
         )
+
+
+def test_posterior_summary_bridge_preserves_selected_evidence_manifest_profile(tmp_path) -> None:
+    result = _run_native_fixture(tmp_path)
+    assert result.method_evidence_ref is not None
+    store = FileSystemCAS(tmp_path)
+    original_manifest = store.get_manifest(result.method_evidence_ref)
+    evidence_bytes = store.get_bytes(result.method_evidence_ref)
+    selected_evidence_ref = store.put_bytes(
+        evidence_bytes,
+        PutOptions(
+            kind=original_manifest.kind,
+            media_type=original_manifest.media_type,
+            schema=SchemaInfo(name="tests.SelectedMethodEvidence", version="1"),
+            canon=original_manifest.canon,
+            inputs=original_manifest.inputs,
+            producer=original_manifest.producer,
+            env=original_manifest.env,
+            governance=original_manifest.governance,
+            tenant_context=original_manifest.tenant_context,
+            same_input_closure=original_manifest.same_input_closure,
+            authority=original_manifest.authority,
+            warnings=original_manifest.warnings,
+        ),
+    )
+    assert selected_evidence_ref.manifest_profile_sha256 is not None
+
+    summary_ref = persist_posterior_summary_from_method_evidence(
+        store,
+        selected_evidence_ref,
+        point_role=PosteriorPointRole.POSTERIOR_MEAN,
+    )
+    summary = load_persisted_posterior_summary(store, summary_ref)
+    summary_manifest = store.get_manifest(
+        ArtifactRef.model_validate(summary_ref.model_dump(mode="python"))
+    )
+
+    assert summary.source_method_evidence_ref is not None
+    assert (
+        summary.source_method_evidence_ref.manifest_profile_sha256
+        == selected_evidence_ref.manifest_profile_sha256
+    )
+    method_evidence_inputs = [
+        item for item in summary_manifest.inputs if item.role == "method_evidence"
+    ]
+    assert len(method_evidence_inputs) == 1
+    assert (
+        method_evidence_inputs[0].manifest_profile_sha256
+        == selected_evidence_ref.manifest_profile_sha256
+    )
 
 
 def test_method_job_refuses_corrupt_native_draw_digest(tmp_path) -> None:

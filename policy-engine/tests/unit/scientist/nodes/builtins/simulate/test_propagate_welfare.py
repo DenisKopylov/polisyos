@@ -7,6 +7,7 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 
+import polisyos.scientist.nodes.builtins.simulate.propagate_welfare as propagate_welfare_module
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
@@ -57,6 +58,7 @@ from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
     ParametricFitCarrier,
+    PosteriorSamplesCarrier,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
@@ -75,6 +77,9 @@ from polisyos.ir.kernel.mechanisms import DEFAULT_MECHANISM_REGISTRY
 from polisyos.ir.kernel.merge_rules import DEFAULT_MERGE_RULE_REGISTRY
 from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY
 from polisyos.ir.registry.refs import ArtifactRefModel, UncertaintyEnvelopeRef
+from polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment import (
+    _build_welfare_section,
+)
 from polisyos.scientist.nodes.builtins.simulate.propagate_welfare import (
     PropagateWelfareNode,
 )
@@ -1978,6 +1983,485 @@ def test_monte_carlo_samples_independent_external_uniform_marginal_without_calib
     assert max(samples.welfare_draws) > 1.35
 
 
+def test_delta_report_binds_selected_input_envelope_profile_through_fresh_cas_readback(
+    tmp_path,
+) -> None:
+    store = _RecordingFileSystemCAS(tmp_path)
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    envelope = UncertaintyEnvelope(
+        point_estimate=0.0,
+        confidence_interval=(-2.0, 2.0),
+        confidence_level=None,
+        distribution_family=DistributionFamily.NORMAL,
+        source=UncertaintySource.MANUAL,
+        propagation_method=PropagationMethod.NONE,
+        interval_semantics=IntervalSemantics.HEURISTIC_RANGE,
+        is_heuristic_ci=True,
+        gate_eligible=False,
+        distribution_payload=ParametricFitCarrier(
+            family=DistributionFamily.NORMAL,
+            parameters={"mean": 0.0, "std": 1.0},
+        ),
+        metadata={"param_name": "C.rate", "std": 1.0},
+    )
+    envelope_payload = envelope.model_dump(mode="python", round_trip=True)
+    envelope_options = PutOptions(
+        kind="ir.uncertainty_envelope",
+        media_type="application/json",
+        schema=SchemaInfo(name="ir.uncertainty_envelope", version="1.1"),
+    )
+    default_view = store.put_json(
+        envelope_payload,
+        envelope_options,
+        canon_spec=CanonSpec(forbid_floats=False, max_depth=128),
+    )
+    selected_view = store.put_json(
+        envelope_payload,
+        envelope_options,
+        canon_spec=CanonSpec(forbid_floats=False, max_depth=64),
+    )
+    assert selected_view.artifact_id == default_view.artifact_id
+    assert selected_view.manifest_profile_sha256 != default_view.manifest_profile_sha256
+    selected_ref = UncertaintyEnvelopeRef.model_validate(selected_view.model_dump(mode="python"))
+
+    outcome, bundle = _run_b197_welfare(
+        store,
+        registry_ref,
+        _b197_simulation_result(store),
+        None,
+        run_id="R_welfare_delta_selected_envelope_profile",
+        method="delta",
+        labels=["C"],
+        weights=[1.0],
+        input_envelopes={"C.rate": selected_ref.model_dump(mode="json")},
+    )
+
+    assert outcome.status == "ok"
+    assert bundle.credible_interval is not None
+    propagation_report_id = ArtifactID.model_validate(bundle.diagnostics["propagation_report_ref"])
+    report_ref = ArtifactRef(
+        artifact_id=propagation_report_id,
+        kind="foundry.welfare_propagation_report",
+        media_type="application/json",
+    )
+    report_manifest = store.get_manifest(report_ref)
+    input_rows = [
+        item
+        for item in report_manifest.inputs
+        if item.role == "input_envelope.C.rate"
+        and str(item.artifact_id) == str(selected_ref.artifact_id)
+    ]
+    assert len(input_rows) == 1
+    assert input_rows[0].manifest_profile_sha256 == selected_ref.manifest_profile_sha256
+    assert any(
+        getattr(selector, "manifest_profile_sha256", None) == selected_ref.manifest_profile_sha256
+        for selector in store.read_selectors
+    )
+
+    fresh_store = _RecordingFileSystemCAS(tmp_path)
+    fresh_report = from_canonical_bytes(fresh_store.get_bytes(report_ref))
+    assert fresh_report["schema_version"] == "1.0"
+    fresh_manifest = fresh_store.get_manifest(report_ref)
+    assert any(
+        item.role == "input_envelope.C.rate"
+        and item.manifest_profile_sha256 == selected_ref.manifest_profile_sha256
+        for item in fresh_manifest.inputs
+    )
+    selected_envelope = load_uncertainty_envelope(
+        _ensure_ir_artifact_store(fresh_store), selected_ref
+    )
+    assert selected_envelope.point_estimate == envelope.point_estimate
+    assert any(
+        getattr(selector, "manifest_profile_sha256", None) == selected_ref.manifest_profile_sha256
+        for selector in fresh_store.read_selectors
+    )
+
+    corrupt_ref = selected_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + ("0" * 64)}
+    )
+    with pytest.raises(FileNotFoundError):
+        load_uncertainty_envelope(_ensure_ir_artifact_store(fresh_store), corrupt_ref)
+
+
+def test_partial_welfare_draws_retain_terminal_outcomes_after_fresh_cas_readback(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    envelope = UncertaintyEnvelope(
+        point_estimate=0.0,
+        confidence_interval=(-1.0, 1.0),
+        confidence_level=None,
+        distribution_family=DistributionFamily.UNIFORM,
+        source=UncertaintySource.MANUAL,
+        propagation_method=PropagationMethod.NONE,
+        interval_semantics=IntervalSemantics.DETERMINISTIC_BOUNDS,
+        gate_eligible=True,
+        distribution_payload=ParametricFitCarrier(
+            family=DistributionFamily.UNIFORM,
+            parameters={"low": -1.0, "high": 1.0},
+            support=(-1.0, 1.0),
+        ),
+        metadata={"param_name": "C.rate", "std": 1.0 / math.sqrt(3.0)},
+    )
+    envelope_ref = persist_uncertainty_envelope(_ensure_ir_artifact_store(store), envelope)
+
+    def build_failing_simulation_fn(_ctx, *, context, available_envelopes):
+        del context
+        assert set(available_envelopes.envelopes) == {"C.rate"}
+
+        def simulation_fn(**params: float) -> dict[str, float]:
+            rate = float(params["C.rate"])
+            if rate < -0.75:
+                raise RuntimeError("the evaluator does not support this sampled input")
+            value = 1.0 if rate == 0.0 else 2.0
+            return {
+                "welfare": value,
+                "welfare_pe": value,
+                "welfare_ge": 0.0,
+            }
+
+        return (
+            simulation_fn,
+            {"C.rate": 0.0},
+            dict(available_envelopes.envelopes),
+            {"C.rate": envelope_ref},
+        )
+
+    monkeypatch.setattr(
+        propagate_welfare_module,
+        "_build_simulation_fn",
+        build_failing_simulation_fn,
+    )
+    outcome, bundle = _run_b197_welfare(
+        store,
+        registry_ref,
+        _b197_simulation_result(store),
+        None,
+        run_id="R_b194_partial_welfare_draws",
+        method="monte_carlo",
+        weights=[1.0],
+        labels=["C"],
+        input_envelopes={"C.rate": envelope_ref.model_dump(mode="json")},
+    )
+
+    assert outcome.status == "ok"
+    assert bundle.status.value == "partial"
+    assert "welfare_mc_incomplete_draws" in bundle.warnings
+    assert bundle.credible_interval is None
+    assert bundle.sample_bundle_ref is not None
+    assert bundle.point_estimate == 1.0
+    assert bundle.diagnostics["point_estimate_semantics"] == "nominal_input_evaluation"
+    assert "welfare_mc_partial_nominal_point_conditional_mean" in bundle.warnings
+
+    fresh_store = FileSystemCAS(tmp_path)
+    fresh_ir_store = _ensure_ir_artifact_store(fresh_store)
+    sample_bundle = load_welfare_sample_bundle(fresh_ir_store, bundle.sample_bundle_ref)
+    persisted_bundle = load_welfare_bundle(
+        fresh_ir_store,
+        outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF],
+    )
+    report_id = ArtifactID.model_validate(bundle.diagnostics["propagation_report_ref"])
+    report = from_canonical_bytes(fresh_store.get_bytes(report_id))
+    provenance = report["draw_outcome_provenance"]
+    outcomes = provenance["outcomes"]
+    successful = [row for row in outcomes if row["outcome_code"] == "success"]
+    failures = [row for row in outcomes if row["outcome_code"] != "success"]
+
+    assert provenance["requested_draw_count"] == 100
+    assert provenance["attempted_draw_count"] == 100
+    assert provenance["successful_draw_count"] == len(sample_bundle.welfare_draws)
+    assert provenance["failed_draw_count"] == len(failures) > 0
+    assert provenance["unattempted_draw_count"] == 0
+    assert (
+        provenance["successful_draw_count"]
+        + provenance["failed_draw_count"]
+        + provenance["unattempted_draw_count"]
+        == provenance["requested_draw_count"]
+    )
+    assert provenance["outcome_denominator_complete"] is True
+    assert [row["draw_index"] for row in outcomes] == list(range(100))
+    assert [row["sample_index"] for row in successful] == list(
+        range(len(sample_bundle.welfare_draws))
+    )
+    assert all(row["sampled_input_sha256"] for row in outcomes)
+    assert all(row["outcome_code"] == "simulation_exception" for row in failures)
+    assert all(row["error_type"] == "RuntimeError" for row in failures)
+    assert all(
+        row["error_message"] == "the evaluator does not support this sampled input"
+        for row in failures
+    )
+    assert all(row["sample_index"] is None for row in failures)
+    assert provenance["summary_semantics"] == "successful_draws_only_conditional_on_execution"
+    assert report["valid_draw_count"] == len(sample_bundle.welfare_draws)
+    assert report["conditional_draw_summary"]["welfare_mean"] == pytest.approx(
+        sum(sample_bundle.welfare_draws) / len(sample_bundle.welfare_draws)
+    )
+    assert report["conditional_draw_summary"]["welfare_mean"] == 2.0
+    assert "draw_summary" not in report
+    assert report["schema_version"] == "1.1"
+    assert sample_bundle.metadata["draw_outcome_provenance"] == provenance
+    assert persisted_bundle.status.value == "partial"
+    assert persisted_bundle.point_estimate == 1.0
+    assert persisted_bundle.credible_interval is None
+    assert persisted_bundle.sample_bundle_ref == bundle.sample_bundle_ref
+    consumer_context = ExecutionContext(
+        store=fresh_store,
+        run=RunContext.start(
+            store=fresh_store,
+            registry_bundle=registry_ref,
+            run_id="R_b194_partial_welfare_packet_consumer",
+        ),
+        logger=logging.getLogger("test.welfare.partial.packet_consumer"),
+    )
+    welfare_summary = _build_welfare_section(
+        consumer_context,
+        {ARTIFACT_WELFARE_BUNDLE_REF: outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF]},
+    )
+    assert welfare_summary is not None
+    assert welfare_summary["point_estimate"] == 1.0
+    assert welfare_summary["status"] == "partial"
+    assert welfare_summary["credible_interval"] is None
+    assert "welfare_mc_partial_nominal_point_conditional_mean" in welfare_summary["warnings"]
+    assert welfare_summary["diagnostics"]["point_estimate_semantics"] == (
+        "nominal_input_evaluation"
+    )
+    report_manifest = fresh_store.get_manifest(report_id)
+    assert any(
+        item.role == "sample_bundle"
+        and str(item.artifact_id) == str(bundle.sample_bundle_ref.artifact_id)
+        for item in report_manifest.inputs
+    )
+    bundle_manifest = fresh_store.get_manifest(
+        outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF].artifact_id
+    )
+    assert any(
+        item.role == "propagation_report" and str(item.artifact_id) == str(report_id)
+        for item in bundle_manifest.inputs
+    )
+
+
+def _persist_empirical_welfare_envelope(
+    store: FileSystemCAS,
+    samples: tuple[float, ...],
+    *,
+    param_name: str = "C.rate",
+    weights: tuple[float, ...] | None = None,
+    sample_axis: str = "row",
+    joint_sample_id: str | None = None,
+) -> ArtifactRefModel:
+    metadata = {"param_name": param_name}
+    if joint_sample_id is not None:
+        metadata["joint_sample_id"] = joint_sample_id
+    envelope = UncertaintyEnvelope(
+        point_estimate=float(np.mean(samples)),
+        confidence_interval=(min(samples), max(samples)),
+        confidence_level=0.95,
+        distribution_family=DistributionFamily.BOOTSTRAP,
+        source=UncertaintySource.BOOTSTRAP,
+        propagation_method=PropagationMethod.MONTE_CARLO,
+        interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
+        distribution_payload=PosteriorSamplesCarrier(
+            samples=samples,
+            sample_axis=sample_axis,
+            weights=weights,
+        ),
+        sample_size=len(samples),
+        gate_eligible=True,
+        metadata=metadata,
+    )
+    return persist_uncertainty_envelope(_ensure_ir_artifact_store(store), envelope)
+
+
+def test_welfare_uses_weighted_empirical_atoms_through_fresh_cas_consumer(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    envelope_ref = _persist_empirical_welfare_envelope(
+        store,
+        (-1.0, 1.0),
+        weights=(9.0, 1.0),
+    )
+
+    def build_empirical_simulation_fn(_ctx, *, context, available_envelopes):
+        del context
+        assert set(available_envelopes.envelopes) == {"C.rate"}
+
+        def simulation_fn(**params: float) -> dict[str, float]:
+            value = float(params["C.rate"])
+            return {"welfare": value, "welfare_pe": value, "welfare_ge": 0.0}
+
+        return (
+            simulation_fn,
+            {"C.rate": 0.0},
+            dict(available_envelopes.envelopes),
+            dict(available_envelopes.refs),
+        )
+
+    monkeypatch.setattr(
+        propagate_welfare_module,
+        "_build_simulation_fn",
+        build_empirical_simulation_fn,
+    )
+    outcome, bundle = _run_b197_welfare(
+        store,
+        registry_ref,
+        _b197_simulation_result(store),
+        None,
+        run_id="R_b192_empirical_marginal",
+        method="monte_carlo",
+        weights=[1.0],
+        labels=["C"],
+        input_envelopes={"C.rate": envelope_ref.model_dump(mode="json")},
+    )
+
+    assert bundle.status.value == "partial"
+    assert bundle.sample_bundle_ref is not None
+    fresh_store = FileSystemCAS(tmp_path)
+    samples = load_welfare_sample_bundle(
+        _ensure_ir_artifact_store(fresh_store), bundle.sample_bundle_ref
+    )
+    assert set(samples.welfare_draws) <= {-1.0, 1.0}
+    assert samples.welfare_draws.count(-1.0) > 0.75 * len(samples.welfare_draws)
+    assert samples.metadata["dependence_strategy"] == "empirical_weighted_marginal"
+    assert samples.metadata["draw_outcome_provenance"]["outcome_denominator_complete"] is True
+    envelope_input = envelope_ref.artifact_id
+    sample_manifest = fresh_store.get_manifest(bundle.sample_bundle_ref.artifact_id)
+    assert any(
+        item.role == "input_envelope.C.rate" and str(item.artifact_id) == str(envelope_input)
+        for item in sample_manifest.inputs
+    )
+    report_id = ArtifactID.model_validate(bundle.diagnostics["propagation_report_ref"])
+    report_manifest = fresh_store.get_manifest(report_id)
+    assert any(
+        item.role == "input_envelope.C.rate" and str(item.artifact_id) == str(envelope_input)
+        for item in report_manifest.inputs
+    )
+
+
+@pytest.mark.parametrize(
+    ("joint_ids", "paired_samples", "sample_axes", "should_sample", "expected_values"),
+    [
+        (("shared-rows", "shared-rows"), ((-1.0, 1.0), (-1.0, 1.0)), ("row", "row"), True, {1.0}),
+        (
+            ("shared-rows", "shared-rows"),
+            ((-1.0, 1.0), (1.0, -1.0)),
+            ("row", "row"),
+            True,
+            {-1.0, 3.0},
+        ),
+        ((None, None), ((-1.0, 1.0), (-1.0, 1.0)), ("row", "row"), False, set()),
+        (("rows-a", "rows-b"), ((-1.0, 1.0), (-1.0, 1.0)), ("row", "row"), False, set()),
+        (("shared-rows", "shared-rows"), ((-1.0, 1.0), (-1.0, 1.0)), ("", ""), False, set()),
+        (("shared-rows", "shared-rows"), ((-1.0, 1.0), (-1.0, 1.0)), (" \t", " \t"), False, set()),
+    ],
+)
+def test_welfare_preserves_only_declared_shared_empirical_rows(
+    tmp_path,
+    monkeypatch,
+    joint_ids: tuple[str | None, str | None],
+    paired_samples: tuple[tuple[float, ...], tuple[float, ...]],
+    sample_axes: tuple[str, str],
+    should_sample: bool,
+    expected_values: set[float],
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    refs = {
+        "A.rate": _persist_empirical_welfare_envelope(
+            store,
+            paired_samples[0],
+            param_name="A.rate",
+            sample_axis=sample_axes[0],
+            joint_sample_id=joint_ids[0],
+        ),
+        "B.rate": _persist_empirical_welfare_envelope(
+            store,
+            paired_samples[1],
+            param_name="B.rate",
+            sample_axis=sample_axes[1],
+            joint_sample_id=joint_ids[1],
+        ),
+    }
+
+    def build_empirical_simulation_fn(_ctx, *, context, available_envelopes):
+        del context
+        assert set(available_envelopes.envelopes) == {"A.rate", "B.rate"}
+
+        def simulation_fn(**params: float) -> dict[str, float]:
+            difference = float(params["A.rate"] - params["B.rate"])
+            return {
+                "welfare": 1.0 + difference,
+                "welfare_pe": 1.0 + difference,
+                "welfare_ge": 0.0,
+            }
+
+        return (
+            simulation_fn,
+            {
+                name: envelope.point_estimate
+                for name, envelope in available_envelopes.envelopes.items()
+            },
+            dict(available_envelopes.envelopes),
+            dict(available_envelopes.refs),
+        )
+
+    monkeypatch.setattr(
+        propagate_welfare_module,
+        "_build_simulation_fn",
+        build_empirical_simulation_fn,
+    )
+    outcome, bundle = _run_b197_welfare(
+        store,
+        registry_ref,
+        _b197_simulation_result(store),
+        None,
+        run_id=f"R_b188_empirical_{'sampled' if should_sample else 'withheld'}",
+        method="monte_carlo",
+        weights=[1.0, 1.0],
+        labels=["A", "B"],
+        input_envelopes={name: ref.model_dump(mode="json") for name, ref in refs.items()},
+    )
+
+    assert outcome.status == "ok"
+    assert bundle.status.value == "partial"
+    report_id = ArtifactID.model_validate(bundle.diagnostics["propagation_report_ref"])
+    report_manifest = FileSystemCAS(tmp_path).get_manifest(report_id)
+    for name, ref in refs.items():
+        assert any(
+            item.role == f"input_envelope.{name}" and str(item.artifact_id) == str(ref.artifact_id)
+            for item in report_manifest.inputs
+        )
+    if should_sample:
+        assert bundle.sample_bundle_ref is not None
+        fresh_store = FileSystemCAS(tmp_path)
+        persisted = load_welfare_sample_bundle(
+            _ensure_ir_artifact_store(fresh_store), bundle.sample_bundle_ref
+        )
+        assert set(persisted.welfare_draws) == expected_values
+        assert bundle.diagnostics["dependence_sampling"]["strategy"] == "empirical_joint_rows"
+        assert (
+            bundle.diagnostics["dependence_sampling"]["joint_identity_status"]
+            == "declared_non_authoritative"
+        )
+        assert "dependence_assumed_independent" not in bundle.warnings
+        sample_manifest = fresh_store.get_manifest(bundle.sample_bundle_ref.artifact_id)
+        for name, ref in refs.items():
+            assert any(
+                item.role == f"input_envelope.{name}"
+                and str(item.artifact_id) == str(ref.artifact_id)
+                for item in sample_manifest.inputs
+            )
+        assert "empirical_joint_law_missing" not in bundle.diagnostics["limitation_codes"]
+    else:
+        assert bundle.sample_bundle_ref is None
+        assert bundle.credible_interval is None
+        assert "empirical_joint_law_missing" in bundle.diagnostics["limitation_codes"]
+
+
 @pytest.mark.parametrize("method", ["delta", "monte_carlo"])
 def test_welfare_withholds_interval_when_envelope_covariance_disagrees_with_projection(
     tmp_path,
@@ -2073,6 +2557,15 @@ def test_welfare_withholds_interval_when_envelope_covariance_disagrees_with_proj
         forged_report_ref,
         "calibration_report",
     )
+    if method == "delta":
+        assert bundle.pe_uncertainty_refs
+        for name, envelope_ref in bundle.pe_uncertainty_refs.items():
+            assert any(
+                item.role == f"input_envelope.{name}"
+                and str(item.artifact_id) == str(envelope_ref.artifact_id)
+                and item.manifest_profile_sha256 == envelope_ref.manifest_profile_sha256
+                for item in store.get_manifest(propagation_report_ref).inputs
+            )
     bundle_ref = outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF]
     assert _manifest_has_input(store, bundle_ref, forged_report_ref, "calibration_report")
 

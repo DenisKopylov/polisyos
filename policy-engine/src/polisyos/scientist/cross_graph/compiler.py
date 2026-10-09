@@ -84,7 +84,7 @@ from polisyos.scientist.methods.search.latent_governance import (
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGRead
+    from polisyos.data_forge.read_api.academic import PreparedSKGRead
 
 logger = logging.getLogger(__name__)
 

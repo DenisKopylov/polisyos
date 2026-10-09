@@ -6,6 +6,11 @@ import hashlib
 from datetime import UTC, datetime
 from pathlib import Path
 
+from polisyos.core.artifacts import (
+    ArtifactWriteOptions,
+    artifact_manifest_profile_sha256,
+    expected_artifact_manifest_for_write,
+)
 from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
@@ -112,6 +117,43 @@ def test_selected_view_v2_fields_are_emitted_as_real_data() -> None:
     sidecar = ManifestLifecycle.to_bytes(manifest)
     assert b'"manifest_schema_version":"v2"' in sidecar
     assert b'"manifest_profile_sha256":"' + profile_sha.encode() + b'"' in sidecar
+
+
+def test_public_expected_manifest_helper_reuses_canonical_lifecycle_profile() -> None:
+    data = b"current manifest facade fixture"
+    artifact_id = ArtifactID.from_sha256_hex(hashlib.sha256(data).hexdigest())
+    selected_profile = "sha256:" + "9" * 64
+    options = ArtifactWriteOptions(
+        kind="fixture.selected",
+        media_type="application/octet-stream",
+        inputs=[
+            InputRef(
+                artifact_id=_artifact_id("e"),
+                role="basis",
+                manifest_profile_sha256=selected_profile,
+            )
+        ],
+    )
+    created_at = datetime(2026, 10, 9, tzinfo=UTC)
+
+    public_manifest = expected_artifact_manifest_for_write(
+        artifact_id=artifact_id,
+        data=data,
+        opts=options,
+        created_at=created_at,
+    )
+    canonical_manifest = ManifestLifecycle.expected_for_write(
+        artifact_id=artifact_id,
+        data=data,
+        opts=options,
+        created_at=created_at,
+    )
+
+    assert public_manifest == canonical_manifest
+    assert public_manifest.inputs[0].manifest_profile_sha256 == selected_profile
+    assert artifact_manifest_profile_sha256(public_manifest) == ManifestLifecycle.profile_sha256(
+        canonical_manifest
+    )
 
 
 def _assert_strict_serialization_schema(schema: dict[str, object]) -> None:

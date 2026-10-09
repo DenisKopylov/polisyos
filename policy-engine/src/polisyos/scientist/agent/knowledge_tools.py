@@ -30,7 +30,11 @@ if TYPE_CHECKING:
         ScholarKnowledgeGraph,
         WorkSearchResult,
     )
-    from polisyos.data_forge.read_api.catalog import DatasetCatalogGraph, DatasetSearchResult
+    from polisyos.data_forge.read_api.catalog import (
+        DatasetCatalogGraph,
+        DatasetSearchResponse,
+        DatasetSearchResult,
+    )
     from polisyos.lex.knowledge.search import LegalKnowledgeGraph
     from polisyos.lex.knowledge.types import (
         LegalDocVersionResult,
@@ -97,6 +101,54 @@ class KnowledgeToolkit:
             query,
             domain_filter=domain,
             top_k=top_k,
+        )
+
+    def search_datasets_with_status(
+        self,
+        query: str,
+        *,
+        domain: str | None = None,
+        top_k: int = 10,
+    ) -> DatasetSearchResponse:
+        """Find datasets and report same-query retrieval status."""
+        from polisyos.data_forge.read_api.catalog import DatasetSearchResponse
+
+        if self._dataset_catalog is None:
+            return DatasetSearchResponse(limitation_code="catalog_unavailable")
+        status_search = getattr(self._dataset_catalog, "search_datasets_with_status", None)
+        if callable(status_search):
+            return status_search(query, domain_filter=domain, top_k=top_k)
+
+        # Keep adapters around older catalog implementations usable. Their empty
+        # result cannot establish query status, so do not infer it from diagnostics.
+        results = self.search_datasets(query, domain=domain, top_k=top_k)
+        if not results:
+            return DatasetSearchResponse(
+                results=results,
+                limitation_code="query_status_unavailable",
+            )
+        search_modes = {result.search_mode for result in results}
+        refusal_codes = {result.vector_refusal_code for result in results}
+        if len(search_modes) != 1 or len(refusal_codes) != 1:
+            return DatasetSearchResponse(
+                results=results,
+                limitation_code="query_status_unavailable",
+            )
+        search_mode = next(iter(search_modes))
+        refusal_code = next(iter(refusal_codes))
+        if (
+            search_mode is None
+            or (search_mode == "text" and not refusal_code)
+            or (search_mode == "vector" and refusal_code is not None)
+        ):
+            return DatasetSearchResponse(
+                results=results,
+                limitation_code="query_status_unavailable",
+            )
+        return DatasetSearchResponse(
+            results=results,
+            search_mode=search_mode,
+            vector_refusal_code=refusal_code,
         )
 
     def find_datasets_for_metric(
@@ -598,6 +650,18 @@ class KnowledgeToolkit:
         if not results:
             return ""
         lines = ["## AVAILABLE DATASETS"]
+        modes = {result.search_mode for result in results if result.search_mode is not None}
+        refusal_codes = sorted(
+            {result.vector_refusal_code for result in results if result.vector_refusal_code}
+        )
+        if "text" in modes:
+            if refusal_codes:
+                lines.append(
+                    "Retrieval limitation: vector search was refused "
+                    f"({', '.join(refusal_codes)}); text matches remain candidates."
+                )
+            else:
+                lines.append("Retrieval mode: text-only; matches remain candidates.")
         for r in results[:max_results]:
             lines.append(f"- **{r.title}** (publisher: {r.publisher}, portal: {r.source_portal})")
             if r.variables:

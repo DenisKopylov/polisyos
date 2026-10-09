@@ -514,6 +514,82 @@ def test_compiled_constraint_preflight_derives_whole_owner_population_without_po
             )
 
 
+def test_oversized_compiled_population_is_a_typed_refusal_with_fresh_cas_basis(tmp_path):
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.ir.governance.policy_composition import PolicyLayerLevel
+    from polisyos.pdc._impl.layer2_design_search import ConstraintStoreSnapshot
+    from tests.unit.policy_grammar.test_universal_policy_grammar_compiler import (
+        _authority_profile,
+        _concept_spine_refs,
+    )
+
+    store = FileSystemCAS(tmp_path / "constraints")
+    owner = ConstraintStoreIngestor(store=store)
+    source = store.put_json(
+        {"source_id": "unverified-constraint-source"},
+        PutOptions(kind="fixture.constraint_source", media_type="application/json"),
+    )
+    problem = _constraint_canonical_problem().model_copy(
+        update={
+            "problem_statement": (
+                "Provide a means-tested housing voucher subsidy for low-income renters in "
+                "Kyiv oblast through municipal service centres, with annual appropriations."
+            )
+        }
+    )
+    basis = constraint_owner.Phase2RequirementBasis(
+        authority_profile=_authority_profile(PolicyLayerLevel.LOCAL),
+        concept_spine_refs=_concept_spine_refs(problem.design_problem_id),
+        source_refs=(source,),
+    )
+
+    result = owner.produce(
+        workspace_id="ws-constraint-population-budget",
+        design_problem=problem,
+        basis=basis,
+    )
+    packet_raw = owner.require(result, workspace_id=result.workspace_id)
+    packet = from_canonical_bytes(packet_raw)
+    canonical_limit = ConstraintStoreSnapshot.model_json_schema()["properties"][
+        "constraint_records"
+    ]["maxItems"]
+
+    assert canonical_limit == 40
+    assert result.decision.blocks_promotion is True
+    assert result.decision.downgrades_authority is True
+    assert "constraint_population_budget_exceeded" in packet["missing_basis"]
+    assert "constraint_source_authority_verification_missing" in packet["missing_basis"]
+    assert packet["snapshot"] is None
+    assert packet["population"] is not None
+    assert packet["decision"]["blocks_promotion"] is True
+    assert packet["decision"]["downgrades_authority"] is True
+
+    parent_refs = {ref["role"]: ref["artifact_id"] for ref in packet["parent_refs"]}
+    assert parent_refs["constraint_source"] == str(source.artifact_id)
+    assert "obligation_graph" in parent_refs
+    assert "claim_ledger" in parent_refs
+    assert "method_preflight" in parent_refs
+    assert "constraint_snapshot_basis" in parent_refs
+    failure = packet["failure"]
+    assert failure["type"] == "constraint_population_budget_exceeded"
+    assert failure["actual_count"] == 108
+    assert failure["max_items"] == canonical_limit
+    assert failure["snapshot_basis_ref"] == parent_refs["constraint_snapshot_basis"]
+
+    fresh_store = FileSystemCAS(tmp_path / "constraints")
+    snapshot_raw = fresh_store.get_bytes(failure["snapshot_basis_ref"])
+    snapshot_payload = from_canonical_bytes(snapshot_raw)["source_payload"]
+    assert len(snapshot_payload["constraint_records"]) == 108
+    assert failure["snapshot_basis_sha256"] == hashlib.sha256(snapshot_raw).hexdigest()
+    assert from_canonical_bytes(fresh_store.get_bytes(result.artifact_ref.artifact_id)) == packet
+
+    decision = evaluate_constraint_store_for_phase2(
+        result, owner=owner, workspace_id=result.workspace_id
+    )
+    assert decision.blocks_promotion is True
+    assert "constraint_population_budget_exceeded" in decision.blocking_constraint_ids
+
+
 @pytest.mark.parametrize(
     "mutation", ["nested_decision", "deserialized", "new_owner", "wrong_workspace"]
 )
@@ -1408,3 +1484,63 @@ def test_staged_input_refusal_retains_completed_selection_in_typed_terminal(
         in result.search_blockers[0].reason
     )
     assert result.phase2_method_selection == selected
+
+
+def test_candidate_requirement_refusal_and_status_survive_fresh_cas_replay(tmp_path) -> None:
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.data_requirement import PolicyGrammarConceptSpineRefs, UniversalAuthorityProfile
+    from polisyos.ir.governance.policy_composition import PolicyLayerLevel
+
+    store = FileSystemCAS(tmp_path / "constraints")
+    owner = ConstraintStoreIngestor(store=store)
+    source = store.put_json(
+        {"source_id": "unverified-constraint-source"},
+        PutOptions(kind="fixture.constraint_source", media_type="application/json"),
+    )
+    basis = constraint_owner.Phase2RequirementBasis(
+        authority_profile=UniversalAuthorityProfile(
+            profile_id="llm_constraint_candidate",
+            authority_type=PolicyLayerLevel.FEDERAL,
+            source_classification="llm_candidate",
+            authoritative_for=("compilation_facets",),
+        ),
+        concept_spine_refs=PolicyGrammarConceptSpineRefs(
+            concept_spine_ref="cas://concept-spine/constraint-candidate",
+            jurisdiction_spine_ref="cas://jurisdiction/constraint-candidate",
+            canonical_concept_refs=("concept://constraint-candidate",),
+        ),
+        source_refs=(source,),
+    )
+
+    problem = _constraint_canonical_problem().model_copy(
+        update={
+            "problem_statement": (
+                "Provide a means-tested housing voucher subsidy for low-income renters in "
+                "Kyiv oblast through municipal service centres, with annual appropriations."
+            )
+        }
+    )
+    result = owner.produce(
+        workspace_id="ws-candidate-constraint-refusal",
+        design_problem=problem,
+        basis=basis,
+    )
+    packet = from_canonical_bytes(owner.require(result, workspace_id=result.workspace_id))
+    assert result.decision.blocks_promotion is True
+    assert "constraint_source_authority_verification_missing" in packet["missing_basis"]
+    assert "constraint_grammar_not_admitted" in packet["missing_basis"]
+
+    parent_refs = {ref["role"]: ref["artifact_id"] for ref in packet["parent_refs"]}
+    assert parent_refs["constraint_source"] == str(source.artifact_id)
+    assert "obligation_graph" not in parent_refs
+    grammar = from_canonical_bytes(store.get_bytes(parent_refs["grammar_compilation"]))
+    assert grammar["source_payload"]["status"] == "candidate_unverified"
+
+    fresh_store = FileSystemCAS(tmp_path / "constraints")
+    replayed = from_canonical_bytes(fresh_store.get_bytes(result.artifact_ref.artifact_id))
+    assert replayed == packet
+    assert replayed["decision"]["blocks_promotion"] is True
+    assert replayed["missing_basis"] == [
+        "constraint_source_authority_verification_missing",
+        "constraint_grammar_not_admitted",
+    ]

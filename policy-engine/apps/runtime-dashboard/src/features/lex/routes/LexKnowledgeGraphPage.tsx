@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 
 import { useLexGraphStats } from "@/api/hooks/useLexGraphStats";
 import { useLexPipelineStatus } from "@/api/hooks/useLexPipelineStatus";
+import { useLexSearchProfile } from "@/api/hooks/useLexSearchProfile";
 import { useLexSearch, type LexSearchRequest } from "@/api/hooks/useLexSearch";
 import {
   useLexTrigger,
@@ -60,11 +61,13 @@ export default function LexKnowledgeGraph() {
 
   // --- Search state ---
   const [searchQuery, setSearchQuery] = useState(() => lexSearch.q ?? "");
+  const [isPreparingSearch, setIsPreparingSearch] = useState(false);
 
   // --- Hooks ---
   const triggerMutation = useLexTrigger();
   const statusQuery = useLexPipelineStatus(activePipelineId);
   const statsQuery = useLexGraphStats(outputDir);
+  const searchProfileQuery = useLexSearchProfile(outputDir);
   const searchMutation = useLexSearch();
 
   function toggleStage(stage: keyof typeof stages) {
@@ -108,15 +111,33 @@ export default function LexKnowledgeGraph() {
     });
   }
 
-  function handleSearch() {
-    if (!searchQuery.trim()) return;
-    const body: LexSearchRequest = {
-      query: searchQuery.trim(),
-      top_k: 20,
-      output_dir: outputDir,
-    };
-    updateShareState({ outputDir, q: searchQuery.trim() });
-    searchMutation.mutate(body);
+  async function handleSearch() {
+    const query = searchQuery.trim();
+    if (!query) return;
+
+    const selectedOutputDir = outputDir;
+    setIsPreparingSearch(true);
+    try {
+      const profileResult = await searchProfileQuery.refetch();
+      const profile = profileResult.error ? undefined : profileResult.data;
+      const body: LexSearchRequest = {
+        query,
+        top_k: 20,
+        output_dir: selectedOutputDir,
+        ...(profile?.status === "available" &&
+        profile.output_dir === selectedOutputDir
+          ? {
+              query_generation_intent: profile.query_generation_intent.map(
+                (intent) => ({ ...intent }),
+              ),
+            }
+          : {}),
+      };
+      updateShareState({ outputDir: selectedOutputDir, q: query });
+      searchMutation.mutate(body);
+    } finally {
+      setIsPreparingSearch(false);
+    }
   }
 
   const pipelineState = statusQuery.data?.state;
@@ -561,18 +582,62 @@ export default function LexKnowledgeGraph() {
             />
             <button
               type="button"
-              disabled={searchMutation.isPending || !searchQuery.trim()}
+              disabled={
+                searchMutation.isPending ||
+                isPreparingSearch ||
+                !searchQuery.trim()
+              }
               onClick={handleSearch}
               className="hover:bg-accent/90 bg-accent rounded-xl px-5 py-2 text-sm font-semibold text-white transition disabled:opacity-50"
             >
-              {searchMutation.isPending
+              {searchMutation.isPending || isPreparingSearch
                 ? t("pages.lex.searching")
                 : t("pages.lex.search")}
             </button>
           </div>
 
+          {searchProfileQuery.data?.status === "available" && (
+            <p
+              className="text-muted text-xs"
+              data-testid="lex-search-profile-status"
+            >
+              {t("pages.lex.selectedProfileAvailable")}
+            </p>
+          )}
+          {searchProfileQuery.data?.status === "refused" && (
+            <p
+              className="text-muted text-xs"
+              data-testid="lex-search-profile-status"
+            >
+              {t("pages.lex.selectedProfileUnavailable")}{" "}
+              <code>{searchProfileQuery.data.refusal_code}</code>
+            </p>
+          )}
+          {Boolean(searchProfileQuery.error) && (
+            <ApiErrorAlert error={searchProfileQuery.error} />
+          )}
+
           {Boolean(searchMutation.error) && (
             <ApiErrorAlert error={searchMutation.error} />
+          )}
+
+          {searchMutation.data && (
+            <p
+              className="text-muted text-xs"
+              data-testid="lex-search-result-mode"
+              role="status"
+            >
+              {searchMutation.data.search_mode === "vector"
+                ? t("pages.lex.vectorSearchMode")
+                : t("pages.lex.textSearchMode")}
+              {searchMutation.data.vector_refusal_code && (
+                <>
+                  {" "}
+                  {t("pages.lex.vectorSearchRefused")}{" "}
+                  <code>{searchMutation.data.vector_refusal_code}</code>
+                </>
+              )}
+            </p>
           )}
 
           {searchMutation.data && searchResults.length === 0 && (

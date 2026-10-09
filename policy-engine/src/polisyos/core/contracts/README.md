@@ -43,6 +43,12 @@ models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`
 
 ## Public API
 
+`polisyos.core.contracts.__all__` expands the chronology export tuple and every
+declared symbol resolves through the defining contract module. Wildcard imports
+retain the same class objects as explicit imports, including CausalFrontier and
+DecisionPacket contracts. The native namespace test derives its checks from the
+complete declared surface.
+
 Main ref families:
 
 - `fabric.py`, `foundry.py`, `scientist.py`, `scholar.py`

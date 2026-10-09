@@ -21,6 +21,10 @@ from polisyos.core.artifacts.backends.config import (
 )
 from polisyos.core.artifacts.manifest import InputRef, ProducerInfo, SchemaInfo
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
+from polisyos.data_requirement import (
+    PolicyGrammarConceptSpineRefs,  # noqa: TC001 - Pydantic resolves this field at runtime.
+    UniversalAuthorityProfile,  # noqa: TC001 - Pydantic resolves this field at runtime.
+)
 from polisyos.pdc import (
     ArtifactRef,
     AuthorityBoundary,
@@ -29,10 +33,6 @@ from polisyos.pdc import (
     EvidenceBasis,
     MethodOutputConsumptionRecord,
     OperationClass,
-)
-from polisyos.policy_grammar import (
-    PolicyGrammarConceptSpineRefs,  # noqa: TC001 - Pydantic resolves this public field at runtime.
-    UniversalAuthorityProfile,  # noqa: TC001 - Pydantic resolves this public field at runtime.
 )
 from polisyos.runtime.quality.data_forge_binding import verify_recorded_panel_method_input
 from polisyos.runtime.quality.design_problem import DesignProblem
@@ -1014,6 +1014,7 @@ class ConstraintStoreIngestor:
     def _recompute(self, original: bytes) -> dict[str, Any]:
         from datetime import datetime
 
+        from polisyos.data_requirement import DataRequirementCompiler, PolicyGrammarIntent
         from polisyos.foundry import (
             select_method_candidates_for_requirements,
         )
@@ -1021,17 +1022,7 @@ class ConstraintStoreIngestor:
             build_foundry_method_report_from_execution_outputs,
         )
         from polisyos.method_requirement import MethodValidityRequirementCompiler
-        from polisyos.obligation_graph import compile_obligation_graph
-        from polisyos.obligation_rules import (
-            build_seed_obligation_rule_catalog,
-            select_governed_rules,
-        )
         from polisyos.participation_requirement import evaluate_participation_requirement
-        from polisyos.policy_grammar import (
-            PolicyGrammarCompiler,
-            PolicyGrammarIntent,
-            facet_snapshots_for_obligation_graph,
-        )
         from polisyos.scientist.policy_design import (
             ClaimDecompositionFacet,
             ClaimDecompositionInput,
@@ -1087,23 +1078,30 @@ class ConstraintStoreIngestor:
             # Resolving supplied sources proves byte custody, not institutional standing.
             # This proposal is compilation-only until a source owner admits that context.
             missing.append("constraint_source_authority_verification_missing")
-            compiled = PolicyGrammarCompiler().compile(
+            compilation = DataRequirementCompiler().compile_obligation_basis(
                 intent=PolicyGrammarIntent(
                     intent_id=problem.design_problem_id,
                     problem_frame=problem.to_ir_problem_frame(),
                 ),
                 authority_profile=basis.authority_profile,
                 concept_spine_refs=basis.concept_spine_refs,
+                run_id=workspace_id,
+                generated_at=datetime.fromisoformat(request["generated_at"]),
+                intent_text=problem.problem_statement,
             )
+            compiled = compilation.case
             grammar = compiled.model_dump(mode="json")
             grammar_core = self._persist("gy.constraint_grammar", grammar, parents)
             grammar_ref = str(grammar_core.artifact_id)
             parents.append({"artifact_id": grammar_ref, "role": "grammar_compilation"})
-            if compiled.status in {"blocked", "candidate_unverified"} or compiled.facets is None:
+            if compiled.status in {"blocked", "candidate_unverified"} or compilation.facets is None:
                 missing.append("constraint_grammar_not_admitted")
             else:
-                facets = facet_snapshots_for_obligation_graph(compiled)
-                catalog = build_seed_obligation_rule_catalog()
+                facets = compilation.facets
+                catalog = compilation.rule_catalog
+                graph = compilation.obligation_graph
+                if catalog is None or graph is None:
+                    raise ValueError("constraint_obligation_compilation_incomplete")
                 catalog_core = self._persist(
                     "gy.constraint_rule_catalog",
                     catalog.model_dump(mode="json"),
@@ -1111,13 +1109,6 @@ class ConstraintStoreIngestor:
                 )
                 parents.append(
                     {"artifact_id": str(catalog_core.artifact_id), "role": "rule_catalog"}
-                )
-                graph = compile_obligation_graph(
-                    run_id=workspace_id,
-                    facets=facets,
-                    governed_rules=select_governed_rules(catalog),
-                    generated_at=datetime.fromisoformat(request["generated_at"]),
-                    intent_text=problem.problem_statement,
                 )
                 graph_core = self._persist(
                     "gy.constraint_obligation_graph", graph.model_dump(mode="json"), parents
@@ -1299,6 +1290,7 @@ class ConstraintStoreIngestor:
         # An absent basis has no fabricated grammar/obligation snapshot. The packet
         # and typed missing-basis decision still exist and are consumed by A.
         snapshot = None
+        failure: dict[str, Any] | None = None
         if grammar_ref is not None and "obligation" in population:
             snapshot_basis = {
                 "snapshot_id": f"constraints-{_slug(workspace_id)}",
@@ -1318,11 +1310,34 @@ class ConstraintStoreIngestor:
             parents.append(
                 {"artifact_id": str(snapshot_core.artifact_id), "role": "constraint_snapshot_basis"}
             )
-            snapshot = ConstraintStoreSnapshot(
-                snapshot_ref=str(snapshot_core.artifact_id), **snapshot_basis
+            snapshot_limit = (
+                ConstraintStoreSnapshot.model_json_schema()
+                .get("properties", {})
+                .get("constraint_records", {})
+                .get("maxItems")
             )
-        decision = _constraint_decision(entries, missing)
-        return {
+            if type(snapshot_limit) is not int or snapshot_limit < 0:
+                raise ValueError("constraint_snapshot_capacity_contract_missing")
+            if len(entries) > snapshot_limit:
+                missing.append("constraint_population_budget_exceeded")
+                snapshot_bytes = self._store.get_bytes(snapshot_core.artifact_id)
+                failure = {
+                    "type": "constraint_population_budget_exceeded",
+                    "reason": "constraint_records_exceed_schema_max_items",
+                    "actual_count": len(entries),
+                    "max_items": snapshot_limit,
+                    "snapshot_basis_ref": str(snapshot_core.artifact_id),
+                    "snapshot_basis_sha256": hashlib.sha256(snapshot_bytes).hexdigest(),
+                }
+            else:
+                snapshot = ConstraintStoreSnapshot(
+                    snapshot_ref=str(snapshot_core.artifact_id), **snapshot_basis
+                )
+        decision = _constraint_decision(
+            entries if failure is None else [],
+            missing,
+        )
+        packet = {
             "schema_version": FOUNDRY_CONSUMPTION_RULE_VERSION,
             "workspace_id": workspace_id,
             "design_problem_hash": problem_hash,
@@ -1348,6 +1363,9 @@ class ConstraintStoreIngestor:
                 ],
             },
         }
+        if failure is not None:
+            packet["failure"] = failure
+        return packet
 
 
 def _constraint_entry(

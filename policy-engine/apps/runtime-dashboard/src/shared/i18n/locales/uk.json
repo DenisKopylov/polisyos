@@ -1724,6 +1724,11 @@
       "searchPlaceholder": "Пошук фактів (наприклад: бюджетний дефіцит, liability, tax rate...)",
       "searching": "Пошук...",
       "search": "Шукати",
+      "selectedProfileAvailable": "Знімок вибраного покоління фактів доступний. Перед векторним пошуком система перевірить його ще раз.",
+      "selectedProfileUnavailable": "Знімок вибраного покоління фактів недоступний. Пошук може продовжитися як текстовий.",
+      "vectorSearchMode": "Векторний пошук",
+      "textSearchMode": "Текстовий пошук",
+      "vectorSearchRefused": "Векторний пошук відхилено; показано результати текстового пошуку. Причина:",
       "noResults": "За запитом \"{query}\" нічого не знайдено",
       "resultsSummary": "{count, plural, one {# результат для \"{query}\"} few {# результати для \"{query}\"} many {# результатів для \"{query}\"} other {# результату для \"{query}\"}}",
       "columns": {

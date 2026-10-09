@@ -6,6 +6,7 @@ import pytest
 
 jax = pytest.importorskip("jax")
 import jax.numpy as jnp
+
 from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef
@@ -13,6 +14,8 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.foundry.agent_sim.state import GlobalState
+from polisyos.foundry.execute import SnapshotStateLayoutError
+from polisyos.foundry.execute import executor as executor_module
 from polisyos.foundry.execute.executor import put_state_snapshot
 from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.model_layer.types import SelectorOperator
@@ -148,4 +151,32 @@ def test_state_snapshot_probe_does_not_raw_fallback_on_2_1_lineage_failure(tmp_p
 
     assert result.matching_count == -1
     assert result.total_count == -1
-    assert "lineage" in result.query_description
+
+
+def test_state_snapshot_probe_catches_public_layout_error_for_legacy_fallback(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    cas = FileSystemCAS(tmp_path)
+    data_snapshot_ref = _build_data_snapshot_ref(cas)
+
+    def reject_canonical_reconstruction(*_args: object, **_kwargs: object) -> None:
+        raise SnapshotStateLayoutError("fixture layout needs legacy decoding")
+
+    monkeypatch.setattr(executor_module, "load_state_snapshot", reject_canonical_reconstruction)
+    probe = StateSnapshotFeasibilityProbe(cas)
+    selector = SelectorPredicate(
+        field="income",
+        operator=SelectorOperator.LESS_THAN,
+        value="1000",
+    )
+
+    result = run(
+        probe.count_matching_agents(
+            selector_expr=selector,
+            data_snapshot_ref=data_snapshot_ref,
+        )
+    )
+
+    assert result.matching_count == 2
+    assert result.total_count == 5

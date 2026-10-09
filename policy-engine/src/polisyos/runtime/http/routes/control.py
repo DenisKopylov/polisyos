@@ -77,6 +77,7 @@ from polisyos.runtime.http.services.control.generation_cycle import (
     NormativeEvidenceSubmissionRequest,
     NormativeEvidenceSubmissionResponse,
 )
+from polisyos.runtime.http.services.control.lex_search_profile import LexSearchProfileResponse
 from polisyos.runtime.http.services.control.lex_search_projection import LexSearchResponse
 from polisyos.runtime.http.services.export_replay import EXPORT_REPLAY_RESPONSE_HEADERS
 from polisyos.runtime.http.services.sae_spatial_service import SAESpatialService
@@ -250,6 +251,14 @@ _SEARCH_LEX_AUTHZ = require_action_permission(
     ResourceBindingSpec(
         source=ResourceBindingSource.TENANT_COLLECTION,
         resource_kind="runtime.lex_workspace.search",
+    ),
+)
+_SEARCH_LEX_PROFILE_AUTHZ = require_action_permission(
+    RuntimePermission.KNOWLEDGE_SEARCH,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.TENANT_COLLECTION,
+        resource_kind="runtime.lex_workspace.search",
+        allow_empty_body=True,
     ),
 )
 _REISSUE_RUN_STEP_UP = require_step_up(StepUpClass.REVOCATION)
@@ -1099,6 +1108,26 @@ if router is not None:
         control = _get_control_service(request)
         request_id = ensure_request_id(request)
         return control.get_lex_graph_stats(output_dir, request_id=request_id)
+
+    @router.get(
+        "/lex/search-profile",
+        response_model=LexSearchProfileResponse,
+        operation_id="get_lex_search_profile",
+        summary="Read the selected Legal fact-generation request snapshot",
+        dependencies=[Depends(_SEARCH_LEX_PROFILE_AUTHZ)],
+    )
+    def get_lex_search_profile(
+        request: Request,
+        output_dir: str = Query(..., min_length=1),
+    ) -> LexSearchProfileResponse:
+        set_authz_resource(
+            request,
+            tenant_id=getattr(request.state, "tenant_id", None),
+            kind="control.lex_search",
+        )
+        control = _get_control_service(request)
+        request_id = ensure_request_id(request)
+        return control.get_lex_search_profile(output_dir, request_id=request_id)
 
     @router.post(
         "/lex/search",

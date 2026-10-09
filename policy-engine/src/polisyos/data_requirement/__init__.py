@@ -15,11 +15,39 @@ from ._impl.models import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.policy_grammar import (
+        PolicyGrammarConceptSpineRefs as PolicyGrammarConceptSpineRefs,
+    )
+    from polisyos.policy_grammar import (
+        PolicyGrammarIntent as PolicyGrammarIntent,
+    )
+    from polisyos.policy_grammar import (
+        UniversalAuthorityProfile as UniversalAuthorityProfile,
+    )
+
     from .compiler import DataRequirementCompiler
 
 
 def __getattr__(name: str) -> object:
-    """Lazily expose compiler entrypoints without import-cycle side effects."""
+    """Lazily expose compiler entrypoints and the owner types used by its bridge."""
+
+    if name in {
+        "PolicyGrammarConceptSpineRefs",
+        "PolicyGrammarIntent",
+        "UniversalAuthorityProfile",
+    }:
+        from polisyos.policy_grammar import (
+            PolicyGrammarConceptSpineRefs,
+            PolicyGrammarIntent,
+            UniversalAuthorityProfile,
+        )
+
+        exports = {
+            "PolicyGrammarConceptSpineRefs": PolicyGrammarConceptSpineRefs,
+            "PolicyGrammarIntent": PolicyGrammarIntent,
+            "UniversalAuthorityProfile": UniversalAuthorityProfile,
+        }
+        return exports[name]
 
     if name in {
         "DataRequirementCompiler",

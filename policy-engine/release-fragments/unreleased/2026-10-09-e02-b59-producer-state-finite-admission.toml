@@ -1,0 +1,30 @@
+id = "2026-10-09-e02-b59-producer-state-finite-admission"
+title = "Align producer admission with typed enum graphs and canonical depth"
+type = "changed"
+component = "scientist.engine"
+owner = "scientist.engine"
+summary = "Producer admission preserves native scalar-backed enum fields through builtin-only copy checks and applies canonical state depth limits to the actual root and attachment path."
+evidence = ["tests/unit/scientist/orchestration/engine/test_state_branching.py", "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py", "tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py"]
+compatibility = "Ordinary finite JSON state, typed ArtifactRefs, and standard scalar-backed enum fields in supported ordinary Pydantic models retain their model and enum types. Unsupported custom runtime values still fail at producer-state admission."
+change_class = "internal"
+surface_classification = "Internal producer admission; no public API, HTTP, or generated-client schema change."
+migration = "No migration is required for existing typed enum fields. Callers placing unsupported runtime objects in state must normalize them to canonical values or declare an ordinary typed model before workflow execution."
+api = "Executor and worker signatures remain unchanged. Sequential admission raises TypeError; asynchronous workflow admission returns the existing not_admitted failure report before producer or state/cache publication."
+limitations = "Producer admission treats audited native enum members as read-only atomic candidates, but Python does not enforce that assumption: private `_value_` or added-attribute mutation remains unjournaled and can affect aliases. The original producer-state custody property therefore remains limited pending a G decision; these values must not support protected or published claims without a separate ownership mechanism. Explicit base-class mutators, reflection, and external effects from assignment validators also remain outside this finite-data guarantee."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "b59-finite-producer-state-graph"
+change_class = "internal"
+impact = "internal"
+surface = "internal: Scientist producer state admission"
+owner = "scientist.engine"
+version_owner = "scientist.engine"
+deprecation_window = "not_applicable"
+release_note = "Preserve ordinary scalar-backed enum fields and reject unsupported runtime leaves before producer-state copying; enum singleton mutation remains a declared bounded residual."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]
+runbook_docs = []

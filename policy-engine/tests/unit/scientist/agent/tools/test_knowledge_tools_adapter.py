@@ -75,9 +75,7 @@ class MockKnowledgeToolkit:
                         legacy_strength_label="moderate",
                     ),
                     projection_binding=binding,
-                    limitations=(
-                        ClaimVocabularyLimitation.AMBIGUOUS_LEGACY_VOCABULARY,
-                    ),
+                    limitations=(ClaimVocabularyLimitation.AMBIGUOUS_LEGACY_VOCABULARY,),
                 ),
             ),
             total_identities=69_798,
@@ -174,6 +172,31 @@ class TestBuildKnowledgeToolRegistry:
         assert isinstance(result.result, list)
         assert result.result[0]["name"] == "Mock result for gdp"
 
+    def test_search_tool_uses_atomic_status_bridge_when_available(self):
+        class StatusToolkit(MockKnowledgeToolkit):
+            status_calls = 0
+
+            def search_datasets_with_status(self, query: str, limit: int = 10) -> dict[str, Any]:
+                del query, limit
+                self.status_calls += 1
+                return {
+                    "results": [],
+                    "search_mode": "text",
+                    "vector_refusal_code": "query_encoder_generation_intent_mismatch",
+                }
+
+        toolkit = StatusToolkit()
+        registry = build_knowledge_tool_registry(toolkit)
+        result = registry.execute("search_datasets", {"query": "absent"})
+
+        assert result.error is None
+        assert result.result == {
+            "results": [],
+            "search_mode": "text",
+            "vector_refusal_code": "query_encoder_generation_intent_mismatch",
+        }
+        assert toolkit.status_calls == 1
+
     def test_domain_inference(self):
         toolkit = MockKnowledgeToolkit()
         registry = build_knowledge_tool_registry(toolkit)
@@ -201,9 +224,7 @@ class TestBuildKnowledgeToolRegistry:
         assert item["vocabulary"]["design_family_hint_status"] == "not_established"
         assert item["vocabulary"]["evidence_strength_status"] == "not_established"
         assert item["limitations"] == ["ambiguous_legacy_vocabulary"]
-        assert item["projection_binding"]["source_rows"][0]["source_identity"] == (
-            "claim-1|work-1"
-        )
+        assert item["projection_binding"]["source_rows"][0]["source_identity"] == ("claim-1|work-1")
         assert "strength" not in item
         assert "strength" not in item["vocabulary"]
 

@@ -17,6 +17,12 @@ from polisyos.core.contracts.control import (
 )
 
 from .._control_contracts import _build_api_meta
+from .lex_search_profile import (
+    LexSearchProfileAvailableResponse,
+    LexSearchProfileRefusedResponse,
+    LexSearchProfileResponse,
+    selected_legal_fact_query_intent,
+)
 from .lex_search_projection import LexSearchResponse, LexSearchResultItem
 
 if TYPE_CHECKING:
@@ -257,6 +263,32 @@ class LexPipelineMixin:
             state=record.state,
             progress_summary=progress_summary,
             error_message=record.error_message,
+        )
+
+    def get_lex_search_profile(
+        self,
+        output_dir: str,
+        *,
+        request_id: str | None = None,
+    ) -> LexSearchProfileResponse:
+        """Return the selected fact-generation snapshot for a search request."""
+        from polisyos.lex.knowledge.store import LegalQueryProfileError
+
+        try:
+            intent = selected_legal_fact_query_intent(output_dir)
+        except LegalQueryProfileError as exc:
+            return LexSearchProfileRefusedResponse(
+                meta=_build_api_meta(request_id),
+                status="refused",
+                output_dir=output_dir,
+                refusal_code=exc.code,
+            )
+
+        return LexSearchProfileAvailableResponse(
+            meta=_build_api_meta(request_id),
+            status="available",
+            output_dir=output_dir,
+            query_generation_intent=intent,
         )
 
     def get_lex_graph_stats(

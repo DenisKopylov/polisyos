@@ -38,6 +38,7 @@ from polisyos.runtime.quality.design_problem import DesignProblem
 
 if TYPE_CHECKING:
     from polisyos.core.contracts.fabric import DataSnapshotRef
+    from polisyos.data_forge.read_api.catalog import DatasetSearchResponse
     from polisyos.fabric.retrieval.custody import ResolvedFabricFetch
     from polisyos.runtime.quality.substrate_registry import (
         L5CatalogAuthority,
@@ -162,6 +163,8 @@ class _CatalogRecordProtocol(Protocol):
     source: str
     execution_tier: str
     connector_type: str
+    search_mode: Literal["text", "vector"] | None
+    vector_refusal_code: str | None
 
     def model_dump(self, *, mode: str) -> dict[str, object]:
         """Return a JSON payload for the catalog record."""
@@ -183,6 +186,17 @@ class CatalogGraphProtocol(Protocol):
 
         ...
 
+    def search_datasets_with_status(
+        self,
+        query: str,
+        *,
+        top_k: int,
+        explain: bool,
+    ) -> DatasetSearchResponse:
+        """Return query rows and their retrieval status atomically."""
+
+        ...
+
     def get_distributions(self, dataset_id: str) -> list[object]:
         """Return distribution metadata for one dataset id."""
 
@@ -192,6 +206,59 @@ class CatalogGraphProtocol(Protocol):
         """Return the fetch target for one dataset id, if available."""
 
         ...
+
+
+def _search_catalog_with_status(
+    catalog_graph: CatalogGraphProtocol,
+    query: str,
+    *,
+    top_k: int,
+    explain: bool,
+) -> DatasetSearchResponse:
+    """Read one catalog query and keep its mode/refusal attached to its rows."""
+    from polisyos.data_forge.read_api.catalog import DatasetSearchResponse
+
+    status_search = getattr(catalog_graph, "search_datasets_with_status", None)
+    if callable(status_search):
+        response = status_search(query, top_k=top_k, explain=explain)
+        if isinstance(response, DatasetSearchResponse):
+            return response
+        payload = (
+            response.model_dump(mode="python")
+            if callable(getattr(response, "model_dump", None))
+            else response
+        )
+        try:
+            return DatasetSearchResponse.model_validate(payload)
+        except (TypeError, ValueError):
+            return DatasetSearchResponse(limitation_code="query_status_unavailable")
+
+    rows = catalog_graph.search_datasets(query, top_k=top_k, explain=explain)
+    if not rows:
+        return DatasetSearchResponse(limitation_code="query_status_unavailable")
+    search_modes = {row.search_mode for row in rows}
+    refusal_codes = {row.vector_refusal_code for row in rows}
+    if len(search_modes) != 1 or len(refusal_codes) != 1:
+        return DatasetSearchResponse(
+            results=rows,
+            limitation_code="query_status_unavailable",
+        )
+    search_mode = next(iter(search_modes))
+    refusal_code = next(iter(refusal_codes))
+    if (
+        search_mode is None
+        or (search_mode == "text" and not refusal_code)
+        or (search_mode == "vector" and refusal_code is not None)
+    ):
+        return DatasetSearchResponse(
+            results=rows,
+            limitation_code="query_status_unavailable",
+        )
+    return DatasetSearchResponse(
+        results=rows,
+        search_mode=search_mode,
+        vector_refusal_code=refusal_code,
+    )
 
 
 class _SourceRequirementScopeProtocol(Protocol):
@@ -358,11 +425,13 @@ class MeasurementRootProducer:
     ) -> ArtifactEnvelope:
         """Resolve a pinned construct through DatasetCatalogGraph and persist its root."""
 
-        hits = catalog_graph.search_datasets(
+        search_response = _search_catalog_with_status(
+            catalog_graph,
             manifest.construct_scope_query,
             top_k=20,
             explain=True,
         )
+        hits = search_response.results
         expected_refs = set(manifest.expected_catalog_binding_refs)
         expected_hits = [hit for hit in hits if hit.id in expected_refs]
         selected = next(
@@ -386,8 +455,14 @@ class MeasurementRootProducer:
                 None,
             )
         if selected is None:
+            query_status_code = (
+                search_response.vector_refusal_code or search_response.limitation_code
+            )
+            query_status = f"; search_mode={search_response.search_mode or 'unavailable'}"
+            if query_status_code:
+                query_status += f"; query_status_code={query_status_code}"
             raise MeasurementRootBindingError(
-                f"catalog binding not found for fixture {manifest.fixture_id}"
+                f"catalog binding not found for fixture {manifest.fixture_id}{query_status}"
             )
         distributions = [
             distribution.model_dump(mode="json")
@@ -427,6 +502,14 @@ class MeasurementRootProducer:
             "fixture_id": manifest.fixture_id,
             "catalog_binding_refs": [selected.id],
             "catalog_result": selected_payload,
+            "catalog_search_status": {
+                "query": manifest.construct_scope_query,
+                **search_response.model_dump(
+                    mode="json",
+                    exclude={"results"},
+                    exclude_none=True,
+                ),
+            },
             "connector_profile": manifest.expected_connector_profile,
             "producer_root_kind": manifest.expected_producer_root_kind,
             "measurement_rows": measurement_rows,

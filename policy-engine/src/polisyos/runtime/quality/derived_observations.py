@@ -42,7 +42,12 @@ if TYPE_CHECKING:
     )
 
 DERIVATION_SCHEMA_VERSION = "polisyos.runtime.derived_observations.v2"
+SELECTED_VIEW_DERIVATION_SCHEMA_VERSION = "polisyos.runtime.derived_observations.v2.1"
 LEGACY_DERIVATION_SCHEMA_VERSION = "polisyos.runtime.derived_observations.v1"
+_EPOCH_RECOMPUTE_SCHEMA_VERSION = "polisyos.runtime.epoch-inheritance-recompute-receipt.v1"
+_SELECTED_VIEW_EPOCH_RECOMPUTE_SCHEMA_VERSION = (
+    "polisyos.runtime.epoch-inheritance-recompute-receipt.v1.1"
+)
 SOURCE_SERIES_KIND = "polisyos.runtime.derivation_source_series"
 ECONOMIC_SERIES_KIND = "polisyos.runtime.economic_series"
 PRICE_INDEX_SERIES_KIND = "polisyos.runtime.price_index_series"
@@ -64,17 +69,33 @@ _DERIVED_SERIES_SCHEMA = artifacts.SchemaInfo(
     name="polisyos.runtime.derived-economic-series",
     version="2.0.0",
 )
+_DERIVED_SERIES_SELECTED_VIEW_SCHEMA = artifacts.SchemaInfo(
+    name="polisyos.runtime.derived-economic-series",
+    version="2.1.0",
+)
 _CERTIFICATE_SCHEMA = artifacts.SchemaInfo(
     name="polisyos.runtime.derivation-certificate",
     version="2.0.0",
+)
+_CERTIFICATE_SELECTED_VIEW_SCHEMA = artifacts.SchemaInfo(
+    name="polisyos.runtime.derivation-certificate",
+    version="2.1.0",
 )
 _DERIVATION_RECIPE_SCHEMA = artifacts.SchemaInfo(
     name="polisyos.runtime.derivation-recipe",
     version="2.0.0",
 )
+_DERIVATION_RECIPE_SELECTED_VIEW_SCHEMA = artifacts.SchemaInfo(
+    name="polisyos.runtime.derivation-recipe",
+    version="2.1.0",
+)
 _EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_SCHEMA = artifacts.SchemaInfo(
     name="polisyos.runtime.epoch-inheritance-recompute-receipt",
     version="1.0.0",
+)
+_EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_SELECTED_VIEW_SCHEMA = artifacts.SchemaInfo(
+    name="polisyos.runtime.epoch-inheritance-recompute-receipt",
+    version="1.1.0",
 )
 _DERIVATION_PRODUCER = artifacts.ProducerInfo(
     component="polisyos.runtime.quality.derived_observations",
@@ -566,10 +587,15 @@ def load_transform_family_registry(
 
 
 class ArtifactInputEdge(_StrictModel):
-    """One exact direct-input edge in a CAS manifest."""
+    """One exact selected-view direct-input edge in a CAS manifest."""
 
     role: str = Field(min_length=1)
     artifact_id: artifacts.ArtifactID
+    manifest_profile_sha256: str | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
 
 
 class ArtifactContractProjection(_StrictModel):
@@ -582,6 +608,11 @@ class ArtifactContractProjection(_StrictModel):
     """
 
     artifact_id: artifacts.ArtifactID
+    manifest_profile_sha256: str | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
     kind: str = Field(min_length=1)
     media_type: str = Field(min_length=1)
     schema_name: str = Field(min_length=1)
@@ -593,9 +624,12 @@ class ArtifactContractProjection(_StrictModel):
 
     @model_validator(mode="after")
     def _input_graph_is_canonical(self) -> Self:
-        keys = tuple((edge.role, str(edge.artifact_id)) for edge in self.input_graph)
+        keys = tuple(
+            (edge.role, str(edge.artifact_id), edge.manifest_profile_sha256 or "")
+            for edge in self.input_graph
+        )
         if keys != tuple(sorted(set(keys))):
-            raise ValueError("artifact input graph must be unique and sorted")
+            raise ValueError("artifact selected-view input graph must be unique and sorted")
         return self
 
 
@@ -610,7 +644,10 @@ class RecipeInput(_StrictModel):
 class DerivationRecipe(_StrictModel):
     """Canonical recipe binding family data, parameters, and every input."""
 
-    schema_version: Literal[DERIVATION_SCHEMA_VERSION] = DERIVATION_SCHEMA_VERSION
+    schema_version: Literal[
+        DERIVATION_SCHEMA_VERSION,
+        SELECTED_VIEW_DERIVATION_SCHEMA_VERSION,
+    ] = DERIVATION_SCHEMA_VERSION
     recipe_id: str = Field(pattern=r"^derivation-recipe:sha256:[0-9a-f]{64}$")
     registry_artifact: ArtifactContractProjection
     family: TransformFamily
@@ -634,6 +671,14 @@ class DerivationRecipe(_StrictModel):
 
     @model_validator(mode="after")
     def _recipe_is_recomputed(self) -> Self:
+        selected_view = self.registry_artifact.manifest_profile_sha256 is not None or any(
+            item.artifact.manifest_profile_sha256 is not None for item in self.inputs
+        )
+        expected_schema_version = (
+            SELECTED_VIEW_DERIVATION_SCHEMA_VERSION if selected_view else DERIVATION_SCHEMA_VERSION
+        )
+        if self.schema_version != expected_schema_version:
+            raise ValueError("recipe wire version differs from selected-view presence")
         if (self.method_id, self.method_version) != (
             self.family.method_id,
             self.family.method_version,
@@ -713,10 +758,17 @@ class CertificateInputAuthority(_StrictModel):
 class DerivationCertificate(_StrictModel):
     """Recomputing certificate for one derived series and its authority cap."""
 
-    schema_version: Literal[DERIVATION_SCHEMA_VERSION] = DERIVATION_SCHEMA_VERSION
+    schema_version: Literal[
+        DERIVATION_SCHEMA_VERSION,
+        SELECTED_VIEW_DERIVATION_SCHEMA_VERSION,
+    ] = DERIVATION_SCHEMA_VERSION
     certificate_id: str = Field(pattern=r"^derivation-certificate:sha256:[0-9a-f]{64}$")
     recipe: DerivationRecipe
     derived_artifact_id: artifacts.ArtifactID
+    derived_artifact_ref: artifacts.ArtifactRef | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
     input_authorities: tuple[CertificateInputAuthority, ...] = Field(min_length=1)
     effective_authority: AuthorityScore
     observation_class: Literal["derived"]
@@ -738,6 +790,21 @@ class DerivationCertificate(_StrictModel):
 
     @model_validator(mode="after")
     def _certificate_is_recomputed(self) -> Self:
+        selected_view = _recipe_uses_selected_views(self.recipe) or (
+            self.derived_artifact_ref is not None
+            and self.derived_artifact_ref.manifest_profile_sha256 is not None
+        )
+        expected_schema_version = (
+            SELECTED_VIEW_DERIVATION_SCHEMA_VERSION if selected_view else DERIVATION_SCHEMA_VERSION
+        )
+        if self.schema_version != expected_schema_version:
+            raise ValueError("certificate wire version differs from selected-view presence")
+        if self.derived_artifact_ref is not None and (
+            self.derived_artifact_ref.artifact_id != self.derived_artifact_id
+            or self.derived_artifact_ref.kind != DERIVED_SERIES_KIND
+            or self.derived_artifact_ref.media_type != "application/json"
+        ):
+            raise ValueError("derived artifact reference differs from its certified output")
         input_ids = tuple(str(item.artifact_id) for item in self.input_authorities)
         if input_ids != tuple(sorted(set(input_ids))):
             raise ValueError("certificate input authorities must be unique and sorted")
@@ -832,9 +899,10 @@ class EpochInheritanceRecomputeReceipt(_StrictModel):
     current history head or that its disposition authorizes a lifecycle act.
     """
 
-    schema_version: Literal["polisyos.runtime.epoch-inheritance-recompute-receipt.v1"] = (
-        "polisyos.runtime.epoch-inheritance-recompute-receipt.v1"
-    )
+    schema_version: Literal[
+        _EPOCH_RECOMPUTE_SCHEMA_VERSION,
+        _SELECTED_VIEW_EPOCH_RECOMPUTE_SCHEMA_VERSION,
+    ] = _EPOCH_RECOMPUTE_SCHEMA_VERSION
     receipt_id: str = Field(pattern=r"^epoch-inheritance-recompute:sha256:[0-9a-f]{64}$")
     state: Literal["completed"]
     transition_artifact_ref: artifacts.ArtifactRef
@@ -871,6 +939,24 @@ class EpochInheritanceRecomputeReceipt(_StrictModel):
 
     @model_validator(mode="after")
     def _receipt_is_content_bound(self) -> Self:
+        selected_view = any(
+            ref.manifest_profile_sha256 is not None
+            for ref in (
+                self.transition_artifact_ref,
+                self.source_ref,
+                self.target_ref,
+                self.certificate_artifact_ref,
+                self.recipe_artifact_ref,
+                self.derived_artifact_ref,
+            )
+        )
+        expected_schema_version = (
+            _SELECTED_VIEW_EPOCH_RECOMPUTE_SCHEMA_VERSION
+            if selected_view
+            else _EPOCH_RECOMPUTE_SCHEMA_VERSION
+        )
+        if self.schema_version != expected_schema_version:
+            raise ValueError("epoch receipt wire version differs from selected-view presence")
         artifact_hashes = (
             (self.transition_artifact_ref, self.transition_artifact_content_hash),
             (self.certificate_artifact_ref, self.certificate_artifact_content_hash),
@@ -920,6 +1006,62 @@ class PersistedEpochInheritanceRecomputeReceipt(_StrictModel):
         return self
 
 
+def _recipe_uses_selected_views(recipe: DerivationRecipe) -> bool:
+    return recipe.registry_artifact.manifest_profile_sha256 is not None or any(
+        item.artifact.manifest_profile_sha256 is not None for item in recipe.inputs
+    )
+
+
+def _certificate_uses_selected_views(certificate: DerivationCertificate) -> bool:
+    return _recipe_uses_selected_views(certificate.recipe) or (
+        certificate.derived_artifact_ref is not None
+        and certificate.derived_artifact_ref.manifest_profile_sha256 is not None
+    )
+
+
+def _schema_for_input_refs(
+    inputs: Sequence[artifacts.InputRef],
+    *,
+    default: artifacts.SchemaInfo,
+    selected_view: artifacts.SchemaInfo,
+) -> artifacts.SchemaInfo:
+    return (
+        selected_view
+        if any(item.manifest_profile_sha256 is not None for item in inputs)
+        else default
+    )
+
+
+def _recipe_artifact_schema(recipe: DerivationRecipe) -> artifacts.SchemaInfo:
+    return (
+        _DERIVATION_RECIPE_SELECTED_VIEW_SCHEMA
+        if _recipe_uses_selected_views(recipe)
+        else _DERIVATION_RECIPE_SCHEMA
+    )
+
+
+def _certificate_artifact_schema(
+    certificate: DerivationCertificate,
+) -> artifacts.SchemaInfo:
+    return (
+        _CERTIFICATE_SELECTED_VIEW_SCHEMA
+        if _certificate_uses_selected_views(certificate)
+        else _CERTIFICATE_SCHEMA
+    )
+
+
+def _epoch_receipt_artifact_schema(
+    receipt: EpochInheritanceRecomputeReceipt,
+) -> artifacts.SchemaInfo:
+    return (
+        _EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_SELECTED_VIEW_SCHEMA
+        if any(
+            item.manifest_profile_sha256 is not None for item in _epoch_recompute_inputs(receipt)
+        )
+        else _EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_SCHEMA
+    )
+
+
 def _identity(prefix: str, payload: object) -> str:
     return f"{prefix}:{canon.fingerprint(payload, prefix=True, canon_spec=_CANON_SPEC)}"
 
@@ -936,7 +1078,14 @@ def _canonical_payload(raw: bytes) -> dict[str, object]:
 
 
 def _sorted_input_refs(refs: Sequence[artifacts.InputRef]) -> list[artifacts.InputRef]:
-    return sorted(refs, key=lambda item: (item.role, str(item.artifact_id)))
+    return sorted(
+        refs,
+        key=lambda item: (
+            item.role,
+            str(item.artifact_id),
+            item.manifest_profile_sha256 or "",
+        ),
+    )
 
 
 def _require_registered_basis_units(bases: Iterable[BasisSignature]) -> None:
@@ -952,17 +1101,72 @@ def _require_registered_basis_units(bases: Iterable[BasisSignature]) -> None:
 
 def _verify_resolvable_ref(
     store: artifacts.FileSystemCAS,
-    artifact_id: artifacts.ArtifactID,
+    artifact_ref: artifacts.ArtifactID | artifacts.ArtifactRef,
+    *,
+    refusal_code: DerivationRefusalCode = DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
 ) -> None:
     try:
-        resolved = store.has(artifact_id) and store.verify(artifact_id).ok
-    except (OSError, ValueError):
+        resolved = store.has(artifact_ref) and store.verify(artifact_ref).ok
+    except (OSError, ValueError, artifacts.ArtifactOwnershipError):
         resolved = False
     if not resolved:
-        raise DerivationRefusalError(
-            DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
-            str(artifact_id),
+        artifact_id = (
+            artifact_ref.artifact_id
+            if isinstance(artifact_ref, artifacts.ArtifactRef)
+            else artifact_ref
         )
+        raise DerivationRefusalError(refusal_code, str(artifact_id))
+
+
+def _resolve_input_ref(
+    store: artifacts.FileSystemCAS,
+    input_ref: artifacts.InputRef,
+    *,
+    refusal_code: DerivationRefusalCode,
+) -> artifacts.ArtifactRef:
+    """Resolve a lineage edge through its exact default or selected sidecar."""
+
+    try:
+        if input_ref.manifest_profile_sha256 is None:
+            manifest = store.get_manifest(input_ref.artifact_id)
+        else:
+            manifest = store.get_manifest_by_profile(
+                input_ref.artifact_id,
+                input_ref.manifest_profile_sha256,
+            )
+        artifact_ref = artifacts.ArtifactRef(
+            artifact_id=input_ref.artifact_id,
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            manifest_profile_sha256=input_ref.manifest_profile_sha256,
+        )
+        _verify_resolvable_ref(store, artifact_ref, refusal_code=refusal_code)
+        return artifact_ref
+    except DerivationRefusalError:
+        raise
+    except (OSError, ValueError, artifacts.ArtifactOwnershipError) as exc:
+        raise DerivationRefusalError(refusal_code, str(input_ref.artifact_id)) from exc
+
+
+def _verify_input_refs(
+    store: artifacts.FileSystemCAS,
+    input_refs: Sequence[artifacts.InputRef],
+    *,
+    refusal_code: DerivationRefusalCode,
+) -> None:
+    for input_ref in _sorted_input_refs(input_refs):
+        _resolve_input_ref(store, input_ref, refusal_code=refusal_code)
+
+
+def _projection_ref(projection: ArtifactContractProjection) -> artifacts.ArtifactRef:
+    """Reconstruct the exact typed CAS selector bound by one projection."""
+
+    return artifacts.ArtifactRef(
+        artifact_id=projection.artifact_id,
+        kind=projection.kind,
+        media_type=projection.media_type,
+        manifest_profile_sha256=projection.manifest_profile_sha256,
+    )
 
 
 def _authority_input_refs(authority: AuthorityProjection) -> list[artifacts.InputRef]:
@@ -1011,16 +1215,35 @@ def _manifest_sha256(manifest: artifacts.ArtifactManifest) -> str:
 
 def _manifest_projection(
     store: artifacts.FileSystemCAS,
-    artifact_id: artifacts.ArtifactID,
+    artifact_selector: artifacts.ArtifactID | artifacts.ArtifactRef,
 ) -> ArtifactContractProjection:
-    _verify_resolvable_ref(store, artifact_id)
+    artifact_id = (
+        artifact_selector.artifact_id
+        if isinstance(artifact_selector, artifacts.ArtifactRef)
+        else artifact_selector
+    )
+    _verify_resolvable_ref(store, artifact_selector)
     try:
-        manifest = store.get_manifest(artifact_id)
-    except (OSError, ValueError) as exc:
+        manifest = store.get_manifest(artifact_selector)
+    except (OSError, ValueError, artifacts.ArtifactOwnershipError) as exc:
         raise DerivationRefusalError(
             DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
             str(artifact_id),
         ) from exc
+    selected_ref = (
+        artifact_selector
+        if isinstance(artifact_selector, artifacts.ArtifactRef)
+        else artifacts.ArtifactRef(
+            artifact_id=artifact_id,
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+        )
+    )
+    _verify_input_refs(
+        store,
+        manifest.inputs,
+        refusal_code=DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
+    )
     if manifest.artifact_schema is None or manifest.producer is None:
         raise DerivationRefusalError(
             DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
@@ -1028,6 +1251,7 @@ def _manifest_projection(
         )
     return ArtifactContractProjection(
         artifact_id=artifact_id,
+        manifest_profile_sha256=selected_ref.manifest_profile_sha256,
         kind=manifest.kind,
         media_type=manifest.media_type,
         schema_name=manifest.artifact_schema.name,
@@ -1035,7 +1259,11 @@ def _manifest_projection(
         producer_component=str(manifest.producer.component),
         producer_version=manifest.producer.version,
         input_graph=tuple(
-            ArtifactInputEdge(role=item.role, artifact_id=item.artifact_id)
+            ArtifactInputEdge(
+                role=item.role,
+                artifact_id=item.artifact_id,
+                manifest_profile_sha256=item.manifest_profile_sha256,
+            )
             for item in _sorted_input_refs(manifest.inputs)
         ),
         manifest_sha256=_manifest_sha256(manifest),
@@ -1046,7 +1274,11 @@ def _expected_input_edges(
     refs: Sequence[artifacts.InputRef],
 ) -> tuple[ArtifactInputEdge, ...]:
     return tuple(
-        ArtifactInputEdge(role=item.role, artifact_id=item.artifact_id)
+        ArtifactInputEdge(
+            role=item.role,
+            artifact_id=item.artifact_id,
+            manifest_profile_sha256=item.manifest_profile_sha256,
+        )
         for item in _sorted_input_refs(refs)
     )
 
@@ -1080,16 +1312,16 @@ def _load_source(
     *,
     refusal_code: DerivationRefusalCode,
 ) -> SourceSeries:
-    current = _manifest_projection(store, projection.artifact_id)
+    current = _manifest_projection(store, _projection_ref(projection))
     if current != projection:
         raise DerivationRefusalError(
             refusal_code,
             f"{projection.artifact_id}: complete manifest projection",
         )
     try:
-        payload = canon.from_canonical_bytes(store.get_bytes(projection.artifact_id))
+        payload = canon.from_canonical_bytes(store.get_bytes(_projection_ref(projection)))
         source = SourceSeries.model_validate(payload)
-    except (OSError, ValueError) as exc:
+    except (OSError, ValueError, artifacts.ArtifactOwnershipError) as exc:
         raise DerivationRefusalError(refusal_code, str(projection.artifact_id)) from exc
     _require_registered_basis_units((source.basis,))
     expected_inputs = _authority_input_refs(source.authority)
@@ -1151,7 +1383,7 @@ def _load_transform_family_registry_artifact(
     *,
     refusal_code: DerivationRefusalCode,
 ) -> TransformFamilyRegistry:
-    current = _manifest_projection(store, projection.artifact_id)
+    current = _manifest_projection(store, _projection_ref(projection))
     if current != projection:
         raise DerivationRefusalError(
             refusal_code,
@@ -1166,9 +1398,9 @@ def _load_transform_family_registry_artifact(
         refusal_code=refusal_code,
     )
     try:
-        payload = canon.from_canonical_bytes(store.get_bytes(projection.artifact_id))
+        payload = canon.from_canonical_bytes(store.get_bytes(_projection_ref(projection)))
         registry = TransformFamilyRegistry.model_validate(payload)
-    except (OSError, ValueError) as exc:
+    except (OSError, ValueError, artifacts.ArtifactOwnershipError) as exc:
         raise DerivationRefusalError(refusal_code, str(projection.artifact_id)) from exc
     _require_registered_basis_units(_registry_bases(registry))
     return registry
@@ -1278,7 +1510,7 @@ def build_derivation_recipe(
     """Resolve owner family data and bind exact inputs into a canonical recipe."""
 
     registry_ref = persist_transform_family_registry(store, registry)
-    registry_projection = _manifest_projection(store, registry_ref.artifact_id)
+    registry_projection = _manifest_projection(store, registry_ref)
     _load_transform_family_registry_artifact(
         store,
         registry_projection,
@@ -1293,7 +1525,7 @@ def build_derivation_recipe(
                 f"{role}: input does not carry the source-series kind",
                 reason=DerivationRefusalReason.NO_CERTIFIED_TRANSFORM,
             )
-        projection = _manifest_projection(store, ref.artifact_id)
+        projection = _manifest_projection(store, ref)
         projections[role] = projection
         sources[role] = _load_source(
             store,
@@ -1326,8 +1558,13 @@ def build_derivation_recipe(
             str(exc),
             reason=DerivationRefusalReason.NO_CERTIFIED_TRANSFORM,
         ) from exc
+    selected_view = registry_projection.manifest_profile_sha256 is not None or any(
+        projection.manifest_profile_sha256 is not None for projection in projections.values()
+    )
     payload: dict[str, object] = {
-        "schema_version": DERIVATION_SCHEMA_VERSION,
+        "schema_version": (
+            SELECTED_VIEW_DERIVATION_SCHEMA_VERSION if selected_view else DERIVATION_SCHEMA_VERSION
+        ),
         "registry_artifact": registry_projection,
         "family": family,
         "method_id": family.method_id,
@@ -1562,11 +1799,13 @@ def _expected_output_inputs(recipe: DerivationRecipe) -> list[artifacts.InputRef
             artifacts.InputRef(
                 artifact_id=recipe.registry_artifact.artifact_id,
                 role="transform_family_registry",
+                manifest_profile_sha256=recipe.registry_artifact.manifest_profile_sha256,
             ),
             *(
                 artifacts.InputRef(
                     artifact_id=item.artifact.artifact_id,
                     role=f"source:{item.role}",
+                    manifest_profile_sha256=item.artifact.manifest_profile_sha256,
                 )
                 for item in recipe.inputs
             ),
@@ -1576,12 +1815,26 @@ def _expected_output_inputs(recipe: DerivationRecipe) -> list[artifacts.InputRef
 
 def _expected_certificate_inputs(
     recipe: DerivationRecipe,
-    derived_artifact_id: artifacts.ArtifactID,
+    derived_artifact: artifacts.ArtifactID | artifacts.ArtifactRef,
 ) -> list[artifacts.InputRef]:
+    artifact_id = (
+        derived_artifact.artifact_id
+        if isinstance(derived_artifact, artifacts.ArtifactRef)
+        else derived_artifact
+    )
+    profile = (
+        derived_artifact.manifest_profile_sha256
+        if isinstance(derived_artifact, artifacts.ArtifactRef)
+        else None
+    )
     return _sorted_input_refs(
         [
             *_expected_output_inputs(recipe),
-            artifacts.InputRef(artifact_id=derived_artifact_id, role="derived_series"),
+            artifacts.InputRef(
+                artifact_id=artifact_id,
+                role="derived_series",
+                manifest_profile_sha256=profile,
+            ),
         ]
     )
 
@@ -1593,7 +1846,7 @@ def _producer_projection(producer: artifacts.ProducerInfo) -> tuple[str, str]:
 def _verify_cached_artifact(
     store: artifacts.FileSystemCAS,
     *,
-    artifact_id: artifacts.ArtifactID,
+    artifact_ref: artifacts.ArtifactRef,
     expected_bytes: bytes,
     kind: str,
     schema: artifacts.SchemaInfo,
@@ -1601,18 +1854,21 @@ def _verify_cached_artifact(
     inputs: Sequence[artifacts.InputRef],
     refusal_code: DerivationRefusalCode,
 ) -> artifacts.ArtifactRef:
+    artifact_id = artifact_ref.artifact_id
     try:
-        if not store.has(artifact_id) or not store.verify(artifact_id).ok:
+        if not store.has(artifact_ref) or not store.verify(artifact_ref).ok:
             raise DerivationRefusalError(refusal_code, f"{artifact_id}: CAS integrity")
-        if store.get_bytes(artifact_id) != expected_bytes:
+        if store.get_bytes(artifact_ref) != expected_bytes:
             raise DerivationRefusalError(refusal_code, f"{artifact_id}: bytes")
-        manifest = store.get_manifest(artifact_id)
+        manifest = store.get_manifest(artifact_ref)
     except DerivationRefusalError:
         raise
-    except (OSError, ValueError) as exc:
+    except (OSError, ValueError, artifacts.ArtifactOwnershipError) as exc:
         raise DerivationRefusalError(refusal_code, str(artifact_id)) from exc
     if (
-        manifest.kind != kind
+        artifact_ref.kind != kind
+        or artifact_ref.media_type != "application/json"
+        or manifest.kind != kind
         or manifest.media_type != "application/json"
         or manifest.artifact_schema != schema
         or manifest.producer is None
@@ -1620,11 +1876,8 @@ def _verify_cached_artifact(
         or _sorted_input_refs(manifest.inputs) != _sorted_input_refs(inputs)
     ):
         raise DerivationRefusalError(refusal_code, f"{artifact_id}: manifest contract")
-    return artifacts.ArtifactRef(
-        artifact_id=artifact_id,
-        kind=kind,
-        media_type="application/json",
-    )
+    _verify_input_refs(store, inputs, refusal_code=refusal_code)
+    return artifact_ref
 
 
 def _put_or_verify(
@@ -1639,7 +1892,45 @@ def _put_or_verify(
     data = _canonical_bytes(payload)
     artifact_id = artifacts.ArtifactID.from_sha256_hex(canon.content_hash(data))
     cache_hit = store.has(artifact_id)
-    if not cache_hit:
+    sorted_inputs = _sorted_input_refs(inputs)
+    _verify_input_refs(store, sorted_inputs, refusal_code=refusal_code)
+    if cache_hit:
+        default_ref = artifacts.ArtifactRef(
+            artifact_id=artifact_id,
+            kind=kind,
+            media_type="application/json",
+        )
+        has_selected_input_view = any(
+            item.manifest_profile_sha256 is not None for item in sorted_inputs
+        )
+        if not has_selected_input_view:
+            return (
+                _verify_cached_artifact(
+                    store,
+                    artifact_ref=default_ref,
+                    expected_bytes=data,
+                    kind=kind,
+                    schema=schema,
+                    producer=_DERIVATION_PRODUCER,
+                    inputs=sorted_inputs,
+                    refusal_code=refusal_code,
+                ),
+                True,
+            )
+        try:
+            if not store.verify(artifact_id).ok:
+                raise DerivationRefusalError(
+                    refusal_code,
+                    f"{artifact_id}: CAS integrity",
+                )
+        except DerivationRefusalError:
+            raise
+        except (OSError, ValueError, artifacts.ArtifactOwnershipError) as exc:
+            raise DerivationRefusalError(
+                refusal_code,
+                f"{artifact_id}: CAS integrity",
+            ) from exc
+    try:
         ref = store.put_bytes(
             data,
             artifacts.PutOptions(
@@ -1647,21 +1938,26 @@ def _put_or_verify(
                 media_type="application/json",
                 schema=schema,
                 producer=_DERIVATION_PRODUCER,
-                inputs=_sorted_input_refs(inputs),
+                inputs=sorted_inputs,
                 canon=artifacts.CanonInfo.from_spec(_CANON_SPEC),
             ),
         )
-        if ref.artifact_id != artifact_id:
-            raise DerivationRefusalError(refusal_code, "CAS returned a different identity")
+    except artifacts.ArtifactIntegrityError as exc:
+        raise DerivationRefusalError(
+            refusal_code,
+            f"{artifact_id}: CAS integrity",
+        ) from exc
+    if ref.artifact_id != artifact_id:
+        raise DerivationRefusalError(refusal_code, "CAS returned a different identity")
     return (
         _verify_cached_artifact(
             store,
-            artifact_id=artifact_id,
+            artifact_ref=ref,
             expected_bytes=data,
             kind=kind,
             schema=schema,
             producer=_DERIVATION_PRODUCER,
-            inputs=inputs,
+            inputs=sorted_inputs,
             refusal_code=refusal_code,
         ),
         cache_hit,
@@ -1671,8 +1967,16 @@ def _put_or_verify(
 def _certificate(
     recipe: DerivationRecipe,
     sources: Mapping[str, SourceSeries],
-    derived_artifact_id: artifacts.ArtifactID,
+    derived_artifact: artifacts.ArtifactID | artifacts.ArtifactRef,
 ) -> DerivationCertificate:
+    derived_artifact_ref = (
+        derived_artifact if isinstance(derived_artifact, artifacts.ArtifactRef) else None
+    )
+    derived_artifact_id = (
+        derived_artifact.artifact_id
+        if isinstance(derived_artifact, artifacts.ArtifactRef)
+        else derived_artifact
+    )
     artifact_by_role = {item.role: item.artifact.artifact_id for item in recipe.inputs}
     authority_by_artifact = {
         str(artifact_by_role[role]): CertificateInputAuthority(
@@ -1686,8 +1990,14 @@ def _certificate(
     authorities = tuple(
         sorted(authority_by_artifact.values(), key=lambda item: str(item.artifact_id))
     )
+    selected_view = _recipe_uses_selected_views(recipe) or (
+        derived_artifact_ref is not None
+        and derived_artifact_ref.manifest_profile_sha256 is not None
+    )
     payload: dict[str, object] = {
-        "schema_version": DERIVATION_SCHEMA_VERSION,
+        "schema_version": (
+            SELECTED_VIEW_DERIVATION_SCHEMA_VERSION if selected_view else DERIVATION_SCHEMA_VERSION
+        ),
         "recipe": recipe,
         "derived_artifact_id": derived_artifact_id,
         "input_authorities": authorities,
@@ -1700,6 +2010,11 @@ def _certificate(
             "source_observation",
         ),
     }
+    if (
+        derived_artifact_ref is not None
+        and derived_artifact_ref.manifest_profile_sha256 is not None
+    ):
+        payload["derived_artifact_ref"] = derived_artifact_ref
     payload["certificate_id"] = _identity("derivation-certificate", payload)
     return DerivationCertificate.model_validate(payload)
 
@@ -1725,21 +2040,26 @@ def materialize_derivation(
         refusal_code=DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
     )
     series = _derive_series(recipe, sources)
+    output_inputs = _expected_output_inputs(recipe)
     derived_ref, cache_hit = _put_or_verify(
         store,
         payload=series,
         kind=DERIVED_SERIES_KIND,
-        schema=_DERIVED_SERIES_SCHEMA,
-        inputs=_expected_output_inputs(recipe),
+        schema=_schema_for_input_refs(
+            output_inputs,
+            default=_DERIVED_SERIES_SCHEMA,
+            selected_view=_DERIVED_SERIES_SELECTED_VIEW_SCHEMA,
+        ),
+        inputs=output_inputs,
         refusal_code=DerivationRefusalCode.CACHE_ARTIFACT_DRIFT,
     )
-    certificate = _certificate(recipe, sources, derived_ref.artifact_id)
+    certificate = _certificate(recipe, sources, derived_ref)
     certificate_ref, _ = _put_or_verify(
         store,
         payload=certificate,
         kind=DERIVATION_CERTIFICATE_KIND,
-        schema=_CERTIFICATE_SCHEMA,
-        inputs=_expected_certificate_inputs(recipe, derived_ref.artifact_id),
+        schema=_certificate_artifact_schema(certificate),
+        inputs=_expected_certificate_inputs(recipe, derived_ref),
         refusal_code=DerivationRefusalCode.CERTIFICATE_DRIFT,
     )
     return DerivationMaterialization(
@@ -1769,7 +2089,7 @@ def consume_certified_derivation(
         )
     try:
         payload = canon.from_canonical_bytes(store.get_bytes(certificate_ref))
-    except (OSError, ValueError) as exc:
+    except (OSError, ValueError, artifacts.ArtifactOwnershipError) as exc:
         raise DerivationRefusalError(
             DerivationRefusalCode.CERTIFICATE_DRIFT,
             str(certificate_ref.artifact_id),
@@ -1788,14 +2108,14 @@ def consume_certified_derivation(
         ) from exc
     _verify_cached_artifact(
         store,
-        artifact_id=certificate_ref.artifact_id,
+        artifact_ref=certificate_ref,
         expected_bytes=_canonical_bytes(certificate),
         kind=DERIVATION_CERTIFICATE_KIND,
-        schema=_CERTIFICATE_SCHEMA,
+        schema=_certificate_artifact_schema(certificate),
         producer=_DERIVATION_PRODUCER,
         inputs=_expected_certificate_inputs(
             certificate.recipe,
-            certificate.derived_artifact_id,
+            certificate.derived_artifact_ref or certificate.derived_artifact_id,
         ),
         refusal_code=DerivationRefusalCode.CERTIFICATE_DRIFT,
     )
@@ -1817,20 +2137,30 @@ def consume_certified_derivation(
             DerivationRefusalCode.CERTIFICATE_DRIFT,
             "certificate output differs from recomputed recipe output",
         )
+    derived_ref = certificate.derived_artifact_ref or artifacts.ArtifactRef(
+        artifact_id=certificate.derived_artifact_id,
+        kind=DERIVED_SERIES_KIND,
+        media_type="application/json",
+    )
+    derived_inputs = _expected_output_inputs(certificate.recipe)
     _verify_cached_artifact(
         store,
-        artifact_id=certificate.derived_artifact_id,
+        artifact_ref=derived_ref,
         expected_bytes=expected_bytes,
         kind=DERIVED_SERIES_KIND,
-        schema=_DERIVED_SERIES_SCHEMA,
+        schema=_schema_for_input_refs(
+            derived_inputs,
+            default=_DERIVED_SERIES_SCHEMA,
+            selected_view=_DERIVED_SERIES_SELECTED_VIEW_SCHEMA,
+        ),
         producer=_DERIVATION_PRODUCER,
-        inputs=_expected_output_inputs(certificate.recipe),
+        inputs=derived_inputs,
         refusal_code=DerivationRefusalCode.CACHE_ARTIFACT_DRIFT,
     )
     if certificate != _certificate(
         certificate.recipe,
         sources,
-        certificate.derived_artifact_id,
+        derived_ref,
     ):
         raise DerivationRefusalError(
             DerivationRefusalCode.CERTIFICATE_DRIFT,
@@ -1879,7 +2209,7 @@ def persist_derivation_recipe_artifact(
         store,
         payload=recipe,
         kind=DERIVATION_RECIPE_KIND,
-        schema=_DERIVATION_RECIPE_SCHEMA,
+        schema=_recipe_artifact_schema(recipe),
         inputs=_expected_output_inputs(recipe),
         refusal_code=DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT,
     )
@@ -1894,14 +2224,14 @@ def _read_derivation_recipe_artifact(
         raise _epoch_recompute_refusal("derivation recipe artifact profile mismatch")
     try:
         recipe = DerivationRecipe.model_validate(_canonical_payload(store.get_bytes(recipe_ref)))
-    except (OSError, TypeError, ValueError) as exc:
+    except (OSError, TypeError, ValueError, artifacts.ArtifactOwnershipError) as exc:
         raise _epoch_recompute_refusal("derivation recipe artifact readback failed") from exc
     _verify_cached_artifact(
         store,
-        artifact_id=recipe_ref.artifact_id,
+        artifact_ref=recipe_ref,
         expected_bytes=_canonical_bytes(recipe),
         kind=DERIVATION_RECIPE_KIND,
-        schema=_DERIVATION_RECIPE_SCHEMA,
+        schema=_recipe_artifact_schema(recipe),
         producer=_DERIVATION_PRODUCER,
         inputs=_expected_output_inputs(recipe),
         refusal_code=DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT,
@@ -1927,7 +2257,7 @@ def _read_epoch_validity_transition(
         transition = epoch_cascade.EpochValidityTransitionArtifact.model_validate(
             _canonical_payload(raw)
         )
-    except (OSError, TypeError, ValueError) as exc:
+    except (OSError, TypeError, ValueError, artifacts.ArtifactOwnershipError) as exc:
         raise _epoch_recompute_refusal("epoch transition artifact readback failed") from exc
     if (
         not report.ok
@@ -1949,26 +2279,32 @@ def _epoch_recompute_inputs(
             artifacts.InputRef(
                 artifact_id=receipt.certificate_artifact_ref.artifact_id,
                 role="derivation_certificate",
+                manifest_profile_sha256=receipt.certificate_artifact_ref.manifest_profile_sha256,
             ),
             artifacts.InputRef(
                 artifact_id=receipt.recipe_artifact_ref.artifact_id,
                 role="derivation_recipe",
+                manifest_profile_sha256=receipt.recipe_artifact_ref.manifest_profile_sha256,
             ),
             artifacts.InputRef(
                 artifact_id=receipt.derived_artifact_ref.artifact_id,
                 role="derived_series",
+                manifest_profile_sha256=receipt.derived_artifact_ref.manifest_profile_sha256,
             ),
             artifacts.InputRef(
                 artifact_id=receipt.transition_artifact_ref.artifact_id,
                 role="epoch_transition",
+                manifest_profile_sha256=receipt.transition_artifact_ref.manifest_profile_sha256,
             ),
             artifacts.InputRef(
                 artifact_id=receipt.source_ref.artifact_id,
                 role="graph_edge_source",
+                manifest_profile_sha256=receipt.source_ref.manifest_profile_sha256,
             ),
             artifacts.InputRef(
                 artifact_id=receipt.target_ref.artifact_id,
                 role="graph_edge_target",
+                manifest_profile_sha256=receipt.target_ref.manifest_profile_sha256,
             ),
         ]
     )
@@ -2049,7 +2385,7 @@ def _build_epoch_inheritance_recompute_receipt(
         certificate = DerivationCertificate.model_validate(
             _canonical_payload(store.get_bytes(certificate_ref))
         )
-    except (OSError, TypeError, ValueError) as exc:
+    except (OSError, TypeError, ValueError, artifacts.ArtifactOwnershipError) as exc:
         raise _epoch_recompute_refusal("derivation certificate readback failed") from exc
     if (
         certificate.recipe != recipe
@@ -2057,13 +2393,26 @@ def _build_epoch_inheritance_recompute_receipt(
         or consumption.derived_artifact_id != certificate.derived_artifact_id
     ):
         raise _epoch_recompute_refusal("certified derivation differs from epoch binding")
-    derived_ref = artifacts.ArtifactRef(
+    derived_ref = certificate.derived_artifact_ref or artifacts.ArtifactRef(
         artifact_id=consumption.derived_artifact_id,
         kind=DERIVED_SERIES_KIND,
         media_type="application/json",
     )
+    receipt_refs = (
+        transition_ref,
+        source_ref,
+        target_ref,
+        certificate_ref,
+        binding.recipe.recipe_ref,
+        derived_ref,
+    )
+    selected_view = any(ref.manifest_profile_sha256 is not None for ref in receipt_refs)
     payload: dict[str, object] = {
-        "schema_version": "polisyos.runtime.epoch-inheritance-recompute-receipt.v1",
+        "schema_version": (
+            _SELECTED_VIEW_EPOCH_RECOMPUTE_SCHEMA_VERSION
+            if selected_view
+            else _EPOCH_RECOMPUTE_SCHEMA_VERSION
+        ),
         "state": "completed",
         "transition_artifact_ref": transition_ref,
         "transition_artifact_content_hash": str(transition_ref.artifact_id),
@@ -2134,7 +2483,7 @@ def produce_epoch_inheritance_recompute_receipt(
         store,
         payload=receipt,
         kind=EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_KIND,
-        schema=_EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_SCHEMA,
+        schema=_epoch_receipt_artifact_schema(receipt),
         inputs=_epoch_recompute_inputs(receipt),
         refusal_code=DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT,
     )
@@ -2169,14 +2518,14 @@ def read_epoch_inheritance_recompute_receipt(
         receipt = EpochInheritanceRecomputeReceipt.model_validate(
             _canonical_payload(store.get_bytes(receipt_ref))
         )
-    except (OSError, TypeError, ValueError) as exc:
+    except (OSError, TypeError, ValueError, artifacts.ArtifactOwnershipError) as exc:
         raise _epoch_recompute_refusal("epoch recompute receipt readback failed") from exc
     _verify_cached_artifact(
         store,
-        artifact_id=receipt_ref.artifact_id,
+        artifact_ref=receipt_ref,
         expected_bytes=_canonical_bytes(receipt),
         kind=EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_KIND,
-        schema=_EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_SCHEMA,
+        schema=_epoch_receipt_artifact_schema(receipt),
         producer=_DERIVATION_PRODUCER,
         inputs=_epoch_recompute_inputs(receipt),
         refusal_code=DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT,

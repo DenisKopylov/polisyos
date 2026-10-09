@@ -10,18 +10,29 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core import contracts
 from polisyos.ir import governance
-from polisyos.obligation_graph import ComplexityBudget, compile_obligation_graph
-from polisyos.obligation_rules import build_seed_obligation_rule_catalog
+from polisyos.obligation_graph import (
+    ComplexityBudget,
+    ObligationGraph,
+    compile_obligation_graph,
+)
+from polisyos.obligation_rules import (
+    ObligationRuleCatalog,
+    build_seed_obligation_rule_catalog,
+    select_governed_rules,
+)
 from polisyos.policy_grammar import (
     PolicyGrammarCompiler,
     PolicyGrammarConceptSpineRefs,
     PolicyGrammarIntent,
     facet_snapshots_for_obligation_graph,
 )
+
+if TYPE_CHECKING:
+    from datetime import datetime
 
 from ._impl.models import (
     DataQualityMinimums,
@@ -30,6 +41,19 @@ from ._impl.models import (
     DataRequirementSpec,
     data_requirement_authority_boundary,
 )
+
+UniversalAuthorityProfile = contracts.UniversalAuthorityProfile
+
+
+@dataclass(frozen=True)
+class DataRequirementObligationCompilation:
+    """Existing policy-grammar and obligation-owner outputs for one requirement basis."""
+
+    case: contracts.UniversalPolicyDesignCase
+    facets: tuple[dict[str, object], ...] | None
+    rule_catalog: ObligationRuleCatalog | None
+    obligation_graph: ObligationGraph | None
+
 
 CapabilityBindingLike = contracts.CapabilityBindingLike
 CapabilityResolverPort = contracts.CapabilityResolverPort
@@ -86,9 +110,7 @@ _DECISION_CLAIM_FAMILIES = {
 # ``_required_data_families_from_heuristic``. The default is now ``false``:
 # the primary path resolves constructs through an injected CapabilityResolverPort.
 # Architecture/shims.toml carries the sunset trigger.
-_DATA_REQUIREMENT_FAMILY_FALLBACK_ENV = (
-    "POLISYOS_DATA_REQ_FAMILY_FALLBACK_FROM_HARDCODED"
-)
+_DATA_REQUIREMENT_FAMILY_FALLBACK_ENV = "POLISYOS_DATA_REQ_FAMILY_FALLBACK_FROM_HARDCODED"
 # POLISYOS_DATA_REQ_FAMILY_FALLBACK_FROM_HARDCODED default false.
 _DATA_REQUIREMENT_FAMILY_FALLBACK_DEFAULT = "false"
 _REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -344,6 +366,53 @@ class DataRequirementCompiler:
             },
         )
 
+    def compile_obligation_basis(
+        self,
+        *,
+        intent: PolicyGrammarIntent,
+        authority_profile: UniversalAuthorityProfile,
+        concept_spine_refs: PolicyGrammarConceptSpineRefs,
+        run_id: str,
+        generated_at: datetime,
+        intent_text: str,
+    ) -> DataRequirementObligationCompilation:
+        """Compile one typed W6.A basis through the existing W6.B/W6.C owners.
+
+        The returned models are the objects produced by their owning compilers.
+        A candidate or blocked grammar case is retained with no downstream
+        compilation, so callers preserve its status and refuse downstream use.
+        This stage establishes compilation only; it does not admit source
+        authority or promote a resulting requirement.
+        """
+        case = PolicyGrammarCompiler().compile(
+            intent=intent,
+            authority_profile=authority_profile,
+            concept_spine_refs=concept_spine_refs,
+        )
+        if case.status in {"blocked", "candidate_unverified"} or case.facets is None:
+            return DataRequirementObligationCompilation(
+                case=case,
+                facets=None,
+                rule_catalog=None,
+                obligation_graph=None,
+            )
+
+        facets = facet_snapshots_for_obligation_graph(case)
+        rule_catalog = build_seed_obligation_rule_catalog()
+        obligation_graph = compile_obligation_graph(
+            run_id=run_id,
+            facets=facets,
+            governed_rules=select_governed_rules(rule_catalog),
+            generated_at=generated_at,
+            intent_text=intent_text,
+        )
+        return DataRequirementObligationCompilation(
+            case=case,
+            facets=facets,
+            rule_catalog=rule_catalog,
+            obligation_graph=obligation_graph,
+        )
+
     def compile_for_scenario(
         self,
         scenario: Mapping[str, Any],
@@ -405,9 +474,7 @@ class DataRequirementCompiler:
                         "description": item.obligation_text,
                         "facet_refs": [facet["facet_id"] for facet in facets],
                         "concept_spine_refs": [facet["concept_ref"] for facet in facets],
-                        "authority_profile_refs": [
-                            facet["authority_profile"] for facet in facets
-                        ],
+                        "authority_profile_refs": [facet["authority_profile"] for facet in facets],
                     }
                     for item in graph.blocking_frontier
                 ],
@@ -501,11 +568,7 @@ def data_requirement_compilation_audit_surface(
         "requirement_count": len(model.specs),
         "claim_ids": sorted({spec.claim_id for spec in model.specs}),
         "required_data_families": sorted(
-            {
-                family
-                for spec in model.specs
-                for family in spec.required_data_families
-            }
+            {family for spec in model.specs for family in spec.required_data_families}
         ),
         "legacy_admissible_data_source_families": list(
             model.legacy_admissible_data_source_families
@@ -805,9 +868,7 @@ def _required_constructs_from_obligation_graph(
     constructs: list[str] = []
     for item in frontier or ():
         metadata = (
-            item.get("metadata")
-            if isinstance(item, Mapping)
-            else getattr(item, "metadata", {})
+            item.get("metadata") if isinstance(item, Mapping) else getattr(item, "metadata", {})
         )
         if not isinstance(metadata, Mapping):
             continue
@@ -919,8 +980,7 @@ def _construct_proposals_from_semantics(
         "housing_rent_burden",
     )
     add_if(
-        values.get("instrument_type") == "subsidy"
-        or {"means", "tested"}.issubset(words),
+        values.get("instrument_type") == "subsidy" or {"means", "tested"}.issubset(words),
         "program_participation_rate",
     )
     return tuple(proposals)
@@ -1029,7 +1089,7 @@ def _required_data_families_from_heuristic(
             *[
                 " ".join(str(value) for value in claim.metadata.values())
                 for claim in claims
-            if isinstance(claim.metadata, Mapping)
+                if isinstance(claim.metadata, Mapping)
             ],
             scenario_id or "",
         ]
@@ -1364,13 +1424,18 @@ def _authority_type_for_scenario(
     scenario: Mapping[str, Any],
 ) -> governance.PolicyLayerLevel:
     context = scenario.get("context") if isinstance(scenario.get("context"), Mapping) else {}
-    text = " ".join(
-        (
-            _scenario_text(scenario),
-            _text(context.get("authority_type")),
-            _text(context.get("country")),
+    text = (
+        " ".join(
+            (
+                _scenario_text(scenario),
+                _text(context.get("authority_type")),
+                _text(context.get("country")),
+            )
         )
-    ).casefold().replace("-", " ").replace("_", " ")
+        .casefold()
+        .replace("-", " ")
+        .replace("_", " ")
+    )
     words = set(text.split())
     if words.intersection({"national", "ukraine"}):
         return governance.PolicyLayerLevel.FEDERAL
@@ -1420,13 +1485,7 @@ def _text_tuple(value: object) -> tuple[str, ...]:
     if value is None:
         return ()
     raw_values = value if isinstance(value, (list, tuple, set)) else (value,)
-    return tuple(
-        dict.fromkeys(
-            text
-            for item in raw_values
-            if (text := _text(item))
-        )
-    )
+    return tuple(dict.fromkeys(text for item in raw_values if (text := _text(item))))
 
 
 def _slug(value: str) -> str:

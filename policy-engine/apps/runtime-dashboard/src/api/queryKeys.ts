@@ -251,6 +251,8 @@ export const queryKeys = {
     ["lex", "pipeline", pipelineId] as const,
   lexGraphStats: (outputDir: string) =>
     ["lex", "graph", "stats", outputDir] as const,
+  lexSearchProfile: (outputDir: string) =>
+    ["lex", "search-profile", outputDir] as const,
 };
 
 /** Distinct authority-query key kept outside the governed shared-key identity. */

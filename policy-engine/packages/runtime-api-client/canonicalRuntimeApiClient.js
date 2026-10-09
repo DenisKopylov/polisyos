@@ -231,6 +231,14 @@ export class RuntimeApiClient {
     return this.request("GET", path, query, undefined, undefined);
   }
 
+  async getLexSearchProfile(params) {
+    const path = `/api/v1/control/lex/search-profile`;
+    const query = this.buildQuery({
+      output_dir: params?.output_dir,
+    });
+    return this.request("GET", path, query, undefined, undefined);
+  }
+
   async getLexPipelineStatus(params) {
     const path = `/api/v1/control/lex/status/${encodeURIComponent(String(params.pipeline_id))}`;
     const query = undefined;

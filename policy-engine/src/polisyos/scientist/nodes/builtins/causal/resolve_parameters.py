@@ -36,7 +36,7 @@ from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 if TYPE_CHECKING:
-    from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGRead
+    from polisyos.data_forge.read_api.academic import PreparedSKGRead
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_resolve_parameters@1.0.0"),

@@ -204,9 +204,7 @@ class EnginePlan(_StrictModel):
     coupled_params: dict[str, Any] = Field(default_factory=dict)
     system_dynamics_state: dict[str, Any] = Field(default_factory=dict)
     system_dynamics_params: dict[str, Any] = Field(default_factory=dict)
-    system_dynamics_state_overrides_by_atom: dict[str, dict[str, Any]] = Field(
-        default_factory=dict
-    )
+    system_dynamics_state_overrides_by_atom: dict[str, dict[str, Any]] = Field(default_factory=dict)
     program_graph_ref: Any | None = Field(default=None, exclude=True)
     exec_plan_ref: Any | None = Field(default=None, exclude=True)
     program_store: Any | None = Field(default=None, exclude=True)
@@ -316,10 +314,7 @@ def _higher_order_residuals(
     scope_index = coverage.by_scope
     if coverage.issues:
         return {}
-    individual = {
-        atom_id: scope_index.get(("individual", (atom_id,)))
-        for atom_id in atom_ids
-    }
+    individual = {atom_id: scope_index.get(("individual", (atom_id,))) for atom_id in atom_ids}
     pairwise = {
         tuple(pair): scope_index.get(("pairwise", tuple(pair)))
         for pair in itertools.combinations(atom_ids, 2)
@@ -344,19 +339,15 @@ def _higher_order_residuals(
         for step in coverage.expected_steps:
             pair_interaction_sum = 0.0
             individual_sum = sum(
-                individual_points[atom_id][step].effect[outcome]
-                for atom_id in atom_ids
+                individual_points[atom_id][step].effect[outcome] for atom_id in atom_ids
             )
             for pair in pairwise:
                 pair_effect = pairwise_points[pair][step].effect[outcome]
                 pair_interaction_sum += pair_effect - sum(
-                    individual_points[atom_id][step].effect[outcome]
-                    for atom_id in pair
+                    individual_points[atom_id][step].effect[outcome] for atom_id in pair
                 )
             by_step[step] = float(
-                joint_points[step].effect[outcome]
-                - individual_sum
-                - pair_interaction_sum
+                joint_points[step].effect[outcome] - individual_sum - pair_interaction_sum
             )
         residuals[outcome] = by_step
     return residuals
@@ -376,8 +367,7 @@ def _checked_interaction_orders(
     if complete_individuals:
         checked.append(1)
     complete_pairs = all(
-        ("pairwise", tuple(pair)) in complete_scopes
-        for pair in itertools.combinations(atom_ids, 2)
+        ("pairwise", tuple(pair)) in complete_scopes for pair in itertools.combinations(atom_ids, 2)
     )
     if complete_individuals and complete_pairs:
         checked.append(2)
@@ -508,10 +498,7 @@ def _physical_run_ref(
         "evidence_source": evidence_source,
         "plan": plan.model_dump(mode="json"),
         "runtime_refs": runtime_refs,
-        "atoms": [
-            atom.model_dump(mode="json")
-            for atom in subset
-        ],
+        "atoms": [atom.model_dump(mode="json") for atom in subset],
     }
     return gy_content_hash(payload)
 
@@ -577,9 +564,7 @@ def _run_cached_replicates(
     request: JointSimulationRequest,
     plan: EnginePlan,
     decision: EngineDecision,
-    run_once: Callable[
-        [RunLevel, tuple[InterventionAtomBinding, ...], int], SimulationTrajectory
-    ],
+    run_once: Callable[[RunLevel, tuple[InterventionAtomBinding, ...], int], SimulationTrajectory],
 ) -> list[SimulationTrajectory]:
     """Run each physical specification once and project it to all requested roles."""
 
@@ -591,10 +576,7 @@ def _run_cached_replicates(
         physical_ref = _physical_run_ref(request, plan, decision, subset)
         reused = physical_ref in cache
         if not reused:
-            replicated = tuple(
-                run_once(run_level, subset, seed)
-                for seed in seeds
-            )
+            replicated = tuple(run_once(run_level, subset, seed) for seed in seeds)
             cache[physical_ref] = _aggregate_replicated_trajectory(
                 replicated,
                 seeds,
@@ -654,9 +636,7 @@ class SimulationProofReceipt(_StrictModel):
     schema_version: Literal[
         "policyos.runtime.joint_simulation_horizon.v1",
         "policyos.runtime.joint_simulation_horizon.v2",
-    ] = (
-        JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
-    )
+    ] = JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
     receipt_id: str = Field(..., pattern=r"^joint_sim_receipt_[a-f0-9]{16}$")
     engine_kind: str = Field(..., min_length=1)
     payload_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
@@ -704,9 +684,7 @@ class JointSimulationResult(_StrictModel):
     schema_version: Literal[
         "policyos.runtime.joint_simulation_horizon.v1",
         "policyos.runtime.joint_simulation_horizon.v2",
-    ] = (
-        JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
-    )
+    ] = JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
     world_model_record_ref: str
     world_model_record_content_hash: str
     atom_ids: tuple[str, ...]
@@ -795,9 +773,7 @@ def build_content_bound_simulation_receipt(
     """Build a deterministic receipt over real trajectory, metrics, and diagnostics."""
 
     payload_dict = _json_ready(payload)
-    schema_version = payload_dict.get(
-        "schema_version", JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
-    )
+    schema_version = payload_dict.get("schema_version", JOINT_SIMULATION_HORIZON_SCHEMA_VERSION)
     if schema_version not in {
         JOINT_SIMULATION_HORIZON_SCHEMA_VERSION,
         JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION,
@@ -862,10 +838,13 @@ def bind_world_state_consumption(
     verify_simulation_receipt(result.receipt, result.content_bound_payload())
     if result.world_model_record_content_hash != consumption.world_model_record_content_hash:
         raise ProofReceiptError("state_consumption_world_mismatch")
-    if not any(
-        item.engine_kind == "program_graph" and item.decision == "selected"
-        for item in result.engine_decisions
-    ) or not result.trajectories:
+    if (
+        not any(
+            item.engine_kind == "program_graph" and item.decision == "selected"
+            for item in result.engine_decisions
+        )
+        or not result.trajectories
+    ):
         raise ProofReceiptError("state_consumption_program_run_missing")
     payload = deepcopy(result.content_bound_payload())
     payload["schema_version"] = JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION
@@ -1041,6 +1020,7 @@ class JointSimulationHorizonController:
         }
 
         if decision.decision == "selected":
+            _validate_atom_composition(selected_plan, request.intervention_atoms)
             runner = self._engine_runners().get(decision.engine_kind)
             if runner is None:
                 diagnostics["unsupported_objectives"].append(decision.objective_ref)
@@ -1055,9 +1035,7 @@ class JointSimulationHorizonController:
                         trajectories=trajectories,
                     )
         else:
-            unsupported_decisions = tuple(
-                item for item in decisions if item.decision != "selected"
-            )
+            unsupported_decisions = tuple(item for item in decisions if item.decision != "selected")
             diagnostics["unsupported_objectives"].extend(
                 item.objective_ref for item in unsupported_decisions
             )
@@ -1077,9 +1055,7 @@ class JointSimulationHorizonController:
                 trajectories,
             )
             interaction_evidence_issues = coverage.issues
-            interaction_terms = tuple(
-                _interaction_terms(request, coverage)
-            )
+            interaction_terms = tuple(_interaction_terms(request, coverage))
             higher_order_residuals = _higher_order_residuals(
                 request,
                 coverage,
@@ -1103,9 +1079,7 @@ class JointSimulationHorizonController:
             checked_interaction_orders=checked_interaction_orders,
             unsupported=decision.decision != "selected",
             coupling_support=coupling_support,
-            decision_blockers=tuple(
-                blocker for item in decisions for blocker in item.blockers
-            ),
+            decision_blockers=tuple(blocker for item in decisions for blocker in item.blockers),
             interaction_evidence_issues=interaction_evidence_issues,
             aggregate_order_three_plus=len(request.intervention_atoms) >= 4,
         )
@@ -1223,9 +1197,7 @@ class JointSimulationHorizonController:
     ) -> None:
         """Require every emitted trajectory to bind to the executed plan."""
 
-        atoms_by_id = {
-            atom.intervention_id: atom for atom in request.intervention_atoms
-        }
+        atoms_by_id = {atom.intervention_id: atom for atom in request.intervention_atoms}
         for trajectory in trajectories:
             if (
                 trajectory.engine_kind != decision.engine_kind
@@ -1599,6 +1571,7 @@ class JointSimulationHorizonController:
                     "horizon_loop": True,
                     "state_delta_refs": state_delta_refs,
                     "metrics_ref_count": len(metrics_refs),
+                    "time_alignment_status": "matched",
                 },
             )
 
@@ -1633,8 +1606,7 @@ class JointSimulationHorizonController:
                         evidence=evidence,
                         interventions=[intervention],
                         query_vars=[
-                            _engine_variable(outcome, plan)
-                            for outcome in request.selected_outcomes
+                            _engine_variable(outcome, plan) for outcome in request.selected_outcomes
                         ],
                         n_samples=1,
                     )
@@ -1685,11 +1657,66 @@ class JointSimulationHorizonController:
             params = _coupled_params_for_subset(plan, subset)
             params["n_steps"] = max(1, len(request.horizon.steps()) - 1)
             params["seed"] = int(replication_seed)
+            time_alignment = _method_time_alignment(
+                method,
+                params,
+                request.horizon.step,
+                parameter_name="delta_a_max",
+            )
+            if "initial_queue_length" not in params:
+                declared_default = _declared_parameter_default(
+                    method,
+                    "initial_queue_length",
+                )
+                if declared_default is not _MISSING_OUTCOME:
+                    params["initial_queue_length"] = deepcopy(declared_default)
+            initial_queue_length = params.get("initial_queue_length", _MISSING_OUTCOME)
+            _selected_outcome_value(
+                initial_queue_length,
+                outcome="final_queue_length",
+                engine_kind="coupled_des_abm",
+            )
             output = method.pure_step(plan.coupled_state, params)
-            result = output.get("result", {})
+            result = _engine_result(output, engine_kind="coupled_des_abm")
+            requested_steps = request.horizon.steps()
+            raw_queue = result.get("queue_length_trajectory", _MISSING_OUTCOME)
+            if raw_queue is _MISSING_OUTCOME and len(requested_steps) > 1:
+                raise JointSimulationControllerError(
+                    "coupled_outcome_missing",
+                    "queue_length_trajectory",
+                )
+            if isinstance(raw_queue, Mapping | str | bytes | bytearray):
+                raise JointSimulationControllerError(
+                    "coupled_outcome_non_numeric",
+                    "queue_length_trajectory",
+                )
+            if raw_queue is _MISSING_OUTCOME:
+                queue_rows: Sequence[Any] = ()
+            else:
+                try:
+                    queue_length = len(raw_queue)
+                except TypeError as exc:
+                    raise JointSimulationControllerError(
+                        "coupled_outcome_non_numeric",
+                        "queue_length_trajectory",
+                    ) from exc
+                required_transitions = max(0, len(requested_steps) - 1)
+                if queue_length > required_transitions:
+                    raise JointSimulationControllerError(
+                        "coupled_trajectory_exceeds_horizon",
+                        f"{queue_length}>{required_transitions}",
+                    )
+                queue_rows = raw_queue
+            covered_count = min(len(requested_steps), 1 + len(queue_rows))
             points: list[TrajectoryPoint] = []
-            for index, step in enumerate(request.horizon.steps()):
-                outcomes = _coupled_outcomes(result, request.selected_outcomes, index)
+            for index, step in enumerate(requested_steps[:covered_count]):
+                outcomes = _coupled_outcomes(
+                    result,
+                    request.selected_outcomes,
+                    index,
+                    initial_queue_length=initial_queue_length,
+                    horizon_length=len(requested_steps),
+                )
                 points.append(
                     TrajectoryPoint(
                         step=step,
@@ -1700,7 +1727,7 @@ class JointSimulationHorizonController:
                         },
                         engine_state={
                             "coupled_summary": result.get("summary", {}),
-                            "queue_length": _coupled_queue_value(result, index),
+                            "queue_length": outcomes.get("final_queue_length"),
                         },
                     )
                 )
@@ -1715,6 +1742,13 @@ class JointSimulationHorizonController:
                     "engine": "CoupledPolicySimulationEstimator",
                     "horizon_loop": True,
                     "temporal_capability": "multi_period",
+                    "coverage_status": (
+                        "complete" if covered_count == len(requested_steps) else "partial"
+                    ),
+                    "covered_steps": requested_steps[:covered_count],
+                    "requested_steps": requested_steps,
+                    "hold_last": False,
+                    **time_alignment,
                 },
             )
 
@@ -1742,21 +1776,48 @@ class JointSimulationHorizonController:
             }
             params.setdefault("dt", float(request.horizon.step))
             params["seed"] = int(replication_seed)
+            time_alignment = _method_time_alignment(
+                method,
+                params,
+                request.horizon.step,
+                parameter_name="dt",
+            )
             output = method.pure_step(state, params)
-            result = output.get("result", {})
-            stock_trajectory = result.get("trajectory", [])
-            points: list[TrajectoryPoint] = []
-            for index, step in enumerate(request.horizon.steps()):
-                stock_values = (
-                    stock_trajectory[index]
-                    if index < len(stock_trajectory)
-                    else result.get("final_stocks", [])
+            result = _engine_result(output, engine_kind="system_dynamics")
+            raw_trajectory = result.get("trajectory", _MISSING_OUTCOME)
+            if raw_trajectory is _MISSING_OUTCOME:
+                raise JointSimulationControllerError(
+                    "system_dynamics_trajectory_missing",
+                    decision.method_fqn,
                 )
+            if isinstance(raw_trajectory, Mapping | str | bytes | bytearray):
+                raise JointSimulationControllerError(
+                    "system_dynamics_trajectory_malformed",
+                    decision.method_fqn,
+                )
+            try:
+                trajectory_length = len(raw_trajectory)
+            except TypeError as exc:
+                raise JointSimulationControllerError(
+                    "system_dynamics_trajectory_malformed",
+                    decision.method_fqn,
+                ) from exc
+            requested_steps = request.horizon.steps()
+            covered_count = min(trajectory_length, len(requested_steps))
+            if covered_count == 0:
+                raise JointSimulationControllerError(
+                    "trajectory_coverage_incomplete",
+                    decision.method_fqn,
+                )
+            points: list[TrajectoryPoint] = []
+            for index, step in enumerate(requested_steps[:covered_count]):
+                stock_values = raw_trajectory[index]
                 outcomes = _system_dynamics_outcomes(
                     result,
                     stock_values,
                     request.selected_outcomes,
                     plan,
+                    horizon_length=len(requested_steps),
                 )
                 points.append(
                     TrajectoryPoint(
@@ -1783,6 +1844,13 @@ class JointSimulationHorizonController:
                     "engine": "StockFlowSystemDynamicsEstimator",
                     "horizon_loop": True,
                     "temporal_capability": "multi_period",
+                    "coverage_status": (
+                        "complete" if covered_count == len(requested_steps) else "partial"
+                    ),
+                    "covered_steps": requested_steps[:covered_count],
+                    "requested_steps": requested_steps,
+                    "hold_last": False,
+                    **time_alignment,
                 },
             )
 
@@ -1810,13 +1878,17 @@ class JointSimulationHorizonController:
             }
             params.setdefault("dt", float(request.horizon.step))
             params["seed"] = int(replication_seed)
+            time_alignment = _method_time_alignment(
+                method,
+                params,
+                request.horizon.step,
+                parameter_name="dt",
+            )
             output = method.pure_step(state, params)
-            result = output.get("result", {})
+            result = _engine_result(output, engine_kind="method_registry_estimator")
             raw_trajectory = result.get("trajectory")
-            if (
-                raw_trajectory is None
-                or isinstance(raw_trajectory, Mapping)
-                or isinstance(raw_trajectory, str | bytes | bytearray)
+            if raw_trajectory is None or isinstance(
+                raw_trajectory, Mapping | str | bytes | bytearray
             ):
                 raise JointSimulationControllerError(
                     "method_registry_temporal_output_missing",
@@ -1844,6 +1916,7 @@ class JointSimulationHorizonController:
                     state_values,
                     request.selected_outcomes,
                     plan,
+                    horizon_length=len(requested_steps),
                 )
                 points.append(
                     TrajectoryPoint(
@@ -1876,6 +1949,7 @@ class JointSimulationHorizonController:
                     "covered_steps": requested_steps[:covered_count],
                     "requested_steps": requested_steps,
                     "hold_last": False,
+                    **time_alignment,
                 },
             )
 
@@ -1953,11 +2027,7 @@ def _aggregate_no_run_coupling_support(
     )
     reference = supports[0] if supports else None
     coupling_blockers = tuple(
-        dict.fromkeys(
-            blocker
-            for support in supports
-            for blocker in support.blockers
-        )
+        dict.fromkeys(blocker for support in supports for blocker in support.blockers)
     )
     blockers = (*coupling_blockers, "all_engine_candidates_rejected")
     gate_blocked = any(support.gate_blocked for support in supports)
@@ -1979,14 +2049,7 @@ def _aggregate_no_run_coupling_support(
 def _coupling_classes(
     classification: CouplingRegimeClassification,
 ) -> tuple[BoundaryCouplingKind, ...]:
-    classes = tuple(
-        sorted(
-            {
-                row.coupling_kind
-                for row in classification.boundary_classifications
-            }
-        )
-    )
+    classes = tuple(sorted({row.coupling_kind for row in classification.boundary_classifications}))
     if classes:
         return classes
     if classification.coupling_regime == "modular":
@@ -2121,39 +2184,312 @@ def _atom_subsets(
     return subsets
 
 
+def _validate_atom_composition(
+    plan: EnginePlan,
+    atoms: Sequence[InterventionAtomBinding],
+) -> None:
+    """Resolve the selected plan's complete write set before any producer runs."""
+    if plan.engine_kind == "ncm_parallel_worlds":
+        _ncm_intervention(atoms, plan)
+    elif plan.engine_kind == "coupled_des_abm":
+        _coupled_params_for_subset(plan, atoms)
+    elif plan.engine_kind == "system_dynamics":
+        _system_dynamics_state_for_subset(plan, atoms)
+    elif plan.engine_kind == "program_graph":
+        _program_parameter_overrides(atoms, plan)
+    elif plan.engine_kind == "method_registry_estimator":
+        if plan.system_dynamics_state:
+            _system_dynamics_state_for_subset(plan, atoms)
+        else:
+            _causal_assignment_writes(
+                atoms,
+                plan,
+                engine_kind=plan.engine_kind,
+                dotted_paths=True,
+            )
+
+
+def _causal_assignment_writes(
+    atoms: Sequence[InterventionAtomBinding],
+    plan: EnginePlan,
+    *,
+    engine_kind: EngineKind,
+    dotted_paths: bool,
+) -> dict[tuple[str, ...], float]:
+    """Resolve simultaneous direct effects without arrival-order semantics."""
+    prefix = _outcome_error_prefix(engine_kind)
+    writes: list[tuple[tuple[str, ...], Any, str]] = []
+    for atom in atoms:
+        for assignment in atom.causal_do_expr.assignments:
+            if assignment.value is None:
+                raise JointSimulationControllerError(
+                    f"value_expr_intervention_not_supported_by_{prefix}_controller",
+                    assignment.variable,
+                )
+            try:
+                value = float(assignment.value)
+            except (TypeError, ValueError, OverflowError) as exc:
+                raise JointSimulationControllerError(
+                    "intervention_assignment_non_numeric",
+                    assignment.variable,
+                ) from exc
+            if not np.isfinite(value):
+                raise JointSimulationControllerError(
+                    "intervention_assignment_non_finite",
+                    assignment.variable,
+                )
+            target = _engine_variable(assignment.variable, plan)
+            path = tuple(target.split(".")) if dotted_paths else (target,)
+            writes.append((path, value, atom.intervention_id))
+    return _resolve_assignment_writes(writes)
+
+
+def _nested_mapping_writes(
+    value: object,
+    path: tuple[str, ...],
+    source_id: str,
+) -> list[tuple[tuple[str, ...], Any, str]]:
+    """Flatten nested state overrides to their actual leaf write paths."""
+    if isinstance(value, Mapping) and value:
+        return [
+            write
+            for key, item in value.items()
+            for write in _nested_mapping_writes(item, (*path, str(key)), source_id)
+        ]
+    if isinstance(value, np.ndarray) and value.ndim > 0 and value.size:
+        return [
+            write
+            for index, item in enumerate(value)
+            for write in _nested_mapping_writes(item, (*path, str(index)), source_id)
+        ]
+    if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray) and value:
+        return [
+            write
+            for index, item in enumerate(value)
+            for write in _nested_mapping_writes(item, (*path, str(index)), source_id)
+        ]
+    return [(path, value, source_id)]
+
+
+def _resolve_assignment_writes(
+    writes: Sequence[tuple[tuple[str, ...], Any, str]],
+) -> dict[tuple[str, ...], Any]:
+    """Merge identical writes and reject conflicting or overlapping targets."""
+    resolved: dict[tuple[str, ...], tuple[Any, set[str]]] = {}
+    for path, value, source_id in writes:
+        for prior_path, (prior_value, prior_sources) in resolved.items():
+            exact = prior_path == path
+            overlap = (len(prior_path) < len(path) and path[: len(prior_path)] == prior_path) or (
+                len(path) < len(prior_path) and prior_path[: len(path)] == path
+            )
+            if exact and _same_assignment_value(prior_value, value):
+                prior_sources.add(source_id)
+                break
+            if exact or overlap:
+                sources = ",".join(sorted((*prior_sources, source_id)))
+                target = ".".join(path)
+                raise JointSimulationControllerError(
+                    "intervention_assignment_conflict",
+                    f"{target} is assigned incompatibly by {sources}",
+                )
+        else:
+            resolved[path] = (deepcopy(value), {source_id})
+    return {path: value for path, (value, _) in sorted(resolved.items())}
+
+
+def _same_assignment_value(left: object, right: object) -> bool:
+    """Compare assignment values without Python's cross-type numeric equality."""
+    if type(left) is not type(right):
+        return False
+    if isinstance(left, Mapping) and isinstance(right, Mapping):
+        if len(left) != len(right):
+            return False
+        unmatched = list(right.items())
+        for key, value in left.items():
+            for index, (other_key, other_value) in enumerate(unmatched):
+                if _same_assignment_value(key, other_key):
+                    if not _same_assignment_value(value, other_value):
+                        return False
+                    del unmatched[index]
+                    break
+            else:
+                return False
+        return not unmatched
+    if isinstance(left, np.ndarray) and isinstance(right, np.ndarray):
+        if left.dtype != right.dtype or left.shape != right.shape:
+            return False
+        if left.dtype.hasobject:
+            return all(
+                _same_assignment_value(left[index], right[index])
+                for index in np.ndindex(left.shape)
+            )
+        return bool(np.array_equal(left, right))
+    if (
+        isinstance(left, Sequence)
+        and isinstance(right, Sequence)
+        and not isinstance(left, str | bytes | bytearray)
+        and not isinstance(right, str | bytes | bytearray)
+    ):
+        return len(left) == len(right) and all(
+            _same_assignment_value(left_item, right_item)
+            for left_item, right_item in zip(left, right, strict=True)
+        )
+    try:
+        result = left == right
+        return bool(result) if not isinstance(result, np.ndarray) else bool(result.all())
+    except (TypeError, ValueError):
+        return False
+
+
+def _outcome_error_prefix(engine_kind: EngineKind) -> str:
+    if engine_kind == "ncm_parallel_worlds":
+        return "ncm"
+    if engine_kind == "coupled_des_abm":
+        return "coupled"
+    if engine_kind == "system_dynamics":
+        return "system_dynamics"
+    if engine_kind == "method_registry_estimator":
+        return "method_registry"
+    return "program_graph"
+
+
+def _engine_result(output: object, *, engine_kind: EngineKind) -> Mapping[str, Any]:
+    """Require the registered method's typed result envelope before projection."""
+    prefix = _outcome_error_prefix(engine_kind)
+    if not isinstance(output, Mapping):
+        raise JointSimulationControllerError(f"{prefix}_result_malformed")
+    result = output.get("result", _MISSING_OUTCOME)
+    if result is _MISSING_OUTCOME:
+        raise JointSimulationControllerError(f"{prefix}_result_missing")
+    if not isinstance(result, Mapping):
+        raise JointSimulationControllerError(f"{prefix}_result_malformed")
+    return result
+
+
+def _declared_parameter_default(method: object, parameter_name: str) -> object:
+    """Read one method-contract default without inventing an adapter fallback."""
+    signature = getattr(method, "signature", None)
+    parameters = getattr(signature, "parameters", ())
+    if not isinstance(parameters, Sequence) or isinstance(parameters, str | bytes):
+        return _MISSING_OUTCOME
+    for parameter in parameters:
+        if getattr(parameter, "name", None) == parameter_name:
+            return getattr(parameter, "default", _MISSING_OUTCOME)
+    return _MISSING_OUTCOME
+
+
+def _method_time_alignment(
+    method: object,
+    parameters: Mapping[str, Any],
+    requested_step: int,
+    *,
+    parameter_name: str,
+) -> dict[str, object]:
+    """Expose whether a method-declared time increment matches horizon labels."""
+    signature = getattr(method, "signature", None)
+    declared_parameters = getattr(signature, "parameters", ())
+    declares_step = isinstance(declared_parameters, Sequence) and any(
+        getattr(parameter, "name", None) == parameter_name for parameter in declared_parameters
+    )
+    effective_step = parameters.get(
+        parameter_name,
+        _declared_parameter_default(method, parameter_name),
+    )
+    parsed_step: float | None = None
+    if not isinstance(effective_step, bool):
+        try:
+            candidate = float(effective_step)
+        except (TypeError, ValueError, OverflowError):
+            pass
+        else:
+            if np.isfinite(candidate) and candidate > 0:
+                parsed_step = candidate
+    aligned = (
+        declares_step
+        and parsed_step is not None
+        and np.isclose(
+            parsed_step,
+            float(requested_step),
+            rtol=0.0,
+            atol=1e-12,
+        )
+    )
+    return {
+        "requested_time_step": requested_step,
+        "method_time_step_parameter": parameter_name,
+        "effective_method_time_step": parsed_step,
+        "time_alignment_status": "matched" if aligned else "not_established",
+    }
+
+
+def _selected_outcome_value(
+    value: object,
+    *,
+    outcome: str,
+    engine_kind: EngineKind,
+) -> float:
+    """Return one real finite selected scalar or a typed missing/invalid refusal."""
+    prefix = _outcome_error_prefix(engine_kind)
+    if value is _MISSING_OUTCOME:
+        raise JointSimulationControllerError(f"{prefix}_outcome_missing", outcome)
+    try:
+        raw = np.asarray(value)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise JointSimulationControllerError(f"{prefix}_outcome_non_numeric", outcome) from exc
+    if raw.size == 0:
+        raise JointSimulationControllerError(f"{prefix}_outcome_missing", outcome)
+    if raw.dtype.kind not in "iuf":
+        raise JointSimulationControllerError(f"{prefix}_outcome_non_numeric", outcome)
+    try:
+        numeric = raw.astype(float)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise JointSimulationControllerError(f"{prefix}_outcome_non_numeric", outcome) from exc
+    if not np.isfinite(numeric).all():
+        raise JointSimulationControllerError(f"{prefix}_outcome_non_finite", outcome)
+    value_mean = float(np.mean(numeric))
+    if not np.isfinite(value_mean):
+        raise JointSimulationControllerError(f"{prefix}_outcome_non_finite", outcome)
+    return value_mean
+
+
+_MISSING_OUTCOME = object()
+
+
 def _ncm_intervention(
     atoms: Sequence[InterventionAtomBinding],
     plan: EnginePlan,
 ) -> dict[str, float]:
-    intervention: dict[str, float] = {}
-    for atom in atoms:
-        for assignment in atom.causal_do_expr.assignments:
-            variable = _engine_variable(assignment.variable, plan)
-            if assignment.value is None:
-                raise JointSimulationControllerError(
-                    "value_expr_intervention_not_supported_by_ncm_controller",
-                    assignment.variable,
-                )
-            value = float(assignment.value)
-            previous = intervention.get(variable)
-            if previous is not None and previous != value:
-                raise JointSimulationControllerError(
-                    "ncm_intervention_conflict",
-                    variable,
-                )
-            intervention[variable] = value
-    return intervention
+    writes = _causal_assignment_writes(
+        atoms,
+        plan,
+        engine_kind="ncm_parallel_worlds",
+        dotted_paths=False,
+    )
+    return {path[0]: float(value) for path, value in writes.items()}
 
 
 def _program_parameter_overrides(
     atoms: Sequence[InterventionAtomBinding],
     plan: EnginePlan,
 ) -> dict[str, dict[str, Any]] | None:
-    overrides: dict[str, dict[str, Any]] = {}
+    writes: list[tuple[tuple[str, ...], Any, str]] = []
     for atom in atoms:
         atom_overrides = plan.program_parameter_overrides_by_atom.get(atom.intervention_id, {})
         for node_id, values in atom_overrides.items():
-            overrides.setdefault(str(node_id), {}).update(dict(values))
+            if not isinstance(values, Mapping):
+                raise JointSimulationControllerError(
+                    "program_parameter_override_malformed",
+                    str(node_id),
+                )
+            writes.extend(
+                ((str(node_id), str(parameter)), value, atom.intervention_id)
+                for parameter, value in values.items()
+            )
+    resolved = _resolve_assignment_writes(writes)
+    overrides: dict[str, dict[str, Any]] = {}
+    for path, value in resolved.items():
+        node_id, parameter = path
+        overrides.setdefault(node_id, {})[parameter] = deepcopy(value)
     return overrides or None
 
 
@@ -2162,42 +2498,77 @@ def _coupled_params_for_subset(
     atoms: Sequence[InterventionAtomBinding],
 ) -> dict[str, Any]:
     params = deepcopy(plan.coupled_params)
-    for atom in atoms:
-        for assignment in atom.causal_do_expr.assignments:
-            if assignment.value is None:
-                raise JointSimulationControllerError(
-                    "value_expr_intervention_not_supported_by_coupled_controller",
-                    assignment.variable,
-                )
-            target = _engine_variable(assignment.variable, plan)
-            params[target] = float(assignment.value)
+    writes = _causal_assignment_writes(
+        atoms,
+        plan,
+        engine_kind="coupled_des_abm",
+        dotted_paths=False,
+    )
+    for path, value in writes.items():
+        params[path[0]] = float(value)
     return params
 
 
-def _coupled_queue_value(result: Mapping[str, Any], index: int) -> float:
-    queue = result.get("queue_length_trajectory", [])
-    if index < len(queue):
-        return float(queue[index])
-    return float(result.get("final_queue_length", 0.0))
+def _coupled_queue_value(
+    result: Mapping[str, Any],
+    index: int,
+    *,
+    initial_queue_length: object,
+) -> float:
+    """Resolve the actual initial state or emitted post-transition queue row."""
+    if index == 0:
+        return _selected_outcome_value(
+            initial_queue_length,
+            outcome="final_queue_length",
+            engine_kind="coupled_des_abm",
+        )
+    queue = result.get("queue_length_trajectory", _MISSING_OUTCOME)
+    if queue is _MISSING_OUTCOME or isinstance(queue, Mapping | str | bytes | bytearray):
+        raise JointSimulationControllerError("coupled_outcome_missing", "final_queue_length")
+    try:
+        queue_length = len(queue)
+    except TypeError as exc:
+        raise JointSimulationControllerError(
+            "coupled_outcome_non_numeric", "final_queue_length"
+        ) from exc
+    trajectory_index = index - 1
+    if trajectory_index >= queue_length:
+        raise JointSimulationControllerError("coupled_outcome_missing", "final_queue_length")
+    return _selected_outcome_value(
+        queue[trajectory_index],
+        outcome="final_queue_length",
+        engine_kind="coupled_des_abm",
+    )
 
 
 def _coupled_outcomes(
     result: Mapping[str, Any],
     selected_outcomes: Sequence[str],
     index: int,
+    *,
+    initial_queue_length: object,
+    horizon_length: int,
 ) -> dict[str, float]:
     outcomes: dict[str, float] = {}
     for outcome in selected_outcomes:
         if outcome == "final_queue_length":
-            outcomes[outcome] = _coupled_queue_value(result, index)
+            outcomes[outcome] = _coupled_queue_value(
+                result,
+                index,
+                initial_queue_length=initial_queue_length,
+            )
         else:
-            value = result.get(outcome)
-            if value is None:
+            if horizon_length > 1 and index < horizon_length - 1:
                 raise JointSimulationControllerError(
-                    "coupled_outcome_binding_missing",
+                    "coupled_temporal_outcome_series_missing",
                     outcome,
                 )
-            outcomes[outcome] = float(np.asarray(value, dtype=float).mean())
+            value = result.get(outcome, _MISSING_OUTCOME)
+            outcomes[outcome] = _selected_outcome_value(
+                value,
+                outcome=outcome,
+                engine_kind="coupled_des_abm",
+            )
     return outcomes
 
 
@@ -2223,18 +2594,26 @@ def _program_graph_outcomes(
     outcomes: dict[str, float] = {}
     for outcome in selected_outcomes:
         path = plan.variable_map.get(outcome, outcome)
-        outcomes[outcome] = _state_path_scalar(state, path)
+        try:
+            value = _state_path_value(state, path)
+        except (AttributeError, KeyError, IndexError, TypeError) as exc:
+            raise JointSimulationControllerError(
+                "program_graph_outcome_missing",
+                path,
+            ) from exc
+        outcomes[outcome] = _selected_outcome_value(
+            value,
+            outcome=outcome,
+            engine_kind="program_graph",
+        )
     return outcomes
 
 
-def _state_path_scalar(state: object, path: str) -> float:
+def _state_path_value(state: object, path: str) -> object:
     value = state
     for part in path.split("."):
         value = value[part] if isinstance(value, Mapping) else getattr(value, part)
-    arr = np.asarray(value)
-    if arr.shape == ():
-        return float(arr.item())
-    return float(np.mean(arr.astype(float)))
+    return value
 
 
 def _engine_variable(variable: str, plan: EnginePlan) -> str:
@@ -2242,10 +2621,12 @@ def _engine_variable(variable: str, plan: EnginePlan) -> str:
 
 
 def _ncm_outcomes(
-    output: Mapping[str, Any],
+    output: object,
     selected_outcomes: Sequence[str],
     plan: EnginePlan,
 ) -> dict[str, float]:
+    if not isinstance(output, Mapping):
+        raise JointSimulationControllerError("ncm_result_malformed")
     payload = output.get("counterfactual_result")
     if not isinstance(payload, Mapping):
         raise JointSimulationControllerError("ncm_world_summaries_missing")
@@ -2264,13 +2645,11 @@ def _ncm_outcomes(
         stats = summary.get(engine_outcome)
         if not isinstance(stats, Mapping) or "mean" not in stats:
             raise JointSimulationControllerError("ncm_outcome_missing", engine_outcome)
-        try:
-            value = float(stats["mean"])
-        except (TypeError, ValueError) as exc:
-            raise JointSimulationControllerError("ncm_outcome_non_numeric", engine_outcome) from exc
-        if not np.isfinite(value):
-            raise JointSimulationControllerError("ncm_outcome_non_finite", engine_outcome)
-        outcomes[outcome] = value
+        outcomes[outcome] = _selected_outcome_value(
+            stats["mean"],
+            outcome=engine_outcome,
+            engine_kind="ncm_parallel_worlds",
+        )
     return outcomes
 
 
@@ -2278,25 +2657,43 @@ def _system_dynamics_state_for_subset(
     plan: EnginePlan,
     atoms: Sequence[InterventionAtomBinding],
 ) -> dict[str, Any]:
+    writes = [
+        write
+        for atom in atoms
+        for key, value in plan.system_dynamics_state_overrides_by_atom.get(
+            atom.intervention_id, {}
+        ).items()
+        for write in _nested_mapping_writes(value, (str(key),), atom.intervention_id)
+    ]
+    direct_writes = _causal_assignment_writes(
+        atoms,
+        plan,
+        engine_kind=plan.engine_kind,
+        dotted_paths=True,
+    )
+    writes.extend((path, value, "direct_effect") for path, value in direct_writes.items())
+    _resolve_assignment_writes(writes)
+
     state = deepcopy(plan.system_dynamics_state)
-    for atom in atoms:
+    for atom in sorted(atoms, key=lambda item: item.intervention_id):
         _merge_mapping(
             state,
             plan.system_dynamics_state_overrides_by_atom.get(atom.intervention_id, {}),
         )
-        for assignment in atom.causal_do_expr.assignments:
-            if assignment.value is None:
-                raise JointSimulationControllerError(
-                    "value_expr_intervention_not_supported_by_system_dynamics_controller",
-                    assignment.variable,
-                )
-            target = _engine_variable(assignment.variable, plan)
-            if target not in state and "." not in target:
-                raise JointSimulationControllerError(
-                    "system_dynamics_intervention_binding_missing",
-                    assignment.variable,
-                )
-            _assign_path_value(state, target, float(assignment.value))
+    for path, value in direct_writes.items():
+        target = ".".join(path)
+        if target not in state and "." not in target:
+            raise JointSimulationControllerError(
+                "system_dynamics_intervention_binding_missing",
+                target,
+            )
+        try:
+            _assign_path_value(state, target, float(value))
+        except (AttributeError, IndexError, KeyError, TypeError, ValueError) as exc:
+            raise JointSimulationControllerError(
+                "system_dynamics_intervention_binding_missing",
+                target,
+            ) from exc
     return state
 
 
@@ -2305,25 +2702,69 @@ def _system_dynamics_outcomes(
     stock_values: object,
     selected_outcomes: Sequence[str],
     plan: EnginePlan,
+    *,
+    horizon_length: int,
 ) -> dict[str, float]:
-    stocks = np.asarray(stock_values, dtype=float)
+    prefix = _outcome_error_prefix(plan.engine_kind)
+    try:
+        stocks = np.asarray(stock_values)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise JointSimulationControllerError(
+            f"{prefix}_outcome_non_numeric",
+            "trajectory",
+        ) from exc
+    if stocks.dtype.kind not in "iuf":
+        raise JointSimulationControllerError(
+            f"{prefix}_outcome_non_numeric",
+            "trajectory",
+        )
+    if stocks.ndim != 1:
+        raise JointSimulationControllerError(
+            f"{prefix}_outcome_non_numeric",
+            "trajectory",
+        )
     outcomes: dict[str, float] = {}
     for outcome in selected_outcomes:
         target = _engine_variable(outcome, plan)
         if target == "mass_balance":
-            outcomes[outcome] = float(result.get("mass_balance", 0.0))
+            value = result.get("mass_balance", _MISSING_OUTCOME)
+            selected_value = _selected_outcome_value(
+                value,
+                outcome=outcome,
+                engine_kind=plan.engine_kind,
+            )
+            if horizon_length > 1:
+                raise JointSimulationControllerError(
+                    f"{prefix}_temporal_outcome_series_missing",
+                    outcome,
+                )
+            outcomes[outcome] = selected_value
             continue
         index = _stock_index(target)
         if index is None:
-            value = result.get(target)
-            if value is None:
+            value = result.get(target, _MISSING_OUTCOME)
+            selected_value = _selected_outcome_value(
+                value,
+                outcome=outcome,
+                engine_kind=plan.engine_kind,
+            )
+            if horizon_length > 1:
                 raise JointSimulationControllerError(
-                    "system_dynamics_outcome_binding_missing",
+                    f"{prefix}_temporal_outcome_series_missing",
                     outcome,
                 )
-            outcomes[outcome] = float(np.asarray(value, dtype=float).mean())
+            outcomes[outcome] = selected_value
             continue
-        outcomes[outcome] = float(stocks[index])
+        if index < 0 or index >= stocks.shape[0]:
+            raise JointSimulationControllerError(
+                f"{prefix}_outcome_missing",
+                outcome,
+            )
+        outcomes[outcome] = _selected_outcome_value(
+            stocks[index],
+            outcome=outcome,
+            engine_kind=plan.engine_kind,
+        )
     return outcomes
 
 

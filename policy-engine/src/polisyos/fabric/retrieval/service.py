@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
     from polisyos.core.artifacts import ArtifactStore, ArtifactStoreConfig
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
-    from polisyos.data_forge.domains.catalog import (
+    from polisyos.data_forge.read_api.catalog import (
         CatalogRunProfile,
         CatalogSourceRegistryEntry,
         CatalogSourceRegistrySpec,

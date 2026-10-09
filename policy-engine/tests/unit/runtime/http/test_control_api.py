@@ -2507,3 +2507,76 @@ def test_lex_search_preserves_truth_fields_through_api(
     assert item["temporal_state"] == "effective"
     assert item["temporal_provenance_json"] == '{"source":"official_registry"}'
     assert item["provision_anchor"] == "article-74"
+
+
+def test_lex_selected_profile_api_binds_search_and_refuses_same_bytes_with_wrong_generation(
+    runtime_api_env,
+    tmp_path,
+) -> None:
+    from pydantic import ValidationError
+
+    from polisyos.runtime.http.container import LegalQueryEncoderProvider
+    from polisyos.runtime.http.services.control.lex_search_projection import (
+        LexSearchResponse,
+    )
+    from tests._helpers.runtime_api.legal_search_profile_fixture import (
+        build_legal_search_profile_fixture,
+    )
+
+    fixture = build_legal_search_profile_fixture(tmp_path / "legal-profile-api")
+    container = runtime_api_env["app"].state.runtime_container
+    provider = LegalQueryEncoderProvider(fixture.encoder)
+    container.legal_query_encoder_provider = provider
+    container.control_service.bind_legal_query_encoder_provider(provider)
+
+    profile_response = runtime_api_env["client"].get(
+        "/api/v1/control/lex/search-profile",
+        params={"output_dir": str(fixture.output_dir)},
+    )
+    assert profile_response.status_code == 200
+    profile = profile_response.json()
+    assert profile["status"] == "available"
+    assert profile["output_dir"] == str(fixture.output_dir)
+    intent = profile["query_generation_intent"]
+    assert len(intent) == 1
+    assert intent[0]["basis_kind"] == "legal_lex_facts_embedding"
+
+    base_request = {
+        "query": "annual leave",
+        "top_k": 5,
+        "output_dir": str(fixture.output_dir),
+        "query_generation_intent": intent,
+    }
+    matched_response = runtime_api_env["client"].post(
+        "/api/v1/control/lex/search",
+        json=base_request,
+    )
+    assert matched_response.status_code == 200
+    matched = matched_response.json()
+    assert matched["search_mode"] == "vector"
+    assert matched["vector_refusal_code"] is None
+    assert matched["results"][0]["fact_id"] == "fact-annual-leave"
+    assert {"search_mode", "vector_refusal_code"} <= set(
+        LexSearchResponse.model_json_schema()["required"]
+    )
+    LexSearchResponse.model_validate(matched)
+    for omitted_field in ("search_mode", "vector_refusal_code"):
+        incomplete_response = dict(matched)
+        incomplete_response.pop(omitted_field)
+        with pytest.raises(ValidationError):
+            LexSearchResponse.model_validate(incomplete_response)
+
+    wrong_intent = [dict(item) for item in intent]
+    original_inventory = wrong_intent[0]["inventory_json"]
+    wrong_intent[0]["generation_id"] = "f" * 32
+    assert wrong_intent[0]["inventory_json"] == original_inventory
+    refused_response = runtime_api_env["client"].post(
+        "/api/v1/control/lex/search",
+        json={**base_request, "query_generation_intent": wrong_intent},
+    )
+    assert refused_response.status_code == 200
+    refused = refused_response.json()
+    assert refused["search_mode"] == "text"
+    assert refused["vector_refusal_code"] == "query_profile_stale_or_mismatched"
+    assert refused["results"][0]["fact_id"] == "fact-annual-leave"
+    LexSearchResponse.model_validate(refused)

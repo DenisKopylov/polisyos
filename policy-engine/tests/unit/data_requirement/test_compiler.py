@@ -45,9 +45,7 @@ class _FakeCapabilityBinding:
             else "selected_derived"
         )
         self.selected_capability_ref = (
-            None
-            if self.status.startswith("blocked_")
-            else f"capability:{query.construct}:test"
+            None if self.status.startswith("blocked_") else f"capability:{query.construct}:test"
         )
         self.construct_ref = f"construct:{query.construct}"
         self.capability_index_ref = capability_index_ref
@@ -106,9 +104,7 @@ class _RecordingCapabilityResolver(_FakeCapabilityResolver):
 def test_compiler_emits_claim_bound_data_requirement_specs_from_universal_compilation() -> None:
     case, facets, graph, claim_ledger = _compiled_msme_credit_case()
 
-    report = DataRequirementCompiler(
-        capability_resolver=_fake_resolver()
-    ).compile_for_claim_ledger(
+    report = DataRequirementCompiler(capability_resolver=_fake_resolver()).compile_for_claim_ledger(
         run_id="run-msme-credit",
         scenario_id="ukraine_msme_wartime_credit_support",
         claim_ledger=claim_ledger,
@@ -117,9 +113,7 @@ def test_compiler_emits_claim_bound_data_requirement_specs_from_universal_compil
         authority_profile_refs=(case.authority_profile.profile_id,),
     )
 
-    required_families = {
-        family for spec in report.specs for family in spec.required_data_families
-    }
+    required_families = {family for spec in report.specs for family in spec.required_data_families}
     assert report.schema_version == "policyos.data_requirement_compilation.v1"
     assert report.capability_reality_label == "implemented"
     assert report.pattern_refs == ("P02", "P05", "P08", "P12", "P14")
@@ -133,23 +127,18 @@ def test_compiler_emits_claim_bound_data_requirement_specs_from_universal_compil
         for spec in report.specs
         if spec.metadata.get("capability_binding")
     ]
-    assert {
-        binding["construct_ref"]
-        for binding in resolver_bindings
-    } >= {
+    assert {binding["construct_ref"] for binding in resolver_bindings} >= {
         "construct:firm_survival",
         "construct:credit_program_enrollment",
         "construct:regional_displacement_pressure",
     }
     assert all(binding["capability_index_ref"] for binding in resolver_bindings)
     assert all(
-        spec.metadata.get("scenario_family_authority_status")
-        == "sunset_projection_only"
+        spec.metadata.get("scenario_family_authority_status") == "sunset_projection_only"
         for spec in report.specs
     )
     assert all(
-        "scenario_family_authority_lookup"
-        in spec.metadata.get("may_not_use_for", ())
+        "scenario_family_authority_lookup" in spec.metadata.get("may_not_use_for", ())
         for spec in report.specs
     )
     assert all(spec.schema_version == DATA_REQUIREMENT_SPEC_SCHEMA_VERSION for spec in report.specs)
@@ -273,9 +262,7 @@ def test_compile_claim_ledger_uses_injected_release_backed_resolver() -> None:
         for spec in report.specs
     }
     assert binding_refs == {"capability-index:release-duckdb-fixture"}
-    assert report.metadata["capability_index_refs"] == (
-        "capability-index:release-duckdb-fixture",
-    )
+    assert report.metadata["capability_index_refs"] == ("capability-index:release-duckdb-fixture",)
 
 
 def test_compile_claim_ledger_requires_injected_resolver_when_configured() -> None:
@@ -472,9 +459,7 @@ def test_legacy_family_heuristic_only_runs_when_phase4_flag_is_enabled(
         },
     )
 
-    report = DataRequirementCompiler(
-        capability_resolver=_fake_resolver()
-    ).compile_for_claim_ledger(
+    report = DataRequirementCompiler(capability_resolver=_fake_resolver()).compile_for_claim_ledger(
         run_id="run-legacy-worker",
         scenario_id="legacy_worker_case",
         claim_ledger=claim_ledger,
@@ -483,9 +468,10 @@ def test_legacy_family_heuristic_only_runs_when_phase4_flag_is_enabled(
         authority_profile_refs=("authority_profile.legacy",),
     )
 
-    assert {
-        family for spec in report.specs for family in spec.required_data_families
-    } >= {"labor_force_panel", "employment_registry"}
+    assert {family for spec in report.specs for family in spec.required_data_families} >= {
+        "labor_force_panel",
+        "employment_registry",
+    }
     assert all(
         spec.metadata.get("family_derivation") == "legacy_heuristic_fallback"
         for spec in report.specs
@@ -654,3 +640,65 @@ def _compiled_msme_credit_case() -> tuple[Any, tuple[dict[str, object], ...], An
         }
     )
     return case, facets, graph, claim_ledger
+
+
+def test_obligation_basis_compiler_preserves_inputs_and_candidate_status() -> None:
+    import polisyos.data_requirement as data_requirement
+
+    assert data_requirement.PolicyGrammarConceptSpineRefs is PolicyGrammarConceptSpineRefs
+    assert data_requirement.PolicyGrammarIntent is PolicyGrammarIntent
+    assert data_requirement.UniversalAuthorityProfile is UniversalAuthorityProfile
+
+    compiler = DataRequirementCompiler()
+    intent = PolicyGrammarIntent(
+        intent_id="runtime-constraint-stage",
+        text="Create a concessional credit programme for MSMEs in 2026.",
+        domain=ProblemDomain.FISCAL,
+    )
+    profile = UniversalAuthorityProfile(
+        profile_id="runtime-constraint-candidate",
+        authority_type=PolicyLayerLevel.FEDERAL,
+        source_classification="llm_candidate",
+        authoritative_for=("compilation_facets",),
+    )
+    concept_refs = PolicyGrammarConceptSpineRefs(
+        concept_spine_ref="cas://concept-spine/runtime-constraint-stage",
+        jurisdiction_spine_ref="cas://jurisdiction/runtime-constraint-stage",
+        canonical_concept_refs=("concept://runtime-constraint-stage",),
+    )
+
+    candidate = compiler.compile_obligation_basis(
+        intent=intent,
+        authority_profile=profile,
+        concept_spine_refs=concept_refs,
+        run_id="runtime-constraint-stage",
+        generated_at=NOW,
+        intent_text=intent.text,
+    )
+
+    assert candidate.case.status == "candidate_unverified"
+    assert candidate.case.authority_profile is profile
+    assert candidate.case.concept_spine_ref == concept_refs.concept_spine_ref
+    assert candidate.facets is None
+    assert candidate.rule_catalog is None
+    assert candidate.obligation_graph is None
+
+    admitted = compiler.compile_obligation_basis(
+        intent=intent,
+        authority_profile=UniversalAuthorityProfile(
+            profile_id="runtime-constraint-deterministic",
+            authority_type=PolicyLayerLevel.LOCAL,
+        ),
+        concept_spine_refs=concept_refs,
+        run_id="runtime-constraint-stage",
+        generated_at=NOW,
+        intent_text=intent.text,
+    )
+
+    assert admitted.case.status == "compiled"
+    assert admitted.facets
+    assert admitted.rule_catalog is not None
+    assert admitted.obligation_graph is not None
+    assert admitted.obligation_graph.run_id == "runtime-constraint-stage"
+    assert admitted.obligation_graph.generated_at == NOW
+    assert admitted.obligation_graph.facets

@@ -1,6 +1,6 @@
 # Runtime Quality
 
-- Last updated: 2026-10-02
+- Last updated: 2026-10-09
 
 `polisyos.runtime.quality` owns Policy Design Case runtime-quality artifacts:
 authority/status composition, evidence and claim binding, replay, closeout
@@ -18,6 +18,28 @@ closeout meaning.
 
 Boundary notes:
 
+- `joint_simulation_horizon.py` is the N5 candidate simulation adapter. It resolves
+  simultaneous writes before invoking a selected engine. Duplicate writes merge
+  only when recursively compared types and values match (including array shape
+  and dtype), so `true`, `1`, and `1.0` remain distinct assignments. It refuses missing,
+  malformed, or non-finite selected outcomes, and projects only returned
+  trajectory rows. A short non-empty trajectory is marked partial; terminal
+  summary values do not fill its missing rows, and a run-level scalar without a
+  time series is not repeated over a multi-step horizon. Dynamic trajectory diagnostics
+  expose `time_alignment_status`: program-graph runs dispatch the requested
+  steps directly, while method adapters report `matched` only when a declared
+  time-step parameter equals the requested horizon step. That adapter
+  comparison does not establish the consumed World Model Record's own temporal
+  alignment or confer evidence authority.
+- `derived_observations.py` retains selected Core CAS manifest-view profiles through source
+  projections, recipe lineage, derived-output certificates, and epoch recompute receipts. It resolves
+  and verifies each selected sidecar before reuse and refuses changes to the selected-view contract.
+  Selector-bearing recipes and certificates use payload tag v2.1 and CAS schema 2.1.0; selector-bearing
+  epoch receipts use tag v1.1 and schema 1.1.0. Readers refuse a version tag that disagrees with actual
+  selector presence. Profileless selectors omit the optional selector fields and preserve the existing
+  v2/v1 payload and CAS schema shape. Source-series and transform-registry contracts stay unchanged.
+  A manifest profile identifies a selected CAS view; it does not establish external source custody or
+  authority by itself.
 - `production_invocation.py` is a runnable internal regression instrument over all
   tracked source, tooling and test Python files. It distinguishes calls from
   imports and definitions, follows explicit call paths to runnable roots, and

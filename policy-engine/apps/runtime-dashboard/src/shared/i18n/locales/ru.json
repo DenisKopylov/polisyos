@@ -1298,6 +1298,11 @@
       "searchPlaceholder": "Search facts (e.g. бюджетний дефіцит, liability, tax rate...)",
       "searching": "Searching...",
       "search": "Search",
+      "selectedProfileAvailable": "Снимок выбранного поколения фактов доступен. Перед векторным поиском система проверит его ещё раз.",
+      "selectedProfileUnavailable": "Снимок выбранного поколения фактов недоступен. Поиск может продолжиться как текстовый.",
+      "vectorSearchMode": "Векторный поиск",
+      "textSearchMode": "Текстовый поиск",
+      "vectorSearchRefused": "Векторный поиск отклонён; показаны результаты текстового поиска. Причина:",
       "noResults": "No results found for \"{query}\"",
       "resultsSummary": "{count, plural, one {# result for \"{query}\"} other {# results for \"{query}\"}}",
       "columns": {

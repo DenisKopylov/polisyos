@@ -6,7 +6,6 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any, ClassVar
 
-import jax.numpy as jnp
 import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
@@ -198,7 +197,9 @@ def _intervention(
 
 def _bundle(intervention: InterventionSpec) -> TrinityBundle:
     return TrinityBundle(
-        problem_frame=ProblemFrame(problem_id="problem_ua_msme_credit", domain=ProblemDomain.FISCAL),
+        problem_frame=ProblemFrame(
+            problem_id="problem_ua_msme_credit", domain=ProblemDomain.FISCAL
+        ),
         policy_spec=PolicySpec(
             policy_id="policy_ua_msme_credit",
             problem_frame_ref=_ref("a"),
@@ -266,8 +267,7 @@ def _atom(
         producer_ref=f"test.joint_simulation:{intervention_id}",
         operator_proof_type_map={mechanism_kind: "node"},
         mechanism_variable_map={
-            mechanism_kind: mechanism_variables
-            or ("agents.income", "government.balance")
+            mechanism_kind: mechanism_variables or ("agents.income", "government.balance")
         },
         mechanism_config_overrides={
             "joint_simulation_engine_variable": engine_variable,
@@ -504,8 +504,13 @@ def _request(
 
 
 def _program_graph_plan(
-    tmp_path: Path, *, store: FileSystemCAS | None = None
+    tmp_path: Path,
+    *,
+    store: FileSystemCAS | None = None,
+    rates_by_atom: tuple[float, float] = (0.10, 0.10),
 ) -> EnginePlan:
+    import jax.numpy as jnp
+
     store = store or FileSystemCAS(tmp_path / "cas")
     ir_ref = store.put_json(
         {"fixture": "joint_simulation_program_graph"},
@@ -581,9 +586,7 @@ def _program_graph_plan(
     )
     base_state = GlobalState.empty(n_agents=2, n_firms=1)
     base_state = base_state.replace(
-        agents=base_state.agents.replace(
-            income=jnp.asarray([1000.0, 2000.0], dtype=jnp.float32)
-        )
+        agents=base_state.agents.replace(income=jnp.asarray([1000.0, 2000.0], dtype=jnp.float32))
     )
     return EnginePlan(
         engine_kind="program_graph",
@@ -595,8 +598,8 @@ def _program_graph_plan(
         exec_plan_ref=exec_plan_ref,
         program_base_state=base_state,
         program_parameter_overrides_by_atom={
-            "income_subsidy": {"apply_subsidy": {"rate": 0.10}},
-            "balance_grant": {"apply_subsidy": {"rate": 0.20}},
+            "income_subsidy": {"apply_subsidy": {"rate": rates_by_atom[0]}},
+            "balance_grant": {"apply_subsidy": {"rate": rates_by_atom[1]}},
         },
         mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
         slot_registry=DEFAULT_SLOT_REGISTRY,
@@ -614,10 +617,7 @@ def test_runs_individual_pairwise_joint_on_real_ncm_with_content_bound_receipt()
     authority_blockers = result.promotion_ready_value_packet["authority_blockers"]
     assert "simulation_only_k_sim_not_world_evidence" in authority_blockers
     assert "interaction_evidence_incomplete" in authority_blockers
-    assert (
-        "interaction_evidence_incomplete"
-        in result.feedback_classification.limitations
-    )
+    assert "interaction_evidence_incomplete" in result.feedback_classification.limitations
     assert result.feedback_classification.checked_interaction_orders == ()
     assert any(
         issue.startswith("horizon_incomplete:")
@@ -668,9 +668,7 @@ def test_joint_simulation_v1_result_replays_byte_exactly_without_state_handoff(
         first_payload = from_canonical_bytes(first_bytes)
         first_manifest = store.get_manifest(first_ref)
 
-        assert first_payload["schema_version"] == (
-            "policyos.runtime.joint_simulation_horizon.v1"
-        )
+        assert first_payload["schema_version"] == ("policyos.runtime.joint_simulation_horizon.v1")
         assert "state_consumption" not in first_payload
         assert first_manifest.artifact_schema is not None
         assert first_manifest.artifact_schema.version == "1.0.0"
@@ -700,9 +698,9 @@ def test_committed_v1_joint_result_keeps_original_receipt_projection() -> None:
         Path(__file__).resolve().parents[4]
         / "architecture/policy_design_case/layer3_gy_composition_certificates.json"
     )
-    embedded = json.loads(fixture_path.read_text(encoding="utf-8"))[
-        "recursive_runs"
-    ][0]["nodes"][2]["joint_simulation"]
+    embedded = json.loads(fixture_path.read_text(encoding="utf-8"))["recursive_runs"][0]["nodes"][
+        2
+    ]["joint_simulation"]
     payload = {key: value for key, value in embedded.items() if key != "receipt"}
     assert "state_consumption" not in payload
     parsed = JointSimulationResult.model_validate(embedded)
@@ -789,9 +787,9 @@ def test_supported_shared_resource_runs_on_coupled_engine_with_gate_receipt() ->
 def test_contract_testing_can_only_demonstrate_removed_coupling_gate_mutation() -> None:
     request = _request().model_copy(update={"coupling_graph": _coupling_graph("feedback")})
 
-    result = JointSimulationHorizonController.for_contract_testing(
-        disable_coupling_gate=True
-    ).run(request)
+    result = JointSimulationHorizonController.for_contract_testing(disable_coupling_gate=True).run(
+        request
+    )
 
     assert result.engine_decisions[0].decision == "selected"
     assert result.trajectories
@@ -807,8 +805,10 @@ def test_safe_public_policy_exposes_no_gate_bypass_knobs() -> None:
 
 
 def test_declared_unbacked_equilibrium_semantics_is_gated() -> None:
-    plan = _request().engine_plan[0].model_copy(
-        update={"declared_equilibrium_semantics": "game_model"}
+    plan = (
+        _request()
+        .engine_plan[0]
+        .model_copy(update={"declared_equilibrium_semantics": "game_model"})
     )
     result = JointSimulationHorizonController().run(
         _request().model_copy(update={"engine_plan": (plan,)})
@@ -836,6 +836,36 @@ def test_receipt_verification_fails_when_run_is_claimed_without_trajectories() -
         )
 
 
+def test_program_graph_plan_refuses_conflicting_shared_slot_before_execution(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality import joint_simulation_horizon as controller_module
+
+    real_execute = controller_module.execute_program_graph
+    calls = 0
+
+    def observe_execute(*args: Any, **kwargs: Any) -> Any:
+        nonlocal calls
+        calls += 1
+        return real_execute(*args, **kwargs)
+
+    monkeypatch.setattr(controller_module, "execute_program_graph", observe_execute)
+    request = _request().model_copy(
+        update={
+            "engine_plan": (_program_graph_plan(tmp_path, rates_by_atom=(0.10, 0.20)),),
+            "selected_outcomes": ("mean_income",),
+            "baseline_state": {"mean_income": 0.0},
+        }
+    )
+
+    with pytest.raises(JointSimulationControllerError) as raised:
+        JointSimulationHorizonController().run(request)
+
+    assert raised.value.code == "intervention_assignment_conflict"
+    assert calls == 0
+
+
 def test_program_graph_plan_loops_real_shared_state_executor(tmp_path: Path) -> None:
     request = _request().model_copy(
         update={
@@ -860,11 +890,10 @@ def test_program_graph_plan_loops_real_shared_state_executor(tmp_path: Path) -> 
     assert [point.step for point in joint.points] == [0, 1, 2, 3]
     assert all("state_delta_ref" in point.engine_state for point in joint.points)
     assert [point.outcomes["mean_income"] for point in joint.points] == pytest.approx(
-        [1800.0, 2160.0, 2592.0, 3110.4]
+        [1650.0, 1815.0, 1996.5, 2196.15]
     )
     assert abs(result.interaction_terms[0].by_step[3]) > 1.0
     verify_simulation_receipt(result.receipt, result.content_bound_payload())
-
 
 
 def _alternate_manifest_profile(
@@ -923,9 +952,10 @@ def test_served_program_graph_refuses_foreign_selected_manifest_profile(tmp_path
     assert owner_store.get_bytes(plan.exec_plan_ref) == foreign_store.get_bytes(
         foreign_exec_plan_ref
     )
-    assert owner_store.get_manifest(plan.program_graph_ref).producer != foreign_store.get_manifest(
-        foreign_program_ref
-    ).producer
+    assert (
+        owner_store.get_manifest(plan.program_graph_ref).producer
+        != foreign_store.get_manifest(foreign_program_ref).producer
+    )
 
     foreign_plan = plan.model_copy(
         update={
@@ -953,9 +983,7 @@ def test_served_program_graph_output_lineage_keeps_selected_manifest_profiles(
     selected_program_ref = _alternate_manifest_profile(
         store, plan.program_graph_ref, version="2.0.0"
     )
-    selected_exec_plan_ref = _alternate_manifest_profile(
-        store, plan.exec_plan_ref, version="2.0.0"
-    )
+    selected_exec_plan_ref = _alternate_manifest_profile(store, plan.exec_plan_ref, version="2.0.0")
     selected_plan = plan.model_copy(
         update={
             "program_graph_ref": selected_program_ref,
@@ -976,11 +1004,11 @@ def test_served_program_graph_output_lineage_keeps_selected_manifest_profiles(
     state_delta_id = trajectory.points[0].engine_state["state_delta_ref"]
     state_delta_manifest = store.get_manifest(state_delta_id)
     selected_inputs = {
-        item.role: item.manifest_profile_sha256
-        for item in state_delta_manifest.inputs
+        item.role: item.manifest_profile_sha256 for item in state_delta_manifest.inputs
     }
     assert selected_inputs["program_graph"] == selected_program_ref.manifest_profile_sha256
     assert selected_inputs["exec_plan"] == selected_exec_plan_ref.manifest_profile_sha256
+
 
 def test_system_dynamics_plan_runs_registered_stock_flow_engine() -> None:
     world_record = _world_record()
@@ -1038,16 +1066,15 @@ def test_system_dynamics_plan_runs_registered_stock_flow_engine() -> None:
         "joint",
     }
     joint = result.trajectory_for("joint", ("capacity_inflow", "demand_inflow"))
-    distinct_states = {
-        tuple(point.engine_state["stock_values"])
-        for point in joint.points
-    }
+    distinct_states = {tuple(point.engine_state["stock_values"]) for point in joint.points}
     assert len(distinct_states) >= 2
     assert joint.points[-1].outcomes == pytest.approx({"stock0": 11.9, "stock1": 8.1})
     assert result.interaction_terms[0].by_step[2] == pytest.approx(1.9)
 
 
-def test_method_registry_estimator_selects_registered_dynamic_method_without_engine_branch() -> None:
+def test_method_registry_estimator_selects_registered_dynamic_method_without_engine_branch() -> (
+    None
+):
     world_record = _world_record()
     atoms = (
         _atom(
@@ -1099,9 +1126,7 @@ def test_method_registry_estimator_selects_registered_dynamic_method_without_eng
     assert result.engine_decisions[0].method_fqn == "simulation.system_dynamics.stock_flow@1.0.0"
     assert result.engine_decisions[0].temporal_capability == "multi_period"
     joint = result.trajectory_for("joint", ("capacity_inflow", "demand_inflow"))
-    assert [point.outcomes["stock1"] for point in joint.points] == pytest.approx(
-        [0.0, 4.0, 8.1]
-    )
+    assert [point.outcomes["stock1"] for point in joint.points] == pytest.approx([0.0, 4.0, 8.1])
 
 
 def test_registry_des_queue_tag_does_not_back_time_series_semantics() -> None:
@@ -1520,16 +1545,14 @@ def test_n5_abm_source_flip_runs_behavior_and_restores_bytes(
 
     runner = getattr(contract, "_run_abm_stub_source_flip", None)
     assert callable(runner), "N5 ABM source-flip runner is missing"
-    source_path = (
-        tmp_path / "src/polisyos/foundry/methods/catalog/simulation/coupled.py"
-    )
+    source_path = tmp_path / "src/polisyos/foundry/methods/catalog/simulation/coupled.py"
     source_path.parent.mkdir(parents=True)
     original = (
         b"from polisyos.foundry.methods.catalog.simulation.dynamics import (\n"
         b"    build_content_bound_abm_result,\n"
         b")\n"
         b"    abm_result = build_content_bound_abm_result(\n"
-        b"        method_id=\"simulation.coupled_policy.des_abm\",\n"
+        b'        method_id="simulation.coupled_policy.des_abm",\n'
         b"        horizon=horizon,\n"
         b"        payload=result,\n"
         b"        diagnostics=diagnostics,\n"

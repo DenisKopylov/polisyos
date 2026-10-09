@@ -23236,6 +23236,74 @@
         "title": "LexPipelineStatusResponse",
         "type": "object"
       },
+      "LexSearchProfileAvailableResponse": {
+        "additionalProperties": false,
+        "description": "Expose a selected Legal fact-generation request snapshot.\n\nThis is a snapshot of the selected persisted generation, not a statement\nthat its members, index, or encoder remain current. Search revalidates those\nproperties when it consumes the snapshot.",
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "output_dir": {
+            "title": "Output Dir",
+            "type": "string"
+          },
+          "query_generation_intent": {
+            "items": {
+              "$ref": "#/components/schemas/LegalQueryGenerationIntentV1"
+            },
+            "title": "Query Generation Intent",
+            "type": "array"
+          },
+          "status": {
+            "const": "available",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "meta",
+          "status",
+          "output_dir",
+          "query_generation_intent"
+        ],
+        "title": "LexSearchProfileAvailableResponse",
+        "type": "object"
+      },
+      "LexSearchProfileRefusedResponse": {
+        "additionalProperties": false,
+        "description": "Return a typed refusal when no selected fact-generation snapshot exists.",
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "output_dir": {
+            "title": "Output Dir",
+            "type": "string"
+          },
+          "refusal_code": {
+            "enum": [
+              "query_profile_generation_unavailable",
+              "query_profile_malformed",
+              "selected_generation_unavailable"
+            ],
+            "title": "Refusal Code",
+            "type": "string"
+          },
+          "status": {
+            "const": "refused",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "meta",
+          "status",
+          "output_dir",
+          "refusal_code"
+        ],
+        "title": "LexSearchProfileRefusedResponse",
+        "type": "object"
+      },
       "LexSearchRequest": {
         "additionalProperties": false,
         "description": "POST /api/v1/control/lex/search — search knowledge graph facts.",
@@ -23299,7 +23367,6 @@
             "type": "array"
           },
           "search_mode": {
-            "default": "text",
             "enum": [
               "text",
               "vector"
@@ -23326,7 +23393,9 @@
         },
         "required": [
           "meta",
-          "query"
+          "query",
+          "search_mode",
+          "vector_refusal_code"
         ],
         "title": "LexSearchResponse",
         "type": "object"
@@ -50108,6 +50177,247 @@
         }
       }
     },
+    "/api/v1/control/lex/search-profile": {
+      "get": {
+        "operationId": "get_lex_search_profile",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "output_dir",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "title": "Output Dir",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "discriminator": {
+                    "mapping": {
+                      "available": "#/components/schemas/LexSearchProfileAvailableResponse",
+                      "refused": "#/components/schemas/LexSearchProfileRefusedResponse"
+                    },
+                    "propertyName": "status"
+                  },
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/LexSearchProfileAvailableResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/LexSearchProfileRefusedResponse"
+                    }
+                  ],
+                  "title": "Response Get Lex Search Profile"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/control/lex/search-profile",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/control/lex/search-profile",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/control/lex/search-profile",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/control/lex/search-profile",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/control/lex/search-profile",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/control/lex/search-profile",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/control/lex/search-profile",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Read the selected Legal fact-generation request snapshot",
+        "tags": [
+          "control-plane"
+        ],
+        "x-polisyos-action-permission": "knowledge.search",
+        "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
+          "resource_kind": "runtime.lex_workspace.search",
+          "source": "tenant_collection"
+        }
+      }
+    },
     "/api/v1/control/lex/status/{pipeline_id}": {
       "get": {
         "operationId": "get_lex_pipeline_status",
@@ -59450,18 +59760,18 @@
                           "semantic_role": "scope_total_spend"
                         }
                       },
-                      "projection_hash": "sha256:8b31059c3c3cb4c3af66f985f7b10eba623e8efb4401844488c068c20a34ab5f",
+                      "projection_hash": "sha256:daa312b80a6f2348cb4d142459ae40554705588d217dc89420b391d68e2c7d37",
                       "projection_id": "confidence-ledger-risk-spend",
                       "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                       "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
                       "registry_projection_hash": "sha256:000302a7a97aac6747cffca5ebb0536309505f3e45c0011cc7536ec80861eacc",
-                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A8b31059c3c3cb4c3af66f985f7b10eba623e8efb4401844488c068c20a34ab5f&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A574945ff5cda8a685aa8379c26ac725e00bf840a82eb2bd6a30dee17ea2c8bfc",
+                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3Adaa312b80a6f2348cb4d142459ae40554705588d217dc89420b391d68e2c7d37&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A686236481b575331ab18abb7f3983bc14bf1e7c180dc47304ce4046045bd1b0e",
                       "replay_pins": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                        "projection_hash": "sha256:8b31059c3c3cb4c3af66f985f7b10eba623e8efb4401844488c068c20a34ab5f",
+                        "projection_hash": "sha256:daa312b80a6f2348cb4d142459ae40554705588d217dc89420b391d68e2c7d37",
                         "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                         "source_as_of": "2026-02-11T12:00:00Z",
-                        "source_dependency_hash": "sha256:574945ff5cda8a685aa8379c26ac725e00bf840a82eb2bd6a30dee17ea2c8bfc"
+                        "source_dependency_hash": "sha256:686236481b575331ab18abb7f3983bc14bf1e7c180dc47304ce4046045bd1b0e"
                       },
                       "source": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
@@ -59470,7 +59780,7 @@
                         "relative_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
                         "validation": {
                           "bound_artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                          "bound_dependency_aggregate_identity": "sha256:574945ff5cda8a685aa8379c26ac725e00bf840a82eb2bd6a30dee17ea2c8bfc",
+                          "bound_dependency_aggregate_identity": "sha256:686236481b575331ab18abb7f3983bc14bf1e7c180dc47304ce4046045bd1b0e",
                           "bound_dependency_count": 1596,
                           "frozen_semantic_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
                           "issue_codes": [],
@@ -59486,16 +59796,16 @@
                           "status": "passed",
                           "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
                           "validator_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
-                          "worker_validation_receipt_hash": "sha256:13dc0779c7bb161261f01a48035e99ca1a950ded0573a347eb9c754a346d6755"
+                          "worker_validation_receipt_hash": "sha256:2529200d85265a82d7aea462897a793eae3bdc894f701c1336ee8b9ccf064eb6"
                         }
                       },
                       "source_blocked_reason": null,
-                      "source_dependency_hash": "sha256:574945ff5cda8a685aa8379c26ac725e00bf840a82eb2bd6a30dee17ea2c8bfc",
+                      "source_dependency_hash": "sha256:686236481b575331ab18abb7f3983bc14bf1e7c180dc47304ce4046045bd1b0e",
                       "source_rule_version": null,
                       "source_schema_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
                       "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
-                      "worker_validation_receipt_hash": "sha256:13dc0779c7bb161261f01a48035e99ca1a950ded0573a347eb9c754a346d6755",
-                      "worker_validation_receipt_ref": "owner-validation:sha256:13dc0779c7bb161261f01a48035e99ca1a950ded0573a347eb9c754a346d6755"
+                      "worker_validation_receipt_hash": "sha256:2529200d85265a82d7aea462897a793eae3bdc894f701c1336ee8b9ccf064eb6",
+                      "worker_validation_receipt_ref": "owner-validation:sha256:2529200d85265a82d7aea462897a793eae3bdc894f701c1336ee8b9ccf064eb6"
                     }
                   }
                 },

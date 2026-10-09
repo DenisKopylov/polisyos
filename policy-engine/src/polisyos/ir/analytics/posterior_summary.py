@@ -17,7 +17,6 @@ from typing import Any, Literal
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.ir.artifacts import (
     ArtifactStore,
     InputRef,
@@ -327,7 +326,7 @@ def persist_posterior_summary(
     store: ArtifactStore,
     summary: PosteriorSummaryV11,
     *,
-    source_method_evidence_ref: ArtifactRef,
+    source_method_evidence_ref: ArtifactRefModel,
 ) -> PosteriorSummaryRef:
     """Persist a candidate summary with its exact selected evidence view as lineage."""
     bound_summary = summary.model_copy(

@@ -984,7 +984,12 @@ def _run_search_benchmark(
     top5_hits = 0
 
     for case in suite.search_cases:
-        results = graph.search_datasets(case.query, domain_filter=case.domain_filter, top_k=5)
+        response = graph.search_datasets_with_status(
+            case.query,
+            domain_filter=case.domain_filter,
+            top_k=5,
+        )
+        results = response.results
         top5_hit = any(_result_matches_case(item, case) for item in results[:5])
         top1_hit = bool(results[:1]) and _result_matches_case(results[0], case)
         top1_hits += int(top1_hit)
@@ -993,6 +998,9 @@ def _run_search_benchmark(
             {
                 "case_id": case.case_id,
                 "query": case.query,
+                "search_mode": response.search_mode,
+                "vector_refusal_code": response.vector_refusal_code,
+                "limitation_code": response.limitation_code,
                 "top1_hit": top1_hit,
                 "top5_hit": top5_hit,
                 "results": [

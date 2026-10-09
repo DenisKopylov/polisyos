@@ -755,10 +755,11 @@ def persist_posterior_summary_from_method_evidence(
         credible_mass=source_credible_mass,
         point_role=point_role,
     )
+    ir_evidence_ref = ArtifactRefModel.model_validate(evidence_ref.model_dump(mode="python"))
     return persist_posterior_summary(
         ensure_ir_artifact_store(store),
         summary,
-        source_method_evidence_ref=evidence_ref,
+        source_method_evidence_ref=ir_evidence_ref,
     )
 
 

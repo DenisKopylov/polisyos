@@ -41,6 +41,19 @@ surface for the `data`, `planning`, `compile`, `causal`, `simulate`,
 - Family directories under `builtins/` own one workflow stage each:
   `data`, `planning`, `compile`, `causal`, `simulate`, `governance`, and
   `decide`.
+- `builtins/simulate/propagate_welfare.py` consumes an existing empirical
+  posterior carrier as its finite weighted support. Multiple empirical inputs
+  are sampled as paired rows only when their declared row identity, nonempty
+  axis, length, and normalized weights agree; otherwise the welfare interval is
+  withheld as partial. The joint identity is recorded as non-authoritative.
+  Propagation reports and sample bundles bind selected PE envelope references,
+  including their selected manifest profiles. Monte Carlo reports record one
+  terminal outcome per requested draw. Incomplete runs retain only a conditional
+  successful-draw summary, withhold the credible interval, and keep bounded
+  exception diagnostics plus a hash of the sampled inputs rather than the raw
+  inputs. The Welfare bundle point estimate remains the nominal-input evaluation;
+  partial Monte Carlo bundles warn that the report mean is conditional on
+  successful draws.
 
 ## Extension Points
 

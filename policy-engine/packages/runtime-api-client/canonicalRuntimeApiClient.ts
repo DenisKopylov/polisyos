@@ -1003,6 +1003,12 @@ export type LexPipelineStageConfig =
 export type LexPipelineStatusResponse =
   RuntimeApiComponents["schemas"]["LexPipelineStatusResponse"];
 
+export type LexSearchProfileAvailableResponse =
+  RuntimeApiComponents["schemas"]["LexSearchProfileAvailableResponse"];
+
+export type LexSearchProfileRefusedResponse =
+  RuntimeApiComponents["schemas"]["LexSearchProfileRefusedResponse"];
+
 export type LexSearchRequest =
   RuntimeApiComponents["schemas"]["LexSearchRequest"];
 
@@ -2114,6 +2120,20 @@ export class RuntimeApiClient {
       undefined,
       undefined,
     );
+  }
+
+  async getLexSearchProfile(params: {
+    output_dir: string;
+  }): Promise<
+    LexSearchProfileAvailableResponse | LexSearchProfileRefusedResponse
+  > {
+    const path = `/api/v1/control/lex/search-profile`;
+    const query = this.buildQuery({
+      output_dir: params.output_dir,
+    });
+    return this.request<
+      LexSearchProfileAvailableResponse | LexSearchProfileRefusedResponse
+    >("GET", path, query, undefined, undefined);
   }
 
   async getLexPipelineStatus(params: {

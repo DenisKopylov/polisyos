@@ -1926,6 +1926,29 @@ export const lexSearchResponseSchema = z.object({
   vector_refusal_code: z.string().nullable(),
 });
 
+export const lexSearchProfileResponseSchema = z.discriminatedUnion("status", [
+  z
+    .object({
+      meta: apiMetaSchema,
+      status: z.literal("available"),
+      output_dir: z.string().min(1),
+      query_generation_intent: z.array(legalQueryGenerationIntentSchema).min(1),
+    })
+    .strict(),
+  z
+    .object({
+      meta: apiMetaSchema,
+      status: z.literal("refused"),
+      output_dir: z.string().min(1),
+      refusal_code: z.enum([
+        "query_profile_generation_unavailable",
+        "query_profile_malformed",
+        "selected_generation_unavailable",
+      ]),
+    })
+    .strict(),
+]);
+
 export const nodeDebugSchema = z.object({
   meta: apiMetaSchema,
   debug: nodeDebugViewSchema,

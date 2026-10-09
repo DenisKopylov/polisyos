@@ -6,6 +6,7 @@ import {
   humanDecisionGateResponseSchema,
   humanDecisionReviewEffectivenessSchema,
   lexSearchRequestSchema,
+  lexSearchProfileResponseSchema,
   lexSearchResponseSchema,
   quantityValueSchema,
   runAgentsSchema,
@@ -442,6 +443,55 @@ describe("runtime API validators", () => {
       lexSearchResponseSchema.safeParse({
         ...response,
         vector_refusal_code: undefined,
+      }).success,
+    ).toBe(false);
+  });
+
+  it("keeps selected Legal search snapshots distinct from typed refusals", () => {
+    const meta = {
+      request_id: "request-legal-profile",
+      generated_at: "2026-10-09T00:00:00Z",
+      source_kinds: [],
+    };
+    const intent = {
+      basis_kind: "legal_lex_facts_embedding",
+      generation_id: "generation-legal-facts-1",
+      inventory_json: '{"basis":{"basis_kind":"legal_lex_facts_embedding"}}',
+    } as const;
+
+    const available = lexSearchProfileResponseSchema.parse({
+      meta,
+      status: "available",
+      output_dir: "/tmp/legal",
+      query_generation_intent: [intent],
+    });
+    expect(available).toMatchObject({
+      query_generation_intent: [intent],
+      status: "available",
+    });
+
+    const refused = lexSearchProfileResponseSchema.parse({
+      meta,
+      status: "refused",
+      output_dir: "/tmp/legal",
+      refusal_code: "selected_generation_unavailable",
+    });
+    expect(refused.status).toBe("refused");
+
+    expect(
+      lexSearchProfileResponseSchema.safeParse({
+        meta,
+        status: "available",
+        output_dir: "/tmp/legal",
+        query_generation_intent: [],
+      }).success,
+    ).toBe(false);
+    expect(
+      lexSearchProfileResponseSchema.safeParse({
+        meta,
+        status: "refused",
+        output_dir: "/tmp/legal",
+        refusal_code: "query_profile_unavailable",
       }).success,
     ).toBe(false);
   });

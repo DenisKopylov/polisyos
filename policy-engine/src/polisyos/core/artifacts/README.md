@@ -34,6 +34,10 @@ environment fingerprints.
   import these from the artifacts facade; they do not copy the projection algorithm or
   import its private lifecycle owner. A profile selects a manifest view; it does not
   attest producer authority or currentness.
+- current write replay: `expected_artifact_manifest_for_write` reconstructs the exact current
+  manifest from the payload bytes, typed write options, and persisted creation time by calling
+  the same lifecycle constructor used by CAS writers. It fails when the supplied artifact ID
+  does not bind to those bytes; it does not independently establish producer authority.
 - authority-envelope links persist the selected envelope manifest profile and resolve
   through `resolve_authority_envelope_ref`, which checks the fixed envelope kind, media
   type, and schema before returning a typed view. Historical profileless links explicitly

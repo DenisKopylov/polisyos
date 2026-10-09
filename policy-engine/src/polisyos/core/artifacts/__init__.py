@@ -6,6 +6,7 @@ detached-signature contracts. Runtime and governance layers should depend on
 this facade instead of importing private artifact internals.
 """
 
+from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 from ._atomic_write import (
@@ -101,6 +102,35 @@ def artifact_manifest_profile_sha256(manifest: ArtifactManifest) -> str:
     return ManifestLifecycle.profile_sha256(manifest)
 
 
+def expected_artifact_manifest_for_write(
+    *,
+    artifact_id: ArtifactID,
+    data: bytes,
+    opts: ArtifactWriteOptions,
+    created_at: datetime,
+) -> ArtifactManifest:
+    """Reconstruct the exact current manifest emitted for a CAS write.
+
+    Args:
+        artifact_id: Content address of ``data``.
+        data: Exact bytes supplied to the writer.
+        opts: Complete write profile supplied to the writer.
+        created_at: Persisted manifest creation timestamp.
+
+    Returns:
+        The current manifest model reconstructed from the write inputs.
+
+    Raises:
+        ValueError: If ``artifact_id`` does not match the supplied payload bytes.
+    """
+    return ManifestLifecycle.expected_for_write(
+        artifact_id=artifact_id,
+        data=data,
+        opts=opts,
+        created_at=created_at,
+    )
+
+
 __all__ = [
     "AUTHORITY_ENVELOPE_ARTIFACT_KIND",
     "AUTHORITY_ENVELOPE_SCHEMA_NAME",
@@ -162,6 +192,7 @@ __all__ = [
     "ensure_directory_durable",
     "ensure_ir_artifact_store",
     "ensure_private_key_permissions",
+    "expected_artifact_manifest_for_write",
     "fsync_directory",
     "input_ref_from_artifact_ref",
     "resolve_authority_envelope_ref",

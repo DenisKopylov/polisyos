@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 const {
@@ -8,6 +8,8 @@ const {
   useCapabilitiesMock,
   useLexGraphStatsMock,
   useLexPipelineStatusMock,
+  useLexSearchProfileMock,
+  refetchLexSearchProfileMock,
   useLexSearchMock,
   useLexTriggerMock,
   useTelemetryReadyMarkMock,
@@ -28,6 +30,8 @@ const {
     useCapabilitiesMock: vi.fn(),
     useLexGraphStatsMock: vi.fn(),
     useLexPipelineStatusMock: vi.fn(),
+    useLexSearchProfileMock: vi.fn(),
+    refetchLexSearchProfileMock: vi.fn(),
     useLexSearchMock: vi.fn(),
     useLexTriggerMock: vi.fn(),
     useTelemetryReadyMarkMock: vi.fn(),
@@ -64,14 +68,24 @@ vi.mock("@/api/hooks/useLexSearch", () => ({
   useLexSearch: (...args: unknown[]) => useLexSearchMock(...args),
 }));
 
+vi.mock("@/api/hooks/useLexSearchProfile", () => ({
+  useLexSearchProfile: (...args: unknown[]) => useLexSearchProfileMock(...args),
+}));
+
 vi.mock("@/api/hooks/useLexTrigger", () => ({
   useLexTrigger: (...args: unknown[]) => useLexTriggerMock(...args),
 }));
 
-vi.mock("@/app/providers/TelemetryProvider", () => ({
-  useTelemetryReadyMark: (...args: unknown[]) =>
-    useTelemetryReadyMarkMock(...args),
-}));
+vi.mock("@/app/providers/TelemetryProvider", async () => {
+  const actual = await vi.importActual<
+    typeof import("@/app/providers/TelemetryProvider")
+  >("@/app/providers/TelemetryProvider");
+  return {
+    ...actual,
+    useTelemetryReadyMark: (...args: unknown[]) =>
+      useTelemetryReadyMarkMock(...args),
+  };
+});
 
 vi.mock("@/app/routes/PrefetchButton", () => ({
   PrefetchButton: ({ children }: { children: React.ReactNode }) => (
@@ -93,6 +107,7 @@ vi.mock("@/shared/i18n/LocaleProvider", async () => {
 });
 
 import LexKnowledgeGraphPage from "@/features/lex/routes/LexKnowledgeGraphPage";
+import { createQueryHookWrapper } from "@/test/queryHook";
 
 describe("LexKnowledgeGraphPage search param behavior", () => {
   beforeEach(() => {
@@ -119,6 +134,32 @@ describe("LexKnowledgeGraphPage search param behavior", () => {
     });
     useLexPipelineStatusMock.mockReset();
     useLexPipelineStatusMock.mockReturnValue({ data: undefined });
+    useLexSearchProfileMock.mockReset();
+    useLexSearchProfileMock.mockImplementation((outputDir: string) => ({
+      data: {
+        output_dir: outputDir,
+        query_generation_intent: [],
+        status: "available",
+      },
+      error: null,
+      refetch: refetchLexSearchProfileMock,
+    }));
+    refetchLexSearchProfileMock.mockReset();
+    refetchLexSearchProfileMock.mockResolvedValue({
+      data: {
+        output_dir: "data/lex_knowledge",
+        query_generation_intent: [
+          {
+            basis_kind: "legal_lex_facts_embedding",
+            generation_id: "generation-facts-1",
+            inventory_json:
+              '{"basis":{"basis_kind":"legal_lex_facts_embedding"}}',
+          },
+        ],
+        status: "available",
+      },
+      error: null,
+    });
     useLexSearchMock.mockReset();
     useLexSearchMock.mockReturnValue({
       data: undefined,
@@ -156,7 +197,7 @@ describe("LexKnowledgeGraphPage search param behavior", () => {
   it("uses replace semantics for typing-driven URL sync and push semantics for explicit actions", async () => {
     const user = userEvent.setup();
 
-    render(<LexKnowledgeGraphPage />);
+    render(<LexKnowledgeGraphPage />, { wrapper: createQueryHookWrapper() });
 
     await user.type(screen.getByLabelText("pages.lex.outputDirectory"), "next");
     expect(setSearchParamsMock).toHaveBeenLastCalledWith(
@@ -174,10 +215,12 @@ describe("LexKnowledgeGraphPage search param behavior", () => {
     );
 
     await user.click(screen.getByRole("button", { name: "pages.lex.search" }));
-    expect(setSearchParamsMock).toHaveBeenLastCalledWith(
-      expect.any(URLSearchParams),
-      expect.objectContaining({ replace: false }),
-    );
+    await waitFor(() => {
+      expect(setSearchParamsMock).toHaveBeenLastCalledWith(
+        expect.any(URLSearchParams),
+        expect.objectContaining({ replace: false }),
+      );
+    });
 
     await user.click(screen.getByTestId("lex-resume-toggle"));
     expect(setSearchParamsMock).toHaveBeenLastCalledWith(

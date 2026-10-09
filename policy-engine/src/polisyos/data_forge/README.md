@@ -38,6 +38,10 @@ read receipts. These are additive runtime-safe read exports of the canonical
 SKG implementation; the facade keeps lazy loading and does not grant source
 snapshot retention, filesystem authority or a new SKG algorithm. Existing
 prepared-connection/key/query behavior remains owned by the academic producer.
+Cross-package type-only consumers import these contracts through
+`polisyos.data_forge.read_api.academic`, just as Catalog consumers import its
+run-profile and source-registry contracts through `read_api.catalog`; each facade
+resolves the canonical object rather than maintaining a parallel contract.
 
 Phase 3 catalog completion has moved catalog source registry contracts,
 per-source source-module planning, harvest/normalize/observation/publish asset

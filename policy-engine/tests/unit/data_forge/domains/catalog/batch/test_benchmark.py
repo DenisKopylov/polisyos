@@ -4,6 +4,7 @@ import json
 from typing import TYPE_CHECKING
 
 import duckdb
+
 from polisyos.data_forge.domains.catalog.batch.benchmark import (
     BenchmarkSuite,
     SearchBenchmarkCase,
@@ -199,6 +200,11 @@ def test_run_benchmark_writes_report_and_metrics(tmp_path) -> None:
 
     assert payload["kind"] == "datasets_benchmark"
     assert len(payload["search"]["cases"]) == 2
+    assert all(case["search_mode"] == "text" for case in payload["search"]["cases"])
+    assert all(
+        case["vector_refusal_code"] == "selected_generation_unavailable"
+        for case in payload["search"]["cases"]
+    )
     assert "source_preflight" in payload
 
 

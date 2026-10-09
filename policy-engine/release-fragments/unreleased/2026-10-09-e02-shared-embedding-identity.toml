@@ -9,8 +9,9 @@ evidence = [
   "tests/unit/data_forge/domains/catalog/knowledge/test_store.py",
 ]
 compatibility = "Generation selector and inventory schemas, existing builder calls, resource paths, and empty-generation status are preserved. An optional live encoder object can be supplied for reuse; its identity is recomputed by the shared builder. Existing non-empty generations without encoder identity do not match the new content-bound query identity and must be rebuilt before vector admission."
-change_class = "internal"
+change_class = "python-public-api"
 surface_classification = "public_experimental: Legal and Catalog read_api facades expose canonical projections and shared generation-consumer helpers"
 migration = "Rebuild selected non-empty embedding generations to bind the loaded model assets and tokenizer. Empty generations remain valid empty_generation artifacts."
 api = "Additive kernel helpers derive candidate encoder identity from live assets, project it through the existing generation manifest, compare HNSW stored vectors and selected generations against live encoder intent, and expose the canonical generation-rule serializer; the Legal read facade lazily exports these helpers and canonical projection functions."
 limitations = "The digest does not attest arbitrary executable replacements for encode(). Use a trusted local encoder provider for query admission; asset identity alone is not production authority or model provenance."
+public_surface_inventory_reviewed = true

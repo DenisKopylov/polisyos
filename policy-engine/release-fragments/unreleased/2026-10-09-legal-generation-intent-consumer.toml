@@ -10,5 +10,5 @@ change_class = "internal"
 surface_classification = "internal: Legal embedding generation and knowledge-store vector admission"
 migration_docs = ["src/polisyos/data_forge/domains/legal/batch/README.md", "src/polisyos/lex/knowledge/README.md"]
 limitations = "The runtime provider derives and rechecks loaded weights, configuration, and tokenizer assets but does not attest executable identity: replacing encode while retaining those assets can change behavior. Closing this bounded residual requires a trusted executable identity bound to the loaded model; no such code-provenance owner exists here. The real producer/native-HNSW/HTTP test is a compatibility witness only and establishes no production corpus, semantic quality, or legal authority claim."
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 generated_client_compatibility = "requires_regeneration"

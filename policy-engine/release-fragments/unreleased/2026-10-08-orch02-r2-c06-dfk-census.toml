@@ -6,7 +6,7 @@ owner = "team-data-forge"
 summary = "Expose the local Git-visible schema census through validation schema-fqn-census, retaining every ordinary status record and both rename/copy paths."
 evidence = ["tests/unit/remediation/test_dfk_01.py"]
 compatibility = "Existing schema compatibility surfaces and their identity tests remain unchanged."
-change_class = "additive"
+change_class = "tooling"
 surface_classification = "public_tool_cli"
 migration = "No schema retirement or caller migration is authorized by the census."
 api = "polisyos-tools validation schema-fqn-census --repo-root PATH emits polisyos.schema_fqn_census.v2 JSON; incomplete selected reads return 2."
@@ -18,7 +18,7 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "bounded-local-schema-census"
-change_class = "additive"
+change_class = "tooling"
 impact = "additive"
 surface = "public tool: validation.schema-fqn-census"
 owner = "team-data-forge"

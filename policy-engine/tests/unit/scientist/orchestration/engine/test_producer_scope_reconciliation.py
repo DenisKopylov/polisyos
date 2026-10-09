@@ -43,7 +43,7 @@ from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation
 
 _WRITE_PATHS = ["params.owned", "params.alias", "artifacts_index.bundle"]
 _CONTOURS = ("sequential", "async", "worker")
-_REFUSALS = ("nested_widen", "release_scope", "root_replace", "neighbor_alias")
+_REFUSALS = ("nested_widen", "release_scope", "root_replace", "neighbor_alias", "custom_leaf")
 _REPLAY_KEY = sha256(b"scope-real-outcome").hexdigest()
 _MODEL_MUTATIONS = (
     "input_attribute",
@@ -60,6 +60,7 @@ class _ScopeProducer:
         self.refusal = refusal
         self.calls = 0
         self.held_state: ExperimentState | None = None
+        self.refusal_probe: _DeepcopyProbe | None = None
         self.spec = NodeSpec(
             metadata=ComponentMetadata(
                 component_id=ComponentId.parse("scientist.scope_reconciliation@1.0.0"),
@@ -82,8 +83,12 @@ class _ScopeProducer:
         if self.refusal is not None:
             before = state.model_dump(mode="json")
             before_operations = list(journal.operations)
-            with pytest.raises(ValueError, match="producer|undeclared state_writes"):
-                self._attempt_refused_write(state)
+            if self.refusal == "custom_leaf":
+                with pytest.raises(TypeError, match="finite JSON container graph"):
+                    self._attempt_refused_write(state)
+            else:
+                with pytest.raises(ValueError, match="producer|undeclared state_writes"):
+                    self._attempt_refused_write(state)
             assert state.model_dump(mode="json") == before
             assert journal.operations == before_operations
 
@@ -127,8 +132,21 @@ class _ScopeProducer:
                 state.params = {"neighbor": {"v": 99}}
             case "neighbor_alias":
                 state.params["neighbor"] = state.params["owned"]["rows"][0]
+            case "custom_leaf":
+                self.refusal_probe = _DeepcopyProbe()
+                state.params["owned"]["unsafe"] = self.refusal_probe
             case _:
                 raise AssertionError("unsupported refusal input")
+
+
+class _DeepcopyProbe:
+    def __init__(self) -> None:
+        self.deepcopy_calls = 0
+
+    def __deepcopy__(self, memo: dict[int, Any]) -> _DeepcopyProbe:
+        del memo
+        self.deepcopy_calls += 1
+        return self
 
 
 def _initial_state() -> ExperimentState:
@@ -265,6 +283,9 @@ async def test_real_producer_grants_reconcile_with_reopened_cache_intent(
     root = tmp_path / "cas"
     outcome, initial, public_state = await _run_producer(root, contour, producer, monkeypatch)
     _assert_reopened_consumer(root, outcome, initial)
+    if refusal == "custom_leaf":
+        assert producer.refusal_probe is not None
+        assert producer.refusal_probe.deepcopy_calls == 0
     assert type(outcome.artifacts[0]) is ArtifactRef
     assert type(public_state.artifacts_index["bundle"]) is ArtifactRef
     # Completion is a genuine executor/wire boundary. The returned public
@@ -587,6 +608,42 @@ async def test_unsupported_model_hooks_refuse_before_real_producer_effects(
     fresh_events = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
     assert not any(event["event"] == "NODE_CACHE_STORE" for event in fresh_events)
     assert not any(event["event"] == "NODE_COMPLETED" for event in fresh_events)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("contour", ["sequential", "async"])
+async def test_nested_custom_leaf_is_refused_before_producer_or_deepcopy(
+    tmp_path: Path, contour: str
+) -> None:
+    probe = _DeepcopyProbe()
+    initial = _initial_state()
+    initial.params["owned"]["unsafe"] = {"rows": [probe]}
+    producer = _ScopeProducer()
+    root = tmp_path / "cas"
+    store = FileSystemCAS(root)
+    bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store, bundle, run_id=initial.run_id)
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("leaf-admission"))
+    registry = NodeRegistry()
+    registry.register(producer)
+    workflow = WorkflowSpec(
+        workflow_id="nested_custom_leaf_admission",
+        nodes=[NodeInvocation(alias="produce", node_id=producer.spec.metadata.component_id)],
+    )
+
+    if contour == "sequential":
+        with pytest.raises(TypeError, match="finite JSON container graph"):
+            WorkflowExecutor(ctx, registry).execute(workflow, initial)
+    else:
+        result = await AsyncWorkflowExecutor(ctx, registry).execute(workflow, initial)
+        assert result.report.status == "fail"
+        assert result.report.nodes[0].error.code == "node.state_admission_failed"
+
+    assert probe.deepcopy_calls == 0
+    assert producer.calls == 0
+    events = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+    assert not any(event["event"] == "NODE_CACHE_STORE" for event in events)
+    assert not any(event["event"] == "NODE_COMPLETED" for event in events)
 
 
 @pytest.mark.asyncio

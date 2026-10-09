@@ -25,7 +25,7 @@ from polisyos.scientist.methods.discovery.priors import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGRead
+    from polisyos.data_forge.read_api.academic import PreparedSKGRead
 
 
 class PriorMinerConfig(BaseModel):

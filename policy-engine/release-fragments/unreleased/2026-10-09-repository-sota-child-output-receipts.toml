@@ -9,7 +9,7 @@ evidence = [
   "tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py",
 ]
 compatibility = "The --subprocess-receipt-dir option is additive. Runs without it keep the existing text-mode capture, failure detail, and truncation behavior."
-change_class = "internal-only"
+change_class = "internal"
 surface_classification = "internal: Repository SOTA closeout diagnostics"
 migration = "Pass --subprocess-receipt-dir <path> to retain output from each executed subprocess gate for a deciding run."
 limitations = "Receipt hashes bind the exact captured process-stream bytes. Gate comparisons decode UTF-8 with backslashreplace and normalize universal newlines so invalid byte sequences remain readable without changing the retained evidence."
@@ -20,7 +20,7 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "repository-sota-child-output-receipts"
-change_class = "internal-only"
+change_class = "internal"
 impact = "additive"
 surface = "internal: Repository SOTA closeout diagnostics"
 owner = "team-devx"

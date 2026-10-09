@@ -5,9 +5,12 @@ import argparse
 import csv
 import datetime
 import json
+import re
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
+
+from polisyos.common.markdown import split_markdown_table_row
 
 REQUIRED_KEYS = (
     "package_cycles_count",
@@ -61,11 +64,13 @@ def _parse_registry_ids(path: Path) -> set[str]:
     for line in path.read_text(encoding="utf-8").splitlines():
         if "|" not in line:
             continue
-        parts = [part.strip() for part in line.split("|")]
-        if len(parts) < 3:
+        cells = split_markdown_table_row(line)
+        if not cells:
             continue
-        first = parts[1].strip().strip("`")
-        if not first or first in {"id", "---", "_no-active-exceptions_", "-"}:
+        if all(re.fullmatch(r":?-{3,}:?", cell.strip()) for cell in cells):
+            continue
+        first = cells[0].strip().strip("`")
+        if not first or first == "id" or first == "_no-active-exceptions_":
             continue
         ids.add(first)
     return ids

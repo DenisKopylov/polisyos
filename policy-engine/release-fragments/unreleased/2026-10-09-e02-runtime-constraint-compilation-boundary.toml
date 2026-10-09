@@ -1,0 +1,21 @@
+id = "2026-10-09-e02-runtime-constraint-compilation-boundary"
+title = "Route Phase-2 constraint compilation through DataRequirement"
+type = "changed"
+component = "runtime-quality"
+owner = "team-runtime"
+summary = "Phase-2 constraint recomputation now uses DataRequirement's existing typed grammar-to-obligation compilation stage and returns a complete-basis capacity refusal when the owner-derived population exceeds the existing snapshot schema limit."
+evidence = [
+  "tests/unit/data_requirement/test_compiler.py",
+  "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+  "tests/integration/runtime_quality/test_workspace_foundry_consumption.py",
+]
+compatibility = "Existing Phase-2 DTOs and persisted artifact schema versions remain unchanged. Capacity refusal uses the existing missing-basis packet path and preserves the complete snapshot-basis CAS ref and digest; source-authority refusal remains separate. Compilation outputs continue to use the existing grammar, catalog, and obligation graph contracts."
+change_class = "internal"
+surface_classification = "internal: no HTTP, OpenAPI, or generated-client surface change."
+migration = "No persisted artifact migration is required."
+api = "DataRequirementCompiler adds a typed method that composes the existing policy-grammar, obligation-rule, and obligation-graph owners. Runtime uses the existing DataRequirement package facade and keeps source binding and Phase-2 constraint admission at the runtime boundary."
+limitations = "Compilation does not establish source authority, source completeness, or promotion readiness. A population above the existing snapshot schema limit is retained in its full CAS basis and blocked without partial snapshot admission."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

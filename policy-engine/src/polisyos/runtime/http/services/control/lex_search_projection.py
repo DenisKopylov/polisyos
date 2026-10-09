@@ -23,8 +23,8 @@ class LexSearchResponse(BaseModel):
     query: str
     results: list[LexSearchResultItem] = Field(default_factory=list)
     total: int = 0
-    search_mode: Literal["text", "vector"] = "text"
-    vector_refusal_code: str | None = None
+    search_mode: Literal["text", "vector"]
+    vector_refusal_code: str | None = Field(...)
 
 
 __all__ = ["LexSearchResponse", "LexSearchResultItem"]

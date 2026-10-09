@@ -1,0 +1,36 @@
+id = "2026-10-09-e02-c12-catalog-search-status"
+title = "Expose Catalog vector-search refusal on results"
+type = "changed"
+component = "data-forge"
+owner = "team-data-forge"
+summary = "Catalog search results and downstream candidate reports retain retrieval mode and named vector refusal independently of verbose explanations, including empty text-fallback results returned through the registered knowledge tool."
+evidence = [
+  "tests/unit/data_forge/domains/catalog/knowledge/test_store.py",
+  "tests/unit/data_forge/domains/academic/knowledge/test_knowledge_tools.py",
+  "tests/unit/runtime/quality/test_workspace_loop.py",
+  "tests/unit/data_forge/domains/catalog/batch/test_benchmark.py",
+]
+compatibility = "DatasetSearchResult adds optional typed search_mode and vector_refusal_code fields; direct DatasetCatalogGraph.search_datasets and KnowledgeToolkit.search_datasets calls keep their legacy list return. The registered search_datasets tool response now uses a DatasetSearchResponse object with results, search_mode, vector_refusal_code, and limitation_code so empty results retain query status or an explicit limitation. Semantic benchmark run v2 adds per-query status; legacy v1 payloads retain their exact serialized shape."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.data_forge.read_api.catalog DatasetSearchResult and DatasetSearchResponse search diagnostics; registered KnowledgeToolkit search_datasets tool response"
+migration = "Direct Python list callers need no change. Registered-tool consumers should read results from the response object and inspect search_mode/vector_refusal_code/limitation_code; text fallback rows remain candidates, and empty results may still carry a refusal or limitation."
+api = "DatasetSearchResponse carries rows plus same-query mode, vector refusal, or limitation; DatasetCatalogGraph.search_datasets_with_status and the registered KnowledgeToolkit search_datasets tool expose it. DatasetSearchResult continues to carry per-row status when rows exist. Measurement-root artifacts and semantic benchmark run v2 persist query-local status without changing semantic adequacy scoring; query metrics remain diagnostics, and the prompt formatter renders text fallback as candidate-only."
+limitations = "Retrieval mode and refusal describe compatibility/admission only. They do not establish vector ranking quality, model authority, or executable encode behavior beyond the already-bound encoder assets."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/data_forge/domains/catalog/knowledge/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "catalog-result-search-status-fields-and-atomic-tool-envelope"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_experimental: polisyos.data_forge.read_api.catalog.DatasetSearchResult and DatasetSearchResponse; registered KnowledgeToolkit search_datasets"
+owner = "team-data-forge"
+version_owner = "team-data-forge"
+deprecation_window = "not_applicable"
+release_note = "Dataset query results expose text/vector mode and a named vector-refusal reason independently of verbose explanations; the registered knowledge tool returns an atomic envelope that retains status when results are empty. Downstream measurement-root artifacts and semantic benchmark run v2 preserve that per-query status while legacy benchmark run v1 serialization remains unchanged."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/data_forge/domains/catalog/knowledge/README.md"]
+runbook_docs = []

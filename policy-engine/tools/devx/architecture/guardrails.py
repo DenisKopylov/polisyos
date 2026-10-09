@@ -25,6 +25,7 @@ from typing import Any
 
 import yaml
 
+from polisyos.common.markdown import split_markdown_table_row
 from tools.lib.fs import (
     admitted_file_digest,
     admitted_is_file,
@@ -1342,11 +1343,13 @@ def _parse_registry_ids(path: Path) -> set[str]:
     for line in path.read_text(encoding="utf-8").splitlines():
         if "|" not in line:
             continue
-        parts = [part.strip() for part in line.split("|")]
-        if len(parts) < 3:
+        cells = split_markdown_table_row(line)
+        if not cells:
             continue
-        first = parts[1].strip().strip("`")
-        if not first or first in {"id", "---", "_no-active-exceptions_", "-"}:
+        if all(re.fullmatch(r":?-{3,}:?", cell.strip()) for cell in cells):
+            continue
+        first = cells[0].strip().strip("`")
+        if not first or first == "id" or first == "_no-active-exceptions_":
             continue
         ids.add(first)
     return ids

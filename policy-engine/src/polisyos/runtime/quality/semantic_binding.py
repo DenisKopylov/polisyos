@@ -8,7 +8,15 @@ from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SerializerFunctionWrapHandler,
+    field_validator,
+    model_serializer,
+    model_validator,
+)
 
 from polisyos.runtime.quality.candidate_firewall import (
     candidate_firewall_issues_for_payload,
@@ -17,6 +25,8 @@ from polisyos.runtime.quality.candidate_firewall import (
 SEMANTIC_BINDING_SCHEMA_VERSION = "policyos.semantic_binding_ledger.v1"
 PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION = "policyos.producer_spine_context.v1"
 GY_SEMANTIC_BENCHMARK_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.semantic_benchmark.v1"
+GY_SEMANTIC_BENCHMARK_RUN_V1 = "policyos.policy_design_case.layer3_gy.semantic_benchmark_run.v1"
+GY_SEMANTIC_BENCHMARK_RUN_V2 = "policyos.policy_design_case.layer3_gy.semantic_benchmark_run.v2"
 PRODUCER_SPINE_CONSUMER_COMPONENTS = (
     "lex",
     "fabric",
@@ -70,11 +80,38 @@ class GySemanticBenchmark(BaseModel):
     labels: list[dict[str, Any]]
 
 
+class SemanticBenchmarkQueryStatus(BaseModel):
+    """Retrieval mode and refusal/limitation for one exact benchmark query."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    query: str = Field(min_length=1)
+    search_mode: Literal["text", "vector"] | None = None
+    vector_refusal_code: str | None = None
+    limitation_code: str | None = None
+
+    @model_validator(mode="after")
+    def _consistent_status(self) -> SemanticBenchmarkQueryStatus:
+        if self.search_mode == "vector":
+            if self.vector_refusal_code is not None or self.limitation_code is not None:
+                raise ValueError("vector query cannot carry a refusal or limitation")
+        elif self.search_mode == "text":
+            if not self.vector_refusal_code or self.limitation_code is not None:
+                raise ValueError("text fallback query requires only a vector refusal")
+        elif self.vector_refusal_code is not None or not self.limitation_code:
+            raise ValueError("unavailable query requires only a limitation")
+        return self
+
+
 class SemanticBenchmarkRun(BaseModel):
     """Result of evaluating catalog search against the governed benchmark."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
+    schema_version: Literal[
+        "policyos.policy_design_case.layer3_gy.semantic_benchmark_run.v1",
+        "policyos.policy_design_case.layer3_gy.semantic_benchmark_run.v2",
+    ] = GY_SEMANTIC_BENCHMARK_RUN_V1
     run_id: str
     benchmark_id: str
     benchmark_ref: str
@@ -94,6 +131,30 @@ class SemanticBenchmarkRun(BaseModel):
     missed_known_seeds: list[str]
     negative_controls_passed: list[str]
     threshold_disposition: Literal["pass", "fail"]
+    query_statuses: list[SemanticBenchmarkQueryStatus] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _version_matches_query_status(self) -> SemanticBenchmarkRun:
+        if self.schema_version == GY_SEMANTIC_BENCHMARK_RUN_V1:
+            if self.query_statuses:
+                raise ValueError("v1 semantic benchmark runs cannot carry query statuses")
+        elif not self.query_statuses:
+            raise ValueError("v2 semantic benchmark runs require per-query status")
+        elif any(status.query not in self.queries for status in self.query_statuses):
+            raise ValueError("query status must bind one of the recorded benchmark queries")
+        return self
+
+    @model_serializer(mode="wrap")
+    def _serialize_legacy_shape(
+        self,
+        handler: SerializerFunctionWrapHandler,
+    ) -> dict[str, Any]:
+        """Keep legacy v1 payload shape exact while v2 carries query diagnostics."""
+        payload = handler(self)
+        if self.schema_version == GY_SEMANTIC_BENCHMARK_RUN_V1:
+            payload.pop("schema_version", None)
+            payload.pop("query_statuses", None)
+        return payload
 
 
 class SemanticAdequacyGate:
@@ -109,6 +170,7 @@ class SemanticAdequacyGate:
         returned_hits: list[dict[str, Any]],
         posture: str = "pre_decision",
         freshness_ok: bool = True,
+        query_statuses: Sequence[SemanticBenchmarkQueryStatus] | None = None,
     ) -> SemanticBenchmarkRun:
         """Compute calibrated precision/recall and negative-control failures."""
 
@@ -116,29 +178,32 @@ class SemanticAdequacyGate:
         known = set(label.get("known_admissible_dataset_ids") or ())
         negatives = set(label.get("negative_control_dataset_ids") or ())
         accepted_hits = [
-            hit
-            for hit in returned_hits
-            if float(hit.get("calibrated_relevance") or 0.0) >= 0.5
+            hit for hit in returned_hits if float(hit.get("calibrated_relevance") or 0.0) >= 0.5
         ]
         top_hits = accepted_hits[:5]
-        returned_ids = [
-            str(hit.get("dataset_id") or hit.get("id") or "") for hit in accepted_hits
-        ]
+        returned_ids = [str(hit.get("dataset_id") or hit.get("id") or "") for hit in accepted_hits]
         top_ids = [str(hit.get("dataset_id") or hit.get("id") or "") for hit in top_hits]
         negative_controls_passed = [hit_id for hit_id in returned_ids if hit_id in negatives]
         known_returned = known.intersection(returned_ids)
         precision_at_5 = len(known.intersection(top_ids)) / len(top_ids) if top_ids else 0.0
         recall_at_known_seeds = len(known_returned) / len(known) if known else 1.0
-        floors = self._benchmark.thresholds.get(posture) or self._benchmark.thresholds[
-            "pre_decision"
-        ]
+        floors = (
+            self._benchmark.thresholds.get(posture) or self._benchmark.thresholds["pre_decision"]
+        )
         failed = bool(
             negative_controls_passed
             or precision_at_5 < floors["precision_at_5"]
             or recall_at_known_seeds < floors["recall_at_known_seeds"]
             or not freshness_ok
         )
+        recorded_queries = [str(label.get("construct_scope_query") or construct_scope)]
+        recorded_query_statuses = list(query_statuses or ())
         return SemanticBenchmarkRun(
+            schema_version=(
+                GY_SEMANTIC_BENCHMARK_RUN_V2
+                if recorded_query_statuses
+                else GY_SEMANTIC_BENCHMARK_RUN_V1
+            ),
             run_id=f"semantic-run-{_slug(construct_scope)}",
             benchmark_id=self._benchmark.benchmark_id,
             benchmark_ref="architecture/policy_design_case/layer3_gy_semantic_benchmark.json",
@@ -149,7 +214,7 @@ class SemanticAdequacyGate:
             reviewer=self._benchmark.reviewer,
             rule_version_ref=self._benchmark.provenance["rule_version"],
             construct_scope=construct_scope,
-            queries=[str(label.get("construct_scope_query") or construct_scope)],
+            queries=recorded_queries,
             returned_hits=returned_hits,
             posture=posture,
             precision_at_5=precision_at_5,
@@ -158,6 +223,7 @@ class SemanticAdequacyGate:
             missed_known_seeds=sorted(known - known_returned),
             negative_controls_passed=negative_controls_passed,
             threshold_disposition="fail" if failed else "pass",
+            query_statuses=recorded_query_statuses,
         )
 
     def _label_for(self, construct_scope: str) -> dict[str, Any]:
@@ -436,10 +502,7 @@ class LexBindingRecord(ProducerSpineBindingFields):
     @classmethod
     def _strip_grades(cls, values: tuple[str, ...]) -> tuple[str, ...]:
         return tuple(
-            text
-            for value in values
-            for text in (_optional_text(value),)
-            if text is not None
+            text for value in values for text in (_optional_text(value),) if text is not None
         )
 
 
@@ -1287,10 +1350,7 @@ def _producer_semantic_status(
 ) -> SemanticBindingStatus:
     if evaluation.issues or evaluation.status == "fail":
         return "fail"
-    if (
-        evaluation.status == "blocked"
-        or existing_status.strip().casefold() in {"blocked", "block"}
-    ):
+    if evaluation.status == "blocked" or existing_status.strip().casefold() in {"blocked", "block"}:
         return "blocked"
     return "pass"
 
@@ -2104,8 +2164,7 @@ def _build_foundry_record(
                         ref
                         for row in selected_rows
                         for ref in _refs_from_value(
-                            row.get("uncertainty_envelope_refs")
-                            or row.get("uncertainty_refs")
+                            row.get("uncertainty_envelope_refs") or row.get("uncertainty_refs")
                         )
                     ),
                 ]
@@ -2155,11 +2214,7 @@ def _build_foundry_record(
             dict.fromkeys(
                 [
                     *_refs_from(foundry_report, "method_output_refs", "method_result_refs"),
-                    *(
-                        ref
-                        for row in selected_rows
-                        for ref in _method_output_refs_from_method(row)
-                    ),
+                    *(ref for row in selected_rows for ref in _method_output_refs_from_method(row)),
                 ]
             )
         ),
@@ -2365,9 +2420,7 @@ def _build_claim_evidence_paths(
                     dict.fromkeys(
                         ref
                         for binding in relevant_fabric
-                        for ref in _refs_from_value(
-                            binding.get("selected_dataset_source_refs")
-                        )
+                        for ref in _refs_from_value(binding.get("selected_dataset_source_refs"))
                     )
                 ),
                 "column_refs": _refs_from(
@@ -2508,11 +2561,15 @@ def _claim_fabric_bindings(
         selected = set(_refs_from_value(binding.get("selected_dataset_source_refs")))
         if wanted_data and not wanted_data.intersection(selected):
             continue
-        if any(
-            claim_id in _refs_from_value(column.get("claim_ids"))
-            or _claim_id(column) == claim_id
-            for column in _rows_from(binding.get("column_bindings"))
-        ) or not wanted_data or wanted_data.intersection(selected):
+        if (
+            any(
+                claim_id in _refs_from_value(column.get("claim_ids"))
+                or _claim_id(column) == claim_id
+                for column in _rows_from(binding.get("column_bindings"))
+            )
+            or not wanted_data
+            or wanted_data.intersection(selected)
+        ):
             matched.append(binding)
     return tuple(matched)
 
@@ -2582,9 +2639,7 @@ def _producer_handshake_ledger_issues(
     if status not in {"fail", "failed"} and not findings:
         return []
     issue_codes = tuple(
-        str(finding.get("code"))
-        for finding in findings
-        if str(finding.get("code") or "").strip()
+        str(finding.get("code")) for finding in findings if str(finding.get("code") or "").strip()
     )
     return [
         _issue(
@@ -2817,9 +2872,7 @@ def _fabric_lineage_issues(ledger: SemanticBindingLedger) -> list[SemanticBindin
                         )
                     )
         facet_refs = {
-            field_ref
-            for facet in binding.source_facets
-            for field_ref in facet.field_refs
+            field_ref for facet in binding.source_facets for field_ref in facet.field_refs
         }
         for feature in binding.derived_features:
             if not feature.source_facet_refs:
@@ -4518,9 +4571,7 @@ def _source_facet_from_row(
         ),
         "unit_refs": _refs_from_value(row.get("unit_refs") or row.get("units")),
         "geography_refs": _refs_from_value(
-            row.get("geography_refs")
-            or row.get("geography")
-            or coverage.get("geography")
+            row.get("geography_refs") or row.get("geography") or coverage.get("geography")
         ),
         "time_coverage_refs": _refs_from_value(
             row.get("time_coverage_refs")
@@ -4529,15 +4580,11 @@ def _source_facet_from_row(
             or coverage.get("time_window")
         ),
         "quality_refs": _refs_from_value(row.get("quality_refs") or row.get("quality")),
-        "missingness_refs": _refs_from_value(
-            row.get("missingness_refs")
-            or row.get("missingness")
-        ),
+        "missingness_refs": _refs_from_value(row.get("missingness_refs") or row.get("missingness")),
         "freshness_refs": _refs_from_value(row.get("freshness_refs") or freshness.get("ref")),
         "lineage_refs": _refs_from_value(row.get("lineage_refs") or row.get("lineage")),
         "transformation_refs": _refs_from_value(
-            row.get("transformation_refs")
-            or row.get("transformations")
+            row.get("transformation_refs") or row.get("transformations")
         ),
         "data_forge_snapshot_refs": tuple(
             dict.fromkeys(
@@ -4647,9 +4694,7 @@ def _authority_blocker_refs_by_family(
         *_rows_from(payload.get("blockers")),
     ]:
         code = _optional_text(row.get("code")) or _optional_text(row.get("reason_code"))
-        blocker_type = _optional_text(row.get("blocker_type")) or _optional_text(
-            row.get("family")
-        )
+        blocker_type = _optional_text(row.get("blocker_type")) or _optional_text(row.get("family"))
         tokens = {code.casefold(), blocker_type.casefold()}
         if not tokens.intersection(families):
             continue

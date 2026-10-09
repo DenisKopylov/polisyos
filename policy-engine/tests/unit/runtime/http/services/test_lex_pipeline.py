@@ -17,6 +17,9 @@ from polisyos.lex.knowledge import LegalFactResult
 from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.http.container import RuntimeContainerOverrides
 from polisyos.runtime.http.services.control.lex_pipeline import LexPipelineMixin
+from tests._helpers.runtime_api.legal_search_profile_fixture import (
+    build_legal_search_profile_fixture,
+)
 
 
 def _owner_result(*, suffix: str, similarity: float) -> LegalFactResult:
@@ -237,6 +240,39 @@ def test_search_lex_graph_preserves_valid_intent_and_typed_provider_refusal(
     assert response.vector_refusal_code == "query_encoder_assets_unavailable"
     assert [item.fact_id for item in response.results] == ["fact-typed"]
     assert graph.close_count == 1
+
+
+def test_get_lex_search_profile_reads_the_selected_fact_generation_snapshot(
+    tmp_path: Path,
+) -> None:
+    fixture = build_legal_search_profile_fixture(tmp_path / "legal-profile")
+
+    response = LexPipelineMixin().get_lex_search_profile(
+        str(fixture.output_dir),
+        request_id="req-selected-legal-profile",
+    )
+
+    assert response.status == "available"
+    assert response.output_dir == str(fixture.output_dir)
+    assert len(response.query_generation_intent) == 1
+    intent = response.query_generation_intent[0]
+    assert intent.basis_kind == "legal_lex_facts_embedding"
+    assert len(intent.generation_id) == 32
+    inventory = json.loads(intent.inventory_json)
+    assert inventory["generation_id"] == intent.generation_id
+    assert inventory["basis"]["basis_kind"] == intent.basis_kind
+
+
+def test_get_lex_search_profile_returns_typed_refusal_without_a_selected_generation(
+    tmp_path: Path,
+) -> None:
+    response = LexPipelineMixin().get_lex_search_profile(
+        str(tmp_path / "missing-legal-profile"),
+        request_id="req-missing-legal-profile",
+    )
+
+    assert response.status == "refused"
+    assert response.refusal_code == "selected_generation_unavailable"
 
 
 def test_search_lex_graph_rejects_malformed_intent_and_keeps_text_results(

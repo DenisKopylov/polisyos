@@ -68,6 +68,16 @@ class DatasetSearchResult(BaseModel):
     connector_type: str = ""
     connector_params: dict = Field(default_factory=dict)
     profile_id: str = ""
+    search_mode: Literal["text", "vector"] | None = Field(
+        default=None,
+        description=(
+            "Query retrieval mode: vector-enabled hybrid search or text-only candidate search."
+        ),
+    )
+    vector_refusal_code: str | None = Field(
+        default=None,
+        description="Named reason vector retrieval was refused for this query, if any.",
+    )
     search_explanation: dict[str, object] | None = None
 
     def embedding_text(self) -> str:
@@ -80,6 +90,45 @@ class DatasetSearchResult(BaseModel):
         if self.variables:
             parts.append(" ".join(self.variables[:20]))
         return " ".join(parts)
+
+
+class DatasetSearchResponse(BaseModel):
+    """Atomic dataset query result and the retrieval status for that query.
+
+    Unlike the legacy list result, this envelope can report a vector refusal
+    when text fallback finds no datasets.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    results: list[DatasetSearchResult] = Field(
+        default_factory=list,
+        description="Dataset candidates returned by this query.",
+    )
+    search_mode: Literal["text", "vector"] | None = Field(
+        default=None,
+        description="Retrieval path completed by this query, when catalog search ran.",
+    )
+    vector_refusal_code: str | None = Field(
+        default=None,
+        description="Reason vector retrieval was refused before text fallback.",
+    )
+    limitation_code: str | None = Field(
+        default=None,
+        description="Reason this query's retrieval status could not be established.",
+    )
+
+    @model_validator(mode="after")
+    def _consistent_query_status(self) -> DatasetSearchResponse:
+        if self.search_mode == "vector":
+            if self.vector_refusal_code is not None or self.limitation_code is not None:
+                raise ValueError("vector search cannot carry a refusal or limitation")
+        elif self.search_mode == "text":
+            if not self.vector_refusal_code or self.limitation_code is not None:
+                raise ValueError("text fallback requires only a vector refusal code")
+        elif self.vector_refusal_code is not None or not self.limitation_code:
+            raise ValueError("unavailable search status requires only a limitation code")
+        return self
 
 
 class DistributionRecord(BaseModel):

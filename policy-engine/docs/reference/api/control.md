@@ -88,6 +88,7 @@ Validation anchors:
 | `POST` | `/api/v1/control/lex/trigger`              | `LexTriggerRequest` | `LexTriggerResponse`        |
 | `GET`  | `/api/v1/control/lex/status/{pipeline_id}` | None                | `LexPipelineStatusResponse` |
 | `GET`  | `/api/v1/control/lex/graph/stats`          | None                | `LexGraphStatsResponse`     |
+| `GET`  | `/api/v1/control/lex/search-profile`       | None                | `LexSearchProfileResponse`  |
 | `POST` | `/api/v1/control/lex/search`               | `LexSearchRequest`  | `LexSearchResponse`         |
 
 ### Operational Endpoints
@@ -552,13 +553,29 @@ http GET :8000/api/v1/control/lex/graph/stats \
   output_dir==var/lex/pipeline-2026-04-03
 ```
 
+### `GET /api/v1/control/lex/search-profile`
+
+Read the selected persisted Legal fact-generation snapshot for `output_dir` using
+the same authorization scope as Lex search. An `available` response contains
+`query_generation_intent`; a `refused` response contains a typed `refusal_code`.
+Availability verifies the selected generation and inventory bytes. It does not
+establish encoder currentness, graph membership, or institutional authority.
+Search revalidates its actual inputs when it consumes this snapshot.
+
+The dashboard reads this snapshot for the clicked output directory and retains
+the exact intent for that search request. If the snapshot cannot be read, it
+omits the intent and displays the resulting text fallback.
+
 ### `POST /api/v1/control/lex/search`
 
 Search indexed Lex facts.
 
 - Request body: `LexSearchRequest`
   - Required: `query`, `output_dir`
-  - Optional: `top_k`
+  - Optional: `top_k`, `query_generation_intent`
+- Response always includes `search_mode` and nullable `vector_refusal_code`.
+  Missing or incompatible vector intent produces text fallback with a named
+  refusal. An empty result still carries these query-level diagnostics.
 
 ```bash
 curl -X POST "http://localhost:8000/api/v1/control/lex/search" \

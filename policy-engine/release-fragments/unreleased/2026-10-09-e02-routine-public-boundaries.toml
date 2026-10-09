@@ -1,0 +1,33 @@
+id = "2026-10-09-e02-routine-public-boundaries"
+title = "Route routine runtime contracts through their public facades"
+type = "changed"
+component = "runtime-architecture"
+owner = "team-platform"
+summary = "Runtime type consumers now import Catalog and prepared-SKG contracts through Data Forge read APIs; IR posterior summaries use IR artifact refs at the IR boundary; runtime quality and migration consumers use public Core/Common facades; and the Foundry snapshot-layout exception is available through the execute facade. The Core contracts facade now expands its chronology exports and resolves all declared CausalFrontier and DecisionPacket symbols for wildcard imports."
+evidence = [
+  "tests/unit/data_forge/read_api/test_surfaces.py",
+  "tests/unit/core/contracts/test_ir_ref_facades.py",
+  "tests/unit/scientist/compute/test_runner_posterior_summary.py",
+  "tests/unit/core/artifacts/test_manifest_serialization_schema.py",
+  "tests/unit/runtime/quality/test_chronology_proof.py",
+  "tests/unit/runtime/quality/test_generation_source.py",
+  "tests/unit/common/test_migrations_purity.py",
+  "tests/unit/foundry/runtime/test_executor_snapshots.py",
+  "tests/unit/scientist/agent/test_feasibility_probe.py",
+]
+compatibility = "Existing implementations and object identities are preserved. New expected-manifest and migration traversal exports, and the snapshot-layout exception alias, are additive. Posterior summary persistence now accepts the IR-native reference model; the Foundry adapter explicitly converts the producer-issued Core reference while preserving its selected manifest profile."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core, polisyos.common, polisyos.foundry.execute, and Data Forge read_api canonical facades"
+migration = "No persisted artifact schema or wire encoding changes. Consumers can use the public facades for the same canonical types and helpers; candidate posterior summaries retain the exact selected method-evidence manifest profile."
+api = "Runtime and migration consumers route to the canonical public facade for each owner. SnapshotStateLayoutError is the same exception class raised by the existing snapshot decoder."
+limitations = "These boundary changes do not add producer authority, change historical manifest selection, or make a schema/layout mismatch admissible."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/data_forge/README.md",
+  "src/polisyos/core/artifacts/README.md",
+  "src/polisyos/core/contracts/README.md",
+  "src/polisyos/common/migrations/README.md",
+  "src/polisyos/foundry/README.md",
+]
+runbook_docs = []

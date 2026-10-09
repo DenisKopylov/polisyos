@@ -12,7 +12,7 @@ migration = "Producer models with model-level assignment validators require a fi
 api = "Existing executor/worker and strict runner wire signatures remain unchanged."
 limitations = "Finite ordinary model fields and container graphs only; arbitrary callback closure effects/reflection are not sandboxed. Runtime, style, typing and matched-removal checks for the new candidate are UNRUN."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = ["src/polisyos/scientist/orchestration/engine/README.md", "src/polisyos/data_forge/README.md"]
 runbook_docs = []
 
@@ -31,7 +31,7 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "b53-prepared-read-facade"
-change_class = "additive"
+change_class = "python-public-api"
 impact = "additive"
 surface = "public_experimental: polisyos.data_forge.read_api.academic"
 owner = "data_forge"
@@ -44,7 +44,7 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "b61-explicit-retained-operational-source"
-change_class = "additive"
+change_class = "runtime-state-format"
 impact = "additive"
 surface = "public_experimental: ExperimentState.inputs.skg_source_snapshot"
 owner = "scientist.engine"
@@ -70,7 +70,7 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "b61-canonical-durability-facade"
-change_class = "additive"
+change_class = "python-public-api"
 impact = "additive"
 surface = "public_experimental: polisyos.core.artifacts durability helper reexports"
 owner = "core.artifacts"

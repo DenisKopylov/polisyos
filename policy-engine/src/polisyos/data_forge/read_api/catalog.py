@@ -82,6 +82,7 @@ _EXPORTS = {
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "DatasetRegistry": "polisyos.data_forge.domains.catalog.knowledge.registry",
+    "DatasetSearchResponse": "polisyos.data_forge.domains.catalog.knowledge.types",
     "DatasetSearchResult": "polisyos.data_forge.domains.catalog.knowledge.types",
     "MetricBindingMatch": "polisyos.data_forge.domains.catalog.knowledge.types",
     "CatalogContentIdentity": "polisyos.data_forge.domains.catalog.knowledge.types",

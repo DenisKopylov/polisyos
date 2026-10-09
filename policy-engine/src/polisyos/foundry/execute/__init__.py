@@ -7,10 +7,19 @@ import sys
 import types
 from typing import Any
 
-__all__ = ["ResolvedExecutionPosture", "execute", "resolve_execution_posture"]
+__all__ = [
+    "ResolvedExecutionPosture",
+    "SnapshotStateLayoutError",
+    "execute",
+    "resolve_execution_posture",
+]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "ResolvedExecutionPosture": ("polisyos.foundry.execute.api", "ResolvedExecutionPosture"),
+    "SnapshotStateLayoutError": (
+        "polisyos.foundry.execute._internal.snapshots",
+        "_SnapshotStateLayoutError",
+    ),
     "execute": ("polisyos.foundry.execute.api", "execute"),
     "resolve_execution_posture": ("polisyos.foundry.execute.api", "resolve_execution_posture"),
 }

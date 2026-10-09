@@ -18,7 +18,11 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from copy import deepcopy
 from dataclasses import dataclass, field
+from datetime import date, datetime
+from decimal import Decimal
+from enum import Enum, EnumType, IntEnum, ReprEnum, StrEnum
 from inspect import getattr_static
+from math import isfinite
 from operator import index as _index
 from typing import Any, ClassVar, Literal, Self, SupportsIndex, cast
 
@@ -31,7 +35,11 @@ from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 _MISSING = object()
 _JOURNAL_INTENT_CANON = CanonSpec(forbid_floats=False, exclude_none=False)
+_FINITE_GRAPH_ERROR = "state mutation journaling requires a finite JSON container graph"
 _MUTATION_JOURNAL_ATTR = "_polisyos_state_mutation_journal"
+_CANONICAL_STATE_FIELD_DEPTH = 2
+_CANONICAL_MAPPING_CHILD_DEPTH = 2
+_CANONICAL_SEQUENCE_CHILD_DEPTH = 1
 _TOP_LEVEL_MUTABLE_FIELDS = (
     "inputs",
     "artifacts_index",
@@ -40,6 +48,40 @@ _TOP_LEVEL_MUTABLE_FIELDS = (
     "budgets",
     "causal_method_params",
 )
+_SAFE_ENUM_ANCESTORS = frozenset({Enum, IntEnum, ReprEnum, StrEnum, object, str, int, bytes, float})
+_SAFE_ENUM_VALUE_TYPES = frozenset({str, int, bytes, float})
+_ENUM_COPY_AND_SCALAR_HOOKS = (
+    "__copy__",
+    "__deepcopy__",
+    "__getattribute__",
+    "__getattr__",
+    "__setattr__",
+    "__delattr__",
+    "__reduce__",
+    "__reduce_ex__",
+    "__getstate__",
+    "__getnewargs__",
+    "__getnewargs_ex__",
+    "__new__",
+    "__init__",
+    "__str__",
+    "__repr__",
+    "__format__",
+    "__bool__",
+    "__int__",
+    "__index__",
+    "__float__",
+    "__complex__",
+    "__bytes__",
+    "__hash__",
+    "__eq__",
+    "__ne__",
+    "__lt__",
+    "__le__",
+    "__gt__",
+    "__ge__",
+)
+_ENUM_MEMBER_STORAGE_KEYS = frozenset({"_value_", "_name_", "__objclass__", "_sort_order_"})
 
 StateMutationTargetPresence = Literal["present", "missing"]
 StateMutationTargetKind = Literal["missing", "dict", "list", "set", "model", "scalar"]
@@ -107,7 +149,7 @@ class _JournaledExperimentState(ExperimentState):
         if isinstance(journal, StateMutationJournal) and journal.enforce_write_scope:
             if name not in journal.isolated_paths:
                 raise ValueError(f"undeclared state_writes at live paths: {[name]}")
-            _validate_mutation_attachment(None, value)
+            _validate_mutation_attachment(None, value, depth=_CANONICAL_STATE_FIELD_DEPTH)
             value = _wrap_mutable_value(value, (name,), journal)
         if isinstance(journal, StateMutationJournal) and name in journal.isolated_paths:
             previous = getattr(self, name, _MISSING)
@@ -237,7 +279,11 @@ def branch_state(
         # Admission precedes every path-isolation copy as well as tracked class
         # creation. Original model copy/constructor hooks cannot run first.
         for name in type(base_state).model_fields:
-            _validate_mutation_attachment(None, getattr(base_state, name))
+            _validate_mutation_attachment(
+                None,
+                getattr(base_state, name),
+                depth=_CANONICAL_STATE_FIELD_DEPTH,
+            )
     branched = _promote_to_journaled_state(base_state.model_copy(deep=False))
     object.__setattr__(branched, _MUTATION_JOURNAL_ATTR, None)
     isolated_fields: list[str] = []
@@ -270,7 +316,11 @@ def branch_state(
 def _validate_producer_state(base_state: ExperimentState) -> None:
     """Admit the full mutable graph before producer snapshots can invoke copy hooks."""
     for name in type(base_state).model_fields:
-        _validate_mutation_attachment(None, getattr(base_state, name))
+        _validate_mutation_attachment(
+            None,
+            getattr(base_state, name),
+            depth=_CANONICAL_STATE_FIELD_DEPTH,
+        )
 
 
 def snapshot_state(base_state: ExperimentState) -> ExperimentState:
@@ -568,7 +618,11 @@ def _install_mutation_tracking(
         for field_name in type(state).model_fields:
             value = getattr(state, field_name, None)
             if isinstance(value, (dict, list, tuple, BaseModel)):
-                _validate_mutation_attachment(None, value)
+                _validate_mutation_attachment(
+                    None,
+                    value,
+                    depth=_CANONICAL_STATE_FIELD_DEPTH,
+                )
                 _set_path(state, (field_name,), _wrap_mutable_value(value, (field_name,), journal))
     for parts in paths:
         for length in range(1, len(parts)):
@@ -1083,7 +1137,7 @@ class _TrackedModelMixin(BaseModel):
             raise TypeError("state mutation journaling requires a declared model field")
         _authorize_container_mutation(self, suffixes=((name,) for name in update or ()))
         for value in (update or {}).values():
-            _validate_mutation_attachment(None, value)
+            _validate_mutation_attachment(None, value, depth=_canonical_attachment_depth(self))
         copied = super().model_copy(deep=deep)
         # A detached copy is not an alias in the original state. Its setters
         # retain the original logical scope until an actual parent attaches it.
@@ -1178,7 +1232,7 @@ def _validated_assignment_value(model: _TrackedModelMixin, name: str, value: Any
     before = _assignment_sibling_signature(trial, name)
     before_fields_set = set(trial.__pydantic_fields_set__) - {name}
     setattr(trial, name, offered)
-    _validate_mutation_attachment(None, trial)
+    _validate_mutation_attachment(None, trial, depth=_tracked_container_depth(model))
     if (
         _assignment_sibling_signature(trial, name) != before
         or set(trial.__pydantic_fields_set__) - {name} != before_fields_set
@@ -1190,7 +1244,9 @@ def _validated_assignment_value(model: _TrackedModelMixin, name: str, value: Any
 
 
 def _ordinary_model_type(value: BaseModel) -> type[BaseModel]:
-    original = value._original_model_type if isinstance(value, _TrackedModelMixin) else type(value)
+    value_type = type(value)
+    value_mro = type.__getattribute__(value_type, "__mro__")
+    original = value._original_model_type if _TrackedModelMixin in value_mro else value_type
     if type(original) is not type(BaseModel):
         raise TypeError("state mutation journaling requires the canonical BaseModel metaclass")
     hooks = (
@@ -1248,6 +1304,62 @@ def _initialize_model_tracking(
 
 def _model_members(value: BaseModel) -> Iterable[tuple[str, Any]]:
     return ((name, getattr(value, name)) for name in type(value).model_fields)
+
+
+def _static_type_hook(value_type: type[Any], name: str) -> Any:
+    """Read a raw class hook and normalize ordinary descriptor wrappers."""
+    hook = getattr_static(value_type, name, _MISSING)
+    if type(hook) in {classmethod, staticmethod}:
+        return hook.__func__
+    return hook
+
+
+def _is_callback_free_scalar_enum(value: Any) -> bool:
+    """Accept only ordinary string/integer enum members with scalar values."""
+    enum_type = type(value)
+    if type(enum_type) is not EnumType:
+        return False
+    mro = type.__getattribute__(enum_type, "__mro__")
+    if Enum not in mro or any(base not in _SAFE_ENUM_ANCESTORS for base in mro[1:]):
+        return False
+    if type.__getattribute__(enum_type, "_member_type_") not in _SAFE_ENUM_VALUE_TYPES:
+        return False
+    if getattr_static(enum_type, "_value_", _MISSING) is not _MISSING:
+        return False
+    if _static_type_hook(enum_type, "value") is not _static_type_hook(Enum, "value"):
+        return False
+
+    # Deepcopy and later scalar use must resolve to standard Enum/object or
+    # builtin scalar hooks; no custom protocol can execute before snapshot.
+    for hook_name in _ENUM_COPY_AND_SCALAR_HOOKS:
+        implementation = _static_type_hook(enum_type, hook_name)
+        if implementation is _MISSING:
+            continue
+        if not any(
+            implementation is _static_type_hook(standard_type, hook_name)
+            for standard_type in _SAFE_ENUM_ANCESTORS
+        ):
+            return False
+
+    try:
+        member_state = object.__getattribute__(value, "__dict__")
+        member_name = object.__getattribute__(value, "_name_")
+        member_value = object.__getattribute__(value, "_value_")
+        members = type.__getattribute__(enum_type, "__members__")
+    except AttributeError:
+        return False
+    if (
+        type(member_state) is not dict
+        or frozenset(dict.keys(member_state)) != _ENUM_MEMBER_STORAGE_KEYS
+        or type(member_name) is not str
+        or dict.get(member_state, "__objclass__") is not enum_type
+        or members.get(member_name, _MISSING) is not value
+        or dict.get(member_state, "_value_") is not member_value
+    ):
+        return False
+    return type(member_value) in _SAFE_ENUM_VALUE_TYPES and (
+        type(member_value) is not float or isfinite(member_value)
+    )
 
 
 def _bind_mutation_root(value: Any, model: BaseModel, name: str, path: tuple[str, ...]) -> None:
@@ -1322,33 +1434,136 @@ def _current_mutation_paths(
     return list(dict.fromkeys(paths))
 
 
-def _validate_mutation_attachment(
-    container: _TrackedDict | _TrackedList | _TrackedModelMixin | None, value: Any
-) -> None:
-    """Reject a cyclic attachment before changing the finite owned JSON graph."""
+def _canonical_model_child_depth(model: BaseModel) -> int:
+    """Return the canonical depth cost of serializing one model field."""
+    if RootModel in type.__getattribute__(type(model), "__mro__"):
+        return _CANONICAL_SEQUENCE_CHILD_DEPTH
+    return _CANONICAL_MAPPING_CHILD_DEPTH
 
-    def visit(child: Any, ancestors: frozenset[int]) -> None:
-        if isinstance(child, (set, bytearray)):
-            raise TypeError("state mutation journaling requires a finite JSON container graph")
+
+def _tracked_container_depth(value: Any, ancestors: frozenset[int] = frozenset()) -> int:
+    """Return the deepest canonical depth at which this tracked value lives."""
+    value_type = type(value)
+    value_mro = type.__getattribute__(value_type, "__mro__")
+    if value_type not in {_TrackedDict, _TrackedList} and _TrackedModelMixin not in value_mro:
+        return _CANONICAL_STATE_FIELD_DEPTH
+    identity = id(value)
+    if identity in ancestors:
+        return _CANONICAL_STATE_FIELD_DEPTH
+    ancestors = ancestors | {identity}
+    roots = object.__getattribute__(value, "_mutation_roots")
+    owners = object.__getattribute__(value, "_mutation_owners")
+    depths: list[int] = []
+
+    for root, _, _ in list.__iter__(roots):
+        root_mro = type.__getattribute__(type(root), "__mro__")
+        if _JournaledExperimentState in root_mro:
+            depths.append(_CANONICAL_STATE_FIELD_DEPTH)
+        else:
+            depths.append(
+                _tracked_container_depth(root, ancestors) + _canonical_model_child_depth(root)
+            )
+
+    for owner, _, _ in list.__iter__(owners):
+        owner_depth = _tracked_container_depth(owner, ancestors)
+        owner_type = type(owner)
+        owner_mro = type.__getattribute__(owner_type, "__mro__")
+        if owner_type in {dict, _TrackedDict}:
+            owner_depth += _CANONICAL_MAPPING_CHILD_DEPTH
+        elif owner_type in {list, _TrackedList, tuple}:
+            owner_depth += _CANONICAL_SEQUENCE_CHILD_DEPTH
+        elif BaseModel in owner_mro:
+            owner_depth += _canonical_model_child_depth(owner)
+        else:
+            owner_depth += _CANONICAL_MAPPING_CHILD_DEPTH
+        depths.append(owner_depth)
+
+    return max(depths, default=_CANONICAL_STATE_FIELD_DEPTH)
+
+
+def _canonical_attachment_depth(container: Any) -> int:
+    """Compute the canonical depth of a new child attached to a tracked parent."""
+    depth = _tracked_container_depth(container)
+    value_type = type(container)
+    value_mro = type.__getattribute__(value_type, "__mro__")
+    if value_type in {dict, _TrackedDict}:
+        return depth + _CANONICAL_MAPPING_CHILD_DEPTH
+    if value_type in {list, _TrackedList, tuple}:
+        return depth + _CANONICAL_SEQUENCE_CHILD_DEPTH
+    if BaseModel in value_mro:
+        return depth + _canonical_model_child_depth(container)
+    return depth + _CANONICAL_MAPPING_CHILD_DEPTH
+
+
+def _validate_mutation_attachment(
+    container: _TrackedDict | _TrackedList | _TrackedModelMixin | None,
+    value: Any,
+    *,
+    depth: int | None = None,
+) -> None:
+    """Admit only callback-free finite state values before copy or attachment."""
+    if depth is None:
+        depth = (
+            _CANONICAL_STATE_FIELD_DEPTH
+            if container is None
+            else _canonical_attachment_depth(container)
+        )
+
+    def visit(child: Any, ancestors: frozenset[int], depth: int) -> None:
+        if depth > _JOURNAL_INTENT_CANON.max_depth:
+            raise TypeError(_FINITE_GRAPH_ERROR)
         if container is not None and child is container:
             raise ValueError("cyclic state mutation attachment")
-        if isinstance(child, BaseModel):
-            _ordinary_model_type(child)
-        if not isinstance(child, (dict, list, tuple, BaseModel)):
+        child_type = type(child)
+        if BaseModel in type.__getattribute__(child_type, "__mro__"):
+            model = cast("BaseModel", child)
+            _ordinary_model_type(model)
+            if id(child) in ancestors:
+                raise ValueError("cyclic state mutation value")
+            for _, item in _model_members(model):
+                visit(
+                    item,
+                    ancestors | {id(child)},
+                    depth + _canonical_model_child_depth(model),
+                )
             return
-        if id(child) in ancestors:
-            raise ValueError("cyclic state mutation value")
-        nested = (
-            (value for _, value in _model_members(child))
-            if isinstance(child, BaseModel)
-            else child.values()
-            if isinstance(child, dict)
-            else child
-        )
-        for item in nested:
-            visit(item, ancestors | {id(child)})
 
-    visit(value, frozenset())
+        if child_type is dict or child_type is _TrackedDict:
+            if id(child) in ancestors:
+                raise ValueError("cyclic state mutation value")
+            for key, item in dict.items(child):
+                if type(key) is not str:
+                    raise TypeError(_FINITE_GRAPH_ERROR)
+                visit(
+                    item,
+                    ancestors | {id(child)},
+                    depth + _CANONICAL_MAPPING_CHILD_DEPTH,
+                )
+            return
+        if child_type is list or child_type is _TrackedList:
+            if id(child) in ancestors:
+                raise ValueError("cyclic state mutation value")
+            for item in list.__iter__(child):
+                visit(item, ancestors | {id(child)}, depth + _CANONICAL_SEQUENCE_CHILD_DEPTH)
+            return
+        if child_type is tuple:
+            if id(child) in ancestors:
+                raise ValueError("cyclic state mutation value")
+            for item in tuple.__iter__(child):
+                visit(item, ancestors | {id(child)}, depth + _CANONICAL_SEQUENCE_CHILD_DEPTH)
+            return
+
+        if _is_callback_free_scalar_enum(child):
+            return
+        if child is None or child_type in {bool, int, str, bytes, date, datetime}:
+            return
+        if child_type is float and isfinite(child):
+            return
+        if child_type is Decimal and child.is_finite():
+            return
+        raise TypeError(_FINITE_GRAPH_ERROR)
+
+    visit(value, frozenset(), depth)
 
 
 def _authorize_container_mutation(

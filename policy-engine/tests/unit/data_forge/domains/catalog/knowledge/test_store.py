@@ -5,7 +5,9 @@ from __future__ import annotations
 import sys
 import tempfile
 import types
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from threading import Event
 
 import duckdb
 import numpy as np
@@ -20,6 +22,8 @@ from polisyos.data_forge.domains.catalog.knowledge.types import (
     DatasetRecord,
     DistributionRecord,
 )
+from polisyos.scientist.agent.knowledge_tools import KnowledgeToolkit
+from polisyos.scientist.agent.tools.knowledge_tools_adapter import build_knowledge_tool_registry
 
 
 class _CatalogTokenizer:
@@ -338,6 +342,274 @@ def test_graph_rejects_query_encoder_assets_mismatched_with_selected_generation(
         incompatible_graph.close()
 
     assert selector_path.read_bytes() == selector_before
+
+
+def test_toolkit_reports_selected_generation_refusal_without_explanation(
+    monkeypatch, tmp_path: Path
+) -> None:
+    db_path = tmp_path / "toolkit-currentness.duckdb"
+    index_dir = tmp_path / "index"
+    build_graph(
+        records=iter(
+            [
+                DatasetRecord(
+                    id="ds-toolkit-currentness",
+                    title="GDP series",
+                    description="Annual GDP data",
+                    keywords=["gdp"],
+                    variables=["gross domestic product"],
+                )
+            ]
+        ),
+        db_path=db_path,
+    )
+    producer_encoder = _CatalogEncoder()
+    assert (
+        build_hnsw_index(
+            db_path=db_path,
+            index_dir=index_dir,
+            embedding_dimension=2,
+            encoder=producer_encoder,
+        )
+        == 1
+    )
+    selector_path = index_dir / "embedding_generation.json"
+    selector_before = selector_path.read_bytes()
+
+    compatible_encoder = _CatalogEncoder()
+    monkeypatch.setitem(
+        sys.modules,
+        "sentence_transformers",
+        types.SimpleNamespace(
+            SentenceTransformer=lambda *_args, **_kwargs: compatible_encoder,
+        ),
+    )
+    compatible_graph = DatasetCatalogGraph(db_path, index_dir)
+    try:
+        compatible_toolkit = KnowledgeToolkit(dataset_catalog=compatible_graph)
+        compatible_results = compatible_toolkit.search_datasets("gdp series", top_k=1)
+        assert compatible_results
+        assert compatible_results[0].search_mode == "vector"
+        assert compatible_results[0].vector_refusal_code is None
+    finally:
+        compatible_graph.close()
+
+    incompatible_encoder = _CatalogEncoder(weight=(0.0, 1.0))
+    monkeypatch.setitem(
+        sys.modules,
+        "sentence_transformers",
+        types.SimpleNamespace(
+            SentenceTransformer=lambda *_args, **_kwargs: incompatible_encoder,
+        ),
+    )
+    incompatible_graph = DatasetCatalogGraph(db_path, index_dir)
+    try:
+        toolkit = KnowledgeToolkit(dataset_catalog=incompatible_graph)
+        results = toolkit.search_datasets("gdp series", top_k=1)
+
+        assert results
+        assert results[0].search_mode == "text"
+        assert results[0].vector_refusal_code == "query_encoder_generation_intent_mismatch"
+        assert results[0].search_explanation is None
+        assert incompatible_encoder.encode_calls == 0
+        context = toolkit.format_dataset_context(results)
+        assert "query_encoder_generation_intent_mismatch" in context
+        assert "remain candidates" in context
+        assert incompatible_graph.last_query_metrics is not None
+        assert incompatible_graph.last_query_metrics.search_mode == "text"
+
+        tool_result = build_knowledge_tool_registry(toolkit).execute(
+            "search_datasets",
+            {"query": "gdp series", "top_k": 1},
+        )
+        assert tool_result.error is None
+        assert tool_result.result["results"][0]["search_mode"] == "text"
+        assert tool_result.result["results"][0]["vector_refusal_code"] == (
+            "query_encoder_generation_intent_mismatch"
+        )
+        assert tool_result.result["search_mode"] == "text"
+        assert tool_result.result["vector_refusal_code"] == (
+            "query_encoder_generation_intent_mismatch"
+        )
+    finally:
+        incompatible_graph.close()
+
+    wrong_profile_graph = DatasetCatalogGraph(
+        db_path,
+        index_dir,
+        embedding_model="different-model",
+    )
+    try:
+        wrong_profile_results = KnowledgeToolkit(
+            dataset_catalog=wrong_profile_graph
+        ).search_datasets("gdp series", top_k=1)
+        assert wrong_profile_results
+        assert wrong_profile_results[0].search_mode == "text"
+        assert wrong_profile_results[0].vector_refusal_code == "query_embedding_model_mismatch"
+        assert wrong_profile_results[0].search_explanation is None
+    finally:
+        wrong_profile_graph.close()
+
+    assert selector_path.read_bytes() == selector_before
+
+
+def test_registered_search_tool_keeps_refusal_for_empty_query_results(
+    monkeypatch, tmp_path: Path
+) -> None:
+    db_path = tmp_path / "empty-query-status.duckdb"
+    index_dir = tmp_path / "index"
+    build_graph(
+        records=iter(
+            [
+                DatasetRecord(
+                    id="ds-empty-query-status",
+                    title="GDP series",
+                    description="Annual GDP data",
+                    keywords=["gdp"],
+                    variables=["gross domestic product"],
+                )
+            ]
+        ),
+        db_path=db_path,
+    )
+    assert (
+        build_hnsw_index(
+            db_path=db_path,
+            index_dir=index_dir,
+            embedding_dimension=2,
+            encoder=_CatalogEncoder(),
+        )
+        == 1
+    )
+    selector_path = index_dir / "embedding_generation.json"
+    selector_before = selector_path.read_bytes()
+    query = "unmatched planetary query"
+
+    refusing_encoder = _CatalogEncoder(weight=(0.0, 1.0))
+    monkeypatch.setitem(
+        sys.modules,
+        "sentence_transformers",
+        types.SimpleNamespace(SentenceTransformer=lambda *_args, **_kwargs: refusing_encoder),
+    )
+    refusing_graph = DatasetCatalogGraph(db_path, index_dir)
+    try:
+        toolkit = KnowledgeToolkit(dataset_catalog=refusing_graph)
+        assert toolkit.search_datasets(query, top_k=1) == []
+
+        tool_result = build_knowledge_tool_registry(toolkit).execute(
+            "search_datasets",
+            {"query": query, "top_k": 1},
+        )
+        assert tool_result.error is None
+        assert tool_result.result == {
+            "results": [],
+            "search_mode": "text",
+            "vector_refusal_code": "query_encoder_generation_intent_mismatch",
+        }
+        assert refusing_encoder.encode_calls == 0
+    finally:
+        refusing_graph.close()
+
+    compatible_encoder = _CatalogEncoder()
+    monkeypatch.setitem(
+        sys.modules,
+        "sentence_transformers",
+        types.SimpleNamespace(SentenceTransformer=lambda *_args, **_kwargs: compatible_encoder),
+    )
+    compatible_graph = DatasetCatalogGraph(db_path, index_dir)
+    try:
+        compatible_tool_result = build_knowledge_tool_registry(
+            KnowledgeToolkit(dataset_catalog=compatible_graph)
+        ).execute(
+            "search_datasets",
+            {"query": query, "top_k": 1, "domain": "no-such-theme"},
+        )
+        assert compatible_tool_result.error is None
+        assert compatible_tool_result.result == {
+            "results": [],
+            "search_mode": "vector",
+        }
+        assert compatible_encoder.encode_calls > 0
+    finally:
+        compatible_graph.close()
+
+    assert selector_path.read_bytes() == selector_before
+
+
+def test_overlapping_queries_keep_their_own_encoder_status(monkeypatch, tmp_path: Path) -> None:
+    class ConcurrentCatalogEncoder(_CatalogEncoder):
+        def __init__(self) -> None:
+            super().__init__()
+            self.normal_query_started = Event()
+            self.release_normal_query = Event()
+
+        def encode(self, texts: list[str], **kwargs: object) -> np.ndarray:
+            if texts == ["normal concurrent query"]:
+                self.normal_query_started.set()
+                if not self.release_normal_query.wait(timeout=5):
+                    raise TimeoutError("normal query test gate timed out")
+            if texts == ["failing concurrent query"]:
+                raise RuntimeError("controlled query encoder failure")
+            return super().encode(texts, **kwargs)
+
+    db_path = tmp_path / "concurrent-query-status.duckdb"
+    index_dir = tmp_path / "index"
+    build_graph(
+        records=iter(
+            [
+                DatasetRecord(
+                    id="ds-concurrent-query-status",
+                    title="GDP series",
+                    description="Annual GDP data",
+                    keywords=["gdp"],
+                    variables=["gross domestic product"],
+                )
+            ]
+        ),
+        db_path=db_path,
+    )
+    encoder = ConcurrentCatalogEncoder()
+    assert (
+        build_hnsw_index(
+            db_path=db_path,
+            index_dir=index_dir,
+            embedding_dimension=2,
+            encoder=encoder,
+        )
+        == 1
+    )
+    monkeypatch.setitem(
+        sys.modules,
+        "sentence_transformers",
+        types.SimpleNamespace(SentenceTransformer=lambda *_args, **_kwargs: encoder),
+    )
+    graph = DatasetCatalogGraph(db_path, index_dir)
+    try:
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            normal_call = executor.submit(
+                graph.search_datasets_with_status, "normal concurrent query"
+            )
+            assert encoder.normal_query_started.wait(timeout=5)
+
+            failing_call_started = Event()
+
+            def _run_failing_query():
+                failing_call_started.set()
+                return graph.search_datasets_with_status("failing concurrent query")
+
+            failing_call = executor.submit(_run_failing_query)
+            assert failing_call_started.wait(timeout=5)
+            encoder.release_normal_query.set()
+            normal_response = normal_call.result(timeout=5)
+            failing_response = failing_call.result(timeout=5)
+
+        assert normal_response.search_mode == "vector"
+        assert normal_response.vector_refusal_code is None
+        assert failing_response.search_mode == "text"
+        assert failing_response.vector_refusal_code == "query_encoder_execution_failed"
+    finally:
+        encoder.release_normal_query.set()
+        graph.close()
 
 
 def test_graph_names_model_device_and_dimension_generation_refusals(

@@ -124,9 +124,7 @@ class _MockScholarGraph:
                         record_extraction_mode="llm_legacy",
                     ),
                     projection_binding=binding,
-                    limitations=(
-                        ClaimVocabularyLimitation.AMBIGUOUS_LEGACY_VOCABULARY,
-                    ),
+                    limitations=(ClaimVocabularyLimitation.AMBIGUOUS_LEGACY_VOCABULARY,),
                 ),
             ),
             total_identities=69_798,
@@ -313,6 +311,10 @@ def test_toolkit_no_graphs() -> None:
     assert not toolkit.has_scholar_graph
     assert not toolkit.has_legal_graph
     assert toolkit.search_datasets("GDP") == []
+    unavailable_search = toolkit.search_datasets_with_status("GDP")
+    assert unavailable_search.results == []
+    assert unavailable_search.search_mode is None
+    assert unavailable_search.limitation_code == "catalog_unavailable"
     assert toolkit.get_parameter_prior("test") is None
     assert toolkit.find_causal_evidence("X", "Y") == []
     assert toolkit.audit_academic_claim_lineage() is None
@@ -391,6 +393,19 @@ def test_toolkit_format_dataset_context() -> None:
     text = toolkit.format_dataset_context(results)
     assert "AVAILABLE DATASETS" in text
     assert "Mock dataset" in text
+
+    limited = [
+        DatasetSearchResult(
+            id="ds-text-only",
+            title="Text-only candidate",
+            search_mode="text",
+            vector_refusal_code="query_encoder_generation_intent_mismatch",
+        )
+    ]
+    limited_text = toolkit.format_dataset_context(limited)
+    assert "vector search was refused" in limited_text
+    assert "query_encoder_generation_intent_mismatch" in limited_text
+    assert "remain candidates" in limited_text
 
 
 def test_toolkit_format_evidence_context() -> None:

@@ -3,15 +3,20 @@ from __future__ import annotations
 from copy import deepcopy
 
 from polisyos.runtime.quality.semantic_binding import (
+    GY_SEMANTIC_BENCHMARK_RUN_V2,
     PRODUCER_SPINE_CONSUMER_COMPONENTS,
     PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION,
     SEMANTIC_BINDING_SCHEMA_VERSION,
     ProducerSpineReadContext,
+    SemanticAdequacyGate,
+    SemanticBenchmarkQueryStatus,
+    SemanticBenchmarkRun,
     SemanticBindingLedger,
     build_producer_spine_read_context,
     build_semantic_binding_ledger,
     close_semantic_binding_ledger,
     evaluate_semantic_binding_ledger,
+    load_gy_semantic_benchmark,
     producer_spine_read_context_for,
 )
 from tests._helpers.hds_quality import (
@@ -170,9 +175,7 @@ def _complete_ledger() -> dict[str, object]:
                 "placebo_negative_control_refs": ["placebo:pre_period"],
                 "sensitivity_refs": ["sensitivity:survival-v1"],
                 "uncertainty_refs": ["uncertainty:survival-v1"],
-                "uncertainty_envelopes": [
-                    {"status": "pass", "interval": [0.01, 0.07]}
-                ],
+                "uncertainty_envelopes": [{"status": "pass", "interval": [0.01, 0.07]}],
                 "limitation_refs": ["method-limit:survival-v1"],
                 "method_incompatibility_blocker_refs": [],
                 **_spine_binding_fields("foundry"),
@@ -585,9 +588,7 @@ def test_semantic_binding_blocks_unverified_candidate_in_legal_read_path() -> No
     evaluation = evaluate_semantic_binding_ledger(ledger)
 
     assert evaluation.status == "fail"
-    assert "candidate_firewall_candidate_unverified" in {
-        issue.code for issue in evaluation.issues
-    }
+    assert "candidate_firewall_candidate_unverified" in {issue.code for issue in evaluation.issues}
 
 
 def test_semantic_binding_builder_preserves_runtime_report_refs() -> None:
@@ -629,9 +630,7 @@ def test_semantic_binding_builder_preserves_runtime_report_refs() -> None:
     )
     assert validated.lex[0].concept_refs == ("concept.msme_survival_rate",)
     assert validated.lex[0].legal_snapshot_refs == (sha("d"),)
-    assert validated.lex[0].hierarchy_conflict_refs == (
-        "conflict:resolved-credit-eligibility",
-    )
+    assert validated.lex[0].hierarchy_conflict_refs == ("conflict:resolved-credit-eligibility",)
     assert validated.lex[0].competence_refs == ("competence:norm.ua.credit_eligibility",)
     assert validated.fabric[0].candidate_dataset_source_refs == ("production-msme-panel",)
     assert validated.fabric[0].selected_dataset_source_refs == ("production-msme-panel",)
@@ -728,9 +727,7 @@ def test_data_present_but_irrelevant_has_specific_wave13_failure_code() -> None:
     evaluation = evaluate_semantic_binding_ledger(ledger)
 
     assert evaluation.status == "fail"
-    assert "semantic_data_present_but_irrelevant" in {
-        issue.code for issue in evaluation.issues
-    }
+    assert "semantic_data_present_but_irrelevant" in {issue.code for issue in evaluation.issues}
 
 
 def test_manifest_role_source_selection_has_specific_wave13_failure_code() -> None:
@@ -1064,3 +1061,79 @@ def test_rejected_candidates_distinguish_no_relevant_from_retrieval_or_binding_f
         quality_evidence=_evidence_with_ledger(binding_failure),
     )
     assert "semantic_dataset_selection_ambiguous" in blocking_codes(binding_scorecard)
+
+
+def test_semantic_benchmark_retains_empty_query_refusal_in_versioned_run() -> None:
+    benchmark = load_gy_semantic_benchmark()
+    label = next(
+        item
+        for item in benchmark.labels
+        if item["fixture_id"] == "ua_msme_credit_worldbank_measurement"
+    )
+    query = str(label["construct_scope_query"])
+    gate = SemanticAdequacyGate(benchmark)
+
+    legacy_run = gate.evaluate(
+        construct_scope="ua_msme_credit_worldbank_measurement",
+        returned_hits=[],
+    )
+    current_run = gate.evaluate(
+        construct_scope="ua_msme_credit_worldbank_measurement",
+        returned_hits=[],
+        query_statuses=[
+            SemanticBenchmarkQueryStatus(
+                query=query,
+                search_mode="text",
+                vector_refusal_code="query_encoder_generation_intent_mismatch",
+            )
+        ],
+    )
+
+    assert current_run.schema_version == GY_SEMANTIC_BENCHMARK_RUN_V2
+    assert current_run.query_statuses[0].query == query
+    assert current_run.query_statuses[0].vector_refusal_code == (
+        "query_encoder_generation_intent_mismatch"
+    )
+    assert current_run.threshold_disposition == legacy_run.threshold_disposition == "fail"
+
+    legacy_payload = legacy_run.model_dump(mode="json")
+    assert "schema_version" not in legacy_payload
+    assert "query_statuses" not in legacy_payload
+    assert SemanticBenchmarkRun.model_validate(legacy_payload).model_dump(mode="json") == (
+        legacy_payload
+    )
+
+
+def test_query_status_does_not_change_adequate_semantic_benchmark_outcome() -> None:
+    benchmark = load_gy_semantic_benchmark()
+    label = next(
+        item
+        for item in benchmark.labels
+        if item["fixture_id"] == "ua_msme_credit_worldbank_measurement"
+    )
+    query = str(label["construct_scope_query"])
+    known_dataset_ids = list(label["known_admissible_dataset_ids"])
+    returned_hits = [
+        {"dataset_id": dataset_id, "calibrated_relevance": 0.95} for dataset_id in known_dataset_ids
+    ]
+    gate = SemanticAdequacyGate(benchmark)
+
+    baseline = gate.evaluate(
+        construct_scope="ua_msme_credit_worldbank_measurement",
+        returned_hits=returned_hits,
+    )
+    current = gate.evaluate(
+        construct_scope="ua_msme_credit_worldbank_measurement",
+        returned_hits=returned_hits,
+        query_statuses=[
+            SemanticBenchmarkQueryStatus(
+                query=query,
+                search_mode="vector",
+            )
+        ],
+    )
+
+    assert baseline.threshold_disposition == "pass"
+    assert current.threshold_disposition == baseline.threshold_disposition
+    assert current.precision_at_5 == baseline.precision_at_5
+    assert current.recall_at_known_seeds == baseline.recall_at_known_seeds

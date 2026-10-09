@@ -1,0 +1,21 @@
+id = "2026-10-09-e02-sim02-adapter-semantics"
+title = "Make N5 simulation adapter outcomes and write composition explicit"
+type = "changed"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "The N5 joint-simulation adapter now rejects incompatible simultaneous writes before engine invocation, using recursive type-sensitive equality so values such as true, 1, and 1.0 cannot become order-dependent. It distinguishes missing or malformed selected outputs from real numeric zero and preserves only returned trajectory rows with visible partial-coverage and method-time alignment diagnostics. Run-level scalar outputs cannot be repeated across a multi-step trajectory."
+evidence = [
+  "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+  "tests/unit/remediation/test_sim_02.py",
+  "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+]
+compatibility = "No package facade, HTTP, OpenAPI, or generated-client schema changes. Existing valid finite selected outcomes and compatible identical assignments retain their values; duplicate assignment equality is recursive and type-sensitive, with mappings independent of key order. Missing, malformed, and non-finite selected outputs now return typed refusals. Short non-empty trajectories remain candidate partial results with explicit coverage diagnostics instead of terminal-value fill. Multi-step selections of run-level scalars without per-step series now refuse instead of repeating one value at every row."
+change_class = "internal"
+surface_classification = "internal: N5 candidate simulation adapter; no public API or generated-client surface change."
+migration = "No persisted artifact migration. Consumers of dynamic trajectory diagnostics may read additive coverage and time-alignment fields; unqualified or malformed numerical outcomes are no longer projected as positive values."
+api = "The controller validates the selected plan's complete simultaneous write set before invoking the method. Repeated targets merge only when their recursively compared types and values match, including array shape and dtype; incompatible writes return a typed conflict before execution. It validates selected outcome values at each engine projection boundary. Dynamic adapters emit only covered points, preserve explicit method-contract inputs, and report a partial prefix or typed refusal according to the returned rows. Run-level scalar fields are projected only for a one-point horizon."
+limitations = "This remains candidate simulation output and establishes no causal evidence authority. The method time-alignment diagnostic compares a declared method time-step input to the requested horizon step; World Model Record time alignment remains not_established. Native coupled DES/ABM output is covered by patched-output semantics tests but its JAX execution remains unrun in this bounded check."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

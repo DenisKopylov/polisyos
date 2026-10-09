@@ -191,9 +191,27 @@ to their actual current parents. Frozen models retain their frozen assignment
 and copy contracts. Neutral public consumers keep the existing editable model
 behavior.
 
-Producer admission checks the full mutable graph before snapshots or isolation
-can invoke model-copy callbacks. Sequential admission refusal raises the typed
-error; asynchronous admission returns a failed node report with
+Producer admission walks the complete state graph before snapshots or
+isolation can invoke copy callbacks. It admits exact builtin `dict`, `list` and
+`tuple` containers with string dictionary keys, finite canonical scalar values,
+and recursively checked ordinary `BaseModel` / `RootModel` fields, including
+typed artifact refs. Native `Enum` / `StrEnum` fields are admitted only when
+their scalar mixin and all copy, reduction, attribute and scalar-protocol hooks
+resolve to standard Enum/builtin implementations; their internal value must be
+an exact finite scalar and their member storage must have the standard shape.
+These members remain the original enum singletons. The producer profile treats
+them as read-only atomic candidates, but Python does not enforce that assumption:
+direct mutation of a member's `_value_` or added attributes can bypass the state
+journal and affect every alias. This residual is not covered by the finite-data
+admission guarantee and must not carry a protected or published claim without a
+separate ownership decision. Internal tracked containers use builtin iteration
+during this walk. Unknown leaves, custom container/scalar subclasses, non-finite
+numbers, and graphs beyond the canonical depth bound are refused before copy
+or attachment. Depth accounting uses the same `max_depth` as canonical state
+persistence, including the dumped state root and the actual nested mapping,
+model and sequence costs; later tracked attachments account for their live
+parent path as well. Sequential admission refusal raises the typed error;
+asynchronous admission returns a failed node report with
 `execution_state=not_admitted`, without producer or state/cache publication.
 Internal installation into an admitted isolated model shell bypasses external
 producer setters. It does not broaden an ordinary nested branch's grant.
@@ -217,11 +235,14 @@ wire model set; dynamic tracking classes are never transport identities. The
 original provider-held view stays guarded after completion.
 
 This profile admits declared ordinary model fields and their finite container
-graph. Custom mutation/copy/construction hooks (including post-init), private or extra runtime model state, new
-undeclared model attributes and cyclic attachments are refused. Model-field
-deletion is refused because the replay consumer does not support it. It does not
-claim custody of arbitrary custom runtime objects, explicit base-class mutators
-or reflection, and does not reconstruct arbitrary model classes from cache JSON.
+graph. Custom mutation/copy/construction hooks (including post-init), private or
+extra runtime model state, new undeclared model attributes, unsupported runtime
+objects, and cyclic attachments are refused before snapshots can copy them.
+Model-field deletion is refused because the replay consumer does not support
+it. This does not claim custody of explicit base-class mutators, reflection,
+direct enum-member mutation, or external effects from assignment validators,
+and it does not reconstruct
+arbitrary model classes from cache JSON.
 
 Legacy `1.0` and `1.1` cache journals admit only direct primitive model or mapping
 set/delete operations. Nested or container intents become cache misses, allowing

@@ -16,6 +16,7 @@ from polisyos.core.artifacts.store import ArtifactIntegrityError, FileSystemCAS,
 from polisyos.core.contracts.foundry import StateSnapshot
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.execute import SnapshotStateLayoutError
 from polisyos.foundry.execute._internal.models import load_model
 from polisyos.foundry.execute._internal.snapshots import (
     _build_dataclass,
@@ -80,6 +81,10 @@ def _seed_legacy_state_blob(tmp_path, state: GlobalState):
     return store, legacy_ref, legacy_inputs
 
 
+def test_execute_facade_exports_the_canonical_snapshot_layout_error() -> None:
+    assert SnapshotStateLayoutError is snapshots_module._SnapshotStateLayoutError
+
+
 def test_snapshot_metadata_includes_version_checksum_and_entry_count(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     state = GlobalState.empty(n_agents=3, n_firms=2)
@@ -112,9 +117,7 @@ def test_state_snapshot_payload_without_version_keeps_historical_2_1_default() -
         media_type="application/x-npz",
     )
 
-    snapshot = StateSnapshot.model_validate(
-        {"state_ref": state_ref.model_dump(mode="json")}
-    )
+    snapshot = StateSnapshot.model_validate({"state_ref": state_ref.model_dump(mode="json")})
 
     assert snapshot.schema_version == "2.1"
     assert snapshot.lineage_inputs is None
@@ -430,9 +433,7 @@ def test_state_snapshot_2_1_selected_state_ref_replays_legacy_bare_edge_without_
         ),
     )
     assert selected_state_ref.manifest_profile_sha256 is not None
-    historical_edge = InputRef(
-        artifact_id=selected_state_ref.artifact_id, role="state_blob"
-    )
+    historical_edge = InputRef(artifact_id=selected_state_ref.artifact_id, role="state_blob")
     historical_snapshot = StateSnapshot(
         schema_version="2.1",
         state_ref=selected_state_ref,
@@ -476,7 +477,9 @@ def test_state_snapshot_2_1_readback_requires_lineage_payload(tmp_path) -> None:
     state = GlobalState.empty(n_agents=1, n_firms=1)
     source_ref = put_state_snapshot(store, state=state, step=0)
     source_snapshot = load_model(store, source_ref, StateSnapshot)
-    state_blob_input = InputRef(artifact_id=source_snapshot.state_ref.artifact_id, role="state_blob")
+    state_blob_input = InputRef(
+        artifact_id=source_snapshot.state_ref.artifact_id, role="state_blob"
+    )
     incomplete_snapshot = StateSnapshot(
         schema_version="2.1",
         state_ref=source_snapshot.state_ref,
@@ -529,9 +532,7 @@ def test_unknown_state_snapshot_schema_fails_closed_before_lineage_bypass(
         PutOptions(
             kind="foundry.state_snapshot",
             media_type="application/json",
-            schema=SchemaInfo(
-                name="polisyos.core.StateSnapshot", version=f"{schema_version}.0"
-            ),
+            schema=SchemaInfo(name="polisyos.core.StateSnapshot", version=f"{schema_version}.0"),
             inputs=[state_blob_input],
         ),
     )
@@ -615,9 +616,7 @@ def test_legacy_state_blob_profile_mismatch_gets_tenant_owned_view(
     tenant_store = FileSystemCAS(cas_root, tenant_id="tenant-a", cell_id="cell-a")
     foreign_manifest = foreign_store.get_manifest(foreign_blob_ref)
     foreign_profile = ManifestLifecycle.profile_sha256(foreign_manifest)
-    prior_foreign_manifest_bytes = foreign_store.get_manifest_bytes(
-        foreign_blob_ref.artifact_id
-    )
+    prior_foreign_manifest_bytes = foreign_store.get_manifest_bytes(foreign_blob_ref.artifact_id)
     foreign_default_manifest_path = foreign_store._paths(foreign_blob_ref.artifact_id)[1]
     prewrite_foreign_manifest_reads: list[Any] = []
     write_started = False
@@ -668,10 +667,13 @@ def test_legacy_state_blob_profile_mismatch_gets_tenant_owned_view(
     assert snapshot.lineage_inputs is not None
     assert snapshot.lineage_inputs[-1] == expected_blob_input
     assert tenant_store.get_bytes(snapshot.state_ref) == blob_bytes
-    assert tenant_store.has_manifest_view(
-        foreign_blob_ref.artifact_id,
-        foreign_profile,
-    ) is False
+    assert (
+        tenant_store.has_manifest_view(
+            foreign_blob_ref.artifact_id,
+            foreign_profile,
+        )
+        is False
+    )
     assert foreign_store.has_manifest_view(
         foreign_blob_ref.artifact_id,
         foreign_profile,

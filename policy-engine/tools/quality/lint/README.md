@@ -46,6 +46,9 @@ PYTHONPATH=src:. uv run python tools/quality/lint/compare_baseline.py --current 
 ## Примечания
 
 - `compare_baseline.py` имеет режимы `dry-run` и `blocking`.
+- Exception IDs are read from Markdown table cells with the shared tokenizer; header and
+  alignment rows do not become registry IDs, while an unregistered TOML exception remains a
+  blocking finding in `blocking` mode.
 - `lint_imports.py` учитывает `TYPE_CHECKING`-импорты только при флаге `--allow-type-checking`.
 - `lint_imports.py` использует content-addressable parse cache и умеет `--changed-only`; persisted baseline hash применяется только после успешного прогона, поэтому failing state не начинает silently skip-аться в CI.
 - `lint_imports.py --fix` сейчас выполняет только безопасную mechanical операцию: canonical rewrite `architecture/imports/exceptions.toml`. Source imports он не переписывает автоматически.

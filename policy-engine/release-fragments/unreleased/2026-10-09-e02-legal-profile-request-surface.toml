@@ -1,0 +1,31 @@
+id = "2026-10-09-e02-legal-profile-request-surface"
+title = "Carry selected Legal generation intent through dashboard search"
+type = "changed"
+component = "runtime-http"
+owner = "team-runtime"
+summary = "Lex search exposes a typed selected fact-generation snapshot; the dashboard sends that exact request intent and displays the consumed retrieval mode and vector refusal, including empty results."
+evidence = ["tests/unit/runtime/http/test_control_api.py", "apps/runtime-dashboard/src/api/hooks/useLexSearchProfile.test.tsx", "apps/runtime-dashboard/src/features/lex/routes/LexKnowledgeGraphPage.test.tsx", "apps/runtime-dashboard/e2e/journeys/catalog-profile-source-bound.spec.ts"]
+compatibility = "GET /api/v1/control/lex/search-profile is additive. LexSearchResponse now always supplies search_mode and nullable vector_refusal_code. Existing callers that omit query_generation_intent retain typed text fallback."
+change_class = "schema-openapi-abi"
+surface_classification = "internal: runtime HTTP route contracts, generated runtime clients, and dashboard Legal search"
+migration = "Regenerate clients from the canonical OpenAPI schema. Callers may read the selected snapshot for their output directory and pass its query_generation_intent unchanged; they must inspect the search response diagnostics."
+api = "The snapshot response discriminates available/refused by status. Its intent is immutable for one request; search independently validates generation members, graph membership, and the configured live encoder."
+limitations = "The snapshot describes the selected persisted candidate generation. It does not establish production currentness, ranking quality, or external authority. Missing or incompatible profile inputs retain named refusal and text fallback."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/api/control.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "legal-search-selected-snapshot-and-required-diagnostics"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "Runtime Lex search GET snapshot and POST response diagnostics"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "The generated clients expose the selected generation snapshot and required query diagnostics. Callers retain text fallback when intent is unavailable and inspect the consumed mode and refusal."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/api/control.md"]
+runbook_docs = []

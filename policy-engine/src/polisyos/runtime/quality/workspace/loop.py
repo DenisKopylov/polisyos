@@ -85,6 +85,7 @@ from polisyos.runtime.quality.data_forge_binding import (
     CatalogGraphProtocol,
     MeasurementRootBindingError,
     MeasurementRootProducer,
+    _search_catalog_with_status,
     build_default_workspace_catalog_graph,
     canonical_catalog_result_for_workspace_loop,
     measurement_rows_for_catalog_payload,
@@ -113,6 +114,7 @@ from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (
 from polisyos.runtime.quality.semantic_binding import (
     GySemanticBenchmark,
     SemanticAdequacyGate,
+    SemanticBenchmarkQueryStatus,
     SemanticBenchmarkRun,
     load_gy_semantic_benchmark,
 )
@@ -1733,15 +1735,18 @@ class WorkspaceLoop:
             try:
                 binding_ref = core_artifacts.ArtifactRef.model_validate(
                     raw_binding.model_dump(mode="python")
-                    if hasattr(raw_binding, "model_dump") else raw_binding
+                    if hasattr(raw_binding, "model_dump")
+                    else raw_binding
                 )
                 raw_observation = intent["observational_data_ref"]
                 observation_ref = core_artifacts.ArtifactRef.model_validate(
                     raw_observation.model_dump(mode="python")
-                    if hasattr(raw_observation, "model_dump") else raw_observation
+                    if hasattr(raw_observation, "model_dump")
+                    else raw_observation
                 )
                 supplied_binding = verify_recorded_panel_method_input(
-                    store=self._phase2_store(), binding_receipt_ref=binding_ref,
+                    store=self._phase2_store(),
+                    binding_receipt_ref=binding_ref,
                 )
                 if observation_ref != supplied_binding.observational_data_ref:
                     raise ValueError("supplied_observation_binding_ref_mismatch")
@@ -1757,7 +1762,9 @@ class WorkspaceLoop:
             selection_intent["causal_method_fqn"] = supplied_binding.receipt.method_fqn
         method_selection = InputContractMethodSelection.model_validate(
             _phase2_value_method_selection(
-                selection_intent, design_problem=design_problem, contract_id=contract_id,
+                selection_intent,
+                design_problem=design_problem,
+                contract_id=contract_id,
             )
         )
         if method_selection.status != "selected":
@@ -1769,7 +1776,8 @@ class WorkspaceLoop:
         if supplied_binding is None:
             try:
                 binding = produce_recorded_panel_method_input(
-                    store=self._phase2_store(), method_fqn=method_fqn,
+                    store=self._phase2_store(),
+                    method_fqn=method_fqn,
                 )
             except MeasurementRootBindingError as exc:
                 raise Phase2MethodSelectionError(method_selection, f"{method_fqn}: {exc}") from exc
@@ -1789,7 +1797,8 @@ class WorkspaceLoop:
             execution_profile="gy_phase2",
             artifacts_index=(
                 {"foundry_input_binding_receipt_ref": binding_receipt_ref}
-                if binding_receipt_ref is not None else {}
+                if binding_receipt_ref is not None
+                else {}
             ),
             params={
                 "policy_question": intent.get("policy_question"),
@@ -1812,7 +1821,8 @@ class WorkspaceLoop:
         if self._staged_foundry_inputs is not None:
             try:
                 state = install_verified_staged_foundry_inputs(
-                    store=self._phase2_store(), state=state,
+                    store=self._phase2_store(),
+                    state=state,
                     binding=self._staged_foundry_inputs,
                 )
             except (OSError, ValueError, TypeError, KeyError) as exc:
@@ -2058,7 +2068,8 @@ class WorkspaceLoop:
             basis=constraint_basis,
         )
         self._phase2_constraint_readbacks[id(constraint_admission)] = (
-            constraint_admission, constraint_owner,
+            constraint_admission,
+            constraint_owner,
         )
         # Authority blockers do not suppress independent candidate smoke. A-side
         # verification consumes the decision before it can admit an affected use.
@@ -2272,8 +2283,11 @@ class WorkspaceLoop:
                         foundry_store = constraint_store
                         foundry = FoundryMethodOutputConsumer(
                             store=foundry_store,
-                            staged_input_source=(self._staged_foundry_inputs.source
-                                if self._staged_foundry_inputs is not None else None),
+                            staged_input_source=(
+                                self._staged_foundry_inputs.source
+                                if self._staged_foundry_inputs is not None
+                                else None
+                            ),
                         )
                         consumed = foundry.consume_from_state(
                             workspace_id=workspace_id,
@@ -2293,7 +2307,8 @@ class WorkspaceLoop:
                             consumption=consumed,
                         )
                         self._phase2_constraint_readbacks[id(constraint_admission)] = (
-                            constraint_admission, constraint_owner,
+                            constraint_admission,
+                            constraint_owner,
                         )
                         consumed = foundry.bind_constraints(
                             consumption=consumed,
@@ -2308,7 +2323,10 @@ class WorkspaceLoop:
                             consumption=consumed,
                         )
                         self._phase2_method_readbacks[id(method_output_consumption_ref)] = (
-                            method_output_consumption_ref, foundry, consumed, foundry_store,
+                            method_output_consumption_ref,
+                            foundry,
+                            consumed,
+                            foundry_store,
                         )
                         method_output_consumption_record = consumed.record
                         authority_boundary = consumed.authority_boundary
@@ -3186,12 +3204,22 @@ class WorkspaceLoop:
                     "falling back to catalog graph after CAS dataset read failed",
                     exc_info=True,
                 )
-        expected_refs = set(manifest.expected_catalog_binding_refs)
-        for hit in self._catalog_graph.search_datasets(
+        search_response = _search_catalog_with_status(
+            self._catalog_graph,
             manifest.construct_scope_query,
             top_k=20,
             explain=True,
-        ):
+        )
+        search_status = {
+            "query": manifest.construct_scope_query,
+            **search_response.model_dump(
+                mode="json",
+                exclude={"results"},
+                exclude_none=True,
+            ),
+        }
+        expected_refs = set(manifest.expected_catalog_binding_refs)
+        for hit in search_response.results:
             if hit.id not in expected_refs:
                 continue
             hit_payload = canonical_catalog_result_for_workspace_loop(hit.model_dump(mode="json"))
@@ -3202,8 +3230,13 @@ class WorkspaceLoop:
                     "catalog_binding_refs": [hit.id],
                     "catalog_result": hit_payload,
                     "measurement_rows": rows,
+                    "catalog_search_status": search_status,
                 }
-        return {"fixture_id": manifest.fixture_id, "measurement_rows": []}
+        return {
+            "fixture_id": manifest.fixture_id,
+            "measurement_rows": [],
+            "catalog_search_status": search_status,
+        }
 
     def _persist_loop_payload(self, payload: dict[str, Any], *, kind: str) -> str:
         if self._artifact_store is None:
@@ -3708,14 +3741,18 @@ class WorkspaceLoop:
         self,
         manifest: WorkspaceFixtureManifest,
     ) -> SemanticBenchmarkRun:
-        hits = self._catalog_graph.search_datasets(
+        search_response = _search_catalog_with_status(
+            self._catalog_graph,
             manifest.construct_scope_query,
             top_k=20,
             explain=True,
         )
+        hits = search_response.results
         returned_hits = [
             {
                 "dataset_id": hit.id,
+                "search_mode": getattr(hit, "search_mode", None),
+                "vector_refusal_code": getattr(hit, "vector_refusal_code", None),
                 "calibrated_relevance": _calibrated_relevance(
                     hit=hit,
                     manifest=manifest,
@@ -3726,6 +3763,14 @@ class WorkspaceLoop:
         return SemanticAdequacyGate().evaluate(
             construct_scope=manifest.fixture_id,
             returned_hits=returned_hits,
+            query_statuses=[
+                SemanticBenchmarkQueryStatus(
+                    query=manifest.construct_scope_query,
+                    search_mode=search_response.search_mode,
+                    vector_refusal_code=search_response.vector_refusal_code,
+                    limitation_code=search_response.limitation_code,
+                )
+            ],
         )
 
     def _acquisition_plan_for_manifest(

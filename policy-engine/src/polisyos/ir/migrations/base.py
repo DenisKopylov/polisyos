@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from polisyos.common.migrations._engine import (
+from polisyos.common.migrations import (
     LinearMigrationProfile,
     run_linear_migration,
 )

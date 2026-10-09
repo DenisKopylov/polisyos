@@ -23,6 +23,9 @@ manifest module.
 
 - `register_migration`
 - `migrate_artifact`
+- `LinearMigrationProfile` and `run_linear_migration` expose the shared traversal objects used
+  by artifact-specific migration owners such as IR. The facade exports the same objects rather
+  than copying the traversal implementation.
 - `MANIFEST_CURRENT_VERSION` (deprecated compatibility export)
 
 ## Current State

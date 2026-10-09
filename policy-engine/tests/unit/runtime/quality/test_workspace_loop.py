@@ -349,10 +349,27 @@ def test_slice0_semantic_benchmark_feeds_incompleteness_record(tmp_path: Path) -
         benchmark_run["benchmark_version"]
         == "policyos.policy_design_case.layer3_gy.semantic_benchmark.v1"
     )
+    assert (
+        benchmark_run["schema_version"]
+        == "policyos.policy_design_case.layer3_gy.semantic_benchmark_run.v2"
+    )
     assert benchmark_run["label_owner"] == "team-runtime-quality"
     assert benchmark_run["reviewer"] == "policy-design-case-verifier"
     assert benchmark_run["queries"] == ["Ukraine MSME credit access World Bank firm measurement"]
+    assert benchmark_run["query_statuses"] == [
+        {
+            "query": "Ukraine MSME credit access World Bank firm measurement",
+            "search_mode": "text",
+            "vector_refusal_code": "selected_generation_unavailable",
+            "limitation_code": None,
+        }
+    ]
     assert benchmark_run["returned_hits"]
+    assert all(hit["search_mode"] == "text" for hit in benchmark_run["returned_hits"])
+    assert all(
+        hit["vector_refusal_code"] == "selected_generation_unavailable"
+        for hit in benchmark_run["returned_hits"]
+    )
     assert benchmark_run["threshold_disposition"] == "pass"
     assert benchmark_run["recall_at_known_seeds"] == 1.0
 
@@ -552,6 +569,13 @@ def test_measurement_root_producer_resolves_catalog_and_persists_cas(tmp_path: P
     assert payload["measurement_rows"]
     assert payload["measurement_rows"][0]["evidence_kind"] == "measurement"
     assert payload["measurement_rows"][0]["source_ref"].startswith("https://api.worldbank.org/")
+    assert payload["catalog_result"]["search_mode"] == "text"
+    assert payload["catalog_result"]["vector_refusal_code"] == "selected_generation_unavailable"
+    assert payload["catalog_search_status"] == {
+        "query": manifest.construct_scope_query,
+        "search_mode": "text",
+        "vector_refusal_code": "selected_generation_unavailable",
+    }
 
 
 def test_measurement_root_producer_rejects_fabricated_source_contract_before_cas(
@@ -565,6 +589,8 @@ def test_measurement_root_producer_rejects_fabricated_source_contract_before_cas
         source = "worldbank"
         execution_tier = "transport_ready"
         connector_type = "worldbank.wdi"
+        search_mode = "vector"
+        vector_refusal_code = None
 
         def model_dump(self, *, mode: str) -> dict[str, object]:
             return {
@@ -572,6 +598,8 @@ def test_measurement_root_producer_rejects_fabricated_source_contract_before_cas
                 "source": self.source,
                 "execution_tier": self.execution_tier,
                 "connector_type": self.connector_type,
+                "search_mode": self.search_mode,
+                "vector_refusal_code": self.vector_refusal_code,
                 "source_dataset_id": "",
                 "variables": [],
                 "coverage": {},

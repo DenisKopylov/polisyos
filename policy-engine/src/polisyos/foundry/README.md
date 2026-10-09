@@ -68,6 +68,7 @@ agent-sim tooling.
 | `compile()`                   | Compile a Trinity bundle into `foundry.program_graph`, `foundry.exec_plan`, and a compile report artifact. |
 | `compile_program()`           | Compatibility alias for `compile()` on the package facade.                                                 |
 | `execute()`                   | Execute a compiled plan from `FoundryInputBindingsRef` and persist simulation evidence.                    |
+| `SnapshotStateLayoutError`   | Stable exception identity for valid state bytes that do not reconstruct the canonical `GlobalState`; legacy consumers may handle this specific compatibility case. |
 | `EmbedderProtocol`            | Structural contract for fixed-dimensional text embedders.                                                 |
 | `TFIDFEmbedder`               | Dependency-free fitted TF-IDF text embedder.                                                               |
 | `SentenceTransformerEmbedder` | Optional sentence-transformers adapter whose dependency loads only on construction.                        |

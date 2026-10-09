@@ -368,8 +368,11 @@ def persist_causal_evidence_bundle(
     """Persist a causal audit EvidenceBundle and return its typed artifact ref.
 
     Reference-free payloads keep the strict 1.0 field set. Payloads with a typed
-    twin-result reference are written as schema 1.1.
+    twin-result reference are written as schema 1.1. The schema name is fixed
+    to the identity recognized by the typed reader.
     """
+    if schema_name != _CAUSAL_EVIDENCE_BUNDLE_SCHEMA:
+        raise ValueError(f"Unsupported causal EvidenceBundle schema name {schema_name!r}")
     has_twin_result = bundle.twin_network_result_ref is not None
     expected_version = (
         _CAUSAL_EVIDENCE_BUNDLE_CURRENT_VERSION

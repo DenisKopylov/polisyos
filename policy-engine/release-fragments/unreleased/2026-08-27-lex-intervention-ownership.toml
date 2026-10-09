@@ -16,7 +16,7 @@ migration = "Use Scientist planning and causal execution nodes for policy-search
 api = "Adds polisyos.ir.CompiledLexIntervention; removes HierarchicalPolicySearchAdapter, TemporalInterventionSequenceCompiler, and TemporalInterventionSequenceCompileResult from polisyos.lex; and removes TemporalInterventionSequencer.to_dynamic_treatment."
 limitations = "Scientist execution adapters remain internal node implementations and are deliberately excluded from their modules' __all__ and from package-root facades."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = ["docs/reference/lex/interventions.md"]
 runbook_docs = []
 
@@ -30,6 +30,6 @@ version_owner = "team-policyos-runtime"
 deprecation_window = "Architecture-boundary correction; upward Lex compatibility imports are not retained."
 release_note = "Lex now exposes compilation and neutral sequencing contracts only; Scientist owns policy-search, dynamic-treatment materialization, and temporal-DTR execution."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = ["docs/reference/lex/interventions.md"]
 runbook_docs = []

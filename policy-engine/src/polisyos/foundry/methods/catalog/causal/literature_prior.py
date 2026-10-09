@@ -24,7 +24,7 @@ from polisyos.foundry.methods.catalog.causal.protocols import LiteraturePriorBui
 from polisyos.ir.analytics.literature import LiteratureCausalPrior, LiteratureEdgePrior
 
 if TYPE_CHECKING:
-    from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGRead
+    from polisyos.data_forge.read_api.academic import PreparedSKGRead
 
 
 def _build_prior_metadata(
@@ -274,9 +274,7 @@ class BuildLiteraturePrior:
                     confidence=float(row["confidence"]),
                     n_articles=int(row["n_articles"]),
                     evidence_strength=row.get("evidence_strength"),
-                    evidence_strength_status=row.get(
-                        "evidence_strength_status", "candidate"
-                    ),
+                    evidence_strength_status=row.get("evidence_strength_status", "candidate"),
                     article_refs=[str(item) for item in row.get("article_refs", [])],
                     scope_conditions=[str(item) for item in row.get("scope_conditions", [])],
                     direction=str(row.get("direction", "mixed") or "mixed"),

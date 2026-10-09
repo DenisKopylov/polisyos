@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import itertools
+import json
 import math
 from collections.abc import Mapping
 from dataclasses import dataclass
@@ -46,6 +48,7 @@ from polisyos.ir.analytics.dependence_structure import (
 from polisyos.ir.analytics.phase4_dynamics import EquilibriumMultiplicityWelfareAnnotation
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
+    PosteriorSamplesCarrier,
     UncertaintyEnvelope,
     load_uncertainty_envelope,
     persist_uncertainty_envelope,
@@ -271,6 +274,14 @@ class _CalibrationCoordinateSampler:
 
 
 @dataclass(frozen=True)
+class _EmpiricalRowSampler:
+    param_names: tuple[str, ...]
+    samples_by_name: Mapping[str, tuple[float, ...]]
+    probabilities: tuple[float, ...]
+    dependence_note: dict[str, Any]
+
+
+@dataclass(frozen=True)
 class _CalibrationCoordinateLaw:
     coordinate_order: tuple[str, ...]
     calibration_fields: tuple[str, ...]
@@ -418,6 +429,7 @@ class PropagateWelfareNode:
                 simulation_fn=simulation_fn,
                 nominal_params=nominal_params,
                 input_envelopes=used_input_envelopes,
+                input_envelope_refs=pe_uncertainty_refs,
                 calibration_source=collection.calibration_source,
             )
             robust_interval, robust_diagnostics = _build_robust_interval(
@@ -445,6 +457,10 @@ class PropagateWelfareNode:
             for code in limitation_codes:
                 if code not in warnings:
                     warnings.append(str(code))
+            if "welfare_mc_incomplete_draws" in limitation_codes:
+                warning = "welfare_mc_partial_nominal_point_conditional_mean"
+                if warning not in warnings:
+                    warnings.append(warning)
             if limitation_codes:
                 status = WelfareStatus.PARTIAL
             method_used = _resolve_bundle_method(
@@ -459,6 +475,7 @@ class PropagateWelfareNode:
             diagnostics = {
                 **context.diagnostics,
                 "credible_method": propagation.method_used.value,
+                "point_estimate_semantics": "nominal_input_evaluation",
                 "input_envelope_count": len(used_input_envelopes),
                 "pe_uncertainty_count": len(pe_uncertainty_refs),
                 **propagation.diagnostics,
@@ -626,6 +643,15 @@ def _input_ref(ref: ArtifactRef | ArtifactRefModel, *, role: str) -> InputRef:
         artifact_id=ref.artifact_id,
         role=role,
         manifest_profile_sha256=ref.manifest_profile_sha256,
+    )
+
+
+def _input_envelope_refs(
+    refs: Mapping[str, UncertaintyEnvelopeRef],
+) -> tuple[InputRef, ...]:
+    """Bind each selected uncertainty envelope to its semantic parameter name."""
+    return tuple(
+        _input_ref(ref, role=f"input_envelope.{name}") for name, ref in sorted(refs.items())
     )
 
 
@@ -1685,6 +1711,7 @@ def _propagate_credible_interval(
     simulation_fn: Any,
     nominal_params: Mapping[str, float],
     input_envelopes: Mapping[str, UncertaintyEnvelope],
+    input_envelope_refs: Mapping[str, UncertaintyEnvelopeRef],
     calibration_source: _CalibrationCovarianceSource | None = None,
 ) -> _PropagationOutcome:
     config = _load_propagation_config(state)
@@ -1710,6 +1737,7 @@ def _propagate_credible_interval(
                 simulation_fn=simulation_fn,
                 nominal_params=nominal_params,
                 input_envelopes=input_envelopes,
+                input_envelope_refs=input_envelope_refs,
                 calibration_source=calibration_source,
                 requested_method=requested_method,
                 method_used=method_used,
@@ -1726,7 +1754,10 @@ def _propagate_credible_interval(
             },
             kind="foundry.welfare_propagation_report",
             schema_name="polisyos.foundry.WelfarePropagationReport",
-            inputs=_calibration_lineage_inputs(calibration_source),
+            inputs=_calibration_lineage_inputs(
+                calibration_source,
+                additional_refs=_input_envelope_refs(input_envelope_refs),
+            ),
         )
         return _PropagationOutcome(
             credible_interval=None,
@@ -1750,7 +1781,10 @@ def _propagate_credible_interval(
             },
             kind="foundry.welfare_propagation_report",
             schema_name="polisyos.foundry.WelfarePropagationReport",
-            inputs=_calibration_lineage_inputs(calibration_source),
+            inputs=_calibration_lineage_inputs(
+                calibration_source,
+                additional_refs=_input_envelope_refs(input_envelope_refs),
+            ),
         )
         return _PropagationOutcome(
             credible_interval=None,
@@ -1771,6 +1805,7 @@ def _propagate_credible_interval(
             simulation_fn=simulation_fn,
             nominal_params=nominal_params,
             input_envelopes=input_envelopes,
+            input_envelope_refs=input_envelope_refs,
             calibration_source=calibration_source,
             requested_method=requested_method,
         )
@@ -1803,6 +1838,7 @@ def _propagate_credible_interval(
             method_used=WelfareMethod.MONTE_CARLO,
             limitation_code=calibration_resolution.limitation_code,
             dependence_note=calibration_resolution.note,
+            input_envelope_refs=input_envelope_refs,
         )
     if calibration_resolution is None:
         dependence_sampler = _build_dependence_sampler(
@@ -1834,25 +1870,159 @@ def _propagate_credible_interval(
                 method_used=WelfareMethod.MONTE_CARLO,
                 limitation_code=sampler_limitation,
                 dependence_note=dependence_sampler,
+                input_envelope_refs=input_envelope_refs,
             )
-    for _ in range(int(config.mc_n_samples)):
-        draw_params = _sample_param_draw(
-            rng,
-            param_names=param_names,
+    empirical_row_sampler, empirical_limitation = _resolve_empirical_row_sampler(
+        param_names,
+        input_envelopes,
+        calibration_coordinates_active=calibration_coordinate_sampler is not None,
+    )
+    if empirical_limitation is not None:
+        return _limited_covariance_outcome(
+            ctx,
+            config_ref=config_ref,
+            simulation_fn=simulation_fn,
+            nominal_params=nominal_params,
             input_envelopes=input_envelopes,
-            dependence_sampler=dependence_sampler,
-            calibration_coordinate_sampler=calibration_coordinate_sampler,
+            input_envelope_refs=input_envelope_refs,
+            calibration_source=calibration_source,
+            requested_method=requested_method,
+            method_used=WelfareMethod.MONTE_CARLO,
+            limitation_code=empirical_limitation,
+            dependence_note={
+                **dependence_sampler,
+                "empirical_joint_identity_status": "not_established",
+            },
         )
-        outputs = simulation_fn(**draw_params)
-        welfare = float(outputs.get("welfare", float("nan")))
-        welfare_pe = float(outputs.get("welfare_pe", float("nan")))
-        welfare_ge = float(outputs.get("welfare_ge", float("nan")))
-        if not (math.isfinite(welfare) and math.isfinite(welfare_pe) and math.isfinite(welfare_ge)):
+    if empirical_row_sampler is not None:
+        dependence_sampler = empirical_row_sampler.dependence_note
+    requested_draw_count = int(config.mc_n_samples)
+    attempted_draw_count = 0
+    terminal_outcomes: list[dict[str, Any]] = []
+    for draw_index in range(requested_draw_count):
+        attempted_draw_count += 1
+        try:
+            draw_params = _sample_param_draw(
+                rng,
+                param_names=param_names,
+                input_envelopes=input_envelopes,
+                dependence_sampler=dependence_sampler,
+                calibration_coordinate_sampler=calibration_coordinate_sampler,
+                empirical_row_sampler=empirical_row_sampler,
+            )
+            sampled_input_sha256 = _welfare_sampled_input_sha256(draw_params)
+        except Exception as exc:
+            terminal_outcomes.append(
+                {
+                    "draw_index": draw_index,
+                    "sampled_input_sha256": None,
+                    "sample_index": None,
+                    "outcome_code": "sampling_exception",
+                    "error_type": type(exc).__name__,
+                    "error_message": _bounded_welfare_error_message(exc),
+                }
+            )
             continue
+
+        try:
+            outputs = simulation_fn(**draw_params)
+        except Exception as exc:
+            terminal_outcomes.append(
+                {
+                    "draw_index": draw_index,
+                    "sampled_input_sha256": sampled_input_sha256,
+                    "sample_index": None,
+                    "outcome_code": "simulation_exception",
+                    "error_type": type(exc).__name__,
+                    "error_message": _bounded_welfare_error_message(exc),
+                }
+            )
+            continue
+
+        if not isinstance(outputs, Mapping):
+            terminal_outcomes.append(
+                {
+                    "draw_index": draw_index,
+                    "sampled_input_sha256": sampled_input_sha256,
+                    "sample_index": None,
+                    "outcome_code": "invalid_response",
+                    "error_type": None,
+                }
+            )
+            continue
+
+        required_outputs = ("welfare", "welfare_pe", "welfare_ge")
+        missing_outputs = [name for name in required_outputs if name not in outputs]
+        if missing_outputs:
+            terminal_outcomes.append(
+                {
+                    "draw_index": draw_index,
+                    "sampled_input_sha256": sampled_input_sha256,
+                    "sample_index": None,
+                    "outcome_code": "missing_output",
+                    "missing_output_ids": missing_outputs,
+                    "error_type": None,
+                }
+            )
+            continue
+
+        try:
+            welfare, welfare_pe, welfare_ge = (float(outputs[name]) for name in required_outputs)
+        except (TypeError, ValueError, OverflowError) as exc:
+            terminal_outcomes.append(
+                {
+                    "draw_index": draw_index,
+                    "sampled_input_sha256": sampled_input_sha256,
+                    "sample_index": None,
+                    "outcome_code": "non_numeric_output",
+                    "error_type": type(exc).__name__,
+                    "error_message": _bounded_welfare_error_message(exc),
+                }
+            )
+            continue
+        if not all(math.isfinite(value) for value in (welfare, welfare_pe, welfare_ge)):
+            terminal_outcomes.append(
+                {
+                    "draw_index": draw_index,
+                    "sampled_input_sha256": sampled_input_sha256,
+                    "sample_index": None,
+                    "outcome_code": "non_finite_output",
+                    "error_type": None,
+                }
+            )
+            continue
+
+        sample_index = len(draws_welfare)
         draws_welfare.append(welfare)
         draws_pe.append(welfare_pe)
         draws_ge.append(welfare_ge)
-    if len(draws_welfare) < int(config.mc_min_valid_samples):
+        terminal_outcomes.append(
+            {
+                "draw_index": draw_index,
+                "sampled_input_sha256": sampled_input_sha256,
+                "sample_index": sample_index,
+                "outcome_code": "success",
+                "error_type": None,
+            }
+        )
+
+    failed_draw_count = requested_draw_count - len(draws_welfare)
+    draw_outcome_provenance = {
+        "schema_version": "1.0",
+        "requested_draw_count": requested_draw_count,
+        "attempted_draw_count": attempted_draw_count,
+        "successful_draw_count": len(draws_welfare),
+        "failed_draw_count": failed_draw_count,
+        "unattempted_draw_count": requested_draw_count - attempted_draw_count,
+        "outcome_denominator_complete": len(terminal_outcomes) == requested_draw_count,
+        "summary_semantics": (
+            "successful_draws_only_conditional_on_execution"
+            if failed_draw_count
+            else "complete_requested_draws"
+        ),
+        "outcomes": terminal_outcomes,
+    }
+    if not failed_draw_count and len(draws_welfare) < int(config.mc_min_valid_samples):
         raise _fail_error(
             _ERROR_MONTE_CARLO_NOT_CONVERGED,
             "Welfare Monte Carlo propagation did not reach the minimum valid sample budget",
@@ -1861,68 +2031,99 @@ def _propagate_credible_interval(
                 "required": int(config.mc_min_valid_samples),
             },
         )
-    alpha = max((1.0 - float(config.confidence_level)) / 2.0, 0.0)
     welfare_array = np.asarray(draws_welfare, dtype=np.float64)
-    result_map = {
-        "welfare": {
-            "point_estimate": float(np.mean(welfare_array)),
-            "draw_count": int(welfare_array.shape[0]),
+    complete_draws = failed_draw_count == 0 and len(terminal_outcomes) == requested_draw_count
+    has_samples = bool(draws_welfare)
+    result_map: dict[str, Any] = {}
+    sample_bundle_ref: WelfareSampleBundleRef | None = None
+    credible_interval: tuple[float, float] | None = None
+    if has_samples:
+        sample_summary = {
+            "welfare_mean": float(np.mean(welfare_array)),
+            "welfare_std": float(np.std(welfare_array)),
+            "welfare_pe_mean": float(np.mean(np.asarray(draws_pe, dtype=np.float64))),
+            "welfare_ge_mean": float(np.mean(np.asarray(draws_ge, dtype=np.float64))),
         }
-    }
-    sample_bundle_ref = persist_welfare_sample_bundle(
-        _ensure_ir_artifact_store(ctx.store),
-        WelfareSampleBundle(
-            welfare_draws=tuple(float(value) for value in draws_welfare),
-            welfare_pe_draws=tuple(float(value) for value in draws_pe),
-            welfare_ge_draws=tuple(float(value) for value in draws_ge),
-            metadata={
-                "requested_method": requested_method,
-                "dependence_strategy": dependence_sampler["strategy"],
-                "covered_params": dependence_sampler["covered_params"],
-                "calibration_report_ref": (
-                    str(calibration_source.report_ref.artifact_id)
-                    if calibration_source is not None
-                    else None
-                ),
-                "calibration_covariance_order": (
-                    list(param_names) if calibration_source is not None else None
-                ),
-                **(
-                    {
-                        "calibration_covariance_matrix": calibration_resolution.matrix.tolist(),
-                    }
-                    if calibration_resolution is not None
-                    and calibration_resolution.matrix is not None
-                    else {}
-                ),
-                **_calibration_projection_report_metadata(
-                    calibration_source,
-                    covariance_note=(
-                        calibration_resolution.note if calibration_resolution is not None else {}
+        if complete_draws:
+            result_map = {
+                "welfare": {
+                    "point_estimate": sample_summary["welfare_mean"],
+                    "draw_count": len(draws_welfare),
+                }
+            }
+            alpha = max((1.0 - float(config.confidence_level)) / 2.0, 0.0)
+            credible_interval = (
+                float(np.quantile(welfare_array, alpha)),
+                float(np.quantile(welfare_array, 1.0 - alpha)),
+            )
+        else:
+            result_map = {
+                "welfare": {
+                    "conditional_mean": sample_summary["welfare_mean"],
+                    "successful_draw_count": len(draws_welfare),
+                    "summary_semantics": draw_outcome_provenance["summary_semantics"],
+                }
+            }
+        sample_bundle_ref = persist_welfare_sample_bundle(
+            _ensure_ir_artifact_store(ctx.store),
+            WelfareSampleBundle(
+                welfare_draws=tuple(float(value) for value in draws_welfare),
+                welfare_pe_draws=tuple(float(value) for value in draws_pe),
+                welfare_ge_draws=tuple(float(value) for value in draws_ge),
+                metadata={
+                    "requested_method": requested_method,
+                    "dependence_strategy": dependence_sampler["strategy"],
+                    "covered_params": dependence_sampler["covered_params"],
+                    "draw_outcome_provenance": draw_outcome_provenance,
+                    "calibration_report_ref": (
+                        str(calibration_source.report_ref.artifact_id)
+                        if calibration_source is not None
+                        else None
                     ),
-                    uncertainty_status="candidate",
-                ),
-            },
-        ),
-        inputs=_calibration_lineage_inputs(
-            calibration_source,
-            dependence_ref=context.dependence_structure_ref,
-        ),
-    )
+                    "calibration_covariance_order": (
+                        list(param_names) if calibration_source is not None else None
+                    ),
+                    **(
+                        {
+                            "calibration_covariance_matrix": calibration_resolution.matrix.tolist(),
+                        }
+                        if calibration_resolution is not None
+                        and calibration_resolution.matrix is not None
+                        else {}
+                    ),
+                    **_calibration_projection_report_metadata(
+                        calibration_source,
+                        covariance_note=(
+                            calibration_resolution.note
+                            if calibration_resolution is not None
+                            else {}
+                        ),
+                        uncertainty_status="candidate",
+                    ),
+                },
+            ),
+            inputs=_calibration_lineage_inputs(
+                calibration_source,
+                dependence_ref=context.dependence_structure_ref,
+                additional_refs=_input_envelope_refs(input_envelope_refs),
+            ),
+        )
     report_ref = _persist_json_payload(
         ctx,
         payload={
-            "schema_version": "2.0" if calibration_source is not None else "1.0",
+            "schema_version": "2.1" if calibration_source is not None else "1.1",
             "input_envelope_count": len(input_envelopes),
             "methods": ["monte_carlo"],
             "requested_method": requested_method,
             "valid_draw_count": int(welfare_array.shape[0]),
-            "draw_summary": {
-                "welfare_mean": float(np.mean(welfare_array)),
-                "welfare_std": float(np.std(welfare_array)),
-                "welfare_pe_mean": float(np.mean(np.asarray(draws_pe, dtype=np.float64))),
-                "welfare_ge_mean": float(np.mean(np.asarray(draws_ge, dtype=np.float64))),
-            },
+            "draw_outcome_provenance": draw_outcome_provenance,
+            **(
+                {"draw_summary": sample_summary}
+                if has_samples and complete_draws
+                else {"conditional_draw_summary": sample_summary}
+                if has_samples
+                else {}
+            ),
             "dependence_sampling": dependence_sampler,
             "calibration_report_ref": (
                 str(calibration_source.report_ref.artifact_id)
@@ -1950,14 +2151,18 @@ def _propagate_credible_interval(
         inputs=_calibration_lineage_inputs(
             calibration_source,
             dependence_ref=context.dependence_structure_ref,
-            additional_refs=(_input_ref(sample_bundle_ref, role="sample_bundle"),),
+            additional_refs=(
+                (
+                    *_input_envelope_refs(input_envelope_refs),
+                    _input_ref(sample_bundle_ref, role="sample_bundle"),
+                )
+                if sample_bundle_ref is not None
+                else _input_envelope_refs(input_envelope_refs)
+            ),
         ),
     )
     return _PropagationOutcome(
-        credible_interval=(
-            float(np.quantile(welfare_array, alpha)),
-            float(np.quantile(welfare_array, 1.0 - alpha)),
-        ),
+        credible_interval=credible_interval,
         method_used=WelfareMethod.MONTE_CARLO,
         result_map=result_map,
         method_config_ref=config_ref,
@@ -1967,8 +2172,28 @@ def _propagate_credible_interval(
             "dependence_applied": bool(dependence_sampler["applied"]),
             "dependence_sampling": dependence_sampler,
             "requested_method": requested_method,
+            "draw_outcome_provenance": draw_outcome_provenance,
+            "limitation_codes": (["welfare_mc_incomplete_draws"] if failed_draw_count else []),
         },
     )
+
+
+def _welfare_sampled_input_sha256(params: Mapping[str, float]) -> str:
+    """Hash the exact normalized inputs passed to one welfare draw evaluator."""
+    normalized = {str(name): float(value) for name, value in params.items()}
+    encoded = json.dumps(
+        normalized,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _bounded_welfare_error_message(exc: Exception) -> str:
+    """Retain a bounded diagnostic without storing sampled callback inputs."""
+    return " ".join(str(exc).split())[:256]
 
 
 def _resolve_requested_welfare_method(
@@ -1999,6 +2224,7 @@ def _propagate_delta_interval(
     simulation_fn: Any,
     nominal_params: Mapping[str, float],
     input_envelopes: Mapping[str, UncertaintyEnvelope],
+    input_envelope_refs: Mapping[str, UncertaintyEnvelopeRef] | None = None,
     calibration_source: _CalibrationCovarianceSource | None,
     requested_method: str,
 ) -> _PropagationOutcome:
@@ -2031,6 +2257,7 @@ def _propagate_delta_interval(
             method_used=WelfareMethod.DELTA,
             limitation_code=calibration_resolution.limitation_code,
             dependence_note=calibration_resolution.note,
+            input_envelope_refs=input_envelope_refs,
         )
     if calibration_resolution is None:
         covariance, dependence_applied, dependence_note = _build_parameter_covariance(
@@ -2080,6 +2307,7 @@ def _propagate_delta_interval(
         inputs=_calibration_lineage_inputs(
             calibration_source,
             dependence_ref=context.dependence_structure_ref,
+            additional_refs=_input_envelope_refs(input_envelope_refs or {}),
         ),
     )
     return _PropagationOutcome(
@@ -2774,6 +3002,7 @@ def _limited_covariance_outcome(
     method_used: WelfareMethod,
     limitation_code: str,
     dependence_note: Mapping[str, Any],
+    input_envelope_refs: Mapping[str, UncertaintyEnvelopeRef] | None = None,
 ) -> _PropagationOutcome:
     """Preserve the candidate point while withholding an unsupported joint interval."""
     point_value = float(simulation_fn(**nominal_params)["welfare"])
@@ -2801,7 +3030,10 @@ def _limited_covariance_outcome(
         payload=report_payload,
         kind="foundry.welfare_propagation_report",
         schema_name="polisyos.foundry.WelfarePropagationReport",
-        inputs=_calibration_lineage_inputs(calibration_source),
+        inputs=_calibration_lineage_inputs(
+            calibration_source,
+            additional_refs=_input_envelope_refs(input_envelope_refs or {}),
+        ),
     )
     return _PropagationOutcome(
         credible_interval=None,
@@ -2859,6 +3091,125 @@ def _build_dependence_sampler(
     }
 
 
+def _resolve_empirical_row_sampler(
+    param_names: list[str],
+    input_envelopes: Mapping[str, UncertaintyEnvelope],
+    *,
+    calibration_coordinates_active: bool,
+) -> tuple[_EmpiricalRowSampler | None, str | None]:
+    """Admit only a single empirical marginal or explicitly paired source rows."""
+    payloads = {
+        name: envelope.distribution_payload
+        for name, envelope in input_envelopes.items()
+        if isinstance(envelope.distribution_payload, PosteriorSamplesCarrier)
+    }
+    if not payloads:
+        return None, None
+    if calibration_coordinates_active:
+        return None, "empirical_joint_law_missing"
+
+    probabilities_by_name: dict[str, tuple[float, ...]] = {}
+    for name, payload in payloads.items():
+        assert isinstance(payload, PosteriorSamplesCarrier)
+        probabilities = _posterior_sample_probabilities(payload)
+        if probabilities is None:
+            return None, "empirical_sample_weights_invalid"
+        probabilities_by_name[name] = probabilities
+
+    if len(param_names) == 1 and set(payloads) == set(param_names):
+        name = param_names[0]
+        payload = payloads[name]
+        assert isinstance(payload, PosteriorSamplesCarrier)
+        return (
+            _EmpiricalRowSampler(
+                param_names=(name,),
+                samples_by_name={name: payload.samples},
+                probabilities=probabilities_by_name[name],
+                dependence_note={
+                    "applied": False,
+                    "strategy": "empirical_weighted_marginal",
+                    "covered_params": [name],
+                    "uncovered_params": [],
+                    "source_weights_applied": payload.weights is not None,
+                },
+            ),
+            None,
+        )
+
+    if set(payloads) != set(param_names) or len(payloads) < 2:
+        return None, "empirical_joint_law_missing"
+
+    joint_ids = [input_envelopes[name].metadata.get("joint_sample_id") for name in param_names]
+    sample_axes = [
+        payloads[name].sample_axis
+        for name in param_names
+        if isinstance(payloads[name], PosteriorSamplesCarrier)
+    ]
+    sample_counts = [
+        len(payloads[name].samples)
+        for name in param_names
+        if isinstance(payloads[name], PosteriorSamplesCarrier)
+    ]
+    first_probabilities = probabilities_by_name[param_names[0]]
+    if (
+        not all(isinstance(value, str) and value.strip() for value in joint_ids)
+        or len(set(joint_ids)) != 1
+        or not sample_axes
+        or not all(isinstance(value, str) and value.strip() for value in sample_axes)
+        or len(set(sample_axes)) != 1
+        or not sample_counts
+        or len(set(sample_counts)) != 1
+        or any(probabilities_by_name[name] != first_probabilities for name in param_names[1:])
+    ):
+        return None, "empirical_joint_law_missing"
+
+    joint_id = str(joint_ids[0])
+    sample_axis = sample_axes[0]
+    source_weights_applied = any(
+        isinstance(payloads[name], PosteriorSamplesCarrier) and payloads[name].weights is not None
+        for name in param_names
+    )
+    return (
+        _EmpiricalRowSampler(
+            param_names=tuple(param_names),
+            samples_by_name={
+                name: payloads[name].samples
+                for name in param_names
+                if isinstance(payloads[name], PosteriorSamplesCarrier)
+            },
+            probabilities=first_probabilities,
+            dependence_note={
+                "applied": True,
+                "strategy": "empirical_joint_rows",
+                "covered_params": list(param_names),
+                "uncovered_params": [],
+                "joint_sample_id": joint_id,
+                "sample_axis": sample_axis,
+                "joint_identity_status": "declared_non_authoritative",
+                "source_weights_applied": source_weights_applied,
+            },
+        ),
+        None,
+    )
+
+
+def _posterior_sample_probabilities(
+    payload: PosteriorSamplesCarrier,
+) -> tuple[float, ...] | None:
+    """Normalize finite non-negative source weights without inventing support."""
+    raw = tuple(1.0 for _ in payload.samples) if payload.weights is None else payload.weights
+    try:
+        total = math.fsum(float(weight) for weight in raw)
+    except OverflowError:
+        return None
+    if not math.isfinite(total) or total <= 0.0:
+        return None
+    probabilities = tuple(float(weight) / total for weight in raw)
+    if not all(math.isfinite(value) and value >= 0.0 for value in probabilities):
+        return None
+    return probabilities
+
+
 def _sample_param_draw(
     rng: np.random.Generator,
     *,
@@ -2866,8 +3217,20 @@ def _sample_param_draw(
     input_envelopes: Mapping[str, UncertaintyEnvelope],
     dependence_sampler: Mapping[str, Any],
     calibration_coordinate_sampler: _CalibrationCoordinateSampler | None = None,
+    empirical_row_sampler: _EmpiricalRowSampler | None = None,
 ) -> dict[str, float]:
     draw_params: dict[str, float] = {}
+    if empirical_row_sampler is not None:
+        row_index = int(
+            rng.choice(
+                len(empirical_row_sampler.probabilities),
+                p=empirical_row_sampler.probabilities,
+            )
+        )
+        return {
+            name: float(empirical_row_sampler.samples_by_name[name][row_index])
+            for name in empirical_row_sampler.param_names
+        }
     if calibration_coordinate_sampler is not None:
         sampler = calibration_coordinate_sampler
         if sampler.extra_fields:
@@ -3148,7 +3511,11 @@ def _resolve_bundle_status(
         warnings.append("ge_multiplier_treated_as_fixed")
         status = WelfareStatus.DEGRADED
 
-    if len(used_input_envelopes) > 1 and context.dependence_structure_ref is None:
+    if (
+        len(used_input_envelopes) > 1
+        and context.dependence_structure_ref is None
+        and not dependence_applied
+    ):
         warnings.append("dependence_assumed_independent")
         if status is WelfareStatus.OK:
             status = WelfareStatus.DEGRADED

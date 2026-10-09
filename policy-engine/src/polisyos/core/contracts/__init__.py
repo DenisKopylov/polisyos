@@ -200,6 +200,13 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
     ".compiler": ("CompileReportRef", "LinkReportRef"),
     ".control": (
         "CatalogRunProfile",
+        "CausalFrontierAreaRecord",
+        "CausalFrontierEdgeRecord",
+        "CausalFrontierExposureRecord",
+        "CausalFrontierOutputRefs",
+        "CausalFrontierSAEEstimate",
+        "CausalFrontierSAERequest",
+        "CausalFrontierSAEResponse",
         "CacheEntryInfo",
         "CacheStatusResponse",
         "ConnectorInfo",
@@ -453,6 +460,12 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "ArtifactSchemaResponse",
         "ArtifactSchemaView",
         "CursorPage",
+        "DecisionPacketAuthoredBlock",
+        "DecisionPacketEffectSize",
+        "DecisionPacketMetricComparisonRow",
+        "DecisionPacketMetricSignificance",
+        "DecisionPacketOutlineEntry",
+        "DecisionPacketPreview",
         "EngineeringCapabilityAbsenceView",
         "EpochBoundaryLineageView",
         "EpochCertificateStalenessView",
@@ -1406,7 +1419,7 @@ def __dir__() -> list[str]:
 
 
 __all__ = [
-    "*_CHRONOLOGY_EXPORTS",
+    *_CHRONOLOGY_EXPORTS,
     "BOUNDED_LIVENESS_CONFIG_SCHEMA_VERSION",
     "C4_PERSISTED_PROFILE_SPECS",
     "CAPABILITY_DISCOVERY_SCHEMA_VERSION",

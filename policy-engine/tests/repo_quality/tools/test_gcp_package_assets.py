@@ -67,8 +67,9 @@ def test_gcp_archive_contains_exact_hatch_force_include_sources(tmp_path):
     for source in forced_sources:
         asset = product / source
         asset.parent.mkdir(parents=True, exist_ok=True)
-        content = f"source bytes for {source}\n".encode()
-        asset.write_bytes(content)
+        original = PRODUCT / source
+        shutil.copyfile(original, asset)
+        content = original.read_bytes()
         expected[f"policy-engine/{source}"] = content
     unlisted = product / "data/dataset_catalog/unlisted.yaml"
     unlisted.write_text("not declared by Hatch\n")
@@ -109,7 +110,7 @@ def test_gcp_archive_refuses_symlinked_or_missing_source_paths(tmp_path, shape):
     output = workspace / "archives"
     result = _run_packager(product, output)
     assert result.returncode != 0
-    assert f"Invalid Hatch wheel force-include source: {source}" in result.stderr
+    assert source in result.stderr
     assert not list(output.glob("*.tar.gz"))
 
 
@@ -127,7 +128,7 @@ def test_gcp_archive_refuses_a_symlink_in_a_nested_source_component(tmp_path):
     output = workspace / "archives"
     result = _run_packager(product, output)
     assert result.returncode != 0
-    assert f"Invalid Hatch wheel force-include source: {source}" in result.stderr
+    assert source in result.stderr
     assert not list(output.glob("*.tar.gz"))
 
 
@@ -163,5 +164,69 @@ def test_gcp_archive_refuses_symlinked_members_in_directory_force_include(tmp_pa
     output = workspace / "archives"
     result = _run_packager(product, output)
     assert result.returncode != 0
-    assert f"Invalid Hatch wheel force-include source: {source}" in result.stderr
+    assert source in result.stderr
+    assert not list(output.glob("*.tar.gz"))
+
+
+def test_gcp_archive_refuses_symlinked_fixed_source_root_before_opening_archive(tmp_path):
+    source = "assets/item.yaml"
+    (workspace, product) = _project_fixture(
+        tmp_path, _force_include_manifest(source, "polisyos/assets/item.yaml")
+    )
+    configured_source = product / source
+    configured_source.parent.mkdir(parents=True)
+    configured_source.write_text("manifest source remains valid\n")
+    external_source_root = workspace / "external-src"
+    external_source_root.mkdir()
+    (external_source_root / "module.py").write_text("must not be archived\n")
+    source_root = product / "src"
+    source_root.rmdir()
+    source_root.symlink_to(external_source_root, target_is_directory=True)
+
+    output = workspace / "archives"
+    result = _run_packager(product, output)
+    assert result.returncode != 0
+    assert "policy-engine/src" in result.stderr
+    assert not list(output.glob("*.tar.gz"))
+
+
+def test_gcp_archive_accepts_excluded_symlinks_without_archiving_them(tmp_path):
+    source = "assets/item.yaml"
+    (workspace, product) = _project_fixture(
+        tmp_path, _force_include_manifest(source, "polisyos/assets/item.yaml")
+    )
+    configured_source = product / source
+    configured_source.parent.mkdir(parents=True)
+    configured_source.write_text("manifest source bytes\n")
+    (product / "src/kept.py").write_text("selected source\n")
+    external = workspace / "external.py"
+    external.write_text("excluded links target\n")
+    pycache = product / "src/__pycache__"
+    pycache.mkdir()
+    (pycache / "compiled.pyc").symlink_to(external)
+    (product / "src/excluded.pyc").symlink_to(external)
+
+    output = workspace / "archives"
+    result = _run_packager(product, output)
+    assert result.returncode == 0, result.stdout + result.stderr
+    (archive_path,) = output.glob("*.tar.gz")
+    members = _archive_files(archive_path)
+    assert members["policy-engine/src/kept.py"] == b"selected source\n"
+    assert not any("__pycache__" in name or name.endswith(".pyc") for name in members)
+
+
+def test_gcp_archive_refuses_special_members_before_opening_archive(tmp_path):
+    source = "assets/item.yaml"
+    (workspace, product) = _project_fixture(
+        tmp_path, _force_include_manifest(source, "polisyos/assets/item.yaml")
+    )
+    configured_source = product / source
+    configured_source.parent.mkdir(parents=True)
+    configured_source.write_text("manifest source bytes\n")
+    os.mkfifo(product / "src/nonregular.pipe")
+
+    output = workspace / "archives"
+    result = _run_packager(product, output)
+    assert result.returncode != 0
+    assert "policy-engine/src/nonregular.pipe" in result.stderr
     assert not list(output.glob("*.tar.gz"))

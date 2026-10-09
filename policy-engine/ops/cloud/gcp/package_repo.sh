@@ -18,6 +18,7 @@ mkdir -p "${OUT_DIR}"
 from __future__ import annotations
 
 import os
+import stat
 import sys
 import tarfile
 import tomllib
@@ -48,28 +49,7 @@ def force_include_source_path(source: str) -> Path:
         or ".." in relative_source.parts
     ):
         raise SystemExit(f"Invalid Hatch wheel force-include source: {source}")
-    source_path = product_root / relative_source
-    component = product_root
-    for part in relative_source.parts:
-        component = component / part
-        if component.is_symlink():
-            raise SystemExit(f"Invalid Hatch wheel force-include source: {source}")
-    if not source_path.resolve().is_relative_to(product_root.resolve()):
-        raise SystemExit(f"Invalid Hatch wheel force-include source: {source}")
-    if not source_path.is_file() and not source_path.is_dir():
-        raise SystemExit(f"Invalid Hatch wheel force-include source: {source}")
-    if source_path.is_dir():
-        def fail_walk(error: OSError) -> None:
-            raise error
-
-        for directory, dirnames, filenames in os.walk(
-            source_path, followlinks=False, onerror=fail_walk
-        ):
-            for name in [*dirnames, *filenames]:
-                member = Path(directory) / name
-                if member.is_symlink() or (not member.is_file() and not member.is_dir()):
-                    raise SystemExit(f"Invalid Hatch wheel force-include source: {source}")
-    return source_path
+    return product_root / relative_source
 
 
 for source in force_include:
@@ -93,26 +73,107 @@ def should_skip(path: Path) -> bool:
     return False
 
 
+def should_skip_subtree(path: Path) -> bool:
+    return any(part in skip_parts for part in path.parts) or ".egg-info" in path.parts
+
+
 def iter_paths(root: Path):
-    if root.is_file():
+    if should_skip_subtree(root):
+        return
+
+    try:
+        mode = root.lstat().st_mode
+    except FileNotFoundError:
         if not should_skip(root):
             yield root
         return
-
     if not should_skip(root):
         yield root
+    if not stat.S_ISDIR(mode):
+        return
 
-    for path in sorted(root.rglob("*")):
-        if should_skip(path):
+    try:
+        with os.scandir(root) as entries:
+            children = []
+            for entry in entries:
+                path = Path(entry.path)
+                if should_skip(path):
+                    continue
+                children.append((path, entry.stat(follow_symlinks=False).st_mode))
+    except OSError as error:
+        raise SystemExit(f"Unable to enumerate GCP archive source: {root}: {error}")
+
+    for path, child_mode in sorted(children, key=lambda child: child[0].name):
+        if stat.S_ISDIR(child_mode):
+            if not should_skip_subtree(path):
+                yield from iter_paths(path)
+        elif not should_skip(path):
+            yield path
+
+
+def archive_name(path: Path) -> str:
+    return path.relative_to(workspace_root).as_posix()
+
+
+try:
+    product_mode = product_root.lstat().st_mode
+    product_root_resolved = product_root.resolve(strict=True)
+except OSError as error:
+    raise SystemExit(f"Invalid GCP archive product root: {error}") from error
+if stat.S_ISLNK(product_mode) or not stat.S_ISDIR(product_mode):
+    raise SystemExit("Invalid GCP archive product root")
+
+
+def validate_archive_member(path: Path) -> None:
+    name = archive_name(path)
+    try:
+        relative_path = path.relative_to(product_root)
+    except ValueError as error:
+        raise SystemExit(f"Invalid GCP archive member: {name} (outside product root)") from error
+
+    current = product_root
+    parts = relative_path.parts
+    if not parts:
+        raise SystemExit(f"Invalid GCP archive member: {name} (product root is not an archive member)")
+
+    for index, part in enumerate(parts):
+        current = current / part
+        try:
+            mode = current.lstat().st_mode
+        except OSError as error:
+            raise SystemExit(f"Invalid GCP archive member: {name} (path unavailable)") from error
+        if stat.S_ISLNK(mode):
+            raise SystemExit(f"Invalid GCP archive member: {name} (symlink component)")
+        is_final = index == len(parts) - 1
+        if not is_final and not stat.S_ISDIR(mode):
+            raise SystemExit(f"Invalid GCP archive member: {name} (non-directory path component)")
+        if is_final and not (stat.S_ISDIR(mode) or stat.S_ISREG(mode)):
+            raise SystemExit(f"Invalid GCP archive member: {name} (non-regular member)")
+
+    try:
+        if not current.resolve(strict=True).is_relative_to(product_root_resolved):
+            raise SystemExit(f"Invalid GCP archive member: {name} (outside product root)")
+    except OSError as error:
+        raise SystemExit(f"Invalid GCP archive member: {name} (path unavailable)") from error
+
+
+archive_members = []
+seen_members = set()
+for rel in include_paths:
+    source = workspace_root / rel
+    for path in iter_paths(source):
+        name = archive_name(path)
+        if name in seen_members:
             continue
-        yield path
+        seen_members.add(name)
+        archive_members.append((path, Path(name)))
 
+for path, _ in archive_members:
+    validate_archive_member(path)
 
 with tarfile.open(archive_path, "w:gz", format=tarfile.GNU_FORMAT) as tar:
-    for rel in include_paths:
-        source = workspace_root / rel
-        for path in iter_paths(source):
-            tar.add(path, arcname=path.relative_to(workspace_root), recursive=False)
+    for path, name in archive_members:
+        tar.add(path, arcname=name, recursive=False)
 PY
 
 echo "Created ${ARCHIVE_PATH}"

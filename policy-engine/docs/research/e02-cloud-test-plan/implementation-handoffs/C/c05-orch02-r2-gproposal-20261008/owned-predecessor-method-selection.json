@@ -1,0 +1,80 @@
+{
+  "state": "UNAPPLIED_EXISTING_OWNER_CONTRACT_SELECTION",
+  "source": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+  "methods": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "method": "DatasetBatchConfig.load_registry",
+      "source_ref": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+      "source_path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "source_contract_sha256": "37166d12cee9764108ab91e07a9e7abda030640d9009a236d9a06b9711d15608",
+      "proposal_pre_method_sha256": "ac0f63a7ffe7f734ecc8bf87ab62f272492286d2729ebc2e49e2feec4fc9d225",
+      "selection": "Existing owner CAT profile/currentness prerequisite; not a new local producer"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "method": "DatasetBatchConfig.default_registry_path",
+      "source_ref": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+      "source_path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "source_contract_sha256": "c4c48448c37af29753081fec9d542ac58e8ab0642b000366cac7459663beb150",
+      "proposal_pre_method_sha256": "336e7f0ccf84d5c253b1015bdb6c30ec58a382714c547ed3541bbf0d26e72575",
+      "selection": "Existing owner CAT profile/currentness prerequisite; not a new local producer"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "method": "DatasetBatchConfig.uses_custom_registry",
+      "source_ref": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+      "source_path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "source_contract_sha256": "0c4aa39d1e25411e2bdf6bd38d0df177b2213c86db759beb36f8ccceaac93d5b",
+      "proposal_pre_method_sha256": "574e131994be0facbfff2a4e7be83cb407df856d3388ccd77b7f88c2e3340586",
+      "selection": "Existing owner CAT profile/currentness prerequisite; not a new local producer"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "method": "RetrievalService._source_policy",
+      "source_ref": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+      "source_path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "source_contract_sha256": "d5cba967d61a068c3c24b96b69b3ab8174eb4bb68a26549b5bd580228e2a6de0",
+      "proposal_pre_method_sha256": "c8b2102f1804cdc07cf0dc1e2ec5ce0f0d6d5b6d12bd3a88e0280978a49c7bd4",
+      "selection": "Existing owner CAT profile/currentness prerequisite; not a new local producer"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "method": "RetrievalService._selected_catalog_source_ids",
+      "source_ref": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+      "source_path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "source_contract_sha256": "1990b93b5606920f238109e5ff89dfc8ff74ee4a31aab24e7f02b0d7288bedf5",
+      "proposal_pre_method_sha256": null,
+      "selection": "Existing owner CAT profile/currentness prerequisite; not a new local producer"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "method": "RetrievalService._catalog_source_is_enabled",
+      "source_ref": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+      "source_path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "source_contract_sha256": "93b7f29913b6fb798aeb7f77ef805e230fe1a458e4236e4673d1d747a020b081",
+      "proposal_pre_method_sha256": null,
+      "selection": "Existing owner CAT profile/currentness prerequisite; not a new local producer"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "method": "RetrievalService.resolve",
+      "source_ref": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+      "source_path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "source_contract_sha256": "d97394cebd59c07529983f4ced0b02968d5c6a85fd530798770c740018ceec89",
+      "proposal_pre_method_sha256": "dee57ee86f5b974ccdc2c8f35d6ad88fb0699820e09188f1ee4fbe6c6c9a4378",
+      "selection": "Existing owner CAT profile/currentness prerequisite; not a new local producer"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "method": "RetrievalService._resolve_via_catalog",
+      "source_ref": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+      "source_path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "source_contract_sha256": "8d11b51033e1a69c66f0e43b6fac690cd79efb6ee6c2747b40094460a788d6e7",
+      "proposal_pre_method_sha256": "bacdf92cfb69e114a1cb4d518481348d16adfa10fdba7b638d8e7d4334423d72",
+      "selection": "Existing owner CAT profile/currentness prerequisite; not a new local producer"
+    }
+  ],
+  "foreign_resource_locators": "Keep G catalog_default_resource_path call sites; do not replace G _resources.py or physical resource helpers.",
+  "native_G_claim": false
+}

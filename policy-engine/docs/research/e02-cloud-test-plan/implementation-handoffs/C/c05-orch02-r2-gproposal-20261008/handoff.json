@@ -1,0 +1,94 @@
+{
+  "schema": "policyos.e02.original-C.c05.r2.G-proposal.v1",
+  "original_unit": "C",
+  "role": "C05",
+  "base_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "source_candidate": {
+    "sha": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+    "tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+    "qualification": "Own CAT-base source; independent source review and isolated strict typing. Source-native evidence is delivered separately and never a G-runtime claim."
+  },
+  "branch": "codex/e02-C-orch02-c05-r2-gproposal",
+  "worktree": "/workspace/orch02-c05-r2-gproposal",
+  "state": "UNAPPLIED_SUPPLIER_QUALIFIED_HELD",
+  "owned_patch": {
+    "file": "owned-g-proposal.patch.gz",
+    "decoded_sha256": "0e17f271cda9f8f4db077281e376a3dbf81c9f9be42b93862b521ca7684eca77",
+    "decoded_bytes": 166912,
+    "paths": 14,
+    "postimages": "reconciliation.json"
+  },
+  "foreign_public_patch": {
+    "file": "foreign-public-companions.patch.gz",
+    "decoded_sha256": "5dd76c6c3349acde4c2366aa1dcf8cd83684a3bdbf99c5e8bc9557508f80f3ce",
+    "decoded_bytes": 6173,
+    "paths": 4,
+    "preimages_and_postimages": "foreign-public-companions.json"
+  },
+  "apply_check": "Owned and combined proposal git apply --check exit0 on exact G product bytes. Nothing applied to product or run on G.",
+  "supplier_denominator": 65,
+  "supplier_manifest": "source-controls.json",
+  "full_DFI_CAT_ancestry": "c05-independent-source-DAG-66151f3b.json",
+  "held_inputs": [
+    {
+      "owner": "C05 catalog canonical predecessor supplier selection through G",
+      "paths": [
+        "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/registry.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/source_modules.py",
+        "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py"
+      ],
+      "contract": "Select exact DFI\u2192CAT registry/source_modules, request-context, producer checkpoint/benchmark and alignment contracts pathwise; retain G resource suppliers and G-only functions. The historical reference delta is not an apply-ready composition."
+    },
+    {
+      "owner": "G/Fabric public facade",
+      "path": "policy-engine/src/polisyos/fabric/__init__.py",
+      "contract": "Add four lazy aliases to existing effective resolver/registry objects."
+    },
+    {
+      "owner": "C02/G Core public facade",
+      "path": "policy-engine/src/polisyos/core/__init__.py",
+      "contract": "Add existing artifact protocol/config aliases, keep cold imports and optional backends."
+    },
+    {
+      "owner": "C07/G IR public facade",
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "contract": "Expose existing FetchRequest/FetchResult without DTO copies."
+    },
+    {
+      "owner": "G/Data Forge shared read API",
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "contract": "Add static registry contracts and distinct run-profile error alias; keep current G derivation CatalogSelectionError unchanged."
+    },
+    {
+      "owner": "G/DevX",
+      "contract": "Regenerate public inventory/typed projections from selected sources and rerun actual composed import gate; no policy/baseline/lock waiver."
+    },
+    {
+      "owner": "C10 + L01/L02",
+      "contract": "Actual configured production source/profile positive after minimum supplier selection. Paired fixtures do not establish production source/profile acceptance."
+    }
+  ],
+  "finite_residuals": [
+    "ALL headers including content negotiation, credentials/env auth excluded from current finite basis",
+    "Raw corpus/remote versions/source membership and concurrent atomic snapshot remain bounded",
+    "LA-041 full producer outputs/resume/source registry not closed by this finite leaf",
+    "LA-032 retains the existing demonstrated L01 C-W19 producer/reader quantity, no second local producer; exact packet in historical-scoped-requirements.json",
+    "B19/B36 remain named C10 partner requirements"
+  ],
+  "native_G_claim": false,
+  "source_acceptance_G": false,
+  "formal_closure_ids": [],
+  "artifact_alias_manifest": "artifact-aliases.json",
+  "current_owner_requirements": "current-owner-requirements.json"
+}

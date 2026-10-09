@@ -1,0 +1,55 @@
+{
+  "schema": "policyos.ORCH02.r2.actual_C10_catalog_caller_requirement.v1",
+  "owner": "root coordinator read-only integration requirement; no source mutation",
+  "source": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+  "handoff_head": "8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+  "new_source_adopted": false,
+  "rows": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "blob": "57554e1c1b63dd685f81f545ec8dae2201ab2466",
+      "bytes": 347884,
+      "sha256": "300c0b5b0fa2294abb07b02e09fd91eea5a2600c6e23a46ab6cc45ec7f05784b",
+      "exact_resolve_sites": [
+        {
+          "line": 7407,
+          "text": "result = self._retrieval.resolve(request)"
+        }
+      ],
+      "named_tokens": {
+        "CatalogRunProfile": 0,
+        "run_profile": 0
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "blob": "4956678ca4ec4253cdf96e103ff83e7226e192da",
+      "bytes": 427462,
+      "sha256": "e73f044870901509f76f73a20e7ea34919029d1d60e3557cf3b507981256b6bd",
+      "exact_resolve_sites": [],
+      "named_tokens": {
+        "CatalogRunProfile": 0,
+        "run_profile": 0
+      }
+    }
+  ],
+  "required_existing_typed_callable": "C05source5ccb RetrievalService.resolve(request: DataResolveRequest, *, run_profile: CatalogRunProfile|None=None)->ResolveOutcome",
+  "exact_source_own_callable": {
+    "source": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+    "path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+    "line": 299,
+    "blob": "c9bef0811c74b4467c3e987f77b02c46d1681fce"
+  },
+  "required_delta": "C10/G wire an independently admitted supported typed CatalogRunProfile from the canonical actual request context into existing _retrieval.resolve(request, run_profile=profile) and expose actual selected output/refusal; keep existing registry/selection, no second registry/default profile or parallel caller. Core/request context DTO/public/generated owners decide exact persisted contract.",
+  "positive_selectors": [
+    "Actual incoming request carrying supported profile produces actual selected Catalog output through current served caller",
+    "Fresh selected L01/L02 authentic local tuple positive remains not_established"
+  ],
+  "negative_selectors": [
+    "Missing/foreign mandatory profile refusal survives response",
+    "Disabled source profile is excluded/refused according to actual existing selection",
+    "Same ID changed persisted inventory/currentness refuses stale cache/reader before serving output"
+  ],
+  "static_bound": "Complete two pinned physical caller files searched for named exact tokens; dynamic factory/context delegation is not claimed absent globally. Actual served request/runtime witness is UNRUN.",
+  "formal_closure_ids": []
+}

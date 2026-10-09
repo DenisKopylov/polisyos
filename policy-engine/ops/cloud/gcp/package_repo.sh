@@ -20,10 +20,12 @@ from __future__ import annotations
 import os
 import sys
 import tarfile
+import tomllib
 from pathlib import Path
 
 workspace_root = Path(sys.argv[1])
 archive_path = Path(sys.argv[2])
+product_root = workspace_root / "policy-engine"
 include_paths = [
     "policy-engine/README.md",
     "policy-engine/pyproject.toml",
@@ -34,6 +36,21 @@ include_paths = [
     "policy-engine/schemas",
     "policy-engine/ops",
 ]
+manifest = tomllib.loads((product_root / "hatch.toml").read_text())
+force_include = manifest["build"]["targets"]["wheel"]["force-include"]
+for source in force_include:
+    relative_source = Path(source)
+    source_path = product_root / relative_source
+    if (
+        relative_source.is_absolute()
+        or ".." in relative_source.parts
+        or not source_path.resolve().is_relative_to(product_root.resolve())
+        or not source_path.is_file()
+        or source_path.is_symlink()
+    ):
+        raise SystemExit(f"Invalid Hatch wheel force-include source: {source}")
+    include_paths.append(str(source_path.relative_to(workspace_root)))
+include_paths = list(dict.fromkeys(include_paths))
 skip_parts = {"__pycache__", ".git"}
 skip_suffixes = {".pyc", ".pyo"}
 skip_names = {".DS_Store"}

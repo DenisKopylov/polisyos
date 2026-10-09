@@ -97,16 +97,17 @@ def contexts(tmp_path_factory):
         .decode()
         .split("\0")
     )
+    force_include_sources = tomllib.loads((ROOT / "hatch.toml").read_text())["build"]["targets"][
+        "wheel"
+    ]["force-include"]
+    source_roots = [*INCLUDES, *force_include_sources, "hatch.toml"]
     selected = sorted(
         {
             name
             for name in listed
             if name
             and Path(name).name.casefold() not in EXCLUDED_NAMES
-            and any(
-                name == prefix or name.startswith(prefix + "/")
-                for prefix in [*INCLUDES, "hatch.toml"]
-            )
+            and any(name == prefix or name.startswith(prefix + "/") for prefix in source_roots)
         }
     )
     copied = []
@@ -154,13 +155,24 @@ def test_native_backend_preserves_complete_wheel_and_sdist_contract(contexts):
         == new_sdist.parent.relative_to(native)
         == Path("_build/dist")
     )
-    assert old_members == new_members  # Every member, METADATA and all entry-point groups.
+    force_include = tomllib.loads((native / "hatch.toml").read_text())["build"]["targets"]["wheel"][
+        "force-include"
+    ]
+    force_targets = set(force_include.values())
+    assert set(new_members) == set(old_members) | force_targets
+    assert {name: new_members[name] for name in old_members} == old_members
+    source_hashes = {
+        target: hashlib.sha256((native / source).read_bytes()).hexdigest()
+        for source, target in force_include.items()
+    }
+    assert {target: new_members[target] for target in source_hashes} == source_hashes
     assert any(name.startswith("tools/") for name in new_members)
     old_wire = tomllib.loads((legacy / "pyproject.toml").read_text())
     new_wire = tomllib.loads((native / "pyproject.toml").read_text())
     del old_wire["tool"]["hatch"]
     assert old_wire == new_wire  # Also preserves empty extension groups and uv tables.
-    assert new_sdist_members.keys() - old_sdist_members.keys() == {"hatch.toml"}
+    force_sources = set(force_include)
+    assert set(new_sdist_members) - set(old_sdist_members) == force_sources | {"hatch.toml"}
     assert not old_sdist_members.keys() - new_sdist_members.keys()
     assert {
         name for name in old_sdist_members if old_sdist_members[name] != new_sdist_members[name]
@@ -176,7 +188,7 @@ def test_native_backend_preserves_complete_wheel_and_sdist_contract(contexts):
             {
                 "wheel_members_except_record": len(new_members),
                 "sdist_members": len(new_sdist_members),
-                "sdist_delta": ["hatch.toml", "pyproject.toml"],
+                "sdist_delta": sorted(force_sources | {"hatch.toml"}),
             }
         )
     )
@@ -184,7 +196,7 @@ def test_native_backend_preserves_complete_wheel_and_sdist_contract(contexts):
 
 @pytest.mark.parametrize("mutation", ["missing", "wrong_prefix", "packages", "entrypoint"])
 def test_missing_or_wrong_native_config_is_detected_by_real_build(contexts, mutation):
-    native, legacy, scratch = contexts
+    native, _legacy, scratch = contexts
     assert (native / "hatch.toml").is_file(), "native Hatch configuration is required"
     broken = _clone(native, scratch / mutation)
     config = broken / "hatch.toml"
@@ -199,7 +211,7 @@ def test_missing_or_wrong_native_config_is_detected_by_real_build(contexts, muta
     else:
         manifest = broken / "pyproject.toml"
         _replace(manifest, manifest.read_text().replace('polisyos-tools = "tools.cli:main"\n', ""))
-    _, expected = _wheel(legacy)
+    _, expected = _wheel(native)
     try:
         wheel, observed = _wheel(broken)
     except ValueError as error:
@@ -227,14 +239,15 @@ def test_docker_manifest_copy_keeps_native_build_behavior(contexts, stage):
         (context / "hatch.toml").unlink()
     for name in copies[stage]:
         assert (ROOT / name).is_file()
-    _, expected = _wheel(legacy)
+    expected_root = native if "hatch.toml" in copies[stage] else legacy
+    _, expected = _wheel(expected_root)
     wheel, observed = _wheel(context)
     assert observed == expected
     assert wheel.parent.relative_to(context) == Path("_build/dist")
 
 
 def test_gcp_archive_carries_buildable_native_config(contexts):
-    native, legacy, scratch = contexts
+    native, _legacy, scratch = contexts
     assert (native / "hatch.toml").is_file(), "native Hatch configuration is required"
     workspace = scratch / "cloud"
     workspace.mkdir()
@@ -256,7 +269,7 @@ def test_gcp_archive_carries_buildable_native_config(contexts):
     with tarfile.open(archive_path) as archive:
         archive.extractall(extracted, filter="data")
     wheel, observed = _wheel(extracted / "policy-engine")
-    _, expected = _wheel(legacy)
+    _, expected = _wheel(native)
     assert observed == expected
     assert wheel.parent.relative_to(extracted / "policy-engine") == Path("_build/dist")
 
@@ -267,11 +280,20 @@ def test_context_rejects_nonfile_tracked_input(tmp_path, tmp_path_factory, monke
     source.mkdir()
     subprocess.run(["git", "init", "--quiet", str(source)], check=True)
     (source / "pyproject.toml").write_text('[project]\nname = "fixture"\nversion = "0"\n')
+    (source / "hatch.toml").write_text("[build.targets.wheel]\nforce-include = {}\n")
     declared = source / "docs/evidence.txt"
     declared.parent.mkdir()
     declared.write_text("declared evidence\n")
     subprocess.run(
-        ["git", "-C", str(source), "add", "pyproject.toml", "docs/evidence.txt"],
+        [
+            "git",
+            "-C",
+            str(source),
+            "add",
+            "pyproject.toml",
+            "hatch.toml",
+            "docs/evidence.txt",
+        ],
         check=True,
     )
     declared.unlink()

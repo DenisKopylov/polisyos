@@ -34,7 +34,7 @@ Every committed generated artifact family must have a source of truth, a regener
 | `Architecture report-only contract reports` | `generated_ignored` | `local_ignored` | `ignored_by_policy` | `team-architecture` | `_build/reports/architecture` |
 | `Architecture import-boundary and dependency-graph reports` | `generated_ignored` | `local_ignored` | `ignored_by_policy` | `team-architecture` | `_build/reports/architecture/import-boundary-report.json`<br/>`_build/reports/architecture/dependency-graph-report.json`<br/>`_build/reports/architecture/dynamic-import-registry-report.json`<br/>`_build/reports/architecture/phase6-1-package-import-gates.json` |
 | `Architecture mypy and Ruff override report` | `generated_ignored` | `local_ignored` | `ignored_by_policy` | `team-architecture` | `_build/reports/architecture/static-analysis-overrides.json` |
-| `Generated mypy, Ruff, and MkDocs configs` | `generated_committed` | `committed_generated` | `uv run polisyos-tools workspace tool-configs --check` | `team-devx` | `architecture/tooling/mypy/generated.ini`<br/>`architecture/tooling/ruff/generated.toml`<br/>`architecture/tooling/mkdocs/generated.yml`<br/>`mypy.ini`<br/>`ruff.toml`<br/>`mkdocs.yml` |
+| `Generated mypy, Ruff, and MkDocs configs` | `generated_committed` | `committed_generated` | `uv run polisyos-tools workspace tool-configs --check` | `team-devx` | `architecture/tooling/mypy/generated.ini`<br/>`architecture/tooling/ruff/generated.toml`<br/>`architecture/tooling/ruff/workspace_root.toml`<br/>`architecture/tooling/mkdocs/generated.yml`<br/>`mypy.ini`<br/>`ruff.toml`<br/>`mkdocs.yml` |
 | `Release inputs and unreleased fragments` | `source_committed` | `committed` | `automated` | `team-release` | `release`<br/>`release-fragments/README.md`<br/>`release-fragments/template.toml`<br/>`release-fragments/unreleased` |
 | `Release build output staging` | `generated_ignored` | `local_ignored` | `ignored_by_policy` | `team-release` | `_build/release`<br/>`_build/release-fragments` |
 | `Local build cache and scratch` | `scratch_ignored` | `local_ignored` | `ignored_by_policy` | `team-devx` | `_build/scratch`<br/>`_build/.tmp`<br/>`_cache` |
@@ -1074,6 +1074,7 @@ uv run python tools/quality/validation/architecture_report_only_contracts.py --r
 - Outputs:
   - `architecture/tooling/mypy/generated.ini`
   - `architecture/tooling/ruff/generated.toml`
+  - `architecture/tooling/ruff/workspace_root.toml`
   - `architecture/tooling/mkdocs/generated.yml`
   - `mypy.ini`
   - `ruff.toml`

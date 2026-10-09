@@ -3,4 +3,6 @@
 # Target: ruff.toml
 
 extend = "architecture/tooling/ruff/generated.toml"
+
 cache-dir = "_cache/ruff"
+src = [".", "src"]

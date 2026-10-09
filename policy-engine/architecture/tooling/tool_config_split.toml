@@ -28,6 +28,8 @@ base_config = "architecture/tooling/ruff/base.toml"
 generated_config = "architecture/tooling/ruff/generated.toml"
 workspace_root_generated_config = "architecture/tooling/ruff/workspace_root.toml"
 workspace_root_prefix = "policy-engine"
+workspace_root_path_settings = ["cache-dir", "src"]
+workspace_root_pattern_settings = ["include", "exclude", "extend-include", "extend-exclude"]
 root_policy = "Product-root discovery uses root_config; Git-workspace-root callers use workspace_root_generated_config directly."
 per_file_ignore_fragments = [
   "architecture/tooling/ruff/per-file-ignores/10-tests-ir.toml",
@@ -40,6 +42,10 @@ per_file_ignore_fragments = [
   "architecture/tooling/ruff/per-file-ignores/80-runtime-core-ir.toml",
   "architecture/tooling/ruff/per-file-ignores/90-repository-tools.toml",
 ]
+
+[ruff.product_root_settings]
+cache-dir = "_cache/ruff"
+src = [".", "src"]
 
 [mkdocs]
 root_config = "mkdocs.yml"

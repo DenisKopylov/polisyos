@@ -6,7 +6,6 @@
 
 line-length = 100
 target-version = "py314"
-cache-dir = "_cache/ruff"
 
 [lint]
 select = [

@@ -98,10 +98,12 @@ def _render_ruff(repo_root: Path, data: dict[str, Any]) -> tuple[RenderedFile, .
         _read_ruff_per_file_ignore_fragment(repo_root, path, generated_config)
         for path in config["per_file_ignore_fragments"]
     ]
-    root_content = (
-        _comment_notice("ruff.toml")
-        + f'extend = "{generated_config}"\n'
-        + 'cache-dir = "_cache/ruff"\n'
+    product_root_settings = config["product_root_settings"]
+    root_content = _comment_notice("ruff.toml") + _join_blocks(
+        [
+            f"extend = {json.dumps(generated_config)}\n",
+            _format_ruff_settings(product_root_settings),
+        ]
     )
     generated_content = _comment_notice(generated_config) + _join_blocks(
         [base, "[lint.per-file-ignores]\n", *fragments]
@@ -117,14 +119,95 @@ def _render_ruff(repo_root: Path, data: dict[str, Any]) -> tuple[RenderedFile, .
         )
         for path in config["per_file_ignore_fragments"]
     ]
+    workspace_root_settings = _render_workspace_root_settings(
+        product_root_settings,
+        path_settings=config["workspace_root_path_settings"],
+        pattern_settings=config["workspace_root_pattern_settings"],
+        prefix=workspace_root_prefix,
+    )
+    workspace_config_path = repo_root / workspace_root_config
+    base_config_path = repo_root / config["base_config"]
+    workspace_extend = Path(
+        os.path.relpath(base_config_path, workspace_config_path.parent)
+    ).as_posix()
     workspace_root_content = _comment_notice(workspace_root_config) + _join_blocks(
-        [base, "[lint.per-file-ignores]\n", *workspace_root_fragments]
+        [
+            f"extend = {json.dumps(workspace_extend)}\n",
+            workspace_root_settings,
+            "[lint.per-file-ignores]\n",
+            *workspace_root_fragments,
+        ]
     )
     return (
         RenderedFile(repo_root / config["root_config"], root_content, repo_root),
         RenderedFile(repo_root / generated_config, generated_content, repo_root),
         RenderedFile(repo_root / workspace_root_config, workspace_root_content, repo_root),
     )
+
+
+def _render_workspace_root_settings(
+    product_root_settings: dict[str, Any],
+    *,
+    path_settings: Sequence[str],
+    pattern_settings: Sequence[str],
+    prefix: str,
+) -> str:
+    """Render caller-root overrides for all declared path and glob settings."""
+
+    lines: list[str] = []
+    for name in path_settings:
+        if name not in product_root_settings:
+            raise ValueError(
+                f"workspace-root path setting {name!r} is absent from product-root settings"
+            )
+        value = _prefix_ruff_setting(product_root_settings[name], prefix, kind="path")
+        lines.append(f"{name} = {_format_ruff_value(value)}")
+    for name in pattern_settings:
+        if name not in product_root_settings:
+            continue
+        value = _prefix_ruff_setting(product_root_settings[name], prefix, kind="pattern")
+        lines.append(f"{name} = {_format_ruff_value(value)}")
+    return "\n".join(lines) + ("\n" if lines else "")
+
+
+def _format_ruff_settings(settings: dict[str, Any]) -> str:
+    return (
+        "\n".join(f"{name} = {_format_ruff_value(value)}" for name, value in settings.items())
+        + "\n"
+    )
+
+
+def _prefix_ruff_setting(value: str | list[str], prefix: str, *, kind: str) -> str | list[str]:
+    if isinstance(value, str):
+        return _prefix_ruff_root_value(value, prefix, kind=kind)
+    if isinstance(value, list) and all(isinstance(item, str) for item in value):
+        return [_prefix_ruff_root_value(item, prefix, kind=kind) for item in value]
+    raise ValueError(f"unsupported Ruff {kind} setting value: {value!r}")
+
+
+def _prefix_ruff_root_value(value: str, prefix: str, *, kind: str) -> str:
+    if not prefix or prefix == "." or value.startswith("/"):
+        return value
+    if kind == "pattern":
+        negated = value.startswith("!")
+        subject = value[1:] if negated else value
+        if subject.startswith("/"):
+            return value
+        subject = subject.removeprefix("./")
+        rendered = f"{prefix}/{subject}"
+        return f"!{rendered}" if negated else rendered
+    subject = value.removeprefix("./")
+    if subject == ".":
+        return prefix
+    return f"{prefix}/{subject}"
+
+
+def _format_ruff_value(value: str | list[str]) -> str:
+    if isinstance(value, str):
+        return json.dumps(value)
+    if isinstance(value, list) and all(isinstance(item, str) for item in value):
+        return "[" + ", ".join(json.dumps(item) for item in value) + "]"
+    raise ValueError(f"unsupported Ruff setting value: {value!r}")
 
 
 def _render_mkdocs(repo_root: Path, data: dict[str, Any]) -> tuple[RenderedFile, ...]:

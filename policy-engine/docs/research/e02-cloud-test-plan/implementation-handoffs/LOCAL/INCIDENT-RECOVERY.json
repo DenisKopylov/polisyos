@@ -1,0 +1,28 @@
+{
+  "schema": "policyos.e02.incident-recovery.v1",
+  "created_utc": "2026-10-09T12:09:33.694315+00:00",
+  "authorization": "Human reply: Разрешить проверку и точечное восстановление, затем продолжить E02",
+  "head": "021560651b7ab84857f7cd5ef1ecf08408cd548c",
+  "tree": "c0adca8333f2bff8450fbaa650587ba0d24e8b23",
+  "branch": "refs/heads/codex/e02-unified-local-20261009",
+  "patch_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/ruff-i001-20261009/proposed-unapplied-import-only-recovery.patch",
+  "patch_sha256": "6fb389a9e1fbd4cdf08d6c4a6d851c0ce60cc9c32471988c79b6944cc4db19d0",
+  "applied_command": "git apply --reverse docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/ruff-i001-20261009/proposed-unapplied-import-only-recovery.patch",
+  "applied": true,
+  "direction_evidence": "Forward --check failed; --reverse --check passed. Every recovered file read back equals the exact HEAD blob. git diff --reverse had not reversed patch direction.",
+  "independent_review": "i4_c12: complete 1471-file parsed AST/import-bound-symbol/comment-token checks; zero semantic/import binding differences; zero declared lease/prior-status/later-commit intersections.",
+  "checks": {
+    "original_tracked_diff_snapshot_equal": true,
+    "untracked_archive_bytes_equal": 356,
+    "candidate_paths_restored_to_head_bytes": 1471,
+    "tracked_non_candidate_paths_preserved": 440,
+    "untracked_nonignored_paths_preserved": 356,
+    "protected_paths_total": 796,
+    "protected_byte_changes": 0,
+    "remaining_dirty_tracked_paths": 440,
+    "head_branch_index_unchanged": true
+  },
+  "limitation": "The older status is not an immediate pre-incident snapshot. Per-file attribution to the accidental Ruff execution is bounded; recovery excludes all body changes and all prior recorded work.",
+  "closure_ids": [],
+  "proposal_fields": []
+}

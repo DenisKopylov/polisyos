@@ -1,0 +1,61 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+cachedir: /workspace/orch02-r2/native-c06/dfk-native/pytest-cache
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/orch02-r2-c06-dfk-g/policy-engine/_cache/hypothesis'))
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/orch02-r2-c06-dfk-g/policy-engine
+configfile: pytest.ini
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 45 items
+
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_canonical_schema_exports_preserve_registry_identity PASSED [  2%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_canonical_registry_evolution_and_migration_behave PASSED [  4%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_compatibility_pending_surfaces_remain_importable[polisyos.data_forge.kernel.pipeline.schemas] PASSED [  6%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_compatibility_pending_surfaces_remain_importable[polisyos.data_forge.kernel.schemas.codegen] PASSED [  8%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_compatibility_pending_surfaces_remain_importable[polisyos.foundry.domain.schema] PASSED [ 11%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_compatibility_pending_surfaces_preserve_current_identity PASSED [ 13%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_mechanisms_tombstone_is_not_importable PASSED [ 15%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_binds_imports_strings_dynamic_loaders_and_exclusions PASSED [ 17%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_resolves_importfrom_package_children_and_removal PASSED [ 20%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_observes_module_and_package_source_variants PASSED [ 22%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_selects_repository_text_resource_and_config_types PASSED [ 24%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_does_not_turn_missing_tracked_input_into_zero PASSED [ 26%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_rejects_selected_symlink_outside_admitted_root PASSED [ 28%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_digest_changes_when_a_selected_input_changes PASSED [ 31%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_normalizes_git_status_paths_from_nested_product_root PASSED [ 33%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_preserves_two_ordinary_git_status_records[-staged] PASSED [ 35%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_preserves_two_ordinary_git_status_records[-unstaged] PASSED [ 37%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_preserves_two_ordinary_git_status_records[-added_then_modified] PASSED [ 40%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_preserves_two_ordinary_git_status_records[policy-engine-staged] PASSED [ 42%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_preserves_two_ordinary_git_status_records[policy-engine-unstaged] PASSED [ 44%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_preserves_two_ordinary_git_status_records[policy-engine-added_then_modified] PASSED [ 46%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_preserves_both_rename_paths_and_next_record[False-] PASSED [ 48%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_preserves_both_rename_paths_and_next_record[False-policy-engine] PASSED [ 51%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_preserves_both_rename_paths_and_next_record[True-] PASSED [ 53%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_preserves_both_rename_paths_and_next_record[True-policy-engine] PASSED [ 55%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_reports_clean_real_git_input[] PASSED [ 57%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_reports_clean_real_git_input[policy-engine] PASSED [ 60%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_preserves_both_copy_paths_and_next_record[] PASSED [ 62%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_preserves_both_copy_paths_and_next_record[policy-engine] PASSED [ 64%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_preserves_unstaged_two_path_intent_to_add[rename-] PASSED [ 66%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_preserves_unstaged_two_path_intent_to_add[rename-policy-engine] PASSED [ 68%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_preserves_unstaged_two_path_intent_to_add[copy-] PASSED [ 71%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_preserves_unstaged_two_path_intent_to_add[copy-policy-engine] PASSED [ 73%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_is_discovered_and_invoked_through_public_cli[text] PASSED [ 75%]
+tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_is_discovered_and_invoked_through_public_cli[json] PASSED [ 77%]
+tests/unit/remediation/test_dfk_02.py::test_source_selection_distinguishes_none_default_from_explicit_empty PASSED [ 80%]
+tests/unit/remediation/test_dfk_02.py::test_source_selection_fails_closed_for_disabled_mandatory_seed PASSED [ 82%]
+tests/unit/remediation/test_dfk_02.py::test_source_selection_fails_closed_for_missing_seed PASSED [ 84%]
+tests/unit/remediation/test_dfk_02.py::test_source_selection_fails_closed_for_cyclic_seeds PASSED [ 86%]
+tests/unit/remediation/test_dfk_02.py::test_registry_selection_fails_closed_for_disabled_mandatory_seed PASSED [ 88%]
+tests/unit/remediation/test_dfk_02.py::test_registry_selection_fails_closed_for_missing_seed PASSED [ 91%]
+tests/unit/remediation/test_dfk_02.py::test_registry_selection_fails_closed_for_cyclic_seeds PASSED [ 93%]
+tests/unit/remediation/test_dfk_02.py::test_registry_projection_preserves_rich_source_filters PASSED [ 95%]
+tests/unit/remediation/test_dfk_02.py::test_registry_projection_keeps_the_35_entry_order_and_equality_contract PASSED [ 97%]
+tests/unit/remediation/test_dfk_02.py::test_public_read_and_fabric_consumers_use_the_canonical_registry_projection PASSED [100%]ORIGIN_RECONCILIATION {"file_origins": 398, "unresolved_modules": 0, "problems": 0}
+
+
+--- generated xml file: /workspace/orch02-r2/native-c06/dfk-native/junit.xml ---
+======================== 45 passed in 136.44s (0:02:16) ========================

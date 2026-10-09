@@ -1,0 +1,13 @@
+{
+  "compact_diagnostic": "author-evidence/required-invocation/compact-diagnostic.json",
+  "compressed_absolute_local_path": "/workspace/orch02-r2/c06-dfk/required-invocation/receipt.json.gz",
+  "compressed_bytes": 6022930,
+  "compressed_path": "receipt.json.gz",
+  "compressed_sha256": "b22189ef84409eebe0353f2985acccb26d53c294b910bc8eaef96afea877fe01",
+  "custody": "local ignored scratch only; raw and gzip not tracked, not remotely byte-custodied",
+  "decoded_bytes": 171707606,
+  "decoded_sha256": "50fc2612a50bb9cee5ec9a5a9af955fb627bd579b74d190da0deac99ff975fda",
+  "exact_roundtrip": true,
+  "full_stdout_stderr_and_command_are_published": true,
+  "original_raw_source": "/workspace/orch02-r2/c06-dfk/required-invocation/receipt.json"
+}

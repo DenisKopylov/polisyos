@@ -1,0 +1,785 @@
+{
+  "schema": "orch02.r2.independent_source_review.v1",
+  "reviewer": "/root/recovery_review",
+  "at": "2026-10-08T18:10:38.692555+00:00",
+  "verdict": "GO_SOURCE_ONLY_FOR_OWNED_G_BASED_CANDIDATE_AND_AFFECTED_WAVE",
+  "base_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "frozen_tree": "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a",
+  "implementation_commit": "pending ordinary writer commit",
+  "changed_paths": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-orch02-r2-c06-dfk-census.toml",
+      "G_preimage_blob": null,
+      "bytes": 1679,
+      "sha256": "81256a8fd3a049d7ab217717164c30e4dddf207ef8606f1151c768980e97f57e",
+      "git_blob": "7997df813928d3d9415ba130507d1e193b45a577"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+      "G_preimage_blob": "dc67765fe998e51f1b838ad28cba8222712e4cfc",
+      "bytes": 43587,
+      "sha256": "27dacceb4bde9ceaa1b594175b8fb3f439a76dc118214fb9d9ed3787894b1be8",
+      "git_blob": "4a4fafd6f210fed444b6ff4cd4bc662b3719a870"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "G_preimage_blob": null,
+      "bytes": 31623,
+      "sha256": "a2ee2b6d21a1b5d5cf5e2484539ca5ca365f82a8d1b941344730e58f13625d42",
+      "git_blob": "40d91dc181c38a71ff0b672e1991516ea86ed44d"
+    }
+  ],
+  "complete_git_input_path_denominators_reconciled": {
+    "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a": 21560,
+    "a13f6c1acfe15a6750d71c6e86521f119d794def": 13772,
+    "cbbfffd367fe283813a8177575d26c0ede8d20c4": 13773,
+    "dee58973f7673299070b7c7374f419b0adb8175c": 21558,
+    "e4bd1527c941ff880a5d34898c57428c7be4b1cc": 13948
+  },
+  "complete_ancestor_DAG_commits_reconciled": 5136,
+  "explicit_dependencies_reconciled": [
+    {
+      "path": "policy-engine/tools/registry.py",
+      "references": {
+        "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a": {
+          "git_object": "19bc7590ceb7b5ebf3b5c2a234b87f3040c807d6",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/registry.py"
+        },
+        "a13f6c1acfe15a6750d71c6e86521f119d794def": {
+          "git_object": "19bc7590ceb7b5ebf3b5c2a234b87f3040c807d6",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/registry.py"
+        },
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4": {
+          "git_object": "19bc7590ceb7b5ebf3b5c2a234b87f3040c807d6",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/registry.py"
+        },
+        "dee58973f7673299070b7c7374f419b0adb8175c": {
+          "git_object": "19bc7590ceb7b5ebf3b5c2a234b87f3040c807d6",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/registry.py"
+        },
+        "e4bd1527c941ff880a5d34898c57428c7be4b1cc": {
+          "git_object": "19bc7590ceb7b5ebf3b5c2a234b87f3040c807d6",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/registry.py"
+        }
+      }
+    },
+    {
+      "path": "policy-engine/tools/cli.py",
+      "references": {
+        "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a": {
+          "git_object": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/cli.py"
+        },
+        "a13f6c1acfe15a6750d71c6e86521f119d794def": {
+          "git_object": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/cli.py"
+        },
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4": {
+          "git_object": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/cli.py"
+        },
+        "dee58973f7673299070b7c7374f419b0adb8175c": {
+          "git_object": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/cli.py"
+        },
+        "e4bd1527c941ff880a5d34898c57428c7be4b1cc": {
+          "git_object": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/cli.py"
+        }
+      }
+    },
+    {
+      "path": "policy-engine/tools/lib/runner.py",
+      "references": {
+        "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a": {
+          "git_object": "951360dd4a52be59d2941d03d637f214cc803d18",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/runner.py"
+        },
+        "a13f6c1acfe15a6750d71c6e86521f119d794def": {
+          "git_object": "951360dd4a52be59d2941d03d637f214cc803d18",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/runner.py"
+        },
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4": {
+          "git_object": "951360dd4a52be59d2941d03d637f214cc803d18",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/runner.py"
+        },
+        "dee58973f7673299070b7c7374f419b0adb8175c": {
+          "git_object": "951360dd4a52be59d2941d03d637f214cc803d18",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/runner.py"
+        },
+        "e4bd1527c941ff880a5d34898c57428c7be4b1cc": {
+          "git_object": "951360dd4a52be59d2941d03d637f214cc803d18",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/runner.py"
+        }
+      }
+    },
+    {
+      "path": "policy-engine/tools/lib/fs.py",
+      "references": {
+        "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a": {
+          "git_object": "f23d92e182a2a1d8be8049b342704e0542071fd4",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/fs.py"
+        },
+        "a13f6c1acfe15a6750d71c6e86521f119d794def": {
+          "git_object": "f23d92e182a2a1d8be8049b342704e0542071fd4",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/fs.py"
+        },
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4": {
+          "git_object": "f23d92e182a2a1d8be8049b342704e0542071fd4",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/fs.py"
+        },
+        "dee58973f7673299070b7c7374f419b0adb8175c": {
+          "git_object": "f23d92e182a2a1d8be8049b342704e0542071fd4",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/fs.py"
+        },
+        "e4bd1527c941ff880a5d34898c57428c7be4b1cc": {
+          "git_object": "f23d92e182a2a1d8be8049b342704e0542071fd4",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/fs.py"
+        }
+      }
+    },
+    {
+      "path": "policy-engine/tools/lib/output.py",
+      "references": {
+        "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a": {
+          "git_object": "de354e2ec3602068a06ec4fc279ba751ac8130ea",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/output.py"
+        },
+        "a13f6c1acfe15a6750d71c6e86521f119d794def": {
+          "git_object": "de354e2ec3602068a06ec4fc279ba751ac8130ea",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/output.py"
+        },
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4": {
+          "git_object": "de354e2ec3602068a06ec4fc279ba751ac8130ea",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/output.py"
+        },
+        "dee58973f7673299070b7c7374f419b0adb8175c": {
+          "git_object": "de354e2ec3602068a06ec4fc279ba751ac8130ea",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/output.py"
+        },
+        "e4bd1527c941ff880a5d34898c57428c7be4b1cc": {
+          "git_object": "de354e2ec3602068a06ec4fc279ba751ac8130ea",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/output.py"
+        }
+      }
+    },
+    {
+      "path": "policy-engine/tools/lib/preflight.py",
+      "references": {
+        "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a": {
+          "git_object": "260ebb527b327260fb3faa22b3501d166676745c",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/preflight.py"
+        },
+        "a13f6c1acfe15a6750d71c6e86521f119d794def": {
+          "git_object": "260ebb527b327260fb3faa22b3501d166676745c",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/preflight.py"
+        },
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4": {
+          "git_object": "260ebb527b327260fb3faa22b3501d166676745c",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/preflight.py"
+        },
+        "dee58973f7673299070b7c7374f419b0adb8175c": {
+          "git_object": "260ebb527b327260fb3faa22b3501d166676745c",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/preflight.py"
+        },
+        "e4bd1527c941ff880a5d34898c57428c7be4b1cc": {
+          "git_object": "260ebb527b327260fb3faa22b3501d166676745c",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/preflight.py"
+        }
+      }
+    },
+    {
+      "path": "policy-engine/tools/lib/timing.py",
+      "references": {
+        "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a": {
+          "git_object": "c4e0de313ba4d1f8cbce2575e66ebb86bb166ec6",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/timing.py"
+        },
+        "a13f6c1acfe15a6750d71c6e86521f119d794def": {
+          "git_object": "c4e0de313ba4d1f8cbce2575e66ebb86bb166ec6",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/timing.py"
+        },
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4": {
+          "git_object": "c4e0de313ba4d1f8cbce2575e66ebb86bb166ec6",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/timing.py"
+        },
+        "dee58973f7673299070b7c7374f419b0adb8175c": {
+          "git_object": "c4e0de313ba4d1f8cbce2575e66ebb86bb166ec6",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/timing.py"
+        },
+        "e4bd1527c941ff880a5d34898c57428c7be4b1cc": {
+          "git_object": "c4e0de313ba4d1f8cbce2575e66ebb86bb166ec6",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/timing.py"
+        }
+      }
+    },
+    {
+      "path": "policy-engine/tools/lib/imports.py",
+      "references": {
+        "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a": {
+          "git_object": "2d41d47837fdc6083d8a02bb46debddf303fb1af",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/imports.py"
+        },
+        "a13f6c1acfe15a6750d71c6e86521f119d794def": {
+          "git_object": "2d41d47837fdc6083d8a02bb46debddf303fb1af",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/imports.py"
+        },
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4": {
+          "git_object": "2d41d47837fdc6083d8a02bb46debddf303fb1af",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/imports.py"
+        },
+        "dee58973f7673299070b7c7374f419b0adb8175c": {
+          "git_object": "2d41d47837fdc6083d8a02bb46debddf303fb1af",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/imports.py"
+        },
+        "e4bd1527c941ff880a5d34898c57428c7be4b1cc": {
+          "git_object": "2d41d47837fdc6083d8a02bb46debddf303fb1af",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/lib/imports.py"
+        }
+      }
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "references": {
+        "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a": {
+          "git_object": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/pyproject.toml"
+        },
+        "a13f6c1acfe15a6750d71c6e86521f119d794def": {
+          "git_object": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/pyproject.toml"
+        },
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4": {
+          "git_object": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/pyproject.toml"
+        },
+        "dee58973f7673299070b7c7374f419b0adb8175c": {
+          "git_object": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/pyproject.toml"
+        },
+        "e4bd1527c941ff880a5d34898c57428c7be4b1cc": {
+          "git_object": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/pyproject.toml"
+        }
+      }
+    },
+    {
+      "path": "policy-engine/hatch.toml",
+      "references": {
+        "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a": {
+          "git_object": "ab91c577cc1fc7beed00b78d29efd9c84ba7c9f7",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/hatch.toml"
+        },
+        "a13f6c1acfe15a6750d71c6e86521f119d794def": {
+          "git_object": "badf4506cbc4a33574fcc4ed40817d5476b7a890",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/hatch.toml"
+        },
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4": {
+          "git_object": "badf4506cbc4a33574fcc4ed40817d5476b7a890",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/hatch.toml"
+        },
+        "dee58973f7673299070b7c7374f419b0adb8175c": {
+          "git_object": "ab91c577cc1fc7beed00b78d29efd9c84ba7c9f7",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/hatch.toml"
+        },
+        "e4bd1527c941ff880a5d34898c57428c7be4b1cc": {
+          "git_object": "badf4506cbc4a33574fcc4ed40817d5476b7a890",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/hatch.toml"
+        }
+      }
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "references": {
+        "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a": {
+          "git_object": "85f1fb2150a4da454fee02108565381d44f56730",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/uv.lock"
+        },
+        "a13f6c1acfe15a6750d71c6e86521f119d794def": {
+          "git_object": "85f1fb2150a4da454fee02108565381d44f56730",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/uv.lock"
+        },
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4": {
+          "git_object": "85f1fb2150a4da454fee02108565381d44f56730",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/uv.lock"
+        },
+        "dee58973f7673299070b7c7374f419b0adb8175c": {
+          "git_object": "85f1fb2150a4da454fee02108565381d44f56730",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/uv.lock"
+        },
+        "e4bd1527c941ff880a5d34898c57428c7be4b1cc": {
+          "git_object": "85f1fb2150a4da454fee02108565381d44f56730",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/uv.lock"
+        }
+      }
+    },
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "references": {
+        "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a": {
+          "git_object": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tests/conftest.py"
+        },
+        "a13f6c1acfe15a6750d71c6e86521f119d794def": {
+          "git_object": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tests/conftest.py"
+        },
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4": {
+          "git_object": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tests/conftest.py"
+        },
+        "dee58973f7673299070b7c7374f419b0adb8175c": {
+          "git_object": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tests/conftest.py"
+        },
+        "e4bd1527c941ff880a5d34898c57428c7be4b1cc": {
+          "git_object": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tests/conftest.py"
+        }
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/production_invocation.py",
+      "references": {
+        "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a": {
+          "git_object": "08474ca1c4ed05c21d338a734c36113c4667132b",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/src/polisyos/runtime/quality/production_invocation.py"
+        },
+        "a13f6c1acfe15a6750d71c6e86521f119d794def": {
+          "git_object": "08474ca1c4ed05c21d338a734c36113c4667132b",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/src/polisyos/runtime/quality/production_invocation.py"
+        },
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4": {
+          "git_object": "08474ca1c4ed05c21d338a734c36113c4667132b",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/src/polisyos/runtime/quality/production_invocation.py"
+        },
+        "dee58973f7673299070b7c7374f419b0adb8175c": {
+          "git_object": "08474ca1c4ed05c21d338a734c36113c4667132b",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/src/polisyos/runtime/quality/production_invocation.py"
+        },
+        "e4bd1527c941ff880a5d34898c57428c7be4b1cc": {
+          "git_object": "08474ca1c4ed05c21d338a734c36113c4667132b",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/src/polisyos/runtime/quality/production_invocation.py"
+        }
+      }
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/check_production_invocation.py",
+      "references": {
+        "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a": {
+          "git_object": "3f0eac6929ec5edc043219f436483e1d365ac326",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/quality/validation/check_production_invocation.py"
+        },
+        "a13f6c1acfe15a6750d71c6e86521f119d794def": {
+          "git_object": "3f0eac6929ec5edc043219f436483e1d365ac326",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/quality/validation/check_production_invocation.py"
+        },
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4": {
+          "git_object": "3f0eac6929ec5edc043219f436483e1d365ac326",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/quality/validation/check_production_invocation.py"
+        },
+        "dee58973f7673299070b7c7374f419b0adb8175c": {
+          "git_object": "3f0eac6929ec5edc043219f436483e1d365ac326",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/quality/validation/check_production_invocation.py"
+        },
+        "e4bd1527c941ff880a5d34898c57428c7be4b1cc": {
+          "git_object": "3f0eac6929ec5edc043219f436483e1d365ac326",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/quality/validation/check_production_invocation.py"
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/how-to/author-measurement-instruments.md",
+      "references": {
+        "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a": {
+          "git_object": "ccf11207716793259c3cedbad6b83c444b6f17b7",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/docs/how-to/author-measurement-instruments.md"
+        },
+        "a13f6c1acfe15a6750d71c6e86521f119d794def": {
+          "git_object": "ccf11207716793259c3cedbad6b83c444b6f17b7",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/docs/how-to/author-measurement-instruments.md"
+        },
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4": {
+          "git_object": "ccf11207716793259c3cedbad6b83c444b6f17b7",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/docs/how-to/author-measurement-instruments.md"
+        },
+        "dee58973f7673299070b7c7374f419b0adb8175c": {
+          "git_object": "ccf11207716793259c3cedbad6b83c444b6f17b7",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/docs/how-to/author-measurement-instruments.md"
+        },
+        "e4bd1527c941ff880a5d34898c57428c7be4b1cc": {
+          "git_object": "ccf11207716793259c3cedbad6b83c444b6f17b7",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/docs/how-to/author-measurement-instruments.md"
+        }
+      }
+    },
+    {
+      "path": "policy-engine/tools/AGENTS.md",
+      "references": {
+        "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a": {
+          "git_object": "ee39645f795092de53ddc04cb0d10e7d9a7385a2",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/AGENTS.md"
+        },
+        "a13f6c1acfe15a6750d71c6e86521f119d794def": {
+          "git_object": "ee39645f795092de53ddc04cb0d10e7d9a7385a2",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/AGENTS.md"
+        },
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4": {
+          "git_object": "ee39645f795092de53ddc04cb0d10e7d9a7385a2",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/AGENTS.md"
+        },
+        "dee58973f7673299070b7c7374f419b0adb8175c": {
+          "git_object": "ee39645f795092de53ddc04cb0d10e7d9a7385a2",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/AGENTS.md"
+        },
+        "e4bd1527c941ff880a5d34898c57428c7be4b1cc": {
+          "git_object": "ee39645f795092de53ddc04cb0d10e7d9a7385a2",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/AGENTS.md"
+        }
+      }
+    },
+    {
+      "path": "policy-engine/ops/release/release-fragment-policy.toml",
+      "references": {
+        "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a": {
+          "git_object": "f1cc16f9b488d93ef1c8d04f8565a0e6f9e42c92",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/ops/release/release-fragment-policy.toml"
+        },
+        "a13f6c1acfe15a6750d71c6e86521f119d794def": {
+          "git_object": "f1cc16f9b488d93ef1c8d04f8565a0e6f9e42c92",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/ops/release/release-fragment-policy.toml"
+        },
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4": {
+          "git_object": "f1cc16f9b488d93ef1c8d04f8565a0e6f9e42c92",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/ops/release/release-fragment-policy.toml"
+        },
+        "dee58973f7673299070b7c7374f419b0adb8175c": {
+          "git_object": "f1cc16f9b488d93ef1c8d04f8565a0e6f9e42c92",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/ops/release/release-fragment-policy.toml"
+        },
+        "e4bd1527c941ff880a5d34898c57428c7be4b1cc": {
+          "git_object": "f1cc16f9b488d93ef1c8d04f8565a0e6f9e42c92",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/ops/release/release-fragment-policy.toml"
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/reference/tools.md",
+      "references": {
+        "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a": {
+          "git_object": "0f1ed7b651acafd4768dd794900e641ab844fb84",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/docs/reference/tools.md"
+        },
+        "a13f6c1acfe15a6750d71c6e86521f119d794def": {
+          "git_object": "0f1ed7b651acafd4768dd794900e641ab844fb84",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/docs/reference/tools.md"
+        },
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4": {
+          "git_object": "0f1ed7b651acafd4768dd794900e641ab844fb84",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/docs/reference/tools.md"
+        },
+        "dee58973f7673299070b7c7374f419b0adb8175c": {
+          "git_object": "0f1ed7b651acafd4768dd794900e641ab844fb84",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/docs/reference/tools.md"
+        },
+        "e4bd1527c941ff880a5d34898c57428c7be4b1cc": {
+          "git_object": "0f1ed7b651acafd4768dd794900e641ab844fb84",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/docs/reference/tools.md"
+        }
+      }
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/README.md",
+      "references": {
+        "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a": {
+          "git_object": "57b10c67a8574c69cb45545679bb3b542940dd71",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/quality/validation/README.md"
+        },
+        "a13f6c1acfe15a6750d71c6e86521f119d794def": {
+          "git_object": "57b10c67a8574c69cb45545679bb3b542940dd71",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/quality/validation/README.md"
+        },
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4": {
+          "git_object": "57b10c67a8574c69cb45545679bb3b542940dd71",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/quality/validation/README.md"
+        },
+        "dee58973f7673299070b7c7374f419b0adb8175c": {
+          "git_object": "57b10c67a8574c69cb45545679bb3b542940dd71",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/quality/validation/README.md"
+        },
+        "e4bd1527c941ff880a5d34898c57428c7be4b1cc": {
+          "git_object": "57b10c67a8574c69cb45545679bb3b542940dd71",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/tools/quality/validation/README.md"
+        }
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md",
+      "references": {
+        "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a": {
+          "git_object": "14960b46e17bebfafcd832f90f09af6ac4820a78",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md"
+        },
+        "a13f6c1acfe15a6750d71c6e86521f119d794def": {
+          "git_object": "9149f31b0bb40b0e6bc9093a5108ac70ec73d9c1",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md"
+        },
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4": {
+          "git_object": "80b8bc5c1da0cb41126bc85dfa30ded4bcf0e17f",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md"
+        },
+        "dee58973f7673299070b7c7374f419b0adb8175c": {
+          "git_object": "14960b46e17bebfafcd832f90f09af6ac4820a78",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md"
+        },
+        "e4bd1527c941ff880a5d34898c57428c7be4b1cc": {
+          "git_object": "80b8bc5c1da0cb41126bc85dfa30ded4bcf0e17f",
+          "kind": "blob",
+          "mode": "100644",
+          "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md"
+        }
+      }
+    }
+  ],
+  "preserved_G_original_function_AST_denominator": 5,
+  "old_tool_function_AST_delta": [
+    "collect_census"
+  ],
+  "input_manifests": {
+    "source-reconciliation.json": {
+      "bytes": 30606,
+      "sha256": "e6482a83176726e74ddac244746b1577bbb332ece5aff2e6bf532a4613930087",
+      "git_blob": "e69112cba55c554d39ec40cc319f4c3e5a6844ae"
+    },
+    "complete-input-dag.json.gz": {
+      "bytes": 149004,
+      "sha256": "13b0049025813ae0985c8acc51295312428183e5a4c2118e26980a77761a6713",
+      "git_blob": "ebe800146c4c8785f32667fb9f48d7084b21964a"
+    },
+    "full-git-input-denominator.json.gz": {
+      "bytes": 2931854,
+      "sha256": "9f46c50fd2e4fa2a3487a0fced72189f77669b2cffaa12581a272fa54881a1c6",
+      "git_blob": "8f92160fb2a39666b25d9cb23353e5d94d79ceaa"
+    }
+  },
+  "admission_receipt": {
+    "bytes": 48178,
+    "sha256": "2952f1612d4414231425cebcd40c3d2ac3eb1555a474363126fd3ca71b38d2ac",
+    "git_blob": "b21501c7385d5e4b511e774e0fd8ed61485d34a5"
+  },
+  "blocking_findings": [],
+  "lifecycle": "Current-G AST autodiscovery supplies ACTIVE default ToolSpec and tools.cli\u2192runner.invoke_tool_main\u2192main actual caller. G/team-devx public inventory/lifecycle/generated reference ratification pending.",
+  "retirement": "Schema/codegen/pipeline compatibility-pending surfaces and existing mechanisms tombstone unchanged. No G ancestry for census path: absent capability, not retired tool.",
+  "property": "Porcelain-z ordinary M/AM and both X/Y R/C paths plus next record retained; root-relative selected paths reconciled against actual diff/ls-files; missing selected tracked inputs refuse complete census.",
+  "oracle": "Physical test DFK01 includes real public CLI, independent diff --no-renames plus ls-files oracle, root/product-root paths with spaces/newline/nonASCII, staged R/C and unstaged intent-to-add Y=R/C; affected runtime wave pending.",
+  "P40_dispositions": [
+    {
+      "class": "local static selector vs full installed/external/runtime/archive retirement",
+      "bucket": "SAME_DECLARED_CLASS_WORKED_EXAMPLE",
+      "smallest_closing_capability": "Canonical-owner adjudication plus independent installed/external/archive and dynamic consumer evidence",
+      "falsifier": "ignored, unsupported binary, outside root, archive and computed loader quantities are explicitly unselected or unresolved; receipt never authorizes retirement"
+    }
+  ],
+  "P41": "No inherited broad failure asserted; exact proper base plus complete zero-overlap proof needed.",
+  "native_verdict": "UNRUN_BY_REVIEWER",
+  "source_acceptance": "not_admitted_by_G",
+  "formal_closure_ids": []
+}

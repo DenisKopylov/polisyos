@@ -1,0 +1,38 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "tools.cli",
+    "architecture",
+    "guardrails",
+    "check",
+    "--generated-freshness-workspace-root",
+    "/workspace/orch02-r2/c06-dfk/required-architecture/generated-freshness",
+    "--generated-freshness-uv-cache-dir",
+    "/workspace/.polisyos-environment/cache/uv"
+  ],
+  "cwd": "/workspace/orch02-r2-c06-dfk-g/policy-engine",
+  "end_utc": "2026-10-08T18:29:32.285527+00:00",
+  "max_rss_kib": 1116152,
+  "outputs": {
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout.txt": {
+      "bytes": 132012,
+      "sha256": "6cb41d3c00f74b54000dd8defdc25c8cb31640fe9937a174fb5c1187fbe4940e"
+    }
+  },
+  "returncode": 1,
+  "selected_environment": {
+    "PATH": "/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/workspace/.polisyos-environment/uv/bin:/workspace/polisyos/policy-engine/.venv/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/workspace/orch02-r2-c06-dfk-g/policy-engine/src:/workspace/orch02-r2-c06-dfk-g/policy-engine"
+  },
+  "source_commit": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+  "source_tree": "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a",
+  "start_utc": "2026-10-08T18:20:09.283578+00:00",
+  "timeout_seconds": null,
+  "wall_seconds": 563.0020416750012
+}

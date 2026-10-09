@@ -1,0 +1,9 @@
+{
+  "compressed_bytes": 6022930,
+  "compressed_path": "receipt.json.gz",
+  "compressed_sha256": "b22189ef84409eebe0353f2985acccb26d53c294b910bc8eaef96afea877fe01",
+  "decoded_bytes": 171707606,
+  "decoded_sha256": "50fc2612a50bb9cee5ec9a5a9af955fb627bd579b74d190da0deac99ff975fda",
+  "exact_roundtrip": true,
+  "original_raw_source": "/workspace/orch02-r2/c06-dfk/required-invocation/receipt.json"
+}

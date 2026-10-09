@@ -1,0 +1,932 @@
+{
+  "source_commit": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+  "source_tree": "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a",
+  "selected_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "end_source_commit": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+  "end_status": "",
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "sys_path": [
+    "/workspace/orch02-r2-c06-dfk-g/policy-engine/src",
+    "/workspace/orch02-r2-c06-dfk-g/policy-engine",
+    "/workspace/orch02-r2/native-c06/harness",
+    "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python314.zip",
+    "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14",
+    "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/lib-dynload",
+    "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+    "/workspace/polisyos/policy-engine",
+    "/workspace/polisyos/policy-engine/src"
+  ],
+  "actual_product_module_file_origin_denominator": 13,
+  "origins": [
+    {
+      "module": "tools",
+      "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/__init__.py",
+      "path": "policy-engine/tools/__init__.py",
+      "bytes": 73,
+      "sha256": "f39a12d36e0893e3c32f5ca3a4ae31abda986629a8d2113debb8325318dc0aa3",
+      "git_blob": "9ecdadb0f8b1620e4e56601a248f60fb613a2dfa",
+      "candidate_blob": "9ecdadb0f8b1620e4e56601a248f60fb613a2dfa",
+      "G_blob": "9ecdadb0f8b1620e4e56601a248f60fb613a2dfa",
+      "mutation": false,
+      "equals_candidate": true,
+      "equals_selected_G": true
+    },
+    {
+      "module": "tools.lib",
+      "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/lib/__init__.py",
+      "path": "policy-engine/tools/lib/__init__.py",
+      "bytes": 2284,
+      "sha256": "98a4ac5172a956abac2586bfeb819f86d3d64e09eef960d26d9263e12bf80035",
+      "git_blob": "d62f851b87bd36b7eac1458a43da313aa00878b5",
+      "candidate_blob": "d62f851b87bd36b7eac1458a43da313aa00878b5",
+      "G_blob": "d62f851b87bd36b7eac1458a43da313aa00878b5",
+      "mutation": false,
+      "equals_candidate": true,
+      "equals_selected_G": true
+    },
+    {
+      "module": "tools.lib.fs",
+      "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/lib/fs.py",
+      "path": "policy-engine/tools/lib/fs.py",
+      "bytes": 13108,
+      "sha256": "d0ec5e12b7762027051614290cf4e21b09dc3602e371a040f9d7ffcd38a8193f",
+      "git_blob": "f23d92e182a2a1d8be8049b342704e0542071fd4",
+      "candidate_blob": "f23d92e182a2a1d8be8049b342704e0542071fd4",
+      "G_blob": "f23d92e182a2a1d8be8049b342704e0542071fd4",
+      "mutation": false,
+      "equals_candidate": true,
+      "equals_selected_G": true
+    },
+    {
+      "module": "tools.lib.imports",
+      "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/lib/imports.py",
+      "path": "policy-engine/tools/lib/imports.py",
+      "bytes": 1623,
+      "sha256": "f04010c5a61accc638d01ffcb0eceb788730eea4b1d74d015eadeed413951f95",
+      "git_blob": "2d41d47837fdc6083d8a02bb46debddf303fb1af",
+      "candidate_blob": "2d41d47837fdc6083d8a02bb46debddf303fb1af",
+      "G_blob": "2d41d47837fdc6083d8a02bb46debddf303fb1af",
+      "mutation": false,
+      "equals_candidate": true,
+      "equals_selected_G": true
+    },
+    {
+      "module": "tools.lib.output",
+      "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/lib/output.py",
+      "path": "policy-engine/tools/lib/output.py",
+      "bytes": 6514,
+      "sha256": "6c86cefdfdc54962ab851d87adbfbad6e682e33cbff6fbb90858fca70cac8a16",
+      "git_blob": "de354e2ec3602068a06ec4fc279ba751ac8130ea",
+      "candidate_blob": "de354e2ec3602068a06ec4fc279ba751ac8130ea",
+      "G_blob": "de354e2ec3602068a06ec4fc279ba751ac8130ea",
+      "mutation": false,
+      "equals_candidate": true,
+      "equals_selected_G": true
+    },
+    {
+      "module": "tools.lib.preflight",
+      "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/lib/preflight.py",
+      "path": "policy-engine/tools/lib/preflight.py",
+      "bytes": 2795,
+      "sha256": "139d9177be3805a62a13264e9749f31fca40d8066b14d4848afa0aae905fd381",
+      "git_blob": "260ebb527b327260fb3faa22b3501d166676745c",
+      "candidate_blob": "260ebb527b327260fb3faa22b3501d166676745c",
+      "G_blob": "260ebb527b327260fb3faa22b3501d166676745c",
+      "mutation": false,
+      "equals_candidate": true,
+      "equals_selected_G": true
+    },
+    {
+      "module": "tools.lib.runner",
+      "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/lib/runner.py",
+      "path": "policy-engine/tools/lib/runner.py",
+      "bytes": 5836,
+      "sha256": "086c42d85d5807deb6bf06a0161c2f42f828cae94ac17aafcd58347c16879a2c",
+      "git_blob": "951360dd4a52be59d2941d03d637f214cc803d18",
+      "candidate_blob": "951360dd4a52be59d2941d03d637f214cc803d18",
+      "G_blob": "951360dd4a52be59d2941d03d637f214cc803d18",
+      "mutation": false,
+      "equals_candidate": true,
+      "equals_selected_G": true
+    },
+    {
+      "module": "tools.lib.sql",
+      "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/lib/sql.py",
+      "path": "policy-engine/tools/lib/sql.py",
+      "bytes": 1398,
+      "sha256": "c27f47e76664a20344cb37dabaea9ceaf795a8a871e948cda1844ede2ca8d9ff",
+      "git_blob": "07b45ae38c44c9dbf95a7e8a8ab8941350cc8b48",
+      "candidate_blob": "07b45ae38c44c9dbf95a7e8a8ab8941350cc8b48",
+      "G_blob": "07b45ae38c44c9dbf95a7e8a8ab8941350cc8b48",
+      "mutation": false,
+      "equals_candidate": true,
+      "equals_selected_G": true
+    },
+    {
+      "module": "tools.lib.timing",
+      "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/lib/timing.py",
+      "path": "policy-engine/tools/lib/timing.py",
+      "bytes": 48543,
+      "sha256": "06c5c71d11ad5f905943fd9ac0f5db4c27feb9588fa55e1cedf2c0ab9ac665c2",
+      "git_blob": "c4e0de313ba4d1f8cbce2575e66ebb86bb166ec6",
+      "candidate_blob": "c4e0de313ba4d1f8cbce2575e66ebb86bb166ec6",
+      "G_blob": "c4e0de313ba4d1f8cbce2575e66ebb86bb166ec6",
+      "mutation": false,
+      "equals_candidate": true,
+      "equals_selected_G": true
+    },
+    {
+      "module": "tools.quality",
+      "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/quality/__init__.py",
+      "path": "policy-engine/tools/quality/__init__.py",
+      "bytes": 31,
+      "sha256": "d1181c4b36560d5a6a6ed2b449f348ff001a24699a7c113a08a40f186eb72e3e",
+      "git_blob": "5b06b65a11efbfa43577b8a53eb6897e016db815",
+      "candidate_blob": "5b06b65a11efbfa43577b8a53eb6897e016db815",
+      "G_blob": "5b06b65a11efbfa43577b8a53eb6897e016db815",
+      "mutation": false,
+      "equals_candidate": true,
+      "equals_selected_G": true
+    },
+    {
+      "module": "tools.quality.validation",
+      "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/quality/validation/__init__.py",
+      "path": "policy-engine/tools/quality/validation/__init__.py",
+      "bytes": 36,
+      "sha256": "47045962ea689c4b78daf0e39a9043737a7bc8c9a7efed13e702006424ec4b73",
+      "git_blob": "e7b1c49d390518540bf40cfc78780144815e2e2f",
+      "candidate_blob": "e7b1c49d390518540bf40cfc78780144815e2e2f",
+      "G_blob": "e7b1c49d390518540bf40cfc78780144815e2e2f",
+      "mutation": false,
+      "equals_candidate": true,
+      "equals_selected_G": true
+    },
+    {
+      "module": "tools.quality.validation.schema_fqn_census",
+      "origin": "/workspace/orch02-r2/native-c06/mutants/dfk-old-classifier/schema_fqn_census.py",
+      "path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "bytes": 31635,
+      "sha256": "20274fa9df883e3546c6deeef03129286b7540dbe905c3673bae4135419fcc58",
+      "git_blob": "706e9f932cdf27c9a595727d9295603662f2956b",
+      "candidate_blob": "40d91dc181c38a71ff0b672e1991516ea86ed44d",
+      "G_blob": null,
+      "mutation": true,
+      "equals_candidate": false,
+      "equals_selected_G": false
+    },
+    {
+      "module": "tools.registry",
+      "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/registry.py",
+      "path": "policy-engine/tools/registry.py",
+      "bytes": 20579,
+      "sha256": "88fc4372642ddc5bd45416a4a5e6a114b348f8f965f12c05d8e03c81b806a197",
+      "git_blob": "19bc7590ceb7b5ebf3b5c2a234b87f3040c807d6",
+      "candidate_blob": "19bc7590ceb7b5ebf3b5c2a234b87f3040c807d6",
+      "G_blob": "19bc7590ceb7b5ebf3b5c2a234b87f3040c807d6",
+      "mutation": false,
+      "equals_candidate": true,
+      "equals_selected_G": true
+    }
+  ],
+  "unresolved_module_origins": [],
+  "origin_problems": [],
+  "installed_distributions": [
+    {
+      "name": "about-time",
+      "version": "4.2.1"
+    },
+    {
+      "name": "absl-py",
+      "version": "2.3.1"
+    },
+    {
+      "name": "aiohappyeyeballs",
+      "version": "2.6.1"
+    },
+    {
+      "name": "aiohttp",
+      "version": "3.13.3"
+    },
+    {
+      "name": "aiosignal",
+      "version": "1.4.0"
+    },
+    {
+      "name": "alive-progress",
+      "version": "3.3.0"
+    },
+    {
+      "name": "annotated-doc",
+      "version": "0.0.4"
+    },
+    {
+      "name": "annotated-types",
+      "version": "0.7.0"
+    },
+    {
+      "name": "anyio",
+      "version": "4.12.0"
+    },
+    {
+      "name": "arrow",
+      "version": "1.4.0"
+    },
+    {
+      "name": "attrs",
+      "version": "25.4.0"
+    },
+    {
+      "name": "autograd",
+      "version": "1.8.0"
+    },
+    {
+      "name": "autograd-gamma",
+      "version": "0.5.0"
+    },
+    {
+      "name": "basedpyright",
+      "version": "1.39.0"
+    },
+    {
+      "name": "certifi",
+      "version": "2025.11.12"
+    },
+    {
+      "name": "cffi",
+      "version": "2.0.0"
+    },
+    {
+      "name": "cfgv",
+      "version": "3.5.0"
+    },
+    {
+      "name": "charset-normalizer",
+      "version": "3.4.4"
+    },
+    {
+      "name": "chex",
+      "version": "0.1.91"
+    },
+    {
+      "name": "click",
+      "version": "8.3.1"
+    },
+    {
+      "name": "cma",
+      "version": "4.4.1"
+    },
+    {
+      "name": "contourpy",
+      "version": "1.3.3"
+    },
+    {
+      "name": "cryptography",
+      "version": "46.0.4"
+    },
+    {
+      "name": "cycler",
+      "version": "0.12.1"
+    },
+    {
+      "name": "defusedxml",
+      "version": "0.7.1"
+    },
+    {
+      "name": "Deprecated",
+      "version": "1.3.1"
+    },
+    {
+      "name": "diffrax",
+      "version": "0.7.0"
+    },
+    {
+      "name": "distlib",
+      "version": "0.4.0"
+    },
+    {
+      "name": "distro",
+      "version": "1.9.0"
+    },
+    {
+      "name": "duckdb",
+      "version": "1.4.3"
+    },
+    {
+      "name": "equinox",
+      "version": "0.13.2"
+    },
+    {
+      "name": "et_xmlfile",
+      "version": "2.0.0"
+    },
+    {
+      "name": "execnet",
+      "version": "2.1.2"
+    },
+    {
+      "name": "fastapi",
+      "version": "0.128.6"
+    },
+    {
+      "name": "filelock",
+      "version": "3.20.2"
+    },
+    {
+      "name": "fonttools",
+      "version": "4.61.1"
+    },
+    {
+      "name": "formulaic",
+      "version": "1.2.1"
+    },
+    {
+      "name": "fqdn",
+      "version": "1.5.1"
+    },
+    {
+      "name": "frozenlist",
+      "version": "1.8.0"
+    },
+    {
+      "name": "googleapis-common-protos",
+      "version": "1.72.0"
+    },
+    {
+      "name": "graphemeu",
+      "version": "0.7.2"
+    },
+    {
+      "name": "grpcio",
+      "version": "1.78.0"
+    },
+    {
+      "name": "h11",
+      "version": "0.16.0"
+    },
+    {
+      "name": "httpcore",
+      "version": "1.0.9"
+    },
+    {
+      "name": "httptools",
+      "version": "0.7.1"
+    },
+    {
+      "name": "httpx",
+      "version": "0.28.1"
+    },
+    {
+      "name": "hypothesis",
+      "version": "6.151.2"
+    },
+    {
+      "name": "identify",
+      "version": "2.6.15"
+    },
+    {
+      "name": "idna",
+      "version": "3.11"
+    },
+    {
+      "name": "importlib_metadata",
+      "version": "8.7.1"
+    },
+    {
+      "name": "iniconfig",
+      "version": "2.3.0"
+    },
+    {
+      "name": "interface-meta",
+      "version": "1.3.0"
+    },
+    {
+      "name": "isoduration",
+      "version": "20.11.0"
+    },
+    {
+      "name": "jax",
+      "version": "0.8.2"
+    },
+    {
+      "name": "jaxlib",
+      "version": "0.8.2"
+    },
+    {
+      "name": "jaxtyping",
+      "version": "0.3.4"
+    },
+    {
+      "name": "jiter",
+      "version": "0.13.0"
+    },
+    {
+      "name": "joblib",
+      "version": "1.5.3"
+    },
+    {
+      "name": "jsonpatch",
+      "version": "1.33"
+    },
+    {
+      "name": "jsonpointer",
+      "version": "3.0.0"
+    },
+    {
+      "name": "jsonschema",
+      "version": "4.25.1"
+    },
+    {
+      "name": "jsonschema-specifications",
+      "version": "2025.9.1"
+    },
+    {
+      "name": "kiwisolver",
+      "version": "1.4.9"
+    },
+    {
+      "name": "langchain",
+      "version": "1.2.0"
+    },
+    {
+      "name": "langchain-core",
+      "version": "1.2.6"
+    },
+    {
+      "name": "langgraph",
+      "version": "1.0.5"
+    },
+    {
+      "name": "langgraph-checkpoint",
+      "version": "3.0.1"
+    },
+    {
+      "name": "langgraph-prebuilt",
+      "version": "1.0.5"
+    },
+    {
+      "name": "langgraph-sdk",
+      "version": "0.3.1"
+    },
+    {
+      "name": "langsmith",
+      "version": "0.6.0"
+    },
+    {
+      "name": "lark",
+      "version": "1.3.1"
+    },
+    {
+      "name": "libcst",
+      "version": "1.8.6"
+    },
+    {
+      "name": "librt",
+      "version": "0.7.7"
+    },
+    {
+      "name": "lifelines",
+      "version": "0.30.3"
+    },
+    {
+      "name": "lineax",
+      "version": "0.0.8"
+    },
+    {
+      "name": "loguru",
+      "version": "0.7.3"
+    },
+    {
+      "name": "MAPIE",
+      "version": "1.3.0"
+    },
+    {
+      "name": "matplotlib",
+      "version": "3.10.8"
+    },
+    {
+      "name": "ml_dtypes",
+      "version": "0.5.4"
+    },
+    {
+      "name": "moocore",
+      "version": "0.1.10"
+    },
+    {
+      "name": "multidict",
+      "version": "6.7.1"
+    },
+    {
+      "name": "mypy",
+      "version": "1.19.1"
+    },
+    {
+      "name": "mypy_extensions",
+      "version": "1.1.0"
+    },
+    {
+      "name": "narwhals",
+      "version": "2.14.0"
+    },
+    {
+      "name": "nodeenv",
+      "version": "1.10.0"
+    },
+    {
+      "name": "nodejs-wheel-binaries",
+      "version": "24.14.1"
+    },
+    {
+      "name": "numpy",
+      "version": "2.3.5"
+    },
+    {
+      "name": "odfpy",
+      "version": "1.4.1"
+    },
+    {
+      "name": "openai",
+      "version": "1.109.1"
+    },
+    {
+      "name": "openpyxl",
+      "version": "3.1.5"
+    },
+    {
+      "name": "opentelemetry-api",
+      "version": "1.39.1"
+    },
+    {
+      "name": "opentelemetry-exporter-otlp-proto-common",
+      "version": "1.39.1"
+    },
+    {
+      "name": "opentelemetry-exporter-otlp-proto-grpc",
+      "version": "1.39.1"
+    },
+    {
+      "name": "opentelemetry-exporter-prometheus",
+      "version": "0.60b1"
+    },
+    {
+      "name": "opentelemetry-proto",
+      "version": "1.39.1"
+    },
+    {
+      "name": "opentelemetry-sdk",
+      "version": "1.39.1"
+    },
+    {
+      "name": "opentelemetry-semantic-conventions",
+      "version": "0.60b1"
+    },
+    {
+      "name": "opt_einsum",
+      "version": "3.4.0"
+    },
+    {
+      "name": "optax",
+      "version": "0.2.6"
+    },
+    {
+      "name": "optimistix",
+      "version": "0.0.11"
+    },
+    {
+      "name": "orjson",
+      "version": "3.11.5"
+    },
+    {
+      "name": "ormsgpack",
+      "version": "1.12.1"
+    },
+    {
+      "name": "packaging",
+      "version": "25.0"
+    },
+    {
+      "name": "pandas",
+      "version": "2.3.3"
+    },
+    {
+      "name": "pathspec",
+      "version": "0.12.1"
+    },
+    {
+      "name": "pillow",
+      "version": "12.3.0"
+    },
+    {
+      "name": "platformdirs",
+      "version": "4.5.1"
+    },
+    {
+      "name": "pluggy",
+      "version": "1.6.0"
+    },
+    {
+      "name": "policy-engine",
+      "version": "0.1.0"
+    },
+    {
+      "name": "pre_commit",
+      "version": "4.5.1"
+    },
+    {
+      "name": "prometheus_client",
+      "version": "0.23.1"
+    },
+    {
+      "name": "propcache",
+      "version": "0.4.1"
+    },
+    {
+      "name": "protobuf",
+      "version": "6.33.2"
+    },
+    {
+      "name": "py-cpuinfo",
+      "version": "9.0.0"
+    },
+    {
+      "name": "pyarrow",
+      "version": "22.0.0"
+    },
+    {
+      "name": "pycparser",
+      "version": "2.23"
+    },
+    {
+      "name": "pydantic",
+      "version": "2.12.5"
+    },
+    {
+      "name": "pydantic-settings",
+      "version": "2.12.0"
+    },
+    {
+      "name": "pydantic_core",
+      "version": "2.41.5"
+    },
+    {
+      "name": "Pygments",
+      "version": "2.19.2"
+    },
+    {
+      "name": "PyJWT",
+      "version": "2.11.0"
+    },
+    {
+      "name": "pymoo",
+      "version": "0.6.1.6"
+    },
+    {
+      "name": "pyparsing",
+      "version": "3.3.1"
+    },
+    {
+      "name": "pypdf",
+      "version": "6.7.4"
+    },
+    {
+      "name": "pytest",
+      "version": "9.0.2"
+    },
+    {
+      "name": "pytest-asyncio",
+      "version": "1.3.0"
+    },
+    {
+      "name": "pytest-benchmark",
+      "version": "5.2.3"
+    },
+    {
+      "name": "pytest-xdist",
+      "version": "3.8.0"
+    },
+    {
+      "name": "python-dateutil",
+      "version": "2.9.0.post0"
+    },
+    {
+      "name": "python-dotenv",
+      "version": "1.2.1"
+    },
+    {
+      "name": "pytz",
+      "version": "2025.2"
+    },
+    {
+      "name": "PyYAML",
+      "version": "6.0.3"
+    },
+    {
+      "name": "rdflib",
+      "version": "7.6.0"
+    },
+    {
+      "name": "referencing",
+      "version": "0.37.0"
+    },
+    {
+      "name": "regex",
+      "version": "2026.9.3"
+    },
+    {
+      "name": "requests",
+      "version": "2.32.5"
+    },
+    {
+      "name": "requests-toolbelt",
+      "version": "1.0.0"
+    },
+    {
+      "name": "rfc3339-validator",
+      "version": "0.1.4"
+    },
+    {
+      "name": "rfc3986-validator",
+      "version": "0.1.1"
+    },
+    {
+      "name": "rfc3987-syntax",
+      "version": "1.1.0"
+    },
+    {
+      "name": "rpds-py",
+      "version": "0.30.0"
+    },
+    {
+      "name": "ruff",
+      "version": "0.14.10"
+    },
+    {
+      "name": "scikit-learn",
+      "version": "1.8.0"
+    },
+    {
+      "name": "scipy",
+      "version": "1.16.3"
+    },
+    {
+      "name": "six",
+      "version": "1.17.0"
+    },
+    {
+      "name": "sniffio",
+      "version": "1.3.1"
+    },
+    {
+      "name": "sortedcontainers",
+      "version": "2.4.0"
+    },
+    {
+      "name": "starlette",
+      "version": "0.52.1"
+    },
+    {
+      "name": "structlog",
+      "version": "25.5.0"
+    },
+    {
+      "name": "tenacity",
+      "version": "9.1.2"
+    },
+    {
+      "name": "threadpoolctl",
+      "version": "3.6.0"
+    },
+    {
+      "name": "tiktoken",
+      "version": "0.12.0"
+    },
+    {
+      "name": "toolz",
+      "version": "1.1.0"
+    },
+    {
+      "name": "tqdm",
+      "version": "4.67.3"
+    },
+    {
+      "name": "types-requests",
+      "version": "2.32.4.20250913"
+    },
+    {
+      "name": "typing-inspection",
+      "version": "0.4.2"
+    },
+    {
+      "name": "typing_extensions",
+      "version": "4.15.0"
+    },
+    {
+      "name": "tzdata",
+      "version": "2025.3"
+    },
+    {
+      "name": "uri-template",
+      "version": "1.3.0"
+    },
+    {
+      "name": "urllib3",
+      "version": "2.6.2"
+    },
+    {
+      "name": "uuid_utils",
+      "version": "0.12.0"
+    },
+    {
+      "name": "uvicorn",
+      "version": "0.40.0"
+    },
+    {
+      "name": "uvloop",
+      "version": "0.22.1"
+    },
+    {
+      "name": "virtualenv",
+      "version": "20.35.4"
+    },
+    {
+      "name": "wadler_lindig",
+      "version": "0.1.7"
+    },
+    {
+      "name": "watchfiles",
+      "version": "1.1.1"
+    },
+    {
+      "name": "webcolors",
+      "version": "25.10.0"
+    },
+    {
+      "name": "websockets",
+      "version": "16.0"
+    },
+    {
+      "name": "wrapt",
+      "version": "2.0.1"
+    },
+    {
+      "name": "xlrd",
+      "version": "2.0.2"
+    },
+    {
+      "name": "xxhash",
+      "version": "3.6.0"
+    },
+    {
+      "name": "yarl",
+      "version": "1.22.0"
+    },
+    {
+      "name": "zipp",
+      "version": "3.23.0"
+    },
+    {
+      "name": "zstandard",
+      "version": "0.25.0"
+    }
+  ],
+  "selected_environment": {
+    "PYTHONPATH": null,
+    "PYTHONHOME": null,
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+    "JAX_PLATFORMS": null,
+    "JAX_PLATFORM_NAME": null,
+    "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null
+  },
+  "qualification": "Complete actual file-origin denominator for this finite process; namespace/dynamic origins enumerated separately. No unexecuted consumer, repository-wide runtime, producer authority or integrated acceptance claim.",
+  "canonical_module_entrypoint": {
+    "execution": "runpy.run_module(tools.cli, run_name=__main__, alter_sys=True) in an isolated Python process; original __main__ SystemExit(main()) executes with unchanged CLI argv",
+    "argv": [
+      "validation",
+      "schema-fqn-census",
+      "--output-format",
+      "text",
+      "--repo-root",
+      "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro4/fixture/policy-engine"
+    ],
+    "path": "policy-engine/tools/cli.py",
+    "origin": "/workspace/orch02-r2-c06-dfk-g/policy-engine/tools/cli.py",
+    "git_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+    "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+    "bytes": 25923,
+    "candidate_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+    "G_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e"
+  },
+  "registry_actual_selected_spec": {
+    "category": "validation",
+    "name": "schema-fqn-census",
+    "module": "tools.quality.validation.schema_fqn_census",
+    "callable_name": "main",
+    "status": "active"
+  },
+  "cli_exitstatus": 2
+}

@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/ruff",
+    "check",
+    "tools/quality/validation/schema_fqn_census.py",
+    "tests/unit/remediation/test_dfk_01.py"
+  ],
+  "cwd": "/workspace/orch02-r2-c06-dfk-g/policy-engine",
+  "end_utc": "2026-10-08T18:09:34.483153+00:00",
+  "max_rss_kib": 14720,
+  "outputs": {
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout.txt": {
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    }
+  },
+  "returncode": 0,
+  "selected_environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/workspace/orch02-r2-c06-dfk-g/policy-engine:/workspace/orch02-r2-c06-dfk-g/policy-engine/src"
+  },
+  "start_utc": "2026-10-08T18:09:34.448742+00:00",
+  "timeout_seconds": null,
+  "wall_seconds": 0.03432921200146666
+}

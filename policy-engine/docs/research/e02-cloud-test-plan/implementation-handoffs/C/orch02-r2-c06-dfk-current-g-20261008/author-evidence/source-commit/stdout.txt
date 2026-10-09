@@ -1,0 +1,4 @@
+[codex/e02-C-orch02-r2-c06-dfk-g 3a0d55496] feat(data-forge): propose current-G bounded schema census
+ 3 files changed, 1764 insertions(+)
+ create mode 100644 policy-engine/release-fragments/unreleased/2026-10-08-orch02-r2-c06-dfk-census.toml
+ create mode 100644 policy-engine/tools/quality/validation/schema_fqn_census.py

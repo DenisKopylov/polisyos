@@ -1,0 +1,122 @@
+{
+  "at": "2026-10-08T18:27:50.788873+00:00",
+  "source_commit": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+  "source_tree": "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a",
+  "selected_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "branch": "refs/heads/codex/e02-C-orch02-r2-c06-dfk-g",
+  "status": "",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-08-orch02-r2-c06-dfk-census.toml",
+    "policy-engine/tests/unit/remediation/test_dfk_01.py",
+    "policy-engine/tools/quality/validation/schema_fqn_census.py"
+  ],
+  "source_review": {
+    "path": "/workspace/orch02-r2/reviews/c06-dfk-independent-source-review-1e2e7c6c.json",
+    "bytes": 31136,
+    "sha256": "b5c556d919862f3f3a309b332d2e9e05a6852ef58e1202dcfd068711ebcd7d9c"
+  },
+  "direct_inputs": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-orch02-r2-c06-dfk-census.toml",
+      "bytes": 1679,
+      "sha256": "81256a8fd3a049d7ab217717164c30e4dddf207ef8606f1151c768980e97f57e",
+      "candidate_blob": "7997df813928d3d9415ba130507d1e193b45a577",
+      "G_blob": "dee58973f7673299070b7c7374f419b0adb8175c:policy-engine/release-fragments/unreleased/2026-10-08-orch02-r2-c06-dfk-census.toml"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+      "bytes": 43587,
+      "sha256": "27dacceb4bde9ceaa1b594175b8fb3f439a76dc118214fb9d9ed3787894b1be8",
+      "candidate_blob": "4a4fafd6f210fed444b6ff4cd4bc662b3719a870",
+      "G_blob": "dc67765fe998e51f1b838ad28cba8222712e4cfc"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "bytes": 31623,
+      "sha256": "a2ee2b6d21a1b5d5cf5e2484539ca5ca365f82a8d1b941344730e58f13625d42",
+      "candidate_blob": "40d91dc181c38a71ff0b672e1991516ea86ed44d",
+      "G_blob": "dee58973f7673299070b7c7374f419b0adb8175c:policy-engine/tools/quality/validation/schema_fqn_census.py"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dfk_02.py",
+      "bytes": 6978,
+      "sha256": "d46249ac5481d4e46250c3db0d817be57e01b96a7aa04e1ba81d04f33d123ddd",
+      "candidate_blob": "1e8263b473c448fc39a85e6169d305079b51050c",
+      "G_blob": "1e8263b473c448fc39a85e6169d305079b51050c"
+    },
+    {
+      "path": "policy-engine/tools/cli.py",
+      "bytes": 25923,
+      "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+      "candidate_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+      "G_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e"
+    },
+    {
+      "path": "policy-engine/tools/registry.py",
+      "bytes": 20579,
+      "sha256": "88fc4372642ddc5bd45416a4a5e6a114b348f8f965f12c05d8e03c81b806a197",
+      "candidate_blob": "19bc7590ceb7b5ebf3b5c2a234b87f3040c807d6",
+      "G_blob": "19bc7590ceb7b5ebf3b5c2a234b87f3040c807d6"
+    },
+    {
+      "path": "policy-engine/tools/lib/runner.py",
+      "bytes": 5836,
+      "sha256": "086c42d85d5807deb6bf06a0161c2f42f828cae94ac17aafcd58347c16879a2c",
+      "candidate_blob": "951360dd4a52be59d2941d03d637f214cc803d18",
+      "G_blob": "951360dd4a52be59d2941d03d637f214cc803d18"
+    },
+    {
+      "path": "policy-engine/tools/lib/fs.py",
+      "bytes": 13108,
+      "sha256": "d0ec5e12b7762027051614290cf4e21b09dc3602e371a040f9d7ffcd38a8193f",
+      "candidate_blob": "f23d92e182a2a1d8be8049b342704e0542071fd4",
+      "G_blob": "f23d92e182a2a1d8be8049b342704e0542071fd4"
+    },
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "bytes": 9664,
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "candidate_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "G_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168"
+    },
+    {
+      "path": "policy-engine/pytest.ini",
+      "bytes": 1021,
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "candidate_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+      "G_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "candidate_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "G_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "candidate_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "G_blob": "85f1fb2150a4da454fee02108565381d44f56730"
+    }
+  ],
+  "original_G_test_function_ASTs_preserved": {
+    "denominator": 5,
+    "names": [
+      "test_dfk_01_canonical_schema_exports_preserve_registry_identity",
+      "test_dfk_01_canonical_registry_evolution_and_migration_behave",
+      "test_dfk_01_compatibility_pending_surfaces_remain_importable",
+      "test_dfk_01_compatibility_pending_surfaces_preserve_current_identity",
+      "test_dfk_01_mechanisms_tombstone_is_not_importable"
+    ],
+    "includes_decorators": true
+  },
+  "DFK02_composition": {
+    "selection": "CurrentG physical test/source suppliers, not C05 newer own-base/G port composition",
+    "test_blob": "1e8263b473c448fc39a85e6169d305079b51050c",
+    "C05_new_source_acceptance": "not_established"
+  },
+  "source_acceptance": "not_admitted_by_G",
+  "formal_closure_ids": []
+}

@@ -1,0 +1,1592 @@
+{
+  "artifact_count": 173,
+  "artifacts": [
+    {
+      "encoding": "identity",
+      "original_bytes": 2018,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-native/command.json",
+      "original_sha256": "82f7d454d7ab259b218c757a99581b54575ef50c048bbc8a1fb7e651f4793815",
+      "published_bytes": 2018,
+      "published_path": "native-evidence/dfk-native/command.json",
+      "published_sha256": "82f7d454d7ab259b218c757a99581b54575ef50c048bbc8a1fb7e651f4793815"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 6815,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-native/stdout.txt",
+      "original_sha256": "fb26998cf0782ef893fd93610657a788b906f6d362a6d9d03899867ea3a4799c",
+      "published_bytes": 6815,
+      "published_path": "native-evidence/dfk-native/stdout.txt",
+      "published_sha256": "fb26998cf0782ef893fd93610657a788b906f6d362a6d9d03899867ea3a4799c"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 0,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-native/stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_bytes": 0,
+      "published_path": "native-evidence/dfk-native/stderr.txt",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "encoding": "lossless_gzip",
+      "original_bytes": 6999,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-native/junit.xml",
+      "original_sha256": "eb168c37c25dde1c71ed02ef52310a1b5672a1ac410baeb1e98e45ea4f8d256c",
+      "published_bytes": 1207,
+      "published_path": "native-evidence/dfk-native/junit.xml.gz",
+      "published_sha256": "4dd1029018e0e7ba2128970b6fe73083d70451f36ef8c65c8e912833a825e42c"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 266940,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-native/origins.json",
+      "original_sha256": "89206ec629e70d9d1e43b5f16a42ad55aa67d05d0456595f942196077a98a0a2",
+      "published_bytes": 266940,
+      "published_path": "native-evidence/dfk-native/origins.json",
+      "published_sha256": "89206ec629e70d9d1e43b5f16a42ad55aa67d05d0456595f942196077a98a0a2"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2028,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/command.json",
+      "original_sha256": "d9fd473be492526fe1e8f603bd9cf9a06a7646e9b4a705a698c86254e89cb9be",
+      "published_bytes": 2028,
+      "published_path": "native-evidence/dfk-cli-protocol/command.json",
+      "published_sha256": "d9fd473be492526fe1e8f603bd9cf9a06a7646e9b4a705a698c86254e89cb9be"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 18118,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/stdout.txt",
+      "original_sha256": "7538fb1328fc9ad40cccc474c19cf15b6e931065bfb05b53b532dc47d47f44be",
+      "published_bytes": 18118,
+      "published_path": "native-evidence/dfk-cli-protocol/stdout.txt",
+      "published_sha256": "7538fb1328fc9ad40cccc474c19cf15b6e931065bfb05b53b532dc47d47f44be"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 0,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_bytes": 0,
+      "published_path": "native-evidence/dfk-cli-protocol/stderr.txt",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "encoding": "lossless_gzip",
+      "original_bytes": 1240,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/junit.xml",
+      "original_sha256": "f92bcaeab379cc1e073ee41293903792aebdc61ab8a15e7edfbaef74c9cda017",
+      "published_bytes": 343,
+      "published_path": "native-evidence/dfk-cli-protocol/junit.xml.gz",
+      "published_sha256": "10a3214b5e5bedbbb6a780f2d4e2f0f5bb53868b4674e5df4ca8a6fea8c51c12"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 13442,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/origins.json",
+      "original_sha256": "cc9efc7deec42e5e65b9bad3aacc88d1b259eab987555d4ea9a79ccb5d1f1e9b",
+      "published_bytes": 13442,
+      "published_path": "native-evidence/dfk-cli-protocol/origins.json",
+      "published_sha256": "cc9efc7deec42e5e65b9bad3aacc88d1b259eab987555d4ea9a79ccb5d1f1e9b"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2864,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro0/oracle.json",
+      "original_sha256": "ed8f9bd41fc5dd779d1614b5096b010eff565f0cc61b581551ab56f908923a98",
+      "published_bytes": 2864,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro0/oracle.json",
+      "published_sha256": "ed8f9bd41fc5dd779d1614b5096b010eff565f0cc61b581551ab56f908923a98"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1939,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/command.json",
+      "original_sha256": "93ec7a4c794961b7ae4c1d8c6856b2dc3420fa3f790c61b68f2e4734d5b0330e",
+      "published_bytes": 1939,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/command.json",
+      "published_sha256": "93ec7a4c794961b7ae4c1d8c6856b2dc3420fa3f790c61b68f2e4734d5b0330e"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 11517,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/stdout.txt",
+      "original_sha256": "9fd2878decab20bf144cec3e98f7f6dd3b0b06026ca2f956381fd42fe7e17195",
+      "published_bytes": 11517,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/stdout.txt",
+      "published_sha256": "9fd2878decab20bf144cec3e98f7f6dd3b0b06026ca2f956381fd42fe7e17195"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 83,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/stderr.txt",
+      "original_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011",
+      "published_bytes": 83,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/stderr.txt",
+      "published_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 21962,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/origins.json",
+      "original_sha256": "cfe7a62f4e9224bb301ad0f31e7ac8426a612ca7b4fea49482c3e1ad5d0f1200",
+      "published_bytes": 21962,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/origins.json",
+      "published_sha256": "cfe7a62f4e9224bb301ad0f31e7ac8426a612ca7b4fea49482c3e1ad5d0f1200"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2976,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro1/oracle.json",
+      "original_sha256": "34eb8f8d60831a27609f4e9ddd1acee3eab014f2d663512554b93a85720ba4af",
+      "published_bytes": 2976,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro1/oracle.json",
+      "published_sha256": "34eb8f8d60831a27609f4e9ddd1acee3eab014f2d663512554b93a85720ba4af"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1963,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/command.json",
+      "original_sha256": "156d924b420f53154bf1fb3c110578bb585c9d23c88f6846774154eee379d6a7",
+      "published_bytes": 1963,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/command.json",
+      "published_sha256": "156d924b420f53154bf1fb3c110578bb585c9d23c88f6846774154eee379d6a7"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 11531,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/stdout.txt",
+      "original_sha256": "468026ea5a6b6b8cbff2b18c50fad125efa92a4d742bccfe1fa5f6ed3e4f9eab",
+      "published_bytes": 11531,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/stdout.txt",
+      "published_sha256": "468026ea5a6b6b8cbff2b18c50fad125efa92a4d742bccfe1fa5f6ed3e4f9eab"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 83,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/stderr.txt",
+      "original_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011",
+      "published_bytes": 83,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/stderr.txt",
+      "published_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 21976,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/origins.json",
+      "original_sha256": "b51f43ce5721a0bad0496cabd399a0b0655165ab45c1923d91e9f2a9d3eab69a",
+      "published_bytes": 21976,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/origins.json",
+      "published_sha256": "b51f43ce5721a0bad0496cabd399a0b0655165ab45c1923d91e9f2a9d3eab69a"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 3066,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro2/oracle.json",
+      "original_sha256": "8acf902526b2a5576afd21480fa97d7da1deff31e4e8328e4e82684e0cb2bd87",
+      "published_bytes": 3066,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro2/oracle.json",
+      "published_sha256": "8acf902526b2a5576afd21480fa97d7da1deff31e4e8328e4e82684e0cb2bd87"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1965,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/command.json",
+      "original_sha256": "4a471882911f12880eb9485c904fc2f1b3273a3bb14ee44b900995f38727c1b9",
+      "published_bytes": 1965,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/command.json",
+      "published_sha256": "4a471882911f12880eb9485c904fc2f1b3273a3bb14ee44b900995f38727c1b9"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 11475,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/stdout.txt",
+      "original_sha256": "2693af8afdd1b58f72a65ce6b8d7825a61cf581430559d2c00c11c335e587c2e",
+      "published_bytes": 11475,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/stdout.txt",
+      "published_sha256": "2693af8afdd1b58f72a65ce6b8d7825a61cf581430559d2c00c11c335e587c2e"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 83,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/stderr.txt",
+      "original_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011",
+      "published_bytes": 83,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/stderr.txt",
+      "published_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 21976,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/origins.json",
+      "original_sha256": "ee53d25d89d8aaeaf769b4caff9f6db8f31db64434366a8fd46d48cc4458954c",
+      "published_bytes": 21976,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/origins.json",
+      "published_sha256": "ee53d25d89d8aaeaf769b4caff9f6db8f31db64434366a8fd46d48cc4458954c"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 3257,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro3/oracle.json",
+      "original_sha256": "c6753433674085b66ec4f3ec05610c82d87e1d6cf881712e3653bc44f07110e1",
+      "published_bytes": 3257,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro3/oracle.json",
+      "published_sha256": "c6753433674085b66ec4f3ec05610c82d87e1d6cf881712e3653bc44f07110e1"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1954,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/command.json",
+      "original_sha256": "b330e9b640635608de852b4ada930fb5dba386001d81840fa679a390d1465096",
+      "published_bytes": 1954,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/command.json",
+      "published_sha256": "b330e9b640635608de852b4ada930fb5dba386001d81840fa679a390d1465096"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 12212,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/stdout.txt",
+      "original_sha256": "7ccb25c7fda54a56b355cf562d935606b2b517b77e7213c1bdfc681729cc546e",
+      "published_bytes": 12212,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/stdout.txt",
+      "published_sha256": "7ccb25c7fda54a56b355cf562d935606b2b517b77e7213c1bdfc681729cc546e"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 83,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/stderr.txt",
+      "original_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011",
+      "published_bytes": 83,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/stderr.txt",
+      "published_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 21976,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/origins.json",
+      "original_sha256": "5ccecd9c0cb1a8ec198371a24fb357d6579b7615abe6372b66fe889590b35a17",
+      "published_bytes": 21976,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/origins.json",
+      "published_sha256": "5ccecd9c0cb1a8ec198371a24fb357d6579b7615abe6372b66fe889590b35a17"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 3282,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro4/oracle.json",
+      "original_sha256": "00a081ede4888f69dd2cbe83e8b81fa62b478cafb39755f6934d8259b44d31f1",
+      "published_bytes": 3282,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro4/oracle.json",
+      "published_sha256": "00a081ede4888f69dd2cbe83e8b81fa62b478cafb39755f6934d8259b44d31f1"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1956,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/command.json",
+      "original_sha256": "8c45f2022fe06be63b36516a4326e00270c23d4423a76a2b2d1b9d7fe03c2e42",
+      "published_bytes": 1956,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/command.json",
+      "published_sha256": "8c45f2022fe06be63b36516a4326e00270c23d4423a76a2b2d1b9d7fe03c2e42"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 11762,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/stdout.txt",
+      "original_sha256": "ce87bd70f04032f722585caa437d87de574806e3c01707e6ba91bef2c8e404ca",
+      "published_bytes": 11762,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/stdout.txt",
+      "published_sha256": "ce87bd70f04032f722585caa437d87de574806e3c01707e6ba91bef2c8e404ca"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 83,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/stderr.txt",
+      "original_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011",
+      "published_bytes": 83,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/stderr.txt",
+      "published_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 21976,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/origins.json",
+      "original_sha256": "c466fcef25699fdd50277ff51a68cadf9dff81e1649a57e25ddf0df0d6462494",
+      "published_bytes": 21976,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/origins.json",
+      "published_sha256": "c466fcef25699fdd50277ff51a68cadf9dff81e1649a57e25ddf0df0d6462494"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 3260,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro5/oracle.json",
+      "original_sha256": "d5b529702b7628baa662b7f9afb12f0e90a3165f21754bf26fa7d786c7805c32",
+      "published_bytes": 3260,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro5/oracle.json",
+      "published_sha256": "d5b529702b7628baa662b7f9afb12f0e90a3165f21754bf26fa7d786c7805c32"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1954,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/command.json",
+      "original_sha256": "5f54af17a57e5d8acc465867a60767b0da4748b7d764c0c826ef58ef9ac5d4cf",
+      "published_bytes": 1954,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/command.json",
+      "published_sha256": "5f54af17a57e5d8acc465867a60767b0da4748b7d764c0c826ef58ef9ac5d4cf"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 12212,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/stdout.txt",
+      "original_sha256": "07aab558a0ae152642e4818e0e584c19898de712d2d32a886c2e36d45abdb6a3",
+      "published_bytes": 12212,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/stdout.txt",
+      "published_sha256": "07aab558a0ae152642e4818e0e584c19898de712d2d32a886c2e36d45abdb6a3"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 83,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/stderr.txt",
+      "original_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011",
+      "published_bytes": 83,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/stderr.txt",
+      "published_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 21976,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/origins.json",
+      "original_sha256": "c9e419e4accd5d688c5f165f92dbaab712ec96aeb9d162b4c39030e73cc1aa4a",
+      "published_bytes": 21976,
+      "published_path": "native-evidence/dfk-cli-protocol/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/origins.json",
+      "published_sha256": "c9e419e4accd5d688c5f165f92dbaab712ec96aeb9d162b4c39030e73cc1aa4a"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2065,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/command.json",
+      "original_sha256": "55440c500a3112ca677e66afdc8c909360527f97f671d3d8b50f3800856494f9",
+      "published_bytes": 2065,
+      "published_path": "native-evidence/dfk-remove-old-classifier/command.json",
+      "published_sha256": "55440c500a3112ca677e66afdc8c909360527f97f671d3d8b50f3800856494f9"
+    },
+    {
+      "encoding": "lossless_gzip",
+      "original_bytes": 71515,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/stdout.txt",
+      "original_sha256": "424f2e672faef4a006bb949a2e15acad8ec29bdfc1321f61edccf47367f039ad",
+      "published_bytes": 5211,
+      "published_path": "native-evidence/dfk-remove-old-classifier/stdout.txt.gz",
+      "published_sha256": "5314b0380d568f13d55e382d16d0ba55182b0ba25879a0b9d9fd0a80a773c60d"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 0,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_bytes": 0,
+      "published_path": "native-evidence/dfk-remove-old-classifier/stderr.txt",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "encoding": "lossless_gzip",
+      "original_bytes": 53753,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/junit.xml",
+      "original_sha256": "a3a2f1958bceb52b06f73f7efb7d71500dda4120617087687c78492c6efa867f",
+      "published_bytes": 3519,
+      "published_path": "native-evidence/dfk-remove-old-classifier/junit.xml.gz",
+      "published_sha256": "abdb5b90b1ae0380357ffebfbecac73fb02d5e32408f3c8646321657c34aa20a"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 13442,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/origins.json",
+      "original_sha256": "2d4770578c366d049203e437944a782f7fe3567b1f0ee1631f625d0ac7a53a2a",
+      "published_bytes": 13442,
+      "published_path": "native-evidence/dfk-remove-old-classifier/origins.json",
+      "published_sha256": "2d4770578c366d049203e437944a782f7fe3567b1f0ee1631f625d0ac7a53a2a"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2864,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro0/oracle.json",
+      "original_sha256": "1c0f35ba048f3ff89dc183e8beeee690a99050e7054bc7ccf0a730210cd0b622",
+      "published_bytes": 2864,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro0/oracle.json",
+      "published_sha256": "1c0f35ba048f3ff89dc183e8beeee690a99050e7054bc7ccf0a730210cd0b622"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2065,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/command.json",
+      "original_sha256": "f40bf106212a6039641cd312053797bfcfd3012379ea19075219e7e5abf333bb",
+      "published_bytes": 2065,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/command.json",
+      "published_sha256": "f40bf106212a6039641cd312053797bfcfd3012379ea19075219e7e5abf333bb"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 11472,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/stdout.txt",
+      "original_sha256": "9ee7b7503ee6f747b5943d794d8d7c01babfc7306d7e089e2770ad1aa107e765",
+      "published_bytes": 11472,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/stdout.txt",
+      "published_sha256": "9ee7b7503ee6f747b5943d794d8d7c01babfc7306d7e089e2770ad1aa107e765"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 83,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/stderr.txt",
+      "original_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011",
+      "published_bytes": 83,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/stderr.txt",
+      "published_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 21960,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/origins.json",
+      "original_sha256": "3d41fdd85d72872af504ed2df0f8af04a31a068c49a122c1fbee3af9f3387802",
+      "published_bytes": 21960,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro0/canonical-cli/origins.json",
+      "published_sha256": "3d41fdd85d72872af504ed2df0f8af04a31a068c49a122c1fbee3af9f3387802"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2950,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro1/oracle.json",
+      "original_sha256": "be3fe97ab5d281dc553541309b2a24d7ce985a0802ea0e4c663b15a35bdf2bd0",
+      "published_bytes": 2950,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro1/oracle.json",
+      "published_sha256": "be3fe97ab5d281dc553541309b2a24d7ce985a0802ea0e4c663b15a35bdf2bd0"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2079,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/command.json",
+      "original_sha256": "46b23a312919f320d54156594d0d2a168dcc2b2957cc390c1707d3444a845ff4",
+      "published_bytes": 2079,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/command.json",
+      "published_sha256": "46b23a312919f320d54156594d0d2a168dcc2b2957cc390c1707d3444a845ff4"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 11460,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/stdout.txt",
+      "original_sha256": "0afe77d6c5457ee42f5bf7e4471f53ab00e0cf708b30c010ebfe33e98fce83c2",
+      "published_bytes": 11460,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/stdout.txt",
+      "published_sha256": "0afe77d6c5457ee42f5bf7e4471f53ab00e0cf708b30c010ebfe33e98fce83c2"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 83,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/stderr.txt",
+      "original_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011",
+      "published_bytes": 83,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/stderr.txt",
+      "published_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 21974,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/origins.json",
+      "original_sha256": "dfed2f0ac8c54588b633bad74d83ffe966a64f8a6e97f21b2e3bb657ef427f7c",
+      "published_bytes": 21974,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro1/canonical-cli/origins.json",
+      "published_sha256": "dfed2f0ac8c54588b633bad74d83ffe966a64f8a6e97f21b2e3bb657ef427f7c"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 3049,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro2/oracle.json",
+      "original_sha256": "52c1f20177bb0660d725d41c90afc3a503bc9870abe47b8050bac7083bbbc365",
+      "published_bytes": 3049,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro2/oracle.json",
+      "published_sha256": "52c1f20177bb0660d725d41c90afc3a503bc9870abe47b8050bac7083bbbc365"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2091,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/command.json",
+      "original_sha256": "2c278f50bf70b1919c5f3597998f5213a46f53331b6d2018517504d4e85e61d0",
+      "published_bytes": 2091,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/command.json",
+      "published_sha256": "2c278f50bf70b1919c5f3597998f5213a46f53331b6d2018517504d4e85e61d0"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 11412,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/stdout.txt",
+      "original_sha256": "f187fc2371bde366af02e4e8d258237d3695784919cac3d91279182f9a4d357e",
+      "published_bytes": 11412,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/stdout.txt",
+      "published_sha256": "f187fc2371bde366af02e4e8d258237d3695784919cac3d91279182f9a4d357e"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 83,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/stderr.txt",
+      "original_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011",
+      "published_bytes": 83,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/stderr.txt",
+      "published_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 21974,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/origins.json",
+      "original_sha256": "cc2b43fd9f4a1d2973e1ad126b3a17a15018eac5154386ba17f822a0c71d140f",
+      "published_bytes": 21974,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro2/canonical-cli/origins.json",
+      "published_sha256": "cc2b43fd9f4a1d2973e1ad126b3a17a15018eac5154386ba17f822a0c71d140f"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 3273,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro3/oracle.json",
+      "original_sha256": "72709b0d0ec3015601a544c1129d43a3dfaae22d353d368591fac83cd200fb2a",
+      "published_bytes": 3273,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro3/oracle.json",
+      "published_sha256": "72709b0d0ec3015601a544c1129d43a3dfaae22d353d368591fac83cd200fb2a"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2080,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/command.json",
+      "original_sha256": "35e5bdfd9884dfe99099f206f047a1b81c23819b30d14fe556bf961b17b94d60",
+      "published_bytes": 2080,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/command.json",
+      "published_sha256": "35e5bdfd9884dfe99099f206f047a1b81c23819b30d14fe556bf961b17b94d60"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 12178,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/stdout.txt",
+      "original_sha256": "3e17b0b80cf4da2caa60458e8614135147f7dc1a80d6756c00b8612a7815f6c5",
+      "published_bytes": 12178,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/stdout.txt",
+      "published_sha256": "3e17b0b80cf4da2caa60458e8614135147f7dc1a80d6756c00b8612a7815f6c5"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 83,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/stderr.txt",
+      "original_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011",
+      "published_bytes": 83,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/stderr.txt",
+      "published_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 21974,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/origins.json",
+      "original_sha256": "062d369d74c489ae7258e6288d84424bdefc29e4f3c744e3ed1dedbeef1bf248",
+      "published_bytes": 21974,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro3/canonical-cli/origins.json",
+      "published_sha256": "062d369d74c489ae7258e6288d84424bdefc29e4f3c744e3ed1dedbeef1bf248"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 3224,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro4/oracle.json",
+      "original_sha256": "9b9c91fd0e051115f5f3877acdb7a7356c2d9ba0127bea26b27ecc22be6b014a",
+      "published_bytes": 3224,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro4/oracle.json",
+      "published_sha256": "9b9c91fd0e051115f5f3877acdb7a7356c2d9ba0127bea26b27ecc22be6b014a"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2092,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/command.json",
+      "original_sha256": "68005abf7564bfa9993c57886ee8b9163a2afc3197e108b08ee9b650bb7a5ee6",
+      "published_bytes": 2092,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/command.json",
+      "published_sha256": "68005abf7564bfa9993c57886ee8b9163a2afc3197e108b08ee9b650bb7a5ee6"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 11662,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/stdout.txt",
+      "original_sha256": "0de49dfd3937592bd67cf11368877b2a37e7867cbe0ac8f950fc3400bf5e9eea",
+      "published_bytes": 11662,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/stdout.txt",
+      "published_sha256": "0de49dfd3937592bd67cf11368877b2a37e7867cbe0ac8f950fc3400bf5e9eea"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 83,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/stderr.txt",
+      "original_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011",
+      "published_bytes": 83,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/stderr.txt",
+      "published_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 21974,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/origins.json",
+      "original_sha256": "b4d7210c052cabbafd941ced161190f8a83f625a8dd4784db90ccd86bb183955",
+      "published_bytes": 21974,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro4/canonical-cli/origins.json",
+      "published_sha256": "b4d7210c052cabbafd941ced161190f8a83f625a8dd4784db90ccd86bb183955"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 3275,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/oracle.json",
+      "original_sha256": "65c3b9c637584c3142c21a38116db35ea6cd18575307241230756a9727284fed",
+      "published_bytes": 3275,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/oracle.json",
+      "published_sha256": "65c3b9c637584c3142c21a38116db35ea6cd18575307241230756a9727284fed"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2078,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/command.json",
+      "original_sha256": "4b04600bf7af0843f8a02a46c0a7682b12f1476d27dd5b65a1fc988b7ea884dd",
+      "published_bytes": 2078,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/command.json",
+      "published_sha256": "4b04600bf7af0843f8a02a46c0a7682b12f1476d27dd5b65a1fc988b7ea884dd"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 12178,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/stdout.txt",
+      "original_sha256": "ccc0b207adc4fa7512b3ade1417672bb50a22406c4fe88b33f26a0ec65b97bdc",
+      "published_bytes": 12178,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/stdout.txt",
+      "published_sha256": "ccc0b207adc4fa7512b3ade1417672bb50a22406c4fe88b33f26a0ec65b97bdc"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 83,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/stderr.txt",
+      "original_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011",
+      "published_bytes": 83,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/stderr.txt",
+      "published_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 21974,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/origins.json",
+      "original_sha256": "0ccb0e7d628561f94c308881f7eff5a5f42c6a7926ad8a7d71ca1eb1a1ba73d9",
+      "published_bytes": 21974,
+      "published_path": "native-evidence/dfk-remove-old-classifier/pytest-tmp/test_fresh_G_canonical_cli_pro5/canonical-cli/origins.json",
+      "published_sha256": "0ccb0e7d628561f94c308881f7eff5a5f42c6a7926ad8a7d71ca1eb1a1ba73d9"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2093,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/command.json",
+      "original_sha256": "f1bbcbcc2141239d7085adf28edccce566cb6fe7dcf02b18b16bcef4b1c3f788",
+      "published_bytes": 2093,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/command.json",
+      "published_sha256": "f1bbcbcc2141239d7085adf28edccce566cb6fe7dcf02b18b16bcef4b1c3f788"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 6501,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/stdout.txt",
+      "original_sha256": "ce3fcabf8e9504be56b1627e7005e70c83ef02dc5014a035c08035f038e8ee1f",
+      "published_bytes": 6501,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/stdout.txt",
+      "published_sha256": "ce3fcabf8e9504be56b1627e7005e70c83ef02dc5014a035c08035f038e8ee1f"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 0,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_bytes": 0,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/stderr.txt",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "encoding": "lossless_gzip",
+      "original_bytes": 935,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/junit.xml",
+      "original_sha256": "80271bd61cf4323f2dc0131acc38e3edc531695e3b704365a655cbc17cc4ddda",
+      "published_bytes": 319,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/junit.xml.gz",
+      "published_sha256": "adc379326b32832c6a5457e10fcf7825ee739fded8f553770941cbf91f093284"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 13442,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/origins.json",
+      "original_sha256": "cc9efc7deec42e5e65b9bad3aacc88d1b259eab987555d4ea9a79ccb5d1f1e9b",
+      "published_bytes": 13442,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/origins.json",
+      "published_sha256": "cc9efc7deec42e5e65b9bad3aacc88d1b259eab987555d4ea9a79ccb5d1f1e9b"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1226,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m0/boundary.json",
+      "original_sha256": "838338be16835068c9b46f8764a85e51e8a4a19cf6e73d71e758ce9ebee08e14",
+      "published_bytes": 1226,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m0/boundary.json",
+      "published_sha256": "838338be16835068c9b46f8764a85e51e8a4a19cf6e73d71e758ce9ebee08e14"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1966,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m0/canonical-cli/command.json",
+      "original_sha256": "3b49cd04d44f9c65e1072753e89d92f074cb1e89b2922b6efe40ed8d565c8035",
+      "published_bytes": 1966,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m0/canonical-cli/command.json",
+      "published_sha256": "3b49cd04d44f9c65e1072753e89d92f074cb1e89b2922b6efe40ed8d565c8035"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 9016,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m0/canonical-cli/stdout.txt",
+      "original_sha256": "84ecc87eeb783e4d8ee6e2a81ac6d49dbd07555459ec12b77a76f8d4b14ccdf3",
+      "published_bytes": 9016,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m0/canonical-cli/stdout.txt",
+      "published_sha256": "84ecc87eeb783e4d8ee6e2a81ac6d49dbd07555459ec12b77a76f8d4b14ccdf3"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 83,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m0/canonical-cli/stderr.txt",
+      "original_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011",
+      "published_bytes": 83,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m0/canonical-cli/stderr.txt",
+      "published_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 21976,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m0/canonical-cli/origins.json",
+      "original_sha256": "ce6aa76bc8e9dc5d35e7d071e0158154fac1cc41d33d3b586dd6edd549f7a446",
+      "published_bytes": 21976,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m0/canonical-cli/origins.json",
+      "published_sha256": "ce6aa76bc8e9dc5d35e7d071e0158154fac1cc41d33d3b586dd6edd549f7a446"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1225,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m1/boundary.json",
+      "original_sha256": "eaec22b318ebedf6a48ecf997552d4507083a36da12fbb027bbbf1ca3c0ead8d",
+      "published_bytes": 1225,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m1/boundary.json",
+      "published_sha256": "eaec22b318ebedf6a48ecf997552d4507083a36da12fbb027bbbf1ca3c0ead8d"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1977,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m1/canonical-cli/command.json",
+      "original_sha256": "2a045adb2b5f42f4cef8bc1104b0f127b141e9d0fc3b6574bbe5f8faf87892ce",
+      "published_bytes": 1977,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m1/canonical-cli/command.json",
+      "published_sha256": "2a045adb2b5f42f4cef8bc1104b0f127b141e9d0fc3b6574bbe5f8faf87892ce"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 9016,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m1/canonical-cli/stdout.txt",
+      "original_sha256": "0498a42b255e92749bdd630e5b389530d7a226aa456155fe2afaa9076831c43c",
+      "published_bytes": 9016,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m1/canonical-cli/stdout.txt",
+      "published_sha256": "0498a42b255e92749bdd630e5b389530d7a226aa456155fe2afaa9076831c43c"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 83,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m1/canonical-cli/stderr.txt",
+      "original_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011",
+      "published_bytes": 83,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m1/canonical-cli/stderr.txt",
+      "published_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 21976,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m1/canonical-cli/origins.json",
+      "original_sha256": "106a601b183ee6a0b8bbd467044aa188052a80b56e820b174a7319f1abf8f1c4",
+      "published_bytes": 21976,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m1/canonical-cli/origins.json",
+      "published_sha256": "106a601b183ee6a0b8bbd467044aa188052a80b56e820b174a7319f1abf8f1c4"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1224,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m2/boundary.json",
+      "original_sha256": "5011ade387ad827f9b2ab29ae9439f3d12c02ee306f37a5ae6bf2a34c937f480",
+      "published_bytes": 1224,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m2/boundary.json",
+      "published_sha256": "5011ade387ad827f9b2ab29ae9439f3d12c02ee306f37a5ae6bf2a34c937f480"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1978,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m2/canonical-cli/command.json",
+      "original_sha256": "210d592389445a7c1ab1ba9d86e8c8e7f5b838d30d2f694cb511b5d0b45b0f11",
+      "published_bytes": 1978,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m2/canonical-cli/command.json",
+      "published_sha256": "210d592389445a7c1ab1ba9d86e8c8e7f5b838d30d2f694cb511b5d0b45b0f11"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 8681,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m2/canonical-cli/stdout.txt",
+      "original_sha256": "4e7abe3806a150b8cd672e5f9467ec7290d68cd553beba254c714cf280d10210",
+      "published_bytes": 8681,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m2/canonical-cli/stdout.txt",
+      "published_sha256": "4e7abe3806a150b8cd672e5f9467ec7290d68cd553beba254c714cf280d10210"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 83,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m2/canonical-cli/stderr.txt",
+      "original_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011",
+      "published_bytes": 83,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m2/canonical-cli/stderr.txt",
+      "published_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 21976,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m2/canonical-cli/origins.json",
+      "original_sha256": "04d884841b9230adf2254e022b188abe24f291fe128035ee091afdde2659b3d7",
+      "published_bytes": 21976,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m2/canonical-cli/origins.json",
+      "published_sha256": "04d884841b9230adf2254e022b188abe24f291fe128035ee091afdde2659b3d7"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1224,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m3/boundary.json",
+      "original_sha256": "1f9bd432570b680303392198e51ab548c3fae9bc993d5fdedc1e0854657fe86a",
+      "published_bytes": 1224,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m3/boundary.json",
+      "published_sha256": "1f9bd432570b680303392198e51ab548c3fae9bc993d5fdedc1e0854657fe86a"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1979,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m3/canonical-cli/command.json",
+      "original_sha256": "21698cf9420ab1f66f2aca38c80331185dec309553925a5abe2bd2c9c7e67062",
+      "published_bytes": 1979,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m3/canonical-cli/command.json",
+      "published_sha256": "21698cf9420ab1f66f2aca38c80331185dec309553925a5abe2bd2c9c7e67062"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 8681,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m3/canonical-cli/stdout.txt",
+      "original_sha256": "03edbe2f4f6739423aab2d7847cab1b29a4d8174b6f6d00e8598bac05c3702d8",
+      "published_bytes": 8681,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m3/canonical-cli/stdout.txt",
+      "published_sha256": "03edbe2f4f6739423aab2d7847cab1b29a4d8174b6f6d00e8598bac05c3702d8"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 83,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m3/canonical-cli/stderr.txt",
+      "original_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011",
+      "published_bytes": 83,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m3/canonical-cli/stderr.txt",
+      "published_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 21976,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m3/canonical-cli/origins.json",
+      "original_sha256": "e33f530067f7d57a9da07a80b297d5fad3cf6130a5d5616abe3a6f26b9f1023b",
+      "published_bytes": 21976,
+      "published_path": "native-evidence/dfk-additional-boundary-modes/pytest-tmp/test_additional_cli_boundary_m3/canonical-cli/origins.json",
+      "published_sha256": "e33f530067f7d57a9da07a80b297d5fad3cf6130a5d5616abe3a6f26b9f1023b"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2075,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-json-missing-boundary/command.json",
+      "original_sha256": "fb5f0752db31bd5b5b359c1f39e2f80e88f289232d0b0b351db4a1726d24499e",
+      "published_bytes": 2075,
+      "published_path": "native-evidence/dfk-json-missing-boundary/command.json",
+      "published_sha256": "fb5f0752db31bd5b5b359c1f39e2f80e88f289232d0b0b351db4a1726d24499e"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2334,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-json-missing-boundary/stdout.txt",
+      "original_sha256": "7d57b424405369d97620fe1cf820f670d94391bec7ee13a3064d1c2c991f9135",
+      "published_bytes": 2334,
+      "published_path": "native-evidence/dfk-json-missing-boundary/stdout.txt",
+      "published_sha256": "7d57b424405369d97620fe1cf820f670d94391bec7ee13a3064d1c2c991f9135"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 0,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-json-missing-boundary/stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_bytes": 0,
+      "published_path": "native-evidence/dfk-json-missing-boundary/stderr.txt",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "encoding": "lossless_gzip",
+      "original_bytes": 385,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-json-missing-boundary/junit.xml",
+      "original_sha256": "767831276f1c39c2689aa655b5cefa52887611a556c4be884f26519f4ebdba6f",
+      "published_bytes": 260,
+      "published_path": "native-evidence/dfk-json-missing-boundary/junit.xml.gz",
+      "published_sha256": "dffbe6a65bcc10f08f41400a88def4a3d25619712f71d8b9e067cb17894ad37e"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 13442,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-json-missing-boundary/origins.json",
+      "original_sha256": "cc9efc7deec42e5e65b9bad3aacc88d1b259eab987555d4ea9a79ccb5d1f1e9b",
+      "published_bytes": 13442,
+      "published_path": "native-evidence/dfk-json-missing-boundary/origins.json",
+      "published_sha256": "cc9efc7deec42e5e65b9bad3aacc88d1b259eab987555d4ea9a79ccb5d1f1e9b"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1203,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-json-missing-boundary/pytest-tmp/test_json_boundary_missing_sel0/boundary.json",
+      "original_sha256": "47b96518198883d2434eb3c4bd5d0856ab13c0aa84488beec3616fc24c32ee51",
+      "published_bytes": 1203,
+      "published_path": "native-evidence/dfk-json-missing-boundary/pytest-tmp/test_json_boundary_missing_sel0/boundary.json",
+      "published_sha256": "47b96518198883d2434eb3c4bd5d0856ab13c0aa84488beec3616fc24c32ee51"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1959,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-json-missing-boundary/pytest-tmp/test_json_boundary_missing_sel0/canonical-cli/command.json",
+      "original_sha256": "e95b282d6a0c9e62ab2dc0f2fb8338b91c36cfe42d8d96403555f8e58070eec7",
+      "published_bytes": 1959,
+      "published_path": "native-evidence/dfk-json-missing-boundary/pytest-tmp/test_json_boundary_missing_sel0/canonical-cli/command.json",
+      "published_sha256": "e95b282d6a0c9e62ab2dc0f2fb8338b91c36cfe42d8d96403555f8e58070eec7"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 8681,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-json-missing-boundary/pytest-tmp/test_json_boundary_missing_sel0/canonical-cli/stdout.txt",
+      "original_sha256": "b0c5e0cd46de3049718ac3a0f177e268266f5a536edcdf3d2b760e0606fa9048",
+      "published_bytes": 8681,
+      "published_path": "native-evidence/dfk-json-missing-boundary/pytest-tmp/test_json_boundary_missing_sel0/canonical-cli/stdout.txt",
+      "published_sha256": "b0c5e0cd46de3049718ac3a0f177e268266f5a536edcdf3d2b760e0606fa9048"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 83,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-json-missing-boundary/pytest-tmp/test_json_boundary_missing_sel0/canonical-cli/stderr.txt",
+      "original_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011",
+      "published_bytes": 83,
+      "published_path": "native-evidence/dfk-json-missing-boundary/pytest-tmp/test_json_boundary_missing_sel0/canonical-cli/stderr.txt",
+      "published_sha256": "f3b277b306fdb4b62bfd94c4c5df66fab2990163dd39766402693571277fd011"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 21971,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-json-missing-boundary/pytest-tmp/test_json_boundary_missing_sel0/canonical-cli/origins.json",
+      "original_sha256": "b8ce5de0b6b698ae8f2cdf77ffcbd8caa6f31ead077977170a4195677d1bb4a4",
+      "published_bytes": 21971,
+      "published_path": "native-evidence/dfk-json-missing-boundary/pytest-tmp/test_json_boundary_missing_sel0/canonical-cli/origins.json",
+      "published_sha256": "b8ce5de0b6b698ae8f2cdf77ffcbd8caa6f31ead077977170a4195677d1bb4a4"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 516,
+      "original_path": "/workspace/orch02-r2/native-c06/mutants/dfk-old-classifier/mutation.diff",
+      "original_sha256": "d878aefa9edd23ebf91cfdb3d3f6ac89727c641d701adc642e1a8dba2d8e13ef",
+      "published_bytes": 516,
+      "published_path": "native-evidence/mutants/dfk-old-classifier/mutation.diff",
+      "published_sha256": "d878aefa9edd23ebf91cfdb3d3f6ac89727c641d701adc642e1a8dba2d8e13ef"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2565,
+      "original_path": "/workspace/orch02-r2/native-c06/harness/run_receipt.py",
+      "original_sha256": "58b497ebcc4637e953f0fa675922100712951bd800f18f715f2280e8dada5f9a",
+      "published_bytes": 2565,
+      "published_path": "native-evidence/harness/run_receipt.py",
+      "published_sha256": "58b497ebcc4637e953f0fa675922100712951bd800f18f715f2280e8dada5f9a"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 6269,
+      "original_path": "/workspace/orch02-r2/native-c06/harness/pytest_source_bound.py",
+      "original_sha256": "b4ad42370086c198108b5d6664087db32f28b94f0b2639e1429ad29b9f53d789",
+      "published_bytes": 6269,
+      "published_path": "native-evidence/harness/pytest_source_bound.py",
+      "published_sha256": "b4ad42370086c198108b5d6664087db32f28b94f0b2639e1429ad29b9f53d789"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 3706,
+      "original_path": "/workspace/orch02-r2/native-c06/harness/cli_source_bound.py",
+      "original_sha256": "3e3e8a7c5d6b84bb7e40b8fc3db870f95ea4a0fc74741db80474440513851ad3",
+      "published_bytes": 3706,
+      "published_path": "native-evidence/harness/cli_source_bound.py",
+      "published_sha256": "3e3e8a7c5d6b84bb7e40b8fc3db870f95ea4a0fc74741db80474440513851ad3"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 9155,
+      "original_path": "/workspace/orch02-r2/native-c06/harness/test_dfk_protocol.py",
+      "original_sha256": "aff5db5304d5375edfde4053b2d96dd117b037e32f7cf2173a7fa7818c6d1b9e",
+      "published_bytes": 9155,
+      "published_path": "native-evidence/harness/test_dfk_protocol.py",
+      "published_sha256": "aff5db5304d5375edfde4053b2d96dd117b037e32f7cf2173a7fa7818c6d1b9e"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 3196,
+      "original_path": "/workspace/orch02-r2/native-c06/harness/test_dfk_boundary_modes.py",
+      "original_sha256": "34720f96af33c9513986654bab277fbf58c78e5aa1811f75137f5efb0ac10923",
+      "published_bytes": 3196,
+      "published_path": "native-evidence/harness/test_dfk_boundary_modes.py",
+      "published_sha256": "34720f96af33c9513986654bab277fbf58c78e5aa1811f75137f5efb0ac10923"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 295,
+      "original_path": "/workspace/orch02-r2/native-c06/harness/test_dfk_json_missing.py",
+      "original_sha256": "349c964d9a96dc5a588426556bb475cf3f34b39a0dd5e9e5dc71d8bc93d33dc4",
+      "published_bytes": 295,
+      "published_path": "native-evidence/harness/test_dfk_json_missing.py",
+      "published_sha256": "349c964d9a96dc5a588426556bb475cf3f34b39a0dd5e9e5dc71d8bc93d33dc4"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 5362,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-input-preflight.json",
+      "original_sha256": "9520f0493e68d8e3940c76eb616808da07edc4702719af1a11d42ea59792fa78",
+      "published_bytes": 5362,
+      "published_path": "native-evidence/dfk-input-preflight.json",
+      "published_sha256": "9520f0493e68d8e3940c76eb616808da07edc4702719af1a11d42ea59792fa78"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 83216,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-final-manifest.json",
+      "original_sha256": "f3d4280372dec8bcce18b971ef80a0f9303d9a091843fb1773a557c071d53079",
+      "published_bytes": 83216,
+      "published_path": "native-evidence/dfk-final-manifest.json",
+      "published_sha256": "f3d4280372dec8bcce18b971ef80a0f9303d9a091843fb1773a557c071d53079"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1898,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-independent-native-review.json",
+      "original_sha256": "abc95e22a87e570162c46b3c6a0c6040b9663945396e389a78cf9a56a4f705bf",
+      "published_bytes": 1898,
+      "published_path": "native-evidence/dfk-independent-native-review.json",
+      "published_sha256": "abc95e22a87e570162c46b3c6a0c6040b9663945396e389a78cf9a56a4f705bf"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1743,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-independent-native-review.md",
+      "original_sha256": "108eef58dca4c525913964a03bbc0e8df08f27667f410c5ee4e0429c38f4ee4d",
+      "published_bytes": 1743,
+      "published_path": "native-evidence/dfk-independent-native-review.md",
+      "published_sha256": "108eef58dca4c525913964a03bbc0e8df08f27667f410c5ee4e0429c38f4ee4d"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 29454,
+      "original_path": "/workspace/orch02-r2/native-c06/dfk-publishable-companions.json",
+      "original_sha256": "2597b88cba208d00facfcdc58e9d75923b5993ef6aaa7a88beea91b306ae7f84",
+      "published_bytes": 29454,
+      "published_path": "native-evidence/dfk-publishable-companions.json",
+      "published_sha256": "2597b88cba208d00facfcdc58e9d75923b5993ef6aaa7a88beea91b306ae7f84"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 30606,
+      "original_path": "/workspace/orch02-r2/c06-dfk/source-reconciliation.json",
+      "original_sha256": "e6482a83176726e74ddac244746b1577bbb332ece5aff2e6bf532a4613930087",
+      "published_bytes": 30606,
+      "published_path": "author-evidence/source-reconciliation.json",
+      "published_sha256": "e6482a83176726e74ddac244746b1577bbb332ece5aff2e6bf532a4613930087"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2931854,
+      "original_path": "/workspace/orch02-r2/c06-dfk/full-git-input-denominator.json.gz",
+      "original_sha256": "9f46c50fd2e4fa2a3487a0fced72189f77669b2cffaa12581a272fa54881a1c6",
+      "published_bytes": 2931854,
+      "published_path": "author-evidence/full-git-input-denominator.json.gz",
+      "published_sha256": "9f46c50fd2e4fa2a3487a0fced72189f77669b2cffaa12581a272fa54881a1c6"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 149004,
+      "original_path": "/workspace/orch02-r2/c06-dfk/complete-input-dag.json.gz",
+      "original_sha256": "13b0049025813ae0985c8acc51295312428183e5a4c2118e26980a77761a6713",
+      "published_bytes": 149004,
+      "published_path": "author-evidence/complete-input-dag.json.gz",
+      "published_sha256": "13b0049025813ae0985c8acc51295312428183e5a4c2118e26980a77761a6713"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 6296,
+      "original_path": "/workspace/orch02-r2/c06-dfk/reconcile_inputs.py",
+      "original_sha256": "dc8b336a7778778367d9c99bde34d301ba10ca196b3d880f13a55fa8d4593eaa",
+      "published_bytes": 6296,
+      "published_path": "author-evidence/reconcile_inputs.py",
+      "published_sha256": "dc8b336a7778778367d9c99bde34d301ba10ca196b3d880f13a55fa8d4593eaa"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2849,
+      "original_path": "/workspace/orch02-r2/c06-dfk/actual-hook-installation.json",
+      "original_sha256": "f1bd22c4d3ab168a322d6aee3ade70949449003695bf986ded46f0be541382de",
+      "published_bytes": 2849,
+      "published_path": "author-evidence/actual-hook-installation.json",
+      "published_sha256": "f1bd22c4d3ab168a322d6aee3ade70949449003695bf986ded46f0be541382de"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 809,
+      "original_path": "/workspace/orch02-r2/c06-dfk/native-origin-bindings.json",
+      "original_sha256": "ab7d4a9b72f2f37eac20c88d2e5dbcb8d5e43576622358a5564cfbe5878a1007",
+      "published_bytes": 809,
+      "published_path": "author-evidence/native-origin-bindings.json",
+      "published_sha256": "ab7d4a9b72f2f37eac20c88d2e5dbcb8d5e43576622358a5564cfbe5878a1007"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 4597,
+      "original_path": "/workspace/orch02-r2/c06-dfk/public-adoption-obligations.json",
+      "original_sha256": "caac97063d53bac17e84034f9250f1316da66bfd093cf73a07bd65783a7af27d",
+      "published_bytes": 4597,
+      "published_path": "author-evidence/public-adoption-obligations.json",
+      "published_sha256": "caac97063d53bac17e84034f9250f1316da66bfd093cf73a07bd65783a7af27d"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1509,
+      "original_path": "/workspace/orch02-r2/c06-dfk/adoption-only-tool-reference-companion.diff",
+      "original_sha256": "3385137b17a7355e1fdefaddcbf6e7ac8055c0db315f12b6ce2ffaf419cc0a29",
+      "published_bytes": 1509,
+      "published_path": "author-evidence/adoption-only-tool-reference-companion.diff",
+      "published_sha256": "3385137b17a7355e1fdefaddcbf6e7ac8055c0db315f12b6ce2ffaf419cc0a29"
+    },
+    {
+      "encoding": "lossless_gzip",
+      "original_bytes": 2768,
+      "original_path": "/workspace/orch02-r2/c06-dfk/generated-tools-reference-companion-proposal.diff",
+      "original_sha256": "642bc288774a5beceb8111be25c294d9826bafb18fa7d7448206a76f0e9e35a7",
+      "published_bytes": 893,
+      "published_path": "author-evidence/generated-tools-reference-companion-proposal.diff.gz",
+      "published_sha256": "094132f1b96cbbf96cde807f31e962fd2cea52c6187fd9a6e3dee16e13e18757"
+    },
+    {
+      "encoding": "lossless_gzip",
+      "original_bytes": 409,
+      "original_path": "/workspace/orch02-r2/c06-dfk/tool-registry-external-git-companion-proposal.diff",
+      "original_sha256": "82d476b0ec29f044746c4bd506b3227ddc01ada040b6c7201ba53c4ddc875b66",
+      "published_bytes": 266,
+      "published_path": "author-evidence/tool-registry-external-git-companion-proposal.diff.gz",
+      "published_sha256": "fa19ae9011154d67ea6dc341e89a7a6924401153d9e883b0f3cd4915a4a1e2da"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 0,
+      "original_path": "/workspace/orch02-r2/c06-dfk/canonical-census-records-search.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_bytes": 0,
+      "published_path": "author-evidence/canonical-census-records-search.txt",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 0,
+      "original_path": "/workspace/orch02-r2/c06-dfk/G-tool-path-history.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_bytes": 0,
+      "published_path": "author-evidence/G-tool-path-history.txt",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 553,
+      "original_path": "/workspace/orch02-r2/c06-dfk/all-tool-path-history.txt",
+      "original_sha256": "f9f87f3320489786bc9009bc4712a632b0cf65c3402b37cd2d56944750aeca1c",
+      "published_bytes": 553,
+      "published_path": "author-evidence/all-tool-path-history.txt",
+      "published_sha256": "f9f87f3320489786bc9009bc4712a632b0cf65c3402b37cd2d56944750aeca1c"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2067,
+      "original_path": "/workspace/orch02-r2/c06-dfk/G-git-collector-candidates.txt",
+      "original_sha256": "fc8f64621987da6750880612f152fa8bd27293fd8ffb92b04bf85cf35d96c326",
+      "published_bytes": 2067,
+      "published_path": "author-evidence/G-git-collector-candidates.txt",
+      "published_sha256": "fc8f64621987da6750880612f152fa8bd27293fd8ffb92b04bf85cf35d96c326"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 11019,
+      "original_path": "/workspace/orch02-r2/c06-dfk/required-gates-summary.json",
+      "original_sha256": "bc7cc6b4e20efd900c1e9ee50f5115723245a046b468aa386f1c6ed579eb61de",
+      "published_bytes": 11019,
+      "published_path": "author-evidence/required-gates-summary.json",
+      "published_sha256": "bc7cc6b4e20efd900c1e9ee50f5115723245a046b468aa386f1c6ed579eb61de"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 564648,
+      "original_path": "/workspace/orch02-r2/c06-dfk/prior-invocation-classification.json",
+      "original_sha256": "1f9e1c3d850377237e7ca22bbe62f0c4cc548e0449feb14f57c25616fce3a60b",
+      "published_bytes": 564648,
+      "published_path": "author-evidence/prior-invocation-classification.json",
+      "published_sha256": "1f9e1c3d850377237e7ca22bbe62f0c4cc548e0449feb14f57c25616fce3a60b"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 3210,
+      "original_path": "/workspace/orch02-r2/c06-dfk/classify_prior_invocation.py",
+      "original_sha256": "a25436f82134ef8de04b0d96cb1c126b3a8d5c9d75e00384b499fad3a2153230",
+      "published_bytes": 3210,
+      "published_path": "author-evidence/classify_prior_invocation.py",
+      "published_sha256": "a25436f82134ef8de04b0d96cb1c126b3a8d5c9d75e00384b499fad3a2153230"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2193,
+      "original_path": "/workspace/orch02-r2/c06-dfk/run_author_gates.py",
+      "original_sha256": "4ebd8b04a9aa8748bf1737da5c71c7ccd8ddaada084442f423f0edfc03d7b961",
+      "published_bytes": 2193,
+      "published_path": "author-evidence/run_author_gates.py",
+      "published_sha256": "4ebd8b04a9aa8748bf1737da5c71c7ccd8ddaada084442f423f0edfc03d7b961"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2239,
+      "original_path": "/workspace/orch02-r2/c06-dfk/run_required_invocation.py",
+      "original_sha256": "7508347233a56b560cf6321b1d7747c6268fb9007389654465f1f37ea8e42f75",
+      "published_bytes": 2239,
+      "published_path": "author-evidence/run_required_invocation.py",
+      "published_sha256": "7508347233a56b560cf6321b1d7747c6268fb9007389654465f1f37ea8e42f75"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2386,
+      "original_path": "/workspace/orch02-r2/c06-dfk/run_required_architecture.py",
+      "original_sha256": "6c517d14b981fee633ee5d767079d2a05bf1efa8ad6e6b8c9d62f160001c669b",
+      "published_bytes": 2386,
+      "published_path": "author-evidence/run_required_architecture.py",
+      "published_sha256": "6c517d14b981fee633ee5d767079d2a05bf1efa8ad6e6b8c9d62f160001c669b"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 574,
+      "original_path": "/workspace/orch02-r2/c06-dfk/source-commit/command.json",
+      "original_sha256": "c80dfbc9f61eb9d9908d743051f17b584e82d9d336bbe3c78754f25035b3166f",
+      "published_bytes": 574,
+      "published_path": "author-evidence/source-commit/command.json",
+      "published_sha256": "c80dfbc9f61eb9d9908d743051f17b584e82d9d336bbe3c78754f25035b3166f"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 323,
+      "original_path": "/workspace/orch02-r2/c06-dfk/source-commit/stdout.txt",
+      "original_sha256": "958843ce44bad7d6c81216f95e52ed7768d1fa28c19054f6509d95df504b4ac5",
+      "published_bytes": 323,
+      "published_path": "author-evidence/source-commit/stdout.txt",
+      "published_sha256": "958843ce44bad7d6c81216f95e52ed7768d1fa28c19054f6509d95df504b4ac5"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 0,
+      "original_path": "/workspace/orch02-r2/c06-dfk/source-commit/stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_bytes": 0,
+      "published_path": "author-evidence/source-commit/stderr.txt",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 911,
+      "original_path": "/workspace/orch02-r2/c06-dfk/author-gates/ruff-check/command.json",
+      "original_sha256": "dbc54972a1e999b8646078c4e90deab4209ac3f59d3dae39b36041aa0bd3d1af",
+      "published_bytes": 911,
+      "published_path": "author-evidence/author-gates/ruff-check/command.json",
+      "published_sha256": "dbc54972a1e999b8646078c4e90deab4209ac3f59d3dae39b36041aa0bd3d1af"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 19,
+      "original_path": "/workspace/orch02-r2/c06-dfk/author-gates/ruff-check/stdout.txt",
+      "original_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "published_bytes": 19,
+      "published_path": "author-evidence/author-gates/ruff-check/stdout.txt",
+      "published_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 0,
+      "original_path": "/workspace/orch02-r2/c06-dfk/author-gates/ruff-check/stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_bytes": 0,
+      "published_path": "author-evidence/author-gates/ruff-check/stderr.txt",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 927,
+      "original_path": "/workspace/orch02-r2/c06-dfk/author-gates/ruff-format/command.json",
+      "original_sha256": "8f4eaf4a0a50bc9a4a2a33de83fb8cde5ccf17a7b0f8df486265df9e51f511f9",
+      "published_bytes": 927,
+      "published_path": "author-evidence/author-gates/ruff-format/command.json",
+      "published_sha256": "8f4eaf4a0a50bc9a4a2a33de83fb8cde5ccf17a7b0f8df486265df9e51f511f9"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 26,
+      "original_path": "/workspace/orch02-r2/c06-dfk/author-gates/ruff-format/stdout.txt",
+      "original_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "published_bytes": 26,
+      "published_path": "author-evidence/author-gates/ruff-format/stdout.txt",
+      "published_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 0,
+      "original_path": "/workspace/orch02-r2/c06-dfk/author-gates/ruff-format/stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_bytes": 0,
+      "published_path": "author-evidence/author-gates/ruff-format/stderr.txt",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 999,
+      "original_path": "/workspace/orch02-r2/c06-dfk/author-gates/mypy/command.json",
+      "original_sha256": "6c3d9c9a35aac92685944ea5ccac617e3ac36e74950f7d1b9f0cd8c7d54fe39c",
+      "published_bytes": 999,
+      "published_path": "author-evidence/author-gates/mypy/command.json",
+      "published_sha256": "6c3d9c9a35aac92685944ea5ccac617e3ac36e74950f7d1b9f0cd8c7d54fe39c"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 42,
+      "original_path": "/workspace/orch02-r2/c06-dfk/author-gates/mypy/stdout.txt",
+      "original_sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e",
+      "published_bytes": 42,
+      "published_path": "author-evidence/author-gates/mypy/stdout.txt",
+      "published_sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 0,
+      "original_path": "/workspace/orch02-r2/c06-dfk/author-gates/mypy/stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_bytes": 0,
+      "published_path": "author-evidence/author-gates/mypy/stderr.txt",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1061,
+      "original_path": "/workspace/orch02-r2/c06-dfk/author-gates/imports/command.json",
+      "original_sha256": "33f9ed1cda64954165381d75c914ca285189f223fda79bcc47b5cf89a5d492b8",
+      "published_bytes": 1061,
+      "published_path": "author-evidence/author-gates/imports/command.json",
+      "published_sha256": "33f9ed1cda64954165381d75c914ca285189f223fda79bcc47b5cf89a5d492b8"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 378,
+      "original_path": "/workspace/orch02-r2/c06-dfk/author-gates/imports/stdout.txt",
+      "original_sha256": "7ef1a0fff91d06b3fd9e9fbaceebaaee96d86c8d1b59870a053db9e881a3d53b",
+      "published_bytes": 378,
+      "published_path": "author-evidence/author-gates/imports/stdout.txt",
+      "published_sha256": "7ef1a0fff91d06b3fd9e9fbaceebaaee96d86c8d1b59870a053db9e881a3d53b"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 0,
+      "original_path": "/workspace/orch02-r2/c06-dfk/author-gates/imports/stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_bytes": 0,
+      "published_path": "author-evidence/author-gates/imports/stderr.txt",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 914,
+      "original_path": "/workspace/orch02-r2/c06-dfk/author-gates/architecture-nongenerated/command.json",
+      "original_sha256": "98432f040e0b9387415751a03fe52942ce1c8eb17e0aa8bf1aed67f50416d216",
+      "published_bytes": 914,
+      "published_path": "author-evidence/author-gates/architecture-nongenerated/command.json",
+      "published_sha256": "98432f040e0b9387415751a03fe52942ce1c8eb17e0aa8bf1aed67f50416d216"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 131418,
+      "original_path": "/workspace/orch02-r2/c06-dfk/author-gates/architecture-nongenerated/stdout.txt",
+      "original_sha256": "80a645b7b4f90ca3217411d62660a674895c373420a99b4a256ed43df596a061",
+      "published_bytes": 131418,
+      "published_path": "author-evidence/author-gates/architecture-nongenerated/stdout.txt",
+      "published_sha256": "80a645b7b4f90ca3217411d62660a674895c373420a99b4a256ed43df596a061"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 0,
+      "original_path": "/workspace/orch02-r2/c06-dfk/author-gates/architecture-nongenerated/stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_bytes": 0,
+      "published_path": "author-evidence/author-gates/architecture-nongenerated/stderr.txt",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1211,
+      "original_path": "/workspace/orch02-r2/c06-dfk/required-invocation/command.json",
+      "original_sha256": "f1efff567fc61f95883f3dde6bbec8307a97ce609dcabbf2a8f5fbe2c3a61e2f",
+      "published_bytes": 1211,
+      "published_path": "author-evidence/required-invocation/command.json",
+      "published_sha256": "f1efff567fc61f95883f3dde6bbec8307a97ce609dcabbf2a8f5fbe2c3a61e2f"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1346,
+      "original_path": "/workspace/orch02-r2/c06-dfk/required-invocation/stdout.txt",
+      "original_sha256": "4202fc50cfd9a73978d9771c8cf0cbadd3d3b3592b605ac62c707440576cc933",
+      "published_bytes": 1346,
+      "published_path": "author-evidence/required-invocation/stdout.txt",
+      "published_sha256": "4202fc50cfd9a73978d9771c8cf0cbadd3d3b3592b605ac62c707440576cc933"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 0,
+      "original_path": "/workspace/orch02-r2/c06-dfk/required-invocation/stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_bytes": 0,
+      "published_path": "author-evidence/required-invocation/stderr.txt",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 400,
+      "original_path": "/workspace/orch02-r2/c06-dfk/required-invocation/lossless.json",
+      "original_sha256": "f92b0ca16cf147daf8a6a520e907121bb930ffb8c82113cd6d0a834172ba0f67",
+      "published_bytes": 400,
+      "published_path": "author-evidence/required-invocation/lossless.json",
+      "published_sha256": "f92b0ca16cf147daf8a6a520e907121bb930ffb8c82113cd6d0a834172ba0f67"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 3253,
+      "original_path": "/workspace/orch02-r2/c06-dfk/required-invocation/compact-diagnostic.json",
+      "original_sha256": "bf13d78aa52a194294dcfc5396a3f544968072515b62f2c81e04d28a47988782",
+      "published_bytes": 3253,
+      "published_path": "author-evidence/required-invocation/compact-diagnostic.json",
+      "published_sha256": "bf13d78aa52a194294dcfc5396a3f544968072515b62f2c81e04d28a47988782"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1628,
+      "original_path": "/workspace/orch02-r2/c06-dfk/required-architecture/node-bootstrap/command.json",
+      "original_sha256": "cc3f26e5217f0ce3220f2fb1425aeffc5d358ad0fa7869e90d13e2be56f39a3a",
+      "published_bytes": 1628,
+      "published_path": "author-evidence/required-architecture/node-bootstrap/command.json",
+      "published_sha256": "cc3f26e5217f0ce3220f2fb1425aeffc5d358ad0fa7869e90d13e2be56f39a3a"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 581,
+      "original_path": "/workspace/orch02-r2/c06-dfk/required-architecture/node-bootstrap/stdout.txt",
+      "original_sha256": "0fad6a548f54099c1bac0cbd9ebb78fd71d50f8ee9493def6c9164b50056f762",
+      "published_bytes": 581,
+      "published_path": "author-evidence/required-architecture/node-bootstrap/stdout.txt",
+      "published_sha256": "0fad6a548f54099c1bac0cbd9ebb78fd71d50f8ee9493def6c9164b50056f762"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 0,
+      "original_path": "/workspace/orch02-r2/c06-dfk/required-architecture/node-bootstrap/stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_bytes": 0,
+      "published_path": "author-evidence/required-architecture/node-bootstrap/stderr.txt",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 1828,
+      "original_path": "/workspace/orch02-r2/c06-dfk/required-architecture/architecture/command.json",
+      "original_sha256": "3b3cc9cc464666f09fd460ed81368244705250bcb12dadb443fb6094a07c2268",
+      "published_bytes": 1828,
+      "published_path": "author-evidence/required-architecture/architecture/command.json",
+      "published_sha256": "3b3cc9cc464666f09fd460ed81368244705250bcb12dadb443fb6094a07c2268"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 132012,
+      "original_path": "/workspace/orch02-r2/c06-dfk/required-architecture/architecture/stdout.txt",
+      "original_sha256": "6cb41d3c00f74b54000dd8defdc25c8cb31640fe9937a174fb5c1187fbe4940e",
+      "published_bytes": 132012,
+      "published_path": "author-evidence/required-architecture/architecture/stdout.txt",
+      "published_sha256": "6cb41d3c00f74b54000dd8defdc25c8cb31640fe9937a174fb5c1187fbe4940e"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 0,
+      "original_path": "/workspace/orch02-r2/c06-dfk/required-architecture/architecture/stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_bytes": 0,
+      "published_path": "author-evidence/required-architecture/architecture/stderr.txt",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 31136,
+      "original_path": "/workspace/orch02-r2/reviews/c06-dfk-independent-source-review-1e2e7c6c.json",
+      "original_sha256": "b5c556d919862f3f3a309b332d2e9e05a6852ef58e1202dcfd068711ebcd7d9c",
+      "published_bytes": 31136,
+      "published_path": "reviews/c06-dfk-independent-source-review-1e2e7c6c.json",
+      "published_sha256": "b5c556d919862f3f3a309b332d2e9e05a6852ef58e1202dcfd068711ebcd7d9c"
+    },
+    {
+      "encoding": "identity",
+      "original_bytes": 2048,
+      "original_path": "/workspace/orch02-r2/reviews/c06-dfk-independent-source-review-1e2e7c6c.md",
+      "original_sha256": "542641937f87d62c30f012d2fb6485f04401b603a896d7a6ef0ee90434def060",
+      "published_bytes": 2048,
+      "published_path": "reviews/c06-dfk-independent-source-review-1e2e7c6c.md",
+      "published_sha256": "542641937f87d62c30f012d2fb6485f04401b603a896d7a6ef0ee90434def060"
+    }
+  ],
+  "raw_not_published": [
+    "required-invocation/receipt.json",
+    "required-invocation/receipt.json.gz",
+    "required-architecture/generated-freshness/**",
+    "candidate-tools-reference.md",
+    "native scratch fixtures and mutated production source snapshot"
+  ],
+  "rule": "Resolve original absolute scratch paths through this complete map; gzip members decode to exact original EOF-preserving bytes. Original manifest paths are not claimed committed verbatim.",
+  "schema": "policyos.orch02.r2.c06.dfk.publication-artifact-map.v1",
+  "source_inputs": [
+    {
+      "bytes": 1679,
+      "git_blob": "7997df813928d3d9415ba130507d1e193b45a577",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-orch02-r2-c06-dfk-census.toml",
+      "sha256": "81256a8fd3a049d7ab217717164c30e4dddf207ef8606f1151c768980e97f57e"
+    },
+    {
+      "bytes": 43587,
+      "git_blob": "4a4fafd6f210fed444b6ff4cd4bc662b3719a870",
+      "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+      "sha256": "27dacceb4bde9ceaa1b594175b8fb3f439a76dc118214fb9d9ed3787894b1be8"
+    },
+    {
+      "bytes": 31623,
+      "git_blob": "40d91dc181c38a71ff0b672e1991516ea86ed44d",
+      "path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "sha256": "a2ee2b6d21a1b5d5cf5e2484539ca5ca365f82a8d1b941344730e58f13625d42"
+    }
+  ],
+  "source_snapshots_published": false
+}

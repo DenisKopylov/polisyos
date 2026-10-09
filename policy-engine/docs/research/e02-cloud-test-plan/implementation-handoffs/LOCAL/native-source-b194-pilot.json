@@ -1,0 +1,388 @@
+{
+  "schema": "policyos.e02.local_slice_handoff.v2",
+  "slice_id": "native-source-b194-pilot",
+  "slice_base": {
+    "commit": "68b8ac5c32e03309ad888cb3799ad1c574fbdca7",
+    "tree": "7966c18c0557e8f43fd09e03f3c4eda9f987e458"
+  },
+  "candidate_source": {
+    "commit": "9e02a9f49c8b01026327a9f7c7e18711b13a96f2",
+    "tree": "881a950dccb7cdefacc636515aa7dd2bceadf928"
+  },
+  "parents": [
+    "68b8ac5c32e03309ad888cb3799ad1c574fbdca7"
+  ],
+  "source_footprint": [
+    {
+      "path": "policy-engine/.gitignore",
+      "change": "UNCHANGED",
+      "git_blob": "f7182b405a6cdd0076308adc9f79f16e4ae24359",
+      "sha256": "77274a4c3534450075f1a95890b59cbacb17ee2a914de3d24916ca308626723c"
+    },
+    {
+      "path": "policy-engine/architecture/exceptions/complexity.toml",
+      "change": "M",
+      "git_blob": "0a24727d2c4e5dc85317b39319622eb9c77bf635",
+      "sha256": "497475749708681b72f94c4d72e6539fb845778d94865628407f91e8b8e7b7bb"
+    },
+    {
+      "path": "policy-engine/architecture/module_size_budget.toml",
+      "change": "UNCHANGED",
+      "git_blob": "09612cd289b45308a6285f283727f12428afed55",
+      "sha256": "07fb68f704cd4f11b7fa57683ea4ee41371319529e4248de27ab136b9caf2682"
+    },
+    {
+      "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "change": "A",
+      "git_blob": "73ce50efc3d73d99ffb02f9597577a1c0806004c",
+      "sha256": "099e9304a2471f5b8b7248b0a63b09522e1b68c71d63aba6f0fea60f672245c4"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "change": "UNCHANGED",
+      "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "change": "UNCHANGED",
+      "git_blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "change": "UNCHANGED",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-09-e02-e11-welfare-monte-carlo-truthfulness.toml",
+      "change": "A",
+      "git_blob": "9f364d7f15e1236ebd43fa9382b4ff175be69ff3",
+      "sha256": "d7c12cbff3af34dca3625746c4456782a0c806ce16515a3c28d336aaca99f6bd"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "change": "M",
+      "git_blob": "b314ada2be53fb4afb56ba89c394b7998befd98f",
+      "sha256": "a84690d4f683a107a51afffd655e7a8b9e2550aceb0ca0ce406cf56b1393bc3c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "change": "M",
+      "git_blob": "0cbfe7efd8b62dafb316575946b632073f693da4",
+      "sha256": "f787817462174c52d3ffdce9586d74a1c42276af8f38fae08d73c5f8bb7beec2"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/__init__.py",
+      "change": "UNCHANGED",
+      "git_blob": "a0b19b5ce6a9bfd9f5d4149fbdbe76429d14fe29",
+      "sha256": "e33a7486224d5e15cd418ac4dab69bb38ac6b1593d739a4b7ac24ea4d477dfb3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "change": "UNCHANGED",
+      "git_blob": "ca14a6bf9cec51292cf457243f38191892c5828a",
+      "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/hashing.py",
+      "change": "UNCHANGED",
+      "git_blob": "0007ba9acac60ad77c58f85355eacece9150df56",
+      "sha256": "a32caf919317c5667ac02bde68fa6a1d0fa064e1edeb44c89bc066a14a9272c0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/uncertainty.py",
+      "change": "UNCHANGED",
+      "git_blob": "c3d3691b8debde6afd2beec2f93c33d6da1b08aa",
+      "sha256": "39098b2e757991cf87c9ced1ecd06ccfeca71b5cfa0dec568aa0f40d4ed17928"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "change": "M",
+      "git_blob": "f6988274c3e4e23c71db63f00520ec503084013e",
+      "sha256": "3298960b6b04d6eb7d0aa198ab602654fdfd9ff3c60b8cfa336e1161699997c6"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "change": "M",
+      "git_blob": "5c16ac5d412b40e7eafa132cb84c3a10c7158a93",
+      "sha256": "a550ae6d9523930c3b03cbc1a722f6eb50bcbc7739b1c1d046319ca1b8ab0526"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/welfare.py",
+      "change": "M",
+      "git_blob": "d60eb2ba12e14ddb50810650d916b4aefd14f858",
+      "sha256": "f1715d0e1f308af1fa7e3aa5bc064baf7b1e809b9af85e236da5b7221a227f37"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/registry/refs.py",
+      "change": "M",
+      "git_blob": "9ca9d7780daad6a5c1ae7a8ea647fad726f9a47b",
+      "sha256": "bbac14368f7091bf8135f621999e9b702d711c31a95e87e7ceaa1bd963c8fe72"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/README.md",
+      "change": "M",
+      "git_blob": "addd860ef4851b38dde41b48705e5c129f861793",
+      "sha256": "f022a368500464ab37e37784348d702cd6d93c0af521e6510da3e0626ef2969b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py",
+      "change": "M",
+      "git_blob": "011a826b96faf8bc7e3de59ba2a0001ec2d47d95",
+      "sha256": "4e289ee2c08dd30f97d619ca4792a1601be6ab462a044668830727fd54538369"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/outcome_sections.py",
+      "change": "A",
+      "git_blob": "4b677bc85f35451bab65058fb7dff5e14eabc38c",
+      "sha256": "31b0b5f5ad4e09c815550ee8082e73e67895f07e7595dd45282e9c0ebc9ea5ca"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "change": "M",
+      "git_blob": "6a9f6e3f22df8f9323f59d9dd3912ff0fd2ca38b",
+      "sha256": "b3873dd6ba6efcfe3e02fb07301bed8e0b2fb472bf239d2ab26defa258b2f854"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+      "change": "M",
+      "git_blob": "31cd060fd90819371f7beec645e0d99630a0e8fe",
+      "sha256": "29a9fb697e28cc49d569530e76446af99cb58988f1dc817aaeca494c3050f7d0"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/analytics/test_welfare_bundle.py",
+      "change": "M",
+      "git_blob": "b65c979e46e78a6ab365e0ae8c0d0ec4cbc4bef4",
+      "sha256": "3f9a035cd4349d3b93bae3f7bef2bf09d6be436cd264ba66913d8d5a6115668c"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+      "change": "M",
+      "git_blob": "2beefa152bf2f825875921061a647d5c60b3a387",
+      "sha256": "deb7a3a0b565232744851eb260a07fc1dd72d6c0691ca61a07b734ceb323bb7f"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_decision_packet_welfare.py",
+      "change": "M",
+      "git_blob": "2bcd05d8fa141ecbae4e693d4b820fda48c103a1",
+      "sha256": "8ed28b2506cf6c665226f068e92750050bd688159916c4ba50ce074ee4417212"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "change": "UNCHANGED",
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    }
+  ],
+  "selected_inputs": [],
+  "backend_profile": {
+    "backend_id": "macos-locked-runtime-ml",
+    "profile_id": "own-candidate-py314",
+    "environment_sha256": "6e1d879d43e31fbd847eec93e564b3f946218fd4bd07a2d05c3a3189f4a75ce3"
+  },
+  "commands": [
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_partial_failures_are_per_draw_provenanced_candidate_only",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_real_node_persists_aggregate_draw_report_and_exact_missing_set",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_complete_fixed_draws_preserve_candidate_authority_control",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_partial_welfare_draws_retain_terminal_outcomes_after_fresh_cas_readback",
+        "--tb=short"
+      ],
+      "cwd": "policy-engine",
+      "status": "UNRUN",
+      "unrun_reason": "No fresh B194 execution is admitted at the 9e02 source boundary; the observed environment is a scoped pilot and its numerical thread variables are unset. The root must freeze the final source/input/backend profile and run this composed command with the final thread policy before any property result is proposed."
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/scientist/nodes/test_decision_packet_welfare.py::test_decision_packet_includes_welfare_section",
+        "--tb=short"
+      ],
+      "cwd": "policy-engine",
+      "status": "UNRUN",
+      "unrun_reason": "This is the current Module A full-packet surface selector, not a B194 partial-result test. It must be run on the final freeze; its existing fixture is a manually persisted degraded WelfareBundle with intervals and cannot prove partial-draw semantics."
+    }
+  ],
+  "chain": {
+    "producer": "PropagateWelfareNode.execute -> _propagate_credible_interval Monte Carlo draw loop; the original generic implementation is MonteCarloPropagator._eval_and_record/_build_results",
+    "artifact": "CAS-persisted welfare_propagation_report plus WelfareSampleBundle and WelfareBundle; the IR refs/contracts bind those artifacts and their input lineage",
+    "bridge": "CAS persist/load and ExperimentState.artifacts_index -> BuildDecisionPacketNode.execute -> decision-packet welfare projection",
+    "consumer": "decision_packet.outcome_sections._build_welfare_section, assembled by decision_packet.builder.BuildDecisionPacketNode"
+  },
+  "controls": [
+    {
+      "control_id": "scoped-environment-observation",
+      "schema": "policyos.e02.local_environment_observation.v1",
+      "storage": "ignored_local_raw",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/final-source-precommit/environment-observation.json",
+      "sha256": "6e1d879d43e31fbd847eec93e564b3f946218fd4bd07a2d05c3a3189f4a75ce3",
+      "candidate_source": {
+        "commit": "9e02a9f49c8b01026327a9f7c7e18711b13a96f2",
+        "tree": "881a950dccb7cdefacc636515aa7dd2bceadf928"
+      },
+      "availability": "available_local_readback",
+      "scope": "9e02 scoped pilot only; runtime criterion UNRUN; not final source/input/backend freeze",
+      "profile": {
+        "backend_id": "macos-locked-runtime-ml",
+        "profile_id": "own-candidate-py314",
+        "python": "3.14.3",
+        "platform": "Darwin arm64 27.0.0",
+        "loaded_packages": 249,
+        "loaded_dependency_origins": [
+          "botorch",
+          "duckdb",
+          "fastapi",
+          "gpytorch",
+          "hnswlib",
+          "numpy",
+          "pydantic",
+          "ruff",
+          "scipy",
+          "torch"
+        ],
+        "source_config_lock_refs": [
+          "policy-engine/pyproject.toml@9e02a9f49c8b01026327a9f7c7e18711b13a96f2",
+          "policy-engine/uv.lock@9e02a9f49c8b01026327a9f7c7e18711b13a96f2",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml@9e02a9f49c8b01026327a9f7c7e18711b13a96f2",
+          "policy-engine/architecture/exceptions/complexity.toml@9e02a9f49c8b01026327a9f7c7e18711b13a96f2",
+          "policy-engine/architecture/module_size_budget.toml@9e02a9f49c8b01026327a9f7c7e18711b13a96f2"
+        ],
+        "numerical_threads_policy": "declared as 1; observed MKL/NUMEXPR/OMP/OPENBLAS/VECLIB thread variables are null"
+      }
+    },
+    {
+      "control_id": "canonical-root-configured-ruff",
+      "status": "PASS",
+      "scope": "syntax-only control; not B194 property evidence",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/final-source-precommit/canonical-root-cwd.json",
+        "sha256": "e92ffb66e49656eab19d7205f99ed19b9da52037d9ab3c6b5fb39636bcb1c6c0"
+      },
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet_support.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+        "policy-engine/tools/lib/docs_freshness.py",
+        "policy-engine/tools/devx/workspace/repository_sota_closeout.py",
+        "policy-engine/tools/quality/validation/check_docs_freshness_baseline.py",
+        "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py",
+        "policy-engine/tests/repo_quality/tools/test_docs_lifecycle.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/decide/test__decision_packet_contracts.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "exit_code": 0,
+      "stdout_ref": {
+        "storage": "ignored_local_raw",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/final-source-precommit/canonical-root-cwd.stdout",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "candidate_source": {
+          "commit": "9e02a9f49c8b01026327a9f7c7e18711b13a96f2",
+          "tree": "881a950dccb7cdefacc636515aa7dd2bceadf928"
+        },
+        "availability": "available_local_readback"
+      },
+      "stderr_ref": {
+        "storage": "ignored_local_raw",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/final-source-precommit/canonical-root-cwd.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "candidate_source": {
+          "commit": "9e02a9f49c8b01026327a9f7c7e18711b13a96f2",
+          "tree": "881a950dccb7cdefacc636515aa7dd2bceadf928"
+        },
+        "availability": "available_local_readback"
+      }
+    },
+    {
+      "control_id": "previous-welfare-b194-focused-cycle-17-tests",
+      "status": "historical_PASS_stale_source_not_reusable",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/welfare-b194-delta.md",
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/welfare-b194-focused-cycle-final.log",
+      "output_sha256": "ea7e42043fe412f164f9c5bf6cce253df3f958bdad1e0be17cca5bab4957fd72",
+      "reviewed_source_sha256": {
+        "propagate_welfare.py": "ac3de486fc4714499eab669fb66c77782cda2e4f1318f921b60399ccc79e4d09",
+        "test_propagate_welfare.py": "5f2f0f511f71b61bc37a759aaa8b18b3dd71bb91a8e521bd078c357f3dee3e74"
+      },
+      "candidate_source_sha256": {
+        "propagate_welfare.py": "b3873dd6ba6efcfe3e02fb07301bed8e0b2fb472bf239d2ab26defa258b2f854",
+        "test_propagate_welfare.py": "deb7a3a0b565232744851eb260a7f7fc1dd72d6c0691ca61a07b734ceb323bb7f"
+      },
+      "qualification": "prior retry/cause-cycle focused check; source hashes differ from this candidate"
+    }
+  ],
+  "consumer_surface": {
+    "consumer_id": "decision_packet.builder.BuildDecisionPacketNode.execute",
+    "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/outcome_sections.py",
+    "selector": "policy-engine/tests/unit/scientist/nodes/test_decision_packet_welfare.py::test_decision_packet_includes_welfare_section (surface selector; not a B194-partial selector)"
+  },
+  "limitations": [
+    "9e02 is a scoped source boundary; source-boundary.json declares whole_tree_input_backend_freeze=false.",
+    "The composed B194 command is UNRUN on this exact source; no occurrence result or closure is proposed.",
+    "The 9e02 environment observation is a source-boundary pilot. numerical_threads_policy=1 is a declaration; observed thread variables are null. Final execution must capture/enforce its exact profile.",
+    "The fresh-CAS Welfare test uses a deterministic callback and synthetic uniform input; no native model fit or authentic production payload was read.",
+    "The existing full Module A packet test is only a surface control: it uses a manually persisted degraded WelfareBundle with intervals, not the partial B194 draw output. A future B194-specific current-consumer selector must carry partial results through BuildDecisionPacketNode and assert partial status/no unconditional interval.",
+    "The original B194 reproduction is 100 fixed symmetric x in [-1,1], y=x, with 50 failures and mc_min_valid_samples=10. The current composed command does not itself bind that exact fixture; retain it as an acceptance gap unless the final source-bound test reproduces it.",
+    "monte_carlo.py and test_monte_carlo_b194.py are changed relative to original entry 93d6 but unchanged within slice base 68b8; both remain in this criterion footprint and final current-source wave.",
+    "B194 historical ledger and Appendix C statuses remain held; closure_now remains not_adjudicated. This pilot cannot change them or create formal G closure."
+  ],
+  "decision_refs": [
+    {
+      "kind": "prototype",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_partial_failures_are_per_draw_provenanced_candidate_only",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_real_node_persists_aggregate_draw_report_and_exact_missing_set",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_complete_fixed_draws_preserve_candidate_authority_control",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_partial_welfare_draws_retain_terminal_outcomes_after_fresh_cas_readback",
+        "--tb=short"
+      ],
+      "status": "UNRUN",
+      "qualification": "documentary criterion-bound planned check only; no prototype result is asserted",
+      "source_ref": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "commit": "9e02a9f49c8b01026327a9f7c7e18711b13a96f2",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+        "role": "prototype_result",
+        "covers": {
+          "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/113/criterion_refs/0",
+          "sha256": "47058d366d7ff7e11ed2348e96b2f56659a999f1f0839a02edc92804b295711e"
+        },
+        "candidate_source": {
+          "commit": "9e02a9f49c8b01026327a9f7c7e18711b13a96f2",
+          "tree": "881a950dccb7cdefacc636515aa7dd2bceadf928"
+        }
+      }
+    }
+  ],
+  "proposal_ids": [
+    "B194"
+  ],
+  "proposal_occurrences": [
+    {
+      "finding_id": "B194",
+      "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/113/criterion_refs/0",
+      "criterion_sha256": "47058d366d7ff7e11ed2348e96b2f56659a999f1f0839a02edc92804b295711e"
+    }
+  ],
+  "formal_closure_ids": []
+}
